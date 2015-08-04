@@ -71,19 +71,6 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     public ComServer refreshComServer (ComServer comServer);
 
     /**
-     * Refreshes the specified ComPort, i.e. checks for updates
-     * to the object and returns a new version if there were any changes.
-     * Returns exactly the same object if there are no changes.
-     * Returns <code>null</code> if the ComPort no longer exists because it was deleted or made obsolete
-     *
-     * @param comPort The ComPort
-     * @return The new version of the ComPort,
-     *         <code>null</code> if the ComPort was deleted or made obsolete or
-     *         exactly the same Comport if no changes were found
-     */
-    public ComPort refreshComPort (ComPort comPort);
-
-    /**
      * Finds and returns all the ComJobs that are ready
      * to be executed by the specified OutboundComPort.
      *

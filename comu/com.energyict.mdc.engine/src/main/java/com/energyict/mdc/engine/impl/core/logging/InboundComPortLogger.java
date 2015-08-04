@@ -29,14 +29,6 @@ public interface InboundComPortLogger {
     public void shuttingDown (String threadName);
 
     /**
-     * Logs that the specified {@link InboundComPort} is now monitoring for changes.
-     *
-     * @param comPort The InboundComPort
-     */
-    @Configuration(format = "Checking for changes applied to inbound ComPort {0}...", logLevel = LogLevel.INFO)
-    public void monitoringChanges (InboundComPort comPort);
-
-    /**
      * Logs that the specified thread is monitoring for incoming connections.
      *
      * @param threadName The name of the thread that is listening for incoming connections

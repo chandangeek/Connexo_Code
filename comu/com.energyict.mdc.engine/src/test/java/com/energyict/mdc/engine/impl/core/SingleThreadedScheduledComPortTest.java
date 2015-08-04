@@ -336,7 +336,6 @@ public class SingleThreadedScheduledComPortTest {
     public void testExecuteTasksWithNoWork() throws InterruptedException, BusinessException, SQLException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksWithNoWork");
-        when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
         SpySingleThreadedScheduledComPort scheduledComPort = new SpySingleThreadedScheduledComPort(comPort, comServerDAO, this.deviceCommandExecutor, this.serviceProvider);
         final CountDownLatch stopLatch = new CountDownLatch(NUMBER_OF_SIMULTANEOUS_CONNECTIONS);
         when(comServerDAO.findExecutableOutboundComTasks(comPort)).then(invocation -> {
@@ -366,7 +365,6 @@ public class SingleThreadedScheduledComPortTest {
     public void testExecuteTasksInParallel() throws InterruptedException, BusinessException, SQLException, ConnectionException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallel");
-        when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
         when(this.simultaneousConnectionTask1.connect(any(ComPort.class), anyList())).thenReturn(mock(ComChannel.class));
@@ -413,7 +411,6 @@ public class SingleThreadedScheduledComPortTest {
     public void testExecuteTasksInParallelWithConnectionFailure() throws ConnectionException, InterruptedException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallelWithConnectionFailure");
-        when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
@@ -462,7 +459,6 @@ public class SingleThreadedScheduledComPortTest {
     public void testExecuteTasksInParallelWithComTaskLockAttemptFailures() throws InterruptedException, BusinessException, SQLException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksInParallelWithComTaskLockAttemptFailures");
-        when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
         final List<ComJob> work = new ArrayList<>();
@@ -504,7 +500,6 @@ public class SingleThreadedScheduledComPortTest {
     public void testExecuteTasksOneByOne() throws InterruptedException, BusinessException, SQLException, ConnectionException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOne");
-        when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
@@ -544,7 +539,6 @@ public class SingleThreadedScheduledComPortTest {
     public void testExecuteTasksOneByOneWithConnectionFailure() throws InterruptedException, BusinessException, SQLException, ConnectionException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneWithConnectionFailure");
-        when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
@@ -590,7 +584,6 @@ public class SingleThreadedScheduledComPortTest {
         ComWindow comWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 4, DateTimeConstants.SECONDS_PER_HOUR * 6); // Window is from 4 am to 6 am
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneOutsideComWindow");
-        when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
@@ -639,7 +632,6 @@ public class SingleThreadedScheduledComPortTest {
         ComWindow comWindow = new ComWindow(DateTimeConstants.SECONDS_PER_HOUR * 4, DateTimeConstants.SECONDS_PER_HOUR * 9); // Window is from 4 am to 9 am
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneOutsideComWindow");
-        when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
         this.comChannel = new ComPortRelatedComChannelImpl(mock(ComChannel.class), comPort, clock, this.hexService, eventPublisher);
@@ -675,7 +667,6 @@ public class SingleThreadedScheduledComPortTest {
     public void testExecuteTasksOneByOneWithConnectionTaskLockAttemptFailures() throws InterruptedException, BusinessException, SQLException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         OutboundComPort comPort = this.mockComPort("testExecuteTasksOneByOneWithConnectionTaskLockAttemptFailures");
-        when(comServerDAO.refreshComPort(comPort)).thenReturn(comPort);
         when(comServerDAO.isStillPending(anyLong())).thenReturn(true);
         when(comServerDAO.areStillPending(anyCollection())).thenReturn(true);
         List<ComTaskExecution> work = new ArrayList<>();

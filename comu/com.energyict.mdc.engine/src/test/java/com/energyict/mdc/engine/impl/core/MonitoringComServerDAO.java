@@ -91,12 +91,6 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public ComPort refreshComPort (ComPort comPort) {
-        this.refreshComPort.increment();
-        return this.actual.refreshComPort(comPort);
-    }
-
-    @Override
     public List<ComJob> findExecutableOutboundComTasks (OutboundComPort comPort) {
         this.findExecutableComTasks.increment();
         return this.actual.findExecutableOutboundComTasks(comPort);
@@ -302,12 +296,6 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public ComServer refreshComServer (ComServer comServer) {
             this.verifier.verify(refreshComServer);
-            return null;
-        }
-
-        @Override
-        public ComPort refreshComPort (ComPort comPort) {
-            this.verifier.verify(refreshComPort);
             return null;
         }
 

@@ -52,6 +52,7 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     private boolean usesDefaultQueryApiPostUri = false;
     private String statusUri;
     private boolean usesDefaultStatusUri = false;
+    private long version;
 
     public MockOnlineComServer (String name) {
         super();
@@ -96,6 +97,11 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     @Override
     public Instant getModificationDate() {
         return Instant.now();
+    }
+
+    @Override
+    public long getVersion() {
+        return this.version;
     }
 
     @Override
@@ -439,7 +445,7 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
 
     @Override
     public void save() {
-
+        this.version++;
     }
 
     @Override

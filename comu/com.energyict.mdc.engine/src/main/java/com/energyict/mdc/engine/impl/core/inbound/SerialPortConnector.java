@@ -42,6 +42,7 @@ public class SerialPortConnector implements InboundComPortConnector {
      * The number of consecutive rings already received.
      */
     private int currentRingCount;
+    private ComPortRelatedComChannel comChannel;
 
     public SerialPortConnector(ModemBasedInboundComPort comPort, SerialComponentService serialComponentService, HexService hexService, EventPublisher eventPublisher, Clock clock) {
         super();
@@ -60,9 +61,16 @@ public class SerialPortConnector implements InboundComPortConnector {
         waitForNumberOfRings(comChannel, modemComponent);
         acceptCallAndConnect(comChannel, modemComponent);
 
-        return new ComPortRelatedComChannelImpl(comChannel, this.comPort, this.clock, this.hexService, eventPublisher);
+        this.comChannel = new ComPortRelatedComChannelImpl(comChannel, this.comPort, this.clock, this.hexService, eventPublisher);
+        return this.comChannel;
     }
 
+    @Override
+    public void close() throws Exception {
+        if (this.comChannel != null) {
+            this.comChannel.close();
+        }
+    }
 
     private void waitForNumberOfRings(SerialComChannel comChannel, ModemComponent modemComponent) {
         do {
@@ -122,7 +130,7 @@ public class SerialPortConnector implements InboundComPortConnector {
 
     /**
      * Creates a new {@link ComChannel}
-     * that uses a {@link ServerSerialPort} as the interface with the physical ComPort
+     * that uses a {@link ServerSerialPort} as the interface with the physical ComPort.
      *
      * @param serialPortConfiguration the configuration of the serialPort
      * @return the ComChannel
@@ -143,6 +151,7 @@ public class SerialPortConnector implements InboundComPortConnector {
     public int getCurrentRingCount() {
         return currentRingCount;
     }
+
 }
 
 // 5. Create the tests based on UDPPortConnectorTest

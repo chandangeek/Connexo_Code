@@ -1,12 +1,9 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactory;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.impl.events.EventPublisher;
-
-import java.util.concurrent.ThreadFactory;
 
 /**
  * Provides an implementation for the {@link ComPortListener} interface
@@ -21,44 +18,16 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
 
     private InboundComPortExecutorFactory inboundComPortExecutorFactory;
 
-    public SingleThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor, EventPublisher eventPublisher, ServiceProvider serviceProvider) {
-        this(comPort, comServerDAO, threadFactory, deviceCommandExecutor, new InboundComPortExecutorFactoryImpl(serviceProvider), eventPublisher, serviceProvider);
-    }
-
-    public SingleThreadedComPortListener(
-                        InboundComPort comPort,
-                        ComServerDAO comServerDAO,
-                        ThreadFactory threadFactory,
-                        DeviceCommandExecutor deviceCommandExecutor,
-                        InboundComPortExecutorFactory inboundComPortExecutorFactory,
-                        EventPublisher eventPublisher,
-                        ServiceProvider serviceProvider) {
-        this(comPort,
-                comServerDAO,
-                threadFactory,
-                deviceCommandExecutor,
-                inboundComPortExecutorFactory,
-                new InboundComPortConnectorFactoryImpl(
-                        serviceProvider.serialAtComponentService(),
-                        serviceProvider.socketService(),
-                        serviceProvider.hexService(),
-                        eventPublisher,
-                        serviceProvider.clock())
-        );
+    public SingleThreadedComPortListener(InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+        this(comPort, deviceCommandExecutor, serviceProvider, new InboundComPortExecutorFactoryImpl(serviceProvider));
     }
 
     public SingleThreadedComPortListener(
                 InboundComPort comPort,
-                ComServerDAO comServerDAO,
-                ThreadFactory threadFactory,
                 DeviceCommandExecutor deviceCommandExecutor,
-                InboundComPortExecutorFactory inboundComPortExecutorFactory,
-                InboundComPortConnectorFactory inboundComPortConnectorFactory) {
-        super(comPort,
-                comServerDAO,
-                inboundComPortConnectorFactory,
-                threadFactory,
-                deviceCommandExecutor);
+                ServiceProvider serviceProvider,
+                InboundComPortExecutorFactory inboundComPortExecutorFactory) {
+        super(comPort, deviceCommandExecutor, serviceProvider);
         this.inboundComPortExecutorFactory = inboundComPortExecutorFactory;
     }
 
@@ -69,12 +38,6 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
         /*
        Else no accept within the configured TimeOut, but this allows us to check for any changes
         */
-    }
-
-    @Override
-    protected void applyChangesForNewComPort(InboundComPort inboundComPort) {
-        // nothing to change.
-        // the only thing that can change is the inboundDiscoveryProtocol and that is directly fetched from the ComPort
     }
 
     /**

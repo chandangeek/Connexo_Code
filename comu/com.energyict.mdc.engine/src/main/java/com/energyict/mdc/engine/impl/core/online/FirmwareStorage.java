@@ -6,22 +6,25 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.*;
 import com.google.common.collect.Range;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
 
 /**
- * Provides functionality to create/update ActivatedFirmwareVersions
+ * Provides functionality to create/update {@link ActivatedFirmwareVersion}s.
  */
 public class FirmwareStorage {
 
-    private final ComServerDAOImpl.ServiceProvider serviceProvider;
+    private final FirmwareService firmwareService;
+    private final Clock clock;
 
-    public FirmwareStorage(ComServerDAOImpl.ServiceProvider serviceProvider) {
-        this.serviceProvider = serviceProvider;
+    public FirmwareStorage(FirmwareService firmwareService, Clock clock) {
+        this.firmwareService = firmwareService;
+        this.clock = clock;
     }
 
     private FirmwareService getFirmwareService() {
-        return this.serviceProvider.firmwareService();
+        return this.firmwareService;
     }
 
     void updateCommunicationFirmwareVersion(Optional<String> collectedCommunicationFirmwareVersion, Device device) {
@@ -63,7 +66,7 @@ public class FirmwareStorage {
     }
 
     private Instant now() {
-        return this.serviceProvider.clock().instant();
+        return this.clock.instant();
     }
 
     private ActivatedFirmwareVersion createNewActiveFirmwareVersion(Device device, FirmwareVersion collectedFirmwareVersion) {

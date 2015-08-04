@@ -12,6 +12,9 @@ import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.io.CommunicationException;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -24,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
 
-    private static final TimeDuration WAIT_AFTER_COMMUNICATION_TIMEOUT = new TimeDuration(1, TimeDuration.TimeUnit.MINUTES);
+    private static final Duration WAIT_AFTER_COMMUNICATION_TIMEOUT = Duration.ofMinutes(1);
 
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
     private InboundComPort comPort;
@@ -32,30 +35,23 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
     private ThreadFactory threadFactory;
     private String threadName;
     private Thread self;
-    private Thread changeConfigTimerThread;
-    private ChangeConfigTimer changeConfigTimer;
     private AtomicBoolean continueRunning;
     private DeviceCommandExecutor deviceCommandExecutor;
     private TimeDuration changesInterpollDelay;
     private LoggerHolder loggerHolder;
+    private Clock clock;
+    private Instant lastActivityTimestamp;
 
     /**
-     * Do the actual work for this Listener
+     * Do the actual work for this Listener.
      */
     protected abstract void doRun();
 
-    /**
-     * Apply configuration changes based on the given InboundComPort
-     *
-     * @param inboundComPort the inboundComPort containing new changes
-     */
-    protected abstract void applyChangesForNewComPort(InboundComPort inboundComPort);
-
-    protected ComPortListenerImpl(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor) {
-        this(comPort, comServerDAO, Executors.defaultThreadFactory(), deviceCommandExecutor);
+    protected ComPortListenerImpl(InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor) {
+        this(comPort, clock, comServerDAO, Executors.defaultThreadFactory(), deviceCommandExecutor);
     }
 
-    protected ComPortListenerImpl(InboundComPort comPort, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor) {
+    protected ComPortListenerImpl(InboundComPort comPort, Clock clock, ComServerDAO comServerDAO, ThreadFactory threadFactory, DeviceCommandExecutor deviceCommandExecutor) {
         super();
         this.loggerHolder = new LoggerHolder(comPort);
         this.doSetComPort(comPort);
@@ -63,8 +59,9 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
         this.comServerDAO = comServerDAO;
         this.threadFactory = threadFactory;
         this.deviceCommandExecutor = deviceCommandExecutor;
-        this.changeConfigTimer = new ChangeConfigTimer();
         this.changesInterpollDelay = comPort.getComServer().getChangesInterPollDelay();
+        this.clock = clock;
+        this.lastActivityTimestamp = clock.instant();
     }
 
     public TimeDuration getChangesInterpollDelay () {
@@ -94,6 +91,15 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
 
     public void setThreadName (String threadName) {
         this.threadName = threadName;
+    }
+
+    @Override
+    public Instant getLastActivityTimestamp() {
+        return this.lastActivityTimestamp;
+    }
+
+    protected void registerActivity() {
+        this.lastActivityTimestamp = this.clock.instant();
     }
 
     protected ComServerDAO getComServerDAO () {
@@ -127,9 +133,6 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
         this.self = this.threadFactory.newThread(this);
         this.self.setName(this.getThreadName());
         this.self.start();
-        this.changeConfigTimerThread = getThreadFactory().newThread(changeConfigTimer);
-        this.changeConfigTimerThread.setName("Changes monitor for inbound ComPort " + getComPort().getName());
-        this.changeConfigTimerThread.start();
         this.status = ServerProcessStatus.STARTED;
     }
 
@@ -147,8 +150,6 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
     protected void doShutdown () {
         this.status = ServerProcessStatus.SHUTTINGDOWN;
         this.continueRunning.set(false);
-        this.changeConfigTimer.stopTimer();
-        this.changeConfigTimerThread.interrupt();
         this.self.interrupt();
     }
 
@@ -169,30 +170,12 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
      */
     private void waitAfterCommunicationTimeOut() {
         try {
-            Thread.sleep(WAIT_AFTER_COMMUNICATION_TIMEOUT.getMilliSeconds());
+            Thread.sleep(WAIT_AFTER_COMMUNICATION_TIMEOUT.toMillis());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
     }
 
-
-    @Override
-    public void checkAndApplyChanges() {
-        this.getLogger().monitoringChanges(this.getComPort());
-        InboundComPort newVersion = (InboundComPort) this.getComServerDAO().refreshComPort(this.getComPort());
-        this.loggerHolder.reset(newVersion);
-        this.setComPort(this.applyChanges(newVersion, this.getComPort()));
-    }
-
-    protected InboundComPort applyChanges (InboundComPort newVersion, InboundComPort comPort) {
-        if (newVersion == null || newVersion == comPort) {
-            return comPort;
-        }
-        else {
-            applyChangesForNewComPort(newVersion);
-            return newVersion;
-        }
-    }
 
     protected DeviceCommandExecutor getDeviceCommandExecutor() {
         return this.deviceCommandExecutor;
@@ -206,51 +189,12 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
         return this.loggerHolder.get();
     }
 
-    /**
-     * Simple class to check and apply changes to this ComPort.
-     * It will sleep until the {@link com.energyict.mdc.engine.config.ComServer#getChangesInterPollDelay()}
-     * has expired, or someone calls {@link #stopTimer()}
-     */
-    protected class ChangeConfigTimer implements Runnable {
-
-        private AtomicBoolean running;
-
-        public ChangeConfigTimer() {
-            this.running = new AtomicBoolean(true);
-        }
-
-        @Override
-        public void run() {
-            while (this.running.get() &&!Thread.currentThread().isInterrupted()) {
-                this.doRun();
-            }
-        }
-
-        private void doRun() {
-            try {
-                Thread.sleep(getChangesInterpollDelay().getMilliSeconds());
-                checkAndApplyChanges();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-
-        public void setRunning(boolean state) {
-            this.running.set(state);
-        }
-
-        public void stopTimer(){
-            this.running.set(false);
-        }
-    }
-
     private class LoggerHolder {
-        private InboundComPort comPort;
         private InboundComPortLogger logger;
 
         private LoggerHolder(InboundComPort comPort) {
             super();
-            this.reset(comPort);
+            this.initialize(comPort);
         }
 
         private InboundComPortLogger get() {
@@ -269,8 +213,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
             return LogLevelMapper.forComServerLogLevel().toLogLevel(comServer.getServerLogLevel());
         }
 
-        public void reset(InboundComPort comPort) {
-            this.comPort = comPort;
+        public void initialize(InboundComPort comPort) {
             this.logger = this.newLogger(comPort);
         }
 

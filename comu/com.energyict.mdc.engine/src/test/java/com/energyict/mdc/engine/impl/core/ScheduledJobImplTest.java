@@ -40,6 +40,7 @@ import com.energyict.mdc.engine.impl.commands.store.PublishConnectionCompletionE
 import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ComPortType;
@@ -47,6 +48,8 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -68,6 +71,7 @@ import com.elster.jupiter.users.UserService;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -80,6 +84,8 @@ import org.junit.runner.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.MockSettings;
+import org.mockito.mock.MockCreationSettings;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -333,6 +339,9 @@ public class ScheduledJobImplTest {
         final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(comPort, blockingQueue, this.deviceCommandExecutor, this.transactionService, this.threadprincipalService, userService);
         final CountDownLatch startLatch = new CountDownLatch(2);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class, withSettings().extraInterfaces(ServerCollectedData.class));
+        when(collectedFirmwareVersion.getResultType()).thenReturn(ResultType.NotSupported);
+        when(deviceProtocol.getFirmwareVersions()).thenReturn(collectedFirmwareVersion);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
         Runnable jobRunnable = () -> {
@@ -398,6 +407,9 @@ public class ScheduledJobImplTest {
         final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(comPort, blockingQueue, this.deviceCommandExecutor, this.transactionService, this.threadprincipalService, userService);
         final CountDownLatch startLatch = new CountDownLatch(2);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class, withSettings().extraInterfaces(ServerCollectedData.class));
+        when(collectedFirmwareVersion.getResultType()).thenReturn(ResultType.NotSupported);
+        when(deviceProtocol.getFirmwareVersions()).thenReturn(collectedFirmwareVersion);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
         Thread jobThread = new Thread(() -> {
@@ -458,6 +470,9 @@ public class ScheduledJobImplTest {
         final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(comPort, blockingQueue, this.deviceCommandExecutor, this.transactionService, this.threadprincipalService, userService);
         final CountDownLatch startLatch = new CountDownLatch(2);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class, withSettings().extraInterfaces(ServerCollectedData.class));
+        when(collectedFirmwareVersion.getResultType()).thenReturn(ResultType.NotSupported);
+        when(deviceProtocol.getFirmwareVersions()).thenReturn(collectedFirmwareVersion);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
         Thread jobThread = new Thread(() -> {

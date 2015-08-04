@@ -21,6 +21,7 @@ import com.elster.jupiter.users.UserService;
 import org.joda.time.DateTimeConstants;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -65,6 +66,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     private TimeDuration schedulingInterpollDelay;
     private ScheduledComPortMonitor operationalMonitor;
     private LoggerHolder loggerHolder;
+    private Instant lastActivityTimestamp;
 
     public ScheduledComPortImpl(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         this(comPort, comServerDAO, deviceCommandExecutor, Executors.defaultThreadFactory(), serviceProvider);
@@ -80,6 +82,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         this.deviceCommandExecutor = deviceCommandExecutor;
         this.schedulingInterpollDelay = comPort.getComServer().getSchedulingInterPollDelay();
         this.loggerHolder = new LoggerHolder(comPort);
+        this.lastActivityTimestamp = this.serviceProvider.clock().instant();
     }
 
     protected abstract void setThreadPrinciple();
@@ -129,6 +132,11 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     @Override
     public void schedulingInterpollDelayChanged (TimeDuration schedulingInterpollDelay) {
         this.schedulingInterpollDelay = schedulingInterpollDelay;
+    }
+
+    @Override
+    public Instant getLastActivityTimestamp() {
+        return this.lastActivityTimestamp;
     }
 
     @Override
@@ -227,7 +235,8 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     private void queriedForTasks () {
-        this.getOperationalMonitor().getOperationalStatistics().setLastCheckForWorkTimestamp(Date.from(this.serviceProvider.clock().instant()));
+        this.lastActivityTimestamp = this.serviceProvider.clock().instant();
+        this.getOperationalMonitor().getOperationalStatistics().setLastCheckForWorkTimestamp(Date.from(this.lastActivityTimestamp));
     }
 
     private void scheduleAll(List<ComJob> jobs) {
