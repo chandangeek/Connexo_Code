@@ -152,7 +152,7 @@ Ext.define('Fim.view.importservices.AddImportService', {
                                 fieldLabel: Uni.I18n.translate('importService.folderScanEvery', 'FIM', 'Every'),
                                 labelWidth: 40,
                                 width: 120,
-                                maxValue: 60,
+                                maxValue: 10800,
                                 minValue: 1,
                                 defaultValue: 1,
                                 name: 'scanFrequency',
@@ -238,7 +238,7 @@ Ext.define('Fim.view.importservices.AddImportService', {
     frequencyScanNumberFieldValidation: function (field) {
         var value = field.getValue();
 
-        if (Ext.isEmpty(value) || value < field.minValue) {
+        if (Ext.isEmpty(value) || value < field.minValue || value > field.maxValue) {
             field.setValue(field.minValue);
         }
     }
