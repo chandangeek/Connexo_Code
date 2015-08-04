@@ -42,7 +42,7 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
 
         private final Counter successfulTasks = Counters.newStrictCounter();
         private final Counter failedTasks = Counters.newStrictCounter();
-        private final Counter notExecutedTasks = Counters.newStrictCounter();
+        private final Counter notExecutedTasks = Counters.newLenientNonNegativeCounter();
         private final List<ComTaskExecutionSessionBuilderImpl> comTaskExecutions = new ArrayList<>();
 
         @Override
@@ -115,9 +115,14 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
             };
         }
 
+        private void decrementNotExecutedTasks(int nrOfTasks){
+            notExecutedTasks.add(-nrOfTasks);
+        }
+
         @Override
         public ComSessionBuilder incrementFailedTasks(int numberOfFailedTasks) {
             failedTasks.add(numberOfFailedTasks);
+            decrementNotExecutedTasks(numberOfFailedTasks);
             return parentBuilder();
         }
 
@@ -157,6 +162,7 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         @Override
         public ComSessionBuilder incrementSuccessFulTasks(int numberOfSuccessFulTasks) {
             successfulTasks.add(numberOfSuccessFulTasks);
+            decrementNotExecutedTasks(numberOfSuccessFulTasks);
             return parentBuilder();
         }
 
