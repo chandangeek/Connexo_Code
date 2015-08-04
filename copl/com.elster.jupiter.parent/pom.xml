@@ -116,6 +116,25 @@
                 <artifactId>bndlib</artifactId>
                 <version>2.3.0</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.glassfish.hk2.external</groupId>
+                <artifactId>javax.inject</artifactId>
+                <version>2.3.0-b10</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.inject</groupId>
+                <artifactId>guice</artifactId>
+                <version>3.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.aopalliance</artifactId>
+                <version>1.0_6</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
