@@ -32,7 +32,7 @@ public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPool
             taskExecutionTimeout = this.taskExecutionTimeout.asTimeDuration();
         }
 
-        OutboundComPortPool outboundComPortPool = engineConfigurationService.newOutboundComPortPool(this.name, this.type, taskExecutionTimeout);
+        OutboundComPortPool outboundComPortPool = engineConfigurationService.newOutboundComPortPool(this.name, this.comPortType, taskExecutionTimeout);
         this.writeTo(outboundComPortPool);
         return outboundComPortPool;
     }

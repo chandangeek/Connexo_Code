@@ -27,7 +27,7 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
     public Boolean obsoleteFlag;
     public Instant obsoleteDate;
     @XmlJavaTypeAdapter(ComPortTypeAdapter.class)
-    public ComPortType type;
+    public ComPortType comPortType;
     public List<InboundComPortInfo> inboundComPorts;
     public Long discoveryProtocolPluggableClassId;
     public List<OutboundComPortInfo> outboundComPorts;
@@ -43,7 +43,7 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
         this.description = comPortPool.getDescription();
         this.obsoleteDate = comPortPool.getObsoleteDate();
         this.obsoleteFlag = comPortPool.isObsolete();
-        this.type = comPortPool.getComPortType();
+        this.comPortType = comPortPool.getComPortType();
     }
 
     protected S writeTo(S target) {

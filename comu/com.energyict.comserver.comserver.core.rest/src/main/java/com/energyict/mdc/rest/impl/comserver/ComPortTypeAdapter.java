@@ -6,6 +6,7 @@ import com.energyict.mdc.common.rest.MapBasedXmlAdapter;
 public class ComPortTypeAdapter extends MapBasedXmlAdapter<ComPortType> {
 
     public ComPortTypeAdapter() {
+        register("", null);
         register("SERVLET", ComPortType.SERVLET);
         register("SERIAL", ComPortType.SERIAL);
         register("TCP", ComPortType.TCP);

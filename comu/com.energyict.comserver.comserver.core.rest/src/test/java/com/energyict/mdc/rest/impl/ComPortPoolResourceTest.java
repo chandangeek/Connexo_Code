@@ -84,7 +84,7 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
                 .contains(MapEntry.entry("direction", "Inbound"))
                 .contains(MapEntry.entry("active", false))
                 .contains(MapEntry.entry("obsoleteFlag", false))
-                .contains(MapEntry.entry("type", "TCP"))
+                .contains(MapEntry.entry("comPortType", "TCP"))
                 .contains(MapEntry.entry("discoveryProtocolPluggableClassId", 6));
     }
 
@@ -111,7 +111,7 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
                 .contains(MapEntry.entry("direction", "Outbound"))
                 .contains(MapEntry.entry("active", false))
                 .contains(MapEntry.entry("obsoleteFlag", false))
-                .contains(MapEntry.entry("type", "TCP"));
+                .contains(MapEntry.entry("comPortType", "TCP"));
 
         Map<String, Object> taskExecutionTimeout = (Map<String, Object>) comPortPool1.get("taskExecutionTimeout");
         assertThat(taskExecutionTimeout).hasSize(2)

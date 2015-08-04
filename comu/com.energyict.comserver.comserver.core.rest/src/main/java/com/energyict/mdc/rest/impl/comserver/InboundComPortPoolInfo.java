@@ -32,7 +32,7 @@ public class InboundComPortPoolInfo extends ComPortPoolInfo<InboundComPortPool> 
     protected InboundComPortPool createNew(EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService) {
         InboundComPortPool inboundComPortPool = engineConfigurationService.newInboundComPortPool(
                 this.name,
-                this.type,
+                this.comPortType,
                 protocolPluggableService
                         .findInboundDeviceProtocolPluggableClass(this.discoveryProtocolPluggableClassId!=null?this.discoveryProtocolPluggableClassId:0)
                         .orElse(null));
