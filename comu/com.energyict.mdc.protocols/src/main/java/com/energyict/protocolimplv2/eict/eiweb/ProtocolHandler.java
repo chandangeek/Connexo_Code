@@ -18,6 +18,7 @@ import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
@@ -122,10 +123,10 @@ public class ProtocolHandler {
         return this.packetBuilder.getDeviceIdentifier();
     }
 
-    public List<CollectedData> getCollectedData() {
+    public List<CollectedData> getCollectedData(OfflineDevice offlineDevice) {
         List<CollectedData> collectedData = new ArrayList<>();
         this.packetBuilder.addCollectedData(collectedData);
-        this.profileBuilder.addCollectedData(collectedData);
+        this.profileBuilder.addCollectedData(collectedData, offlineDevice);
         collectedData.addAll(this.registerData);
         if (this.configurationInformation != null) {
             collectedData.add(this.configurationInformation);
@@ -185,10 +186,10 @@ public class ProtocolHandler {
             this.packetBuilder = new PacketBuilder(this.cryptographer, logger, identificationService, collectedDataFactory);
             this.contentType.dispatch(request, this);
             if (this.packetBuilder.isConfigFileMode()) {
-                this.profileBuilder = new ProfileBuilder(this.packetBuilder, identificationService);
+                this.profileBuilder = new ProfileBuilder(this.packetBuilder, identificationService, issueService);
                 this.processConfigurationInformation(this.profileBuilder);
             } else if ((this.packetBuilder.getVersion() & 0x0080) == 0) {            // bit 8 indicates that the message is an alert
-                this.profileBuilder = new ProfileBuilder(this.packetBuilder, identificationService);
+                this.profileBuilder = new ProfileBuilder(this.packetBuilder, identificationService, issueService);
                 this.processMeterReadings(this.profileBuilder);
                 this.profileBuilder.removeFutureData(logger, Date.from(this.sevenDaysFromNow()));
             } else {

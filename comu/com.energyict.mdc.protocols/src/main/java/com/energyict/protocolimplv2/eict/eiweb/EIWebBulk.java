@@ -5,6 +5,7 @@ import com.elster.jupiter.properties.PropertySpec;
 
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
@@ -120,6 +121,12 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
                     case SUCCESS:
                         this.responseWriter.success();
                         break;
+                    case FAILURE:
+                        this.response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "The inbound discovery failed. No data was processed nor stored!");
+                        break;
+                    case STORING_FAILURE:
+                        this.response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "The data was received correctly but a problem occurred while storing it");
+                        break;
                     case DEVICE_DOES_NOT_EXPECT_INBOUND:
                         this.response.sendError(HttpServletResponse.SC_FORBIDDEN, "The device is not configured for inbound communication, request refused!");
                         break;
@@ -145,8 +152,8 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
     }
 
     @Override
-    public List<CollectedData> getCollectedData () {
-        return this.protocolHandler.getCollectedData();
+    public List<CollectedData> getCollectedData(OfflineDevice device) {
+        return this.protocolHandler.getCollectedData(device);
     }
 
 }

@@ -11,6 +11,7 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
@@ -110,7 +111,7 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
     }
 
     @Override
-    public List<CollectedData> getCollectedData() {
+    public List<CollectedData> getCollectedData(OfflineDevice device) {
         return collectedDatas;
     }
 

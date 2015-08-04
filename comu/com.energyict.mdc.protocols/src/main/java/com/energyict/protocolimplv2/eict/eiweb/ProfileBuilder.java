@@ -2,17 +2,14 @@ package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.common.interval.IntervalStateBits;
-import com.energyict.mdc.protocol.api.device.data.ProfileData;
-import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.events.MeterEvent;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
-
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.LittleEndianInputStream;
@@ -59,16 +56,13 @@ public class ProfileBuilder {
     private PacketBuilder packetBuilder;
     private ProfileData profileData = null;
     private List<BigDecimal> meterReadings;
-    private IdentificationService identificationService;
+    private final IdentificationService identificationService;
+    private final IssueService issueService;
 
-    public ProfileBuilder(PacketBuilder packetBuilder, IdentificationService identificationService) throws IOException {
-        this(packetBuilder, Logger.getAnonymousLogger());
+    public ProfileBuilder(PacketBuilder packetBuilder, IdentificationService identificationService, IssueService issueService) throws IOException {
         this.identificationService = identificationService;
-    }
-
-    public ProfileBuilder(PacketBuilder packetBuilder, Logger logger) throws IOException {
-        super();
-        this.logger = logger;
+        this.issueService = issueService;
+        this.logger = Logger.getAnonymousLogger();
         this.packetBuilder = packetBuilder;
         this.buildData();
     }
@@ -305,11 +299,34 @@ public class ProfileBuilder {
         }
     }
 
-    public void addCollectedData (List<CollectedData> collectedData) {
+    public void addCollectedData(List<CollectedData> collectedData, OfflineDevice offlineDevice) {
         CollectedLoadProfile loadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(this.identificationService.createLoadProfileIdentifierForFirstLoadProfileOnDevice(this.packetBuilder.getDeviceIdentifier()));
-        loadProfile.setCollectedData(this.profileData.getIntervalDatas(), this.profileData.getChannelInfos());
+        loadProfile.setCollectedData(this.profileData.getIntervalDatas(), getChannelInfos(offlineDevice));
         loadProfile.setDoStoreOlderValues(this.profileData.shouldStoreOlderValues());
         collectedData.add(loadProfile);
+    }
+
+    /**
+     * Update the channelInfos with the information from the OfflineDevice
+     *
+     * @param offlineDevice The offline Device
+     * @return the list of ChannelInfos
+     */
+    private List<ChannelInfo> getChannelInfos(OfflineDevice offlineDevice) {
+        List<ChannelInfo> channelInfos = new ArrayList<>();
+        if (offlineDevice.getAllOfflineLoadProfiles().size() > 0) {
+            List<OfflineLoadProfileChannel> channels = offlineDevice.getAllOfflineLoadProfiles().get(0).getChannels();
+            for (int i = 0; i < getSmallestListSize(channels); i++) {
+                ChannelInfo oldChannelInfo = this.profileData.getChannelInfos().get(i);
+                OfflineLoadProfileChannel offlineLoadProfileChannel = channels.get(i);
+                channelInfos.add(i, new ChannelInfo(oldChannelInfo.getId(), oldChannelInfo.getName(), offlineLoadProfileChannel.getUnit(), offlineLoadProfileChannel.getMasterSerialNumber(), offlineLoadProfileChannel.getReadingType()));
+            }
+        }
+        return channelInfos;
+    }
+
+    private int getSmallestListSize(List<OfflineLoadProfileChannel> channels) {
+        return channels.size() <= this.profileData.getChannelInfos().size() ? channels.size() : this.profileData.getChannelInfos().size();
     }
 
     private CollectedDataFactory getCollectedDataFactory() {

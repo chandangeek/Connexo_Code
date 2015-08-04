@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -33,6 +34,7 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
     private final CollectedDataFactory collectedDataFactory;
     private final MeteringService meteringService;
     private InboundDiscoveryContext context;
+    private List<CollectedData> collectedDatas;
 
     @Inject
     public ACE4000Inbound(MdcReadingTypeUtilService readingTypeUtilService, PropertySpecService propertySpecService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
@@ -77,15 +79,19 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
         }
     }
 
-    public List<CollectedData> getCollectedData() {
-        List<CollectedData> collectedDatas = new ArrayList<>();
-        collectedDatas.addAll(getCollectedRegisters());
-        collectedDatas.addAll(getObjectFactory().createCollectedLoadProfiles());
+    public List<CollectedData> getCollectedData(OfflineDevice device) {
+        return this.getCollectedData();
+    }
 
-        CollectedLogBook deviceLogBook = getObjectFactory().getDeviceLogBook(this.identificationService.createLogbookIdentifierByObisCodeAndDeviceIdentifier(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE, getDeviceIdentifier()));
-        collectedDatas.add(deviceLogBook);
-
-        return collectedDatas;
+    private List<CollectedData> getCollectedData(){
+        if(this.collectedDatas == null){
+            this.collectedDatas = new ArrayList<>();
+            this.collectedDatas.addAll(getCollectedRegisters());
+            this.collectedDatas.addAll(getObjectFactory().createCollectedLoadProfiles());
+            CollectedLogBook deviceLogBook = getObjectFactory().getDeviceLogBook(this.identificationService.createLogbookIdentifierByObisCodeAndDeviceIdentifier(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE, getDeviceIdentifier()));
+            this.collectedDatas.add(deviceLogBook);
+        }
+        return this.collectedDatas;
     }
 
     public String getVersion() {
