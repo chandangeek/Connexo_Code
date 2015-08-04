@@ -10,6 +10,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
@@ -19,11 +22,13 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
+import com.energyict.mdc.scheduling.security.Privileges;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -37,8 +42,8 @@ import org.osgi.service.component.annotations.Reference;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-@Component(name = "com.energyict.mdc.scheduling", service = {ServerSchedulingService.class,SchedulingService.class, InstallService.class, TranslationKeyProvider.class}, immediate = true, property = "name=" + SchedulingService.COMPONENT_NAME)
-public class SchedulingServiceImpl implements ServerSchedulingService, InstallService, TranslationKeyProvider {
+@Component(name = "com.energyict.mdc.scheduling", service = {ServerSchedulingService.class,SchedulingService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, immediate = true, property = "name=" + SchedulingService.COMPONENT_NAME)
+public class SchedulingServiceImpl implements ServerSchedulingService, InstallService, TranslationKeyProvider, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -189,6 +194,19 @@ public class SchedulingServiceImpl implements ServerSchedulingService, InstallSe
     @Override
     public ComScheduleBuilder newComSchedule(String name, TemporalExpression temporalExpression, Instant startDate) {
         return new ComScheduleBuilderImpl(name, temporalExpression, startDate);
+    }
+
+    @Override
+    public String getModuleName() {
+        return SchedulingService.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(SchedulingService.COMPONENT_NAME, "sharedCommunicationSchedule.sharedCommunicationSchedules", "sharedCommunicationSchedule.sharedCommunicationSchedules.description",
+                Arrays.asList(Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.VIEW_SHARED_COMMUNICATION_SCHEDULE)));
+        return resources;
     }
 
     class ComScheduleBuilderImpl implements ComScheduleBuilder {
