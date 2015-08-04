@@ -161,7 +161,7 @@ public class SecurityPropertySetResource {
 
     private TypedProperties getTypedPropertiesForSecurityPropertySet(Device device, SecurityPropertySet securityPropertySet) {
         TypedProperties typedProperties = TypedProperties.empty();
-        for (SecurityProperty securityProperty : device.getAllSecurityProperties(securityPropertySet)) {
+        for (SecurityProperty securityProperty : device.getSecurityProperties(securityPropertySet)) {
             typedProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
         }
         return typedProperties;
