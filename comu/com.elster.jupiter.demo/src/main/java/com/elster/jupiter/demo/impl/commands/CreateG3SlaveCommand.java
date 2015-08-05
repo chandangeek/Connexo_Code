@@ -145,7 +145,7 @@ public class CreateG3SlaveCommand {
         @Override
         public void accept(DeviceConfiguration configuration) {
              configuration.createSecurityPropertySet(SECURITY_SET_NAME)
-                     .authenticationLevel(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_GMAC.getValue())
+                     .authenticationLevel(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_MD5.getValue())
                     .encryptionLevel(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue())
                     .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1)
                     .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2)

@@ -62,6 +62,7 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.elster.jupiter.validators.impl.DefaultValidatorFactory;
 import com.energyict.mdc.app.impl.MdcAppInstaller;
+import com.energyict.mdc.common.Password;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -474,7 +475,7 @@ public class DemoTest {
         assertThat(configuration.getSecurityPropertySets()).hasSize(1);
         SecurityPropertySet securityPropertySet = configuration.getSecurityPropertySets().get(0);
         assertThat(securityPropertySet.getName()).isEqualTo(SECURITY_SET_NAME);
-        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_GMAC.getValue());
+        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_MD5.getValue());
         assertThat(securityPropertySet.getEncryptionDeviceAccessLevel().getId()).isEqualTo(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue());
         assertThat(securityPropertySet.getUserActions()).containsExactly(
             DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
@@ -529,7 +530,7 @@ public class DemoTest {
                 if ("ClientMacAddress".equals(securityProperty.getName())) {
                     assertThat(securityProperty.getValue()).isEqualTo(BigDecimal.ONE);
                 } else if ("Password".equals(securityProperty.getName())) {
-                    assertThat(securityProperty.getValue().toString()).isEqualTo("1234567890123456");
+                    assertThat(((Password) securityProperty.getValue()).getValue()).isEqualTo("1234567890123456");
                 }
             }
             ctx.commit();
