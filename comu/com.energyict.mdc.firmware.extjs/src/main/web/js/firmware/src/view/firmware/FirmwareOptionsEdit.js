@@ -24,25 +24,50 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                     labelWidth: 250
                 },
                 loadRecord: function (record) {
+                    var checkboxgroup = this.down('#firmwareUpgradeOptions'),
+                        radiogroup = this.down('#allowedRadioGroup');
+
                     this.getForm().loadRecord(record);
-                    var checkboxgroup = this.down('#firmwareUpgradeOptions');
-                    var radiogroup = this.down('#allowedRadioGroup');
-                    if (!record.get('isAllowed')) radiogroup.setValue({'isAllowed': 0});
+
+                    if (!record.get('isAllowed')) {
+                        radiogroup.setValue({'isAllowed': 0});
+                        checkboxgroup.disable();
+                        checkboxgroup.setValue([]);
+                    }
+
                     // remove the unsupported options.
                     checkboxgroup.items.each(function (item) {
                         if (record.get('supportedOptions')
-                            .map(function (option) {return option.id; })
-                            .indexOf(item.inputValue) < 0)
-                        {
+                            .map(function (option) {
+                                return option.id;
+                            })
+                            .indexOf(item.inputValue) < 0) {
                             checkboxgroup.remove(item);
                             item.submitValue = false;
-                        }else{
+                        } else {
                             item.setValue(record.get('allowedOptions')
-                                                        .map(function (option) {return option.id; })
-                                                        .indexOf(item.inputValue) >= 0);
+                                .map(function (option) {
+                                    return option.id;
+                                })
+                                .indexOf(item.inputValue) >= 0);
                         }
 
                     });
+
+                    radiogroup.on('change', function (radiogroup, newValue) {
+                        var form = radiogroup.up('form'),
+                            checkboxgroup = form.down('#firmwareUpgradeOptions');
+
+                        if (!newValue.isAllowed) {
+                            checkboxgroup.disable();
+                            checkboxgroup.setValue([]);
+                        } else {
+                            checkboxgroup.enable();
+                            Ext.each(checkboxgroup.items.items, function (checkbox) {
+                                checkbox.setValue(true);
+                            });
+                        }
+                    }, radiogroup);
                 },
                 updateRecord: function () {
                     this.getForm().updateRecord();
@@ -62,19 +87,6 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                         required: true,
                         columns: 1,
                         vertical: true,
-                        listeners: {
-                            change: function (radiogroup, newValue) {
-                                var form = radiogroup.up('form'),
-                                    checkboxgroup = form.down('#firmwareUpgradeOptions');
-
-                                if (!newValue.isAllowed) {
-                                    checkboxgroup.disable();
-                                    checkboxgroup.setValue([]);
-                                } else {
-                                    checkboxgroup.enable();
-                                }
-                            }
-                        },
                         defaults: {
                             name: 'isAllowed'
                         },
