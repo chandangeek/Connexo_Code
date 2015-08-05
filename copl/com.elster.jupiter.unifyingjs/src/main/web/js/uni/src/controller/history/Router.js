@@ -227,7 +227,9 @@ Ext.define('Uni.controller.history.Router', {
 
                 Object.keys(routeArguments).forEach(function (key) {
                     if (typeof routeArguments[key] === 'string') {
-                        routeArguments[key] = decodeURIComponent(routeArguments[key]);
+                        try {
+                            routeArguments[key] = decodeURIComponent(routeArguments[key]);
+                        } catch (e) {}
                     }
                 });
 
