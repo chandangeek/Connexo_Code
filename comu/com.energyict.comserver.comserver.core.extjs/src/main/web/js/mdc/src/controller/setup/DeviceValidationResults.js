@@ -527,6 +527,10 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             models = me.getModel('Mdc.model.ValidationResults'),
+            zoomLevelsStore = me.getStore('Mdc.store.DataIntervalAndZoomLevels'),
+            loadProfilesList = [],
+            filterForm = me.getSideFilterForm(),
+            intervalStartField = filterForm.down('[name=intervalStart]'),
             router = me.getController('Uni.controller.history.Router');
 
         if (Ext.isEmpty(router.filter.data.intervalStart)) {
@@ -534,7 +538,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         } else {
             me.isDefaultFilter = false;
         }
-        me.getSideFilterForm().loadRecord(router.filter);
+        filterForm.loadRecord(router.filter);
         me.setFilterView();
 
         var updatingStatus = Uni.I18n.translate('validationResults.updatingStatus', 'MDC', 'Updating status...');
@@ -542,20 +546,61 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         me.getConfigurationViewValidationResults().setValue(Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...'));
 
 
-        models.getProxy().setUrl(me.mRID);
-        models.getProxy().setFilterParameters(me.jsonValidationResultData);
-        models.getProxy().setFilterModel(router.filter);
+            Ext.Ajax.request({
+                url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/loadprofiles',
+                method: 'GET',
+                timeout: 60000,
+                success: function (response) {
 
-        viewport.setLoading();
-        models.load('', {
-            success: function (record) {
-                me.loadConfigurationDataItems(record);
-                viewport.setLoading(false);
-            },
-            failure: function (response) {
-                viewport.setLoading(false);
-            }
-        });
+                    viewport.setLoading(false);
+                    var res = Ext.JSON.decode(response.responseText);
+                    me.loadProfileDurations = [];
+                    Ext.Array.each(res.loadProfiles, function (loadProfile) {
+
+                        me.loadProfileDurations[me.loadProfileDurations.length] = {
+                            id: loadProfile.id,
+                            interval: loadProfile.interval,
+                            intervalInMs: zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(loadProfile.interval).get('all')),
+                            intervalRecord: zoomLevelsStore.getIntervalRecord(loadProfile.interval)
+
+                        };
+                        loadProfilesList.push({
+                            id: loadProfile.id,
+                            intervalStart: (me.isDefaultFilter)
+                                ? moment(new Date()).valueOf() - zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(loadProfile.interval).get('all'))
+                                : moment(intervalStartField.getValue()).valueOf(),
+                            intervalEnd: (me.isDefaultFilter)
+                                ? moment(new Date()).valueOf()
+                                : moment(intervalStartField.getValue()).valueOf() + zoomLevelsStore.getIntervalInMs(zoomLevelsStore.getIntervalRecord(loadProfile.interval).get('all'))
+                        })
+                    });
+
+                    // for registers
+                    me.registerDuration.interval = {count: 3, timeUnit: 'months'};
+                    me.registerDuration.intervalInMs = zoomLevelsStore.getIntervalInMs(me.registerDuration.interval);
+                    me.registerDuration.intervalRecord = zoomLevelsStore.getIntervalRecord(me.registerDuration.interval);
+
+                    me.jsonValidationResultData = Ext.encode(loadProfilesList);
+
+                    models.getProxy().setUrl(me.mRID);
+                    models.getProxy().setFilterParameters(me.jsonValidationResultData);
+                    models.getProxy().setFilterModel(router.filter);
+
+                    viewport.setLoading();
+                    models.load('', {
+                        success: function (record) {
+                            me.loadConfigurationDataItems(record);
+                            viewport.setLoading(false);
+                        },
+                        failure: function (response) {
+                            viewport.setLoading(false);
+                        }
+                    });
+
+                }
+
+            });
+
     },
 
     loadConfigurationDataItems: function (record) {
