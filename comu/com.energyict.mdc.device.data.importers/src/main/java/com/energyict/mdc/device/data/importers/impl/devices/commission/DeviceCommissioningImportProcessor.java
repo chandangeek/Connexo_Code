@@ -6,6 +6,9 @@ import com.energyict.mdc.device.data.importers.impl.devices.DeviceTransitionReco
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
+import java.util.Collections;
+import java.util.List;
+
 public class DeviceCommissioningImportProcessor extends DeviceTransitionImportProcessor<DeviceTransitionRecord> {
 
     public DeviceCommissioningImportProcessor(DeviceDataImporterContext context) {
@@ -13,8 +16,13 @@ public class DeviceCommissioningImportProcessor extends DeviceTransitionImportPr
     }
 
     @Override
-    protected String getTargetStateName(DeviceTransitionRecord data) {
-        return DefaultState.COMMISSIONING.getKey();
+    protected List<DefaultState> getSourceStates(DeviceTransitionRecord data) {
+        return Collections.singletonList(DefaultState.IN_STOCK);
+    }
+
+    @Override
+    protected DefaultState getTargetState(DeviceTransitionRecord data) {
+        return DefaultState.COMMISSIONING;
     }
 
     @Override

@@ -14,6 +14,7 @@ import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEve
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -34,8 +35,14 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
                 : DefaultCustomStateTransitionEventType.ACTIVATED;
     }
 
-    protected String getTargetStateName(DeviceInstallationImportRecord data) {
-        return data.isInstallInactive() ? DefaultState.INACTIVE.getKey() : DefaultState.ACTIVE.getKey();
+    @Override
+    protected List<DefaultState> getSourceStates(DeviceInstallationImportRecord data) {
+        return Arrays.asList(DefaultState.IN_STOCK, DefaultState.COMMISSIONING);
+    }
+
+    @Override
+    protected DefaultState getTargetState(DeviceInstallationImportRecord data) {
+        return data.isInstallInactive() ? DefaultState.INACTIVE : DefaultState.ACTIVE;
     }
 
     private void processUsagePoint(Device device, DeviceInstallationImportRecord data, FileImportLogger logger) {

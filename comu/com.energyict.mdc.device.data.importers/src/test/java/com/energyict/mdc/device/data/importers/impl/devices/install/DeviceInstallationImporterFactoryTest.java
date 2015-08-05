@@ -584,4 +584,29 @@ public class DeviceInstallationImporterFactoryTest {
         verify(logger, times(1)).warning(Matchers.startsWith("Error in line 2: Pre-transition check(s) failed: "));
         verify(logger, never()).severe(Matchers.anyString());
     }
+
+    @Test
+    public void testTransitionIsNotSupportedByImporter() {
+        String csv = "mrid;installation date;master mrid;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;VPB0001;Usage MRID;electricity;bla-bla;01/08/2015 00:30";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImporter importer = createDeviceInstallImporter();
+
+        Device device = mock(Device.class);
+        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        State deviceState = mock(State.class);
+        when(device.getState()).thenReturn(deviceState);
+        when(deviceState.getName()).thenReturn(DefaultState.INACTIVE.getKey());
+
+        CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
+        when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
+        ExecutableAction executableAction = mock(ExecutableAction.class);
+        when(deviceLifeCycleService.getExecutableActions(device, transitionEventType)).thenReturn(Optional.of(executableAction));
+
+        importer.process(importOccurrence);
+        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger).warning(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER.getTranslated(thesaurus, 2, DefaultState.ACTIVE.getKey(), DefaultState.INACTIVE.getKey(), DefaultState.IN_STOCK.getKey() + ", " + DefaultState.COMMISSIONING.getKey()));
+        verify(logger, never()).severe(Matchers.anyString());
+    }
 }

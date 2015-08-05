@@ -7,6 +7,9 @@ import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorExceptio
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
+import java.util.Collections;
+import java.util.List;
+
 public class DeviceActivationDeactivationImportProcessor extends DeviceTransitionImportProcessor<DeviceActivationDeactivationRecord> {
 
     public DeviceActivationDeactivationImportProcessor(DeviceDataImporterContext context) {
@@ -14,8 +17,13 @@ public class DeviceActivationDeactivationImportProcessor extends DeviceTransitio
     }
 
     @Override
-    protected String getTargetStateName(DeviceActivationDeactivationRecord data) {
-        return data.isActivate() ? DefaultState.ACTIVE.getKey() : DefaultState.INACTIVE.getKey();
+    protected List<DefaultState> getSourceStates(DeviceActivationDeactivationRecord data) {
+        return Collections.singletonList(data.isActivate() ? DefaultState.INACTIVE : DefaultState.ACTIVE);
+    }
+
+    @Override
+    protected DefaultState getTargetState(DeviceActivationDeactivationRecord data) {
+        return data.isActivate() ? DefaultState.ACTIVE : DefaultState.INACTIVE;
     }
 
     @Override

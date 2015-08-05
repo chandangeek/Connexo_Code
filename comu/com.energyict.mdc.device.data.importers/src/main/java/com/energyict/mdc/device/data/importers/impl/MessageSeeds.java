@@ -33,6 +33,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DEVICE_CAN_NOT_BE_MOVED_TO_STATE(16, "ImportProcessorDeviceCanNotBeMovedToState", "Error in line {0}: The device can''t be moved to {1} from {2} state", Level.WARNING),
     PRE_TRANSITION_CHECKS_FAILED(17, "ImportProcessorPreTransitionsChecksFailed", "Error in line {0}: Pre-transition check(s) failed: {1}", Level.WARNING),
     TRANSITION_ACTION_DATE_IS_INCORRECT(18, "ImportProcessorTransitionActionDateIsIncorrect", "Error in line {0}: The transition action date has incorrect value: {1}, {2}", Level.WARNING),
+    DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER(19, "ImportProcessorDeviceCanNotBeMovedToStateByImporter", "Error in line {0}: The device can''t be moved to {1} from {2} state by this importer. Appropriate initial state(s) is(are) {3}", Level.WARNING),
 
     READING_DATE_BEFORE_METER_ACTIVATION(101, "ReadingDateBeforeMeterActivation", "Warning for line {0}: Reading date: {1} is before the first meter activation start date and will not be stored.", Level.WARNING),
     READING_DATE_AFTER_METER_ACTIVATION(102, "ReadingDateAfterMeterActivation", "Warning for line {0}: Reading date: {1} is after the last meter activation end date and will not be stored.", Level.WARNING),

@@ -16,6 +16,7 @@ import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,11 +61,20 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
     }
 
     private void performDeviceTransition(T data, Device device) {
-        String targetStateName = getTargetStateName(data);
+        String targetStateName = getTargetState(data).getKey();
         if (targetStateName.equals(device.getState().getName())) {
             throw new ProcessorException(MessageSeeds.DEVICE_ALREADY_IN_THAT_STATE, data.getLineNumber(), translate(targetStateName));
         }
+
         ExecutableAction executableAction = getExecutableAction(device, data);
+
+        List<DefaultState> sourceStates = getSourceStates(data);
+        if (!sourceStates.stream().anyMatch(state -> state.getKey().equals(device.getState().getName()))) {
+            throw new ProcessorException(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER, data.getLineNumber(),
+                    translate(targetStateName), translate(device.getState().getName()),
+                    sourceStates.stream().map(DefaultState::getKey).map(this::translate).collect(Collectors.joining(", ")));
+        }
+
         try {
             executableAction.execute(data.getTransitionDate().orElse(getContext().getClock().instant()),
                     getExecutableActionProperties(data, getAllPropertySpecsForAction(executableAction)));
@@ -78,7 +88,9 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
         }
     }
 
-    protected abstract String getTargetStateName(T data);
+    protected abstract List<DefaultState> getSourceStates(T data);
+
+    protected abstract DefaultState getTargetState(T data);
 
     protected abstract DefaultCustomStateTransitionEventType getTransitionEventType(T data);
 
@@ -87,7 +99,7 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
         return getContext().getDeviceLifeCycleService().getExecutableActions(device,
                 eventType.findOrCreate(this.context.getFiniteStateMachineService()))
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE, data.getLineNumber(),
-                        translate(getTargetStateName(data)), translate(device.getState().getName())));
+                        translate(getTargetState(data).getKey()), translate(device.getState().getName())));
     }
 
     private Map<String, PropertySpec> getAllPropertySpecsForAction(ExecutableAction executableAction) {

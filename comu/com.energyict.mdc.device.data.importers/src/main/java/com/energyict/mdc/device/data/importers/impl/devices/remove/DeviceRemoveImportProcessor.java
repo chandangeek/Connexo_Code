@@ -9,6 +9,9 @@ import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorExceptio
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class DeviceRemoveImportProcessor extends DeviceTransitionImportProcessor<DeviceTransitionRecord> {
 
     public DeviceRemoveImportProcessor(DeviceDataImporterContext context) {
@@ -16,8 +19,13 @@ public class DeviceRemoveImportProcessor extends DeviceTransitionImportProcessor
     }
 
     @Override
-    protected String getTargetStateName(DeviceTransitionRecord data) {
-        return DefaultState.REMOVED.getKey();
+    protected List<DefaultState> getSourceStates(DeviceTransitionRecord data) {
+        return Arrays.asList(DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED);
+    }
+
+    @Override
+    protected DefaultState getTargetState(DeviceTransitionRecord data) {
+        return DefaultState.REMOVED;
     }
 
     @Override
