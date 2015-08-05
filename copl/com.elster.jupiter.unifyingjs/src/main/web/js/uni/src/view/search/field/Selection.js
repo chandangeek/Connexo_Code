@@ -1,7 +1,7 @@
 /**
- * @class Uni.view.search.field.Combobox
+ * @class Uni.view.search.field.Selection
  */
-Ext.define('Uni.view.search.field.Combobox', {
+Ext.define('Uni.view.search.field.Selection', {
     extend: 'Uni.view.search.field.internal.CriteriaButton',
     requires: [
         'Ext.grid.Panel',
@@ -163,15 +163,18 @@ Ext.define('Uni.view.search.field.Combobox', {
                         name: 'topping',
                         inputValue: '1',
                         handler: function (elm, value) {
-                            var sel = me.grid.getSelectionModel();
+                            var selectionModel = me.grid.getSelectionModel();
                             // Prevent focus changes on the view, since we're selecting/deselecting all records
-                            sel.preventFocus = true;
+                            selectionModel.preventFocus = true;
+                            selection.suspendEvents();
                             if (!value) {
-                                sel.deselectAll();
+                                selectionModel.deselectAll();
                             } else {
-                                sel.selectAll();
+                                selectionModel.selectAll();
                             }
-                            delete sel.preventFocus;
+                            selection.resumeEvents();
+                            me.onSelectionChange();
+                            delete selectionModel.preventFocus;
                         }
                     },
                     {

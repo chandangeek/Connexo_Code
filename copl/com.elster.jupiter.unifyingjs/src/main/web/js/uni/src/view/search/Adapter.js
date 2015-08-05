@@ -33,9 +33,14 @@ Ext.define('Uni.view.search.Adapter', {
             me.dataIndex = me.widget.dataIndex;
             me.applyParamValue = me.widget.applyParamValue;
 
+            me.defaults = {
+                margin: 0
+            };
+
             me.items = [
                 me.widget,
                 {
+                    margin: '0 0 0 2',
                     xtype: 'button',
                     iconCls: ' icon-close2',
                     action: 'remove'

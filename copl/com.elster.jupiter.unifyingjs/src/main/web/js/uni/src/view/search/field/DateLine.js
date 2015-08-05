@@ -15,7 +15,6 @@ Ext.define('Uni.view.search.field.DateLine', {
             clearAllButton.enable(true);
             mainButton.setText(mainButton.defaultText + '*');
         }
-
     },
 
     rbar: {

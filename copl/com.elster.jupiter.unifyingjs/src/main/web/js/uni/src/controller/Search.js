@@ -17,7 +17,7 @@ Ext.define('Uni.controller.Search', {
         'Uni.view.search.Overview',
         'Uni.view.search.Adapter',
         'Uni.util.Filters',
-        'Uni.view.search.field.Combobox',
+        'Uni.view.search.field.Selection',
         'Uni.view.search.field.Simple',
         'Uni.grid.column.search.DeviceType',
         'Uni.grid.column.search.DeviceConfiguration'
