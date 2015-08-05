@@ -59,7 +59,7 @@ Ext.define('Est.estimationrules.controller.Edit', {
                 waitBeforeLoadingTheRule--;
                 if (!waitBeforeLoadingTheRule) {
                     if (rule) {
-                        widget.down('estimation-rule-edit-form').loadRecord(rule);
+                        widget.down('estimation-rule-edit-form') && widget.down('estimation-rule-edit-form').loadRecord(rule);
                     }
                     widget.setLoading(false);
                 }
