@@ -75,7 +75,7 @@ Ext.define('Uni.property.view.property.BaseCombo', {
     },
 
     clearInvalid: function (error) {
-        this.down('combobox').clearInvalid();
+        this.down('combobox') && this.down('combobox').clearInvalid();
     },
 
     initListeners: function () {
