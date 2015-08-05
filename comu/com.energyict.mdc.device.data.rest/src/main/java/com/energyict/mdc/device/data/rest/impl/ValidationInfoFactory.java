@@ -132,7 +132,8 @@ public class ValidationInfoFactory {
         monitorValidationInfo.total = 0L;
         monitorValidationInfo.validationStatus = validationStatus;
         monitorValidationInfo.detailedRuleSets = getSuspectReasonMapForValidationStatuses(dataValidationStatuses);
-        monitorValidationInfo.total += monitorValidationInfo.detailedRuleSets.size();
+        monitorValidationInfo.total += dataValidationStatuses.size();
+
         return monitorValidationInfo;
     }
 
