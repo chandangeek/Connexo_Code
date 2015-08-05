@@ -135,7 +135,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
     },
 
     updatePoolCount: function (gridview) {
-        var grid = gridview.up('gridpanel');
+        var grid = gridview.up('gridpanel'),
             store = grid.getStore(),
             countMsg = grid.down('#comPortPoolsCount'),
             count = store.getCount();
