@@ -68,6 +68,8 @@ Ext.define('Uni.grid.FilterPanelTop', {
 
     items: [],
 
+    hasDefaultFilters: false,
+
     dockedItems: [
         {
             xtype: 'container',
@@ -375,7 +377,15 @@ Ext.define('Uni.grid.FilterPanelTop', {
         if (location.href !== href) {
             Uni.util.History.setParsePath(false);
             Uni.util.History.suspendEventsForNextCall();
-            location.href = href;
+            if (Uni.util.QueryString.getQueryString()) {
+                location.href = href;
+            } else {
+                if (me.hasDefaultFilters) {
+                    location.replace(href);
+                } else {
+                    location.href = href;
+                }
+            }
         }
     },
 
