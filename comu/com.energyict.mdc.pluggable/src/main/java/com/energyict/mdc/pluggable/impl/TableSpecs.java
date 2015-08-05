@@ -20,7 +20,7 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<PluggableClass> table = dataModel.addTable(name(), PluggableClass.class);
-            table.map(PluggableClassImpl.class);
+            table.map(PluggableClassImpl.class).cache();
             Column idColumn = table.addAutoIdColumn();
             table.primaryKey("PK_CPC_PLUGGABLE").on(idColumn).add();
             table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();

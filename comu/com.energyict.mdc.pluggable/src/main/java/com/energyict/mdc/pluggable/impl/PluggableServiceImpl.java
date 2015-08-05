@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Provides an implemenation for the {@link PluggableService} interface.
+ * Provides an implementation for the {@link PluggableService} interface.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-20 (17:49)
@@ -79,12 +79,8 @@ public class PluggableServiceImpl implements PluggableService, InstallService, T
 
     @Override
     public Optional<PluggableClass> findByTypeAndId(PluggableClassType type, long id) {
-        List<PluggableClass> pluggableClasses = this.dataModel.mapper(PluggableClass.class).find("pluggableType", PersistentPluggableClassType.forActualType(type), "id", id);
-        if (pluggableClasses.isEmpty()) {
-            return Optional.empty();
-        } else {
-            return Optional.of(pluggableClasses.get(0));
-        }
+        Optional<PluggableClass> pluggableClass = this.dataModel.mapper(PluggableClass.class).getOptional(id);
+        return pluggableClass.filter(pc -> pc.getPluggableClassType().equals(type));
     }
 
     @Override
