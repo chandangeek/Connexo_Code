@@ -109,27 +109,23 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
             formErrorsPanel = form.down('uni-form-error-message'),
             model;
 
-        if (form.getForm().isValid()) {
-            model = me.formToModel();
+        model = me.formToModel();
 
-            button.setDisabled(true);
-            page.setLoading('Saving...');
-            formErrorsPanel.hide();
-            model.save({
-                callback: function (model, operation, success) {
-                    page.setLoading(false);
-                    button.setDisabled(false);
+        button.setDisabled(true);
+        page.setLoading('Saving...');
+        formErrorsPanel.hide();
+        model.save({
+            callback: function (model, operation, success) {
+                page.setLoading(false);
+                button.setDisabled(false);
 
-                    if (success) {
-                        me.onSuccessSaving(operation.action, model.get('comServerType'));
-                    } else {
-                        me.onFailureSaving(operation.response);
-                    }
+                if (success) {
+                    me.onSuccessSaving(operation.action, model.get('comServerType'));
+                } else {
+                    me.onFailureSaving(operation.response);
                 }
-            });
-        } else {
-            formErrorsPanel.show();
-        }
+            }
+        });
     },
 
     modelToForm: function (model, form) {
