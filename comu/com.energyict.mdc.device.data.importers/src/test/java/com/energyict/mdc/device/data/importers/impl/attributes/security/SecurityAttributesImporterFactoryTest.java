@@ -192,7 +192,7 @@ public class SecurityAttributesImporterFactoryTest {
     @Test
     public void testSetAttributesSuccessfully() {
         String csv = "Device MRID;Security settings name;attr1;attr2;attr3\n" +
-                "VPB0001;MD5;string;100.25;1";
+                "VPB0001;MD5;string;100.25;true";
 
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         Device device = mockDevice("VPB0001");

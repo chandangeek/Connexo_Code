@@ -195,7 +195,7 @@ public class ConnectionAttributesImporterFactoryTest {
     @Test
     public void testSetAttributesSuccessfully() {
         String csv = "Device MRID;Connection method name;attr1;attr2;attr3\n" +
-                "VPB0001;Outbound TCP;string;100.25;1";
+                "VPB0001;Outbound TCP;string;100.25;false";
 
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         Device device = mockDevice("VPB0001");
@@ -216,7 +216,7 @@ public class ConnectionAttributesImporterFactoryTest {
 
         verify(connectionTask).setProperty("attr1", "string");
         verify(connectionTask).setProperty("attr2", new BigDecimal("100.25"));
-        verify(connectionTask).setProperty("attr3", true);
+        verify(connectionTask).setProperty("attr3", false);
         verify(connectionTask).save();
     }
 
@@ -248,7 +248,7 @@ public class ConnectionAttributesImporterFactoryTest {
     @Test
     public void testCreateNewConnectionMethodOutbound() {
         String csv = "Device MRID;Connection method name;attr1;attr2;attr3\n" +
-                "VPB0001;Outbound TCP;string;100.25;1";
+                "VPB0001;Outbound TCP;string;100.25;true";
 
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         Device device = mockDevice("VPB0001");

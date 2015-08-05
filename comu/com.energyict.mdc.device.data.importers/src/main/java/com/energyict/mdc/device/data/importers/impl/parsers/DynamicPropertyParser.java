@@ -127,7 +127,9 @@ public enum DynamicPropertyParser {
     THREE_STATE_FACTORY(ThreeStateFactory.class) {
         @Override
         public Object parse(String stringValue) throws ParseException {
-            if (!is(stringValue).emptyOrOnlyWhiteSpace() && "1".equals(stringValue.trim())) {
+            if (is(stringValue).emptyOrOnlyWhiteSpace()) {
+                return null;
+            } else if (Boolean.TRUE.toString().equalsIgnoreCase(stringValue.trim())) {
                 return Boolean.TRUE;
             } else {
                 return Boolean.FALSE;
@@ -194,7 +196,7 @@ public enum DynamicPropertyParser {
     BOOLEAN(BooleanFactory.class) {
         @Override
         public Object parse(String stringValue) throws ParseException {
-            if (!is(stringValue).emptyOrOnlyWhiteSpace() && "1".equals(stringValue.trim())) {
+            if (!is(stringValue).emptyOrOnlyWhiteSpace() && Boolean.TRUE.toString().equalsIgnoreCase(stringValue.trim())) {
                 return Boolean.TRUE;
             } else {
                 return Boolean.FALSE;
