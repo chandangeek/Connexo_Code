@@ -91,10 +91,9 @@ public class UsagePointResource {
 
     @PUT
     @RolesAllowed({Privileges.ADMIN_OWN, Privileges.ADMIN_ANY})
-    @Path("/{mrid}")
+    @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public UsagePointInfos updateUsagePoint(@PathParam("mrid") String mRid, UsagePointInfo info, @Context SecurityContext securityContext) {
-        info.mRID = mRid;
+    public UsagePointInfos updateUsagePoint(@PathParam("mrid") String id, UsagePointInfo info, @Context SecurityContext securityContext) {
         transactionService.execute(new UpdateUsagePointTransaction(info, securityContext, meteringService, clock));
         return getUsagePoint(info.mRID, securityContext);
     }
