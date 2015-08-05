@@ -20,6 +20,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -262,6 +263,13 @@ public class AppServerImpl implements AppServer {
             if (!active) {
                 active = true;
                 needsUpdate = true;
+                Optional<ImportFolderForAppServer> path = dataModel.mapper(ImportFolderForAppServer.class).getOptional(name);
+                if(path.isPresent()){
+                    if(path.get().getImportFolder().isPresent()){
+                        fileImportService.setBasePath(path.get().getImportFolder().get());
+                    }
+                }
+
             }
         }
 
