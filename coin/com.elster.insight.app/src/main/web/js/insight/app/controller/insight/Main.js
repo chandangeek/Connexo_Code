@@ -49,6 +49,11 @@ Ext.define('InsightApp.controller.insight.Main', {
                     href: '#/insight/usagepoints',
                     itemId: 'view-usagepoints'
                 },
+                {
+                    text: Uni.I18n.translate('general.deviceView', 'INS', 'View Device'),
+                    href: '#/insight/devices',
+                    itemId: 'view-devices'
+                },
             ]
         });
 

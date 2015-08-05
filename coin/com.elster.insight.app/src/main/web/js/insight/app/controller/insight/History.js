@@ -32,7 +32,19 @@ Ext.define('InsightApp.controller.insight.History', {
                     route: 'usagepoints/{mRID}/edit',
                     controller: 'Mtr.usagepointmanagement.controller.Edit',
                     action: 'editUsagePoint'               					
-   				}
+   				},
+   				devices: {
+   					title: Uni.I18n.translate('general.devices.view', 'INS', 'View Devices'),
+   					route: 'devices',
+                	controller: 'Mtr.devicemanagement.controller.Device',
+                	action: 'showDevices'               	
+   				},
+   				device: {
+           			title: Uni.I18n.translate('general.device.view', 'INS', 'View Device'),
+           			route: 'devices/{mRID}',
+           			controller: 'Mtr.devicemanagement.controller.Device',
+           			action: 'showDevice'
+           		},
             }
         }
     }
