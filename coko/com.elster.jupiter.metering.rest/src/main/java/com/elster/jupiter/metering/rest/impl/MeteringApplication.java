@@ -41,6 +41,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
                 UsagePointResource.class,
+                DeviceResource.class,
                 ReadingTypeResource.class,
                 ReadingTypeFieldResource.class
         );
