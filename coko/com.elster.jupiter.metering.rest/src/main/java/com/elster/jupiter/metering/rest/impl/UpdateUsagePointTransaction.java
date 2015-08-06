@@ -18,7 +18,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.security.Principal;
 
-
 final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
 
     private final UsagePointInfo info;
@@ -65,16 +64,16 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
                 detail.setConnectionState(info.connectionState);
                 detail.setMinimalUsageExpected(info.minimalUsageExpected);
                 if (detail instanceof ElectricityDetail) {
-                	ElectricityDetail eDetail = (ElectricityDetail) detail;
-                	eDetail.setEstimatedLoad(info.estimatedLoad);
-	                eDetail.setGrounded(info.grounded);
-	                eDetail.setNominalServiceVoltage(info.nominalServiceVoltage);
-	                eDetail.setPhaseCode(info.phaseCode);
-	                eDetail.setRatedCurrent(info.ratedCurrent);
-	                eDetail.setRatedPower(info.ratedPower);
-	                eDetail.setServiceDeliveryRemark(info.serviceDeliveryRemark);
-	                eDetail.setPhaseCode(info.phaseCode);
-	                eDetail.setRatedPower(info.ratedPower);
+                    ElectricityDetail eDetail = (ElectricityDetail) detail;
+                    eDetail.setEstimatedLoad(info.estimatedLoad);
+                    eDetail.setGrounded(info.grounded);
+                    eDetail.setNominalServiceVoltage(info.nominalServiceVoltage);
+                    eDetail.setPhaseCode(info.phaseCode);
+                    eDetail.setRatedCurrent(info.ratedCurrent);
+                    eDetail.setRatedPower(info.ratedPower);
+                    eDetail.setServiceDeliveryRemark(info.serviceDeliveryRemark);
+                    eDetail.setPhaseCode(info.phaseCode);
+                    eDetail.setRatedPower(info.ratedPower);
                 }
                 usagePoint.addDetail(detail);
                 usagePoint.save();
