@@ -26,7 +26,6 @@ public interface UsagePoint extends IdentifiedObject , ReadingContainer {
 	Optional<ServiceLocation> getServiceLocation();
 	ServiceCategory getServiceCategory();
 	
-	public UsagePointBuilder getNewBuilder(ServiceCategory serviceCategory);
 	public UsagePointDetailBuilder getNewUsagePointDetailBuilder();
 
 	void setServiceLocation(ServiceLocation serviceLocation);

@@ -99,12 +99,6 @@ public class UsagePointImpl implements UsagePoint {
 		return new UsagePointBuilderImpl(serviceCategory, this);
 	}
 	
-//	public UsagePointDetailBuilder getNewUsagePointDetailBuilder() {
-//		if (id == 0) {
-//			//cannot create a new usage point detail on an unsaved usagepoint
-//			
-//		}
-//	}
     public UsagePointDetail newUsagePointDetail(Instant start) {
     	Interval interval = Interval.of(Range.atLeast(start));
     	ServiceKind kind = getServiceCategory().getKind();
@@ -171,9 +165,8 @@ public class UsagePointImpl implements UsagePoint {
 
 	@Override 
 	public long getServiceLocationId() {
-		return 0L;
-//		ServiceLocation location = getServiceLocation().get();
-//		return location == null ? 0 : location.getId();
+		ServiceLocation location = getServiceLocation().get();
+		return location == null ? 0L : location.getId();
 
 	}
 

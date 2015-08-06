@@ -17,11 +17,11 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
 	private String servicePriority;
 	
 	private ServiceCategory serviceCategory;
-	private UsagePointImpl usagePointFactory;
+	private UsagePointImpl usagePoint;
 	
 	public UsagePointBuilderImpl(ServiceCategory sc, UsagePointImpl usagePointImpl) {
 		this.serviceCategory=sc;
-		this.usagePointFactory = usagePointImpl;
+		this.usagePoint = usagePointImpl;
 	}
 	
 	@Override
@@ -86,7 +86,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
 	
 	@Override
 	public UsagePoint build() {
-		return usagePointFactory.init(this);
+		return usagePoint.init(this);
 	}
 
 	@Override
