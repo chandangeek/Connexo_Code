@@ -42,7 +42,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_ACTIVATE_IMMEDIATE(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE, "Upload firmware and activate immediate") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_ACTIVATE_IMMEDIATE(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE, "Upload firmware and activate immediately") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
