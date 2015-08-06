@@ -31,7 +31,7 @@ public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDesc
         this.serviceProvider = serviceProvider;
     }
 
-    protected ServiceProvider getServiceProvider() {
+    public ServiceProvider getServiceProvider() {
         return serviceProvider;
     }
 

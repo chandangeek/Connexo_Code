@@ -89,7 +89,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         DeviceRegisterList collectedRegisterList = new DeviceRegisterList(deviceIdentifier);
         collectedRegisterList.addCollectedRegister(collectedRegister);
         MdcReadingTypeUtilServiceAndClock serviceProvider = new MdcReadingTypeUtilServiceAndClock();
-        MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommand(serviceProvider);
+        MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommandImpl(serviceProvider);
         CollectedRegisterListDeviceCommand collectedRegisterListDeviceCommand = new CollectedRegisterListDeviceCommand(collectedRegisterList, meterDataStoreCommand, serviceProvider);
 
         OfflineRegister offlineRegister = mock(OfflineRegister.class);

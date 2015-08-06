@@ -108,7 +108,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.UPDATE);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommand(this.serviceProvider), this.serviceProvider);
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommandImpl(this.serviceProvider), this.serviceProvider);
         DeviceCommand.ExecutionLogger mockedExecutionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(mockedExecutionLogger);
 
@@ -149,7 +149,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.VERIFY);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommand(this.serviceProvider), this.serviceProvider);
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommandImpl(this.serviceProvider), this.serviceProvider);
         DeviceCommand.ExecutionLogger mockedExecutionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(mockedExecutionLogger);
 
@@ -191,7 +191,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.VERIFY);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommand(this.serviceProvider), this.serviceProvider);
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommandImpl(this.serviceProvider), this.serviceProvider);
         DeviceCommand.ExecutionLogger mockedExecutionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(mockedExecutionLogger);
 
@@ -229,7 +229,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.UPDATE);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommand(this.serviceProvider), this.serviceProvider);
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommandImpl(this.serviceProvider), this.serviceProvider);
         DeviceCommand.ExecutionLogger mockedExecutionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(mockedExecutionLogger);
         // Business method
@@ -266,7 +266,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
 
         DeviceTopology deviceTopology = new DeviceTopology(deviceIdentifier, slaveDeviceIdentifiers);
         deviceTopology.setTopologyAction(TopologyAction.VERIFY);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommand(this.serviceProvider), this.serviceProvider);
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommandImpl(this.serviceProvider), this.serviceProvider);
         DeviceCommand.ExecutionLogger mockedExecutionLogger = mock(DeviceCommand.ExecutionLogger.class);
         command.logExecutionWith(mockedExecutionLogger);
         // Business method
@@ -289,7 +289,7 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         DeviceTopology deviceTopology = new DeviceTopology(this.deviceIdentifier, slaveDeviceIdentifiers);
         TopologyAction topologyAction = TopologyAction.VERIFY;
         deviceTopology.setTopologyAction(topologyAction);
-        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommand(this.serviceProvider), this.serviceProvider);
+        CollectedDeviceTopologyDeviceCommand command = new CollectedDeviceTopologyDeviceCommand(deviceTopology, comTaskExecution, new MeterDataStoreCommandImpl(this.serviceProvider), this.serviceProvider);
 
         // Business method
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);

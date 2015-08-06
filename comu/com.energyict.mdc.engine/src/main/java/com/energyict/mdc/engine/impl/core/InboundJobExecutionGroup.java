@@ -125,7 +125,7 @@ public class InboundJobExecutionGroup extends JobExecution {
 
     void executeAllTasks() {
         try {
-            this.setExecutionContext(this.newExecutionContext(this.connectionTask, this.getComPort()));
+            this.setExecutionContext(this.newExecutionContext(this.connectionTask, this.getComPort(), true));
             List<PreparedComTaskExecution> preparedComTaskExecutions = this.prepareAll(this.comTaskExecutions);
             if (this.getExecutionContext().connect()) {
                 preparedComTaskExecutions.forEach(this::performPreparedComTaskExecution);

@@ -129,6 +129,7 @@ public abstract class AbstractComCommandExecuteTest {
                         mock(JobExecution.class),
                         connectionTask,
                         comPort,
+                        true,
                         executionContextServiceProvider);
         executionContext.setLogger(logger);
         executionContext.start(comTaskExecution, comTask);

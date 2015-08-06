@@ -22,9 +22,6 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.Reading;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -37,8 +34,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -109,7 +104,7 @@ public class CollectedRegisterListDeviceCommandTest {
 
     @Test
     public void testExecutionOfDeviceCommand() {
-        MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommand(this.serviceProvider);
+        MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommandImpl(this.serviceProvider);
         CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), meterDataStoreCommand, this.serviceProvider);
         command.logExecutionWith(this.executionLogger);
 
@@ -132,7 +127,7 @@ public class CollectedRegisterListDeviceCommandTest {
 
     @Test
     public void testToJournalMessageDescription() {
-        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), new MeterDataStoreCommand(this.serviceProvider), this.serviceProvider);
+        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), new MeterDataStoreCommandImpl(this.serviceProvider), this.serviceProvider);
         command.logExecutionWith(this.executionLogger);
 
         // Business methods

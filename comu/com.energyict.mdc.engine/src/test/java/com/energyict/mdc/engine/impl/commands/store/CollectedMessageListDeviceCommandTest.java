@@ -44,7 +44,7 @@ public class CollectedMessageListDeviceCommandTest {
     @Mock
     private IssueService issueService;
     @Mock
-    private MeterDataStoreCommand meterDataStoreCommand;
+    private MeterDataStoreCommandImpl meterDataStoreCommand;
     @Mock
     private DeviceCommand.ServiceProvider serviceProvider;
 

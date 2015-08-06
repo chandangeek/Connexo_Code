@@ -491,7 +491,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
             ComPortPool comPortPool = mock(ComPortPool.class);
             when(comPortPool.getId()).thenReturn(COMPORT_POOL_ID);
             when(connectionTask.getComPortPool()).thenReturn(comPortPool);
-            this.setExecutionContext(new ExecutionContext(this, connectionTask, comPort, new ExecutionContextServiceProvider(eventPublisher, serviceProvider)));
+            this.setExecutionContext(new ExecutionContext(this, connectionTask, comPort, true, new ExecutionContextServiceProvider(eventPublisher, serviceProvider)));
         }
 
         @Override

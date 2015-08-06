@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.meterdata;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
+import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommandImpl;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.tasks.ComTask;
@@ -139,7 +139,7 @@ public class ComTaskExecutionCollectedDataTest {
         ComTaskExecutionCollectedData collectedData = new ComTaskExecutionCollectedData(mock(ComTaskExecution.class), Arrays.asList(cd1, cd2, cd3));
 
         // Business method
-        MeterDataStoreCommand meterDataStoreCommand = mock(MeterDataStoreCommand.class);
+        MeterDataStoreCommandImpl meterDataStoreCommand = mock(MeterDataStoreCommandImpl.class);
         collectedData.toDeviceCommand(meterDataStoreCommand, serviceProvider);
 
         // Asserts

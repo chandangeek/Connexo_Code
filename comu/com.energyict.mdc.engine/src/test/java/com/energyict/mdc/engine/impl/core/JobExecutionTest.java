@@ -404,7 +404,7 @@ public class JobExecutionTest {
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = mock(DeviceProtocolSecurityPropertySet.class);
         ScheduledComTaskExecutionGroup jobExecution = getJobExecutionForBasicCheckInFrontTests();
 
-        ExecutionContext executionContext = jobExecution.newExecutionContext(this.connectionTask, this.comPort);
+        ExecutionContext executionContext = jobExecution.newExecutionContext(this.connectionTask, this.comPort, true);
         jobExecution.setExecutionContext(executionContext);
 
         JobExecution.ComTaskPreparationContext comTaskPreparationContext = mock(JobExecution.ComTaskPreparationContext.class);
@@ -422,7 +422,7 @@ public class JobExecutionTest {
                 jobExecution.getPreparedComTaskExecution(comTaskPreparationContext, comTaskExecution, comTaskExecutionConnectionSteps, deviceProtocolSecurityPropertySet);
 
         ScheduledComTaskExecutionGroup scheduledComTaskExecutionGroup = getJobExecutionForBasicCheckInFrontTests();
-        scheduledComTaskExecutionGroup.setExecutionContext(scheduledComTaskExecutionGroup.newExecutionContext(this.connectionTask, this.comPort));
+        scheduledComTaskExecutionGroup.setExecutionContext(scheduledComTaskExecutionGroup.newExecutionContext(this.connectionTask, this.comPort, true));
 
         scheduledComTaskExecutionGroup.establishConnection();
         scheduledComTaskExecutionGroup.performPreparedComTaskExecution(preparedComTaskExecution);
@@ -438,7 +438,7 @@ public class JobExecutionTest {
         when(this.offlineDevice.getSerialNumber()).thenReturn(configuredSerial);
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = mock(DeviceProtocolSecurityPropertySet.class);
         ScheduledComTaskExecutionGroup jobExecution = getJobExecutionForBasicCheckInFrontTests();
-        jobExecution.setExecutionContext(jobExecution.newExecutionContext(this.connectionTask, this.comPort));
+        jobExecution.setExecutionContext(jobExecution.newExecutionContext(this.connectionTask, this.comPort, true));
 
         JobExecution.ComTaskPreparationContext comTaskPreparationContext = mock(JobExecution.ComTaskPreparationContext.class);
         when(comTaskPreparationContext.getCommandCreator()).thenReturn(new DeviceProtocolCommandCreator());
@@ -449,14 +449,14 @@ public class JobExecutionTest {
         when(basicCheckTask.verifySerialNumber()).thenReturn(true);
         when(basicCheckTask.getMaximumClockDifference()).thenReturn(Optional.empty());
         createMockedComTaskWithGivenProtocolTasks(basicCheckTask);
-        jobExecution.setExecutionContext(jobExecution.newExecutionContext(this.connectionTask, this.comPort));
+        jobExecution.setExecutionContext(jobExecution.newExecutionContext(this.connectionTask, this.comPort, true));
 
         // Business method
         JobExecution.PreparedComTaskExecution preparedComTaskExecution =
                 jobExecution.getPreparedComTaskExecution(comTaskPreparationContext, comTaskExecution, comTaskExecutionConnectionSteps, deviceProtocolSecurityPropertySet);
 
         ScheduledComTaskExecutionGroup scheduledComTaskExecutionGroup = getJobExecutionForBasicCheckInFrontTests();
-        scheduledComTaskExecutionGroup.setExecutionContext(scheduledComTaskExecutionGroup.newExecutionContext(this.connectionTask, this.comPort));
+        scheduledComTaskExecutionGroup.setExecutionContext(scheduledComTaskExecutionGroup.newExecutionContext(this.connectionTask, this.comPort, true));
 
         scheduledComTaskExecutionGroup.establishConnection();
         scheduledComTaskExecutionGroup.performPreparedComTaskExecution(preparedComTaskExecution);

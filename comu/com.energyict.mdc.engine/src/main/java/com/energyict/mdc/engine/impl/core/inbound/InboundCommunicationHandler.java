@@ -12,23 +12,16 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
-import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.Counters;
-import com.energyict.mdc.engine.impl.core.InboundJobExecutionDataProcessor;
-import com.energyict.mdc.engine.impl.core.InboundJobExecutionGroup;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.commands.store.*;
+import com.energyict.mdc.engine.impl.core.*;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.UnknownInboundDeviceEvent;
@@ -44,8 +37,7 @@ import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.protocol.inbound.statistics.StatisticsMonitoringHttpServletRequest;
 import com.energyict.mdc.engine.impl.protocol.inbound.statistics.StatisticsMonitoringHttpServletResponse;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
 import com.energyict.mdc.protocol.api.device.BaseChannel;
@@ -53,27 +45,24 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.FindMultipleDevices;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
-import com.energyict.mdc.protocol.api.device.data.identifiers.FindMultipleDevices;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Optional;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -492,7 +481,7 @@ public class InboundCommunicationHandler {
 
     private boolean deviceRequiresEncryption(OfflineDevice device) {
         // Todo: Use one of the typed properties so may need to delegate this to the protocol
-        return true;
+        return false;
     }
 
     protected void handOverToDeviceProtocol(DeviceCommandExecutionToken token) {

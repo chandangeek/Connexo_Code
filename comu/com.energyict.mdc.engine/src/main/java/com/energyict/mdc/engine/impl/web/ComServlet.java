@@ -1,11 +1,11 @@
 package com.energyict.mdc.engine.impl.web;
 
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.ServletBasedInboundDeviceProtocol;
@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  * <li>Check with the {@link DeviceCommandExecutor} if additional tasks can be accepted</li>
  * <li>Execute the InboundDeviceProtocol</li>
  * <li>Filter the {@link com.energyict.mdc.protocol.api.device.data.CollectedData} against the {@link com.energyict.mdc.tasks.ComTask}s of the Device that is posting the data</li>
- * <li>Conver the filtered collected data to {@link com.energyict.mdc.engine.impl.commands.store.DeviceCommand}s</li>
+ * <li>Convert the filtered collected data to {@link com.energyict.mdc.engine.impl.commands.store.DeviceCommand}s</li>
  * <li>Execute the composite device command with the DeviceCommandExecutor</li>
  * </ul>
  *
@@ -63,7 +63,7 @@ public class ComServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html");
         PrintWriter responseWriter = response.getWriter();
-        responseWriter.println("<HTML><BODY><H1>ComServer servlet based com port connector</H1><TABLE>");
+        responseWriter.println("<HTML><BODY><H1>ComServer servlet based com port connector for ComPort " + this.comPort.getName() + "</H1><TABLE>");
         responseWriter.println("<TR><TD>Jupiter version:</TD><TD>" + this.getJupiterVersion() + "</TD></TR>");
         responseWriter.println("<TR><TD>Servlet version:</TD><TD>" + getWebVersion() + "</TD></TR>");
         this.statistics.printWith(responseWriter);
@@ -136,12 +136,12 @@ public class ComServlet extends HttpServlet {
         return context;
     }
 
-    private String getJupiterVersion() {
-        return "1.0.0-SNAPSHOT";
-    }
-
     private ServletBasedInboundDeviceProtocol newInboundDeviceProtocol() {
         return (ServletBasedInboundDeviceProtocol) this.comPort.getComPortPool().getDiscoveryProtocolPluggableClass().getInboundDeviceProtocol();
+    }
+
+    private String getJupiterVersion() {
+        return "1.0.0-SNAPSHOT";
     }
 
     private String getWebVersion() {

@@ -170,6 +170,7 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
                         mock(JobExecution.class),
                         connectionTask,
                         comPort,
+                        true,
                         this.serviceProvider);
         executionContext.setLogger(logger);
         return executionContext;

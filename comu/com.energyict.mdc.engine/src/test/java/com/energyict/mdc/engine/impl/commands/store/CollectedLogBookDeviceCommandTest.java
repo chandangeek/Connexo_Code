@@ -55,7 +55,7 @@ public class CollectedLogBookDeviceCommandTest {
         final LogBookIdentifier logBookIdentifier = new LogBookIdentifierById(LOGBOOK_ID, logBookService);
         final DeviceLogBook deviceLogBook = new DeviceLogBook(logBookIdentifier);
         NoDeviceCommandServices serviceProvider = new NoDeviceCommandServices();
-        CollectedLogBookDeviceCommand command = new CollectedLogBookDeviceCommand(deviceLogBook, new MeterDataStoreCommand(serviceProvider));
+        CollectedLogBookDeviceCommand command = new CollectedLogBookDeviceCommand(deviceLogBook, new MeterDataStoreCommandImpl(serviceProvider));
 
         // Business method
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
@@ -88,7 +88,7 @@ public class CollectedLogBookDeviceCommandTest {
                         UNKNOWN));
         deviceLogBook.setMeterEvents(meterEvents);
         NoDeviceCommandServices serviceProvider = new NoDeviceCommandServices();
-        CollectedLogBookDeviceCommand command = new CollectedLogBookDeviceCommand(deviceLogBook, new MeterDataStoreCommand(serviceProvider));
+        CollectedLogBookDeviceCommand command = new CollectedLogBookDeviceCommand(deviceLogBook, new MeterDataStoreCommandImpl(serviceProvider));
 
         // Business method
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);

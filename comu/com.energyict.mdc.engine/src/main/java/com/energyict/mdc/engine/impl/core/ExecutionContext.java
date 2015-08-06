@@ -48,6 +48,7 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.impl.core.logging.CompositeComPortConnectionLogger;
+import com.energyict.mdc.engine.impl.meterdata.DeviceCommandFactory;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
@@ -125,10 +126,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     private boolean basicCheckFailed = false;
     private StopWatch connecting;
     private StopWatch executing;
-
-    public ExecutionContext(JobExecution jobExecution, ConnectionTask<?, ?> connectionTask, ComPort comPort, ServiceProvider serviceProvider) {
-        this(jobExecution, connectionTask, comPort, true, serviceProvider);
-    }
+    private DeviceCommandFactory deviceCommandFactory;
 
     public ExecutionContext(JobExecution jobExecution, ConnectionTask<?, ?> connectionTask, ComPort comPort, boolean logConnectionProperties, ServiceProvider serviceProvider) {
         super();
@@ -623,7 +621,18 @@ public final class ExecutionContext implements JournalEntryFactory {
     private List<DeviceCommand> toDeviceCommands(ComTaskExecutionComCommand comTaskExecutionComCommand) {
         List<CollectedData> collectedData = comTaskExecutionComCommand.getCollectedData();
         List<ServerCollectedData> serverCollectedData = collectedData.stream().map(ServerCollectedData.class::cast).collect(Collectors.toList());
-        return new DeviceCommandFactoryImpl().newForAll(serverCollectedData, getDeviceCommandServiceProvider());
+        return getDeviceCommandFactory().newForAll(serverCollectedData, getDeviceCommandServiceProvider());
+    }
+
+    private DeviceCommandFactory getDeviceCommandFactory() {
+        if(this.deviceCommandFactory == null){
+            deviceCommandFactory = new DeviceCommandFactoryImpl();
+        }
+        return deviceCommandFactory;
+    }
+
+    public void setDeviceCommandFactory(DeviceCommandFactory deviceCommandFactory) {
+        this.deviceCommandFactory = deviceCommandFactory;
     }
 
     public DeviceCommandServiceProvider getDeviceCommandServiceProvider() {

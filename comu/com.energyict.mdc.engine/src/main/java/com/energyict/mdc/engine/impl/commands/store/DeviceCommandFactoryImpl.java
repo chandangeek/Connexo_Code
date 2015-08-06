@@ -12,20 +12,10 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-08-22 (16:51)
  */
-public class DeviceCommandFactoryImpl implements DeviceCommandFactory {
+public class DeviceCommandFactoryImpl extends AbstractDeviceCommandFactory {
 
     @Override
-    public List<DeviceCommand> newForAll(List<ServerCollectedData> collectedData, DeviceCommand.ServiceProvider serviceProvider) {
-        List<DeviceCommand> deviceCommands = new ArrayList<>(collectedData.size());
-        if (!collectedData.isEmpty()) {
-            MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommand(serviceProvider);
-            collectedData
-                .stream()
-                .map(serverCollectedData -> serverCollectedData.toDeviceCommand(meterDataStoreCommand, serviceProvider))
-                .forEach(deviceCommands::add);
-            deviceCommands.add(meterDataStoreCommand);
-        }
-        return deviceCommands;
+    MeterDataStoreCommandImpl getMeterDataStoreCommand(DeviceCommand.ServiceProvider serviceProvider) {
+        return new MeterDataStoreCommandImpl(serviceProvider);
     }
-
 }

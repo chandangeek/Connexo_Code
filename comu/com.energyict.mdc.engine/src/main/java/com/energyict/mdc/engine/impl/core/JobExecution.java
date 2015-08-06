@@ -283,10 +283,6 @@ public abstract class JobExecution implements ScheduledJob {
      */
     protected abstract boolean isConnected();
 
-    protected ExecutionContext newExecutionContext(ConnectionTask<?, ?> connectionTask, ComPort comPort) {
-        return newExecutionContext(connectionTask, comPort, true);
-    }
-
     protected ExecutionContext newExecutionContext(ConnectionTask<?, ?> connectionTask, ComPort comPort, boolean logConnectionProperties) {
         return new ExecutionContext(this, connectionTask, comPort, logConnectionProperties, this.serviceProvider);
     }

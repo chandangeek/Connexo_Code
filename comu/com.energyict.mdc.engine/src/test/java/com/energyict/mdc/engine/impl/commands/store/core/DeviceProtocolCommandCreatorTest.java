@@ -206,6 +206,7 @@ public class DeviceProtocolCommandCreatorTest {
                         mock(JobExecution.class),
                         connectionTask,
                         comPort,
+                        true,
                         this.executionContextServiceProvider);
         executionContext.setLogger(logger);
         return executionContext;

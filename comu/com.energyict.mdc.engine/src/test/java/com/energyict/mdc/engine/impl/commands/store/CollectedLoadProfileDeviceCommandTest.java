@@ -65,7 +65,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
 
     private TimeZone toReset;
 
-    private MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommand(new NoDeviceCommandServices());
+    private MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommandImpl(new NoDeviceCommandServices());
 
     @Before
     public void setUp() {
@@ -321,7 +321,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         updatedCollectedIntervalData.add(new IntervalData(intervalEndTime3, 0, 0, 0, updatedIntervalList));
         when(collectedLoadProfile.getCollectedIntervalData()).thenReturn(updatedCollectedIntervalData);
 
-        meterDataStoreCommand = new MeterDataStoreCommand(new NoDeviceCommandServices());
+        meterDataStoreCommand = new MeterDataStoreCommandImpl(new NoDeviceCommandServices());
         collectedLoadProfileDeviceCommand = new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand, new MdcReadingTypeUtilServiceAndClock());
         // Business method
         collectedLoadProfileDeviceCommand.execute(comServerDAO);

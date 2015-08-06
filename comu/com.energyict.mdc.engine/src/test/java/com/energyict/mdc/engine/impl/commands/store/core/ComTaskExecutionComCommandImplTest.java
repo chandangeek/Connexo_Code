@@ -79,7 +79,7 @@ public class ComTaskExecutionComCommandImplTest {
         OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
         when(comPortPool.getId()).thenReturn(COM_PORT_POOL_ID);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
-        ExecutionContext executionContext = new ExecutionContext(mock(JobExecution.class), connectionTask, comPort, this.serviceProvider);
+        ExecutionContext executionContext = new ExecutionContext(mock(JobExecution.class), connectionTask, comPort, true, this.serviceProvider);
         when(this.commandRoot.getExecutionContext()).thenReturn(executionContext);
     }
 

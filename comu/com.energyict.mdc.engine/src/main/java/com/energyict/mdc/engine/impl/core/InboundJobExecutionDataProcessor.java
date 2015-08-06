@@ -3,11 +3,14 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.InboundDataProcessorDeviceCommandFactory;
+import com.energyict.mdc.engine.impl.commands.store.ProvideInboundResponseDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.CreateComTaskExecutionSessionCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.InboundCollectedLoadProfileCommandImpl;
@@ -91,8 +94,18 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
             }
             return future;
         } finally {
-            inboundCommunicationHandler.provideResponse(inboundDeviceProtocol, success ? InboundDeviceProtocol.DiscoverResponseType.SUCCESS : InboundDeviceProtocol.DiscoverResponseType.STORING_FAILURE);
+//            if(!success){
+                getExecutionContext().getStoreCommand().getChildren().stream().filter(deviceCommand -> deviceCommand instanceof ProvideInboundResponseDeviceCommand)
+                        .findFirst().ifPresent(deviceCommand -> ((ProvideInboundResponseDeviceCommand) deviceCommand).dataStorageFailed());
+//            }
         }
+    }
+
+    @Override
+    protected ExecutionContext newExecutionContext(ConnectionTask<?, ?> connectionTask, ComPort comPort, boolean logConnectionProperties) {
+        ExecutionContext executionContext = super.newExecutionContext(connectionTask, comPort, logConnectionProperties);
+        executionContext.setDeviceCommandFactory(new InboundDataProcessorDeviceCommandFactory(executionContext, inboundCommunicationHandler, inboundDeviceProtocol));
+        return executionContext;
     }
 
     @Override
