@@ -205,19 +205,22 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     },
 
     saveRegisterGroup: function () {
-        var form = this.getRegisterGroupEditForm(),
+        var me = this,
+            form = me.getRegisterGroupEditForm(),
             record = form.getRecord(),
             values = form.getValues(),
+            baseForm = form.getForm(),
             selected = form.down('#editRegisterGroupGridField').getSelectionModel().getSelection();
 
         record.set(values);
         record.registerTypes().removeAll();
         record.registerTypes().add(selected);
 
-        var me = this;
+        baseForm.clearInvalid();
         record.save({
             success: function (record) {
                 var message;
+
                 if (me.mode == 'edit') {
                     message = Uni.I18n.translatePlural('registergroup.saved', record.get('name'), 'USM', 'Register group saved.');
                 }
@@ -228,9 +231,10 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 location.href = '#/administration/registergroups/';
             },
             failure: function (record, operation) {
-                var json = Ext.decode(operation.response.responseText);
+                var json = Ext.decode(operation.response.responseText, true);
+
                 if (json && json.errors) {
-                    me.getRegisterGroupEditForm().getForm().markInvalid(json.errors);
+                    baseForm.markInvalid(json.errors);
                 }
             }
         });
