@@ -6,12 +6,12 @@ Ext.define('InsightApp.controller.Main', {
 
     requires: [
         'Uni.controller.Navigation',
-        'Mtr.controller.Main',
-        'InsightApp.controller.insight.Main'
+        'Mtr.controller.Main'
     ],
 
     applicationTitle: 'Connexo Insight',
-    defaultToken: '/insight',
+    applicationKey: 'INS',
+    defaultToken: '/metering',
     searchEnabled: true,
     onlineHelpEnabled: false,
 
@@ -19,7 +19,17 @@ Ext.define('InsightApp.controller.Main', {
 
     controllers: [
         'Cfg.controller.Main',
-        'Mtr.controller.Main',
-        'InsightApp.controller.insight.Main',
-    ]
+        'Mtr.controller.Main'
+    ],
+    init: function () {
+        var router = this.getController('Uni.controller.history.Router');
+
+        // default route redirect
+        router.initRoute('default', {
+            redirect: this.defaultToken.slice(2, this.defaultToken.length),
+            route: ''
+        });
+
+        this.callParent(arguments);
+    }
 });
