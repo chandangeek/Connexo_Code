@@ -696,20 +696,85 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         }
     }
 
+    @Override
     public Map<ConnectionTypePluggableClass, List<Long>> getConnectionTypeHeatMap() {
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> failingTaskCounters = this.getFailingConnectionTypeHeatMap(null);
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> successTaskCounters = this.getSuccessfulConnectionTypeHeatMap(null);
-        return this.mergeConnectionTypeHeatMapCounters(failingTaskCounters, successTaskCounters);
+        return this.doGetConnectionTypeHeatMap(null);
     }
 
     @Override
     public Map<ConnectionTypePluggableClass, List<Long>> getConnectionTypeHeatMap(EndDeviceGroup deviceGroup) {
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> failingTaskCounters = this.getFailingConnectionTypeHeatMap(deviceGroup);
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> successTaskCounters = this.getSuccessfulConnectionTypeHeatMap(deviceGroup);
-        return this.mergeConnectionTypeHeatMapCounters(failingTaskCounters, successTaskCounters);
+        return this.doGetConnectionTypeHeatMap(deviceGroup);
     }
 
-    private Map<ConnectionTypePluggableClass, List<Long>> mergeConnectionTypeHeatMapCounters(Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters, Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters) {
+    private Map<ConnectionTypePluggableClass, List<Long>> doGetConnectionTypeHeatMap(EndDeviceGroup deviceGroup) {
+        return this.fetchConnectionTypeHeatMapCounters(
+                this.connectionTypeHeatMapSqlBuilder(
+                        deviceGroup,
+                        this.connectionTypeHeapMapFailureIndicators()));
+    }
+
+    private SqlBuilder connectionTypeHeatMapSqlBuilder(EndDeviceGroup deviceGroup, List<ComSession.SuccessIndicator> failureIndicators) {
+        SqlBuilder sqlBuilder = new SqlBuilder();
+        sqlBuilder.append("WITH failedTask as (");
+        sqlBuilder.append("  select comsession");
+        sqlBuilder.append("    from ");
+        sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
+        sqlBuilder.append("   where successindicator > 0");
+        sqlBuilder.append("   group by comsession)");
+        sqlBuilder.append("select connectiontypepluggableclass, sum(completeSucces), sum(atLeastOneFailure), ");
+        sqlBuilder.append(
+                failureIndicators
+                        .stream()
+                        .map(i -> "sum(" + this.connectionTypeHeatMapFailureIndicatorCaseClauseNameFor(i) + ")")
+                        .collect(Collectors.joining(",")));
+        sqlBuilder.append("  from (");
+        sqlBuilder.append("        select ct.connectiontypepluggableclass, ct.lastSessionSuccessIndicator,");
+        sqlBuilder.append("          CASE WHEN ct.lastSessionSuccessIndicator = 0");
+        sqlBuilder.append("                AND failedTask.comsession IS NULL");
+        sqlBuilder.append("               THEN 1");
+        sqlBuilder.append("               ELSE 0");
+        sqlBuilder.append("          END completeSucces,");
+        sqlBuilder.append("          CASE WHEN ct.lastSessionSuccessIndicator = 0");
+        sqlBuilder.append("                AND failedTask.comsession IS NOT NULL");
+        sqlBuilder.append("               THEN 1");
+        sqlBuilder.append("               ELSE 0");
+        sqlBuilder.append("          END atLeastOneFailure,");
+        sqlBuilder.append(
+                failureIndicators
+                        .stream()
+                        .map(this::connectionTypeHeatMapFailureIndicatorCaseClause)
+                        .collect(Collectors.joining(",")));
+        sqlBuilder.append("        from ");
+        sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+        sqlBuilder.append(" ct, failedTask where ct.obsolete_date is null and ct.status = 0 and ct.lastSession = failedTask.comSession(+)");
+        this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
+        sqlBuilder.append("       )");
+        sqlBuilder.append(" group by connectiontypepluggableclass");
+        return sqlBuilder;
+    }
+
+    private String connectionTypeHeatMapFailureIndicatorCaseClause(ComSession.SuccessIndicator indicator) {
+        return "CASE WHEN ct.lastSessionSuccessIndicator = " + indicator.ordinal() + " THEN 1 ELSE 0 END " + this.connectionTypeHeatMapFailureIndicatorCaseClauseNameFor(indicator);
+    }
+
+    private String connectionTypeHeatMapFailureIndicatorCaseClauseNameFor(ComSession.SuccessIndicator indicator) {
+        return "failure" + indicator.name();
+    }
+
+    private List<ComSession.SuccessIndicator> connectionTypeHeapMapFailureIndicators() {
+        return Arrays.asList(ComSession.SuccessIndicator.SetupError, ComSession.SuccessIndicator.Broken);
+    }
+
+    private Map<ConnectionTypePluggableClass, List<Long>> fetchConnectionTypeHeatMapCounters(SqlBuilder sqlBuilder) {
+        try (PreparedStatement statement = sqlBuilder.prepare(this.deviceDataModelService.dataModel().getConnection(true))) {
+            return this.fetchConnectionTypeHeatMapCounters(statement);
+        }
+        catch (SQLException ex) {
+            throw new UnderlyingSQLFailedException(ex);
+        }
+    }
+
+    private Map<ConnectionTypePluggableClass, List<Long>> fetchConnectionTypeHeatMapCounters(PreparedStatement statement) throws SQLException {
         Map<Long, ConnectionTypePluggableClass> connectionTypePluggableClasses =
                 this.deviceDataModelService.protocolPluggableService().findAllConnectionTypePluggableClasses().
                         stream().
@@ -719,48 +784,35 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
                         Collectors.toMap(
                                 Function.identity(),
                                 this::missingSuccessIndicatorCounters));
-        for (Long connectionTypePluggableClassId : this.union(partialCounters.keySet(), remainingCounters.keySet())) {
-            ConnectionTypePluggableClass connectionTypePluggableClass = connectionTypePluggableClasses.get(connectionTypePluggableClassId);
-            heatMap.put(connectionTypePluggableClass, this.orderSuccessIndicatorCounters(partialCounters.get(connectionTypePluggableClassId), remainingCounters.get(connectionTypePluggableClassId)));
+        try (ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                long connectionTypePluggableClassId = resultSet.getLong(1);
+                heatMap.put(connectionTypePluggableClasses.get(connectionTypePluggableClassId), this.toConnectionTypeHeatMapCounters(resultSet));
+            }
         }
         return heatMap;
     }
 
-    private Map<Long, Map<ComSession.SuccessIndicator, Long>> getFailingConnectionTypeHeatMap(EndDeviceGroup deviceGroup) {
-        SqlBuilder sqlBuilder = new SqlBuilder("select ct.CONNECTIONTYPEPLUGGABLECLASS, ct.lastSessionSuccessIndicator, count(*) from ");
-        sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" ct where ct.status = 0 and ct.lastSessionSuccessIndicator > 0");
-        this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
-        sqlBuilder.append(" group by ct.CONNECTIONTYPEPLUGGABLECLASS, ct.lastSessionSuccessIndicator");
-        return this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
+    private List<Long> toConnectionTypeHeatMapCounters(ResultSet resultSet) throws SQLException {
+        int columnIndex = 2;    // id of pluggable class is at 1 and we have already read that
+        long completeSuccess = resultSet.getLong(columnIndex);
+        columnIndex++;
+        long atLeastOneFailure = resultSet.getLong(columnIndex);
+        columnIndex++;
+        long failureSetupError = resultSet.getLong(columnIndex + this.connectionTypeHeapMapFailureIndicators().indexOf(ComSession.SuccessIndicator.SetupError));
+        long failureBroken = resultSet.getLong(columnIndex + this.connectionTypeHeapMapFailureIndicators().indexOf(ComSession.SuccessIndicator.Broken));
+        return Arrays.asList(atLeastOneFailure, completeSuccess, failureSetupError, failureBroken);
     }
 
-    private Map<Long, Map<ComSession.SuccessIndicator, Long>> getSuccessfulConnectionTypeHeatMap(EndDeviceGroup deviceGroup) {
-        SqlBuilder sqlBuilder = new SqlBuilder();
-        this.buildSuccessfulConnectionTypeHeatMap(sqlBuilder, true, deviceGroup);
-        sqlBuilder.append(" union all ");
-        this.buildSuccessfulConnectionTypeHeatMap(sqlBuilder, false, deviceGroup);
-        return this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
-    }
-
-    private void buildSuccessfulConnectionTypeHeatMap(SqlBuilder sqlBuilder, boolean atLeastOneFailingComTask, EndDeviceGroup deviceGroup) {
-        sqlBuilder.append("select ct.CONNECTIONTYPEPLUGGABLECLASS, ct.lastSessionSuccessIndicator, count(*) from ");
-        sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" ct where ct.status = 0 and ct.lastSessionSuccessIndicator = 0");
-        this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(atLeastOneFailingComTask, sqlBuilder);
-        this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
-        sqlBuilder.append(" group by ct.CONNECTIONTYPEPLUGGABLECLASS, ct.lastSessionSuccessIndicator");
-    }
-
-    private Map<Long, Map<ComSession.SuccessIndicator, Long>> fetchConnectionTypeHeatMapCounters(SqlBuilder builder) {
+    private Map<Long, Map<ComSession.SuccessIndicator, Long>> fetchComSessionSuccessIndicatorHeatMapCounters(SqlBuilder builder) {
         try (PreparedStatement stmnt = builder.prepare(this.deviceDataModelService.dataModel().getConnection(true))) {
-            return this.fetchConnectionTypeHeatMapCounters(stmnt);
+            return this.fetchComSessionSuccessIndicatorHeatMapCounters(stmnt);
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
     }
 
-    private Map<Long, Map<ComSession.SuccessIndicator, Long>> fetchConnectionTypeHeatMapCounters(PreparedStatement statement) throws SQLException {
+    private Map<Long, Map<ComSession.SuccessIndicator, Long>> fetchComSessionSuccessIndicatorHeatMapCounters(PreparedStatement statement) throws SQLException {
         Map<Long, Map<ComSession.SuccessIndicator, Long>> counters = new HashMap<>();
         try (ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
@@ -872,7 +924,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
         this.appendRestrictedStatesCondition(sqlBuilder);
         sqlBuilder.append(" group by dev.devicetype, ct.lastSessionSuccessIndicator");
-        return this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
+        return this.fetchComSessionSuccessIndicatorHeatMapCounters(sqlBuilder);
     }
 
     private Map<DeviceType, List<Long>> buildDeviceTypeHeatMap(Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters, Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters) {
@@ -953,7 +1005,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
         this.appendRestrictedStatesCondition(sqlBuilder);
         sqlBuilder.append(" group by ct.comportpool, ct.lastSessionSuccessIndicator");
-        return this.fetchConnectionTypeHeatMapCounters(sqlBuilder);
+        return this.fetchComSessionSuccessIndicatorHeatMapCounters(sqlBuilder);
     }
 
     private void appendDeviceGroupConditions(EndDeviceGroup deviceGroup, SqlBuilder sqlBuilder) {

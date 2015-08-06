@@ -437,7 +437,7 @@ public enum TableSpecs {
                     onDelete(CASCADE).
                     map(ComTaskExecutionSessionImpl.Fields.DEVICE.fieldName()).
                     add();
-            table.index("DDC_CTES_CS_SUCCESS").on(session, successIndicator).compress(1).add();
+            table.index("DDC_CTES_CS_SUCCESS").on(successIndicator, session).compress(1).add();
         }
     },
     ADD_LAST_SESSION_TO_COM_TASK_EXECUTION {
