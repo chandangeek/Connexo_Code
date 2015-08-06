@@ -15,7 +15,7 @@ Ext.define('Uni.controller.Search', {
 
     requires: [
         'Uni.view.search.Overview',
-        'Uni.view.search.Adapter',
+        'Uni.view.search.field.internal.Adapter',
         'Uni.util.Filters',
         'Uni.view.search.field.Selection',
         'Uni.view.search.field.Simple',
@@ -506,20 +506,17 @@ Ext.define('Uni.controller.Search', {
             type = property.get('type'),
             displayValue = property.get('displayValue'),
             widgetConfig = me.criteriaMap[type],
-            widget = undefined,
             config = {
                 text: displayValue,
                 emptyText: displayValue,
                 dataIndex: property.get('name'),
                 property: property
-            };
+            },
+            widget;
 
         if (!widgetConfig) {
             if (property.get('selectionMode') === 'single') {
                 widgetConfig = 'search-criteria-simple'
-            } else {
-                console.log('Unknown search property type: ' + type);
-                return false;
             }
         }
 
@@ -614,7 +611,7 @@ Ext.define('Uni.controller.Search', {
             : Ext.create(Ext.apply(widgetConfig, config));
 
         if (removable) {
-            widget = Ext.create('Uni.view.search.Adapter', {
+            widget = Ext.create('Uni.view.search.field.internal.Adapter', {
                 widget: widget,
                 removeHandler: function () {
                     me.removeProperty(property, me.getRemovablePropertiesContainer(), true);

@@ -111,18 +111,17 @@ Ext.define('Uni.view.search.field.Selection', {
 
                                         if (this.pressed) {
                                             this.setIconCls(this.iconClsPressed);
-                                            store.removeAll();
-                                            store.add(selection.getRange());
-                                            //store.clearFilter(true);
-                                            //if (store.remoteFilter) {
-                                            //    store.filter(me.valueField, _.pluck(selection.getRange(), 'id'));
-                                            //} else {
-                                            //    store.filter({
-                                            //        filterFn: function (item) {
-                                            //            return selection.getRange().indexOf(item) >= 0;
-                                            //        }
-                                            //    });
-                                            //}
+                                            store.clearFilter(true);
+                                            if (store.remoteFilter) {
+                                                store.removeAll();
+                                                store.add(selection.getRange());
+                                            } else {
+                                                store.filter({
+                                                    filterFn: function (item) {
+                                                        return selection.getRange().indexOf(item) >= 0;
+                                                    }
+                                                });
+                                            }
                                         } else {
                                             this.setIconCls(this.iconClsUnpressed);
                                             store.clearFilter();

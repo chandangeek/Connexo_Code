@@ -1,9 +1,9 @@
-Ext.define('Uni.view.search.field.DateRange', {
+Ext.define('Uni.view.search.field.internal.DateRange', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.uni-view-search-field-date-range',
     xtype: 'uni-view-search-field-date-range',
     requires: [
-        'Uni.view.search.field.DateLine'
+        'Uni.view.search.field.internal.DateLine'
     ],
     layout: 'vbox',
     items: [

@@ -15,8 +15,8 @@ Ext.define('Uni.view.search.Overview', {
         'Uni.view.search.field.Boolean',
         'Uni.view.search.field.SearchObjectSelector',
         'Uni.view.search.field.SearchCriteriaSelector',
-        'Uni.view.search.field.DateRangeField',
-        'Uni.view.search.field.NumberField',
+        'Uni.view.search.field.DateInterval',
+        'Uni.view.search.field.Interval',
         'Uni.view.search.field.Selection',
         'Uni.view.search.field.Simple'
     ],

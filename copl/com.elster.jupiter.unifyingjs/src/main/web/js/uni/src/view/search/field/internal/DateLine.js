@@ -1,4 +1,4 @@
-Ext.define('Uni.view.search.field.DateLine', {
+Ext.define('Uni.view.search.field.internal.DateLine', {
     extend: 'Ext.panel.Panel',
     xtype: 'uni-view-search-field-date-line',
     layout: 'hbox',
@@ -15,6 +15,9 @@ Ext.define('Uni.view.search.field.DateLine', {
             clearAllButton.enable(true);
             mainButton.setText(mainButton.defaultText + '*');
         }
+    },
+    defaults: {
+        margin: '0 10 0 0'
     },
 
     rbar: {
@@ -60,9 +63,9 @@ Ext.define('Uni.view.search.field.DateLine', {
 
                 }
             }
-
         ]
     },
+
     listeners: {
         render: function (c) {
             var button = c.down('#filter-clear');
@@ -73,7 +76,6 @@ Ext.define('Uni.view.search.field.DateLine', {
                 button.setVisible(false);
             });
         }
-
     },
 
     initComponent: function () {

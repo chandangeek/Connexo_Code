@@ -21,7 +21,10 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
 
     onChange: function(elm, value) {
         this.value = value;
-        this.setText(this.emptyText + '*');
+        Ext.isEmpty(value)
+            ? this.setText(this.emptyText)
+            : this.setText(this.emptyText + '*');
+
         this.fireEvent('change', this, value);
     },
 

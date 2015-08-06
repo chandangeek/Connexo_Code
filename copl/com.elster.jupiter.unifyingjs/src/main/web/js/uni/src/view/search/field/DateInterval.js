@@ -1,9 +1,9 @@
-Ext.define('Uni.view.search.field.DateRangeField', {
+Ext.define('Uni.view.search.field.DateInterval', {
     extend: 'Ext.button.Button',
     xtype: 'uni-view-search-field-date-field',
     requires: [
-        'Uni.view.search.field.DateLine',
-        'Uni.view.search.field.DateRange'
+        'Uni.view.search.field.internal.DateLine',
+        'Uni.view.search.field.internal.DateRange'
     ],
     itemId: 'date',
     textAlign: 'left',

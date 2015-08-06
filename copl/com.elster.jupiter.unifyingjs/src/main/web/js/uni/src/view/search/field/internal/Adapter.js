@@ -1,7 +1,7 @@
 /**
- * @class Uni.view.search.Adapter
+ * @class Uni.view.search.field.internal.Adapter
  */
-Ext.define('Uni.view.search.Adapter', {
+Ext.define('Uni.view.search.field.internal.Adapter', {
     extend: 'Ext.container.Container',
     xtype: 'uni-view-search-adapter',
 
