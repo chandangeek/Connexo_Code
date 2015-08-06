@@ -466,7 +466,11 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         var me = this,
             model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
             store = Ext.data.StoreManager.lookup('AvailableLogbookTypes'),
-            widget = Ext.widget('add-logbook-types', {deviceTypeId: deviceTypeId});
+            widget = Ext.widget('add-logbook-types', {
+                router: me.getController('Uni.controller.history.Router'),
+                deviceTypeId: deviceTypeId
+            });
+
         store.getProxy().setExtraParam('deviceType', deviceTypeId);
         store.getProxy().setExtraParam('available', true);
         store.load();

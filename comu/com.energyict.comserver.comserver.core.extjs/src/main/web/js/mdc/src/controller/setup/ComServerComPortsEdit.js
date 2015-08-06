@@ -135,7 +135,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
     },
 
     updatePoolCount: function (gridview) {
-        var grid = gridview.up('gridpanel');
+        var grid = gridview.up('gridpanel'),
             store = grid.getStore(),
             countMsg = grid.down('#comPortPoolsCount'),
             count = store.getCount();
@@ -629,12 +629,17 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
     },
 
     saveState: function () {
-        var me = this;
-        var form = this.getAddComPortForm();
+        var me = this,
+            form = this.getAddComPortForm();
+
         delete me.portModel;
         me.portModel = Ext.create(Mdc.model.OutboundComPort);
-        //form.updateRecord(me.portModel);
-        me.portModel.set(form.getValues());
+
+        if (form.getRecord()) {
+            form.updateRecord(me.portModel);
+        } else {
+            me.portModel.set(form.getValues());
+        }
     },
 
     restoreState: function () {
