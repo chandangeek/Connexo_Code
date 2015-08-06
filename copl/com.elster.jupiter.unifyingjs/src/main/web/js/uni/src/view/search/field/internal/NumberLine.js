@@ -8,6 +8,14 @@ Ext.define('Uni.view.search.field.internal.NumberLine', {
         margin: '0 10 0 0'
     },
 
+    getValue: function() {
+        return this.down('numberfield').getValue();
+    },
+
+    reset: function() {
+        this.down('numberfield').reset();
+    },
+
     onChange: function(elm, value) {
         this.down('#filter-clear').setDisabled(!value);
         this.fireEvent('change', this, value);
@@ -17,18 +25,6 @@ Ext.define('Uni.view.search.field.internal.NumberLine', {
         this.down('#filter-clear').setDisabled(true);
         this.down('numberfield').reset();
         this.fireEvent('reset');
-    },
-
-    listeners: {
-        render: function (c) {
-            var button = c.down('#filter-clear');
-            c.el.on('mouseover', function () {
-                button.setVisible(true);
-            });
-            c.el.on('mouseout', function () {
-                button.setVisible(false);
-            });
-        }
     },
 
     initComponent: function () {
@@ -78,5 +74,15 @@ Ext.define('Uni.view.search.field.internal.NumberLine', {
         };
 
         me.callParent(arguments);
+
+        me.on('render', function() {
+            var button = me.down('#filter-clear');
+            me.getEl().on('mouseover', function () {
+                button.setVisible(true);
+            });
+            me.getEl().on('mouseout', function () {
+                button.setVisible(false);
+            });
+        });
     }
 });

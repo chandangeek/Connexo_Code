@@ -39,12 +39,12 @@ Ext.define('Uni.store.search.Properties', {
 
                 return 0;
             }
-        },
-        {
-            sorterFn: function (o1, o2) {
-                return o1.get('displayValue') < o2.get('displayValue') ? -1 : 1;
-            }
         }
+        //{
+        //    sorterFn: function (o1, o2) {
+        //        return o1.get('displayValue') < o2.get('displayValue') ? -1 : 1;
+        //    }
+        //}
     ],
 
     // TODO Remove when back-end fix has been implemented for double properties.
