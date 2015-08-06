@@ -2,7 +2,6 @@ Ext.define('InsightApp.controller.insight.Main', {
     extend: 'Ext.app.Controller',
 
     controllers: [
-        'InsightApp.controller.insight.History'
     ],
 
     refs: [
@@ -41,17 +40,17 @@ Ext.define('InsightApp.controller.insight.Main', {
             items: [
                 {
                     text: Uni.I18n.translate('general.usagePointAdd', 'INS', 'Add Usage Point'),
-                    href: '#/insight/usagepoints/add',
+                    href: '#/mtr/usagepoints/add',
                     itemId: 'add-usagepoints'
                 },
                 {
                     text: Uni.I18n.translate('general.usagePointView', 'INS', 'View Usage Point'),
-                    href: '#/insight/usagepoints',
+                    href: '#/mtr/usagepoints',
                     itemId: 'view-usagepoints'
                 },
                 {
                     text: Uni.I18n.translate('general.deviceView', 'INS', 'View Device'),
-                    href: '#/insight/devices',
+                    href: '#/mtr/devices',
                     itemId: 'view-devices'
                 },
             ]
