@@ -5,50 +5,50 @@ import com.elster.jupiter.util.units.Quantity;
 
 public interface ElectricityDetailBuilder {
 
-	ElectricityDetailBuilder withAmiBillingReady(AmiBillingReadyKind amiBillingReady);
+    ElectricityDetailBuilder withAmiBillingReady(AmiBillingReadyKind amiBillingReady);
 
-	ElectricityDetailBuilder withCheckBilling(Boolean checkBilling);
+    ElectricityDetailBuilder withCheckBilling(Boolean checkBilling);
 
-	ElectricityDetailBuilder withConnectionState(UsagePointConnectedKind connectionState);
+    ElectricityDetailBuilder withConnectionState(UsagePointConnectedKind connectionState);
 
-	ElectricityDetailBuilder withMinimalUsageExpected(Boolean minimalUsageExpected);
+    ElectricityDetailBuilder withMinimalUsageExpected(Boolean minimalUsageExpected);
 
-	ElectricityDetailBuilder withServiceDeliveryRemark(String serviceDeliveryRemark);
+    ElectricityDetailBuilder withServiceDeliveryRemark(String serviceDeliveryRemark);
 
-	ElectricityDetailBuilder withGrounded(Boolean grounded);
+    ElectricityDetailBuilder withGrounded(Boolean grounded);
 
-	ElectricityDetailBuilder withNominalServiceVoltage(Quantity nominalServiceVoltage);
+    ElectricityDetailBuilder withNominalServiceVoltage(Quantity nominalServiceVoltage);
 
-	ElectricityDetailBuilder withPhaseCode(PhaseCode phaseCode);
+    ElectricityDetailBuilder withPhaseCode(PhaseCode phaseCode);
 
-	ElectricityDetailBuilder withRatedCurrent(Quantity ratedCurrent);
+    ElectricityDetailBuilder withRatedCurrent(Quantity ratedCurrent);
 
-	ElectricityDetailBuilder withRatedPower(Quantity ratedPower);
+    ElectricityDetailBuilder withRatedPower(Quantity ratedPower);
 
-	ElectricityDetailBuilder withEstimatedLoad(Quantity estimatedLoad);
-	
-	AmiBillingReadyKind getAmiBillingReady();
+    ElectricityDetailBuilder withEstimatedLoad(Quantity estimatedLoad);
 
-	boolean isCheckBilling();
+    AmiBillingReadyKind getAmiBillingReady();
 
-	UsagePointConnectedKind getConnectionState();
+    boolean isCheckBilling();
 
-	boolean isMinimalUsageExpected();
+    UsagePointConnectedKind getConnectionState();
 
-	String getServiceDeliveryRemark();
+    boolean isMinimalUsageExpected();
 
-	boolean isGrounded();
+    String getServiceDeliveryRemark();
 
-	Quantity getNominalServiceVoltage();
+    boolean isGrounded();
 
-	PhaseCode getPhaseCode();
+    Quantity getNominalServiceVoltage();
 
-	Quantity getRatedCurrent();
+    PhaseCode getPhaseCode();
 
-	Quantity getRatedPower();
+    Quantity getRatedCurrent();
 
-	Quantity getEstimatedLoad();
+    Quantity getRatedPower();
 
-	ElectricityDetail build();
+    Quantity getEstimatedLoad();
+
+    ElectricityDetail build();
 
 }

@@ -55,9 +55,8 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
 
     private DataModel dataModel;
 
-    //Associations
+    // Associations
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
-
 
     @Inject
     UsagePointDetailImpl(Clock clock, DataModel dataModel) {
@@ -72,39 +71,39 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
         this.connectionState = UsagePointConnectedKind.UNKNOWN;
         return this;
     }
-    
+
     UsagePointDetailImpl init(UsagePoint usagePoint, ElectricityDetailBuilder builder, Interval interval) {
-    	this.usagePoint.set(usagePoint);
+        this.usagePoint.set(usagePoint);
         this.interval = Objects.requireNonNull(interval);
         this.amiBillingReady = builder.getAmiBillingReady();
-        this.checkBilling=builder.isCheckBilling();
+        this.checkBilling = builder.isCheckBilling();
         this.connectionState = builder.getConnectionState();
         this.minimalUsageExpected = builder.isMinimalUsageExpected();
         this.serviceDeliveryRemark = builder.getServiceDeliveryRemark();
         return this;
-	}
-    
+    }
+
     UsagePointDetailImpl init(UsagePoint usagePoint, GasDetailBuilder builder, Interval interval) {
-    	this.usagePoint.set(usagePoint);
+        this.usagePoint.set(usagePoint);
         this.interval = Objects.requireNonNull(interval);
         this.amiBillingReady = builder.getAmiBillingReady();
-        this.checkBilling=builder.isCheckBilling();
+        this.checkBilling = builder.isCheckBilling();
         this.connectionState = builder.getConnectionState();
         this.minimalUsageExpected = builder.isMinimalUsageExpected();
         this.serviceDeliveryRemark = builder.getServiceDeliveryRemark();
         return this;
-	}
-    
+    }
+
     UsagePointDetailImpl init(UsagePoint usagePoint, WaterDetailBuilder builder, Interval interval) {
-    	this.usagePoint.set(usagePoint);
+        this.usagePoint.set(usagePoint);
         this.interval = Objects.requireNonNull(interval);
         this.amiBillingReady = builder.getAmiBillingReady();
-        this.checkBilling=builder.isCheckBilling();
+        this.checkBilling = builder.isCheckBilling();
         this.connectionState = builder.getConnectionState();
         this.minimalUsageExpected = builder.isMinimalUsageExpected();
         this.serviceDeliveryRemark = builder.getServiceDeliveryRemark();
         return this;
-	}
+    }
 
     @Override
     public void update() {
@@ -112,7 +111,7 @@ public abstract class UsagePointDetailImpl implements UsagePointDetail {
     }
 
     @Override
-    public boolean conflictsWith(UsagePointDetail other) {    	
+    public boolean conflictsWith(UsagePointDetail other) {
         return overlaps(other.getRange());
     }
 

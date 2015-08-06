@@ -25,7 +25,7 @@ public class WaterDetailImpl extends UsagePointDetailImpl implements WaterDetail
         super.init(usagePoint, interval);
         return this;
     }
-    
+
     WaterDetailImpl init(UsagePoint usagePoint, WaterDetailBuilder builder, Interval interval) {
         super.init(usagePoint, builder, interval);
         return this;

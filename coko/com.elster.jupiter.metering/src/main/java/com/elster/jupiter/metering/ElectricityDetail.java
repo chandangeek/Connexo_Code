@@ -13,16 +13,26 @@ import com.elster.jupiter.util.units.Quantity;
 public interface ElectricityDetail extends UsagePointDetail {
 
     boolean isGrounded();
+
     Quantity getNominalServiceVoltage();
+
     PhaseCode getPhaseCode();
+
     Quantity getRatedCurrent();
+
     Quantity getRatedPower();
+
     Quantity getEstimatedLoad();
 
     void setGrounded(boolean grounded);
+
     void setNominalServiceVoltage(Quantity nominalServiceVoltage);
+
     void setPhaseCode(PhaseCode phaseCode);
+
     void setRatedCurrent(Quantity ratedCurrent);
+
     void setRatedPower(Quantity ratedPower);
+
     void setEstimatedLoad(Quantity estimatedLoad);
 }

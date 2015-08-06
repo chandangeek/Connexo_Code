@@ -87,7 +87,7 @@ public class WaterDetailBuilderImpl implements WaterDetailBuilder{
 	public WaterDetail build() {
 		WaterDetail wd =  dataModel.getInstance(WaterDetailImpl.class).init(usagePoint, this, interval);
 		usagePoint.addDetail(wd);
-		return wd;
-	}
+        return wd;
+    }
 
 }

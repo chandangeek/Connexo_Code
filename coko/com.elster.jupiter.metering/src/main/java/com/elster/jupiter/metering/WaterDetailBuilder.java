@@ -2,26 +2,26 @@ package com.elster.jupiter.metering;
 
 public interface WaterDetailBuilder {
 
-	WaterDetailBuilder withAmiBillingReady(AmiBillingReadyKind amiBillingReady);
+    WaterDetailBuilder withAmiBillingReady(AmiBillingReadyKind amiBillingReady);
 
-	WaterDetailBuilder withCheckBilling(Boolean checkBilling);
+    WaterDetailBuilder withCheckBilling(Boolean checkBilling);
 
-	WaterDetailBuilder withConnectionState(UsagePointConnectedKind connectionState);
+    WaterDetailBuilder withConnectionState(UsagePointConnectedKind connectionState);
 
-	WaterDetailBuilder withMinimalUsageExpected(Boolean minimalUsageExpected);
+    WaterDetailBuilder withMinimalUsageExpected(Boolean minimalUsageExpected);
 
-	WaterDetailBuilder withServiceDeliveryRemark(String serviceDeliveryRemark);
+    WaterDetailBuilder withServiceDeliveryRemark(String serviceDeliveryRemark);
 
-	AmiBillingReadyKind getAmiBillingReady();
+    AmiBillingReadyKind getAmiBillingReady();
 
-	boolean isCheckBilling();
+    boolean isCheckBilling();
 
-	UsagePointConnectedKind getConnectionState();
+    UsagePointConnectedKind getConnectionState();
 
-	boolean isMinimalUsageExpected();
+    boolean isMinimalUsageExpected();
 
-	String getServiceDeliveryRemark();
+    String getServiceDeliveryRemark();
 
-	WaterDetail build();
+    WaterDetail build();
 
 }

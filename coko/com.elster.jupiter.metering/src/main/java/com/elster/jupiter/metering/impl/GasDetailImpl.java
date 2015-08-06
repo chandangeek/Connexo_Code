@@ -25,7 +25,7 @@ public class GasDetailImpl extends UsagePointDetailImpl implements GasDetail {
         super.init(usagePoint, interval);
         return this;
     }
-    
+
     GasDetailImpl init(UsagePoint usagePoint, GasDetailBuilder builder, Interval interval) {
         super.init(usagePoint, builder, interval);
         return this;

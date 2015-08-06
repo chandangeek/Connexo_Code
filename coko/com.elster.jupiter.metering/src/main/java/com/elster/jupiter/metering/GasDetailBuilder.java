@@ -2,26 +2,26 @@ package com.elster.jupiter.metering;
 
 public interface GasDetailBuilder {
 
-	GasDetailBuilder withAmiBillingReady(AmiBillingReadyKind amiBillingReady);
+    GasDetailBuilder withAmiBillingReady(AmiBillingReadyKind amiBillingReady);
 
-	GasDetailBuilder withCheckBilling(Boolean checkBilling);
+    GasDetailBuilder withCheckBilling(Boolean checkBilling);
 
-	GasDetailBuilder withConnectionState(UsagePointConnectedKind connectionState);
+    GasDetailBuilder withConnectionState(UsagePointConnectedKind connectionState);
 
-	GasDetailBuilder withMinimalUsageExpected(Boolean minimalUsageExpected);
+    GasDetailBuilder withMinimalUsageExpected(Boolean minimalUsageExpected);
 
-	GasDetailBuilder withServiceDeliveryRemark(String serviceDeliveryRemark);
+    GasDetailBuilder withServiceDeliveryRemark(String serviceDeliveryRemark);
 
-	AmiBillingReadyKind getAmiBillingReady();
+    AmiBillingReadyKind getAmiBillingReady();
 
-	boolean isCheckBilling();
+    boolean isCheckBilling();
 
-	UsagePointConnectedKind getConnectionState();
+    UsagePointConnectedKind getConnectionState();
 
-	boolean isMinimalUsageExpected();
+    boolean isMinimalUsageExpected();
 
-	String getServiceDeliveryRemark();
+    String getServiceDeliveryRemark();
 
-	GasDetail build();
+    GasDetail build();
 
 }

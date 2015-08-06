@@ -22,7 +22,6 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
     private Quantity ratedPower;
     private Quantity estimatedLoad;
 
-
     @Inject
     ElectricityDetailImpl(Clock clock, DataModel dataModel) {
         super(clock, dataModel);
@@ -37,7 +36,7 @@ public class ElectricityDetailImpl extends UsagePointDetailImpl implements Elect
         this.phaseCode = PhaseCode.UNKNOWN;
         return this;
     }
-    
+
     ElectricityDetailImpl init(UsagePoint usagePoint, ElectricityDetailBuilder builder, Interval interval) {
         super.init(usagePoint, builder, interval);
         this.grounded = builder.isGrounded();

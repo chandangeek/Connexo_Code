@@ -2,48 +2,48 @@ package com.elster.jupiter.metering;
 
 public interface UsagePointBuilder {
 
-	UsagePointBuilder withAliasName(String aliasName);
+    UsagePointBuilder withAliasName(String aliasName);
 
-	UsagePointBuilder withDescription(String description);
+    UsagePointBuilder withDescription(String description);
 
-	UsagePointBuilder withMRID(String mRID);
+    UsagePointBuilder withMRID(String mRID);
 
-	UsagePointBuilder withName(String name);
+    UsagePointBuilder withName(String name);
 
-	UsagePointBuilder withIsSdp(Boolean isSdp);
+    UsagePointBuilder withIsSdp(Boolean isSdp);
 
-	UsagePointBuilder withIsVirtual(Boolean isVirtual);
+    UsagePointBuilder withIsVirtual(Boolean isVirtual);
 
-	UsagePointBuilder withOutageRegion(String outageRegion);
+    UsagePointBuilder withOutageRegion(String outageRegion);
 
-	UsagePointBuilder withReadCycle(String readCycle);
+    UsagePointBuilder withReadCycle(String readCycle);
 
-	UsagePointBuilder withReadRoute(String readRoute);
+    UsagePointBuilder withReadRoute(String readRoute);
 
-	UsagePointBuilder withServicePriority(String servicePriority);
+    UsagePointBuilder withServicePriority(String servicePriority);
 
-	UsagePoint build();
+    UsagePoint build();
 
-	String getAliasName();
+    String getAliasName();
 
-	String getDescription();
+    String getDescription();
 
-	String getmRID();
+    String getmRID();
 
-	String getName();
+    String getName();
 
-	boolean isSdp();
+    boolean isSdp();
 
-	boolean isVirtual();
+    boolean isVirtual();
 
-	String getOutageRegion();
+    String getOutageRegion();
 
-	String getReadCycle();
+    String getReadCycle();
 
-	String getReadRoute();
+    String getReadRoute();
 
-	String getServicePriority();
+    String getServicePriority();
 
-	ServiceCategory getServiceCategory();
+    ServiceCategory getServiceCategory();
 
 }
