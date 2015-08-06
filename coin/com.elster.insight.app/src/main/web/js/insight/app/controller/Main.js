@@ -11,7 +11,7 @@ Ext.define('InsightApp.controller.Main', {
 
     applicationTitle: 'Connexo Insight',
     applicationKey: 'INS',
-    defaultToken: '/metering',
+    defaultToken: '/insight',
     searchEnabled: true,
     onlineHelpEnabled: false,
 
