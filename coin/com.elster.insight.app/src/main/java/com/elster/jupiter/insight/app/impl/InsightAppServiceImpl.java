@@ -36,8 +36,7 @@ import com.elster.jupiter.util.HasName;
         name = "com.elster.jupiter.insight.app",
         service = {InsightAppService.class, InstallService.class, TranslationKeyProvider.class},
         property = "name=" + InsightAppService.COMPONENTNAME,
-        immediate = true
-)
+        immediate = true)
 public class InsightAppServiceImpl implements InsightAppService, InstallService, TranslationKeyProvider {
     private static final Logger LOGGER = Logger.getLogger(InsightAppServiceImpl.class.getName());
     public static final String HTTP_RESOURCE_ALIAS = "/insight";
@@ -61,8 +60,9 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService,
 
     @Activate
     public final void activate(BundleContext context) {
-        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APP_NAME));
-//        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/home/kurtk/Projects/git/insight/com.elster.jupiter.insight.app/src/main/web/js/insight", new FileResolver(), new DefaultStartPage(APP_NAME));
+       HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APP_NAME));
+//        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/home/kurtk/Projects/git/insight/com.elster.jupiter.insight.app/src/main/web/js/insight", new FileResolver(),
+//                new DefaultStartPage(APP_NAME));
         App app = new App(APP_KEY, APP_NAME, APP_ICON, HTTP_RESOURCE_ALIAS, resource, user -> isAllowed(user));
 
         registration = context.registerService(App.class, app, null);
@@ -103,7 +103,7 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService,
     private List<Privilege> getApplicationPrivileges() {
         return userService.getResources(MeteringService.COMPONENTNAME).stream().flatMap(resource -> resource.getPrivileges().stream()).collect(Collectors.toList());
     }
-    
+
     @Override
     public List<TranslationKey> getKeys() {
         try {
@@ -114,14 +114,14 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService,
         return null;
     }
 
-	@Override
-	public String getComponentName() {
-		//TODO: Change to COMPONENT_NAME after pulling the extjs stuff into a new bundle, etc.
-		return "INS";
-	}
+    @Override
+    public String getComponentName() {
+        //TODO: Change to COMPONENT_NAME after pulling the extjs stuff into a new bundle, etc.
+        return "INS";
+    }
 
-	@Override
-	public Layer getLayer() {
-		return Layer.REST;
-	}
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
 }
