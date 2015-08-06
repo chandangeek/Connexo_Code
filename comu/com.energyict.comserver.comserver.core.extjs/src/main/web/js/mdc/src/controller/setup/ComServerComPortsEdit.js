@@ -584,7 +584,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         store.removeFilter('typeFilter', false);
         store.filter(
             {
-                property: 'type',
+                property: 'comPortType',
                 value: type,
                 id: 'typeFilter'
             }
