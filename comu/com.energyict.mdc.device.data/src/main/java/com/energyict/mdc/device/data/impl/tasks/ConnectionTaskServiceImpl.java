@@ -61,7 +61,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -710,7 +709,8 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         return this.fetchConnectionTypeHeatMapCounters(
                 this.connectionTypeHeatMapSqlBuilder(
                         deviceGroup,
-                        this.connectionTypeHeapMapFailureIndicators(), "ct", "connectiontypepluggableclass"));
+                        this.connectionTypeHeapMapFailureIndicators(),
+                        "connectiontypepluggableclass"));
     }
 
     private Map<ConnectionTypePluggableClass, List<Long>> fetchConnectionTypeHeatMapCounters(SqlBuilder sqlBuilder) {
@@ -752,40 +752,6 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         return Arrays.asList(atLeastOneFailure, completeSuccess, failureSetupError, failureBroken);
     }
 
-    private Map<Long, Map<ComSession.SuccessIndicator, Long>> fetchComSessionSuccessIndicatorHeatMapCounters(SqlBuilder builder) {
-        try (PreparedStatement stmnt = builder.prepare(this.deviceDataModelService.dataModel().getConnection(true))) {
-            return this.fetchComSessionSuccessIndicatorHeatMapCounters(stmnt);
-        } catch (SQLException ex) {
-            throw new UnderlyingSQLFailedException(ex);
-        }
-    }
-
-    private Map<Long, Map<ComSession.SuccessIndicator, Long>> fetchComSessionSuccessIndicatorHeatMapCounters(PreparedStatement statement) throws SQLException {
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> counters = new HashMap<>();
-        try (ResultSet resultSet = statement.executeQuery()) {
-            while (resultSet.next()) {
-                long businessObjectId = resultSet.getLong(1);
-                int successIndicatorOrdinal = resultSet.getInt(2);
-                long counter = resultSet.getLong(3);
-                Map<ComSession.SuccessIndicator, Long> successIndicatorCounters = this.getOrPutSuccessIndicatorCounters(businessObjectId, counters);
-                successIndicatorCounters.put(ComSession.SuccessIndicator.fromOrdinal(successIndicatorOrdinal), counter);
-            }
-        }
-        return counters;
-    }
-
-    private Map<ComSession.SuccessIndicator, Long> getOrPutSuccessIndicatorCounters(long businessObjectId, Map<Long, Map<ComSession.SuccessIndicator, Long>> counters) {
-        Map<ComSession.SuccessIndicator, Long> successIndicatorCounters = counters.get(businessObjectId);
-        if (successIndicatorCounters == null) {
-            successIndicatorCounters = new HashMap<>();
-            for (ComSession.SuccessIndicator missing : EnumSet.allOf(ComSession.SuccessIndicator.class)) {
-                successIndicatorCounters.put(missing, 0L);
-            }
-            counters.put(businessObjectId, successIndicatorCounters);
-        }
-        return successIndicatorCounters;
-    }
-
     private List<Long> missingSuccessIndicatorCounters(ConnectionTypePluggableClass connectionTypePluggableClass) {
         return this.orderSuccessIndicatorCounters(null, null);
     }
@@ -813,80 +779,52 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     @Override
     public Map<DeviceType, List<Long>> getConnectionsDeviceTypeHeatMap() {
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters = this.getConnectionsDeviceTypeHeatMap(false, null);
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> atLeastOneFailingComTaskCounters = this.getConnectionsDeviceTypeHeatMap(true, null);
-        return this.buildDeviceTypeHeatMap(partialCounters, atLeastOneFailingComTaskCounters);
+        return this.doGetConnectionsDeviceTypeHeatMap(null);
     }
 
     @Override
     public Map<DeviceType, List<Long>> getConnectionsDeviceTypeHeatMap(EndDeviceGroup deviceGroup) {
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters = this.getConnectionsDeviceTypeHeatMap(false, deviceGroup);
-        Map<Long, Map<ComSession.SuccessIndicator, Long>> atLeastOneFailingComTaskCounters = this.getConnectionsDeviceTypeHeatMap(true, deviceGroup);
-        return this.buildDeviceTypeHeatMap(partialCounters, atLeastOneFailingComTaskCounters);
+        return this.doGetConnectionsDeviceTypeHeatMap(deviceGroup);
     }
 
-    public Map<Long, Map<ComSession.SuccessIndicator, Long>> getConnectionsDeviceTypeHeatMap(boolean atLeastOneFailingComTask, EndDeviceGroup deviceGroup) {
-        /* For clarity's sake, here is the formatted SQL when atLeastOneFailingComTask == false:
-           SELECT dev.DEVICETYPE, ct.lastSessionSuccessIndicator, count(*)
-             FROM DDC_CONNECTIONTASK ct
-             JOIN DDC_DEVICE dev ON ct.DEVICE = dev.id
-            WHERE ct.status = 0
-              AND ct.lastSessionSuccessIndicator = 0
-              AND NOT EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION ctes
-                               WHERE ctes.COMSESSION = ct.lastSession
-                                 AND ctes.SUCCESSINDICATOR > 0)
-            GROUP BY dev.DEVICETYPE, ct.lastSessionSuccessIndicator
- UNION ALL SELECT dev.DEVICETYPE, ct.lastSessionSuccessIndicator, count(*)
-             FROM DDC_CONNECTIONTASK ct
-             JOIN DDC_DEVICE dev ON ct.DEVICE = dev.id
-            WHERE ct.status = 0
-              AND ct.lastSessionSuccessIndicator > 0
-            GROUP BY dev.DEVICETYPE, ct.lastSessionSuccessIndicator
-
-            when atLeastOneFailingComTask = true
-           SELECT dev.DEVICETYPE, ct.lastSessionSuccessIndicator, count(*)
-             FROM DDC_CONNECTIONTASK ct
-             JOIN DDC_DEVICE dev ON ct.DEVICE = dev.id
-            WHERE ct.status = 0
-              AND ct.lastSessionSuccessIndicator = 0
-              AND EXISTS (SELECT * FROM DDC_COMTASKEXECSESSION ctes
-                               WHERE ctes.COMSESSION = ct.lastSession
-                                 AND ctes.SUCCESSINDICATOR > 0)
-            GROUP BY dev.DEVICETYPE, ct.lastSessionSuccessIndicator
-         */
-        SqlBuilder sqlBuilder = new SqlBuilder("select dev.DEVICETYPE, ct.lastSessionSuccessIndicator, count(*) from ");
-        sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" ct join ");
-        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
-        sqlBuilder.append(" dev on ct.device = dev.id where ct.status = 0 and ct.lastSessionSuccessIndicator = 0");
-        this.appendConnectionTypeHeatMapComTaskExecutionSessionConditions(atLeastOneFailingComTask, sqlBuilder);
-        this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
-        this.appendRestrictedStatesCondition(sqlBuilder);
-        sqlBuilder.append(" group by dev.devicetype, ct.lastSessionSuccessIndicator");
-        sqlBuilder.append(" UNION ALL ");
-        sqlBuilder.append("select dev.DEVICETYPE, ct.lastSessionSuccessIndicator, count(*) from ");
-        sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" ct join ");
-        sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
-        sqlBuilder.append(" dev on ct.device = dev.id where ct.status = 0 and ct.lastSessionSuccessIndicator > 0 ");
-        this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
-        this.appendRestrictedStatesCondition(sqlBuilder);
-        sqlBuilder.append(" group by dev.devicetype, ct.lastSessionSuccessIndicator");
-        return this.fetchComSessionSuccessIndicatorHeatMapCounters(sqlBuilder);
+    private Map<DeviceType, List<Long>> doGetConnectionsDeviceTypeHeatMap(EndDeviceGroup deviceGroup) {
+        return this.fetchDeviceTypeHeatMapCounters(
+                this.connectionTypeHeatMapSqlBuilder(
+                        deviceGroup,
+                        this.connectionTypeHeapMapFailureIndicators(),
+                        "dev", "devicetype",
+                        "DDC_DEVICE dev", "ct.device = dev.id"));
     }
 
-    private Map<DeviceType, List<Long>> buildDeviceTypeHeatMap(Map<Long, Map<ComSession.SuccessIndicator, Long>> partialCounters, Map<Long, Map<ComSession.SuccessIndicator, Long>> remainingCounters) {
-        Map<Long, DeviceType> deviceTypes = this.deviceDataModelService.deviceConfigurationService().findAllDeviceTypes().find().
-                stream().
-                collect(Collectors.toMap(DeviceType::getId, Function.identity()));
+    private Map<DeviceType, List<Long>> fetchDeviceTypeHeatMapCounters(SqlBuilder sqlBuilder) {
+        try (PreparedStatement statement = sqlBuilder.prepare(this.deviceDataModelService.dataModel().getConnection(true))) {
+            return this.fetchDeviceTypeHeatMapCounters(statement);
+        }
+        catch (SQLException ex) {
+            throw new UnderlyingSQLFailedException(ex);
+        }
+    }
+
+    private Map<DeviceType, List<Long>> fetchDeviceTypeHeatMapCounters(PreparedStatement statement) throws SQLException {
+        Map<Long, DeviceType> deviceTypes =
+                this.deviceDataModelService
+                        .deviceConfigurationService()
+                        .findAllDeviceTypes()
+                        .find()
+                        .stream()
+                        .collect(Collectors.toMap(
+                                DeviceType::getId,
+                                Function.identity()));
         Map<DeviceType, List<Long>> heatMap =
                 deviceTypes.values().stream().collect(
                         Collectors.toMap(
                                 Function.identity(),
                                 this::missingCompletionCodeCounters));
-        for (Long deviceTypeId : this.union(partialCounters.keySet(), remainingCounters.keySet())) {
-            DeviceType deviceType = deviceTypes.get(deviceTypeId);
-            heatMap.put(deviceType, this.orderSuccessIndicatorCounters(partialCounters.get(deviceTypeId), remainingCounters.get(deviceTypeId)));
+        try (ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                long deviceTypeId = resultSet.getLong(1);
+                heatMap.put(deviceTypes.get(deviceTypeId), this.toConnectionTypeHeatMapCounters(resultSet));
+            }
         }
         return heatMap;
     }
@@ -910,7 +848,6 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
                 this.connectionTypeHeatMapSqlBuilder(
                         deviceGroup,
                         this.connectionTypeHeapMapFailureIndicators(),
-                        "ct",
                         "comportpool"));
     }
 
@@ -943,37 +880,6 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         return heatMap;
     }
 
-    /*
-     select ED.amrid
-       from MTR_ENDDEVICESTATUS ES,
-        (select FS.ID
-          from FSM_STATE FS
-          where FS.OBSOLETE_TIMESTAMP IS NULL and FS.NAME NOT IN ('dlc.default.inStock', 'dlc.default.decommissioned')) FS,
-        MTR_ENDDEVICE ED
-       where ES.STARTTIME <= 1436517667000 and ES.ENDTIME > 1436517667000 and ED.ID = ES.ENDDEVICE and ES.STATE = FS.ID;
-     */
-    private void appendRestrictedStatesCondition(SqlBuilder sqlBuilder) {
-        long currentTime = this.clock.millis();
-        sqlBuilder.append(" and ct.device in");
-        sqlBuilder.append(" (select ED.amrid");
-        sqlBuilder.append(" from MTR_ENDDEVICESTATUS ES, (select FS.ID from FSM_STATE FS where FS.OBSOLETE_TIMESTAMP IS NULL and ");
-        sqlBuilder.append("FS.NAME NOT IN ('");
-        sqlBuilder.append(DefaultState.IN_STOCK.getKey());
-        sqlBuilder.append("', '");
-        sqlBuilder.append(DefaultState.DECOMMISSIONED.getKey());
-        sqlBuilder.append("')) FS, MTR_ENDDEVICE ED where ES.STARTTIME <= ");
-        sqlBuilder.append(String.valueOf(currentTime));
-        sqlBuilder.append(" and ES.ENDTIME > ");
-        sqlBuilder.append(String.valueOf(currentTime));
-        sqlBuilder.append(" and ED.ID = ES.ENDDEVICE and ES.STATE = FS.ID)");
-    }
-
-    private Set<Long> union(Set<Long> businessObjectIds, Set<Long> moreBusinessObjectIds) {
-        Set<Long> union = new HashSet<>(businessObjectIds);
-        union.addAll(moreBusinessObjectIds);
-        return union;
-    }
-
     private Optional<AmrSystem> getMdcAmrSystem() {
         return this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
     }
@@ -981,8 +887,17 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     private SqlBuilder connectionTypeHeatMapSqlBuilder(
             final EndDeviceGroup deviceGroup,
             final List<ComSession.SuccessIndicator> failureIndicators,
-            final String groupByEntityAliasName,
             final String groupByFieldName) {
+        return this.connectionTypeHeatMapSqlBuilder(deviceGroup, failureIndicators, "ct", groupByFieldName, "", "");
+    }
+
+    private SqlBuilder connectionTypeHeatMapSqlBuilder(
+            final EndDeviceGroup deviceGroup,
+            final List<ComSession.SuccessIndicator> failureIndicators,
+            final String groupByEntityAliasName,
+            final String groupByFieldName,
+            final String additionalFromClause,
+            final String additionalJoinClause) {
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder.append("WITH failedTask as (");
         sqlBuilder.append("  select comsession");
@@ -990,7 +905,9 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXECSESSION.name());
         sqlBuilder.append("   where successindicator > 0");
         sqlBuilder.append("   group by comsession)");
-        sqlBuilder.append("select " + groupByFieldName + ", sum(completeSucces), sum(atLeastOneFailure), ");
+        sqlBuilder.append("select ");
+        sqlBuilder.append(groupByFieldName);
+        sqlBuilder.append(", sum(completeSucces), sum(atLeastOneFailure), ");
         sqlBuilder.append(
                 failureIndicators
                         .stream()
@@ -1019,7 +936,18 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
                         .collect(Collectors.joining(",")));
         sqlBuilder.append("        from ");
         sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" ct, failedTask where ct.obsolete_date is null and ct.status = 0 and ct.lastSession = failedTask.comSession(+)");
+        sqlBuilder.append(" ct, ");
+        sqlBuilder.append(additionalFromClause);
+        if (!additionalFromClause.isEmpty()) {
+            sqlBuilder.append(", ");
+        }
+        sqlBuilder.append("failedTask where ct.obsolete_date is null and ct.status = 0 and ");
+        sqlBuilder.append(additionalJoinClause);
+        if (!additionalJoinClause.isEmpty()) {
+            sqlBuilder.append(" and ");
+        }
+        sqlBuilder.append("ct.lastSession = failedTask.comSession(+)");
+        this.appendRestrictedStatesCondition(sqlBuilder);
         this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
         sqlBuilder.append("       )");
         sqlBuilder.append(" group by " + groupByFieldName);
@@ -1049,6 +977,31 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
             }
             sqlBuilder.append(")");
         }
+    }
+
+    /*
+     select ED.amrid
+       from MTR_ENDDEVICESTATUS ES,
+        (select FS.ID
+          from FSM_STATE FS
+          where FS.OBSOLETE_TIMESTAMP IS NULL and FS.NAME NOT IN ('dlc.default.inStock', 'dlc.default.decommissioned')) FS,
+        MTR_ENDDEVICE ED
+       where ES.STARTTIME <= 1436517667000 and ES.ENDTIME > 1436517667000 and ED.ID = ES.ENDDEVICE and ES.STATE = FS.ID;
+     */
+    private void appendRestrictedStatesCondition(SqlBuilder sqlBuilder) {
+        long currentTime = this.clock.millis();
+        sqlBuilder.append(" and ct.device in");
+        sqlBuilder.append(" (select ED.amrid");
+        sqlBuilder.append(" from MTR_ENDDEVICESTATUS ES, (select FS.ID from FSM_STATE FS where FS.OBSOLETE_TIMESTAMP IS NULL and ");
+        sqlBuilder.append("FS.NAME NOT IN ('");
+        sqlBuilder.append(DefaultState.IN_STOCK.getKey());
+        sqlBuilder.append("', '");
+        sqlBuilder.append(DefaultState.DECOMMISSIONED.getKey());
+        sqlBuilder.append("')) FS, MTR_ENDDEVICE ED where ES.STARTTIME <= ");
+        sqlBuilder.append(String.valueOf(currentTime));
+        sqlBuilder.append(" and ES.ENDTIME > ");
+        sqlBuilder.append(String.valueOf(currentTime));
+        sqlBuilder.append(" and ED.ID = ES.ENDDEVICE and ES.STATE = FS.ID)");
     }
 
 }
