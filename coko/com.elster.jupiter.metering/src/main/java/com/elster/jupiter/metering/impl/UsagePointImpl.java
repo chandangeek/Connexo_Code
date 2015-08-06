@@ -29,7 +29,6 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointDetail;
-import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -65,84 +64,75 @@ public class UsagePointImpl implements UsagePoint {
 	@SuppressWarnings("unused")
 	private String userName;
 
-    private TemporalReference<UsagePointDetailImpl> detail = Temporals.absent();
+	private TemporalReference<UsagePointDetailImpl> detail = Temporals.absent();
 
-    // associations
+	// associations
 	private final Reference<ServiceCategory> serviceCategory = ValueReference.absent();
 	private final Reference<ServiceLocation> serviceLocation = ValueReference.absent();
 	private final List<MeterActivationImpl> meterActivations = new ArrayList<>();
 	private final List<UsagePointAccountability> accountabilities = new ArrayList<>();
 
-    private final DataModel dataModel;
-    private final EventService eventService;
-    private final Provider<MeterActivationImpl> meterActivationFactory;
-    private final Provider<UsagePointAccountabilityImpl> accountabilityFactory;
+	private final DataModel dataModel;
+	private final EventService eventService;
+	private final Provider<MeterActivationImpl> meterActivationFactory;
+	private final Provider<UsagePointAccountabilityImpl> accountabilityFactory;
 
-    @Inject
+	@Inject
 	UsagePointImpl(DataModel dataModel, EventService eventService,
 			Provider<MeterActivationImpl> meterActivationFactory,
 			Provider<UsagePointAccountabilityImpl> accountabilityFactory) {
-        this.dataModel = dataModel;
-        this.eventService = eventService;
-        this.meterActivationFactory = meterActivationFactory;
-        this.accountabilityFactory = accountabilityFactory;
-    }
+		this.dataModel = dataModel;
+		this.eventService = eventService;
+		this.meterActivationFactory = meterActivationFactory;
+		this.accountabilityFactory = accountabilityFactory;
+	}
 
 	UsagePointImpl init(String mRID , ServiceCategory serviceCategory) {
 		this.mRID = mRID;
 		this.serviceCategory.set(serviceCategory);
 		this.isSdp = true;
-        return this;
+		return this;
 	}
-	
+
 	public UsagePointBuilder getNewBuilder(ServiceCategory serviceCategory) {
 		return new UsagePointBuilderImpl(serviceCategory, this);
 	}
-	
-    public UsagePointDetail newUsagePointDetail(Instant start) {
-    	Interval interval = Interval.of(Range.atLeast(start));
-    	ServiceKind kind = getServiceCategory().getKind();
-        if (kind.equals(ServiceKind.ELECTRICITY)) {
-            return ElectricityDetailImpl.from(dataModel, this, interval);
-        } 
-        else if (kind.equals(ServiceKind.GAS)) {
-            return GasDetailImpl.from(dataModel, this, interval);
-        } else if (kind.equals(ServiceKind.WATER)) {
-            return WaterDetailImpl.from(dataModel, this, interval);
-        } else {
-            return DefaultDetailImpl.from(dataModel, this, interval);
-        }
-    }
-    
-    @Override
-	public UsagePointDetailBuilder getNewUsagePointDetailBuilder() {
-		// TODO Auto-generated method stub
-		return null;
+
+	public UsagePointDetail newUsagePointDetail(Instant start) {
+		Interval interval = Interval.of(Range.atLeast(start));
+		ServiceKind kind = getServiceCategory().getKind();
+		if (kind.equals(ServiceKind.ELECTRICITY)) {
+			return ElectricityDetailImpl.from(dataModel, this, interval);
+		} 
+		else if (kind.equals(ServiceKind.GAS)) {
+			return GasDetailImpl.from(dataModel, this, interval);
+		} else if (kind.equals(ServiceKind.WATER)) {
+			return WaterDetailImpl.from(dataModel, this, interval);
+		} else {
+			return DefaultDetailImpl.from(dataModel, this, interval);
+		}
 	}
 
-    @Override
+	@Override
 	public ElectricityDetailBuilder newElectricityDetailBuilder(Instant start) {
 		Interval interval = Interval.of(Range.atLeast(start));
 		return new ElectricityDetailBuilderImpl(dataModel, this, interval);
 	}
-    
-    @Override
+
+	@Override
 	public GasDetailBuilder newGasDetailBuilder(Instant start) {
 		Interval interval = Interval.of(Range.atLeast(start));
 		return new GasDetailBuilderImpl(dataModel, this, interval);
 	}
-    
-    @Override
+
+	@Override
 	public WaterDetailBuilder newWaterDetailBuilder(Instant start) {
 		Interval interval = Interval.of(Range.atLeast(start));
 		return new WaterDetailBuilderImpl(dataModel, this, interval);
 	}
-	
-	
-	
+
 	UsagePointImpl init(UsagePointBuilder upb) {
 		this.serviceCategory.set(upb.getServiceCategory());
-		
 		this.aliasName=upb.getAliasName();
 		this.description=upb.getDescription();
 		this.mRID = upb.getmRID();
@@ -153,7 +143,6 @@ public class UsagePointImpl implements UsagePoint {
 		this.readCycle=upb.getReadCycle();
 		this.readRoute=upb.getReadRoute();
 		this.servicePriority=upb.getServicePriority();
-		
 		save();
 		return this;
 	}
@@ -167,7 +156,6 @@ public class UsagePointImpl implements UsagePoint {
 	public long getServiceLocationId() {
 		ServiceLocation location = getServiceLocation().get();
 		return location == null ? 0L : location.getId();
-
 	}
 
 	@Override
@@ -289,18 +277,18 @@ public class UsagePointImpl implements UsagePoint {
 	public void save() {
 		if (id == 0) {
 			Save.CREATE.save(dataModel, this);
-            eventService.postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
+			eventService.postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
 		} else {
 			Save.UPDATE.save(dataModel, this);
-            eventService.postEvent(EventType.USAGEPOINT_UPDATED.topic(), this);
+			eventService.postEvent(EventType.USAGEPOINT_UPDATED.topic(), this);
 		}
 	}
 
-    @Override
-    public void delete() {
-        dataModel.remove(this);
-        eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
-    }
+	@Override
+	public void delete() {
+		dataModel.remove(this);
+		eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
+	}
 
 	@Override
 	public List<MeterActivationImpl> getMeterActivations() {
@@ -309,11 +297,11 @@ public class UsagePointImpl implements UsagePoint {
 
 	@Override
 	public Optional<MeterActivation> getCurrentMeterActivation() {
-        return meterActivations.stream()
-                .filter(MeterActivation::isCurrent)
-                .map(MeterActivation.class::cast)
-                .findAny();
-    }
+		return meterActivations.stream()
+				.filter(MeterActivation::isCurrent)
+				.map(MeterActivation.class::cast)
+				.findAny();
+	}
 
 	@Override
 	public Instant getCreateDate() {
@@ -331,10 +319,10 @@ public class UsagePointImpl implements UsagePoint {
 
 	@Override
 	public List<UsagePointAccountability> getAccountabilities() {
-        return ImmutableList.copyOf(accountabilities);
+		return ImmutableList.copyOf(accountabilities);
 	}
 
-    @Override
+	@Override
 	public MeterActivation activate(Instant start) {
 		MeterActivationImpl result = meterActivationFactory.get().init(this, start);
 		dataModel.persist(result);
@@ -342,7 +330,7 @@ public class UsagePointImpl implements UsagePoint {
 		return result;
 	}
 
-    @Override
+	@Override
 	public MeterActivation activate(Meter meter, Instant start) {
 		MeterActivationImpl result = meterActivationFactory.get().init(meter, this, start);
 		dataModel.persist(result);
@@ -350,28 +338,28 @@ public class UsagePointImpl implements UsagePoint {
 		return result;
 	}
 
-    public void adopt(MeterActivationImpl meterActivation) {
-        meterActivations.stream()
-                .filter(activation -> activation.getId() != meterActivation.getId())
-                .reduce((m1, m2) -> m2)
-                .ifPresent(last -> {
-                    if (last.getRange().lowerEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
-                        throw new IllegalArgumentException("Invalid start date");
-                    } else {
-                        if (!last.getRange().hasUpperBound()  || last.getRange().upperEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
-                            last.endAt(meterActivation.getRange().lowerEndpoint());
-                        }
-                    }
-                });
-    	Optional<Meter> meter = meterActivation.getMeter();
-    	if (meter.isPresent()) {
+	public void adopt(MeterActivationImpl meterActivation) {
+		meterActivations.stream()
+		.filter(activation -> activation.getId() != meterActivation.getId())
+		.reduce((m1, m2) -> m2)
+		.ifPresent(last -> {
+			if (last.getRange().lowerEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
+				throw new IllegalArgumentException("Invalid start date");
+			} else {
+				if (!last.getRange().hasUpperBound()  || last.getRange().upperEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
+					last.endAt(meterActivation.getRange().lowerEndpoint());
+				}
+			}
+		});
+		Optional<Meter> meter = meterActivation.getMeter();
+		if (meter.isPresent()) {
 			// if meter happens to be the same meter of the last meteractivation that we just closed a few lines above,
 			// best is to refresh the meter so the updated meteractivations are refetched from db. see COPL-854
 			Meter existing = dataModel.mapper(Meter.class).getExisting(meter.get().getId());
 			((MeterImpl) existing).adopt(meterActivation);
 		}
-    	meterActivations.add(meterActivation);
-    }
+		meterActivations.add(meterActivation);
+	}
 
 	@Override
 	public UsagePointAccountability addAccountability(PartyRole role , Party party , Instant start) {
@@ -380,70 +368,70 @@ public class UsagePointImpl implements UsagePoint {
 		return accountability;
 	}
 
-    @Override
-    public boolean hasAccountability(User user) {
-        for (UsagePointAccountability accountability : getAccountabilities()) {
-            for (PartyRepresentation representation : accountability.getParty().getCurrentDelegates()) {
-                if (representation.getDelegate().equals(user)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+	@Override
+	public boolean hasAccountability(User user) {
+		for (UsagePointAccountability accountability : getAccountabilities()) {
+			for (PartyRepresentation representation : accountability.getParty().getCurrentDelegates()) {
+				if (representation.getDelegate().equals(user)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
-    @Override
-    public Optional<UsagePointDetailImpl> getDetail(Instant instant) {
-        return detail.effective(instant);
-    }
+	@Override
+	public Optional<UsagePointDetailImpl> getDetail(Instant instant) {
+		return detail.effective(instant);
+	}
 
-    @Override
-    public List<UsagePointDetailImpl> getDetail(Range<Instant> range) {
-        return detail.effective(range);
-    }
+	@Override
+	public List<UsagePointDetailImpl> getDetail(Range<Instant> range) {
+		return detail.effective(range);
+	}
 
-    @Override
-    public void addDetail(UsagePointDetail newDetail) {
-        Optional<UsagePointDetailImpl> optional = this.getDetail(newDetail.getRange().lowerEndpoint());
-        if (optional.isPresent()) {
-            UsagePointDetailImpl previousDetail = optional.get();
-            this.terminateDetail(previousDetail, newDetail.getRange().lowerEndpoint());
-        }
-        validateAddingDetail(newDetail);
-        detail.add((UsagePointDetailImpl) newDetail);
-        touch();
-    }
+	@Override
+	public void addDetail(UsagePointDetail newDetail) {
+		Optional<UsagePointDetailImpl> optional = this.getDetail(newDetail.getRange().lowerEndpoint());
+		if (optional.isPresent()) {
+			UsagePointDetailImpl previousDetail = optional.get();
+			this.terminateDetail(previousDetail, newDetail.getRange().lowerEndpoint());
+		}
+		validateAddingDetail(newDetail);
+		detail.add((UsagePointDetailImpl) newDetail);
+		touch();
+	}
 
-    public void touch() {
-        if (id != 0) {
-            dataModel.touch(this);
-        }
-    }
+	public void touch() {
+		if (id != 0) {
+			dataModel.touch(this);
+		}
+	}
 
-    @Override
-    public UsagePointDetail terminateDetail(UsagePointDetail detail, Instant date) {
-        UsagePointDetailImpl toUpdate = null;
-        if (detail.getUsagePoint() == this) {
-            toUpdate = (UsagePointDetailImpl) detail;
-        }
-        if (toUpdate == null || !detail.isEffectiveAt(date)) {
-            throw new IllegalArgumentException();
-        }
-        toUpdate.terminate(date);
-        dataModel.update(toUpdate);
-        touch();
-        return toUpdate;
-    }
+	@Override
+	public UsagePointDetail terminateDetail(UsagePointDetail detail, Instant date) {
+		UsagePointDetailImpl toUpdate = null;
+		if (detail.getUsagePoint() == this) {
+			toUpdate = (UsagePointDetailImpl) detail;
+		}
+		if (toUpdate == null || !detail.isEffectiveAt(date)) {
+			throw new IllegalArgumentException();
+		}
+		toUpdate.terminate(date);
+		dataModel.update(toUpdate);
+		touch();
+		return toUpdate;
+	}
 
-    private void validateAddingDetail(UsagePointDetail candidate) {
-        for (UsagePointDetail usagePointDetail : detail.effective(candidate.getRange())) {
-            if (candidate.conflictsWith(usagePointDetail)) {
-                throw new IllegalArgumentException("Conflicts with existing usage point characteristics : " + candidate);
-            }
-        }
-    }
+	private void validateAddingDetail(UsagePointDetail candidate) {
+		for (UsagePointDetail usagePointDetail : detail.effective(candidate.getRange())) {
+			if (candidate.conflictsWith(usagePointDetail)) {
+				throw new IllegalArgumentException("Conflicts with existing usage point characteristics : " + candidate);
+			}
+		}
+	}
 
-    @Override
+	@Override
 	public List<? extends BaseReadingRecord> getReadings(Range<Instant> range, ReadingType readingType) {
 		return MeterActivationsImpl.from(meterActivations, range).getReadings(range, readingType);
 	}
@@ -468,10 +456,10 @@ public class UsagePointImpl implements UsagePoint {
 		return MeterActivationsImpl.from(meterActivations).getReadingsOnOrBefore(when, readingType, count);
 	}
 
-    @Override
-    public boolean hasData() {
-        return MeterActivationsImpl.from(meterActivations).hasData();
-    }
+	@Override
+	public boolean hasData() {
+		return MeterActivationsImpl.from(meterActivations).hasData();
+	}
 
 	@Override
 	public Optional<Party> getCustomer(Instant when) {
@@ -488,27 +476,27 @@ public class UsagePointImpl implements UsagePoint {
 		return Optional.empty();
 	}
 
-    @Override
-    public boolean is(ReadingContainer other) {
-        return other instanceof UsagePoint && ((UsagePoint) other).getId() == getId();
-    }
+	@Override
+	public boolean is(ReadingContainer other) {
+		return other instanceof UsagePoint && ((UsagePoint) other).getId() == getId();
+	}
 
-    @Override
-    public Optional<Meter> getMeter(Instant instant) {
-        return getMeterActivation(instant).flatMap(MeterActivation::getMeter);
-    }
+	@Override
+	public Optional<Meter> getMeter(Instant instant) {
+		return getMeterActivation(instant).flatMap(MeterActivation::getMeter);
+	}
 
-    @Override
-    public Optional<? extends MeterActivation> getMeterActivation(Instant when) {
-        return meterActivations.stream()
-                .filter(meterActivation -> meterActivation.isEffectiveAt(when))
-                .findFirst();
-    }
+	@Override
+	public Optional<? extends MeterActivation> getMeterActivation(Instant when) {
+		return meterActivations.stream()
+				.filter(meterActivation -> meterActivation.isEffectiveAt(when))
+				.findFirst();
+	}
 
-    @Override
-    public Optional<UsagePoint> getUsagePoint(Instant instant) {
-        return Optional.of(this);
-    }
+	@Override
+	public Optional<UsagePoint> getUsagePoint(Instant instant) {
+		return Optional.of(this);
+	}
 
 	@Override
 	public ZoneId getZoneId() {
