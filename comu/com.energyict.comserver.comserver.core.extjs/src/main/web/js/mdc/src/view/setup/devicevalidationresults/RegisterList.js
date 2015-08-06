@@ -25,7 +25,10 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RegisterList', {
                     if (record.get('interval') == null) {
                            return Ext.String.format(Uni.I18n.translate('validationResults.last', 'MDC', 'Last {0} {1}'),
                                1,
-                               Uni.I18n.translatePlural('general.'+record.get('intervalRecord').get('all').timeUnit, record.get('intervalRecord').get('all').count, 'MDC', record.get('intervalRecord').get('all').timeUnit));
+                               Uni.I18n.translatePlural('general.'+record.get('intervalRecord').get('all').timeUnit,
+                                   record.get('intervalRecord').get('all').count,
+                                   'MDC',
+                                   record.get('intervalRecord').get('all').timeUnit));
                     }
                     else if(record.get('intervalEnd') && record.get('intervalInMs')){
 
@@ -54,7 +57,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RegisterList', {
                         new Date(record.get('intervalStart')),'Y-m-dTH:i:s');
 
                     href = me.router.getRoute('devices/device/registers/registerdata').buildUrl(
-                        {   mRID: encodeURIComponent(record.get('mRID')),
+                        {   mRID: record.get('mRID'),
                             registerId: record.get('id')
 
                         }, {filter: filter});
