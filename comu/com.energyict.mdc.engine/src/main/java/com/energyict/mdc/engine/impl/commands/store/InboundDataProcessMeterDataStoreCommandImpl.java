@@ -4,9 +4,8 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 
 /**
- * Copyrights EnergyICT
- * Date: 05.08.15
- * Time: 16:12
+ * Stores the processed data in the database. If it fails, we inform the ProvideInboundResponseDeviceCommand
+ * so it can provide a proper response to the device.
  */
 public class InboundDataProcessMeterDataStoreCommandImpl extends MeterDataStoreCommandImpl {
 
@@ -22,7 +21,6 @@ public class InboundDataProcessMeterDataStoreCommandImpl extends MeterDataStoreC
         try {
             super.doExecute(comServerDAO);
         } catch (Exception e) {
-            e.printStackTrace();
             executionContext.getStoreCommand().getChildren().stream().filter(deviceCommand -> deviceCommand instanceof ProvideInboundResponseDeviceCommand)
                     .findFirst().ifPresent(deviceCommand -> ((ProvideInboundResponseDeviceCommand) deviceCommand).dataStorageFailed());
         }

@@ -73,7 +73,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     FW_DISCOVERED_DEPRECATE_WAS_FINAL(156, Keys.FW_DISCOVERED_DEPRECATE_WAS_FINAL, "Discovered a deprecate firmware version '{0}', while it previously was a final version '{1}'", Level.INFO),
     FW_UNKNOWN(157, "DDC.device.firmware.unknown", "Unknown firmware version transition...", Level.INFO),
 
-    INBOUND_DATA_STORAGE_FAILURE(158, "DDC.inbound.data.storage.failure", "Failed to store the data for inbound communication", Level.INFO),
+    INBOUND_DATA_STORAGE_FAILURE(158, "DDC.inbound.data.storage.failure", "Failed to store the data for inbound communication", Level.SEVERE),
+    INBOUND_DATA_RESPONSE_FAILURE(159, "DDC.inbound.data.response.failure", "Failed to store to provide a proper result to the device", Level.SEVERE),
 
     ;
 

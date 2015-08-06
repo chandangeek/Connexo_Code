@@ -80,25 +80,17 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
      */
     @Override
     public Future<Boolean> doExecuteStoreCommand() {
-        boolean success = false;
+        Future<Boolean> future = super.doExecuteStoreCommand();
         try {
-            Future<Boolean> future = super.doExecuteStoreCommand();
-            try {
-                success = future.get();        //Blocking call until the device command is fully executed (= collected data is stored)
-            } catch (InterruptedException e) {
-                success = false;
-                Thread.currentThread().interrupt();
-            } catch (ExecutionException e) {
-                //Should never happen, since the Worker (Callable) already catches Throwable
-                success = false;
-            }
-            return future;
-        } finally {
-//            if(!success){
-                getExecutionContext().getStoreCommand().getChildren().stream().filter(deviceCommand -> deviceCommand instanceof ProvideInboundResponseDeviceCommand)
-                        .findFirst().ifPresent(deviceCommand -> ((ProvideInboundResponseDeviceCommand) deviceCommand).dataStorageFailed());
-//            }
+            future.get();        //Blocking call until the device command is fully executed (= collected data is stored)
+            //TODO do proper exception handling!!
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         }
+        return future;
     }
 
     @Override
@@ -151,15 +143,12 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         if (ComCommandTypes.MESSAGES_COMMAND.appliesTo(protocolTask)) {
             command = new InboundCollectedMessageListCommandImpl(((MessagesTask) protocolTask), this.offlineDevice, root, data, comTaskExecution);
             this.addToRoot(command, root, comTaskExecution);
-        }
-        else if (ComCommandTypes.LOGBOOKS_COMMAND.appliesTo(protocolTask)) {
+        } else if (ComCommandTypes.LOGBOOKS_COMMAND.appliesTo(protocolTask)) {
             command = new InboundCollectedLogBookCommandImpl((LogBooksTask) protocolTask, this.offlineDevice, root, comTaskExecution, data, this.serviceProvider.deviceService());
             this.addToRoot(command, root, comTaskExecution);
-        }
-        else if (ComCommandTypes.LOAD_PROFILE_COMMAND.appliesTo(protocolTask)) {
+        } else if (ComCommandTypes.LOAD_PROFILE_COMMAND.appliesTo(protocolTask)) {
             command = new InboundCollectedLoadProfileCommandImpl((LoadProfilesTask) protocolTask, this.offlineDevice, root, comTaskExecution, data);
-        }
-        else {  // Must be ComCommandTypes.REGISTERS_COMMAND
+        } else {  // Must be ComCommandTypes.REGISTERS_COMMAND
             command = new InboundCollectedRegisterCommandImpl((RegistersTask) protocolTask, this.offlineDevice, root, comTaskExecution, data, this.serviceProvider.deviceService());
         }
         this.addToRoot(command, root, comTaskExecution);

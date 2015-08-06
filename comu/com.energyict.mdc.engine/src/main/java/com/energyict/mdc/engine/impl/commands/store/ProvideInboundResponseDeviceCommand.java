@@ -1,9 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 /**
- * Copyrights EnergyICT
- * Date: 05.08.15
- * Time: 15:01
+ * A DeviceCommand that during it's execute method provides a proper response to the actual Device.
  */
 public interface ProvideInboundResponseDeviceCommand extends DeviceCommand {
 

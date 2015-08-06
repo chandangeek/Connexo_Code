@@ -1,36 +1,47 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
+import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 
 /**
- * Copyrights EnergyICT
- * Date: 05.08.15
- * Time: 15:03
+ * Provides a proper response to the actual device via the InboundDeviceProtocol.
+ * It for some reason this fails, we try to log this in the ComSession
  */
-public class ProvideInboundResponseDeviceCommandImpl  extends DeviceCommandImpl implements ProvideInboundResponseDeviceCommand {
+public class ProvideInboundResponseDeviceCommandImpl extends DeviceCommandImpl implements ProvideInboundResponseDeviceCommand {
 
     private final InboundCommunicationHandler inboundCommunicationHandler;
     private final InboundDeviceProtocol inboundDeviceProtocol;
+    private final ExecutionContext executionContext;
     private boolean success = true; // optimistic
 
-    public ProvideInboundResponseDeviceCommandImpl(ServiceProvider serviceProvider, InboundCommunicationHandler inboundCommunicationHandler, InboundDeviceProtocol inboundDeviceProtocol) {
-        super(serviceProvider);
+    public ProvideInboundResponseDeviceCommandImpl(InboundCommunicationHandler inboundCommunicationHandler, InboundDeviceProtocol inboundDeviceProtocol, ExecutionContext executionContext) {
+        super(executionContext.getDeviceCommandServiceProvider());
         this.inboundCommunicationHandler = inboundCommunicationHandler;
         this.inboundDeviceProtocol = inboundDeviceProtocol;
+        this.executionContext = executionContext;
     }
 
     @Override
     protected void doExecute(ComServerDAO comServerDAO) {
         try {
-//            inboundCommunicationHandler.provideResponse(inboundDeviceProtocol, success ? InboundDeviceProtocol.DiscoverResponseType.SUCCESS : InboundDeviceProtocol.DiscoverResponseType.STORING_FAILURE);
+            inboundCommunicationHandler.provideResponse(inboundDeviceProtocol, success ? InboundDeviceProtocol.DiscoverResponseType.SUCCESS : InboundDeviceProtocol.DiscoverResponseType.STORING_FAILURE);
         } catch (Exception e) {
-            //TODO update the comsession
-            e.printStackTrace();
+            executionContext.getStoreCommand().getChildren().stream().filter(deviceCommand -> deviceCommand instanceof CreateComSessionDeviceCommand)
+                    .findFirst().ifPresent(deviceCommand ->
+                    ((CreateComSessionDeviceCommand) deviceCommand).addIssue(CompletionCode.ConnectionError,
+                            createCouldNotProvideProperResponseIssue(), executionContext.getComTaskExecution()));
         }
+    }
+
+    private Problem createCouldNotProvideProperResponseIssue() {
+        return ((ServiceProvider) executionContext.getDeviceCommandServiceProvider()).issueService().newProblem(inboundDeviceProtocol, MessageSeeds.INBOUND_DATA_RESPONSE_FAILURE.getKey());
     }
 
     @Override

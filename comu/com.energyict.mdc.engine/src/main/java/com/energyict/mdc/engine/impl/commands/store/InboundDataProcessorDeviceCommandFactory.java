@@ -8,9 +8,9 @@ import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
- * Date: 05.08.15
- * Time: 16:05
+ * DeviceCommandFactory that adds a <code>ProvideInboundResponseDeviceCommandImpl</code> at the end of the Command list.
+ * This way we allow to send a response to the device <i>once all data is stored</i>. If not then we can inform the meter
+ * that the storage failed so he can resend it's data.
  */
 public class InboundDataProcessorDeviceCommandFactory extends AbstractDeviceCommandFactory{
 
@@ -37,6 +37,6 @@ public class InboundDataProcessorDeviceCommandFactory extends AbstractDeviceComm
     }
 
     private ProvideInboundResponseDeviceCommandImpl createInboundResponseCommand() {
-        return new ProvideInboundResponseDeviceCommandImpl(executionContext.getDeviceCommandServiceProvider(), inboundCommunicationHandler, inboundDeviceProtocol);
+        return new ProvideInboundResponseDeviceCommandImpl(inboundCommunicationHandler, inboundDeviceProtocol, executionContext);
     }
 }
