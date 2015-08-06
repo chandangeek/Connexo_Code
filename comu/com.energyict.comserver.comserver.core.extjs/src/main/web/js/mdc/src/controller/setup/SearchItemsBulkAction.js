@@ -131,6 +131,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             me.shedulesUnchecked = false;
 
             me.getStore('Mdc.store.DevicesBuffered').data.clear();
+            var filter = Ext.Object.fromQueryString(document.location.href.split('?')[1]);
+            me.getStore('Mdc.store.DevicesBuffered').getProxy().extraParams = Ext.JSON.decode(filter.params);
             me.getStore('Mdc.store.DevicesBuffered').load({
                 callback: function () {
                     me.getApplication().fireEvent('changecontentevent', widget);
