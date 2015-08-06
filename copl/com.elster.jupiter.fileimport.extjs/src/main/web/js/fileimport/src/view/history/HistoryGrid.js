@@ -37,7 +37,8 @@ Ext.define('Fim.view.history.HistoryGrid', {
                 dataIndex: 'duration',
                 shortFormat: true,
                 textAlign: 'center',
-                flex: 1
+                flex: 1,
+                usesSeconds: true
             },
             {
                 header: Uni.I18n.translate('general.status', 'FIM', 'Status'),
