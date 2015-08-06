@@ -99,6 +99,9 @@ public class FileImportScheduleResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES})
     public Response addImportSchedule(FileImportScheduleInfo info) {
+        if(info.scanFrequency < 0){
+            info.scanFrequency = 1;
+        }
         ImportScheduleBuilder builder = fileImportService.newBuilder()
                 .setName(info.name)
                 .setPathMatcher(info.pathMatcher)
@@ -148,7 +151,9 @@ public class FileImportScheduleResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES})
     public Response updateImportSchedule(@PathParam("id") long id, FileImportScheduleInfo info) {
-
+        if(info.scanFrequency < 0){
+            info.scanFrequency = 1;
+        }
         ImportSchedule importSchedule = fetchImportSchedule(info.id);
         if(!importSchedule.isImporterAvailable()){
             throw new WebApplicationException(Response.Status.NOT_FOUND);
