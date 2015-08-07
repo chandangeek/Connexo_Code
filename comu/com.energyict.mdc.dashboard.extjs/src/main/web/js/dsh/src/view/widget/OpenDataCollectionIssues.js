@@ -68,13 +68,15 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
         var assignedFilter = {
             assignee: assigned.get('filter').assigneeId + ':' + assigned.get('filter').assigneeType,
             status: 'status.open',
-            groupingType: 'none'
+            groupingType: 'none',
+            sort: ['dueDate', 'modTime']
         };
 
         var unassignedFilter = {
             assignee: unassigned.get('filter').assigneeId + ':' + unassigned.get('filter').assigneeType,
             status: 'status.open',
-            groupingType: 'none'
+            groupingType: 'none',
+            sort: ['dueDate', 'modTime']
         };
 
         dockedLinksContainer.add([
