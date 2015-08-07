@@ -22,6 +22,13 @@ public class AssigneeFilterListInfo {
         }
     }
 
+    public AssigneeFilterListInfo addData(List<User> userList) {
+        for (User user : userList) {
+            data.add(new IssueAssigneeInfo(IssueAssignee.Types.USER, user.getId(), user.getName()));
+        }
+        return this;
+    }
+
     public List<IssueAssigneeInfo> getData() {
         return data;
     }

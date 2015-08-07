@@ -11,6 +11,7 @@ public final class RequestHelper {
     public static final String LIMIT = "limit";
     public static final String SORT = "sort";
     public static final String REASON = "reason";
+    public static final String ASSIGNEE = "assignee";
     public static final String ASSIGNEE_ID = "assigneeId";
     public static final String ASSIGNEE_TYPE = "assigneeType";
     public static final String STATUS = "status";
@@ -19,4 +20,5 @@ public final class RequestHelper {
     public static final String ME = "me";
     public static final String PHASE = "phase";
     public static final String CREATED_ACTIONS = "createdActions";
+    public static final String FILTER = "filter";
 }

@@ -22,6 +22,7 @@ import java.util.Optional;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_TYPE;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.LIKE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -30,7 +31,10 @@ public class AssigneeResourceTest extends IssueRestApplicationJerseyTest {
     
     @Test
     public void testGetAllAssigneesWithoutLike() {
-        Map<String, Object> map = target("/assignees").request().get(Map.class);
+        Query<User> queryUser = mock(Query.class);
+        when(queryUser.select(Matchers.<Condition>anyObject(), Matchers.<Order>anyObject())).thenReturn(new ArrayList<User>());
+        when(userService.getUserQuery()).thenReturn(queryUser);
+        Map<String, Object> map = target("/assignees").queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
 
         assertThat(map.get("total")).isEqualTo(1);
         List<?> assigneesList = (List<?>) map.get("data");
@@ -127,7 +131,7 @@ public class AssigneeResourceTest extends IssueRestApplicationJerseyTest {
         list.add(mockUser(2, "Admiral"));
 
         Query<User> query = mock(Query.class);
-        when(query.select(Matchers.any(Condition.class), Matchers.any(Order[].class))).thenReturn(list);
+        when(query.select(any(Condition.class), any(Order[].class))).thenReturn(list);
         when(userService.getUserQuery()).thenReturn(query);
 
         Map<String, Object> map = target("/assignees/users").queryParam(LIKE, "ad").request().get(Map.class);
@@ -146,7 +150,7 @@ public class AssigneeResourceTest extends IssueRestApplicationJerseyTest {
         list.add(mockUser(2, "Simple"));
 
         Query<User> query = mock(Query.class);
-        when(query.select(Matchers.any(Condition.class), Matchers.any(Order[].class))).thenReturn(list);
+        when(query.select(any(Condition.class), any(Order[].class))).thenReturn(list);
         when(userService.getUserQuery()).thenReturn(query);
 
         Map<String, Object> map = target("/assignees/users").request().get(Map.class);

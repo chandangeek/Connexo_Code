@@ -1,11 +1,9 @@
 package com.elster.jupiter.issue.rest;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import java.util.Optional;
 import org.junit.Test;
 import org.mockito.Matchers;
 
@@ -30,10 +28,21 @@ public class MeterResourceTest extends IssueRestApplicationJerseyTest {
 
     @Test
     public void testGetMetersWithoutLike(){
+        List<Meter> meters = new ArrayList<>();
+        meters.add(mockMeter(1, "0.0.1.2"));
+        meters.add(mockMeter(2, "0.0.1.8"));
+        meters.add(mockMeter(2, "0.1.1.8"));
+
+        Query<Meter> query = mock(Query.class);
+        when(query.select(Matchers.any(Condition.class), Matchers.anyInt(), Matchers.anyInt(), Matchers.any(Order[].class))).thenReturn(meters);
+        when(meteringService.getMeterQuery()).thenReturn(query);
+
         Map<String, Object> map = target("/meters")
                 .queryParam(START, 0)
                 .queryParam(LIMIT, 10).request().get(Map.class);
-        assertThat((String) map.get("data")).isEqualTo("");
+        assertThat(map.get("total")).isEqualTo(3);
+        List data = (List) map.get("data");
+        assertThat(data).hasSize(3);
     }
 
     @Test

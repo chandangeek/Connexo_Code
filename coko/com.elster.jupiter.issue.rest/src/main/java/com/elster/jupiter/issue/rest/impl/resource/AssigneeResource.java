@@ -4,9 +4,11 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.AssigneeFilterListInfo;
 import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
+import com.elster.jupiter.issue.rest.response.PagedInfoListCustomized;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.entity.AssigneeType;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -36,19 +38,29 @@ public class AssigneeResource extends BaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
-    public AssigneeFilterListInfo getAllAssignees(@BeanParam StandardParametersBean params, @Context SecurityContext securityContext) {
-        String searchText = params.getFirst(LIKE);
-        Boolean findMe = Boolean.parseBoolean(params.getFirst(ME));
-
-        if (searchText != null && !searchText.isEmpty()) {
-            String dbSearchText = "*" + searchText + "*";
-            Condition conditionUser = where("authenticationName").likeIgnoreCase(dbSearchText);
-            Query<User> queryUser = getUserService().getUserQuery();
-            List<User> listUsers = queryUser.select(conditionUser, Order.ascending("authname"));
-
-            return new AssigneeFilterListInfo(listUsers);
+    public PagedInfoListCustomized getAllAssignees(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
+        if (Boolean.parseBoolean(params.getFirst(ME))) {
+            AssigneeFilterListInfo assigneeFilterListInfo = AssigneeFilterListInfo.defaults((User) securityContext.getUserPrincipal(), getThesaurus(), true);
+            return PagedInfoListCustomized.fromPagedList("data", assigneeFilterListInfo.getData(), queryParameters, 0);
         }
-        return AssigneeFilterListInfo.defaults((User)securityContext.getUserPrincipal(), getThesaurus(), findMe);
+        String searchText = params.getFirst(LIKE);
+
+        String dbSearchText = (searchText != null && !searchText.isEmpty()) ? ("*" + searchText + "*") : "*";
+
+        Condition conditionUser = where("authenticationName").likeIgnoreCase(dbSearchText);
+        Query<User> queryUser = getUserService().getUserQuery();
+
+        AssigneeFilterListInfo assigneeFilterListInfo;
+        if(params.getStart() == 0 && (searchText == null || searchText.isEmpty())) {
+            validateMandatory(params, START, LIMIT);
+            assigneeFilterListInfo = AssigneeFilterListInfo.defaults((User) securityContext.getUserPrincipal(), getThesaurus(), false);
+            List<User> listUsers = queryUser.select(conditionUser, params.getFrom(), params.getTo(), Order.ascending("authname"));
+            assigneeFilterListInfo.addData(listUsers);
+        } else {
+            List<User> listUsers = queryUser.select(conditionUser, Order.ascending("authname"));
+            assigneeFilterListInfo = new AssigneeFilterListInfo(listUsers);
+        }
+        return PagedInfoListCustomized.fromPagedList("data", assigneeFilterListInfo.getData(), queryParameters, params.getStart() == 0 ? 1 : 0);
     }
 
     /**
