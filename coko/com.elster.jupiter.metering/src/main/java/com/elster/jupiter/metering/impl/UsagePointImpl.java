@@ -88,6 +88,7 @@ public class UsagePointImpl implements UsagePoint {
         this.accountabilityFactory = accountabilityFactory;
     }
 
+    @Deprecated
     UsagePointImpl init(String mRID, ServiceCategory serviceCategory) {
         this.mRID = mRID;
         this.serviceCategory.set(serviceCategory);
