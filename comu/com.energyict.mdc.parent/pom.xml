@@ -139,6 +139,21 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.data.validation</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.data.validation.extjs</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.data.validation.rest</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
                 <artifactId>mdc.favorites</artifactId>
                 <version>1.1.0-SNAPSHOT</version>
             </dependency>
@@ -211,6 +226,11 @@
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.dashboard</artifactId>
                 <version>1.1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.device.lifecycle.config.bpmhandler</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
             </dependency>
 
             <!-- Kore (and by import also Platform) -->
@@ -404,6 +424,7 @@
                 <!-- Can we please keep this list organized alphabetically -->
                 <module>../com.energyict.comserver.comserver.core.extjs</module>
                 <module>../com.energyict.comserver.comserver.core.rest</module>
+                <module>../com.energyict.mdc.api.rest</module>
                 <module>../com.energyict.mdc.app</module>
                 <module>../com.energyict.mdc.app.help</module>
                 <module>../com.energyict.mdc.common</module>
@@ -415,11 +436,15 @@
                 <module>../com.energyict.mdc.device.data</module>
                 <module>../com.energyict.mdc.device.lifecycle</module>
                 <module>../com.energyict.mdc.device.lifecycle.config</module>
+                <module>../com.energyict.mdc.device.lifecycle.config.bpmhandler</module>
                 <module>../com.energyict.mdc.device.lifecycle.config.rest</module>
                 <module>../com.energyict.mdc.device.lifecycle.config.extjs</module>
                 <module>../com.energyict.mdc.device.topology</module>
                 <module>../com.energyict.mdc.device.data.rest</module>
                 <module>../com.energyict.mdc.device.data.importers</module>
+                <module>../com.energyict.mdc.device.data.validation</module>
+                <module>../com.energyict.mdc.device.data.validation.rest</module>
+                <module>../com.energyict.mdc.device.data.validation.extjs</module>
                 <module>../com.energyict.mdc.dynamic</module>
                 <module>../com.energyict.mdc.engine</module>
                 <module>../com.energyict.mdc.engine.config</module>
@@ -432,6 +457,9 @@
                 <module>../com.energyict.mdc.issue.datacollection</module>
                 <module>../com.energyict.mdc.issue.datacollection.rest</module>
                 <module>../com.energyict.mdc.issue.datacollection.extjs</module>
+                <module>../com.energyict.mdc.issue.datavalidation</module>
+                <module>../com.energyict.mdc.issue.datavalidation.extjs</module>
+                <module>../com.energyict.mdc.issue.datavalidation.rest</module>
                 <module>../com.energyict.mdc.issues</module>
                 <module>../com.energyict.mdc.masterdata</module>
                 <module>../com.energyict.mdc.masterdata.rest</module>
