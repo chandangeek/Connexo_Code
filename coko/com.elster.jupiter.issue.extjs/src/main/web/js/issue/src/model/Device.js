@@ -9,6 +9,7 @@ Ext.define('Isu.model.Device', {
         {name: 'serviceCategory', type: 'auto'},
         {name: 'version', type: 'int'}
     ],
+    idProperty: 'name',
 
     proxy: {
         type: 'rest',

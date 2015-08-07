@@ -115,7 +115,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     onIssuesListAfterRender: function (grid) {
         grid.mask();
         grid.store.load({
-            params: {status: 'status.open'},
+            params: {sort: ['dueDate', 'modTime'], filter: Ext.encode([{property: 'status', value: ['status.open']}])},
             start: 0,
             limit: 99999,
             callback: function () {

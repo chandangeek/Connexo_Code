@@ -7,51 +7,36 @@ Ext.define('Isu.controller.IssuesOverview', {
 
     showOverview: function (issueType, widgetXtype, callback) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            grouping = router.filter.get('grouping'),
-            filter = router.filter;
+            queryString = Uni.util.QueryString.getQueryStringValues(false);
 
-        if (router.queryParams.myopenissues) {
-            me.getStore('Isu.store.IssueAssignees').load({params: {me: true}, callback: function (records) {
-                filter.set('assignee', records[0].getId());
-                filter.set('status', 'status.open');
-                filter.set('sorting', [
-                    {
-                        type: 'dueDate',
-                        value: Uni.component.sort.model.Sort.ASC
-                    },
-                    {
-                        type: 'modTime',
-                        value: Uni.component.sort.model.Sort.ASC
-                    }
-                ]);
-                delete router.queryParams.myopenissues;
-                filter.save();
-            }});
-        } else if (!router.queryParams.filter) {
-            filter.set('status', ['status.open', 'status.in.progress']);
-            filter.set('sorting', [
-                {
-                    type: 'dueDate',
-                    value: Uni.component.sort.model.Sort.ASC
-                },
-                {
-                    type: 'modTime',
-                    value: Uni.component.sort.model.Sort.ASC
+        if (queryString.myopenissues) {
+            me.getStore('Isu.store.IssueAssignees').load({
+                params: {me: true},
+                callback: function (records) {
+                    queryString.myopenissues = undefined;
+                    queryString.assignee = records[0].getId();
+                    queryString.status = 'status.open';
+                    queryString.groupingType = 'none';
+                    queryString.sort = ['dueDate', 'modTime'];
+                    window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
                 }
-            ]);
-            filter.save();
+            });
+        } else if (!queryString.groupingType) {
+            queryString.status = ['status.open', 'status.in.progress'];
+            queryString.groupingType = 'none';
+            queryString.sort = ['dueDate', 'modTime'];
+            window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
         } else {
-            me.getStore('Isu.store.Clipboard').set(issueType + '-latest-issues-filter', router.queryParams.filter);
+            me.getStore('Isu.store.Clipboard').set(issueType + '-latest-issues-filter', queryString);
             me.getStore('Isu.store.IssueStatuses').getProxy().setExtraParam('issueType', issueType);
             me.getStore('Isu.store.IssueReasons').getProxy().setExtraParam('issueType', issueType);
 
             me.getApplication().fireEvent('changecontentevent', Ext.widget(widgetXtype, {
-                router: router,
-                groupingType: grouping && grouping.type ? grouping.type : 'none'
+                router: me.getController('Uni.controller.history.Router'),
+                groupingType: queryString.groupingType
             }));
 
-            me.setFilter();
+            me.setGrouping(true);
             callback ? callback() : null;
         }
     },
@@ -108,308 +93,167 @@ Ext.define('Isu.controller.IssuesOverview', {
         });
     },
 
-    setFilter: function () {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router');
-
-        me.loadFilterFormDependencies(router.filter, function () {
-            me.getFilterForm().loadRecord(router.filter);
-            me.setFilterToolbar(me.getFilterForm());
-        });
-        me.setGrouping(router.filter);
-        me.setSortingToolbar(router.filter);
-    },
-
-    setFilterToolbar: function (filterForm) {
-        var filterToolbar = this.getFilterToolbar(),
-            statusesGroupField = filterForm.down('[name=status]'),
-            statusFieldLabel = statusesGroupField.getFieldLabel();
-
-        Ext.Array.each(statusesGroupField.query('checkbox'), function (checkbox) {
-            if (checkbox.getValue()) {
-                filterToolbar.setFilter(checkbox.getName() + '|' + checkbox.inputValue, statusFieldLabel, checkbox.boxLabel);
-            }
-        });
-
-        Ext.Array.each(filterForm.query('combobox'), function (combo) {
-            var value = combo.getRawValue();
-
-            if (!_.isEmpty(value)) {
-                filterToolbar.setFilter(combo.getName(), combo.getFieldLabel(), value);
-            }
-        });
-    },
-
-    loadFilterFormDependencies: function (filterModel, callback) {
-        var me = this,
-            assigneesStore = this.getStore('Isu.store.IssueAssignees'),
-            reasonsStore = this.getStore('Isu.store.IssueReasons'),
-            metersStore = this.getStore('Isu.store.Devices'),
-            assignee = filterModel.get('assignee'),
-            reason = filterModel.get('reason'),
-            meter = filterModel.get('meter'),
-            dependenciesCount = 1,
-            checkDependenciesLoading = function () {
-                dependenciesCount--;
-                if (dependenciesCount === 0) {
-                    callback();
-                }
-            };
-
-        if (!Ext.isEmpty(assignee)) {
-            dependenciesCount++;
-        }
-        if (!Ext.isEmpty(reason)) {
-            dependenciesCount++;
-        }
-        if (!Ext.isEmpty(meter)) {
-            dependenciesCount++;
-        }
-
-        this.getStore('Isu.store.IssueStatuses').load(checkDependenciesLoading);
-        if (!Ext.isEmpty(assignee)) {
-            if (assigneesStore.getById(assignee)) {
-                checkDependenciesLoading();
-            } else {
-                this.getModel('Isu.model.IssueAssignee').load(assignee, {
-                    callback: checkDependenciesLoading,
-                    success: function (record) {
-                        assigneesStore.add(record);
-                    }
-                });
-            }
-        }
-        if (!Ext.isEmpty(reason)) {
-            if (reasonsStore.getById(reason)) {
-                checkDependenciesLoading();
-            } else {
-                this.getModel('Isu.model.IssueReason').load(reason, {
-                    callback: checkDependenciesLoading,
-                    success: function (record) {
-                        reasonsStore.add(record);
-                    }
-                });
-            }
-        }
-        if (!Ext.isEmpty(meter)) {
-            if (metersStore.getById(meter)) {
-                checkDependenciesLoading();
-            } else {
-                this.getModel('Isu.model.Device').load(meter, {
-                    callback: checkDependenciesLoading,
-                    success: function (record) {
-                        metersStore.add(record);
-                    }
-                });
-            }
-        }
-    },
-
-    applyFilter: function () {
-        var me = this,
-            filterForm = me.getFilterForm();
-
-        filterForm.updateRecord();
-        filterForm.getRecord().save();
-    },
-
-    resetFilter: function () {
-        this.getController('Uni.controller.history.Router').filter.destroy();
-        this.getController('Uni.controller.history.Router').filter.save();
-        this.getFilterForm().getRecord().getProxy().destroy();
-    },
-
     setFilterItem: function (button) {
         var me = this,
-            filterModel = me.getController('Uni.controller.history.Router').filter;
+            filterToolbar = me.getFilterToolbar();
 
         switch (button.filterBy) {
-            case 'status':
-                filterModel.set(button.filterBy, [button.filterValue.id]);
-                break;
             case 'assignee':
                 if (button.filterValue) {
-                    filterModel.set(button.filterBy, [button.filterValue.id, button.filterValue.type].join(':'));
+                    filterToolbar.down('[dataIndex=' + button.filterBy + ']').setFilterValue([button.filterValue.id, button.filterValue.type].join(':'));
                 } else {
-                    filterModel.set(button.filterBy, '-1:UnexistingType');
+                    filterToolbar.down('[dataIndex=' + button.filterBy + ']').setFilterValue('-1:UnexistingType');
                 }
                 break;
             case 'device':
-                filterModel.set('meter', button.filterValue.serialNumber);
+                filterToolbar.down('[dataIndex=meter]').setFilterValue(button.filterValue.serialNumber);
                 break;
             default:
-                filterModel.set(button.filterBy, button.filterValue.id);
+                filterToolbar.down('[dataIndex=' + button.filterBy + ']').setFilterValue([button.filterValue.id]);
         }
-
-        filterModel.save();
-    },
-
-    removeFilterItem: function (key) {
-        var filter = this.getController('Uni.controller.history.Router').filter,
-            statusRegExp = /status\|\w+/;
-
-        if (key.indexOf('status|') === 0) {
-            if (Ext.isArray(filter.get('status'))) {
-                Ext.Array.remove(filter.get('status'), key.split('|')[1]);
-            }
-        } else {
-            filter.set(key, null);
-        }
-
-        filter.save();
+        filterToolbar.applyFilters();
     },
 
     setGroupingType: function (combo, newValue) {
         var me = this,
-            filter = me.getController('Uni.controller.history.Router').filter;
+            groupGrid = me.getGroupGrid(),
+            queryString = Uni.util.QueryString.getQueryStringValues(false);
 
-        filter.set('grouping', {
-            type: newValue
-        });
+        queryString.groupingType = newValue;
+
         if (newValue !== 'none') {
-            me.getGroupGrid().getStore().load({
-                params: me.getGroupProxyParams(),
+            groupGrid.show();
+            groupGrid.getStore().load({
+                params: me.getGroupProxyParams(newValue),
                 callback: function (records) {
-                    me.setGroupingValue(null, records[0]);
+                    queryString.groupingValue = records.length ? records[0].getId() : undefined;
+                    me.applyGrouping(queryString);
                 }
             });
         } else {
-            filter.save();
+            queryString.groupingValue = undefined;
+            me.applyGrouping(queryString);
         }
     },
 
     setGroupingValue: function (selectionModel, record) {
-        var filter = this.getController('Uni.controller.history.Router').filter;
+        var me = this,
+            queryString = Uni.util.QueryString.getQueryStringValues(false);
 
-        filter.get('grouping').value = record.getId();
-        filter.save();
+        queryString.groupingValue = record ? record.getId() : undefined;
+
+        me.applyGrouping(queryString, true);
     },
 
-    getGroupProxyParams: function () {
+    getGroupProxyParams: function (groupingType) {
         var me = this,
+            queryString = Uni.util.QueryString.getQueryStringValues(false),
+            filterToolbar = me.getFilterToolbar(),
+            filter = filterToolbar.getFilterParams(false, !filterToolbar.filterObjectEnabled),
             params = {
-                issueType: me.getStore('Isu.store.IssueStatuses').getProxy().extraParams.issueType
-            },
-            filter = me.getController('Uni.controller.history.Router').filter,
-            grouping = filter.get('grouping');
+                filter: [
+                    {
+                        property: 'field',
+                        value: groupingType || queryString.groupingType
+                    },
+                    {
+                        property: 'issueType',
+                        value: me.getStore('Isu.store.IssueStatuses').getProxy().extraParams.issueType
+                    }
+                ]
+            };
 
-        params.field = grouping.type;
-        Ext.iterate(filter.getData(), function (key, value) {
-            if (value) {
-                switch (key) {
-                    case 'assignee':
-                        params.assigneeId = value.split(':')[0];
-                        params.assigneeType = value.split(':')[1];
-                        break;
-                    case 'grouping':
-                        break;
-                    case 'sorting':
-                        break;
-                    case grouping.type:
-                        params.id = value;
-                        break;
-                    default:
-                        params[key] = value;
-                }
+        Ext.iterate(filter, function (key, value) {
+            if (!Ext.isEmpty(value)) {
+                params.filter.push({
+                    property: key,
+                    value: value
+                });
             }
         });
+
+        params.filter = Ext.encode(params.filter);
 
         return params;
     },
 
-    setGrouping: function (filter) {
+    setGrouping: function (doLoad) {
         var me = this,
-            grouping = filter.get('grouping'),
+            queryString = Uni.util.QueryString.getQueryStringValues(false),
             groupGrid = me.getGroupGrid(),
+            groupingTitle = me.getGroupingTitle(),
             groupStore = groupGrid.getStore(),
-            previewContainer = me.getPreviewContainer();
+            previewContainer = me.getPreviewContainer(),
+            afterLoad = function () {
+                var groupingRecord = groupStore.getById(queryString.groupingValue);
 
-        if (grouping && grouping.type !== 'none') {
-            groupGrid.show();
-            groupStore.load({
-                params: me.getGroupProxyParams(),
-                callback: function () {
-                    var groupingTitle = me.getGroupingTitle(),
-                        groupingRecord = groupStore.getById(grouping.value);
-
-                    if (grouping.value && groupingRecord) {
-                        groupGrid.getSelectionModel().select(groupingRecord);
-                        groupingTitle.setTitle(Ext.String.format(groupingTitle.title, grouping.type, groupingRecord.get('reason')));
-                        groupingTitle.show();
-                    } else {
-                        groupingTitle.hide();
-                    }
-                    Ext.resumeLayouts(true);
+                Ext.suspendLayouts();
+                if (queryString.groupingValue && groupingRecord) {
+                    groupGrid.getSelectionModel().select(groupingRecord);
+                    groupingTitle.setTitle(Uni.I18n.translate('general.issuesFor', 'ISU', 'Issues for {0}: {1}', [queryString.groupingType, groupingRecord.get('reason')]));
+                    groupingTitle.show();
+                } else {
+                    groupingTitle.hide();
                 }
-            });
-            Ext.suspendLayouts();
-            if (!grouping.value) {
-                previewContainer.hide();
-                me.getNoGroupSelectedPanel().show();
+                Ext.resumeLayouts(true);
+            };
+
+        Ext.suspendLayouts();
+        if (queryString.groupingType !== 'none') {
+            groupGrid.updateGroupingType(queryString.groupingType);
+            groupGrid.show();
+            if (doLoad) {
+                groupStore.load({
+                    params: me.getGroupProxyParams(),
+                    callback: afterLoad
+                });
+            } else {
+                afterLoad();
             }
+
+            previewContainer.setVisible(!!queryString.groupingValue);
+            me.getNoGroupSelectedPanel().setVisible(!queryString.groupingValue);
         } else {
             groupGrid.hide();
+            groupingTitle.hide();
+        }
+        Ext.resumeLayouts(true);
+    },
+
+    applyGrouping: function (queryString, doLoad) {
+        var me = this,
+            issuesGrid = me.getIssuesGrid(),
+            href;
+
+        if (!Ext.isEmpty(queryString.start)) {
+            queryString.start = 0;
+        }
+        href = Uni.util.QueryString.buildHrefWithQueryString(queryString, false);
+        if (window.location.href !== href) {
+            Uni.util.History.setParsePath(false);
+            Uni.util.History.suspendEventsForNextCall();
+            window.location.href = href;
+            Ext.util.History.currentToken = window.location.hash.substr(1);
+            me.setGrouping(!!doLoad);
+            me.resetPagingToolbars(issuesGrid);
+            issuesGrid.getStore().loadPage(1);
         }
     },
 
-    setSortingToolbar: function (filter) {
-        var me = this;
+    resetPagingToolbars: function (issuesGrid) {
+        var pagingToolbarTop = issuesGrid.down('pagingtoolbartop'),
+            pagingToolbarBottom = issuesGrid.down('pagingtoolbarbottom');
 
-        me.getSortingToolbar().addSortButtons(filter.get('sorting'));
-    },
-
-    addSortingItem: function (menu, menuItem) {
-        var filter = this.getController('Uni.controller.history.Router').filter,
-            sorting = filter.get('sorting');
-
-        if (Ext.isArray(sorting)) {
-            sorting.push({
-                type: menuItem.action,
-                value: Uni.component.sort.model.Sort.ASC
-            });
-        } else {
-            sorting = [
-                {
-                    type: menuItem.action,
-                    value: Uni.component.sort.model.Sort.ASC
-                }
-            ];
+        if (!Ext.isEmpty(pagingToolbarTop)) {
+            pagingToolbarTop.resetPaging();
         }
 
-        filter.save();
-    },
-
-    removeSortingItem: function (sortType) {
-        var filter = this.getController('Uni.controller.history.Router').filter,
-            sorting = filter.get('sorting');
-
-        if (Ext.isArray(sorting)) {
-            Ext.Array.remove(sorting, Ext.Array.findBy(sorting, function (item) {
-                return item.type === sortType
-            }));
+        if (!Ext.isEmpty(pagingToolbarBottom)) {
+            pagingToolbarBottom.totalCount = 0;
+            pagingToolbarBottom.totalPages = 0;
+            pagingToolbarBottom.isFullTotalCount = false;
+            pagingToolbarBottom.store.currentPage = 1;
+            pagingToolbarBottom.initPageNavItems(pagingToolbarBottom.child('#pageNavItem'), 1, pagingToolbarBottom.totalPages);
         }
-
-        filter.save();
-    },
-
-    changeSortDirection: function (sortType) {
-        var filter = this.getController('Uni.controller.history.Router').filter,
-            sorting = filter.get('sorting'),
-            sortingItem;
-
-        if (Ext.isArray(sorting)) {
-            sortingItem = Ext.Array.findBy(sorting, function (item) {
-                return item.type === sortType
-            });
-            if (sortingItem) {
-                if (sortingItem.value === Uni.component.sort.model.Sort.ASC) {
-                    sortingItem.value = Uni.component.sort.model.Sort.DESC;
-                } else {
-                    sortingItem.value = Uni.component.sort.model.Sort.ASC;
-                }
-            }
-        }
-
-        filter.save();
     }
 });
