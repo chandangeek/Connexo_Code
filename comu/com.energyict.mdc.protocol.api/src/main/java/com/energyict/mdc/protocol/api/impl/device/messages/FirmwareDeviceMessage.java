@@ -54,7 +54,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE, "Upload firmware with resume option and activate immediate") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_ACTIVATE_IMMEDIATE, "Upload firmware with resume option and activate immediately") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
@@ -67,7 +67,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE);
         }
     },
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE_ACTIVATE_IMMEDIATE(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE_ACTIVATE_IMMEDIATE, "Upload firmware with resume option and type and activate immediate") {
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE_ACTIVATE_IMMEDIATE(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE_ACTIVATE_IMMEDIATE, "Upload firmware with resume option and type and activate immediately") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
@@ -120,7 +120,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
             return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
         }
     },
-    UPGRADE_FIRMWARE_URL_ACTIVATE_IMMEDIATE(DeviceMessageId.FIRMWARE_UPGRADE_URL_ACTIVATE_IMMEDIATE, "Upload firmware via url and activate immediate") {
+    UPGRADE_FIRMWARE_URL_ACTIVATE_IMMEDIATE(DeviceMessageId.FIRMWARE_UPGRADE_URL_ACTIVATE_IMMEDIATE, "Upload firmware via url and activate immediately") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
