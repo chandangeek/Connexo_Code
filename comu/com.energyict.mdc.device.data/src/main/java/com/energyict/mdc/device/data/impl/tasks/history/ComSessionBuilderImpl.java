@@ -40,7 +40,7 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
 
         private ComSessionImpl comSession;
 
-        private final Counter successfulTasks = Counters.newStrictCounter();
+        private final Counter successfulTasks = Counters.newLenientNonNegativeCounter();
         private final Counter failedTasks = Counters.newStrictCounter();
         private final Counter notExecutedTasks = Counters.newStrictCounter();
         private final List<ComTaskExecutionSessionBuilderImpl> comTaskExecutions = new ArrayList<>();
