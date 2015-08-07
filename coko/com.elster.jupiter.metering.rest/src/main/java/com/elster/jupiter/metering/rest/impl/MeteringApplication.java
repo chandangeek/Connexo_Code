@@ -31,7 +31,8 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.ImmutableSet;
 
-@Component(name = "com.elster.jupiter.metering.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/mtr", "app=SYS", "name=" + MeteringApplication.COMPONENT_NAME})
+@Component(name = "com.elster.jupiter.metering.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true,
+        property = {"alias=/mtr", "app=SYS", "name=" + MeteringApplication.COMPONENT_NAME})
 public class MeteringApplication extends Application implements TranslationKeyProvider {
     public static final String COMPONENT_NAME = "MTR";
 
@@ -46,8 +47,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
                 UsagePointResource.class,
                 DeviceResource.class,
                 ReadingTypeResource.class,
-                ReadingTypeFieldResource.class
-        );
+                ReadingTypeFieldResource.class);
     }
 
     @Reference
