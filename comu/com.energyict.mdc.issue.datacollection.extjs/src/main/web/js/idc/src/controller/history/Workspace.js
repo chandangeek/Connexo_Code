@@ -18,7 +18,6 @@ Ext.define('Idc.controller.history.Workspace', {
                     route: 'datacollectionissues',
                     controller: 'Idc.controller.Overview',
                     action: 'showOverview',
-                    filter: 'Isu.model.IssuesFilter',
                     privileges: Isu.privileges.Issue.viewAdminDevice,
                     items: {
                         bulkaction: {

@@ -31,12 +31,8 @@ Ext.define('Idc.controller.Overview', {
             selector: 'data-collection-issues-overview #data-collection-issues-preview'
         },
         {
-            ref: 'filterForm',
-            selector: 'data-collection-issues-overview #data-collection-issues-side-filter'
-        },
-        {
             ref: 'filterToolbar',
-            selector: 'data-collection-issues-overview #data-collection-issues-filter-toolbar'
+            selector: 'data-collection-issues-overview isu-view-issues-issuefilter'
         },
         {
             ref: 'groupingToolbar',
@@ -59,10 +55,6 @@ Ext.define('Idc.controller.Overview', {
             selector: 'data-collection-issues-overview no-issues-group-selected-panel'
         },
         {
-            ref: 'sortingToolbar',
-            selector: 'data-collection-issues-overview #data-collection-issues-sorting-toolbar'
-        },
-        {
             ref: 'issuesGrid',
             selector: 'data-collection-issues-overview #data-collection-issues-grid'
         }
@@ -70,13 +62,6 @@ Ext.define('Idc.controller.Overview', {
 
     init: function () {
         this.control({
-            'data-collection-issues-overview issues-side-filter #filter-by-reason': {
-                render: this.setComboTooltip
-            },
-            'data-collection-issues-overview issues-side-filter #filter-by-meter': {
-                render: this.setComboTooltip,
-                expand: this.limitNotification
-            },
             'data-collection-issues-overview #issues-overview-action-menu': {
                 click: this.chooseAction
             },
@@ -86,31 +71,17 @@ Ext.define('Idc.controller.Overview', {
             'data-collection-issues-overview #data-collection-issues-grid': {
                 select: this.showPreview
             },
-            'data-collection-issues-overview #issues-filter-apply': {
-                click: this.applyFilter
-            },
-            'data-collection-issues-overview #issues-filter-reset': {
-                click: this.resetFilter
-            },
-            'data-collection-issues-overview #data-collection-issues-preview #filter-display-button': {
-                click: this.setFilterItem
-            },
-            'data-collection-issues-overview #data-collection-issues-filter-toolbar': {
-                removeFilter: this.removeFilterItem,
-                clearAllFilters: this.resetFilter
-            },
             'data-collection-issues-overview issues-grouping-toolbar #issues-grouping-toolbar-combo': {
                 change: this.setGroupingType
             },
             'data-collection-issues-overview issues-group-grid': {
                 select: this.setGroupingValue
             },
-            'data-collection-issues-overview issues-sorting-toolbar': {
-                removeSort: this.removeSortingItem,
-                changeSortDirection: this.changeSortDirection
+            'data-collection-issues-overview isu-view-issues-issuefilter': {
+                change: this.setGrouping
             },
-            'data-collection-issues-overview issues-sorting-toolbar #issues-sorting-menu': {
-                click: this.addSortingItem
+            'data-collection-issues-overview #data-collection-issues-preview #filter-display-button': {
+                click: this.setFilterItem
             }
         });
     },

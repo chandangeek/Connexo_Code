@@ -13,8 +13,7 @@ Ext.define('Idc.controller.BulkChangeIssues', {
             widget, grid;
 
         issuesStoreProxy.extraParams = {};
-        issuesStoreProxy.setExtraParam('status', 'status.open');
-        issuesStoreProxy.setExtraParam('sort', 'dueDate');
+        issuesStoreProxy.setExtraParam('sort', ['dueDate', 'modTime']);
 
         widget = Ext.widget('bulk-browse');
         grid = widget.down('bulk-step1').down('issues-selection-grid');
@@ -22,11 +21,11 @@ Ext.define('Idc.controller.BulkChangeIssues', {
 
         me.getApplication().fireEvent('changecontentevent', widget);
         issuesStore.data.clear();
-        issuesStore.loadPage(1, {
-            callback: function() {
-                grid.onSelectDefaultGroupType();
-            }
-        });
+        issuesStore.clearFilter(true);
+        issuesStore.filter([{property: 'status', value: ['status.open']}]);
+        issuesStore.on('load', function () {
+            grid.onSelectDefaultGroupType();
+        }, me, {single: true});
     },
 
     onWizardCancelledEvent: function (wizard) {

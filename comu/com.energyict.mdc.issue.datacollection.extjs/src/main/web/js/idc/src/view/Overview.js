@@ -2,33 +2,18 @@ Ext.define('Idc.view.Overview', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.data-collection-issues-overview',
     requires: [
-        'Uni.component.filter.view.FilterTopPanel',
-        'Isu.view.issues.SideFilter',
-        'Isu.view.issues.Grid',
         'Isu.view.issues.NoIssuesFoundPanel',
         'Isu.view.issues.GroupingToolbar',
         'Isu.view.issues.GroupGrid',
+        'Isu.view.issues.IssueFilter',
+        'Isu.view.issues.Grid',
         'Idc.view.Preview',
+        'Isu.view.issues.SortingToolbar',
         'Isu.view.issues.GroupingTitle',
-        'Isu.view.issues.NoGroupSelectedPanel',
-        'Isu.view.issues.SortingToolbar'
+        'Isu.view.issues.NoGroupSelectedPanel'
     ],
     router: null,
     groupingType: null,
-    side: {
-        xtype: 'panel',
-        ui: 'medium',
-        layout: {
-            type: 'vbox',
-            align: 'stretch'
-        },
-        items: [
-            {
-                xtype: 'issues-side-filter',
-                itemId: 'data-collection-issues-side-filter'
-            }
-        ]
-    },
     initComponent: function () {
         var me = this;
 
@@ -38,13 +23,9 @@ Ext.define('Idc.view.Overview', {
                 ui: 'large',
                 items: [
                     {
-                        xtype: 'filter-top-panel',
-                        itemId: 'data-collection-issues-filter-toolbar',
-                        emptyText: Uni.I18n.translate('general.none', 'ISU', 'None'),
-                        hideEmpty: false
-                    },
-                    {
-                        xtype: 'menuseparator'
+                        xtype: 'isu-view-issues-issuefilter',
+                        itemId: 'isu-view-issues-issuefilter',
+                        store: 'Idc.store.Issues'
                     },
                     {
                         xtype: 'issues-grouping-toolbar',
@@ -69,7 +50,8 @@ Ext.define('Idc.view.Overview', {
                     {
                         xtype: 'issues-sorting-toolbar',
                         itemId: 'data-collection-issues-sorting-toolbar',
-                        hideEmpty: false
+                        hideEmpty: false,
+                        store: 'Idc.store.Issues'
                     },
                     {
                         xtype: 'no-issues-group-selected-panel',
