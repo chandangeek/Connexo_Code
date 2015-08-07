@@ -55,20 +55,20 @@ Ext.define('Uni.view.search.field.internal.Adapter', {
         }
     },
 
-    getFilterValue: function () {
-        return this.widget.getFilterValue();
+    getValue: function () {
+        return this.widget.getValue();
     },
 
-    setFilterValue: function (data) {
-        this.widget.setFilterValue(data);
+    setValue: function (value) {
+        this.widget.setValue(value);
     },
 
-    resetValue: function () {
-        this.widget.resetValue();
+    reset: function () {
+        this.widget.reset();
     },
 
-    getParamValue: function () {
-        return this.widget.getParamValue();
+    getFilter: function () {
+        return this.widget.getFilter();
     }
 });
 

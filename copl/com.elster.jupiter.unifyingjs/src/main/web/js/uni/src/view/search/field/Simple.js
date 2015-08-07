@@ -31,7 +31,7 @@ Ext.define('Uni.view.search.field.Simple', {
                             scope: me
                         },
                         reset: {
-                            fn: me.onReset,
+                            fn: me.reset,
                             scope: me
                         }
                     }

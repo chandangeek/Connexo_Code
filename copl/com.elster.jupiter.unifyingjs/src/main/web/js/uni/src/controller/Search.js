@@ -209,7 +209,6 @@ Ext.define('Uni.controller.Search', {
 
         me.getCriteriaSelector().bindStore(criteriaStore);
         Uni.util.Filters.loadHistoryState(me.filters, true);
-        //me.applyFilters();
 
         Ext.resumeLayouts(true);
     },
@@ -266,11 +265,12 @@ Ext.define('Uni.controller.Search', {
             fields.load({
                 callback: function (records, operation, success) {
                     if (success) {
-                        //me.updateResultModelAndColumnsFromFields(records);
-                        //
-                        //searchResults.removeAll();
-                        //searchResults.getProxy().url = searchDomain.get('selfHref');
-                        //me.lastRequest = searchResults.load();
+                        me.updateResultModelAndColumnsFromFields(records);
+
+                        searchResults.removeAll(true);
+                        searchResults.clearFilter(true);
+                        searchResults.getProxy().url = searchDomain.get('selfHref');
+                        searchResults.load();
                     }
                 },
                 scope: me
@@ -385,15 +385,11 @@ Ext.define('Uni.controller.Search', {
 
     addProperty: function (property, container, removable) {
         var me = this,
-            filter = me.createWidgetForProperty(property, removable),
-            //constraints = property.get('constraints'),
-            widget = removable ? filter.widget : filter;
+            filter = me.createWidgetForProperty(property, removable);
 
         if (Ext.isDefined(filter)) {
             me.filters.add(filter);
             container.add(filter);
-
-            widget.on('filterupdate', me.applyFilters, me);
         }
     },
 
@@ -426,7 +422,7 @@ Ext.define('Uni.controller.Search', {
     removeProperty: function (property, container, removable) {
         var me = this,
             criteriaSelector = me.getCriteriaSelector(),
-            filterResult = undefined;
+            filterResult;
 
         me.filters.each(function (filter) {
             if (filter.property === property) {
@@ -438,7 +434,7 @@ Ext.define('Uni.controller.Search', {
         if (Ext.isDefined(filterResult)) {
             var widget = removable ? filterResult.widget : filterResult;
 
-            widget.resetValue();
+            widget.reset();
 
             if (removable) {
                 criteriaSelector.setChecked(property, false);
@@ -485,20 +481,17 @@ Ext.define('Uni.controller.Search', {
 
     applyFilters: function () {
         var me = this,
-            searchResults = Ext.getStore('Uni.store.search.Results');
+            searchResults = Ext.getStore('Uni.store.search.Results'),
+            filters = [];
 
-        debugger;
-        searchResults.removeAll();
+        me.filters.each(function (item) {
+            if (!Ext.isEmpty(item.getValue())) {
+                filters.push(item.getFilter())
+            }
+        });
 
-        if (me.lastRequest) {
-            Ext.Ajax.abort(me.lastRequest);
-        }
-
-        try {
-            me.lastRequest = searchResults.load();
-        } catch (ex) {
-            // Ignore the 'indexOf' exception caused by interrupted calls.
-        }
+        searchResults.clearFilter(true);
+        searchResults.filter(filters);
     },
 
     createWidgetForProperty: function (property, removable) {
@@ -510,7 +503,13 @@ Ext.define('Uni.controller.Search', {
                 text: displayValue,
                 emptyText: displayValue,
                 dataIndex: property.get('name'),
-                property: property
+                property: property,
+                listeners: {
+                    'change': {
+                        fn: me.updateConstraints,
+                        scope: me
+                    }
+                }
             },
             widget;
 
@@ -550,13 +549,7 @@ Ext.define('Uni.controller.Search', {
                 store: store,
                 valueField: 'id',
                 displayField: 'displayValue',
-                multiSelect: true,
-                listeners: {
-                    'change': {
-                        fn: me.updateConstraints,
-                        scope: me
-                    }
-                }
+                multiSelect: true
             });
         }
 

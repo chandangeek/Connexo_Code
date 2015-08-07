@@ -28,7 +28,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
         this.fireEvent('change', this, value);
     },
 
-    onReset: function() {
+    reset: function() {
         this.value = null;
         this.setText(this.emptyText);
         this.fireEvent('reset');
