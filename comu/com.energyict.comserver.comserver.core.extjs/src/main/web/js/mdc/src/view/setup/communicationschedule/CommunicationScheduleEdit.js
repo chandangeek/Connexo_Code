@@ -8,11 +8,14 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
         'Mdc.widget.DateTimeField',
         'Uni.util.FormInfoMessage'
     ],
+    router: null,
     isEdit: function () {
         return this.edit;
     },
     initComponent: function () {
-        this.content = [
+        var me = this;
+
+        me.content = [
             {
                 xtype: 'container',
                 layout: 'card',
@@ -260,20 +263,21 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                         ]
                     },
                     {
-                        xtype: 'addCommunicationTaskWindow'
+                        xtype: 'addCommunicationTaskWindow',
+                        router: me.router
                     }
                 ]
             }
         ];
-        this.callParent(arguments);
+        me.callParent(arguments);
 
-        if (this.isEdit()) {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
-            this.down('#createEditButton').action = 'editCommunicationSchedule';
+        if (me.isEdit()) {
+            me.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
+            me.down('#createEditButton').action = 'editCommunicationSchedule';
         } else {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
-            this.down('#createEditButton').action = 'createCommunicationSchedule';
-            this.down('[name=temporalExpression]').setValue({
+            me.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
+            me.down('#createEditButton').action = 'createCommunicationSchedule';
+            me.down('[name=temporalExpression]').setValue({
                 every: {
                     count: 15,
                     timeUnit: 'minutes'
@@ -284,9 +288,9 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                     timeUnit: 'seconds'
                 }
             });
-            this.down('[name=startDate]').setValue(new Date());
+            me.down('[name=startDate]').setValue(new Date());
         }
-        this.down('#cancelLink').href = this.returnLink;
+        me.down('#cancelLink').href = this.returnLink;
     }
 });
 

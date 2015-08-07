@@ -111,12 +111,15 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     },
 
     showCommunicationSchedulesEditView: function (id) {
-        var me = this;
-        var widget = Ext.widget('communicationScheduleEdit', {
-            edit: id !== undefined,
-            returnLink: me.getController('Uni.controller.history.Router').getRoute('administration/communicationschedules').buildUrl()
-        });
-        this.getApplication().fireEvent('changecontentevent', widget);
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            widget = Ext.widget('communicationScheduleEdit', {
+                edit: id !== undefined,
+                returnLink: router.getRoute('administration/communicationschedules').buildUrl(),
+                router: router
+            });
+
+        me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         widget.down('#card').getLayout().setActiveItem(0);
         if (id === undefined) {
