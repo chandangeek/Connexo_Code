@@ -16,7 +16,7 @@ Ext.define('Dxp.privileges.DataExport', {
     run:'privilege.run.dataExportTask',
     update:['privilege.update.dataExportTask',
         'privilege.update.schedule.dataExportTask'],
-    admin : ['privilege.administrate.userAndRole'],
+    admin : ['privilege.administrate.dataExportTask'],
 
     all: function() {
         return Ext.Array.merge(Dxp.privileges.DataExport.view);
