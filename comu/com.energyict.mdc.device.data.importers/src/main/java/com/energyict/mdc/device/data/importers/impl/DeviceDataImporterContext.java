@@ -9,8 +9,8 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
 import org.osgi.service.component.annotations.Component;
@@ -25,7 +25,7 @@ public class DeviceDataImporterContext {
     private volatile Thesaurus thesaurus;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile DeviceService deviceService;
-    private volatile DeviceImportService deviceImportService;
+    private volatile BatchService batchService;
     private volatile TopologyService topologyService;
     private volatile MeteringService meteringService;
     private volatile DeviceLifeCycleService deviceLifeCycleService;
@@ -42,7 +42,7 @@ public class DeviceDataImporterContext {
                                      NlsService nlsService,
                                      DeviceConfigurationService deviceConfigurationService,
                                      DeviceService deviceService,
-                                     DeviceImportService deviceImportService,
+                                     BatchService batchService,
                                      TopologyService topologyService,
                                      MeteringService meteringService,
                                      DeviceLifeCycleService deviceLifeCycleService,
@@ -54,7 +54,7 @@ public class DeviceDataImporterContext {
         setNlsService(nlsService);
         setDeviceConfigurationService(deviceConfigurationService);
         setDeviceService(deviceService);
-        setDeviceImportService(deviceImportService);
+        setBatchService(batchService);
         setTopologyService(topologyService);
         setMeteringService(meteringService);
         setDeviceLifeCycleService(deviceLifeCycleService);
@@ -100,13 +100,13 @@ public class DeviceDataImporterContext {
         this.deviceService = deviceService;
     }
 
-    public DeviceImportService getDeviceImportService() {
-        return deviceImportService;
+    public BatchService getBatchService() {
+        return batchService;
     }
 
     @Reference
-    public final void setDeviceImportService(DeviceImportService deviceImportService) {
-        this.deviceImportService = deviceImportService;
+    public final void setBatchService(BatchService batchService) {
+        this.batchService = batchService;
     }
 
     public TopologyService getTopologyService() {

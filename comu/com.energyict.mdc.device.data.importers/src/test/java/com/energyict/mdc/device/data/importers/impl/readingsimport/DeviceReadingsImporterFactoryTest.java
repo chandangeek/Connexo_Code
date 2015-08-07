@@ -25,12 +25,12 @@ import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
@@ -78,7 +78,7 @@ public class DeviceReadingsImporterFactoryTest {
     @Mock
     private DeviceService deviceService;
     @Mock
-    private DeviceImportService deviceImportService;
+    private BatchService batchService;
     @Mock
     private Logger logger;
     @Mock
@@ -92,7 +92,7 @@ public class DeviceReadingsImporterFactoryTest {
 
     @Before
     public void beforeTest() {
-        reset(logger, thesaurus, deviceConfigurationService, deviceService, deviceImportService);
+        reset(logger, thesaurus, deviceConfigurationService, deviceService, batchService);
         when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> {
             for (MessageSeed messageSeeds : MessageSeeds.values()) {
                 if (messageSeeds.getKey().equals(invocationOnMock.getArguments()[0])) {
@@ -109,7 +109,7 @@ public class DeviceReadingsImporterFactoryTest {
         context = spy(new DeviceDataImporterContext());
         context.setDeviceService(deviceService);
         context.setDeviceConfigurationService(deviceConfigurationService);
-        context.setDeviceImportService(deviceImportService);
+        context.setBatchService(batchService);
         context.setMeteringService(meteringService);
         context.setPropertySpecService(new PropertySpecServiceImpl());
         context.setThreadPrincipalService(threadPrincipalService);

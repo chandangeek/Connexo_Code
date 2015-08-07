@@ -9,11 +9,11 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Batch;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.imp.Batch;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
@@ -33,18 +33,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceShipmentImporterFactoryTest {
@@ -59,13 +50,13 @@ public class DeviceShipmentImporterFactoryTest {
     @Mock
     private DeviceService deviceService;
     @Mock
-    private DeviceImportService deviceImportService;
+    private BatchService batchService;
     @Mock
     private Logger logger;
 
     @Before
     public void beforeTest() {
-        reset(logger, thesaurus, deviceConfigurationService, deviceService, deviceImportService);
+        reset(logger, thesaurus, deviceConfigurationService, deviceService, batchService);
         when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> {
             for (MessageSeed messageSeeds : MessageSeeds.values()) {
                 if (messageSeeds.getKey().equals(invocationOnMock.getArguments()[0])) {
@@ -82,7 +73,7 @@ public class DeviceShipmentImporterFactoryTest {
         context = spy(new DeviceDataImporterContext());
         context.setDeviceService(deviceService);
         context.setDeviceConfigurationService(deviceConfigurationService);
-        context.setDeviceImportService(deviceImportService);
+        context.setBatchService(batchService);
         context.setPropertySpecService(propertySpecService);
         when(context.getThesaurus()).thenReturn(thesaurus);
     }
@@ -117,11 +108,11 @@ public class DeviceShipmentImporterFactoryTest {
         when(deviceConfiguration.getName()).thenReturn("Default");
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         Device device = mock(Device.class);
-        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("VPB0001"))).thenReturn(device);
+        when(deviceService.newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("VPB0001"), Matchers.eq("batch"))).thenReturn(device);
         CIMLifecycleDates lifecycleDates = mock(CIMLifecycleDates.class);
         when(device.getLifecycleDates()).thenReturn(lifecycleDates);
         Batch batch = mock(Batch.class);
-        when(deviceImportService.findOrCreateBatch(Matchers.eq("batch"))).thenReturn(batch);
+        when(batchService.findOrCreateBatch(Matchers.eq("batch"))).thenReturn(batch);
 
         importer.process(importOccurrence);
         verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 1));
@@ -131,7 +122,6 @@ public class DeviceShipmentImporterFactoryTest {
         verify(device, times(1)).setSerialNumber("0001");
         verify(device, times(1)).setYearOfCertification(2015);
         verify(lifecycleDates, times(1)).setReceivedDate(Instant.ofEpochMilli(1438389000000L));
-        verify(batch, times(1)).addDevice(device);
     }
 
     @Test
@@ -239,7 +229,7 @@ public class DeviceShipmentImporterFactoryTest {
         when(deviceConfiguration.getName()).thenReturn("Default");
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         doThrow(new RuntimeException("Error!")).when(deviceService)
-                .newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("VPB0001"));
+                .newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("VPB0001"), Matchers.eq("batch"));
 
         importer.process(importOccurrence);
         verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
