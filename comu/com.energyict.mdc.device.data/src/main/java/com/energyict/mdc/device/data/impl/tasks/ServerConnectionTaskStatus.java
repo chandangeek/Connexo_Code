@@ -1,12 +1,13 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
-import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -58,6 +59,16 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append(".nextExecutionTimestamp is null)))");
         }
 
+        @Override
+        public void appendBreakdownCaseClause(SqlBuilder sqlBuilder, Clock clock) {
+            sqlBuilder.append("        WHEN (discriminator = ");
+            sqlBuilder.addObject(ConnectionTaskImpl.INBOUND_DISCRIMINATOR);
+            sqlBuilder.append("and status > 0)");
+            sqlBuilder.append("          OR (discriminator = ");
+            sqlBuilder.addObject(ConnectionTaskImpl.SCHEDULED_DISCRIMINATOR);
+            sqlBuilder.append("and (status > 0 or nextExecutionTimestamp is null))");
+            this.appendBreakdownThenClause(sqlBuilder);
+        }
     },
 
     /**
@@ -89,6 +100,8 @@ public enum ServerConnectionTaskStatus {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
             sqlBuilder.append("and ");
             sqlBuilder.append(connectionTaskTableName);
+            sqlBuilder.append(".status = 0 and ");
+            sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".nextexecutiontimestamp is not null and (exists (select * from ");
             sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
@@ -98,6 +111,10 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append(".comserver is not null)");
         }
 
+        @Override
+        public void appendBreakdownCaseClause(SqlBuilder sqlBuilder, Clock clock) {
+            throw new IllegalStateException("Busy connection tasks are not handled with a case statement but with a separate select");
+        }
     },
 
     /**
@@ -134,6 +151,12 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.addLong(this.asSeconds(clock.instant()));
         }
 
+        @Override
+        public void appendBreakdownCaseClause(SqlBuilder sqlBuilder, Clock clock) {
+            sqlBuilder.append("        WHEN nextexecutiontimestamp <=");
+            sqlBuilder.addLong(this.asSeconds(clock.instant()));
+            this.appendBreakdownThenClause(sqlBuilder);
+        }
     },
 
     /**
@@ -178,6 +201,15 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append(".lastsuccessfulcommunicationend is null");
         }
 
+        @Override
+        public void appendBreakdownCaseClause(SqlBuilder sqlBuilder, Clock clock) {
+            sqlBuilder.append("        WHEN currentretrycount = 0");
+            sqlBuilder.append("         AND nextexecutiontimestamp >");
+            sqlBuilder.addLong(this.asSeconds(clock.instant()));
+            sqlBuilder.append("         AND lastsuccessfulcommunicationend is null");
+            sqlBuilder.append("        THEN 'NeverCompleted'");
+            this.appendBreakdownThenClause(sqlBuilder);
+        }
     },
 
     /**
@@ -219,6 +251,14 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.addLong(this.asSeconds(clock.instant()));
         }
 
+        @Override
+        public void appendBreakdownCaseClause(SqlBuilder sqlBuilder, Clock clock) {
+            sqlBuilder.append("        WHEN currentretrycount > 0");
+            sqlBuilder.append("         AND nextexecutiontimestamp >");
+            sqlBuilder.addLong(this.asSeconds(clock.instant()));
+            sqlBuilder.append("        THEN 'Retrying'");
+            this.appendBreakdownThenClause(sqlBuilder);
+        }
     },
 
     /**
@@ -268,6 +308,16 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append(".lastsuccessfulcommunicationend is not null");
         }
 
+        @Override
+        public void appendBreakdownCaseClause(SqlBuilder sqlBuilder, Clock clock) {
+            sqlBuilder.append("        WHEN currentretrycount = 0");
+            sqlBuilder.append("         AND lastExecutionFailed = 1");
+            sqlBuilder.append("         AND nextexecutiontimestamp >");
+            sqlBuilder.addLong(this.asSeconds(clock.instant()));
+            sqlBuilder.append("         AND lastsuccessfulcommunicationend is not null");
+            sqlBuilder.append("        THEN 'Failed'");
+            this.appendBreakdownThenClause(sqlBuilder);
+        }
     },
 
     /**
@@ -317,6 +367,16 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append(".lastsuccessfulcommunicationend is not null");
         }
 
+        @Override
+        public void appendBreakdownCaseClause(SqlBuilder sqlBuilder, Clock clock) {
+            sqlBuilder.append("        WHEN currentretrycount = 0");
+            sqlBuilder.append("         AND lastExecutionFailed = 0");
+            sqlBuilder.append("         AND nextexecutiontimestamp >");
+            sqlBuilder.addLong(this.asSeconds(clock.instant()));
+            sqlBuilder.append("         AND lastsuccessfulcommunicationend is not null");
+            sqlBuilder.append("        THEN 'Waiting'");
+            this.appendBreakdownThenClause(sqlBuilder);
+        }
     };
 
     public static final String BUSY_TASK_ALIAS_NAME = "busytask";
@@ -342,6 +402,14 @@ public enum ServerConnectionTaskStatus {
         sqlBuilder.appendWhereOrAnd();
         sqlBuilder.append(connectionTaskTableName);
         sqlBuilder.append(".obsolete_date is null ");
+    }
+
+    public abstract void appendBreakdownCaseClause(SqlBuilder sqlBuilder, Clock clock);
+
+    protected void appendBreakdownThenClause(SqlBuilder sqlBuilder) {
+        sqlBuilder.append(" THEN '");
+        sqlBuilder.append(this.name());
+        sqlBuilder.append("'");
     }
 
     /**

@@ -419,6 +419,7 @@ public enum TableSpecs {
                     map("comSession").
                     composition().
                     reverseMap("comTaskExecutionSessions").add();
+            table.index("DDC_CTES_CS_COMSESSION").on(session).add();
             table.foreignKey("FK_DDC_COMTASKSESSION_CTEXEC").
                     on(comTaskExecution).
                     references(DDC_COMTASKEXEC.name()).

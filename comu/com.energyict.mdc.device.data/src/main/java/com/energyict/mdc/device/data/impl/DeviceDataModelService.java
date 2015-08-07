@@ -56,7 +56,7 @@ public interface DeviceDataModelService {
 
     public Map<TaskStatus, Long> fetchTaskStatusCounters(ClauseAwareSqlBuilder builder);
 
-    public Map<Long, Map<TaskStatus, Long>> fetchTaskStatusBreakdown(ClauseAwareSqlBuilder builder);
+    public Map<Long, Map<TaskStatus, Long>> fetchTaskStatusBreakdown(PreparedStatementProvider builder);
 
     public Map<TaskStatus, Long> addMissingTaskStatusCounters(Map<TaskStatus, Long> counters);
 
