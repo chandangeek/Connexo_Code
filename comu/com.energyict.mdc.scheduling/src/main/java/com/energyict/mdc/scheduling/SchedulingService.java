@@ -12,6 +12,13 @@ import java.util.Optional;
 public interface SchedulingService {
     public static final String COMPONENT_NAME="SCH";
 
+    public String FILTER_ITEMIZER_QUEUE_DESTINATION = "ItemizeSchFilterQD";
+    public String FILTER_ITEMIZER_QUEUE_SUBSCRIBER = "ItemizeSchFilterQS";
+    public String FILTER_ITEMIZER_QUEUE_DISPLAYNAME = "Itemize communication  from filter";
+    public String COM_SCHEDULER_QUEUE_DESTINATION = "SchCommQD";
+    public String COMMUNICATION_SCHEDULER_QUEUE_SUBSCRIBER = "ReschCommQS";
+    public String COMMUNICATION_SCHEDULER_QUEUE_DISPLAYNAME = "Reschedule communications message handler";
+
     public NextExecutionSpecs findNextExecutionSpecs(long id);
     public NextExecutionSpecs newNextExecutionSpecs(TemporalExpression temporalExpression);
 
