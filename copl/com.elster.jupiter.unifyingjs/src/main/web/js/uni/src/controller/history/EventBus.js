@@ -13,6 +13,7 @@ Ext.define('Uni.controller.history.EventBus', {
 
     config: {
         defaultToken: '',
+        currentPath: null,
         previousPath: null,
         previousQueryString: null
     },
@@ -82,8 +83,9 @@ Ext.define('Uni.controller.history.EventBus', {
         if (queryStringIndex > 0) {
             token = token.substring(0, queryStringIndex);
         }
-        if (this.getPreviousPath()===null || token !== this.getPreviousPath()) {
-            this.setPreviousPath(token);
+        if (token !== this.getCurrentPath()) {
+            this.setPreviousPath(this.getCurrentPath());
+            this.setCurrentPath(token);
             if (!Uni.util.History.isSuspended()) {
                 pathChanged = true;
             }
