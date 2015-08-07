@@ -2,8 +2,6 @@ Ext.define('Idv.view.Overview', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.data-validation-issues-overview',
     requires: [
-        'Uni.component.filter.view.FilterTopPanel',
-        'Isu.view.issues.SideFilter',
         'Isu.view.issues.Grid',
         'Isu.view.issues.NoIssuesFoundPanel',
         'Isu.view.issues.GroupingToolbar',
@@ -11,24 +9,11 @@ Ext.define('Idv.view.Overview', {
         'Idv.view.Preview',
         'Isu.view.issues.GroupingTitle',
         'Isu.view.issues.NoGroupSelectedPanel',
-        'Isu.view.issues.SortingToolbar'
+        'Isu.view.issues.SortingToolbar',
+        'Isu.view.issues.IssueFilter'
     ],
     router: null,
     groupingType: null,
-    side: {
-        xtype: 'panel',
-        ui: 'medium',
-        layout: {
-            type: 'vbox',
-            align: 'stretch'
-        },
-        items: [
-            {
-                xtype: 'issues-side-filter',
-                itemId: 'data-validation-issues-side-filter'
-            }
-        ]
-    },
     initComponent: function () {
         var me = this;
 
@@ -38,10 +23,9 @@ Ext.define('Idv.view.Overview', {
                 ui: 'large',
                 items: [
                     {
-                        xtype: 'filter-top-panel',
-                        itemId: 'data-validation-issues-filter-toolbar',
-                        emptyText: Uni.I18n.translate('general.none', 'ISU', 'None'),
-                        hideEmpty: false
+                        xtype: 'isu-view-issues-issuefilter',
+                        itemId: 'isu-view-issues-issuefilter',
+                        store: 'Idv.store.Issues'
                     },
                     {
                         xtype: 'menuseparator'
@@ -69,7 +53,8 @@ Ext.define('Idv.view.Overview', {
                     {
                         xtype: 'issues-sorting-toolbar',
                         itemId: 'data-validation-issues-sorting-toolbar',
-                        hideEmpty: false
+                        hideEmpty: false,
+                        store: 'Idv.store.Issues'
                     },
                     {
                         xtype: 'no-issues-group-selected-panel',

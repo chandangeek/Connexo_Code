@@ -31,12 +31,8 @@ Ext.define('Idv.controller.Overview', {
             selector: 'data-validation-issues-overview #data-validation-issues-preview'
         },
         {
-            ref: 'filterForm',
-            selector: 'data-validation-issues-overview #data-validation-issues-side-filter'
-        },
-        {
             ref: 'filterToolbar',
-            selector: 'data-validation-issues-overview #data-validation-issues-filter-toolbar'
+            selector: 'data-validation-issues-overview isu-view-issues-issuefilter'
         },
         {
             ref: 'groupingToolbar',
@@ -59,10 +55,6 @@ Ext.define('Idv.controller.Overview', {
             selector: 'data-validation-issues-overview no-issues-group-selected-panel'
         },
         {
-            ref: 'sortingToolbar',
-            selector: 'data-validation-issues-overview #data-validation-issues-sorting-toolbar'
-        },
-        {
             ref: 'issuesGrid',
             selector: 'data-validation-issues-overview #data-validation-issues-grid'
         }
@@ -70,13 +62,6 @@ Ext.define('Idv.controller.Overview', {
 
     init: function () {
         this.control({
-            'data-validation-issues-overview issues-side-filter #filter-by-reason': {
-                render: this.setComboTooltip
-            },
-            'data-validation-issues-overview issues-side-filter #filter-by-meter': {
-                render: this.setComboTooltip,
-                expand: this.limitNotification
-            },
             'data-validation-issues-overview #issues-overview-action-menu': {
                 click: this.chooseAction
             },
@@ -86,31 +71,17 @@ Ext.define('Idv.controller.Overview', {
             'data-validation-issues-overview #data-validation-issues-grid': {
                 select: this.showPreview
             },
-            'data-validation-issues-overview #issues-filter-apply': {
-                click: this.applyFilter
-            },
-            'data-validation-issues-overview #issues-filter-reset': {
-                click: this.resetFilter
-            },
-            'data-validation-issues-overview #data-validation-issues-preview #filter-display-button': {
-                click: this.setFilterItem
-            },
-            'data-validation-issues-overview #data-validation-issues-filter-toolbar': {
-                removeFilter: this.removeFilterItem,
-                clearAllFilters: this.resetFilter
-            },
             'data-validation-issues-overview issues-grouping-toolbar #issues-grouping-toolbar-combo': {
                 change: this.setGroupingType
             },
             'data-validation-issues-overview issues-group-grid': {
                 select: this.setGroupingValue
             },
-            'data-validation-issues-overview issues-sorting-toolbar': {
-                removeSort: this.removeSortingItem,
-                changeSortDirection: this.changeSortDirection
+            'data-validation-issues-overview isu-view-issues-issuefilter': {
+                change: this.setGrouping
             },
-            'data-validation-issues-overview issues-sorting-toolbar #issues-sorting-menu': {
-                click: this.addSortingItem
+            'data-validation-issues-overview #data-validation-issues-preview #filter-display-button': {
+                click: this.setFilterItem
             }
         });
     },
@@ -119,7 +90,7 @@ Ext.define('Idv.controller.Overview', {
         var me = this;
 
         me.callParent(['datavalidation', 'data-validation-issues-overview', function () {
-            me.getFilterForm().down('#filter-by-reason').hide();
+            me.getFilterToolbar().down('[dataIndex=reason]').hide();
         }]);
     }
 });

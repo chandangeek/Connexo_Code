@@ -18,7 +18,6 @@ Ext.define('Idv.controller.history.Workspace', {
                     route: 'datavalidationissues',
                     controller: 'Idv.controller.Overview',
                     action: 'showOverview',
-                    filter: 'Isu.model.IssuesFilter',
                     privileges: Isu.privileges.Issue.viewAdminDevice,
                     items: {
                         bulkaction: {
