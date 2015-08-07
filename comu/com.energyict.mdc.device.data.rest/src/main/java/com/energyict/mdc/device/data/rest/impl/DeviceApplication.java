@@ -27,10 +27,10 @@ import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfoFactory;
 import com.energyict.mdc.device.data.kpi.rest.KpiResource;
@@ -81,7 +81,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile TopologyService topologyService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
-    private volatile DeviceImportService deviceImportService;
+    private volatile BatchService batchService;
     private volatile IssueService issueService;
     private volatile IssueDataValidationService issueDataValidationService;
     private volatile TransactionService transactionService;
@@ -156,8 +156,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
-    public void setDeviceImportService(DeviceImportService deviceImportService) {
-        this.deviceImportService = deviceImportService;
+    public void setBatchService(BatchService batchService) {
+        this.batchService = batchService;
     }
 
     @Reference
@@ -363,7 +363,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(nlsService).to(NlsService.class);
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
-            bind(deviceImportService).to(DeviceImportService.class);
+            bind(batchService).to(BatchService.class);
             bind(engineConfigurationService).to(EngineConfigurationService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(schedulingService).to(SchedulingService.class);
@@ -409,5 +409,4 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(DeviceAttributesInfoFactory.class).to(DeviceAttributesInfoFactory.class);
         }
     }
-
 }

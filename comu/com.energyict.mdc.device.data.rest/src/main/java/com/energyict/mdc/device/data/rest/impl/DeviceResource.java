@@ -15,9 +15,9 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -61,7 +61,7 @@ import java.util.stream.Stream;
 public class DeviceResource {
     private static final int RECENTLY_ADDED_COUNT = 5;
 
-    private final DeviceImportService deviceImportService;
+    private final BatchService batchService;
     private final DeviceService deviceService;
     private final TopologyService topologyService;
     private final DeviceConfigurationService deviceConfigurationService;
@@ -97,7 +97,7 @@ public class DeviceResource {
     public DeviceResource(
             ResourceHelper resourceHelper,
             ExceptionFactory exceptionFactory,
-            DeviceImportService deviceImportService,
+            BatchService batchService,
             DeviceService deviceService,
             TopologyService topologyService,
             DeviceConfigurationService deviceConfigurationService,
@@ -128,7 +128,7 @@ public class DeviceResource {
             Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
-        this.deviceImportService = deviceImportService;
+        this.batchService = batchService;
         this.deviceService = deviceService;
         this.topologyService = topologyService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -186,14 +186,13 @@ public class DeviceResource {
             deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId);
         }
 
-        Device newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID);
+        Device newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID, info.batch);
         newDevice.setSerialNumber(info.serialNumber);
         newDevice.setYearOfCertification(Integer.valueOf(info.yearOfCertification));
         newDevice.save();
 
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
 
-        this.deviceImportService.addDeviceToBatch(newDevice, info.batch);
         return deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice));
     }
 
