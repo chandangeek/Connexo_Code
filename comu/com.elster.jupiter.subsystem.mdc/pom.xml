@@ -193,26 +193,6 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
-                <artifactId>mdc.device.data.imp</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.device.data.imp.messagehandlers</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.device.data.imp.rest</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.device.data.imp.extjs</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
                 <artifactId>mdc.engine</artifactId>
                 <version>1.1.0-SNAPSHOT</version>
             </dependency>
@@ -446,22 +426,6 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.data.imp</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.data.imp.messagehandlers</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.data.imp.rest</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.data.imp.extjs</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
             <artifactId>mdc.engine</artifactId>
         </dependency>
         <dependency>
@@ -536,7 +500,6 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.firmware.extjs</artifactId>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -585,6 +548,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>
