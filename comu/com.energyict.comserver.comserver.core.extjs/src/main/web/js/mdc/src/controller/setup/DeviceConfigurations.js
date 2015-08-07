@@ -430,6 +430,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     showDeviceConfigurationEditView: function (deviceTypeId, deviceConfigurationId) {
         var me = this,
             model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration'),
+            router = me.getController('Uni.controller.history.Router'),
+            previousPath = me.getController('Uni.controller.history.EventBus').getPreviousPath(),
             widget,
             returnLink;
 
@@ -437,10 +439,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         model.getProxy().setExtraParam('deviceType', this.deviceTypeId);
 
 
-        if (me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens().indexOf('null') >= -1) {
-            returnLink = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations';
+        if (!previousPath) {
+            returnLink = router.getRoute('administration/devicetypes/view/deviceconfigurations').buildUrl({deviceTypeId: deviceTypeId});
         } else {
-            returnLink = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
+            returnLink = '#' + previousPath;
         }
 
         widget = Ext.widget('deviceConfigurationEdit', {
@@ -555,7 +557,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             record.getProxy().setExtraParam('deviceType', this.deviceTypeId);
             record.save({
                 success: function (record) {
-                    router.getRoute('administration/devicetypes/view/deviceconfigurations').forward();
+                    window.location.href = me.getDeviceConfigurationEdit().returnLink;
                     if (btn.action === 'createDeviceConfiguration') {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.added', 'MDC', 'Device configuration added'));
                     } else {

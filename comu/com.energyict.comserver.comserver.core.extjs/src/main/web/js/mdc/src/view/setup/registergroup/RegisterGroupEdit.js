@@ -91,6 +91,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                             store: 'RegisterTypes',
                                             selModel: {
                                                 mode: 'MULTI',
+                                                showHeaderCheckbox: false,
                                                 checkOnly: true,
                                                 ignoreRightMouseSelection: true
                                             },
