@@ -185,14 +185,17 @@ public class DeviceResource {
         if (info.deviceConfigurationId != null) {
             deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId);
         }
-
-        Device newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID, info.batch);
+        Device newDevice;
+        if (info.batch != null) {
+            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID, info.batch);
+        } else {
+            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID);
+        }
         newDevice.setSerialNumber(info.serialNumber);
         newDevice.setYearOfCertification(Integer.valueOf(info.yearOfCertification));
         newDevice.save();
 
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
-
         return deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice));
     }
 
