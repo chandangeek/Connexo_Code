@@ -28,16 +28,10 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
             assignedFilter;
 
         assignedFilter = {
-            filter: {
-                status: ['status.open', 'status.in.progress'],
-                meter: mRID,
-                sorting: [
-                    {
-                        type: 'dueDate',
-                        value: 'asc'
-                    }
-                ]
-            }
+            status: ['status.open', 'status.in.progress'],
+            meter: mRID,
+            groupingType: 'none',
+            sort: ['dueDate', 'modTime']
         };
 
         me.down('#dataCollectionIssuesContainer').add(
