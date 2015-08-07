@@ -5,11 +5,14 @@ import com.elster.jupiter.issue.rest.request.*;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
+import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
+import com.elster.jupiter.issue.rest.response.IssueAssigneeInfoAdapter;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -54,23 +57,23 @@ public class IssueResource extends BaseResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
-    public PagedInfoList getAllIssues(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParams) {
+    public PagedInfoList getAllIssues(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter) {
         validateMandatory(params, START, LIMIT);
-        List<? extends IssueDataCollection> list = getFilteredIssues(params);
+        List<? extends IssueDataCollection> list = getFilteredIssues(params, filter);
         return PagedInfoList.fromPagedList("data", issuesInfoFactory.asInfos(list), queryParams);
     }
 
-    private List<? extends IssueDataCollection> getFilteredIssues(StandardParametersBean params) {
-        Class<? extends IssueDataCollection> apiClass = getQueryApiClass(params);
+    private List<? extends IssueDataCollection> getFilteredIssues(StandardParametersBean params, JsonQueryFilter filter) {
+        Class<? extends IssueDataCollection> apiClass = getQueryApiClass(filter);
         Class<? extends Issue> eagerClass = getEagerApiClass(apiClass);
         Query<? extends IssueDataCollection> query = getIssueDataCollectionService().query(apiClass, eagerClass, EndDevice.class, User.class, IssueReason.class,
                 IssueStatus.class, IssueType.class);
-        Condition condition = getQueryCondition(params);
+        Condition condition = getQueryCondition(filter);
         return query.select(condition, params.getFrom(), params.getTo(), params.getOrder("baseIssue."));
     }
 
-    private List<? extends IssueDataCollection> getIssuesForBulk(StandardParametersBean params) {
-        Condition condition = getQueryCondition(params);
+    private List<? extends IssueDataCollection> getIssuesForBulk(JsonQueryFilter filter) {
+        Condition condition = getQueryCondition(filter);
         Query<OpenIssueDataCollection> openQuery = getIssueDataCollectionService().query(OpenIssueDataCollection.class, OpenIssue.class, EndDevice.class, User.class, IssueReason.class,
                 IssueStatus.class, IssueType.class);
         Query<HistoricalIssueDataCollection> closeQuery = getIssueDataCollectionService().query(HistoricalIssueDataCollection.class, HistoricalIssue.class, EndDevice.class, User.class, IssueReason.class,
@@ -146,12 +149,12 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ASSIGN_ISSUE)
     @Deprecated
-    public Response assignIssues(AssignIssueRequest request, @Context SecurityContext securityContext, @BeanParam StandardParametersBean params) {
+    public Response assignIssues(AssignIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter/*StandardParametersBean params*/) {
         /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
         User performer = (User) securityContext.getUserPrincipal();
         Function<ActionInfo, List<? extends Issue>> issueProvider;
         if (request.allIssues) {
-            issueProvider = bulkResults -> getIssuesForBulk(params);
+            issueProvider = bulkResults -> getIssuesForBulk(filter);
         } else {
             issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
         }
@@ -181,12 +184,12 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.CLOSE_ISSUE)
     @Deprecated
-    public Response closeIssues(CloseIssueRequest request, @Context SecurityContext securityContext, @BeanParam StandardParametersBean params) {
+    public Response closeIssues(CloseIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter/*StandardParametersBean params*/) {
         /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
         User performer = (User) securityContext.getUserPrincipal();
         Function<ActionInfo, List<? extends Issue>> issueProvider;
         if (request.allIssues) {
-            issueProvider = bulkResults -> getIssuesForBulk(params);
+            issueProvider = bulkResults -> getIssuesForBulk(filter);
         } else {
             issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
         }
@@ -222,11 +225,11 @@ public class IssueResource extends BaseResource {
         return response;
     }
 
-    private Class<? extends IssueDataCollection> getQueryApiClass(StandardParametersBean params) {
+    private Class<? extends IssueDataCollection> getQueryApiClass(JsonQueryFilter filter) {
         boolean isHistorical = false;
         boolean isActual = false;
 
-        for (String status : params.get(STATUS)) {
+        for (String status : filter.getStringList(STATUS)/* params.get(STATUS)*/) {
             Optional<IssueStatus> issueStatusRef = getIssueService().findStatus(status);
             if (issueStatusRef.isPresent()) {
                 if (issueStatusRef.get().isHistorical()) {
@@ -256,25 +259,24 @@ public class IssueResource extends BaseResource {
     }
 
 
-    private Condition getQueryCondition(StandardParametersBean params) {
+    private Condition getQueryCondition( JsonQueryFilter filter) {
         Condition condition = Condition.TRUE;
-        if (params.getQueryParameters().size() > 0) {
-            condition = condition.and(addAssigneeQueryCondition(params));
-            condition = condition.and(addReasonQueryCondition(params));
-            condition = condition.and(addStatusQueryCondition(params));
-            condition = condition.and(addMeterQueryCondition(params));
+        if (filter.hasFilters()) {
+            condition = condition.and(addAssigneeQueryCondition(filter));
+            condition = condition.and(addReasonQueryCondition(filter));
+            condition = condition.and(addStatusQueryCondition(filter));
+            condition = condition.and(addMeterQueryCondition(filter));
         }
         return condition;
     }
 
-    private Condition addAssigneeQueryCondition(StandardParametersBean params) {
+    private Condition addAssigneeQueryCondition(JsonQueryFilter filter) {
         Condition conditionAssignee = Condition.TRUE;
-        if (!params.get(ASSIGNEE_ID).isEmpty()) {
-            Long assigneeId = params.getFirstLong(ASSIGNEE_ID);
-            if (assigneeId > 0) {
-                String assigneeType = params.getFirst(ASSIGNEE_TYPE);
-                if (getIssueService().checkIssueAssigneeType(assigneeType)) {
-                    conditionAssignee = where("baseIssue." + params.getFirst(ASSIGNEE_TYPE).toLowerCase() + ".id").isEqualTo(assigneeId);
+        if (filter.hasProperty(ASSIGNEE)) {
+            IssueAssigneeInfo assignee = filter.getProperty(ASSIGNEE, new IssueAssigneeInfoAdapter());
+            if (assignee.getId() != null && assignee.getId() > 0) {
+                if (getIssueService().checkIssueAssigneeType(assignee.getType())) {
+                    conditionAssignee = where("baseIssue." + assignee.getType().toLowerCase() + ".id").isEqualTo(assignee.getId());
                 }
             } else { // Filter by unassigned
                 conditionAssignee = where("baseIssue.assigneeType").isNull();
@@ -283,33 +285,31 @@ public class IssueResource extends BaseResource {
         return conditionAssignee;
     }
 
-    private Condition addReasonQueryCondition(StandardParametersBean params) {
-        Condition conditionReason = Condition.FALSE;
-        for (String reason : params.get(REASON)) {
-            conditionReason = conditionReason.or(where("baseIssue.reason.key").isEqualTo(reason));
+    private Condition addReasonQueryCondition(JsonQueryFilter filter) {
+        Condition conditionReason = Condition.TRUE;
+        if (filter.hasProperty(REASON)) {
+            conditionReason = conditionReason.and(where("baseIssue.reason.key").isEqualTo(filter.getString(REASON)));
         }
-        conditionReason = conditionReason == Condition.FALSE ? Condition.TRUE : conditionReason;
         final Condition finalConditionReason = conditionReason;
         return getIssueService()
                 .findIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE)
                 .map(it -> finalConditionReason.and(where("baseIssue.reason.issueType").isEqualTo(it))).get();
     }
 
-    private Condition addStatusQueryCondition(StandardParametersBean params) {
+    private Condition addStatusQueryCondition(JsonQueryFilter filter) {
         Condition conditionStatus = Condition.FALSE;
-        for (String status : params.get(STATUS)) {
+        for (String status : filter.getStringList(STATUS)) {
             conditionStatus = conditionStatus.or(where("baseIssue.status.key").isEqualTo(status));
         }
         conditionStatus = conditionStatus == Condition.FALSE ? Condition.TRUE : conditionStatus;
         return conditionStatus;
     }
 
-    private Condition addMeterQueryCondition(StandardParametersBean params) {
-        Condition conditionMeter = Condition.FALSE;
-        for (String meter : params.get(METER)) {
-            conditionMeter = conditionMeter.or(where("baseIssue.device.mRID").isEqualTo(meter));
+    private Condition addMeterQueryCondition(JsonQueryFilter filter) {
+        Condition conditionMeter = Condition.TRUE;
+        if (filter.hasProperty(METER)) {
+            conditionMeter = conditionMeter.and(where("baseIssue.device.mRID").isEqualTo(filter.getString(METER)));
         }
-        conditionMeter = conditionMeter == Condition.FALSE ? Condition.TRUE : conditionMeter;
         return conditionMeter;
     }
 }

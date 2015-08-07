@@ -18,6 +18,7 @@ import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.*;
 
@@ -62,7 +63,8 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         List<OpenIssueDataCollection> issues = Arrays.asList(getDefaultIssue(), getDefaultIssue());
         when(issuesQuery.select(Matchers.<Condition>anyObject(), Matchers.eq(1), Matchers.eq(2), Matchers.<Order>anyVararg())).thenReturn(issues);
 
-        Map<?, ?> map = target("/issue").queryParam(STATUS, "open").queryParam(START, "0").queryParam(LIMIT, "1").request().get(Map.class);
+        String filter = URLEncoder.encode("[{\"property\":\"status\",\"value\":[\"open\"]}]");
+        Map<?, ?> map = target("/issue").queryParam(FILTER, filter).queryParam(START, "0").queryParam(LIMIT, "1").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(2);
 
         List<?> data = (List<?>) map.get("data");
