@@ -106,6 +106,10 @@ public final class IssueGroupFilter {
         return assigneeType;
     }
 
+    public IssueGroupFilter withAssignee(long id, String type) {
+       return withAssigneeId(id).withAssigneeType(type);
+    }
+
     public IssueGroupFilter withAssigneeType(String type) {
         this.assigneeType = getSafeString(type);
         return this;
