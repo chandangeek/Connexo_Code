@@ -6,6 +6,8 @@ import com.elster.jupiter.issue.rest.request.*;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
+import com.elster.jupiter.issue.rest.response.IssueAssigneeInfo;
+import com.elster.jupiter.issue.rest.response.IssueAssigneeInfoAdapter;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.security.Privileges;
@@ -16,6 +18,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -72,8 +75,8 @@ public class IssueResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.CLOSE_ISSUE, Privileges.COMMENT_ISSUE, Privileges.ACTION_ISSUE})
-    public PagedInfoList getDataValidationIssues(@BeanParam StandardParametersBean queryFilter, @BeanParam JsonQueryParameters queryParams) {
-        Finder<? extends IssueDataValidation> finder = issueDataValidationService.findAllDataValidationIssues(buildFilterFromQueryParameters(queryFilter));
+    public PagedInfoList getDataValidationIssues(@BeanParam StandardParametersBean queryFilter, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter) {
+        Finder<? extends IssueDataValidation> finder = issueDataValidationService.findAllDataValidationIssues(buildFilterFromQueryParameters(filter));
         addSorting(finder, queryFilter);
         if (queryParams.getStart().isPresent() && queryParams.getLimit().isPresent()) {
             finder.paged(queryParams.getStart().get(), queryParams.getLimit().get());
@@ -146,12 +149,12 @@ public class IssueResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ASSIGN_ISSUE)
     @Deprecated
-    public Response assignIssues(AssignIssueRequest request, @Context SecurityContext securityContext, @BeanParam StandardParametersBean params) {
+    public Response assignIssues(AssignIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter/* @BeanParam StandardParametersBean params*/) {
         /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
         User performer = (User) securityContext.getUserPrincipal();
         Function<ActionInfo, List<? extends Issue>> issueProvider;
         if (request.allIssues) {
-            issueProvider = bulkResults -> getIssuesForBulk(params);
+            issueProvider = bulkResults -> getIssuesForBulk(filter);
         } else {
             issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
         }
@@ -165,20 +168,20 @@ public class IssueResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.CLOSE_ISSUE)
     @Deprecated
-    public Response closeIssues(CloseIssueRequest request, @Context SecurityContext securityContext, @BeanParam StandardParametersBean params) {
+    public Response closeIssues(CloseIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter /*@BeanParam StandardParametersBean params*/) {
         /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
         User performer = (User) securityContext.getUserPrincipal();
         Function<ActionInfo, List<? extends Issue>> issueProvider;
         if (request.allIssues) {
-            issueProvider = bulkResults -> getIssuesForBulk(params);
+            issueProvider = bulkResults -> getIssuesForBulk(filter);
         } else {
             issueProvider = bulkResult -> getUserSelectedIssues(request, bulkResult);
         }
         return entity(doBulkClose(request, performer, issueProvider)).build();
     }
 
-    private List<? extends IssueDataValidation> getIssuesForBulk(StandardParametersBean params) {
-        return issueDataValidationService.findAllDataValidationIssues(buildFilterFromQueryParameters(params)).find();
+    private List<? extends IssueDataValidation> getIssuesForBulk(JsonQueryFilter filter) {
+        return issueDataValidationService.findAllDataValidationIssues(buildFilterFromQueryParameters(filter)).find();
     }
 
     private List<? extends Issue> getUserSelectedIssues(BulkIssueRequest request, ActionInfo bulkResult) {
@@ -221,21 +224,20 @@ public class IssueResource {
         return response;
     }
 
-    private DataValidationIssueFilter buildFilterFromQueryParameters(StandardParametersBean queryFilter) {
+    private DataValidationIssueFilter buildFilterFromQueryParameters(JsonQueryFilter jsonFilter) {
         DataValidationIssueFilter filter = new DataValidationIssueFilter();
-        queryFilter.get("status").stream()
+        jsonFilter.getStringList("status").stream()
                 .flatMap(s -> issueService.findStatus(s).map(Stream::of).orElse(Stream.empty()))
                 .forEach(filter::addStatus);
-        queryFilter.get("reason").stream()
-                .findFirst()
-                .flatMap(issueService::findReason)
-                .ifPresent(filter::setIssueReason);
-        queryFilter.get("meter").stream()
-                .findFirst()
-                .flatMap(meteringService::findEndDevice)
-                .ifPresent(filter::setDevice);
-        String assigneeType = queryFilter.getFirst("assigneeType");
-        Long assigneeId = queryFilter.getFirstLong("assigneeId");
+        if (jsonFilter.hasProperty("reason") && issueService.findReason(jsonFilter.getString("reason")).isPresent()) {
+            filter.setIssueReason(issueService.findReason(jsonFilter.getString("reason")).get());
+        }
+        if (jsonFilter.hasProperty("meter") && meteringService.findEndDevice(jsonFilter.getString("meter")).isPresent()) {
+            filter.setDevice(meteringService.findEndDevice(jsonFilter.getString("meter")).get());
+        }
+        IssueAssigneeInfo issueAssigneeInfo = jsonFilter.getProperty("assignee", new IssueAssigneeInfoAdapter());
+        String assigneeType = issueAssigneeInfo.getType();
+        Long assigneeId = issueAssigneeInfo.getId();
         if (IssueAssignee.Types.USER.equals(assigneeType)) {
             userService.getUser(assigneeId).ifPresent(filter::setAssignee);
         }

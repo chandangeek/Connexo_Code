@@ -41,6 +41,7 @@ import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -80,17 +81,16 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
         }).when(issueDataValidationService).findAllDataValidationIssues(Matchers.any());
         doReturn(Collections.singletonList(issue)).when(finder).find();
 
+        String filter = URLEncoder.encode("[{\"property\":\"status\",\"value\":[\"open\",\"inprogress\"]},{\"property\":\"meter\",\"value\":\"Meter\"},{\"property\":\"assignee\",\"value\":\"3:USER\"},{\"property\":\"reason\",\"value\":\"IssueReason\"}]");
+
+
         String response = target("/issues")
-                .queryParam("status", "open")
-                .queryParam("status", "inprogress")
-                .queryParam("meter", "Meter")
-                .queryParam("assigneeType", "USER")
-                .queryParam("assigneeId", 3L)
-                .queryParam("reason", "IssueReason")
+                .queryParam("filter", filter)
                 .queryParam("start", 0)
                 .queryParam("limit", 10)
                 .queryParam("sort", "-modTime")
                 .request().get(String.class);
+
 
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
