@@ -1,10 +1,15 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import org.hibernate.validator.constraints.NotBlank;
 
 import javax.inject.Inject;
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -12,7 +17,7 @@ public class BatchImpl implements Batch {
 
     enum Fields {
 
-        BATCH_NAME("name");
+        BATCH_NAME("batch");
 
         private final String javaFieldName;
 
@@ -26,7 +31,9 @@ public class BatchImpl implements Batch {
     }
 
     private long id;
-    private String name;
+    @NotBlank(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String batch;
 
     //audit fields
     @SuppressWarnings("unused")
@@ -50,7 +57,7 @@ public class BatchImpl implements Batch {
     }
 
     BatchImpl init(String name) {
-        this.name = name;
+        this.batch = name;
         return this;
     }
 
@@ -61,7 +68,7 @@ public class BatchImpl implements Batch {
 
     @Override
     public String getName() {
-        return name;
+        return batch;
     }
 
     @Override

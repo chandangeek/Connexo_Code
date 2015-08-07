@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
@@ -38,7 +39,7 @@ public class BatchServiceImpl implements BatchService {
 
     private Batch createBatch(String name) {
         BatchImpl batch = BatchImpl.from(dataModel, name);
-        dataModel.mapper(Batch.class).persist(batch);
+        Save.CREATE.save(dataModel, batch);
         return batch;
     }
 }

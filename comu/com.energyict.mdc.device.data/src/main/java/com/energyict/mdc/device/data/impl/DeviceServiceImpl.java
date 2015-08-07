@@ -43,7 +43,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.elster.jupiter.util.Checks.is;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
@@ -146,8 +145,7 @@ public class DeviceServiceImpl implements ServerDeviceService {
                 counter.next();
                 return counter.getLong(1);
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }
@@ -161,9 +159,7 @@ public class DeviceServiceImpl implements ServerDeviceService {
     public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, String batch) {
         Device device = newDevice(deviceConfiguration, name, mRID);
         device.save();
-        if (!is(batch).emptyOrOnlyWhiteSpace()) {
-            this.deviceDataModelService.batchService().findOrCreateBatch(batch).addDevice(device);
-        }
+        this.deviceDataModelService.batchService().findOrCreateBatch(batch).addDevice(device);
         return device;
     }
 
@@ -171,7 +167,7 @@ public class DeviceServiceImpl implements ServerDeviceService {
     public Optional<Device> findDeviceById(long id) {
         return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique("id", id);
     }
-    
+
     @Override
     public Optional<Device> findAndLockDeviceByIdAndVersion(long id, long version) {
         return this.deviceDataModelService.dataModel().mapper(Device.class).lockObjectIfVersion(version, id);
@@ -231,8 +227,8 @@ public class DeviceServiceImpl implements ServerDeviceService {
         return this.deviceDataModelService.dataModel().query(Device.class, ConnectionTask.class, ConnectionTypePluggableClass.class, PluggableClass.class).select(condition);
     }
 
-	@Override
-	public Query<Device> deviceQuery() {
-		return queryService.wrap(deviceDataModelService.dataModel().query(Device.class, DeviceConfiguration.class, DeviceType.class));
-	}
+    @Override
+    public Query<Device> deviceQuery() {
+        return queryService.wrap(deviceDataModelService.dataModel().query(Device.class, DeviceConfiguration.class, DeviceType.class));
+    }
 }
