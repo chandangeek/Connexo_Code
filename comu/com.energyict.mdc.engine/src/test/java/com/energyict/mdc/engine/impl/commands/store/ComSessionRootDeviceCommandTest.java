@@ -52,7 +52,7 @@ public class ComSessionRootDeviceCommandTest {
     @Test
     public void testNoChildrenAfterConstruction () {
         // Business method
-        CompositeDeviceCommand command = new ComSessionRootDeviceCommand(serviceProvider);
+        CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
 
         // Asserts
         assertThat(command.getChildren()).isEmpty();
@@ -60,7 +60,7 @@ public class ComSessionRootDeviceCommandTest {
 
     @Test
     public void testAddOneChild () {
-        CompositeDeviceCommand command = new ComSessionRootDeviceCommand(serviceProvider);
+        CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         DeviceCommand deviceCommand = this.mockDeviceCommand();
 
         // Business method
@@ -72,7 +72,7 @@ public class ComSessionRootDeviceCommandTest {
 
     @Test
     public void testAddOnlyCreateComSessionChild () {
-        ComSessionRootDeviceCommand command = new ComSessionRootDeviceCommand(serviceProvider);
+        ComSessionRootDeviceCommand command = new ComSessionRootDeviceCommand();
         CreateComSessionDeviceCommand deviceCommand = this.mockCreateComSessionDeviceCommand();
 
         // Business method
@@ -84,7 +84,7 @@ public class ComSessionRootDeviceCommandTest {
 
     @Test
     public void testMultipleChildrenWithoutCreateComSession () {
-        CompositeDeviceCommand command = new ComSessionRootDeviceCommand(serviceProvider);
+        CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         DeviceCommand deviceCommand1 = this.mockDeviceCommand();
         DeviceCommand deviceCommand2 = this.mockDeviceCommand();
         DeviceCommand deviceCommand3 = this.mockDeviceCommand();
@@ -98,7 +98,7 @@ public class ComSessionRootDeviceCommandTest {
 
     @Test
     public void testMultipleChildrenWithCreateComSessionFirst () {
-        ComSessionRootDeviceCommand command = new ComSessionRootDeviceCommand(serviceProvider);
+        ComSessionRootDeviceCommand command = new ComSessionRootDeviceCommand();
         CreateComSessionDeviceCommand deviceCommand1 = this.mockCreateComSessionDeviceCommand();
         DeviceCommand deviceCommand2 = this.mockDeviceCommand();
         DeviceCommand deviceCommand3 = this.mockDeviceCommand();
@@ -115,7 +115,7 @@ public class ComSessionRootDeviceCommandTest {
 
     @Test
     public void testMultipleChildrenWitCreateComSessionLast () {
-        ComSessionRootDeviceCommand command = new ComSessionRootDeviceCommand(serviceProvider);
+        ComSessionRootDeviceCommand command = new ComSessionRootDeviceCommand();
         DeviceCommand deviceCommand1 = this.mockDeviceCommand();
         DeviceCommand deviceCommand2 = this.mockDeviceCommand();
         CreateComSessionDeviceCommand deviceCommand3 = this.mockCreateComSessionDeviceCommand();
@@ -132,7 +132,7 @@ public class ComSessionRootDeviceCommandTest {
 
     @Test
     public void testMultipleChildrenWithCreateComSessionInMiddle () {
-        ComSessionRootDeviceCommand command = new ComSessionRootDeviceCommand(serviceProvider);
+        ComSessionRootDeviceCommand command = new ComSessionRootDeviceCommand();
         DeviceCommand deviceCommand1 = this.mockDeviceCommand();
         CreateComSessionDeviceCommand deviceCommand2 = this.mockCreateComSessionDeviceCommand();
         DeviceCommand deviceCommand3 = this.mockDeviceCommand();
@@ -149,7 +149,7 @@ public class ComSessionRootDeviceCommandTest {
 
     @Test
     public void testExecuteForwardsToChildren () throws BusinessException, SQLException {
-        CompositeDeviceCommand command = new ComSessionRootDeviceCommand(serviceProvider);
+        CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         DeviceCommand deviceCommand1 = this.mockDeviceCommand();
         DeviceCommand deviceCommand2 = this.mockDeviceCommand();
         DeviceCommand deviceCommand3 = this.mockDeviceCommand();
@@ -167,7 +167,7 @@ public class ComSessionRootDeviceCommandTest {
 
     @Test
     public void testExecuteForwardsFailureLoggerToChildren () throws BusinessException, SQLException {
-        CompositeDeviceCommand command = new ComSessionRootDeviceCommand(serviceProvider);
+        CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         CreateComSessionDeviceCommand deviceCommand1 = this.mockCreateComSessionDeviceCommand();
         DeviceCommand deviceCommand2 = this.mockDeviceCommand();
         DeviceCommand deviceCommand3 = this.mockDeviceCommand();
@@ -186,7 +186,7 @@ public class ComSessionRootDeviceCommandTest {
 
     @Test
     public void testExecuteDoesNotForwardFailureLoggerToChildrenWhereThereIsNone () throws BusinessException, SQLException {
-        CompositeDeviceCommand command = new ComSessionRootDeviceCommand(serviceProvider);
+        CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         DeviceCommand deviceCommand1 = this.mockDeviceCommand();
         DeviceCommand deviceCommand2 = this.mockDeviceCommand();
         DeviceCommand deviceCommand3 = this.mockDeviceCommand();
@@ -206,7 +206,7 @@ public class ComSessionRootDeviceCommandTest {
 
     @Test
     public void testExecuteDuringShutdownForwardsToChildren () throws BusinessException, SQLException {
-        CompositeDeviceCommand command = new ComSessionRootDeviceCommand(serviceProvider);
+        CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         DeviceCommand deviceCommand1 = this.mockDeviceCommand();
         DeviceCommand deviceCommand2 = this.mockDeviceCommand();
         DeviceCommand deviceCommand3 = this.mockDeviceCommand();
@@ -227,7 +227,7 @@ public class ComSessionRootDeviceCommandTest {
 
     @Test
     public void testExecuteDuringShutdownForwardsFailureLoggerToChildren () throws BusinessException, SQLException {
-        CompositeDeviceCommand command = new ComSessionRootDeviceCommand(serviceProvider);
+        CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         CreateComSessionDeviceCommand deviceCommand1 = this.mockCreateComSessionDeviceCommand();
         DeviceCommand deviceCommand2 = this.mockDeviceCommand();
         DeviceCommand deviceCommand3 = this.mockDeviceCommand();
@@ -246,7 +246,7 @@ public class ComSessionRootDeviceCommandTest {
 
     @Test
     public void testExecuteDuringShutdownDoesNotForwardFailureLoggerToChildrenWhereThereIsNone () throws BusinessException, SQLException {
-        CompositeDeviceCommand command = new ComSessionRootDeviceCommand(serviceProvider);
+        CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         DeviceCommand deviceCommand1 = this.mockDeviceCommand();
         DeviceCommand deviceCommand2 = this.mockDeviceCommand();
         DeviceCommand deviceCommand3 = this.mockDeviceCommand();
@@ -266,7 +266,7 @@ public class ComSessionRootDeviceCommandTest {
 
     @Test(expected = ApplicationException.class)
     public void testChildExecutionFailureIsPropagated () throws BusinessException, SQLException {
-        CompositeDeviceCommand command = new ComSessionRootDeviceCommand(serviceProvider);
+        CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         DeviceCommand deviceCommand1 = this.mockDeviceCommand();
         String errorMessage = "ComSessionRootDeviceCommandTest#testChildExecutionFailureIsPropagated";
         ComServerDAO comServerDAO = mockComServerDAOButPerformTransactions();
@@ -291,7 +291,7 @@ public class ComSessionRootDeviceCommandTest {
     @Test(expected = ApplicationException.class)
     public void testExecutionFailsAsSoonAsPossible () throws BusinessException, SQLException {
         ComServerDAO comServerDAO = mockComServerDAOButPerformTransactions();
-        CompositeDeviceCommand command = new ComSessionRootDeviceCommand(serviceProvider);
+        CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         DeviceCommand deviceCommand1 = this.mockDeviceCommand();
         Mockito.doThrow(ApplicationException.class).when(deviceCommand1).execute(comServerDAO);
         DeviceCommand deviceCommand2 = this.mockDeviceCommand();
@@ -309,7 +309,7 @@ public class ComSessionRootDeviceCommandTest {
 
     @Test
     public void testToStringForEmptyComposite () {
-        CompositeDeviceCommand command = new ComSessionRootDeviceCommand(serviceProvider);
+        CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
 
         // Business method
         String stringRepresentation = command.toString();
@@ -320,7 +320,7 @@ public class ComSessionRootDeviceCommandTest {
 
     @Test
     public void testToStringForOneWellKnownSubCommand () {
-        CompositeDeviceCommand command = new ComSessionRootDeviceCommand(serviceProvider);
+        CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         command.add(new ForPrintingPurposesOnly("testToStringForOneWellKnownSubCommand"));
 
         // Business method
@@ -333,7 +333,7 @@ public class ComSessionRootDeviceCommandTest {
 
     @Test
     public void testToStringRespectsTheOrderOfCommands () {
-        CompositeDeviceCommand command = new ComSessionRootDeviceCommand(serviceProvider);
+        CompositeDeviceCommand command = new ComSessionRootDeviceCommand();
         command.add(new ForPrintingPurposesOnly("First"));
         command.add(new ForPrintingPurposesOnly("Second"));
         command.add(new ForPrintingPurposesOnly("Third"));

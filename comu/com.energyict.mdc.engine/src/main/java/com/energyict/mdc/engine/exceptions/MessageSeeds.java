@@ -75,6 +75,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     INBOUND_DATA_STORAGE_FAILURE(158, "DDC.inbound.data.storage.failure", "Failed to store the data for inbound communication", Level.SEVERE),
     INBOUND_DATA_RESPONSE_FAILURE(159, "DDC.inbound.data.response.failure", "Failed to store to provide a proper result to the device", Level.SEVERE),
+    INBOUND_DATA_PROCESSOR_ERROR(160, "DDC.inbound.data.processor.error", "Failed to execute the inbound device storage commands", Level.SEVERE),
 
     ;
 

@@ -5,12 +5,12 @@ import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.exceptions.DeviceCommandException;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.commands.store.InboundDataProcessorDeviceCommandFactory;
-import com.energyict.mdc.engine.impl.commands.store.ProvideInboundResponseDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.CreateComTaskExecutionSessionCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.InboundCollectedLoadProfileCommandImpl;
@@ -40,6 +40,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,6 +57,8 @@ import java.util.stream.Stream;
  * Time: 3:38 PM
  */
 public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
+
+    private Logger logger = Logger.getLogger(InboundJobExecutionDataProcessor.class.getName());
 
     private final InboundDeviceProtocol inboundDeviceProtocol;
     private final OfflineDevice offlineDevice;
@@ -83,12 +87,12 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         Future<Boolean> future = super.doExecuteStoreCommand();
         try {
             future.get();        //Blocking call until the device command is fully executed (= collected data is stored)
-            //TODO do proper exception handling!!
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, e.getMessage(), e);
             Thread.currentThread().interrupt();
         } catch (ExecutionException e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, e.getMessage(), e);
+            throw DeviceCommandException.errorDuringFutureGetCall(e);
         }
         return future;
     }

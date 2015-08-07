@@ -6,11 +6,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.exceptions.StoringFailedException;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 
 import java.util.Iterator;
 import java.util.List;
@@ -24,16 +21,12 @@ import java.util.List;
  */
 public class ComTaskExecutionRootDeviceCommand extends CompositeDeviceCommandImpl {
 
-    private final boolean exposeStoringException;
-    private final DeviceCommand.ServiceProvider serviceProvider;
     private ComTaskExecution comTaskExecution;
     private ExecutionLogger executionLogger;
 
-    public ComTaskExecutionRootDeviceCommand(ComTaskExecution comTaskExecution, ComServer.LogLevel communicationLogLevel, List<DeviceCommand> commands, boolean exposeStoringException, DeviceCommand.ServiceProvider serviceProvider) {
+    public ComTaskExecutionRootDeviceCommand(ComTaskExecution comTaskExecution, ComServer.LogLevel communicationLogLevel, List<DeviceCommand> commands) {
         super(communicationLogLevel, commands);
         this.comTaskExecution = comTaskExecution;
-        this.exposeStoringException = exposeStoringException;
-        this.serviceProvider = serviceProvider;
     }
 
     @Override
@@ -42,9 +35,6 @@ public class ComTaskExecutionRootDeviceCommand extends CompositeDeviceCommandImp
             executeAll(comServerDAO);
         } catch (Throwable t) {
             handleUnexpectedError(t, comServerDAO);
-            if (exposeStoringException) {
-                throw new StoringFailedException(serviceProvider.nlsService());  //Notify the DeviceCommandExecutor that the storing failed, only used for INBOUND collected data
-            }
         }
     }
 
@@ -54,9 +44,6 @@ public class ComTaskExecutionRootDeviceCommand extends CompositeDeviceCommandImp
             executeAllDuringShutdown(comServerDAO);
         } catch (Throwable t) {
             handleUnexpectedError(t, comServerDAO);
-            if (exposeStoringException) {
-                throw new StoringFailedException(serviceProvider.nlsService());  //Notify the DeviceCommandExecutor that the storing failed, only used for INBOUND collected data
-            }
         }
     }
 
@@ -69,11 +56,6 @@ public class ComTaskExecutionRootDeviceCommand extends CompositeDeviceCommandImp
     private void handleUnexpectedError(Throwable t, final ComServerDAO comServerDAO) {
         this.executionLogger.logUnexpected(t, this.comTaskExecution);
         comServerDAO.executionFailed(this.comTaskExecution);
-    }
-
-    public void logErrorMessage(Issue issue, final ComServerDAO comServerDAO) {
-        this.executionLogger.addIssue(CompletionCode.IOError, issue, comTaskExecution);
-        comServerDAO.executionFailed(comTaskExecution);
     }
 
     private void broadCastExecutionLoggerIfAny() {

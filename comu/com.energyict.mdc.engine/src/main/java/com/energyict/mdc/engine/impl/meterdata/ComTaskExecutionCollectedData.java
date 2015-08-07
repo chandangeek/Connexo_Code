@@ -61,7 +61,7 @@ public class ComTaskExecutionCollectedData extends CompositeCollectedData<Server
                         .stream()
                         .map(collectedData -> collectedData.toDeviceCommand(meterDataStoreCommand, serviceProvider))
                         .collect(Collectors.toList());
-        return new ComTaskExecutionRootDeviceCommand(this.comTaskExecution, this.communicationLogLevel, nestedCommands, exposeStoringException, serviceProvider);
+        return new ComTaskExecutionRootDeviceCommand(this.comTaskExecution, this.communicationLogLevel, nestedCommands);
     }
 
 }

@@ -205,7 +205,7 @@ public class InboundCommunicationHandler {
                 if (deviceIsReadyForInboundCommunicationOnThisPort(new OfflineDeviceImpl((Device) device, new DeviceOfflineFlags(), new OfflineDeviceServiceProvider()))) {
                     List<DeviceCommandExecutionToken> tokens = this.deviceCommandExecutor.tryAcquireTokens(1);
                     if (!tokens.isEmpty() && this.connectionTask != null) {
-                        CompositeDeviceCommand storeCommand = new ComSessionRootDeviceCommand(serviceProvider);
+                        CompositeDeviceCommand storeCommand = new ComSessionRootDeviceCommand();
                         storeCommand.add(createFailedInboundComSessionForDuplicateDevice(e));
                         this.deviceCommandExecutor.execute(storeCommand, tokens.get(0));
                     } else {
@@ -481,7 +481,7 @@ public class InboundCommunicationHandler {
 
     private boolean deviceRequiresEncryption(OfflineDevice device) {
         // Todo: Use one of the typed properties so may need to delegate this to the protocol
-        return false;
+        return true;
     }
 
     protected void handOverToDeviceProtocol(DeviceCommandExecutionToken token) {

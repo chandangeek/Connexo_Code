@@ -29,7 +29,7 @@ public class CreateOutboundComSession extends ExecutionLoggerImpl implements Cre
 
     private final ScheduledConnectionTask connectionTask;
     private final ComSessionBuilder builder;
-    private final ComSession.SuccessIndicator successIndicator;
+    private ComSession.SuccessIndicator successIndicator;
     private ComSession outboundComSession;
     private StopWatch stopWatch;
 
@@ -48,6 +48,11 @@ public class CreateOutboundComSession extends ExecutionLoggerImpl implements Cre
     @Override
     public void setStopWatch(StopWatch stopWatch) {
         this.stopWatch = stopWatch;
+    }
+
+    @Override
+    public void updateSuccessIndicator(ComSession.SuccessIndicator successIndicator) {
+        this.successIndicator = successIndicator;
     }
 
     @Override

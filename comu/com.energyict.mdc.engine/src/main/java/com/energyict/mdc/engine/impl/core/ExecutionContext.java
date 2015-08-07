@@ -373,7 +373,7 @@ public final class ExecutionContext implements JournalEntryFactory {
 
     public CompositeDeviceCommand getStoreCommand() {
         if (this.storeCommand == null) {
-            this.storeCommand = new ComSessionRootDeviceCommand(this.getComPort().getComServer().getCommunicationLogLevel(), serviceProvider);
+            this.storeCommand = new ComSessionRootDeviceCommand(this.getComPort().getComServer().getCommunicationLogLevel());
         }
         return this.storeCommand;
     }
