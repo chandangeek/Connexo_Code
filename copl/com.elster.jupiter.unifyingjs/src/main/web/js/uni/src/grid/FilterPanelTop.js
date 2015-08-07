@@ -386,6 +386,7 @@ Ext.define('Uni.grid.FilterPanelTop', {
                     location.href = href;
                 }
             }
+            me.fireEvent('change', params);
         }
     },
 
