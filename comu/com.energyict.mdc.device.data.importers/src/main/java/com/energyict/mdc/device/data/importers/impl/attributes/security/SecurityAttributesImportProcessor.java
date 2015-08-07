@@ -10,8 +10,8 @@ import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
-import com.energyict.mdc.device.data.importers.impl.parsers.DynamicPropertyParser;
-import com.energyict.mdc.device.data.importers.impl.parsers.DynamicPropertyParser.PropertiesParserConfig;
+import com.energyict.mdc.device.data.importers.impl.attributes.DynamicPropertyConverter;
+import com.energyict.mdc.device.data.importers.impl.attributes.DynamicPropertyConverter.PropertiesConverterConfig;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
@@ -21,13 +21,13 @@ import java.util.stream.Collectors;
 public class SecurityAttributesImportProcessor implements FileImportProcessor<SecurityAttributesImportRecord> {
 
     private final DeviceDataImporterContext context;
-    private final PropertiesParserConfig propertiesParserConfig;
+    private final PropertiesConverterConfig propertiesConverterConfig;
 
     private String securitySettingsName;
 
     SecurityAttributesImportProcessor(DeviceDataImporterContext context, SupportedNumberFormat numberFormat) {
         this.context = context;
-        this.propertiesParserConfig = PropertiesParserConfig.newConfig().withNumberFormat(numberFormat);
+        this.propertiesConverterConfig = PropertiesConverterConfig.newConfig().withNumberFormat(numberFormat);
     }
 
     @Override
@@ -44,14 +44,18 @@ public class SecurityAttributesImportProcessor implements FileImportProcessor<Se
         } catch (Exception e) {
             throw new ProcessorException(MessageSeeds.SECURITY_ATTRIBUTES_NOT_SET, data.getLineNumber(), data.getDeviceMRID());
         }
+        logMissingPropertiesIfIncomplete(data, logger, device, deviceConfigSecurityPropertySet, typedProperties);
+    }
+
+    private void logMissingPropertiesIfIncomplete(SecurityAttributesImportRecord data, FileImportLogger logger, Device device, SecurityPropertySet deviceConfigSecurityPropertySet, TypedProperties typedProperties) {
         if (device.getSecurityProperties(deviceConfigSecurityPropertySet).stream().anyMatch(securityProperty -> !securityProperty.isComplete())) {
-            String missedRequiredProperties = deviceConfigSecurityPropertySet.getPropertySpecs().stream()
+            String missingProperties = deviceConfigSecurityPropertySet.getPropertySpecs().stream()
                     .filter(PropertySpec::isRequired)
                     .map(PropertySpec::getName)
                     .filter(propertySpec -> !typedProperties.hasValueFor(propertySpec))
                     .collect(Collectors.joining(", "));
-            if (!missedRequiredProperties.isEmpty()) {
-                logger.warning(MessageSeeds.REQUIRED_SECURITY_ATTRIBUTES_MISSED, data.getLineNumber(), missedRequiredProperties);
+            if (!missingProperties.isEmpty()) {
+                logger.warning(MessageSeeds.REQUIRED_SECURITY_ATTRIBUTES_MISSED, data.getLineNumber(), missingProperties);
             }
         }
     }
@@ -79,14 +83,13 @@ public class SecurityAttributesImportProcessor implements FileImportProcessor<Se
 
     private Object parseStringToValue(PropertySpec propertySpec, String value, SecurityAttributesImportRecord data) {
         ValueFactory<?> valueFactory = propertySpec.getValueFactory();
-        Optional<DynamicPropertyParser> propertyParser = DynamicPropertyParser.of(valueFactory.getClass());
+        Optional<DynamicPropertyConverter> propertyParser = DynamicPropertyConverter.of(valueFactory.getClass());
         Object parsedValue;
         try {
             if (propertyParser.isPresent()) {
-                parsedValue = propertyParser.get().configure(propertiesParserConfig).parse(value);
-            } else {
-                parsedValue = valueFactory.fromStringValue(value);
+                value = propertyParser.get().configure(propertiesConverterConfig).convert(value);
             }
+            parsedValue = valueFactory.fromStringValue(value);
             propertySpec.validateValue(parsedValue);
         } catch (Exception e) {
             String expectedFormat = propertyParser.isPresent() ? propertyParser.get().getExpectedFormat(context.getThesaurus()) : valueFactory.getValueType().getName();

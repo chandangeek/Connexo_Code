@@ -12,8 +12,8 @@ import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
-import com.energyict.mdc.device.data.importers.impl.parsers.DynamicPropertyParser;
-import com.energyict.mdc.device.data.importers.impl.parsers.DynamicPropertyParser.PropertiesParserConfig;
+import com.energyict.mdc.device.data.importers.impl.attributes.DynamicPropertyConverter;
+import com.energyict.mdc.device.data.importers.impl.attributes.DynamicPropertyConverter.PropertiesConverterConfig;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -25,13 +25,13 @@ import java.util.stream.Collectors;
 public class ConnectionAttributesImportProcessor implements FileImportProcessor<ConnectionAttributesImportRecord> {
 
     private final DeviceDataImporterContext context;
-    private final PropertiesParserConfig propertiesParserConfig;
+    private final PropertiesConverterConfig propertiesConverterConfig;
 
     private String connectionMethod;
 
     ConnectionAttributesImportProcessor(DeviceDataImporterContext context, SupportedNumberFormat numberFormat) {
         this.context = context;
-        this.propertiesParserConfig = PropertiesParserConfig.newConfig().withNumberFormat(numberFormat);
+        this.propertiesConverterConfig = PropertiesConverterConfig.newConfig().withNumberFormat(numberFormat);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
                 task.setProperty(key, parseStringToValue(task.getConnectionType().getPropertySpec(key), value, data));
             });
             task.save();
-            checkConnectionTaskStatus(task, data, logger);
+            logMissingPropertiesIfIncomplete(task, data, logger);
         } else {
             PartialConnectionTask partialConnectionTask = device.getDeviceConfiguration().getPartialConnectionTasks()
                     .stream().filter(task -> task.getName().equals(data.getConnectionMethod()))
@@ -57,16 +57,16 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
         }
     }
 
-    private void checkConnectionTaskStatus(ConnectionTask<?, ?> connectionTask, ConnectionAttributesImportRecord data, FileImportLogger logger) {
+    private void logMissingPropertiesIfIncomplete(ConnectionTask<?, ?> connectionTask, ConnectionAttributesImportRecord data, FileImportLogger logger) {
         if (connectionTask.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE)) {
             TypedProperties properties = connectionTask.getTypedProperties();
-            String missedRequiredProperties = connectionTask.getConnectionType().getPropertySpecs().stream()
+            String missingProperties = connectionTask.getConnectionType().getPropertySpecs().stream()
                     .filter(PropertySpec::isRequired)
                     .map(PropertySpec::getName)
                     .filter(propertySpec -> !properties.hasValueFor(propertySpec))
                     .collect(Collectors.joining(", "));
-            if (!missedRequiredProperties.isEmpty()) {
-                logger.warning(MessageSeeds.REQUIRED_CONNECTION_ATTRIBUTES_MISSED, data.getLineNumber(), missedRequiredProperties);
+            if (!missingProperties.isEmpty()) {
+                logger.warning(MessageSeeds.REQUIRED_CONNECTION_ATTRIBUTES_MISSED, data.getLineNumber(), missingProperties);
             }
         }
     }
@@ -81,14 +81,14 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
 
     private Object parseStringToValue(PropertySpec propertySpec, String value, ConnectionAttributesImportRecord data) {
         ValueFactory<?> valueFactory = propertySpec.getValueFactory();
-        Optional<DynamicPropertyParser> propertyParser = DynamicPropertyParser.of(valueFactory.getClass());
+        Optional<DynamicPropertyConverter> propertyParser = DynamicPropertyConverter.of(valueFactory.getClass());
         Object parsedValue;
         try {
             if (propertyParser.isPresent()) {
-                parsedValue = propertyParser.get().configure(propertiesParserConfig).parse(value);
-            } else {
-                parsedValue = valueFactory.fromStringValue(value);
+                value = propertyParser.get().configure(propertiesConverterConfig).convert(value);
             }
+            parsedValue = valueFactory.fromStringValue(value);
+            propertySpec.validateValue(parsedValue);
         } catch (Exception e) {
             String expectedFormat = propertyParser.isPresent() ? propertyParser.get().getExpectedFormat(context.getThesaurus()) : valueFactory.getValueType().getName();
             throw new ProcessorException(MessageSeeds.LINE_FORMAT_ERROR, data.getLineNumber(), propertySpec.getName(), expectedFormat);
@@ -112,7 +112,7 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
         } catch (Exception e) {
             try {
                 InboundConnectionTask connectionTask = inboundConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
-                checkConnectionTaskStatus(connectionTask, data, logger);
+                logMissingPropertiesIfIncomplete(connectionTask, data, logger);
             } catch (Exception ex) {
                 throw new ProcessorException(MessageSeeds.CONNECTION_ATTRIBUTES_NOT_CREATED, data.getLineNumber(), device.getmRID());
             }
@@ -127,7 +127,7 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
         } catch (Exception e) {
             try {
                 ScheduledConnectionTask connectionTask = scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
-                checkConnectionTaskStatus(connectionTask, data, logger);
+                logMissingPropertiesIfIncomplete(connectionTask, data, logger);
             } catch (Exception ex) {
                 throw new ProcessorException(MessageSeeds.CONNECTION_ATTRIBUTES_NOT_CREATED, data.getLineNumber(), device.getmRID());
             }
