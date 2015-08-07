@@ -20,7 +20,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     METER_ALREADY_ACTIVE(2007, "meter.alreadyactive", "Meter {0} is already active at {1}", Level.SEVERE),
     METER_ALREADY_LINKED_TO_USAGEPOINT(2008, "meter.alreadyhasusagepoint", "Meter {0} is already linked to a usage point {1}, cannot link to another.", Level.SEVERE),
 	
-    DUPLICATE_USAGEPOINT(3001, Constants.DUPLICATE_USAGEPOINT, "Name must be unique", Level.SEVERE);
+    DUPLICATE_USAGEPOINT(3001, Constants.DUPLICATE_USAGEPOINT, "MRID must be unique", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -71,6 +71,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     
     public enum Constants {
     	;
-		public static final String DUPLICATE_USAGEPOINT = "usagepoint.namealreadyexists";
+		public static final String DUPLICATE_USAGEPOINT = "usagepoint.mridalreadyexists";
     }
 }

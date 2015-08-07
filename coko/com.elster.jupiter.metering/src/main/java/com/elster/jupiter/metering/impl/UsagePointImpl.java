@@ -9,6 +9,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.validation.constraints.NotNull;
 
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.domain.util.Save;
@@ -43,12 +44,13 @@ import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGEPOINT + "}")
+@UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGEPOINT + "}")
 public class UsagePointImpl implements UsagePoint {
     // persistent fields
     private long id;
     private String aliasName;
     private String description;
+    @NotNull
     private String mRID;
     private String name;
     private boolean isSdp;
@@ -152,8 +154,8 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public long getServiceLocationId() {
-        ServiceLocation location = getServiceLocation().get();
-        return location == null ? 0L : location.getId();
+        Optional<ServiceLocation> location = getServiceLocation();
+        return location.isPresent() ? location.get().getId() : 0L;
     }
 
     @Override

@@ -12,18 +12,18 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 
-public class UniqueUsagePointNameValidator implements ConstraintValidator<UniqueName, UsagePoint> {
+public class UniqueUsagePointMRIDValidator implements ConstraintValidator<UniqueMRID, UsagePoint> {
 
     private String message;
     private MeteringService meteringService;
 
     @Inject
-    public UniqueUsagePointNameValidator(MeteringService meteringService) {
+    public UniqueUsagePointMRIDValidator(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
 
     @Override
-    public void initialize(UniqueName constraintAnnotation) {
+    public void initialize(UniqueMRID constraintAnnotation) {
         message = constraintAnnotation.message();
     }
 
@@ -33,8 +33,7 @@ public class UniqueUsagePointNameValidator implements ConstraintValidator<Unique
     }
 
     private boolean checkExisting(UsagePoint usagePoint, ConstraintValidatorContext context) {
-    	
-    	Condition condition = Operator.EQUAL.compare("name", usagePoint.getName());
+    	Condition condition = Operator.EQUAL.compare("mRID", usagePoint.getMRID());
         List<UsagePoint> candidates = meteringService.getUsagePointQuery().select(condition);
         Optional<UsagePoint> found = Optional.empty();
         if (candidates.size()==1) {
@@ -43,16 +42,16 @@ public class UniqueUsagePointNameValidator implements ConstraintValidator<Unique
         	throw new IllegalStateException();
         }
         
-        if (found.isPresent() && areDifferentWithSameName(usagePoint, found.get())) {
+        if (found.isPresent() && areDifferentWithSameMRID(usagePoint, found.get())) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(message).addPropertyNode("name").addConstraintViolation();
+            context.buildConstraintViolationWithTemplate(message).addPropertyNode("mRID").addConstraintViolation();
             return true;
         }
         return false;
     }
 
-    private boolean areDifferentWithSameName(UsagePoint usagePoint, UsagePoint existingUsagePoint) {
-        return existingUsagePoint.getName().equals(usagePoint.getName()) && (existingUsagePoint.getId() != usagePoint.getId());
+    private boolean areDifferentWithSameMRID(UsagePoint usagePoint, UsagePoint existingUsagePoint) {
+        return existingUsagePoint.getMRID().equals(usagePoint.getMRID()) && (existingUsagePoint.getId() != usagePoint.getId());
     }
 
 }

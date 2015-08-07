@@ -1,5 +1,33 @@
 package com.elster.jupiter.metering.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import javax.inject.Provider;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterActivation;
@@ -15,31 +43,6 @@ import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.User;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-
-import javax.inject.Provider;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointImplTest {
@@ -85,10 +88,14 @@ public class UsagePointImplTest {
     private Provider<UsagePointAccountabilityImpl> accountabilityProvider;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private Validator validator;
 
     @Before
     public void setUp() {
-    	when(role.getMRID()).thenReturn(MarketRoleKind.ENERGYSERVICECONSUMER.name());
+        when(role.getMRID()).thenReturn(MarketRoleKind.ENERGYSERVICECONSUMER.name());
         when(dataModel.mapper(UsagePoint.class)).thenReturn(usagePointFactory);
         when(dataModel.getInstance(UsagePointAccountabilityImpl.class)).thenAnswer(new Answer<Object>() {
             @Override
@@ -97,11 +104,13 @@ public class UsagePointImplTest {
             }
         });
         final Provider<ChannelBuilder> channelBuilderProvider = new Provider<ChannelBuilder>() {
-			@Override
-			public ChannelBuilder get() {
-				return channelBuilder;
-			}
+            @Override
+            public ChannelBuilder get() {
+                return channelBuilder;
+            }
         };
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(validatorFactory.getValidator()).thenReturn(validator);
         when(meterActivationProvider.get()).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -119,7 +128,7 @@ public class UsagePointImplTest {
         when(representation3.getDelegate()).thenReturn(user3);
         when(representation4.getDelegate()).thenReturn(user4);
 
-        usagePoint = new UsagePointImpl(dataModel, eventService,meterActivationProvider,accountabilityProvider).init(MR_ID, serviceCategory);
+        usagePoint = new UsagePointImpl(dataModel, eventService, meterActivationProvider, accountabilityProvider).init(MR_ID, serviceCategory);
     }
 
     @After
@@ -135,7 +144,6 @@ public class UsagePointImplTest {
     public void testGetServiceCategory() {
         assertThat(usagePoint.getServiceCategory()).isEqualTo(serviceCategory);
     }
-
 
     @Test
     public void testGetAliasName() {
@@ -196,7 +204,6 @@ public class UsagePointImplTest {
         assertThat(usagePoint.getReadRoute()).isEqualTo(readRoute);
     }
 
-
     @Test
     public void testGetServicePriority() {
         String priority = "priority";
@@ -232,14 +239,14 @@ public class UsagePointImplTest {
     @Test
     public void testDelete() {
         usagePoint.delete();
-        
+
         verify(dataModel).remove(usagePoint);
     }
 
     @Test
     public void testGetMeterActivations() {
-    	field("meterActivations").ofType(List.class).in(usagePoint).set(Arrays.asList(activation1,activation2));
-        
+        field("meterActivations").ofType(List.class).in(usagePoint).set(Arrays.asList(activation1, activation2));
+
         List<MeterActivationImpl> meterActivations = usagePoint.getMeterActivations();
 
         assertThat(meterActivations).hasSize(2)
@@ -249,8 +256,8 @@ public class UsagePointImplTest {
 
     @Test
     public void testGetCurrentMeterActivations() {
-    	field("meterActivations").ofType(List.class).in(usagePoint).set(Arrays.asList(activation1,activation2));
-    	when(activation1.isCurrent()).thenReturn(false);
+        field("meterActivations").ofType(List.class).in(usagePoint).set(Arrays.asList(activation1, activation2));
+        when(activation1.isCurrent()).thenReturn(false);
         when(activation2.isCurrent()).thenReturn(true);
 
         MeterActivation meterActivation1 = usagePoint.getCurrentMeterActivation().get();
@@ -262,7 +269,7 @@ public class UsagePointImplTest {
 
     @Test
     public void testGetAccountabilities() {
-        field("accountabilities").ofType(List.class).in(usagePoint).set(Arrays.asList(acc1,acc2));
+        field("accountabilities").ofType(List.class).in(usagePoint).set(Arrays.asList(acc1, acc2));
         List<UsagePointAccountability> accountabilities = usagePoint.getAccountabilities();
 
         assertThat(accountabilities).hasSize(2)
@@ -289,7 +296,7 @@ public class UsagePointImplTest {
 
     @Test
     public void testGetResponsiblePartyChooseCorrectRole() {
-        field("accountabilities").ofType(List.class).in(usagePoint).set(Arrays.asList(acc1,acc2));
+        field("accountabilities").ofType(List.class).in(usagePoint).set(Arrays.asList(acc1, acc2));
         PartyRole wrongRole = mock(PartyRole.class);
         Instant now = Instant.now();
         when(wrongRole.getMRID()).thenReturn(MarketRoleKind.BALANCERESPONSIBLEPARTY.name());
@@ -304,8 +311,8 @@ public class UsagePointImplTest {
 
     @Test
     public void testGetResponsiblePartyChooseOnlyCurrent() {
-    	field("accountabilities").ofType(List.class).in(usagePoint).set(Arrays.asList(acc1,acc2));
-    	Instant now = Instant.now();
+        field("accountabilities").ofType(List.class).in(usagePoint).set(Arrays.asList(acc1, acc2));
+        Instant now = Instant.now();
         when(acc1.getRole()).thenReturn(role);
         when(acc1.isEffectiveAt(now)).thenReturn(false);
         when(acc2.getRole()).thenReturn(role);
@@ -317,7 +324,7 @@ public class UsagePointImplTest {
 
     @Test
     public void testHasAccountabilityTrue() {
-        field("accountabilities").ofType(List.class).in(usagePoint).set(Arrays.asList(acc1,acc2));
+        field("accountabilities").ofType(List.class).in(usagePoint).set(Arrays.asList(acc1, acc2));
         when(acc1.getParty()).thenReturn(party1);
         when(acc2.getParty()).thenReturn(party2);
         doReturn(Arrays.asList(representation1, representation2)).when(party1).getCurrentDelegates();
@@ -328,7 +335,7 @@ public class UsagePointImplTest {
 
     @Test
     public void testHasAccountabilityFalse() {
-        field("accountabilities").ofType(List.class).in(usagePoint).set(Arrays.asList(acc1,acc2));
+        field("accountabilities").ofType(List.class).in(usagePoint).set(Arrays.asList(acc1, acc2));
         when(acc1.getParty()).thenReturn(party1);
         when(acc2.getParty()).thenReturn(party2);
         doReturn(Arrays.asList(representation1, representation2)).when(party1).getCurrentDelegates();
@@ -336,7 +343,6 @@ public class UsagePointImplTest {
 
         assertThat(usagePoint.hasAccountability(user5)).isFalse();
     }
-
 
     private void simulateSavedUsagePoint() {
         field("id").ofType(Long.TYPE).in(usagePoint).set(ID);

@@ -13,8 +13,8 @@ import javax.validation.Payload;
 @Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = { UniqueUsagePointNameValidator.class, })
-public @interface UniqueName {
+@Constraint(validatedBy = { UniqueUsagePointMRIDValidator.class, })
+public @interface UniqueMRID {
 
     String message() default "";
 
