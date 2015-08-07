@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
@@ -51,6 +52,8 @@ public interface DeviceDataModelService {
     public ServerDeviceService deviceService();
 
     public DataCollectionKpiService dataCollectionKpiService();
+
+    public BatchService batchService();
 
     public void executeUpdate(SqlBuilder sqlBuilder);
 

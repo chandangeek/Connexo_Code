@@ -33,6 +33,8 @@ import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectPropertyRelatio
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+
+import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -40,8 +42,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.inject.Inject;
 
+import static com.elster.jupiter.util.Checks.is;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
@@ -153,6 +155,16 @@ public class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID) {
         return this.deviceDataModelService.dataModel().getInstance(DeviceImpl.class).initialize(deviceConfiguration, name, mRID);
+    }
+
+    @Override
+    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, String batch) {
+        Device device = newDevice(deviceConfiguration, name, mRID);
+        device.save();
+        if (!is(batch).emptyOrOnlyWhiteSpace()) {
+            this.deviceDataModelService.batchService().findOrCreateBatch(batch).addDevice(device);
+        }
+        return device;
     }
 
     @Override

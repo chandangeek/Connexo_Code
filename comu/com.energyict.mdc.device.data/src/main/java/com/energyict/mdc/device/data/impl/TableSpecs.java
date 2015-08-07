@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.ConnectionTaskFields;
 import com.energyict.mdc.device.data.Device;
@@ -39,17 +40,9 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
-import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
-import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
-import static com.elster.jupiter.orm.ColumnConversion.DATE2INSTANT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 /**
  * Models the database tables that hold the data of the
@@ -637,6 +630,31 @@ public enum TableSpecs {
                  .composition()
                  .onDelete(CASCADE)
                  .add();
+        }
+    },
+
+    DDC_BATCH {
+        void addTo(DataModel dataModel) {
+            Table<Batch> table = dataModel.addTable(name(), Batch.class);
+            table.map(BatchImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map(BatchImpl.Fields.BATCH_NAME.fieldName()).add();
+            table.addAuditColumns();
+            table.primaryKey("DDC_PK_BATCH").on(idColumn).add();
+            table.unique("DDC_U_BATCH_NAME").on(nameColumn).add();
+        }
+    },
+
+    DDC_DEVICEINBATCH {
+        void addTo(DataModel dataModel) {
+            Table<DeviceInBatch> table = dataModel.addTable(name(), DeviceInBatch.class);
+            table.map(DeviceInBatch.class);
+            Column deviceColumn = table.column("DEVICEID").number().notNull().add();
+            Column batchColumn = table.column("BATCHID").number().notNull().add();
+            table.addCreateTimeColumn("CREATETIME", DeviceInBatch.Fields.CREATE_TIME.fieldName());
+            table.primaryKey("DDC_PK_DEVICEINBATCH").on(deviceColumn).add();
+            table.foreignKey("DDC_FK_DEVICEINBATCH2BATCH").references(DDC_BATCH.name()).onDelete(CASCADE).map(DeviceInBatch.Fields.BATCH.fieldName()).on(batchColumn).add();
+            table.foreignKey("DDC_FK_DEVICEINBATCH2DEVICE").references(DDC_DEVICE.name()).onDelete(CASCADE).map(DeviceInBatch.Fields.DEVICE.fieldName()).on(deviceColumn).add();
         }
     },
 
