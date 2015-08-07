@@ -13,18 +13,14 @@ Ext.define('Uni.view.search.field.internal.NumberLine', {
     },
 
     reset: function() {
+        this.down('#filter-clear').setDisabled(true);
         this.down('numberfield').reset();
+        this.fireEvent('reset');
     },
 
     onChange: function(elm, value) {
         this.down('#filter-clear').setDisabled(!value);
         this.fireEvent('change', this, value);
-    },
-
-    onReset: function() {
-        this.down('#filter-clear').setDisabled(true);
-        this.down('numberfield').reset();
-        this.fireEvent('reset');
     },
 
     initComponent: function () {
@@ -68,7 +64,7 @@ Ext.define('Uni.view.search.field.internal.NumberLine', {
                 style: {
                     fontSize: '16px'
                 },
-                handler: me.onReset,
+                handler: me.reset,
                 scope: me
             }
         };

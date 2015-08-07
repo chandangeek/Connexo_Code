@@ -15,10 +15,10 @@ Ext.define('Uni.view.search.field.Interval', {
         this.menu.items.filterBy(function(item){
             return Ext.isFunction(item.getValue);
         }).each(function(item){
-            value.push(item.getValue());
+            if (!Ext.isEmpty(item.getValue())) {value.push(item.getValue());}
         });
 
-        return value;
+        return Ext.isEmpty(value) ? null : value;
     },
 
     onInputChange: function () {
@@ -27,24 +27,17 @@ Ext.define('Uni.view.search.field.Interval', {
         this.onChange(this, value);
     },
 
-    onHide: function() {
-        var me = this,
-            menu = me.menu;
-
+    onHide: function(menu) {
         if (menu.items.length > 2) {
-            menu.items.each(function (item, index) {
-                if (!item.default) {
-                    var moreNumber = item.down('#more-value').down('numberfield');
-                    var smallerNumber = item.down('#smaller-value').down('numberfield');
-                }
+            menu.items.each(function (item) {
                 if (item && !item.default
-                    && moreNumber.getValue() === 0
-                    && smallerNumber.getValue() === 0) {
+                    && item.down('#from').getValue() === 0
+                    && item.down('#to').getValue() === 0) {
                     menu.remove(item);
                 }
             });
             if (menu.items.length == 2) {
-                me.addRangeHandler();
+                this.addRangeHandler();
             }
         }
     },
@@ -52,7 +45,7 @@ Ext.define('Uni.view.search.field.Interval', {
     clearAllHandler: function () {
         var me = this;
 
-        this.menu.items.filterBy(function(item){
+        me.menu.items.filterBy(function(item){
             return Ext.isFunction(item.reset);
         }).each(function(item){
             item.reset();

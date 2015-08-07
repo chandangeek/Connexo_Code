@@ -17,9 +17,9 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
     getValue: function() {
         var value = [];
         this.items.each(function(item){
-            value.push(item.getValue());
+            if (!Ext.isEmpty(item.getValue())) {value.push(item.getValue());}
         });
-        return value;
+        return Ext.isEmpty(value) ? null : value;
     },
 
     reset: function() {
@@ -44,14 +44,14 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
         me.items = [
             {
                 xtype: 'uni-view-search-field-number-line',
-                itemId: 'more-value',
+                itemId: 'from',
                 default: true,
                 operator: '>',
                 listeners: listeners
             },
             {
                 xtype: 'uni-view-search-field-number-line',
-                itemId: 'smaller-value',
+                itemId: 'to',
                 default: true,
                 operator: '<',
                 listeners: listeners

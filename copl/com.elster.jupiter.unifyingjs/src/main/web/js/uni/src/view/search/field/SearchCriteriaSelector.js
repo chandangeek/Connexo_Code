@@ -26,7 +26,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
             plain: true,
             defaults: {
                 xtype: 'menucheckitem'
-            },
+            }
             //items: [
             //    {
             //        text: 'Batch',

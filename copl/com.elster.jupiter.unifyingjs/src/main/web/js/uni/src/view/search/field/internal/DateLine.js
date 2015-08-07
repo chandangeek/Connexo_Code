@@ -3,103 +3,86 @@ Ext.define('Uni.view.search.field.internal.DateLine', {
     xtype: 'uni-view-search-field-date-line',
     layout: 'hbox',
     width: '440',
-    changeButtonText: function () {
-        var me = this;
-        var panel = me.up('uni-view-search-field-date-line');
-        var mainButton = me.up('uni-view-search-field-date-field');
-        var clearAllButton = panel.down('#filter-clear');
-
-        if (me.getValue() === null || (me.value === 0 || me.hidden)) {
-            clearAllButton.disable(true)
-        } else {
-            clearAllButton.enable(true);
-            mainButton.setText(mainButton.defaultText + '*');
-        }
-    },
     defaults: {
         margin: '0 10 0 0'
     },
 
-    rbar: {
-        width: 30,
-        items: [
-            {
+    getValue: function() {
+        var date = this.down('#date').getValue();
+        if (date) {
+            date.setHours(this.down('#hours').getValue());
+            date.setMinutes(this.down('#minutes').getValue());
+        }
+
+        return date;
+    },
+
+    reset: function() {
+        this.down('#filter-clear').setDisabled(true);
+        this.down('#date').reset();
+        this.down('#hours').reset();
+        this.down('#minutes').reset();
+        this.fireEvent('reset');
+    },
+
+    onChange: function() {
+        var date = this.down('#date').getValue(),
+            value = this.getValue();
+
+        this.down('#filter-clear').setDisabled(!value);
+        this.down('#hours').setDisabled(!date);
+        this.down('#minutes').setDisabled(!date);
+        this.fireEvent('change', this, value);
+    },
+
+    initComponent: function () {
+        var me = this;
+
+        me.addEvents(
+            "change",
+            "reset"
+        );
+
+        me.rbar = {
+            width: 15,
+            items: {
                 xtype: 'button',
                 itemId: 'filter-clear',
                 ui: 'plain',
                 tooltip: 'Clear filter',
                 iconCls: ' icon-close4',
-                margin: '0px 2px 5px 6px',
                 disabled: true,
                 hidden: true,
                 style: {
                     fontSize: '16px'
                 },
-                handler: function () {
-                    var me = this;
-                    var dateField = me.up('uni-view-search-field-date-line').down('datefield');
-                    var hoursField = me.up('uni-view-search-field-date-line').down('#hours');
-                    var minutesField = me.up('uni-view-search-field-date-line').down('#minutes');
-
-                    dateField.reset();
-                    if (dateField.minValue) {
-                        dateField.setMinValue(null);
-                    }
-                    if (dateField.maxValue) {
-                        dateField.setMaxValue(null);
-                    }
-                    hoursField.reset();
-                    minutesField.reset();
-
-                    var rangeBlock = me.up('uni-view-search-field-date-range');
-                    if (rangeBlock && (me.up('#smaller-value'))) {
-                        rangeBlock.down('#more-value').down('datefield').setMaxValue(null);
-                        rangeBlock.down('#more-value').down('datefield').setMinValue(null);
-                    }
-                    if (rangeBlock && (me.up('#more-value'))) {
-                        rangeBlock.down('#smaller-value').down('datefield').setMaxValue(null);
-                        rangeBlock.down('#smaller-value').down('datefield').setMinValue(null);
-                    }
-
-                }
+                handler: me.reset,
+                scope: me
             }
-        ]
-    },
-
-    listeners: {
-        render: function (c) {
-            var button = c.down('#filter-clear');
-            c.el.on('mouseover', function () {
-                button.setVisible(true);
-            });
-            c.el.on('mouseout', function () {
-                button.setVisible(false);
-            });
-        }
-    },
-
-    initComponent: function () {
-        var me = this;
+        };
 
         me.items = [
             {
                 xtype: 'combo',
                 disabled: true,
                 width: 55,
-                margin: '1px 30px 1px 5px'
+                value: me.operator
             },
             {
                 xtype: 'datefield',
-                margin: '1px 5px 1px 0px',
+                itemId: 'date',
                 listeners: {
-                    change: me.changeButtonText
+                    change: me.onChange,
+                    scope: me
                 }
             },
             {
                 xtype: 'label',
                 itemId: 'label',
+                hidden: this.hideTime,
                 text: 'at',
-                margin: '5px 10px 0px 20px'
+                padding: 5,
+                margin: 0
             },
             {
                 xtype: 'numberfield',
@@ -108,11 +91,12 @@ Ext.define('Uni.view.search.field.internal.DateLine', {
                 maxValue: 23,
                 minValue: 0,
                 width: 55,
-                margin: '1px 10px 1px 0px',
+                hidden: this.hideTime,
+                disabled: true,
                 listeners: {
-                    change: me.changeButtonText
+                    change: me.onChange,
+                    scope: me
                 }
-
             },
             {
                 xtype: 'numberfield',
@@ -121,25 +105,26 @@ Ext.define('Uni.view.search.field.internal.DateLine', {
                 maxValue: 59,
                 minValue: 0,
                 width: 55,
-                margin: '1px 5px 1px 0px',
+                hidden: this.hideTime,
+                disabled: true,
                 listeners: {
-                    change: me.changeButtonText
+                    change: me.onChange,
+                    scope: me
                 }
 
-            },
-            {
-                itemId: 'flex',
-                hidden: true,
-                flex: 0.09,
-            }];
+            }
+        ];
 
         me.callParent(arguments);
-        me.down('combo').setValue(this.operator);
-        if (this.hideTime) {
-            me.down('#label').hide();
-            me.down('#hours').hide();
-            me.down('#minutes').hide();
-            me.down('#flex').show();
-        }
+
+        me.on('render', function() {
+            var button = me.down('#filter-clear');
+            me.getEl().on('mouseover', function () {
+                button.setVisible(true);
+            });
+            me.getEl().on('mouseout', function () {
+                button.setVisible(false);
+            });
+        });
     }
 });
