@@ -114,6 +114,7 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
         button.setDisabled(true);
         page.setLoading('Saving...');
         formErrorsPanel.hide();
+        form.getForm().clearInvalid();
         model.save({
             callback: function (model, operation, success) {
                 page.setLoading(false);
