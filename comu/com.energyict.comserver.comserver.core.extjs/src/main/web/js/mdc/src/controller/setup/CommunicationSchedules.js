@@ -217,6 +217,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
 
         if (this.record) {
             this.record.set(values);
+            me.getCommunicationScheduleEditForm().getForm().clearInvalid();
             editView.setLoading(true);
             this.record.save({
                 success: function (record) {
