@@ -100,6 +100,7 @@ Ext.define('Uni.grid.filtertop.DateTimeSelect', {
     },
 
     setFilterValue: function (date) {
+        this.getChooseIntervalButton().setText(Uni.DateTime.formatDateTimeShort(new Date(date)));
         this.getDateTime().setFilterValue(date);
     },
 

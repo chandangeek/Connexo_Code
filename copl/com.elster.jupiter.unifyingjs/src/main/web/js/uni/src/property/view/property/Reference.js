@@ -30,13 +30,22 @@ Ext.define('Uni.property.view.property.Reference', {
     },
 
     getDisplayCmp: function () {
-        var me = this
+        var me = this;
 
         return {
             xtype: 'displayfield',
             name: me.getName(),
             itemId: me.key + 'displayfield',
-            cls: 'uni-property-displayfield'
+            cls: 'uni-property-displayfield',
+            renderer: function (value) {
+                var result;
+                if (value) {
+                    result = Ext.Array.findBy(me.getProperty().getPossibleValues(), function (item) {
+                        return value == item.id;
+                    });
+                    return result.name;
+                }
+            }
         }
     },
 

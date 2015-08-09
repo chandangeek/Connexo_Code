@@ -138,9 +138,7 @@ Ext.define('Uni.controller.history.Router', {
     },
 
     queryParamsToString: function (obj) {
-        return Ext.urlEncode(_.object(_.keys(obj), _.map(obj, function (i) {
-            return _.isString(i) ? i : Ext.JSON.encodeValue(i);
-        })));
+        return Ext.Object.toQueryString(obj, false);
     },
 
     /**
@@ -227,7 +225,9 @@ Ext.define('Uni.controller.history.Router', {
 
                 Object.keys(routeArguments).forEach(function (key) {
                     if (typeof routeArguments[key] === 'string') {
-                        routeArguments[key] = decodeURIComponent(routeArguments[key]);
+                        try {
+                            routeArguments[key] = decodeURIComponent(routeArguments[key]);
+                        } catch (e) {}
                     }
                 });
 
