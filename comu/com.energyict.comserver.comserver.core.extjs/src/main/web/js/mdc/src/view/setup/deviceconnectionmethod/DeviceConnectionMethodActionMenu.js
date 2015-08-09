@@ -39,6 +39,26 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodActionMe
             itemId: 'viewConnectionHistoryItem',
             action: 'viewConnectionHistory'
         }
-    ]
+    ],
+    listeners: {
+        show: {
+            fn: function (menu) {
+                if (menu.record) {
+                    if(menu.record.get('status')==='connectionTaskStatusActive'){
+                        menu.down('[action=toggleActive]').setText(Uni.I18n.translate('general.deactivate', 'EST', 'Deactivate'));
+                    } else {
+                        menu.down('[action=toggleActive]').setText( Uni.I18n.translate('general.activate', 'EST', 'Activate'));
+                    }
+
+                    if(menu.record.get('isDefault')=== true){
+                        menu.down('[action=toggleDefault]').setText(Uni.I18n.translate('deviceconnectionmethod.unsetAsDefault', 'MDC', 'Remove as default'));
+                    } else {
+                        menu.down('[action=toggleDefault]').setText(Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'));
+                    }
+
+                }
+            }
+        }
+    }
 });
 

@@ -153,7 +153,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
                     {
                         params: {filter: '[' + jsonValues + ']'},
                         callback: function () {
-                            me.comPortsStoreToAdd.sortByType(record.getData().type);
+                            me.comPortsStoreToAdd.sortByType(record.get('comPortType'));
                             me.comPortsStoreToAdd.sortByExisted(existedRecordsArray);
                         }
                     });

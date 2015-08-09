@@ -3,12 +3,15 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
     alias: 'widget.deviceConfigurationEdit',
     itemId: 'deviceConfigurationEdit',
     edit: false,
+    returnLink: '#/administration/devicetypes/',
     isEdit: function () {
         return this.edit
     },
 
     initComponent: function () {
-        this.content = [
+        var me = this;
+
+        me.content = [
             {
                 xtype: 'panel',
                 ui: 'large',
@@ -202,10 +205,14 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                 },
                                                 items: [
                                                     {
-                                                        text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                                        text: me.edit
+                                                            ? Uni.I18n.translate('general.save', 'MDC', 'Save')
+                                                            : Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                                         xtype: 'button',
                                                         ui: 'action',
-                                                        action: 'createAction',
+                                                        action: me.edit
+                                                            ? 'editDeviceConfiguration'
+                                                            : 'createDeviceConfiguration',
                                                         itemId: 'createEditButton'
                                                     },
                                                     {
@@ -213,7 +220,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                                                         xtype: 'button',
                                                         ui: 'link',
                                                         itemId: 'cancelLink',
-                                                        href: '#/administration/devicetypes/'
+                                                        href: me.returnLink
                                                     }
                                                 ]
                                             }
@@ -228,15 +235,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationEdit', {
                 ]
             }
         ];
-        this.callParent(arguments);
-        if (this.isEdit()) {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
-            this.down('#createEditButton').action = 'editDeviceConfiguration';
-        } else {
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
-            this.down('#createEditButton').action = 'createDeviceConfiguration';
-        }
-        this.down('#cancelLink').href = this.returnLink;
+        me.callParent(arguments);
     }
-
 });

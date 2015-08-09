@@ -54,6 +54,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                 xtype: 'uni-grid-filterpaneltop',
                                 itemId: 'mdc-device-channels-topfilter',
                                 store: 'Mdc.store.ChannelOfLoadProfileOfDeviceData',
+                                hasDefaultFilters: true,
                                 filters: [
                                     {
                                         type: 'duration',

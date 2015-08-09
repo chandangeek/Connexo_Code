@@ -25,7 +25,10 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RegisterList', {
                     if (record.get('interval') == null) {
                            return Ext.String.format(Uni.I18n.translate('validationResults.last', 'MDC', 'Last {0} {1}'),
                                1,
-                               Uni.I18n.translatePlural('general.'+record.get('intervalRecord').get('all').timeUnit, record.get('intervalRecord').get('all').count, 'MDC', record.get('intervalRecord').get('all').timeUnit));
+                               Uni.I18n.translatePlural('general.'+record.get('intervalRecord').get('all').timeUnit,
+                                   record.get('intervalRecord').get('all').count,
+                                   'MDC',
+                                   record.get('intervalRecord').get('all').timeUnit));
                     }
                     else if(record.get('intervalEnd') && record.get('intervalInMs')){
 
@@ -45,19 +48,18 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RegisterList', {
 
                 renderer: function (value, meta, record) {
                     var me = this,
-                        filter = me.router.filter.getWriteData(true, true),
                         href;
-                    filter['onlySuspect'] = true;
-                    filter['onlyNonSuspect'] = false;
-                    filter['duration'] = (record.get('interval') == null) ? '1years' : record.get('interval').count + record.get('interval').timeUnit;
-                    filter['intervalStart'] = Ext.util.Format.date(
-                        new Date(record.get('intervalStart')),'Y-m-dTH:i:s');
 
                     href = me.router.getRoute('devices/device/registers/registerdata').buildUrl(
-                        {   mRID: encodeURIComponent(record.get('mRID')),
+                        {
+                            mRID: record.get('mRID'),
                             registerId: record.get('id')
-
-                        }, {filter: filter});
+                        },
+                        {
+                            suspect: 'suspect',
+                            interval: Ext.String.format('{0}-{1}{2}',
+                                record.get('intervalStart'), 1, record.get('intervalRecord').get('all').timeUnit)
+                        });
                     return '<a href="' + href + '">' + value + '</a>'
                 }
             }

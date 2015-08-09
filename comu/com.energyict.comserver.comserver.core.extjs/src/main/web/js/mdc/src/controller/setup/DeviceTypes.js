@@ -119,7 +119,9 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             deviceConfigurationsLink.setText(deviceTypes[0].get('deviceConfigurationCount') + ' ' + Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceTypes[0].get('deviceConfigurationCount'), 'MDC', 'device configurations'));
 
             this.getDeviceTypePreviewForm().loadRecord(deviceTypes[0]);
-            this.getDeviceTypePreview().down('device-type-action-menu').record = deviceTypes[0];
+
+            if(this.getDeviceTypePreview().down('device-type-action-menu'))
+                this.getDeviceTypePreview().down('device-type-action-menu').record = deviceTypes[0];
 
             this.getDeviceTypePreview().setTitle(deviceTypes[0].get('name'));
             Ext.resumeLayouts(true);
@@ -464,7 +466,11 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         var me = this,
             model = Ext.ModelManager.getModel('Mdc.model.DeviceType'),
             store = Ext.data.StoreManager.lookup('AvailableLogbookTypes'),
-            widget = Ext.widget('add-logbook-types', {deviceTypeId: deviceTypeId});
+            widget = Ext.widget('add-logbook-types', {
+                router: me.getController('Uni.controller.history.Router'),
+                deviceTypeId: deviceTypeId
+            });
+
         store.getProxy().setExtraParam('deviceType', deviceTypeId);
         store.getProxy().setExtraParam('available', true);
         store.load();

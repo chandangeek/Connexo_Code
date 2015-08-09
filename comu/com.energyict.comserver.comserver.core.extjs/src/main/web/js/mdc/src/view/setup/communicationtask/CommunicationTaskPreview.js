@@ -91,9 +91,9 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskPreview', {
                             name: 'ignoreNextExecutionSpecsForInbound',
                             renderer: function (value) {
                                 if (value === true) {
-                                    return Uni.I18n.translate('general.no', 'MDC', 'No');
+                                    return Uni.I18n.translate('general.yes', 'MDC', 'Yes');
                                 }
-                                return Uni.I18n.translate('general.yes', 'MDC', 'Yes');
+                                return Uni.I18n.translate('general.no', 'MDC', 'No');
                             }
                         }
                     ]

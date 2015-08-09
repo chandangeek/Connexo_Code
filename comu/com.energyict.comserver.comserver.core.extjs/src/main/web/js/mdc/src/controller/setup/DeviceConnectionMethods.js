@@ -41,7 +41,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         {ref: 'comWindowStart', selector: '#deviceConnectionMethodEdit #comWindowStart'},
         {ref: 'comWindowEnd', selector: '#deviceConnectionMethodEdit #comWindowEnd'},
         {ref: 'activateConnWindowRadiogroup', selector: '#activateConnWindowRadiogroup'},
-        {ref: 'propertyForm', selector: '#propertyForm'}
+        {ref: 'propertyForm', selector: '#propertyForm'},
+        {ref: 'connectionMethodActionMenu', selector: '#device-connection-method-action-menu'}
 
     ],
 
@@ -140,6 +141,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         var connectionMethod = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection();
         Ext.suspendLayouts();
         if (connectionMethod.length == 1) {
+            this.getConnectionMethodActionMenu().record = connectionMethod[0];
             if (!!this.getToggleDefaultMenuItem()) {
                 this.getToggleDefaultMenuItem().setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('deviceconnectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'));
                 this.getToggleActiveMenuItem().setText(connectionMethod[0].get('status') === 'connectionTaskStatusInActive' ? Uni.I18n.translate('deviceconnectionmethod.activate', 'MDC', 'Activate') : Uni.I18n.translate('deviceconnectionmethod.deActivate', 'MDC', 'Deactivate'));

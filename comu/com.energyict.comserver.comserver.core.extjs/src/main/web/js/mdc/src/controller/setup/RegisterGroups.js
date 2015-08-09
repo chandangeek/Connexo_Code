@@ -139,25 +139,24 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     },
 
     showRegisterGroupEditView: function (registerGroupId) {
-        var widget = Ext.widget('registerGroupEdit', {edit: true});
-        this.backUrl = this.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
-
-        var me = this;
-        me.mode = 'edit';
-
-        this.getApplication().fireEvent('changecontentevent', widget);
-        widget.setLoading(true);
+        var me = this,
+            store = me.getStore('Mdc.store.InfiniteRegisterTypes'),
+            widget,
+            grid;
 
         Ext.ModelManager.getModel('Mdc.model.RegisterGroup').load(registerGroupId, {
             success: function (registerGroup) {
-                me.getApplication().fireEvent('loadRegisterGroup', registerGroup);
-                var store = me.getStore('Mdc.store.InfiniteRegisterTypes');
-                widget.down('form').loadRecord(registerGroup);
-                widget.down('panel').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + Ext.String.htmlEncode(registerGroup.get('name')) + '\'');
-                var grid = widget.down('#editRegisterGroupGridField');
-
                 store.load({
                     callback: function (registerTypes) {
+                        widget = Ext.widget('registerGroupEdit', {edit: true});
+                        me.backUrl = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
+                        me.mode = 'edit';
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                        widget.setLoading(true);
+                        me.getApplication().fireEvent('loadRegisterGroup', registerGroup);
+                        widget.down('form').loadRecord(registerGroup);
+                        widget.down('panel').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + Ext.String.htmlEncode(registerGroup.get('name')) + '\'');
+                        grid = widget.down('#editRegisterGroupGridField');
                         if (this.data.first.value.length > 0) {
                             grid.reconfigure(store);
                             grid.getSelectionModel().suspendChanges();
@@ -173,23 +172,20 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     },
 
     showRegisterGroupCreateView: function () {
-        var widget = Ext.widget('registerGroupEdit', {edit: false});
-        this.backUrl = this.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
+        var me = this,
+            store = me.getStore('Mdc.store.InfiniteRegisterTypes'),
+            widget,
+            registerGroup;
 
-        var me = this;
-        me.mode = 'create';
-
-        this.getApplication().fireEvent('changecontentevent', widget);
-        widget.setLoading(true);
-        widget.down('panel').setTitle(Uni.I18n.translate('registerGroup.create', 'MDC', 'Add register group'));
-
-        var store = me.getStore('Mdc.store.InfiniteRegisterTypes');
-        //store.getProxy().pageParam = 200;
-        //store.getProxy().startParam = undefined;
-        //store.getProxy().limitParam = undefined;
         store.load({
             callback: function (registerTypes) {
-                var registerGroup = Ext.create(Ext.ModelManager.getModel('Mdc.model.RegisterGroup'));
+                widget = Ext.widget('registerGroupEdit', {edit: false});
+                me.backUrl = me.getApplication().getController('Mdc.controller.history.Setup').tokenizePreviousTokens();
+                me.mode = 'create';
+                me.getApplication().fireEvent('changecontentevent', widget);
+                widget.setLoading(true);
+                widget.down('panel').setTitle(Uni.I18n.translate('registerGroup.create', 'MDC', 'Add register group'));
+                registerGroup = Ext.create(Ext.ModelManager.getModel('Mdc.model.RegisterGroup'));
                 widget.down('form').loadRecord(registerGroup);
                 if (this.totalCount > 0) {
                     widget.down('#editRegisterGroupSelectedField').setValue(Ext.String.format(Uni.I18n.translate('registerGroup.selectedRegisterTypes', 'MDC', '{0} register types selected'), 0));
@@ -205,19 +201,22 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     },
 
     saveRegisterGroup: function () {
-        var form = this.getRegisterGroupEditForm(),
+        var me = this,
+            form = me.getRegisterGroupEditForm(),
             record = form.getRecord(),
             values = form.getValues(),
+            baseForm = form.getForm(),
             selected = form.down('#editRegisterGroupGridField').getSelectionModel().getSelection();
 
         record.set(values);
         record.registerTypes().removeAll();
         record.registerTypes().add(selected);
 
-        var me = this;
+        baseForm.clearInvalid();
         record.save({
             success: function (record) {
                 var message;
+
                 if (me.mode == 'edit') {
                     message = Uni.I18n.translatePlural('registergroup.saved', record.get('name'), 'USM', 'Register group saved.');
                 }
@@ -228,9 +227,10 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 location.href = '#/administration/registergroups/';
             },
             failure: function (record, operation) {
-                var json = Ext.decode(operation.response.responseText);
+                var json = Ext.decode(operation.response.responseText, true);
+
                 if (json && json.errors) {
-                    me.getRegisterGroupEditForm().getForm().markInvalid(json.errors);
+                    baseForm.markInvalid(json.errors);
                 }
             }
         });

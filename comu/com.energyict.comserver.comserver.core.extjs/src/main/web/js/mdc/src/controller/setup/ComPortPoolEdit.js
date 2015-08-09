@@ -56,13 +56,13 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
             case 'inbound':
                 title = Uni.I18n.translate('comPortPool.title.addInbound', 'MDC', 'Add inbound communication port pool');
                 me.getStore('Mdc.store.ComPortTypes').load();
-                widget.down('form combobox[name=type]').bindStore(me.getStore('Mdc.store.ComPortTypes'));
+                widget.down('form combobox[name=comPortType]').bindStore(me.getStore('Mdc.store.ComPortTypes'));
                 isInbound = true;
                 break;
             case 'outbound':
                 title = Uni.I18n.translate('comPortPool.title.addOutbound', 'MDC', 'Add outbound communication port pool');
                 me.getStore('Mdc.store.ComPortTypesWithOutServlet').load();
-                widget.down('form combobox[name=type]').bindStore(me.getStore('Mdc.store.ComPortTypesWithOutServlet'));
+                widget.down('form combobox[name=comPortType]').bindStore(me.getStore('Mdc.store.ComPortTypesWithOutServlet'));
                 break;
         }
 
@@ -118,7 +118,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
                 }
 
                 form.down('[name=direction_visual]').show();
-                form.down('[name=type]').setDisabled(true);
+                form.down('[name=comPortType]').setDisabled(true);
                 form.loadRecord(record);
             },
             callback: function () {

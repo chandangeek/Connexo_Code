@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                 },
                 {
                     xtype: 'combobox',
-                    name: 'type',
+                    name: 'comPortType',
                     itemId: 'cbo-comportpool-type',
                     fieldLabel: Uni.I18n.translate('general.formFieldLabel.type', 'MDC', 'Type'),
                     emptyText: Uni.I18n.translate('comPortPool.formFieldEmptyText.selectCommunicationType', 'MDC', 'Select communication type...'),

@@ -282,10 +282,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
 
     createSecuritySettingModel: function(deviceTypeId, deviceConfigurationId){
         var securitySettingModel = Ext.ModelManager.getModel('Mdc.model.SecuritySetting');
-        if (!securitySettingModel.getProxy().extraParams['deviceType'])
-            securitySettingModel.getProxy().setExtraParam('deviceType', deviceTypeId);
-        if (!securitySettingModel.getProxy().extraParams['deviceConfig'])
-            securitySettingModel.getProxy().setExtraParam('deviceConfig', deviceConfigurationId);
+        securitySettingModel.getProxy().url = '/api/dtc/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securityproperties/';
         return securitySettingModel;
     },
 
