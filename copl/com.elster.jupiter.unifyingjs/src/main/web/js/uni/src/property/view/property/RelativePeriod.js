@@ -65,16 +65,9 @@ Ext.define('Uni.property.view.property.RelativePeriod', {
         return this.down('#relativeRadioGroup');
     },
 
-    doEnable: function(enable) {
-        if (this.getField()) {
-            if (enable) {
-                this.getField().enable();
-                this.down('combobox').enable();
-            } else {
-                this.getField().disable();
-                this.down('combobox').disable();
-            }
-        }
+    //this method is not needed here. Please check listeners.
+    doEnable: function() {
+       return null;
     },
 
     setValue: function (value) {
@@ -128,6 +121,14 @@ Ext.define('Uni.property.view.property.RelativePeriod', {
         var periods = Ext.getStore('Uni.property.store.RelativePeriods');
         periods.load();
         this.callParent(arguments);
+    },
+
+    markInvalid: function (error) {
+        this.down('combobox').markInvalid(error);
+    },
+
+    clearInvalid: function (error) {
+        this.down('combobox').clearInvalid();
     },
 
     getValueAsDisplayString: function (value) {
