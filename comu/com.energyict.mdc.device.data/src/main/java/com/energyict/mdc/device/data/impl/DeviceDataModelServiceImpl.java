@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceDataServices;
@@ -82,8 +83,8 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-30 (17:33)
  */
-@Component(name="com.energyict.mdc.device.data", service = {DeviceDataModelService.class, ReferencePropertySpecFinderProvider.class,
-        InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME,"osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
+@Component(name = "com.energyict.mdc.device.data", service = {DeviceDataModelService.class, ReferencePropertySpecFinderProvider.class,
+        InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME, "osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
 public class DeviceDataModelServiceImpl implements DeviceDataModelService, ReferencePropertySpecFinderProvider, InstallService, TranslationKeyProvider, PrivilegesProvider {
 
     private volatile DataModel dataModel;
@@ -115,11 +116,14 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private ServerLogBookService logBookService;
     private DataCollectionKpiService dataCollectionKpiService;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private BatchService batchService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
 
     // For OSGi purposes only
-    public DeviceDataModelServiceImpl() {super();}
+    public DeviceDataModelServiceImpl() {
+        super();
+    }
 
     // For unit testing purposes only
     @Inject
@@ -182,8 +186,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     @Override
     public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
         return Stream.of(this.connectionTaskService, this.deviceService, this.logBookService, this.loadProfileService).
-            flatMap(p -> p.finders().stream()).
-            collect(Collectors.toList());
+                flatMap(p -> p.finders().stream()).
+                collect(Collectors.toList());
     }
 
     @Reference
@@ -197,8 +201,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     @Reference
     public void setQueryService(QueryService queryService) {
-		this.queryService = queryService;
-	}
+        this.queryService = queryService;
+    }
 
     @Override
     public DataModel dataModel() {
@@ -335,6 +339,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Override
+    public BatchService batchService() {
+        return this.batchService;
+    }
+
+    @Override
     public KpiService kpiService() {
         return kpiService;
     }
@@ -345,7 +354,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Reference
-    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService){
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
     }
 
@@ -395,6 +404,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(DataCollectionKpiService.class).toInstance(dataCollectionKpiService);
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
+                bind(BatchService.class).toInstance(batchService);
             }
         };
     }
@@ -413,6 +423,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
+        this.batchService = new BatchServiceImpl(this);
     }
 
     private void registerRealServices(BundleContext bundleContext) {
@@ -422,6 +433,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.registerLoadProfileService(bundleContext);
         this.registerLogBookService(bundleContext);
         this.registerDataCollectionKpiService(bundleContext);
+        this.registerBatchService(bundleContext);
     }
 
     private void registerConnectionTaskService(BundleContext bundleContext) {
@@ -449,6 +461,10 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     private void registerDataCollectionKpiService(BundleContext bundleContext) {
         this.serviceRegistrations.add(bundleContext.registerService(DataCollectionKpiService.class, this.dataCollectionKpiService, null));
+    }
+
+    private void registerBatchService(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(BatchService.class, this.batchService, null));
     }
 
     @Deactivate
@@ -487,8 +503,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 statement.executeUpdate();
                 // Don't care about how many rows were updated and if that matches the expected number of updates
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }
@@ -498,8 +513,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         Map<TaskStatus, Long> counters = new HashMap<>();
         try (PreparedStatement statement = preparedStatementProvider.prepare(this.dataModel.getConnection(true))) {
             this.fetchTaskStatusCounters(statement, counters);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
         return counters;
@@ -520,8 +534,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         Map<Long, Map<TaskStatus, Long>> counters = new HashMap<>();
         try (PreparedStatement statement = builder.prepare(this.dataModel.getConnection(true))) {
             this.fetchTaskStatusBreakdown(statement, counters);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
         return counters;
@@ -555,8 +568,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private EnumSet<TaskStatus> taskStatusComplement(Set<TaskStatus> taskStatuses) {
         if (taskStatuses.isEmpty()) {
             return EnumSet.allOf(TaskStatus.class);
-        }
-        else {
+        } else {
             return EnumSet.complementOf(EnumSet.copyOf(taskStatuses));
         }
     }
@@ -571,11 +583,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     public List<ResourceDefinition> getModuleResources() {
 
         return Arrays.asList(
-            this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "device.devices", "device.devices.description", Arrays.asList(Privileges.ADD_DEVICE, Privileges.VIEW_DEVICE, Privileges.REMOVE_DEVICE, Privileges.ADMINISTRATE_DEVICE_ATTRIBUTE)),
-            this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceData.deviceData", "deviceData.deviceData.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)),
-            this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceCommunication.deviceCommunications", "deviceCommunication.deviceCommunications.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION)),
-            this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceGroup.deviceGroups", "deviceGroup.deviceGroups.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL)),
-            this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "inventoryManagement.inventoryManagements", "inventoryManagement.inventoryManagements.description", Arrays.asList(Privileges.IMPORT_INVENTORY_MANAGEMENT, Privileges.REVOKE_INVENTORY_MANAGEMENT))
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "device.devices", "device.devices.description", Arrays.asList(Privileges.ADD_DEVICE, Privileges.VIEW_DEVICE, Privileges.REMOVE_DEVICE, Privileges.ADMINISTRATE_DEVICE_ATTRIBUTE)),
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceData.deviceData", "deviceData.deviceData.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)),
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceCommunication.deviceCommunications", "deviceCommunication.deviceCommunications.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION)),
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceGroup.deviceGroups", "deviceGroup.deviceGroups.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL)),
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "inventoryManagement.inventoryManagements", "inventoryManagement.inventoryManagements.description", Arrays.asList(Privileges.IMPORT_INVENTORY_MANAGEMENT, Privileges.REVOKE_INVENTORY_MANAGEMENT))
         );
 
     }
