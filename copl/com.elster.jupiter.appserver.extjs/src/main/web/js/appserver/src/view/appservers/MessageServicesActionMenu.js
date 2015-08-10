@@ -7,7 +7,7 @@ Ext.define('Apr.view.appservers.MessageServicesActionMenu', {
     items: [
         {
             itemId: 'remove-message-service',
-            text: Uni.I18n.translate('general.remove', 'UNI', 'Remove'),
+            text: Uni.I18n.translate('general.remove', 'APR', 'Remove'),
             action: 'removeMessageService'
         }
     ]

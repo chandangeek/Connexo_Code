@@ -5,7 +5,7 @@ Ext.define('Apr.controller.history.AppServer', {
 
     routeConfig: {
         administration: {
-            title: Uni.I18n.translate('general.administration', 'UNI', 'Administration'),
+            title: Uni.I18n.translate('general.administration', 'APR', 'Administration'),
             route: 'administration',
             disabled: true,
             items: {

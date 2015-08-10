@@ -33,12 +33,12 @@ Ext.define('Apr.view.appservers.PreviewForm', {
                                     {
                                         xtype: 'displayfield',
 
-                                        fieldLabel: Uni.I18n.translate('general.name', 'UNI', 'Name'),
+                                        fieldLabel: Uni.I18n.translate('general.name', 'APR', 'Name'),
                                         name: 'name'
                                     },
                                     {
                                         xtype: 'displayfield',
-                                        fieldLabel: Uni.I18n.translate('general.status', 'UNI', 'Status'),
+                                        fieldLabel: Uni.I18n.translate('general.status', 'APR', 'Status'),
                                         name: 'status'
                                     },
                                     {

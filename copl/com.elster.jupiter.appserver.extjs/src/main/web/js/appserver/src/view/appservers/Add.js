@@ -46,7 +46,7 @@ Ext.define('Apr.view.appservers.Add', {
                         itemId: 'txt-appserver-name',
                         width: 750,
                         required: true,
-                        fieldLabel: Uni.I18n.translate('general.name', 'UNI', 'Name'),
+                        fieldLabel: Uni.I18n.translate('general.name', 'APR', 'Name'),
                         allowBlank: false,
                         enforceMaxLength: true,
                         maxLength: 80
@@ -101,7 +101,7 @@ Ext.define('Apr.view.appservers.Add', {
                                 xtype: 'displayfield',
                                 itemId: 'empty-text-grid',
                                 hidden: true,
-                                value: Uni.I18n.translate('appServers.noMessageServices', 'UNI', "This application server doesn't have any message service")
+                                value: Uni.I18n.translate('appServers.noMessageServices', 'APR', "This application server doesn't have any message service")
                             }
 
                         ]
@@ -136,7 +136,7 @@ Ext.define('Apr.view.appservers.Add', {
                                 xtype: 'displayfield',
                                 itemId: 'import-empty-text-grid',
                                 hidden: true,
-                                value: Uni.I18n.translate('appServers.noImportServices', 'UNI', "This application server doesn't have any import service")
+                                value: Uni.I18n.translate('appServers.noImportServices', 'APR', "This application server doesn't have any import service")
                             }
 
                         ]
@@ -155,7 +155,7 @@ Ext.define('Apr.view.appservers.Add', {
                             {
                                 xtype: 'button',
                                 itemId: 'cancel-link',
-                                text: Uni.I18n.translate('window.messabox.cancel', 'UNI', 'Cancel'),
+                                text: Uni.I18n.translate('window.messabox.cancel', 'APR', 'Cancel'),
                                 ui: 'link',
                                 href: '#/administration/appservers/'
                             }

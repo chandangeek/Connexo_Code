@@ -18,12 +18,12 @@ Ext.define('Apr.view.appservers.ImportServicesGrid', {
 
     columns: [
         {
-            header: Uni.I18n.translate('general.name', 'UNI', 'Name'),
+            header: Uni.I18n.translate('general.name', 'APR', 'Name'),
             dataIndex: 'importService',
             flex: 1
         },
         {
-            header: Uni.I18n.translate('general.status', 'UNI', 'Status'),
+            header: Uni.I18n.translate('general.status', 'APR', 'Status'),
             dataIndex: 'status',
             flex: 0.8
         },

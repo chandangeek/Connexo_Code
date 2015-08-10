@@ -32,7 +32,7 @@ Ext.define('Apr.controller.Main', {
         if (Apr.privileges.AppServer.canView()){
 
             var menuItem = Ext.create('Uni.model.MenuItem', {
-                text: Uni.I18n.translate('general.administration', 'UNI', 'Administration'),
+                text: Uni.I18n.translate('general.administration', 'APR', 'Administration'),
                 portal: 'administration',
                 glyph: 'settings'
             });
