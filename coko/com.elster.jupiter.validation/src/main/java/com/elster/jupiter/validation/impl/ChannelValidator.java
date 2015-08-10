@@ -26,7 +26,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
- 
+
+import static com.elster.jupiter.util.streams.Predicates.either;
+
 class ChannelValidator {
 
     private final Channel channel;
@@ -132,6 +134,9 @@ class ChannelValidator {
     }
 
     private void setValidationQuality(ValidatedResult target) {
+        if (isEditedConfirmedOrEstimated(target.getTimestamp())) {
+            return;
+        }
         Optional<ReadingQualityRecord> existingQualityForType = getExistingReadingQualityForType(target.getTimestamp(), target.getReadingType());
         if (existingQualityForType.isPresent()) {
             if (!existingQualityForType.get().isActual()) {
@@ -150,6 +155,16 @@ class ChannelValidator {
                 .filter(readingQualityRecord -> readingQualityRecord.getReadingType().equals(readingType))
                 .filter(input -> rule.getReadingQualityType().equals(input.getType()))
                 .findFirst();
+    }
+
+    private boolean isEditedConfirmedOrEstimated(Instant timeStamp) {
+        return existingReadingQualities.get(timeStamp).stream()
+                .filter(ReadingQualityRecord::isActual)
+                .anyMatch(
+                        either(ReadingQualityRecord::isConfirmed)
+                                .or(ReadingQualityRecord::hasEditCategory)
+                                .or(ReadingQualityRecord::hasEstimatedCategory)
+                );
     }
 
     private Instant determineLastChecked(ValidatedResult target, Instant lastChecked) {
