@@ -101,7 +101,7 @@ Ext.define('Fim.view.importservices.PreviewForm', {
             },
             {
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('importService.failureFolder', 'DES', 'Failure folder'),
+                fieldLabel: Uni.I18n.translate('importService.failureFolder', 'FIM', 'Failure folder'),
                 name: 'failureDirectory'
             },
             {

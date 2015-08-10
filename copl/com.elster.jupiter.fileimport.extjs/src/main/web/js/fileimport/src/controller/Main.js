@@ -33,7 +33,7 @@ Ext.define('Fim.controller.Main', {
     initMenu: function () {
         if (Fim.privileges.DataImport.canView()) {
             var menuItem = Ext.create('Uni.model.MenuItem', {
-                text: Uni.I18n.translate('general.administration', 'UNI', 'Administration'),
+                text: Uni.I18n.translate('general.administration', 'FIM', 'Administration'),
                 portal: 'administration',
                 glyph: 'settings',
                 index: 10

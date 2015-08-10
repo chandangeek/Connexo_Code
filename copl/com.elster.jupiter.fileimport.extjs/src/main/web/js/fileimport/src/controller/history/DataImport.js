@@ -8,7 +8,7 @@ Ext.define('Fim.controller.history.DataImport', {
 
     routeConfig: {
         administration: {
-            title: Uni.I18n.translate('general.administration', 'UNI', 'Administration'),
+            title: Uni.I18n.translate('general.administration', 'FIM', 'Administration'),
             route: 'administration',
             disabled: true,
             items: {

@@ -42,7 +42,7 @@ Ext.define('Fim.view.log.Setup', {
                 },
                 {
                     xtype: 'filter-toolbar',
-                    title: Uni.I18n.translate('importService.filter.sort', 'MDC', 'Sort'),
+                    title: Uni.I18n.translate('importService.filter.sort', 'FIM', 'Sort'),
                     name: 'sortitemspanel',
                     itemId: 'fim-history-log-sort-toolbar',
                     emptyText: 'None',

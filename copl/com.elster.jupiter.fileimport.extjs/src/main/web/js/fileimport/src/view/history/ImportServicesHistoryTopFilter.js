@@ -12,7 +12,7 @@ Ext.define('Fim.view.history.ImportServicesHistoryTopFilter', {
             {
                 type: 'combobox',
                 dataIndex: 'importService',
-                emptyText: Uni.I18n.translate('general.importService', 'FWC', 'Import service'),
+                emptyText: Uni.I18n.translate('general.importService', 'FIM', 'Import service'),
                 multiSelect: true,
                 displayField: 'name',
                 valueField: 'id',
@@ -36,7 +36,7 @@ Ext.define('Fim.view.history.ImportServicesHistoryTopFilter', {
             {
                 type: 'combobox',
                 dataIndex: 'status',
-                emptyText: Uni.I18n.translate('importService.history.status', 'FWC', 'Status'),
+                emptyText: Uni.I18n.translate('importService.history.status', 'FIM', 'Status'),
                 multiSelect: true,
                 displayField: 'display',
                 valueField: 'value',
