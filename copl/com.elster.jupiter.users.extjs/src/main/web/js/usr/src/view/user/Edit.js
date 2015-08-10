@@ -99,7 +99,7 @@ Ext.define('Usr.view.user.Edit', {
                                 items: [
                                     {
                                         itemId: 'userEditButton',
-                                        text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
+                                        text: Uni.I18n.translate('general.save', 'USR', 'Save'),
                                         xtype: 'button',
                                         ui: 'action',
                                         action: 'save'

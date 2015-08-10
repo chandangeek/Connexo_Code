@@ -102,7 +102,7 @@ Ext.define('Usr.view.group.Edit', {
                                 items: [
                                     {
                                         itemId: 'roleAddButton',
-                                        text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                        text: Uni.I18n.translate('general.add', 'USR', 'Add'),
                                         xtype: 'button',
                                         ui: 'action',
                                         action: 'save'
