@@ -57,6 +57,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.util.Checks.is;
+
 @Path("/devices")
 public class DeviceResource {
     private static final int RECENTLY_ADDED_COUNT = 5;
@@ -186,7 +188,7 @@ public class DeviceResource {
             deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId);
         }
         Device newDevice;
-        if (info.batch != null) {
+        if (!is(info.batch).emptyOrOnlyWhiteSpace()) {
             newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID, info.batch);
         } else {
             newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID);
