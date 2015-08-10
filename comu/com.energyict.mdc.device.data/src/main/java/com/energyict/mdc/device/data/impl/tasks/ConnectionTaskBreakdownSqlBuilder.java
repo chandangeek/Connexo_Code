@@ -83,12 +83,12 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
 
     private void appendBusyComTaskExecutionWithClause() {
         this.sqlBuilder.append(BUSY_TASK_ALIAS_NAME);
-        this.sqlBuilder.append(" as (select connectiontask --+ NO_MERGE from DDC_COMTASKEXEC where comport is not null and obsolete_date is null)");
+        this.sqlBuilder.append(" as (select connectiontask /*+ NO_MERGE */ from DDC_COMTASKEXEC where comport is not null and obsolete_date is null)");
     }
 
     private void appendConnectionTaskWithClause() {
         this.sqlBuilder.append("CT as (");
-        this.sqlBuilder.append("    SELECT --+ NO_MERGE ");
+        this.sqlBuilder.append("    SELECT /*+ NO_MERGE */ ");
         this.appendConnectionTaskSelectClauseInWithClause(this.sqlBuilder);
         this.appendConnectionTaskFromClauseInWithClause(this.sqlBuilder);
         this.sqlBuilder.append("     WHERE connT.status = 0");
@@ -139,7 +139,7 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
     }
 
     private void appendRestrictedStatesClause() {
-        this.connectionTaskService.appendRestrictedStatesClause(this.sqlBuilder, "ct");
+        this.connectionTaskService.appendRestrictedStatesClause(this.sqlBuilder, "connT");
     }
 
     protected void appendDeviceInGroupSql() {

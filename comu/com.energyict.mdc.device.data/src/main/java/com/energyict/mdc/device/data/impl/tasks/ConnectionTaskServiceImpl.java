@@ -931,7 +931,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         sqlBuilder.append(connectionTaskAliasName);
         sqlBuilder.append(".device in (");
         sqlBuilder.append("select ED.amrid from ");
-        sqlBuilder.append("MTR_ENDDEVICESTATUS ES");
+        sqlBuilder.append("MTR_ENDDEVICESTATUS ES,");
         sqlBuilder.append("(select FS.ID from FSM_STATE FS where FS.OBSOLETE_TIMESTAMP IS NULL and FS.NAME NOT IN (");
         sqlBuilder.addObject(DefaultState.IN_STOCK.getKey());
         sqlBuilder.append(", ");

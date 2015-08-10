@@ -207,7 +207,6 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("         AND nextexecutiontimestamp >");
             sqlBuilder.addLong(this.asSeconds(clock.instant()));
             sqlBuilder.append("         AND lastsuccessfulcommunicationend is null");
-            sqlBuilder.append("        THEN 'NeverCompleted'");
             this.appendBreakdownThenClause(sqlBuilder);
         }
     },
@@ -256,7 +255,6 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("        WHEN currentretrycount > 0");
             sqlBuilder.append("         AND nextexecutiontimestamp >");
             sqlBuilder.addLong(this.asSeconds(clock.instant()));
-            sqlBuilder.append("        THEN 'Retrying'");
             this.appendBreakdownThenClause(sqlBuilder);
         }
     },
@@ -315,7 +313,6 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("         AND nextexecutiontimestamp >");
             sqlBuilder.addLong(this.asSeconds(clock.instant()));
             sqlBuilder.append("         AND lastsuccessfulcommunicationend is not null");
-            sqlBuilder.append("        THEN 'Failed'");
             this.appendBreakdownThenClause(sqlBuilder);
         }
     },
@@ -374,7 +371,6 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("         AND nextexecutiontimestamp >");
             sqlBuilder.addLong(this.asSeconds(clock.instant()));
             sqlBuilder.append("         AND lastsuccessfulcommunicationend is not null");
-            sqlBuilder.append("        THEN 'Waiting'");
             this.appendBreakdownThenClause(sqlBuilder);
         }
     };

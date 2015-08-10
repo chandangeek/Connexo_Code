@@ -4,7 +4,6 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.conditions.Condition;
@@ -55,15 +54,13 @@ public class DeviceServiceImpl implements ServerDeviceService {
     private final DeviceDataModelService deviceDataModelService;
     private final ProtocolPluggableService protocolPluggableService;
     private final QueryService queryService;
-    private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, ProtocolPluggableService protocolPluggableService, QueryService queryService, Thesaurus thesaurus) {
+    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, ProtocolPluggableService protocolPluggableService, QueryService queryService) {
         super();
         this.deviceDataModelService = deviceDataModelService;
         this.protocolPluggableService = protocolPluggableService;
         this.queryService = queryService;
-        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -159,15 +156,15 @@ public class DeviceServiceImpl implements ServerDeviceService {
     public Optional<Device> findDeviceById(long id) {
         return this.deviceDataModelService.dataModel().mapper(Device.class).getUnique("id", id);
     }
-    
+
     @Override
     public Optional<Device> findAndLockDeviceByIdAndVersion(long id, long version) {
         return this.deviceDataModelService.dataModel().mapper(Device.class).lockObjectIfVersion(version, id);
     }
 
     @Override
-    public Optional<Device> findAndLockDeviceBymRIDAndVersion(String mrid, long version) {
-        Optional<Device> deviceOptional = this.deviceDataModelService.dataModel().mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), mrid);
+    public Optional<Device> findAndLockDeviceBymRIDAndVersion(String mRID, long version) {
+        Optional<Device> deviceOptional = this.deviceDataModelService.dataModel().mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), mRID);
         if (deviceOptional.isPresent()) {
             return this.deviceDataModelService.dataModel().mapper(Device.class).lockObjectIfVersion(version, deviceOptional.get().getId());
         } else {
