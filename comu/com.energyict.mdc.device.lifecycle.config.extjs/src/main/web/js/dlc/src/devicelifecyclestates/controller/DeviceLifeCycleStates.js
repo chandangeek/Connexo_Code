@@ -232,7 +232,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
                     form.setTitle(editTitle);
                     form.loadRecord(record);
                     me.getApplication().fireEvent('loadlifecyclestate', editTitle);
-                    createBtn.setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
+                    createBtn.setText(Uni.I18n.translate('general.save', 'DLC', 'Save'));
                     createBtn.action = 'save';
                     if (!record.get('isCustom')) {
                         createBtn.disable();
