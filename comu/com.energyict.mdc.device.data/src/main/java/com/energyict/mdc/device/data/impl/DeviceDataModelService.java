@@ -54,7 +54,7 @@ public interface DeviceDataModelService {
 
     public void executeUpdate(SqlBuilder sqlBuilder);
 
-    public Map<TaskStatus, Long> fetchTaskStatusCounters(ClauseAwareSqlBuilder builder);
+    public Map<TaskStatus, Long> fetchTaskStatusCounters(PreparedStatementProvider preparedStatementProvider);
 
     public Map<Long, Map<TaskStatus, Long>> fetchTaskStatusBreakdown(PreparedStatementProvider builder);
 

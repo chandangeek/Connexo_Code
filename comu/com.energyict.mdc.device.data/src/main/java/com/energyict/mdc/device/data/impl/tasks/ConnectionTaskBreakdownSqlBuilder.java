@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus.BUSY_TASK_ALIAS_NAME;
@@ -25,16 +26,16 @@ import static com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatu
  */
 abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementProvider {
 
-    private final String groupByAspect;
+    private final GroupByAspect groupByAspect;
     private final EnumSet<ServerConnectionTaskStatus> taskStatusses;
     private final boolean includeBusyTasks;
     private final EndDeviceGroup deviceGroup;
     private final ConnectionTaskServiceImpl connectionTaskService;
     private SqlBuilder sqlBuilder;
 
-    public ConnectionTaskBreakdownSqlBuilder(String groupByAspect, Set<ServerConnectionTaskStatus> taskStatusses, EndDeviceGroup deviceGroup, ConnectionTaskServiceImpl connectionTaskService) {
+    public ConnectionTaskBreakdownSqlBuilder(Optional<String> groupByAspect, Set<ServerConnectionTaskStatus> taskStatusses, EndDeviceGroup deviceGroup, ConnectionTaskServiceImpl connectionTaskService) {
         super();
-        this.groupByAspect = groupByAspect;
+        this.groupByAspect = groupByAspect.<GroupByAspect>map(GroupBySingleAspect::new).orElseGet(NoGrouping::new);
         this.taskStatusses = EnumSet.copyOf(taskStatusses);
         this.includeBusyTasks = taskStatusses.contains(ServerConnectionTaskStatus.Busy);
         this.taskStatusses.remove(ServerConnectionTaskStatus.Busy);
@@ -53,20 +54,20 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
         if (this.includeBusyTasks) {
             this.sqlBuilder.append("select '");
             this.sqlBuilder.append(ServerConnectionTaskStatus.Busy.name());
-            this.sqlBuilder.append("', ");
-            this.sqlBuilder.append(this.groupByAspect);
+            this.sqlBuilder.append("'");
+            this.groupByAspect.appendToList(this.sqlBuilder);
             this.sqlBuilder.append(", count(*) from CT where (exists (select * from ");
             this.sqlBuilder.append(BUSY_TASK_ALIAS_NAME);
             this.sqlBuilder.append(" where ");
             this.sqlBuilder.append(BUSY_TASK_ALIAS_NAME);
-            this.sqlBuilder.append(".connectiontask = id) or comserver is not null) group by ");
-            this.sqlBuilder.append(this.groupByAspect);
+            this.sqlBuilder.append(".connectiontask = id) or comserver is not null) ");
+            this.groupByAspect.appendGroupByClause(this.sqlBuilder);
             this.sqlBuilder.append(" UNION ALL ");
         }
-        this.sqlBuilder.append("select taskStatus, ");
-        this.sqlBuilder.append(this.groupByAspect);
-        this.sqlBuilder.append(", count(*) from notBusyCT group by taskStatus, ");
-        this.sqlBuilder.append(this.groupByAspect);
+        this.sqlBuilder.append("select taskStatus ");
+        this.groupByAspect.appendToList(this.sqlBuilder);
+        this.sqlBuilder.append(", count(*) from notBusyCT group by taskStatus ");
+        this.groupByAspect.appendToList(this.sqlBuilder);
     }
 
     private void appendWithClauses() {
@@ -99,7 +100,7 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
     }
 
     protected void appendConnectionTaskSelectClauseInWithClause(SqlBuilder sqlBuilder) {
-        sqlBuilder.append("connT.id, connT.discriminator, connT.comserver, connT.status, connT.currentretrycount, connT.lastsuccessfulcommunicationend, connT.nextexecutiontimestamp, connT.lastExecutionFailed, connT.comportpool");
+        sqlBuilder.append("connT.id, connT.discriminator, connT.comserver, connT.status, connT.currentretrycount, connT.lastsuccessfulcommunicationend, connT.nextexecutiontimestamp, connT.lastExecutionFailed, connT.connectiontypepluggableclass, connT.comportpool");
     }
 
     protected void appendConnectionTaskFromClauseInWithClause(SqlBuilder sqlBuilder) {
@@ -108,8 +109,8 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
 
     private void appendNotBusyConnectionTaskWithClause() {
         this.sqlBuilder.append("notBusyCT as (");
-        this.sqlBuilder.append("    SELECT /*+ NO_MERGE */ ");
-        this.sqlBuilder.append(this.groupByAspect);
+        this.sqlBuilder.append("    SELECT /*+ NO_MERGE */ 1 dummy");
+        this.groupByAspect.appendToList(this.sqlBuilder);
         this.sqlBuilder.append(",");
         this.sqlBuilder.append("      CASE");
         this.taskStatusses.stream().forEach(each -> each.appendBreakdownCaseClause(this.sqlBuilder, this.connectionTaskService.clock()));
@@ -143,6 +144,44 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
 
     protected void appendDeviceInGroupSql() {
         this.connectionTaskService.appendDeviceGroupConditions(this.deviceGroup, this.sqlBuilder, "connT");
+    }
+
+    private interface GroupByAspect {
+        void appendToList(SqlBuilder sqlBuilder);
+        void appendGroupByClause(SqlBuilder sqlBuilder);
+    }
+
+    private class NoGrouping implements GroupByAspect {
+        @Override
+        public void appendToList(SqlBuilder sqlBuilder) {
+            // No grouping so we are not adding anything to the list
+        }
+
+        @Override
+        public void appendGroupByClause(SqlBuilder sqlBuilder) {
+            // No grouping so we are not appending a group by clase
+        }
+    }
+
+    private class GroupBySingleAspect implements GroupByAspect {
+        private final String aspectName;
+
+        private GroupBySingleAspect(String aspectName) {
+            super();
+            this.aspectName = aspectName;
+        }
+
+        @Override
+        public void appendToList(SqlBuilder sqlBuilder) {
+            sqlBuilder.append(", ");
+            sqlBuilder.append(this.aspectName);
+        }
+
+        @Override
+        public void appendGroupByClause(SqlBuilder sqlBuilder) {
+            sqlBuilder.append(" group by");
+            sqlBuilder.append(this.aspectName);
+        }
     }
 
 }

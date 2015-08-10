@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -18,7 +19,7 @@ import java.util.Set;
 class ConnectionTaskComPortPoolBreakdownSqlBuilder extends ConnectionTaskBreakdownSqlBuilder {
 
     ConnectionTaskComPortPoolBreakdownSqlBuilder(Set<ServerConnectionTaskStatus> taskStatusses, EndDeviceGroup deviceGroup, ConnectionTaskServiceImpl connectionTaskService) {
-        super("comportpool", taskStatusses, deviceGroup, connectionTaskService);
+        super(Optional.of("comportpool"), taskStatusses, deviceGroup, connectionTaskService);
     }
 
 }

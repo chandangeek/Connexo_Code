@@ -494,9 +494,9 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Override
-    public Map<TaskStatus, Long> fetchTaskStatusCounters(ClauseAwareSqlBuilder builder) {
+    public Map<TaskStatus, Long> fetchTaskStatusCounters(PreparedStatementProvider preparedStatementProvider) {
         Map<TaskStatus, Long> counters = new HashMap<>();
-        try (PreparedStatement statement = builder.prepare(this.dataModel.getConnection(true))) {
+        try (PreparedStatement statement = preparedStatementProvider.prepare(this.dataModel.getConnection(true))) {
             this.fetchTaskStatusCounters(statement, counters);
         }
         catch (SQLException ex) {

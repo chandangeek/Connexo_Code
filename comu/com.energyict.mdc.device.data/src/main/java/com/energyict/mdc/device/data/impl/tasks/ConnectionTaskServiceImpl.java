@@ -9,7 +9,6 @@ import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.ConnectionTaskFields;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.TableSpecs;
@@ -59,7 +58,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -83,8 +81,6 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @since 2014-10-01 (09:01)
  */
 public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
-
-    private static final String BUSY_ALIAS_NAME = ServerConnectionTaskStatus.BUSY_TASK_ALIAS_NAME;
 
     private final DeviceDataModelService deviceDataModelService;
     private final EventService eventService;
@@ -245,46 +241,29 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     @Override
     public Map<TaskStatus, Long> getConnectionTaskStatusCount() {
-        return this.getConnectionTaskStatusCount(Collections.emptyList());
+        return this.doGetConnectionTaskStatusCount(null);
     }
 
     @Override
     public Map<TaskStatus, Long> getConnectionTaskStatusCount(EndDeviceGroup deviceGroup) {
-        return this.getConnectionTaskStatusCount(Arrays.asList(deviceGroup));
+        return this.doGetConnectionTaskStatusCount(deviceGroup);
     }
 
-    private Map<TaskStatus, Long> getConnectionTaskStatusCount(List<EndDeviceGroup> deviceGroups) {
-        ClauseAwareSqlBuilder sqlBuilder = null;
-        for (ServerConnectionTaskStatus taskStatus : this.taskStatusesForCounting(EnumSet.allOf(TaskStatus.class))) {
-            // Check first pass
-            if (sqlBuilder == null) {
-                sqlBuilder = WithClauses.BUSY_COMTASK_EXECUTION.sqlBuilder(BUSY_ALIAS_NAME);
-                this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroups);
-            }
-            else {
-                sqlBuilder.unionAll();
-                this.countByFilterAndTaskStatusSqlBuilder(sqlBuilder, taskStatus, deviceGroups);
-            }
-        }
-        return this.addMissingTaskStatusCounters(this.fetchTaskStatusCounters(sqlBuilder));
+    private Map<TaskStatus, Long> doGetConnectionTaskStatusCount(EndDeviceGroup deviceGroup) {
+        ConnectionTaskStatusCountSqlBuilder sqlBuilder =
+                new ConnectionTaskStatusCountSqlBuilder(
+                        this.taskStatusesForCounting(EnumSet.allOf(TaskStatus.class)),
+                        deviceGroup,
+                        this);
+        return this.addMissingTaskStatusCounters(this.deviceDataModelService.fetchTaskStatusCounters(sqlBuilder));
     }
 
     private Set<ServerConnectionTaskStatus> taskStatusesForCounting(Set<TaskStatus> taskStatuses) {
-        Set<ServerConnectionTaskStatus> serverTaskStatuses = EnumSet.noneOf(ServerConnectionTaskStatus.class);
-        for (TaskStatus taskStatus : taskStatuses) {
-            serverTaskStatuses.add(ServerConnectionTaskStatus.forTaskStatus(taskStatus));
-        }
-        return serverTaskStatuses;
-    }
-
-    private void countByFilterAndTaskStatusSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, ServerConnectionTaskStatus taskStatus, List<EndDeviceGroup> deviceGroups) {
-        ConnectionTaskCurrentStateCounterSqlBuilder countingFilter =
-                new ConnectionTaskCurrentStateCounterSqlBuilder(
-                        taskStatus,
-                        this.deviceDataModelService.clock(),
-                        deviceGroups,
-                        this.deviceFromDeviceGroupQueryExecutor());
-        countingFilter.appendTo(sqlBuilder);
+        return EnumSet.copyOf(
+                taskStatuses
+                        .stream()
+                        .map(ServerConnectionTaskStatus::forTaskStatus)
+                        .collect(Collectors.toList()));
     }
 
     /**
@@ -390,10 +369,6 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         Map<Long, ConnectionTypePluggableClass> connectionTypePluggableClasses = this.deviceDataModelService.protocolPluggableService().findAllConnectionTypePluggableClasses().stream().collect(Collectors
                 .toMap(ConnectionTypePluggableClass::getId, Function.identity()));
         return this.injectBreakDownsAndAddMissing(statusBreakdown, connectionTypePluggableClasses);
-    }
-
-    private Map<TaskStatus, Long> fetchTaskStatusCounters(ClauseAwareSqlBuilder builder) {
-        return this.deviceDataModelService.fetchTaskStatusCounters(builder);
     }
 
     private Map<TaskStatus, Long> addMissingTaskStatusCounters(Map<TaskStatus, Long> counters) {

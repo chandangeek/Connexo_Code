@@ -6,6 +6,7 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -19,7 +20,7 @@ import java.util.Set;
 class ConnectionTaskDeviceTypeBreakdownSqlBuilder extends ConnectionTaskBreakdownSqlBuilder {
 
     ConnectionTaskDeviceTypeBreakdownSqlBuilder(Set<ServerConnectionTaskStatus> taskStatusses, EndDeviceGroup deviceGroup, ConnectionTaskServiceImpl connectionTaskService) {
-        super("devicetype", taskStatusses, deviceGroup, connectionTaskService);
+        super(Optional.of("devicetype"), taskStatusses, deviceGroup, connectionTaskService);
     }
 
     @Override
