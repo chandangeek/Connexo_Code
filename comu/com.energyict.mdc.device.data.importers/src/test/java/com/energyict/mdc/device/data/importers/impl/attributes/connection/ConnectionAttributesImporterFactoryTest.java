@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
@@ -246,6 +247,32 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
 
         verify(connectionTask).setProperty("attr1", "string");
+        verify(connectionTask, never()).save();
+    }
+
+    @Test
+    public void testConnectionAttributeInvalidValue() throws Exception {
+        String csv = "Device MRID;Connection method name;attr1;attr2;attr3\n" +
+                "VPB0001;Outbound TCP;string;string;string";
+
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDevice("VPB0001");
+        List<PropertySpec> propertySpecs = Arrays.asList(
+                mockPropertySpec("attr1", new StringFactory(), true),
+                mockPropertySpec("attr2", new BigDecimalFactory(), true),
+                mockPropertySpec("attr3", new BooleanFactory(), false));
+        InvalidValueException exception = mock(InvalidValueException.class);
+        doThrow(exception).when(propertySpecs.get(0)).validateValue(any());
+        ConnectionTask connectionTask = mockConnectionTaskWithProperties(false, "Outbound TCP", propertySpecs);
+        when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+
+        createConnectionAttributesImporter().process(importOccurrence);
+
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger).warning(MessageSeeds.CONNECTION_ATTRIBUTE_INVALID_VALUE.getTranslated(thesaurus, 2, "string", "attr1"));
+        verify(logger, never()).severe(Matchers.anyString());
+        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+
         verify(connectionTask, never()).save();
     }
 

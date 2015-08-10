@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl.attributes.security;
 
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.TypedProperties;
@@ -90,10 +91,14 @@ public class SecurityAttributesImportProcessor implements FileImportProcessor<Se
                 value = propertyParser.get().configure(propertiesConverterConfig).convert(value);
             }
             parsedValue = valueFactory.fromStringValue(value);
-            propertySpec.validateValue(parsedValue);
         } catch (Exception e) {
             String expectedFormat = propertyParser.isPresent() ? propertyParser.get().getExpectedFormat(context.getThesaurus()) : valueFactory.getValueType().getName();
             throw new ProcessorException(MessageSeeds.LINE_FORMAT_ERROR, data.getLineNumber(), propertySpec.getName(), expectedFormat);
+        }
+        try {
+            propertySpec.validateValue(parsedValue);
+        } catch (InvalidValueException e) {
+            throw new ProcessorException(MessageSeeds.SECURITY_ATTRIBUTE_INVALID_VALUE, data.getLineNumber(), parsedValue, propertySpec.getName());
         }
         return parsedValue;
     }

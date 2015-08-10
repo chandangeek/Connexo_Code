@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
@@ -248,6 +249,32 @@ public class SecurityAttributesImporterFactoryTest {
 
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.LINE_FORMAT_ERROR.getTranslated(thesaurus, 2, "attr2", "123456789.012"));
+        verify(logger, never()).severe(Matchers.anyString());
+        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+    }
+
+    @Test
+    public void testSecurityAttributeInvalidValue() throws Exception {
+        String csv = "Device MRID;Security settings name;attr1;attr2;attr3\n" +
+                "VPB0001;MD5;string;string;string";
+
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDevice("VPB0001");
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        Set<PropertySpec> propertySpecs = new LinkedHashSet<>(Arrays.asList(
+                mockPropertySpec("attr1", new StringFactory(), true),
+                mockPropertySpec("attr2", new BigDecimalFactory(), true),
+                mockPropertySpec("attr3", new BooleanFactory(), false)));
+        InvalidValueException exception = mock(InvalidValueException.class);
+        doThrow(exception).when(propertySpecs.iterator().next()).validateValue(any());
+        SecurityPropertySet securityPropertySet = mockSecurityPropertySet("MD5", propertySpecs);
+        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
+
+        createSecurityAttributesImporter().process(importOccurrence);
+
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger).warning(MessageSeeds.SECURITY_ATTRIBUTE_INVALID_VALUE.getTranslated(thesaurus, 2, "string", "attr1"));
         verify(logger, never()).severe(Matchers.anyString());
         verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
     }
