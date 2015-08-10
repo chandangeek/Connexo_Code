@@ -17,7 +17,7 @@ Ext.define('Idv.view.MainOverview', {
     content: [
         {
             ui: 'large',
-            title: Uni.I18n.translate('issue.workspace.datavalidation', 'ISU', 'Data validation'),
+            title: Uni.I18n.translate('issue.workspace.datavalidation', 'IDV', 'Data validation'),
             flex: 1
         }
     ]

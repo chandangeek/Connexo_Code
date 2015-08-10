@@ -79,7 +79,7 @@ Ext.define('Idv.controller.Main', {
 
             if (Cfg.privileges.Validation.canView()) {
                 items.push( {
-                    text: Uni.I18n.translate('validation.validationOverview.title', 'DDV', 'Validation overview'),
+                    text: Uni.I18n.translate('validation.validationOverview.title', 'IDV', 'Validation overview'),
                     href: '#/workspace/datavalidationoverview'
                 });
             }

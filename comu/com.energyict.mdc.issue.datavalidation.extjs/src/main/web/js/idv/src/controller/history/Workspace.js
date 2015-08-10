@@ -14,7 +14,7 @@ Ext.define('Idv.controller.history.Workspace', {
             disabled: true,
             items: {
                 datavalidationissues: {
-                    title: Uni.I18n.translate('breadcrumb.datavalidationissues', 'IDC', 'Data validation issues'),
+                    title: Uni.I18n.translate('breadcrumb.datavalidationissues', 'IDV', 'Data validation issues'),
                     route: 'datavalidationissues',
                     controller: 'Idv.controller.Overview',
                     action: 'showOverview',
@@ -57,7 +57,7 @@ Ext.define('Idv.controller.history.Workspace', {
                     }
                 },
                 datavalidationoverview: {
-                    title: Uni.I18n.translate('validation.validationOverview.title', 'DDV', 'Validation overview'),
+                    title: Uni.I18n.translate('validation.validationOverview.title', 'IDV', 'Validation overview'),
                     route: 'datavalidationoverview',
                     controller: 'Ddv.controller.ValidationOverview',
                     action: 'showOverview',

@@ -23,7 +23,7 @@ Ext.define('Idv.view.Preview', {
             {
                 xtype: 'button',
                 itemId: 'data-validation-issues-preview-actions-button',
-                text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
+                text: Uni.I18n.translate('general.actions', 'IDV', 'Actions'),
                 privileges: Ext.Array.merge(Isu.privileges.Issue.adminDevice, Mdc.privileges.Device.viewDeviceCommunication),
                 iconCls: 'x-uni-action-iconD',
                 menu: {
@@ -48,13 +48,13 @@ Ext.define('Idv.view.Preview', {
                 items: [
                     {
                         itemId: 'data-validation-issue-preview-usage-point',
-                        fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'ISU', 'Usage point'),
+                        fieldLabel: Uni.I18n.translate('general.title.usagePoint', 'IDV', 'Usage point'),
                         name: 'usage_point'
                     },
                     {
                         xtype: 'filter-display',
                         itemId: 'data-validation-issue-preview-device',
-                        fieldLabel: Uni.I18n.translate('general.title.device', 'ISU', 'Device'),
+                        fieldLabel: Uni.I18n.translate('general.title.device', 'IDV', 'Device'),
                         name: 'device',
                         renderer: function (value) {
                             var url = '',
@@ -83,7 +83,7 @@ Ext.define('Idv.view.Preview', {
                     {
                         xtype: 'filter-display',
                         itemId: 'data-validation-issue-preview-status',
-                        fieldLabel: Uni.I18n.translate('general.title.status', 'ISU', 'Status'),
+                        fieldLabel: Uni.I18n.translate('general.title.status', 'IDV', 'Status'),
                         name: 'status',
                         renderer: function (value) {
                             return value.name ? value.name : '';
@@ -91,7 +91,7 @@ Ext.define('Idv.view.Preview', {
                     },
                     {
                         itemId: 'data-validation-issue-preview-due-date',
-                        fieldLabel: Uni.I18n.translate('general.title.dueDate', 'ISU', 'Due date'),
+                        fieldLabel: Uni.I18n.translate('general.title.dueDate', 'IDV', 'Due date'),
                         name: 'dueDate',
                         renderer: function (value) {
                             return value ? Uni.DateTime.formatDateShort(value) : '';
@@ -99,7 +99,7 @@ Ext.define('Idv.view.Preview', {
                     },
                     {
                         itemId: 'data-validation-issue-preview-modification-date',
-                        fieldLabel: Uni.I18n.translate('general.title.modificationDate', 'ISU', 'Modification date'),
+                        fieldLabel: Uni.I18n.translate('general.title.modificationDate', 'IDV', 'Modification date'),
                         name: 'modTime',
                         renderer: function (value) {
                             return value ? Uni.DateTime.formatDateShort(value) : '';
@@ -108,15 +108,15 @@ Ext.define('Idv.view.Preview', {
                     {
                         xtype: 'filter-display',
                         itemId: 'data-validation-issue-preview-assignee',
-                        fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
+                        fieldLabel: Uni.I18n.translate('general.title.assignee', 'IDV', 'Assignee'),
                         name: 'assignee',
                         renderer: function (value) {
-                            return value.name ? value.name : Uni.I18n.translate('general.none', 'ISU', 'None');
+                            return value.name ? value.name : Uni.I18n.translate('general.none', 'IDV', 'None');
                         }
                     },
                     {
                         itemId: 'data-validation-issue-preview-creation-date',
-                        fieldLabel: Uni.I18n.translate('general.title.creationDate', 'ISU', 'Creation date'),
+                        fieldLabel: Uni.I18n.translate('general.title.creationDate', 'IDV', 'Creation date'),
                         name: 'creationDate',
                         renderer: function (value) {
                             return value ? Uni.DateTime.formatDateTimeLong(value) : '';
