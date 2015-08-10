@@ -36,10 +36,6 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.data.imp</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
             <artifactId>mdc.device.lifecycle</artifactId>
         </dependency>
         <dependency>

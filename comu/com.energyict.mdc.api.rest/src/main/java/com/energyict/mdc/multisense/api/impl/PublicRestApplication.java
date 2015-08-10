@@ -14,9 +14,9 @@ import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -27,17 +27,18 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Singleton;
+import javax.ws.rs.core.Application;
 import java.time.Clock;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
-import javax.inject.Singleton;
-import javax.ws.rs.core.Application;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.multisense.public.rest",
         service = {Application.class, TranslationKeyProvider.class},
@@ -51,7 +52,7 @@ public class PublicRestApplication extends Application implements TranslationKey
     public static final String COMPONENT_NAME = "DDA";
 
     private volatile DeviceService deviceService;
-    private volatile DeviceImportService deviceImportService;
+    private volatile BatchService batchService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile TopologyService topologyService;
     private volatile IssueService issueService;
@@ -103,8 +104,8 @@ public class PublicRestApplication extends Application implements TranslationKey
     }
 
     @Reference
-    public void setDeviceImportService(DeviceImportService deviceImportService) {
-        this.deviceImportService = deviceImportService;
+    public void setBatchService(BatchService batchService) {
+        this.batchService = batchService;
     }
 
     @Reference
@@ -197,7 +198,7 @@ public class PublicRestApplication extends Application implements TranslationKey
         @Override
         protected void configure() {
             bind(deviceService).to(DeviceService.class);
-            bind(deviceImportService).to(DeviceImportService.class);
+            bind(batchService).to(BatchService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(issueService).to(IssueService.class);
             bind(thesaurus).to(Thesaurus.class);

@@ -32,12 +32,12 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.data.Batch;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.imp.Batch;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -62,6 +62,9 @@ import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TaskService;
+import org.mockito.Mock;
+
+import javax.ws.rs.core.Application;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.Arrays;
@@ -70,12 +73,8 @@ import java.util.Currency;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.core.Application;
-import org.mockito.Mock;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -88,7 +87,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     @Mock
     TopologyService topologyService;
     @Mock
-    DeviceImportService deviceImportService;
+    BatchService batchService;
     @Mock
     DeviceConfigurationService deviceConfigurationService;
     @Mock
@@ -123,7 +122,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setDeviceConfigurationService(deviceConfigurationService);
         application.setDeviceService(deviceService);
         application.setTopologyService(topologyService);
-        application.setDeviceImportService(deviceImportService);
+        application.setBatchService(batchService);
         application.setIssueService(issueService);
         application.setDeviceLifeCycleService(deviceLifeCycleService);
         application.setFiniteStateMachineService(finiteStateMachineService);
@@ -136,7 +135,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return application;
     }
 
-    public ReadingType mockReadingType(String mrid){
+    public ReadingType mockReadingType(String mrid) {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn(mrid);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
@@ -178,7 +177,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         Batch batch = mock(Batch.class);
         when(batch.getName()).thenReturn("BATCH A");
         when(mock.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
-        when(deviceImportService.findBatch(deviceId)).thenReturn(Optional.of(batch));
+        when(batchService.findBatch(mock)).thenReturn(Optional.of(batch));
         when(topologyService.getPhysicalGateway(mock)).thenReturn(Optional.empty());
         when(this.deviceService.findByUniqueMrid(mrid)).thenReturn(Optional.of(mock));
         when(this.deviceService.findAndLockDeviceByIdAndVersion(deviceId, 333L)).thenReturn(Optional.of(mock));
@@ -299,7 +298,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return connectionTask;
     }
 
-    PartialScheduledConnectionTask mockPartialScheduledConnectionTask(long id, String name, PropertySpec ... propertySpecs) {
+    PartialScheduledConnectionTask mockPartialScheduledConnectionTask(long id, String name, PropertySpec... propertySpecs) {
         PartialScheduledConnectionTask partial = mock(PartialScheduledConnectionTask.class);
         ConnectionTypePluggableClass connectionTaskPluggeableClass = mock(ConnectionTypePluggableClass.class);
         when(partial.getPluggableClass()).thenReturn(connectionTaskPluggeableClass);
@@ -358,7 +357,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return mock;
     }
 
-    ComTask mockComTask(long id, String name, ProtocolTask ... protocolTasks) {
+    ComTask mockComTask(long id, String name, ProtocolTask... protocolTasks) {
         ComTask mock = mock(ComTask.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
@@ -371,7 +370,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         DeviceMessageCategory mock = mock(DeviceMessageCategory.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
-        when(mock.getDescription()).thenReturn("Description of "+name);
+        when(mock.getDescription()).thenReturn("Description of " + name);
         when(mock.getMessageSpecifications()).thenReturn(Collections.emptyList());
         when(deviceMessageSpecificationService.findCategoryById(id)).thenReturn(Optional.of(mock));
         return mock;
@@ -389,7 +388,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         DeviceProtocolPluggableClass mock = mock(DeviceProtocolPluggableClass.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
-        when(mock.getJavaClassName()).thenReturn("com.energyict.prot."+name+".class");
+        when(mock.getJavaClassName()).thenReturn("com.energyict.prot." + name + ".class");
         when(mock.getVersion()).thenReturn(version);
         when(protocolPluggableService.findDeviceProtocolPluggableClass(id)).thenReturn(Optional.of(mock));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
@@ -405,7 +404,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         DeviceProtocolPluggableClass mock = mock(DeviceProtocolPluggableClass.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
-        when(mock.getJavaClassName()).thenReturn("com.energyict.prot."+name+".class");
+        when(mock.getJavaClassName()).thenReturn("com.energyict.prot." + name + ".class");
         when(mock.getVersion()).thenReturn(version);
         when(protocolPluggableService.findDeviceProtocolPluggableClass(id)).thenReturn(Optional.of(mock));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
@@ -419,8 +418,8 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     AuthenticationDeviceAccessLevel mockAuthenticationAccessLevel(int id) {
         AuthenticationDeviceAccessLevel mock = mock(AuthenticationDeviceAccessLevel.class);
         when(mock.getId()).thenReturn(id);
-        when(mock.getTranslationKey()).thenReturn("aal"+id);
-        when(thesaurus.getStringBeyondComponent("aal" + id, "aal" + id)).thenReturn("Proper name for "+id);
+        when(mock.getTranslationKey()).thenReturn("aal" + id);
+        when(thesaurus.getStringBeyondComponent("aal" + id, "aal" + id)).thenReturn("Proper name for " + id);
         PropertySpec propertySpec = mockBigDecimalPropertySpec();
         when(mock.getSecurityProperties()).thenReturn(Collections.singletonList(propertySpec));
         return mock;
@@ -429,8 +428,8 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     EncryptionDeviceAccessLevel mockEncryptionAccessLevel(int id) {
         EncryptionDeviceAccessLevel mock = mock(EncryptionDeviceAccessLevel.class);
         when(mock.getId()).thenReturn(id);
-        when(mock.getTranslationKey()).thenReturn("eal"+id);
-        when(thesaurus.getStringBeyondComponent("eal" + id, "eal" + id)).thenReturn("Proper name for "+id);
+        when(mock.getTranslationKey()).thenReturn("eal" + id);
+        when(thesaurus.getStringBeyondComponent("eal" + id, "eal" + id)).thenReturn("Proper name for " + id);
         PropertySpec propertySpec = mockBigDecimalPropertySpec();
         when(mock.getSecurityProperties()).thenReturn(Collections.singletonList(propertySpec));
         return mock;
@@ -446,8 +445,6 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(finder.stream()).thenReturn(list.stream());
         return finder;
     }
-
-
 
 
 }

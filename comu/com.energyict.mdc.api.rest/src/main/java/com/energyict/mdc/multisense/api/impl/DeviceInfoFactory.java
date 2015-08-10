@@ -2,8 +2,8 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
@@ -11,6 +11,11 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
+
+import javax.inject.Inject;
+import javax.ws.rs.core.Link;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
@@ -18,10 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
-import javax.ws.rs.core.Link;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
 
 import static java.util.stream.Collectors.toList;
 
@@ -32,14 +33,14 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
 
     private static final int RECENTLY_ADDED_COUNT = 5;
 
-    private final DeviceImportService deviceImportService;
+    private final BatchService batchService;
     private final TopologyService topologyService;
     private final IssueService issueService;
     private final DeviceLifeCycleService deviceLifeCycleService;
 
     @Inject
-    public DeviceInfoFactory(DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService, DeviceLifeCycleService deviceLifeCycleService) {
-        this.deviceImportService = deviceImportService;
+    public DeviceInfoFactory(BatchService batchService, TopologyService topologyService, IssueService issueService, DeviceLifeCycleService deviceLifeCycleService) {
+        this.batchService = batchService;
         this.topologyService = topologyService;
         this.issueService = issueService;
         this.deviceLifeCycleService = deviceLifeCycleService;
@@ -64,7 +65,7 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
         map.put("serialNumber", (deviceInfo, device, uriInfo) -> deviceInfo.serialNumber = device.getSerialNumber());
         map.put("deviceProtocolPluggeableClassId", (deviceInfo, device, uriInfo) -> deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().getId());
         map.put("yearOfCertification", (deviceInfo, device, uriInfo) -> deviceInfo.yearOfCertification = device.getYearOfCertification());
-        map.put("batch", (deviceInfo, device, uriInfo) -> deviceImportService.findBatch(device.getId()).ifPresent(batch -> deviceInfo.batch = batch.getName()));
+        map.put("batch", (deviceInfo, device, uriInfo) -> batchService.findBatch(device).ifPresent(batch -> deviceInfo.batch = batch.getName()));
         map.put("gatewayType", (deviceInfo, device, uriInfo) -> deviceInfo.gatewayType=device.getConfigurationGatewayType());
         map.put("isDirectlyAddressable", (deviceInfo, device, uriInfo) -> deviceInfo.isDirectlyAddressable = device.getDeviceConfiguration().isDirectlyAddressable());
         map.put("isGateway", (deviceInfo, device, uriInfo) -> deviceInfo.isGateway = device.getDeviceConfiguration().canActAsGateway());
