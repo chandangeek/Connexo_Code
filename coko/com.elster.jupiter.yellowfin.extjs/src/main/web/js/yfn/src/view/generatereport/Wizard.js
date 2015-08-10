@@ -59,7 +59,7 @@ Ext.define('Yfn.view.generatereport.Wizard', {
                 hidden: true
             },
             {
-                text: Uni.I18n.translate('general.cancel', 'IFN', 'Cancel'),
+                text: Uni.I18n.translate('general.cancel', 'YFN', 'Cancel'),
                 ui: 'link',
                 action: 'cancel',
                 itemId: 'wizardCancelButton',

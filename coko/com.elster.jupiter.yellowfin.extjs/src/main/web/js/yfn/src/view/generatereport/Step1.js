@@ -11,14 +11,14 @@ Ext.define('Yfn.view.generatereport.Step1', {
 
     ],
 
-    title: Uni.I18n.translate('generatereport.wizard.step1title', 'MDC', 'Step 1 of 3: Select report type'),
+    title: Uni.I18n.translate('generatereport.wizard.step1title', 'YFN', 'Step 1 of 3: Select report type'),
 
     items: [
         {
             itemId: 'step1-generatereport-errors',
             xtype: 'uni-form-error-message',
             hidden: true,
-            text: Uni.I18n.translate('generatereport.noReportPrompts', 'MDC', 'Please select at least one report.')
+            text: Uni.I18n.translate('generatereport.noReportPrompts', 'YFN', 'Please select at least one report.')
         },
         {
             xtype: 'form',
