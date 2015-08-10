@@ -36,7 +36,7 @@ Ext.define('Uni.form.field.Password', {
             this.items[1] = (
                 {
                     xtype: 'checkbox',
-                    boxLabel: Uni.I18n.translate('comServerComPorts.form.showChar', 'MDC', 'Show characters')
+                    boxLabel: Uni.I18n.translate('comServerComPorts.form.showChar', 'UNI', 'Show characters')
                 }
             )
             this.items[1].handler = this.handler;
