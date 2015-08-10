@@ -51,12 +51,12 @@ Ext.define('Sam.controller.Main', {
 
             if (Sam.privileges.License.canView()) {
                 var licensingItem = Ext.create('Uni.model.PortalItem', {
-                    title: Uni.I18n.translate('general.licenses', 'SAM', 'Licensing'),
+                    title: Uni.I18n.translate('general.licensing', 'SAM', 'Licensing'),
                     portal: 'administration',
                     route: 'licensing',
                     items: [
                         {
-                            text: Uni.I18n.translate('general.licenses', 'MDC', 'Licenses'),
+                            text: Uni.I18n.translate('general.licenses', 'SAM', 'Licenses'),
                             href: router.getRoute('administration/licenses').buildUrl(),
                             route: 'licenses'
                         }
