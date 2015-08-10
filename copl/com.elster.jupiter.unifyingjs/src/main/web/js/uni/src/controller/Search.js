@@ -406,13 +406,13 @@ Ext.define('Uni.controller.Search', {
                 if (!Ext.isEmpty(value)) {
                     item.setDisabled(false);
                     if (item.store) {
-                        item.getStore().clearFilter(true);
-                        item.getStore().filter(widget.getFilter());
+                        item.store.clearFilter(true);
+                        item.store.filter(widget.getFilter());
                     }
                 } else {
                     item.setDisabled(true);
                     if (item.store) {
-                        item.getStore().clearFilter();
+                        item.store.clearFilter();
                     }
                 }
             });
@@ -600,8 +600,8 @@ Ext.define('Uni.controller.Search', {
             //        emptyText: displayValue
             //}
         widget = Ext.isString(widgetConfig)
-            ? Ext.widget(Ext.apply({xtype: widgetConfig}, config))
-            : Ext.create(Ext.apply(widgetConfig, config));
+            ? Ext.widget(Ext.apply(config, {xtype: widgetConfig}))
+            : Ext.widget(Ext.apply(config, widgetConfig));
 
         if (removable) {
             widget = Ext.create('Uni.view.search.field.internal.Adapter', {

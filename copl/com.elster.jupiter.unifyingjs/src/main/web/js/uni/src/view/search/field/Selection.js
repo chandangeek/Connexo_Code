@@ -14,11 +14,11 @@ Ext.define('Uni.view.search.field.Selection', {
 
     xtype: 'search-combo',
 
-    //getDisplayValue: function () {
-    //    return this.rendered && this.getPicker().selection.length
-    //        ? this.getPicker().selection.length + ' selected'
-    //        : null;
-    //},
+    updateButtonText: function () {
+        return this.selection.length
+            ? this.setText(this.emptyText + '&nbsp;(' + this.selection.length + ')')
+            : this.setText(this.emptyText);
+    },
 
     store: null,
     menuConfig: {
@@ -251,6 +251,7 @@ Ext.define('Uni.view.search.field.Selection', {
             displayField: me.displayField,
             focusOnToFront: false,
             pageSize: me.pageSize,
+            maxHeight: 300,
             style: {
                 border: 'none'
             },

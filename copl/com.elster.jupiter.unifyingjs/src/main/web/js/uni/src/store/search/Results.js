@@ -10,6 +10,7 @@ Ext.define('Uni.store.search.Results', {
     remoteFilter: true,
 
     proxy: {
+        timeout: 9999999,
         type: 'ajax',
         reader: {
             type: 'json',
