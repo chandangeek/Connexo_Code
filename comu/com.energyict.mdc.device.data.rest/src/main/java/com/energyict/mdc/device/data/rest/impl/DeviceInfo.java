@@ -11,10 +11,9 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
-import com.energyict.mdc.device.data.CIMLifecycleDates;
+import com.energyict.mdc.device.data.Batch;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.imp.Batch;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
@@ -23,10 +22,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -62,7 +59,7 @@ public class DeviceInfo {
     public DeviceInfo() {
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, DeviceImportService deviceImportService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, Thesaurus thesaurus) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, Thesaurus thesaurus) {
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
         deviceInfo.mRID = device.getmRID();
@@ -73,11 +70,8 @@ public class DeviceInfo {
         deviceInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
         deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().getId();
         deviceInfo.yearOfCertification = device.getYearOfCertification();
+        deviceInfo.batch = batchService.findBatch(device).map(Batch::getName).orElse(null);
 
-        Optional<Batch> optionalBatch = deviceImportService.findBatch(device.getId());
-        if (optionalBatch.isPresent()) {
-            deviceInfo.batch = optionalBatch.get().getName();
-        }
         Optional<Device> physicalGateway = topologyService.getPhysicalGateway(device);
         if (physicalGateway.isPresent()) {
             deviceInfo.masterDeviceId = physicalGateway.get().getId();
