@@ -47,9 +47,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE(110, "ReadingImportIsNotAllowedForDecommissionedDevices", "Error in line {0}: Readings import is not allowed for device {1} since it is decommissioned.", Level.WARNING),
 
     NO_CONNECTION_METHOD_ON_DEVICE(201, "NoSuchConnectionMethodOnDevice", "Error in line {0}: Connection method {1} is not supported on the device.", Level.WARNING),
-    CONNECTION_ATTRIBUTES_NOT_CREATED(202, "ConnectionAttributesNotCreated", "Error in line {0}: Connection attributes are not created on the device {1}.", Level.WARNING),
-    CONNECTION_METHOD_IS_NOT_UNIQUE_IN_FILE(203, "ConnectionMethodIsNotUniqueInFile", "Failure in line {0}: Connection method name is not unique in the file.", Level.SEVERE),
-    REQUIRED_CONNECTION_ATTRIBUTES_MISSED(204, "RequiredConnectionAttributesMissed", "Warning for line {0}: Next required attribute(s) is(are) missed: {1}. The state of the connection method is \"Incomplete\".", Level.INFO),
+    CONNECTION_METHOD_IS_NOT_UNIQUE_IN_FILE(202, "ConnectionMethodIsNotUniqueInFile", "Failure in line {0}: Connection method name is not unique in the file.", Level.SEVERE),
+    REQUIRED_CONNECTION_ATTRIBUTES_MISSED(203, "RequiredConnectionAttributesMissed", "Warning for line {0}: Next required attribute(s) is(are) missed: {1}. The state of the connection method is \"Incomplete\".", Level.INFO),
+    CONNECTION_METHOD_NOT_CREATED(204, "ConnectionMethodNotCreated", "Error in line {0}: Connection method {1} could not be created on the device {2}. Reasons: {3}", Level.WARNING),
 
     NO_SECURITY_SETTINGS_ON_DEVICE(301, "NoSuchSecuritySettingsOnDevice", "Error in line {0}: Security settings with name {1} is not available on the device.", Level.WARNING),
     SECURITY_ATTRIBUTES_NOT_SET(302, "SecurityAttributesNotCreated", "Error in line {0}: Security attributes are not set on the device {1}.", Level.WARNING),

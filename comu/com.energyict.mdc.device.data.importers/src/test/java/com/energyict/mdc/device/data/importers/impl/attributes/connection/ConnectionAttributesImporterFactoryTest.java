@@ -32,13 +32,17 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
@@ -296,7 +300,7 @@ public class ConnectionAttributesImporterFactoryTest {
         when(device.getScheduledConnectionTaskBuilder(partialConnectionTask)).thenReturn(builder);
         when(builder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)).thenThrow(RuntimeException.class);
         when(builder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE)).thenReturn(builder);
-        ScheduledConnectionTask connectionTask = (ScheduledConnectionTask)mockConnectionTaskWithProperties(false, "Outbound TCP", propertySpecs);
+        ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) mockConnectionTaskWithProperties(false, "Outbound TCP", propertySpecs);
         when(builder.add()).thenReturn(connectionTask);
         when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         TypedProperties typedProperties = connectionTask.getTypedProperties();
@@ -311,6 +315,35 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN.getTranslated(thesaurus, 1, 1));
 
         verify(builder).add();
+    }
+
+    @Test
+    public void testCreateNewConnectionMethodOutboundCanNotBeCreated() {
+        String csv = "Device MRID;Connection method name;attr1;attr2;attr3\n" +
+                "VPB0001;Outbound TCP;string;100.25;1";
+
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDevice("VPB0001");
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        List<PropertySpec> propertySpecs = Arrays.asList(
+                mockPropertySpec("attr1", new StringFactory(), true),
+                mockPropertySpec("attr2", new BigDecimalFactory(), true),
+                mockPropertySpec("attr3", new BooleanFactory(), false));
+        PartialOutboundConnectionTask partialConnectionTask = (PartialOutboundConnectionTask) mockPartialConnectionTaskWithProperties(false, "Outbound TCP", propertySpecs);
+        when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask));
+        Device.ScheduledConnectionTaskBuilder builder = mock(Device.ScheduledConnectionTaskBuilder.class);
+        when(device.getScheduledConnectionTaskBuilder(partialConnectionTask)).thenReturn(builder);
+        ConstraintViolationException constraintViolationException = mockConstraintViolationException();
+        when(builder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)).thenThrow(constraintViolationException);
+        when(builder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE)).thenThrow(constraintViolationException);
+
+        createConnectionAttributesImporter().process(importOccurrence);
+
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger).warning(MessageSeeds.CONNECTION_METHOD_NOT_CREATED.getTranslated(thesaurus, 2, "Outbound TCP", "VPB0001", "constraint violation"));
+        verify(logger, never()).severe(Matchers.anyString());
+        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
     }
 
     @Test
@@ -361,7 +394,7 @@ public class ConnectionAttributesImporterFactoryTest {
         when(device.getInboundConnectionTaskBuilder(partialConnectionTask)).thenReturn(builder);
         when(builder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)).thenThrow(RuntimeException.class);
         when(builder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE)).thenReturn(builder);
-        InboundConnectionTask connectionTask = (InboundConnectionTask)mockConnectionTaskWithProperties(true, "Outbound TCP", propertySpecs);
+        InboundConnectionTask connectionTask = (InboundConnectionTask) mockConnectionTaskWithProperties(true, "Outbound TCP", propertySpecs);
         when(builder.add()).thenReturn(connectionTask);
         when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         TypedProperties typedProperties = connectionTask.getTypedProperties();
@@ -376,6 +409,45 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN.getTranslated(thesaurus, 1, 1));
 
         verify(builder).add();
+    }
+
+    @Test
+    public void testCreateNewConnectionMethodInboundCanNotBeCreated() {
+        String csv = "Device MRID;Connection method name;attr1;attr2;attr3\n" +
+                "VPB0001;Outbound TCP;string;100.25;1";
+
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDevice("VPB0001");
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        List<PropertySpec> propertySpecs = Arrays.asList(
+                mockPropertySpec("attr1", new StringFactory(), true),
+                mockPropertySpec("attr2", new BigDecimalFactory(), true),
+                mockPropertySpec("attr3", new BooleanFactory(), false));
+        PartialInboundConnectionTask partialConnectionTask = (PartialInboundConnectionTask) mockPartialConnectionTaskWithProperties(true, "Outbound TCP", propertySpecs);
+        when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask));
+        Device.InboundConnectionTaskBuilder builder = mock(Device.InboundConnectionTaskBuilder.class);
+        when(device.getInboundConnectionTaskBuilder(partialConnectionTask)).thenReturn(builder);
+        ConstraintViolationException constraintViolationException = mockConstraintViolationException();
+        when(builder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)).thenThrow(constraintViolationException);
+        when(builder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE)).thenThrow(constraintViolationException);
+
+        createConnectionAttributesImporter().process(importOccurrence);
+
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger).warning(MessageSeeds.CONNECTION_METHOD_NOT_CREATED.getTranslated(thesaurus, 2, "Outbound TCP", "VPB0001", "constraint violation"));
+        verify(logger, never()).severe(Matchers.anyString());
+        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+    }
+
+    private ConstraintViolationException mockConstraintViolationException() {
+        ConstraintViolationException constraintViolationException = mock(ConstraintViolationException.class);
+        Set<ConstraintViolation> violations = new HashSet<>();
+        ConstraintViolation violation = mock(ConstraintViolation.class);
+        when(violation.getMessage()).thenReturn("constraint violation");
+        violations.add(violation);
+        doReturn(violations).when(constraintViolationException).getConstraintViolations();
+        return constraintViolationException;
     }
 
     private Device mockDevice(String mRID) {

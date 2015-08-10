@@ -11,14 +11,16 @@ import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.FileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 import com.energyict.mdc.device.data.importers.impl.attributes.DynamicPropertyConverter;
 import com.energyict.mdc.device.data.importers.impl.attributes.DynamicPropertyConverter.PropertiesConverterConfig;
+import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -113,8 +115,10 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
             try {
                 InboundConnectionTask connectionTask = inboundConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
                 logMissingPropertiesIfIncomplete(connectionTask, data, logger);
+            } catch (ConstraintViolationException ex) {
+                throw new ProcessorException(MessageSeeds.CONNECTION_METHOD_NOT_CREATED, data.getLineNumber(), data.getConnectionMethod(), device.getmRID(), buildConstraintViolationCause(ex));
             } catch (Exception ex) {
-                throw new ProcessorException(MessageSeeds.CONNECTION_ATTRIBUTES_NOT_CREATED, data.getLineNumber(), device.getmRID());
+                throw new ProcessorException(MessageSeeds.CONNECTION_METHOD_NOT_CREATED, data.getLineNumber(), data.getConnectionMethod(), device.getmRID(), ex.getLocalizedMessage());
             }
         }
     }
@@ -128,9 +132,15 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
             try {
                 ScheduledConnectionTask connectionTask = scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
                 logMissingPropertiesIfIncomplete(connectionTask, data, logger);
+            } catch (ConstraintViolationException ex) {
+                throw new ProcessorException(MessageSeeds.CONNECTION_METHOD_NOT_CREATED, data.getLineNumber(), data.getConnectionMethod(), device.getmRID(), buildConstraintViolationCause(ex));
             } catch (Exception ex) {
-                throw new ProcessorException(MessageSeeds.CONNECTION_ATTRIBUTES_NOT_CREATED, data.getLineNumber(), device.getmRID());
+                throw new ProcessorException(MessageSeeds.CONNECTION_METHOD_NOT_CREATED, data.getLineNumber(), data.getConnectionMethod(), device.getmRID(), ex.getLocalizedMessage());
             }
         }
+    }
+
+    private String buildConstraintViolationCause(ConstraintViolationException exception) {
+        return exception.getConstraintViolations().stream().map(ConstraintViolation::getMessage).collect(Collectors.joining("; "));
     }
 }
