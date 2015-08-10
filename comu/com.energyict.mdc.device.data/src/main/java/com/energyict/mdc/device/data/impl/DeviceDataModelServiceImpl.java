@@ -478,7 +478,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     private void install(boolean exeuteDdl) {
-        new Installer(this.dataModel, this.eventService, messagingService, this.userService, thesaurus).install(exeuteDdl);
+        new Installer(this.dataModel, this.eventService, messagingService, thesaurus).install(exeuteDdl);
     }
 
     @Override

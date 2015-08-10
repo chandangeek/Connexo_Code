@@ -17,6 +17,7 @@ import com.energyict.mdc.device.data.impl.events.ComTaskEnablementPriorityMessag
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
+import com.energyict.mdc.scheduling.SchedulingService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,15 +49,13 @@ public class Installer {
     private final DataModel dataModel;
     private final EventService eventService;
     private final MessageService messageService;
-    private final UserService userService;
     private final Thesaurus thesaurus;
 
-    public Installer(DataModel dataModel, EventService eventService, MessageService messageService, UserService userService, Thesaurus thesaurus) {
+    public Installer(DataModel dataModel, EventService eventService, MessageService messageService, Thesaurus thesaurus) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.messageService = messageService;
-        this.userService = userService;
         this.thesaurus = thesaurus;
     }
 
@@ -87,6 +86,8 @@ public class Installer {
         addTranslation(DeviceDataServices.COMPONENT_NAME, ConnectionTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME);
         addTranslation(DeviceDataServices.COMPONENT_NAME, ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_SUBSCRIBER, ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_DISPLAY_NAME);
         addTranslation(DeviceDataServices.COMPONENT_NAME, ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_SUBSCRIBER, ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_DISPLAY_NAME);
+        addTranslation(DeviceDataServices.COMPONENT_NAME, SchedulingService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, SchedulingService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME);
+        addTranslation(DeviceDataServices.COMPONENT_NAME, SchedulingService.COM_SCHEDULER_QUEUE_SUBSCRIBER, SchedulingService.COM_SCHEDULER_QUEUE_DISPLAYNAME);
     }
 
     private void addJupiterEventSubscribers() {
@@ -127,6 +128,8 @@ public class Installer {
             this.createMessageHandler(defaultQueueTableSpec, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_SUBSCRIBER);
             this.createMessageHandler(defaultQueueTableSpec, DataCollectionKpiCalculatorHandlerFactory.TASK_DESTINATION, DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER);
             this.createMessageHandler(defaultQueueTableSpec, ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_DESTINATION, ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER);
+            this.createMessageHandler(defaultQueueTableSpec, SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION, SchedulingService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER);
+            this.createMessageHandler(defaultQueueTableSpec, SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SchedulingService.COM_SCHEDULER_QUEUE_SUBSCRIBER);
         } catch (Exception e) {
             LOGGER.severe(e.getMessage());
         }
