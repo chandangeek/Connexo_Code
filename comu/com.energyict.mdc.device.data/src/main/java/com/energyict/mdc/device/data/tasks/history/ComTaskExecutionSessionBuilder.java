@@ -22,4 +22,6 @@ public interface ComTaskExecutionSessionBuilder extends BuildsStatistics<ComTask
 
     ComTaskExecutionSessionBuilder addComTaskExecutionMessageJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, String errorDesciption);
 
+    void updateSuccessIndicator(ComTaskExecutionSession.SuccessIndicator successIndicator);
+
 }
