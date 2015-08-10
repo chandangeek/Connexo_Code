@@ -65,7 +65,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetVersionsGrid', {
                 dock: 'top'/*,
                 items: [
                     {
-                        text: Uni.I18n.translate('validation.addVersion', 'CFG', 'Add version'),
+                        text: Uni.I18n.translate('validation.addVersion', 'MDC', 'Add version'),
                         privileges: Cfg.privileges.Validation.admin,
                         itemId: 'newVersion',
                         xtype: 'button',
