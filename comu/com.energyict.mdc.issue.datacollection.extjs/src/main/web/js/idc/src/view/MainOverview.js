@@ -17,7 +17,7 @@ Ext.define('Idc.view.MainOverview', {
     content: [
         {
             ui: 'large',
-            title: Uni.I18n.translate('issue.workspace.datacollection', 'ISU', 'Data collection'),
+            title: Uni.I18n.translate('issue.workspace.datacollection', 'IDC', 'Data collection'),
             flex: 1
         }
     ]

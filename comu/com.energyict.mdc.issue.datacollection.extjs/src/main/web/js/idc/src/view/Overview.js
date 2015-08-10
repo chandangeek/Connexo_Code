@@ -19,7 +19,7 @@ Ext.define('Idc.view.Overview', {
 
         me.content = [
             {
-                title: Uni.I18n.translate('workspace.issues.title', 'ISU', 'Issues'),
+                title: Uni.I18n.translate('workspace.issues.title', 'IDC', 'Issues'),
                 ui: 'large',
                 items: [
                     {
