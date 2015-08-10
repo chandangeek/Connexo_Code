@@ -144,7 +144,7 @@ Ext.define('Dsh.controller.Connections', {
 
         if (record.get('sessionId') !== 0) {
             menuItems.push({
-                text: Ext.String.format(Uni.I18n.translate('connection.widget.details.menuItem', 'MDC', 'View \'{0}\' log'), record.get('comTask').name),
+                text: Ext.String.format(Uni.I18n.translate('connection.widget.details.menuItem', 'DSH', 'View \'{0}\' log'), record.get('comTask').name),
                 action: {
                     action: 'viewlog',
                     comTask: {
@@ -263,7 +263,7 @@ Ext.define('Dsh.controller.Connections', {
         var me = this;
 
         record.run(function () {
-            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connection.run.now', 'MDC', 'Run succeeded'));
+            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connection.run.now', 'DSH', 'Run succeeded'));
             record.set('nextExecution', new Date());
             me.showOverview();
         });

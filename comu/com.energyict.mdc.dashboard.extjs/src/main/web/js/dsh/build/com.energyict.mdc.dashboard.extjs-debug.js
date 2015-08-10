@@ -1836,7 +1836,7 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                         xtype: 'button',
                         itemId: 'generate-report',
                         hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.reports']),
-                        text: Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
+                        text: Uni.I18n.translate('generatereport.generateReportButton', 'DSH', 'Generate report')
                     }
                 ]
             },
@@ -1865,7 +1865,7 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'ISE', 'Actions'),
+            text: Uni.I18n.translate('general.actions', 'DSH', 'Actions'),
             iconCls: 'x-uni-action-iconD',
             itemId: 'communicationPreviewActionMenu',
             menu: {
@@ -2386,7 +2386,7 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
         {
             xtype: 'button',
             itemId: 'connectionsPreviewActionBtn',
-            text: Uni.I18n.translate('general.actions', 'ISE', 'Actions'),
+            text: Uni.I18n.translate('general.actions', 'DSH', 'Actions'),
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'connection-action-menu',
@@ -3088,7 +3088,7 @@ Ext.define('Dsh.controller.Communications', {
         Ext.each(record.get('comTasks'), function (item) {
             if (record.get('sessionId') !== 0) {
                 menuItems.push({
-                    text: Ext.String.format(Uni.I18n.translate('connection.widget.details.menuItem', 'MDC', 'View \'{0}\' log'), item.name),
+                    text: Ext.String.format(Uni.I18n.translate('connection.widget.details.menuItem', 'DSH', 'View \'{0}\' log'), item.name),
                     action: {
                         action: 'viewlog',
                         comTask: {
@@ -3107,7 +3107,7 @@ Ext.define('Dsh.controller.Communications', {
         if (record.get('connectionTask').connectionStrategy && record.get('connectionTask').connectionStrategy.id) {
             if (record.get('connectionTask').connectionStrategy.id === 'minimizeConnections') {
                 menuItems.push({
-                    text: Uni.I18n.translate('connection.widget.details.menuItem.run', 'MDC', 'Run'),
+                    text: Uni.I18n.translate('connection.widget.details.menuItem.run', 'DSH', 'Run'),
                     action: {
                         action: 'run',
                         record: record,
@@ -3120,7 +3120,7 @@ Ext.define('Dsh.controller.Communications', {
             }
 
             menuItems.push({
-                text: Uni.I18n.translate('connection.widget.details.menuItem.runNow', 'MDC', 'Run now'),
+                text: Uni.I18n.translate('connection.widget.details.menuItem.runNow', 'DSH', 'Run now'),
                 action: {
                     action: 'runNow',
                     record: record,
@@ -3134,7 +3134,7 @@ Ext.define('Dsh.controller.Communications', {
         }
 
         var connectionMenuItem = {
-            text: Uni.I18n.translate('connection.widget.details.connectionMenuItem', 'MDC', 'View connection log'),
+            text: Uni.I18n.translate('connection.widget.details.connectionMenuItem', 'DSH', 'View connection log'),
             action: {
                 action: 'viewlog',
                 connection: {
@@ -3245,7 +3245,7 @@ Ext.define('Dsh.controller.Communications', {
         var record = item.action.record;
         record.run(function () {
             me.getApplication().fireEvent('acknowledge',
-                Uni.I18n.translate('device.communication.run.wait', 'MDC', 'Run succeeded')
+                Uni.I18n.translate('device.communication.run.wait', 'DSH', 'Run succeeded')
             );
             record.set('plannedDate', new Date());
             me.showOverview();
@@ -3257,7 +3257,7 @@ Ext.define('Dsh.controller.Communications', {
         var record = item.action.record;
         record.run(function () {
             me.getApplication().fireEvent('acknowledge',
-                Uni.I18n.translate('device.communication.run.now', 'MDC', 'Run now succeeded')
+                Uni.I18n.translate('device.communication.run.now', 'DSH', 'Run now succeeded')
             );
             record.set('plannedDate', new Date());
             me.showOverview();
@@ -3701,7 +3701,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
                     xtype: 'button',
                     itemId: 'generate-report',
                     hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.reports']),
-                    text: Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
+                    text: Uni.I18n.translate('generatereport.generateReportButton', 'DSH', 'Generate report')
                 }
             ]
         },
@@ -4024,7 +4024,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
                         xtype: 'button',
                         itemId: 'generate-report',
                         hidden: !Uni.Auth.hasAnyPrivilege(['privilege.view.reports']),
-                        text: Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
+                        text: Uni.I18n.translate('generatereport.generateReportButton', 'DSH', 'Generate report')
                     }
                 ]
             },
@@ -4053,7 +4053,7 @@ Ext.define('Dsh.view.widget.connection.PreviewCommunication', {
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'ISE', 'Actions'),
+            text: Uni.I18n.translate('general.actions', 'DSH', 'Actions'),
             iconCls: 'x-uni-action-iconD',
             itemId: 'communicationPreviewActionMenu',
             menu: {
@@ -4548,7 +4548,7 @@ Ext.define('Dsh.controller.Connections', {
 
         if (record.get('sessionId') !== 0) {
             menuItems.push({
-                text: Ext.String.format(Uni.I18n.translate('connection.widget.details.menuItem', 'MDC', 'View \'{0}\' log'), record.get('comTask').name),
+                text: Ext.String.format(Uni.I18n.translate('connection.widget.details.menuItem', 'DSH', 'View \'{0}\' log'), record.get('comTask').name),
                 action: {
                     action: 'viewlog',
                     comTask: {
@@ -4666,7 +4666,7 @@ Ext.define('Dsh.controller.Connections', {
         var me = this;
         record.run(function () {
             me.getApplication().fireEvent('acknowledge',
-                Uni.I18n.translate('connection.run.now', 'MDC', 'Run succeeded')
+                Uni.I18n.translate('connection.run.now', 'DSH', 'Run succeeded')
             );
             record.set('nextExecution', new Date());
             me.showOverview();

@@ -105,7 +105,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
                         xtype:'button',
                         itemId:'generate-report',
                         privileges: Yfn.privileges.Yellowfin.view,
-                        text:Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
+                        text:Uni.I18n.translate('generatereport.generateReportButton', 'DSH', 'Generate report')
                     }
                 ]
             },

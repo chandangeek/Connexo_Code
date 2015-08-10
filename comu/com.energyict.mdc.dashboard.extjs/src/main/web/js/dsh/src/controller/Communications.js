@@ -153,7 +153,7 @@ Ext.define('Dsh.controller.Communications', {
         Ext.each(record.get('comTasks'), function (item) {
             if (record.get('sessionId') !== 0) {
                 menuItems.push({
-                    text: Ext.String.format(Uni.I18n.translate('connection.widget.details.menuItem', 'MDC', 'View \'{0}\' log'), item.name),
+                    text: Ext.String.format(Uni.I18n.translate('connection.widget.details.menuItem', 'DSH', 'View \'{0}\' log'), item.name),
                     action: {
                         action: 'viewlog',
                         comTask: {
@@ -172,7 +172,7 @@ Ext.define('Dsh.controller.Communications', {
         if (record.get('connectionTask').connectionStrategy && record.get('connectionTask').connectionStrategy.id) {
             if (record.get('connectionTask').connectionStrategy.id === 'minimizeConnections') {
                 menuItems.push({
-                    text: Uni.I18n.translate('connection.widget.details.menuItem.run', 'MDC', 'Run'),
+                    text: Uni.I18n.translate('connection.widget.details.menuItem.run', 'DSH', 'Run'),
                     action: {
                         action: 'run',
                         record: record,
@@ -185,7 +185,7 @@ Ext.define('Dsh.controller.Communications', {
             }
 
             menuItems.push({
-                text: Uni.I18n.translate('connection.widget.details.menuItem.runNow', 'MDC', 'Run now'),
+                text: Uni.I18n.translate('connection.widget.details.menuItem.runNow', 'DSH', 'Run now'),
                 action: {
                     action: 'runNow',
                     record: record,
@@ -199,7 +199,7 @@ Ext.define('Dsh.controller.Communications', {
         }
 
         var connectionMenuItem = {
-            text: Uni.I18n.translate('connection.widget.details.connectionMenuItem', 'MDC', 'View connection log'),
+            text: Uni.I18n.translate('connection.widget.details.connectionMenuItem', 'DSH', 'View connection log'),
             action: {
                 action: 'viewlog',
                 connection: {
@@ -316,7 +316,7 @@ Ext.define('Dsh.controller.Communications', {
         var record = item.action.record;
         record.run(function () {
             me.getApplication().fireEvent('acknowledge',
-                Uni.I18n.translate('device.communication.run.wait', 'MDC', 'Run succeeded')
+                Uni.I18n.translate('device.communication.run.wait', 'DSH', 'Run succeeded')
             );
             record.set('plannedDate', new Date());
             me.showOverview();
@@ -328,7 +328,7 @@ Ext.define('Dsh.controller.Communications', {
         var record = item.action.record;
         record.run(function () {
             me.getApplication().fireEvent('acknowledge',
-                Uni.I18n.translate('device.communication.run.now', 'MDC', 'Run now succeeded')
+                Uni.I18n.translate('device.communication.run.now', 'DSH', 'Run now succeeded')
             );
             record.set('plannedDate', new Date());
             me.showOverview();
