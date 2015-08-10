@@ -103,7 +103,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                                 formatPreviewTextFn: function (dateString) {
                                     return Uni.I18n.translate(
                                         'relativePeriod.form.start.previewText',
-                                        'UNI',
+                                        'TME',
                                         'The start date of the relative period is {0}.',
                                         [dateString]
                                     );
@@ -127,7 +127,7 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                                 formatPreviewTextFn: function (dateString) {
                                     return Uni.I18n.translate(
                                         'relativePeriod.form.end.previewText',
-                                        'UNI',
+                                        'TME',
                                         'The end date of the relative period is {0}.',
                                         [dateString]
                                     );
@@ -150,13 +150,13 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                                     {
                                         xtype: 'button',
                                         itemId: 'create-edit-button',
-                                        text: Uni.I18n.translate('general.add', 'DXP', 'Add'),
+                                        text: Uni.I18n.translate('general.add', 'TME', 'Add'),
                                         ui: 'action'
                                     },
                                     {
                                         xtype: 'button',
                                         itemId: 'cancel-link',
-                                        text: Uni.I18n.translate('general.cancel', 'DXP', 'Cancel'),
+                                        text: Uni.I18n.translate('general.cancel', 'TME', 'Cancel'),
                                         ui: 'link',
                                         href: '#/administration/dataexporttasks/add'
                                     }
@@ -216,28 +216,28 @@ Ext.define('Tme.view.relativeperiod.Edit', {
                 var intervalsComboEnd = me.getEndRelativePeriodField().down('uni-form-field-startperiod #period-interval');
                 var intervalsRecordStart = intervalsComboStart.findRecord(intervalsComboStart.valueField, 'weeks');
                 var intervalsRecordEnd = intervalsComboEnd.findRecord(intervalsComboEnd.valueField, 'weeks');
-                var startsOn = Uni.I18n.translate('period.weeks.startsOn', 'UNI', 'week(s) (starts on') + ' ';
+                var startsOn = Uni.I18n.translate('period.weeks.startsOn', 'TME', 'week(s) (starts on') + ' ';
                 switch (dayNumber) {
                     case 1:
-                        startsOn = startsOn + Uni.I18n.translate('general.day.monday', 'UNI', 'Monday') + ')';
+                        startsOn = startsOn + Uni.I18n.translate('general.day.monday', 'TME', 'Monday') + ')';
                         break;
                     case 2:
-                        startsOn = startsOn + Uni.I18n.translate('general.day.tuesday', 'UNI', 'Tuesday') + ')';
+                        startsOn = startsOn + Uni.I18n.translate('general.day.tuesday', 'TME', 'Tuesday') + ')';
                         break;
                     case 3:
-                        startsOn = startsOn + Uni.I18n.translate('general.day.wednesday', 'UNI', 'Wednesday') + ')';
+                        startsOn = startsOn + Uni.I18n.translate('general.day.wednesday', 'TME', 'Wednesday') + ')';
                         break;
                     case 4:
-                        startsOn = startsOn + Uni.I18n.translate('general.day.thursday', 'UNI', 'Thursday') + ')';
+                        startsOn = startsOn + Uni.I18n.translate('general.day.thursday', 'TME', 'Thursday') + ')';
                         break;
                     case 5:
-                        startsOn = startsOn + Uni.I18n.translate('general.day.friday', 'UNI', 'Friday') + ')';
+                        startsOn = startsOn + Uni.I18n.translate('general.day.friday', 'TME', 'Friday') + ')';
                         break;
                     case 6:
-                        startsOn = startsOn + Uni.I18n.translate('general.day.saturday', 'UNI', 'Saturday') + ')';
+                        startsOn = startsOn + Uni.I18n.translate('general.day.saturday', 'TME', 'Saturday') + ')';
                         break;
                     case 7:
-                        startsOn = startsOn + Uni.I18n.translate('general.day.sunday', 'UNI', 'Sunday') + ')';
+                        startsOn = startsOn + Uni.I18n.translate('general.day.sunday', 'TME', 'Sunday') + ')';
                         break;
                 }
                 intervalsRecordStart.set('name', startsOn);

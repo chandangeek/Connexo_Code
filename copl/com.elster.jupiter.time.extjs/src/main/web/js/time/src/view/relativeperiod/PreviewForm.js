@@ -36,7 +36,7 @@ Ext.define('Tme.view.relativeperiod.PreviewForm', {
 
     constructString: function (value) {
         var str = '',
-            hoursMinutes = (value.atHour ? value.atHour : '00') + ' ' + Uni.I18n.translate('period.hours', 'UNI', 'hour(s)') + ' ' + (value.atMinute ? value.atMinute : '00') + ' ' + Uni.I18n.translate('period.minutes', 'UNI', 'minute(s)');
+            hoursMinutes = (value.atHour ? value.atHour : '00') + ' ' + Uni.I18n.translate('period.hours', 'TME', 'hour(s)') + ' ' + (value.atMinute ? value.atMinute : '00') + ' ' + Uni.I18n.translate('period.minutes', 'TME', 'minute(s)');
 
         if (value.startNow) {
             str += Uni.I18n.translate('general.Now', 'TME', 'Now') + ' ' + Uni.I18n.translate('general.at', 'TME', 'at') + ' ' + hoursMinutes;
@@ -51,28 +51,28 @@ Ext.define('Tme.view.relativeperiod.PreviewForm', {
 
             switch (value.startPeriodAgo) {
                 case 'months':
-                    startPeriodAgo = Uni.I18n.translate('period.months', 'UNI', 'month(s)');
+                    startPeriodAgo = Uni.I18n.translate('period.months', 'TME', 'month(s)');
                     break;
                 case 'weeks':
-                    startPeriodAgo = Uni.I18n.translate('period.weeks', 'UNI', 'week(s)');
+                    startPeriodAgo = Uni.I18n.translate('period.weeks', 'TME', 'week(s)');
                     break;
                 case 'days':
-                    startPeriodAgo = Uni.I18n.translate('period.days', 'UNI', 'day(s)');
+                    startPeriodAgo = Uni.I18n.translate('period.days', 'TME', 'day(s)');
                     break;
                 case 'hours':
-                    startPeriodAgo = Uni.I18n.translate('period.hours', 'UNI', 'hour(s)');
+                    startPeriodAgo = Uni.I18n.translate('period.hours', 'TME', 'hour(s)');
                     break;
                 case 'minutes':
-                    startPeriodAgo = Uni.I18n.translate('period.minutes', 'UNI', 'minute(s)');
+                    startPeriodAgo = Uni.I18n.translate('period.minutes', 'TME', 'minute(s)');
                     break;
             }
 
             switch (value.startTimeMode) {
                 case 'ago':
-                    startTimeMode = Uni.I18n.translate('general.period.ago', 'UNI', 'ago');
+                    startTimeMode = Uni.I18n.translate('general.period.ago', 'TME', 'ago');
                     break;
                 case 'ahead':
-                    startTimeMode = Uni.I18n.translate('general.period.ahead', 'UNI', 'ahead');
+                    startTimeMode = Uni.I18n.translate('general.period.ahead', 'TME', 'ahead');
                     break;
             }
 
@@ -90,25 +90,25 @@ Ext.define('Tme.view.relativeperiod.PreviewForm', {
                     var dayOfWeek;
                     switch (value.onDayOfWeek) {
                         case 1:
-                            dayOfWeek = Uni.I18n.translate('general.day.monday', 'UNI', 'Monday');
+                            dayOfWeek = Uni.I18n.translate('general.day.monday', 'TME', 'Monday');
                             break;
                         case 2:
-                            dayOfWeek = Uni.I18n.translate('general.day.tuesday', 'UNI', 'Tuesday');
+                            dayOfWeek = Uni.I18n.translate('general.day.tuesday', 'TME', 'Tuesday');
                             break;
                         case 3:
-                            dayOfWeek = Uni.I18n.translate('general.day.wednesday', 'UNI', 'Wednesday');
+                            dayOfWeek = Uni.I18n.translate('general.day.wednesday', 'TME', 'Wednesday');
                             break;
                         case 4:
-                            dayOfWeek = Uni.I18n.translate('general.day.thursday', 'UNI', 'Thursday');
+                            dayOfWeek = Uni.I18n.translate('general.day.thursday', 'TME', 'Thursday');
                             break;
                         case 5:
-                            dayOfWeek = Uni.I18n.translate('general.day.friday', 'UNI', 'Friday');
+                            dayOfWeek = Uni.I18n.translate('general.day.friday', 'TME', 'Friday');
                             break;
                         case 6:
-                            dayOfWeek = Uni.I18n.translate('general.day.saturday', 'UNI', 'Saturday');
+                            dayOfWeek = Uni.I18n.translate('general.day.saturday', 'TME', 'Saturday');
                             break;
                         case 7:
-                            dayOfWeek = Uni.I18n.translate('general.day.sunday', 'UNI', 'Sunday');
+                            dayOfWeek = Uni.I18n.translate('general.day.sunday', 'TME', 'Sunday');
                             break;
                     }
                     str += ' ' + Uni.I18n.translate('general.on', 'TME', 'on') + ' ' + dayOfWeek + ' ' + Uni.I18n.translate('general.at', 'TME', 'at') + ' ' + hoursMinutes;
@@ -117,7 +117,7 @@ Ext.define('Tme.view.relativeperiod.PreviewForm', {
                     str += ' ' + Uni.I18n.translate('general.at', 'TME', 'at') + ' ' + hoursMinutes;
                     break;
                 case 'hours':
-                    str += ' ' + Uni.I18n.translate('general.at', 'TME', 'at') + ' ' + (value.atMinute ? value.atMinute : '00') + ' ' + Uni.I18n.translate('period.minutes', 'UNI', 'minute(s)');
+                    str += ' ' + Uni.I18n.translate('general.at', 'TME', 'at') + ' ' + (value.atMinute ? value.atMinute : '00') + ' ' + Uni.I18n.translate('period.minutes', 'TME', 'minute(s)');
                     break;
             }
         }

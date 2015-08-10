@@ -157,7 +157,7 @@ Ext.define('Tme.controller.RelativePeriods', {
                 expand: {
                     fn: function () {
                         var button = Ext.create('Ext.button.Button', {
-                            text: Uni.I18n.translate('general.clearSelectedItems', 'DXP', 'Clear selected item(s)'),
+                            text: Uni.I18n.translate('general.clearSelectedItems', 'TME', 'Clear selected item(s)'),
                             ui: 'link',
                             handler: function () {
                                 categoriesCombo.reset();
@@ -235,7 +235,7 @@ Ext.define('Tme.controller.RelativePeriods', {
                             } else {
                                 me.getController('Uni.controller.history.Router').getRoute('administration/relativeperiods').forward();
                             }
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('relativePeriod.confirm.msg', 'DXP', 'Relative period removed'));
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('relativePeriod.confirm.msg', 'TME', 'Relative period removed'));
                         }
                     });
                 } else if (state === 'cancel') {
