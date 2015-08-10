@@ -24,10 +24,10 @@ Ext.define('Ddv.view.Setup', {
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
                         itemId: 'ctr-no-suspects',
-                        title: Uni.I18n.translate('validation.validationOverview.noDevicesWithSuspect', 'MDC', 'No devices with suspects found'),
+                        title: Uni.I18n.translate('validation.validationOverview.noDevicesWithSuspect', 'DDV', 'No devices with suspects found'),
                         reasons: [
-                            Uni.I18n.translate('validation.validationOverview.empty.list.item1', 'MDC', 'Data has not been validated yet.'),
-                            Uni.I18n.translate('validation.validationOverview.empty.list.item2', 'MDC', 'Data has been successfully validated.')
+                            Uni.I18n.translate('validation.validationOverview.empty.list.item1', 'DDV', 'Data has not been validated yet.'),
+                            Uni.I18n.translate('validation.validationOverview.empty.list.item2', 'DDV', 'Data has been successfully validated.')
                         ]
                     }
                 }

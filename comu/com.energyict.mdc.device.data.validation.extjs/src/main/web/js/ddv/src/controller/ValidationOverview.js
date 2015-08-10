@@ -47,7 +47,7 @@ Ext.define('Ddv.controller.ValidationOverview', {
                 }));
 
 
-            me.getHeader().down('#last-updated-field').setValue(Ext.String.format(Uni.I18n.translate('validation.validationOverview.lastUpdated', 'MDC', 'Last updated at {0}'), Uni.DateTime.formatTimeShort(new Date())));
+            me.getHeader().down('#last-updated-field').setValue(Ext.String.format(Uni.I18n.translate('validation.validationOverview.lastUpdated', 'DDV', 'Last updated at {0}'), Uni.DateTime.formatTimeShort(new Date())));
             return;
         }
 
@@ -62,7 +62,7 @@ Ext.define('Ddv.controller.ValidationOverview', {
                             hiddenGrid: false,
                             hiddenNoGroup: true
                     }));
-                me.getHeader().down('#last-updated-field').setValue(Ext.String.format(Uni.I18n.translate('validation.validationOverview.lastUpdated', 'MDC', 'Last updated at {0}'), Uni.DateTime.formatTimeShort(new Date())));
+                me.getHeader().down('#last-updated-field').setValue(Ext.String.format(Uni.I18n.translate('validation.validationOverview.lastUpdated', 'DDV', 'Last updated at {0}'), Uni.DateTime.formatTimeShort(new Date())));
             }
         );
     }

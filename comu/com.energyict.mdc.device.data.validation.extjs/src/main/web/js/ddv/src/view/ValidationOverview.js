@@ -48,9 +48,9 @@ Ext.define('Ddv.view.ValidationOverview', {
                             marginRight: '17px',
                             padding: '17px'
                         },
-                        title: Uni.I18n.translate('validation.validationOverview.noGroupSelected', 'MDC', 'No group selected'),
+                        title: Uni.I18n.translate('validation.validationOverview.noGroupSelected', 'DDV', 'No group selected'),
                         reasons: [
-                            Uni.I18n.translate('validation.validationOverview.noGroup.list.item', 'MDC', 'No device group has been selected yet.')
+                            Uni.I18n.translate('validation.validationOverview.noGroup.list.item', 'DDV', 'No device group has been selected yet.')
                         ]
                     }
                 ]
