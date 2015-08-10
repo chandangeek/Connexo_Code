@@ -15,7 +15,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_SUCH_PARTIAL_CONNECTION_TASK(16, "NoSuchPartialConnectionTask", "No such connection method on device config"),
     NO_SUCH_CONNECTION_METHOD(17, "NoSuchConnectionTask" , "Device {0} has no connection method {1}"),
     NO_SUCH_REGISTER(18, "NoSuchRegister" , "No register with id {0}"),
-    NO_SUCH_COM_SCHEDULE(19, "NoSuchComSchedule" , "No communication schedule with id {0}"),
     DEVICE_VALIDATION_BULK_MSG(20, "DeviceValidationBulkMessage" , "This bulk operation for {0} schedule on {1} device is invalid"),
     NO_SUCH_READING(21, "NoSuchReading" , "Register {0} has no reading with id {1}"),
     INVALID_DATE(22, "InvalidDate", "Date should be less or equal to {0}"),
@@ -241,13 +240,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         return format;
     }
 
-    public String format(Thesaurus thesaurus, Object... args){
-        if (thesaurus == null){
-            throw new IllegalArgumentException("Thesaurus can't be null");
-        }
-        String translated = thesaurus.getString(this.getKey(), this.getDefaultFormat());
-        return MessageFormat.format(translated, args);
-    }
     @Override
     public Level getLevel() {
         return Level.SEVERE;
