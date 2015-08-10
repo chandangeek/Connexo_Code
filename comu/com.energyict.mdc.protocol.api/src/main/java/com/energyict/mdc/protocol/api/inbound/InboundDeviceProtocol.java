@@ -74,6 +74,13 @@ public interface InboundDeviceProtocol extends Pluggable {
          */
         SUCCESS,
         /**
+         * Indicates that not all received data is handled (and is thus not stored in the database)<br/>
+         * This is the case when data from a type is received for which there was no ComTask scheduled.
+         * (e.g. this is the case when only 'Read registers' ComTask is scheduled and the device sends both load profile and register data).
+         * Note: most devices do not care about this (~ then this code is equal to 'success'), it is currently only EIWeb who uses this
+         */
+        DATA_ONLY_PARTIALLY_HANDLED,
+        /**
          * Indicates that the inbound discovery failed. No data was provided and will therefore not be processed nor stored.
          */
         FAILURE,
@@ -82,6 +89,11 @@ public interface InboundDeviceProtocol extends Pluggable {
          * The provided data (if any) will <b>NOT</b> be processed or stored.
          */
         DEVICE_NOT_FOUND,
+        /**
+         * Indicates that the provided {@link DeviceIdentifier} did not refer to an <b>unique</b> Device in our database.
+         * The provided data (if any) will <b>NOT</b> be processed or stored.
+         */
+        DUPLICATE_DEVICE,
         /**
          * Indicates that the requested Device was found in the database, but the Device did not expect any
          * inbound data. Processing of this data will <b>NOT</b> be done.
@@ -120,9 +132,15 @@ public interface InboundDeviceProtocol extends Pluggable {
     public InboundDiscoveryContext getContext();
 
     /**
-     * Does the actual discovery and returns the type of the received data to the framework.
-     * Note that any exception that is reported by underlying communication
-     * mechanisms are wrapped in a com.energyict.mdc.protocol.exceptions.CommunicationException.
+     * Does the actual discovery and returns the type of the received data to the framework.<br/>
+     * Note that:
+     * <ul>
+     * <li>any exception that is reported by underlying communication
+     * mechanisms are wrapped in a com.energyict.mdc.protocol.exceptions.CommunicationException.</li>
+     * <li>during this discovery, the DeviceIdentifier - which uniquely identifies the calling device - will be parsed along <i>optionally</i>
+     * additional collected data. It is important as soon as the DeviceIdentifier is successfully parsed it should be kept in memory, so call #getDeviceIdentifier() can use it,
+     * regardless of the fact parsing of additional collected data fails. By doing so, we assure we can always add logging to the correct device in Connexo.
+     * </ul>
      *
      * @return The type of the result, indicating if we just received the device identifier or also extra meter data.
      */
@@ -141,7 +159,7 @@ public interface InboundDeviceProtocol extends Pluggable {
      *
      * @return The unique device identifier
      */
-    public DeviceIdentifier getDeviceIdentifier();
+    public DeviceIdentifier<?> getDeviceIdentifier();
 
     /**
      * Returns the data (registers, load profile entries, events, ...)
