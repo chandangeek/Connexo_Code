@@ -21,13 +21,13 @@ Ext.define('Fwc.view.firmware.Form', {
 
         me.buttons = [
             {
-                text: me.edit ? Uni.I18n.translate('general.edit', 'MDC', 'Save') : Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                text: me.edit ? Uni.I18n.translate('general.edit', 'FWC', 'Save') : Uni.I18n.translate('general.add', 'FWC', 'Add'),
                 ui: 'action',
                 action: 'saveFirmware',
                 itemId: 'createEditButton'
             },
             {
-                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                text: Uni.I18n.translate('general.cancel', 'FWC', 'Cancel'),
                 ui: 'link',
                 itemId: 'cancelLink',
                 href: me.router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl()

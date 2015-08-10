@@ -56,7 +56,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                     buttons: [
                         {
                             margin: '0 0 0 46',
-                            text: Uni.I18n.translate('device.firmware.failed.retry', 'MDC', 'Retry'),
+                            text: Uni.I18n.translate('device.firmware.failed.retry', 'FWC', 'Retry'),
                             ui: 'action',
                             action: 'retry',
                             hidden: true,
@@ -64,21 +64,21 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                         },
                         {
                             margin: '0 0 0 46',
-                            text: Uni.I18n.translate('device.firmware.failed.check', 'MDC', 'Check Version'),
+                            text: Uni.I18n.translate('device.firmware.failed.check', 'FWC', 'Check Version'),
                             ui: 'action',
                             action: 'check',
                             hidden: true,
                             itemId: 'checkBtn'
                         },
                         {
-                            text: Uni.I18n.translate('device.firmware.failed.deviceEvents', 'MDC', 'View device events'),
+                            text: Uni.I18n.translate('device.firmware.failed.deviceEvents', 'FWC', 'View device events'),
                             ui: 'link',
                             action: 'viewDeviceEvents',
                             hidden: true,
                             itemId: 'deviceEventsBtn'
                         },
                         {
-                            text: Uni.I18n.translate('device.firmware.failed.log', 'MDC', 'View log'),
+                            text: Uni.I18n.translate('device.firmware.failed.log', 'FWC', 'View log'),
                             ui: 'link',
                             action: 'viewLog',
                             hidden: true,
@@ -102,7 +102,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                     },
                     buttons: [{
                         margin: '0 0 0 46',
-                        text: Uni.I18n.translate('device.firmware.pending.cancel', 'MDC', 'Cancel upload'),
+                        text: Uni.I18n.translate('device.firmware.pending.cancel', 'FWC', 'Cancel upload'),
                         action: 'cancelUpgrade',
                         itemId: 'cancelBtn'
                     }]
