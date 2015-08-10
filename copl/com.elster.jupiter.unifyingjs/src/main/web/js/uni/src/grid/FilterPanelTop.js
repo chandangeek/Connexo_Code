@@ -5,6 +5,7 @@ Ext.define('Uni.grid.FilterPanelTop', {
     extend: 'Ext.panel.Panel',
     xtype: 'uni-grid-filterpaneltop',
     ui: 'filter',
+    margin: '0 0 10 0',
 
     requires: [
         'Uni.grid.filtertop.Base',
