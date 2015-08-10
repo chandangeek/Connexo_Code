@@ -3,7 +3,7 @@ Ext.define('Usr.view.user.Edit', {
     alias: 'widget.userEdit',
 
     requires: [
-        'Usr.store.Groups',
+        'Usr.store.UserGroups',
         'Uni.view.form.CheckboxGroup',
         'Ext.button.Button',
         'Uni.util.Hydrator',
@@ -79,7 +79,7 @@ Ext.define('Usr.view.user.Edit', {
                                 xtype: 'checkboxstore',
                                 itemId: 'selectRoles',
                                 fieldLabel: Uni.I18n.translate('user.roles', 'USR', 'Roles'),
-                                store: 'Usr.store.Groups',
+                                store: 'Usr.store.UserGroups',
                                 hydratable:false,
                                 autoScroll: true,
                                 maxHeight: 500,

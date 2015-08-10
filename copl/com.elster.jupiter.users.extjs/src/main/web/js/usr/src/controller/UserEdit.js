@@ -5,7 +5,7 @@ Ext.define('Usr.controller.UserEdit', {
     ],
 
     stores: [
-        'Usr.store.Groups',
+        'Usr.store.UserGroups',
         'Usr.store.Users',
         'Usr.store.UserDirectories',
         'Usr.store.Locales'
@@ -71,7 +71,7 @@ Ext.define('Usr.controller.UserEdit', {
                 panel.down('[name=authenticationName]').disable();
                 panel.down('[name=domain]').disable();
 
-                Ext.StoreManager.get('Usr.store.Groups').load(function () {
+                Ext.StoreManager.get('Usr.store.UserGroups').load(function () {
                     panel.down('form').loadRecord(user);
                     if (language) {
                         if (locales.getCount()) {
