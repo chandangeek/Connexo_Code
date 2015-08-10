@@ -14,7 +14,7 @@ Ext.define('Cfg.view.validation.VersionActionMenu', {
         },     
         {
             itemId: 'deleteVersion',
-            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+            text: Uni.I18n.translate('general.remove', 'CFG', 'Remove'),
             privileges: Cfg.privileges.Validation.admin,
             action: 'deleteVersion'
         }

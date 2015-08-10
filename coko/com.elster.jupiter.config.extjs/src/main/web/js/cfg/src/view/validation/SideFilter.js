@@ -6,7 +6,7 @@ Ext.define('Cfg.view.validation.SideFilter', {
     ],
     cls: 'filter-form',
     width: 250,
-    title: Uni.I18n.translate('connection.widget.sideFilter.title', 'DSH', 'Filter'),
+    title: Uni.I18n.translate('connection.widget.sideFilter.title', 'CFG', 'Filter'),
     ui: 'medium',
     items: [
         {

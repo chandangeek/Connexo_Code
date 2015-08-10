@@ -20,13 +20,13 @@ Ext.define('Cfg.view.validation.RuleActionMenu', {
         },
         {
             itemId: 'editRule',
-            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+            text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
             privileges: Cfg.privileges.Validation.admin,
             action: 'editRule'
         },
         {
             itemId: 'deleteRule',
-            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+            text: Uni.I18n.translate('general.remove', 'CFG', 'Remove'),
             privileges: Cfg.privileges.Validation.admin,
             action: 'deleteRule'
         }
