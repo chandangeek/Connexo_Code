@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
                         },
                         {
                             itemId: 'rbtn-is-bulk-yes',
-                            boxLabel: Uni.I18n.translate('general.bulkValueWh', 'FWC', 'Bulk value (Wh)'),
+                            boxLabel: Uni.I18n.translate('general.bulkValueWh', 'MDC', 'Bulk value (Wh)'),
                             inputValue: true
                         }
                     ]

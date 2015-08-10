@@ -8,11 +8,11 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationActi
     items: [
 
         {
-            text: Uni.I18n.translate('general.edit', 'USM', 'Edit'),
+            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
             action: 'editloadprofileconfigurationondeviceconfiguration'
         },
         {
-            text: Uni.I18n.translate('general.remove', 'USM', 'Remove'),
+            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
             action: 'deleteloadprofileconfigurationondeviceonfiguration'
         }
 

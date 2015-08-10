@@ -218,10 +218,10 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 var message;
 
                 if (me.mode == 'edit') {
-                    message = Uni.I18n.translatePlural('registergroup.saved', record.get('name'), 'USM', 'Register group saved.');
+                    message = Uni.I18n.translatePlural('registergroup.saved', record.get('name'), 'MDC', 'Register group saved.');
                 }
                 else {
-                    message = Uni.I18n.translatePlural('registergroup.added', record.get('name'), 'USM', 'Register group added.');
+                    message = Uni.I18n.translatePlural('registergroup.added', record.get('name'), 'MDC', 'Register group added.');
                 }
                 me.getApplication().fireEvent('acknowledge', message);
                 location.href = '#/administration/registergroups/';
@@ -262,7 +262,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 app = opt.app;
             registerTypeToDelete.destroy({
                 success: function () {
-                    app.fireEvent('acknowledge', Uni.I18n.translatePlural('registergroup.removed', name, 'USM', 'Register group removed.'));
+                    app.fireEvent('acknowledge', Uni.I18n.translatePlural('registergroup.removed', name, 'MDC', 'Register group removed.'));
                 },
                 callback: function () {
                     location.href = '#/administration/registergroups/';

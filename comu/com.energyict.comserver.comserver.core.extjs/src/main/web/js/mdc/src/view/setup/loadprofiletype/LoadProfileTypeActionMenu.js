@@ -8,11 +8,11 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeActionMenu', {
     items: [
 
         {
-            text: Uni.I18n.translate('general.edit', 'USM', 'Edit'),
+            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
             action: 'editloadprofiletype'
         },
         {
-            text: Uni.I18n.translate('general.remove', 'USM', 'Remove'),
+            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
             action: 'deleteloadprofiletype'
         }
 

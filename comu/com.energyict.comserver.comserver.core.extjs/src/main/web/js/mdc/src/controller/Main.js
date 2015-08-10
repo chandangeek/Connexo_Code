@@ -117,7 +117,7 @@ Ext.define('Mdc.controller.Main', {
 
         if (Mdc.privileges.DeviceGroup.canView()) {
             var devicesMenuItem = Ext.create('Uni.model.MenuItem', {
-                text: Uni.I18n.translate('device.devices', 'DVI', 'Devices'),
+                text: Uni.I18n.translate('device.devices', 'MDC', 'Devices'),
                 href: '#/devices',
                 glyph: 'devices',
                 portal: 'devices',

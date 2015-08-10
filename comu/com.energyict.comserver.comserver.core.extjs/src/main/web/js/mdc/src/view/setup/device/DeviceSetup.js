@@ -195,7 +195,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         style: {
                             'background-color': '#71adc7'
                         },
-                        text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'DSH', 'Refresh'),
+                        text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'MDC', 'Refresh'),
                         icon: '/apps/sky/resources/images/form/restore.png'
                     },
                     {
@@ -347,7 +347,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                                         style: {
                                             'background-color': '#71adc7'
                                         },
-                                        text: Uni.I18n.translate('device.communications.activate', 'DSH', 'Activate all')
+                                        text: Uni.I18n.translate('device.communications.activate', 'MDC', 'Activate all')
                                     },
                                     {
                                         xtype: 'button',
@@ -355,7 +355,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                                         style: {
                                             'background-color': '#71adc7'
                                         },
-                                        text: Uni.I18n.translate('device.communications.deactivate', 'DSH', 'Deactivate all')
+                                        text: Uni.I18n.translate('device.communications.deactivate', 'MDC', 'Deactivate all')
                                     }
                                 ]
                             }

@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.RegisterTopFilter', {
             dataIndexTo: 'intervalEnd',
             defaultFromDate: moment().startOf('day').subtract(1,'years').toDate(),
             defaultDuration: '1years',
-            text: Uni.I18n.translate('communications.widget.topfilter.startedDate', 'DSH', 'Start date')
+            text: Uni.I18n.translate('communications.widget.topfilter.startedDate', 'MDC', 'Start date')
         },
         {
             type: 'checkbox',

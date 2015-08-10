@@ -9,7 +9,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.SideFilter', {
     ui: 'medium',
     width: 288,
     cls: 'filter-form',
-    title: Uni.I18n.translate('connection.widget.sideFilter.title', 'DSH', 'Filter'),
+    title: Uni.I18n.translate('connection.widget.sideFilter.title', 'MDC', 'Filter'),
     items: {
         xtype: 'form',
         itemId: 'frm-device-validation-results-filter',

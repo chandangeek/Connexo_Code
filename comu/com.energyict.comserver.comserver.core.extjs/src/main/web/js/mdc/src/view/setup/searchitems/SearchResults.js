@@ -71,7 +71,7 @@ Ext.define('Mdc.view.setup.searchitems.SearchResults', {
                         privileges: Yfn.privileges.Yellowfin.view,
                         itemId:'generate-report',
                         action: 'generate-report',
-                        text:Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
+                        text:Uni.I18n.translate('generatereport.generateReportButton', 'MDC', 'Generate report')
                 }]
             },
             {

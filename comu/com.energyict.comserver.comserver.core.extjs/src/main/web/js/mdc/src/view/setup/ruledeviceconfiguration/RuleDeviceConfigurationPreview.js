@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationPrevie
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'CFG', 'Actions'),
+            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
             privileges: Cfg.privileges.Validation.deviceConfiguration,
             iconCls: 'x-uni-action-iconD',
             menu: {
@@ -25,20 +25,20 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationPrevie
     },
     items: [
         {
-            fieldLabel: Uni.I18n.translate('validation.deviceType', 'CFG', 'Device type'),
+            fieldLabel: Uni.I18n.translate('validation.deviceType', 'MDC', 'Device type'),
             name: 'deviceType_name'
         },
         {
-            fieldLabel: Uni.I18n.translate('validation.deviceConfiguration', 'CFG', 'Device configuration'),
+            fieldLabel: Uni.I18n.translate('validation.deviceConfiguration', 'MDC', 'Device configuration'),
             name: 'config_name'
         },
         {
             name: 'config_active',
-            fieldLabel: Uni.I18n.translate('validation.deviceconfiguration.configurationStatus', 'CFG', 'Configuration status')
+            fieldLabel: Uni.I18n.translate('validation.deviceconfiguration.configurationStatus', 'MDC', 'Configuration status')
         },
         {
             name: 'config_registerCount',
-            fieldLabel: Uni.I18n.translate('validation.deviceconfiguration.dataSources', 'CFG', 'Data sources'),
+            fieldLabel: Uni.I18n.translate('validation.deviceconfiguration.dataSources', 'MDC', 'Data sources'),
             htmlEncode: false
         },
         {

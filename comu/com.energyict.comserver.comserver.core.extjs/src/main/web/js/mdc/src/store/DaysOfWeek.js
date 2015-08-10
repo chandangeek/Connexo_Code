@@ -18,37 +18,37 @@ Ext.define('Mdc.store.DaysOfWeek', {
         {
             id: 1,
             key: 'monday',
-            translation: Uni.I18n.translate('schedulefield.monday', 'UNI', 'Monday')
+            translation: Uni.I18n.translate('schedulefield.monday', 'MDC', 'Monday')
         },
         {
             id: 2,
             key: 'tuesday',
-            translation: Uni.I18n.translate('schedulefield.tuesday', 'UNI', 'Tuesday')
+            translation: Uni.I18n.translate('schedulefield.tuesday', 'MDC', 'Tuesday')
         },
         {
             id: 3,
             key: 'wednesday',
-            translation: Uni.I18n.translate('schedulefield.wednesday', 'UNI', 'Wednesday')
+            translation: Uni.I18n.translate('schedulefield.wednesday', 'MDC', 'Wednesday')
         },
         {
             id: 4,
             key: 'thursday',
-            translation: Uni.I18n.translate('schedulefield.thursday', 'UNI', 'Thursday')
+            translation: Uni.I18n.translate('schedulefield.thursday', 'MDC', 'Thursday')
         },
         {
             id: 5,
             key: 'friday',
-            translation: Uni.I18n.translate('schedulefield.friday', 'UNI', 'Friday')
+            translation: Uni.I18n.translate('schedulefield.friday', 'MDC', 'Friday')
         },
         {
             id: 6,
             key: 'saturday',
-            translation: Uni.I18n.translate('schedulefield.saturday', 'UNI', 'Saturday')
+            translation: Uni.I18n.translate('schedulefield.saturday', 'MDC', 'Saturday')
         },
         {
             id: 7,
             key: 'sunday',
-            translation: Uni.I18n.translate('schedulefield.sunday', 'UNI', 'Sunday')
+            translation: Uni.I18n.translate('schedulefield.sunday', 'MDC', 'Sunday')
         }
     ]
 });

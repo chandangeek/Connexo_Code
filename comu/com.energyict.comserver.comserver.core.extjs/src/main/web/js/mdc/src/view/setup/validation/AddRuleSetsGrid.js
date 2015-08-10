@@ -54,7 +54,7 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
                 flex: 3
             },
             {
-                header: Uni.I18n.translate('validation.activeVersion', 'CFG', 'Active version'),
+                header: Uni.I18n.translate('validation.activeVersion', 'MDC', 'Active version'),
                 dataIndex: 'activeVersion',
                 flex: 5,
                 align: 'left',

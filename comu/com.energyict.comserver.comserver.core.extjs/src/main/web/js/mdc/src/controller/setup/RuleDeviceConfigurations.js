@@ -46,7 +46,7 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
         me.getApplication().on('validationrulesetmenurender', function (menu) {
             menu.add(
                 {
-                    text: Uni.I18n.translate('validation.deviceConfigurations', 'CFG', 'Device configurations'),
+                    text: Uni.I18n.translate('validation.deviceConfigurations', 'MDC', 'Device configurations'),
                     itemId: 'deviceConfigLink',
                     href: '#/administration/validation/rulesets/' + menu.ruleSetId + '/deviceconfigurations'
                 }

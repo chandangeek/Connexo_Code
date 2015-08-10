@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupSetup', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('registerGroup.registerGroups', 'USM', 'Register groups'),
+            title: Uni.I18n.translate('registerGroup.registerGroups', 'MDC', 'Register groups'),
             layout: {
                 type: 'vbox',
                 align: 'stretch'

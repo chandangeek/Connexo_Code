@@ -42,12 +42,12 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
             title: Uni.I18n.translate('deviceCommunicationTopology.topologyTitle', 'MDC', 'Communication topology'),
             items: [
                 {
-                    title: Uni.I18n.translate('general.filter', 'CFG', 'Filter'),
+                    title: Uni.I18n.translate('general.filter', 'MDC', 'Filter'),
                     xtype: 'filter-top-panel',
                     itemId: 'topFilterDeviceTopology',
                     margin: '0 0 20 0',
                     name: 'filter',
-                    emptyText: Uni.I18n.translate('general.none', 'CFG', 'None'),
+                    emptyText: Uni.I18n.translate('general.none', 'MDC', 'None'),
                     hidden: true
                 },
                 {

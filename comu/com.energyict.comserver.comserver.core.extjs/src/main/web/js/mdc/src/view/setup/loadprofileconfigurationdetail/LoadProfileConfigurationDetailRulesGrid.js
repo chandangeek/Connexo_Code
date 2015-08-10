@@ -18,24 +18,24 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     initComponent: function () {
         var me = this;
         me.columns = [
-            { header: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'), dataIndex: 'name', flex: 1,
+            { header: Uni.I18n.translate('validation.validationRule', 'MDC', 'Validation rule'), dataIndex: 'name', flex: 1,
                 renderer: function (value, b, record) {					
 					return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId') 
                         + '/versions/' + record.get('ruleSetVersionId') 
                         + '/rules/' + record.getId() + '">' +  Ext.String.htmlEncode(value) + '</a>';
                 }
             },
-            { header: Uni.I18n.translate('validation.status', 'CFG', 'Status'), dataIndex: 'active', flex: 1,
+            { header: Uni.I18n.translate('validation.status', 'MDC', 'Status'), dataIndex: 'active', flex: 1,
                 renderer: function (value) {
                     if (value) {
-                        return Uni.I18n.translate('validation.active', 'CFG', 'Active')
+                        return Uni.I18n.translate('validation.active', 'MDC', 'Active')
                     } else {
-                        return Uni.I18n.translate('validation.inactive', 'CFG', 'Inactive')
+                        return Uni.I18n.translate('validation.inactive', 'MDC', 'Inactive')
                     }
                 }
             },
             {
-                header: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
+                header: Uni.I18n.translate('validation.validationRuleSet', 'MDC', 'Validation rule set'),
                 dataIndex: 'ruleSetName',
                 renderer: function (value, metaData, record) {
 					var ruleSetVersion = record.get('ruleSetVersion');

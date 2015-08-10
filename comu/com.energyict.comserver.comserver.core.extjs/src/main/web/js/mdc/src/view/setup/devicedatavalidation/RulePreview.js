@@ -17,20 +17,20 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulePreview', {
     items: [
         {
             name: 'name',
-            fieldLabel: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule')
+            fieldLabel: Uni.I18n.translate('validation.validationRule', 'MDC', 'Validation rule')
         },
         {
             name: 'displayName',
-            fieldLabel: Uni.I18n.translate('validation.validator', 'CFG', 'Validator')
+            fieldLabel: Uni.I18n.translate('validation.validator', 'MDC', 'Validator')
         },
         {
             name: 'active',
-            fieldLabel: Uni.I18n.translate('validation.status', 'CFG', 'Status'),
+            fieldLabel: Uni.I18n.translate('validation.status', 'MDC', 'Status'),
             renderer: function (value) {
                 if (value) {
-                    return Uni.I18n.translate('validation.active', 'CFG', 'Active')
+                    return Uni.I18n.translate('validation.active', 'MDC', 'Active')
                 } else {
-                    return Uni.I18n.translate('validation.inactive', 'CFG', 'Inactive')
+                    return Uni.I18n.translate('validation.inactive', 'MDC', 'Inactive')
                 }
             }
         },

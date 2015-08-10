@@ -62,7 +62,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                         template += '<tpl><span  class="icon-stop2"></span>' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</tpl>';
                     return template;
                 },
-                header: Uni.I18n.translate('deviceconnectionhistory.communicationTasks', 'DSH', 'Communication tasks'),
+                header: Uni.I18n.translate('deviceconnectionhistory.communicationTasks', 'MDC', 'Communication tasks'),
                 flex: 2
             },
             {

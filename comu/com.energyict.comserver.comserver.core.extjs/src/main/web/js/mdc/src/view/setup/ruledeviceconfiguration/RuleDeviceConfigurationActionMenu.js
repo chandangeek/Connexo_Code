@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationAction
     shadow: false,
     items: [
         {
-            text: Uni.I18n.translate('general.view', 'CFG', 'View'),
+            text: Uni.I18n.translate('general.view', 'MDC', 'View'),
             action: 'view'
         }
     ]
