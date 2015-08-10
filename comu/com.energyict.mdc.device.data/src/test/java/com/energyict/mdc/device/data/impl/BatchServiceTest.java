@@ -1,15 +1,31 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BatchServiceTest extends PersistenceIntegrationTest {
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}", property = "batch")
+    public void testBatchNameEmptyCheck() {
+        inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device1", "Device1", "");
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "batch")
+    public void testBatchNameTooLong() {
+        inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device1", "Device1", "111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+    }
 
     @Test
     @Transactional
