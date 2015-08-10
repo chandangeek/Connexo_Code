@@ -16,7 +16,7 @@ Ext.define('Dxp.view.tasks.Details', {
         items: [
             {
                 ui: 'large',
-                title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
+                title: Uni.I18n.translate('general.overview', 'DES', 'Overview'),
                 flex: 1,
                 items: {
                     xtype: 'dxp-tasks-preview-form',

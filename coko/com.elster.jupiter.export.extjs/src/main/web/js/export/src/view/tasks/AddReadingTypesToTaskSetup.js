@@ -17,7 +17,7 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('validation.addReadingTypes', 'CFG', 'Add reading types'),
+            title: Uni.I18n.translate('validation.addReadingTypes', 'DES', 'Add reading types'),
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -38,10 +38,10 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
                         margin: '15 0 20 0',
-                        title: Uni.I18n.translate('validation.readingType.empty.title', 'CFG', 'No reading types found.'),
+                        title: Uni.I18n.translate('validation.readingType.empty.title', 'DES', 'No reading types found.'),
                         reasons: [
-                            Uni.I18n.translate('validation.readingType.empty.list.item1', 'CFG', 'No reading types have been added yet.'),
-                            Uni.I18n.translate('validation.readingType.empty.list.item2', 'CFG', 'No reading types comply to the filter.'),
+                            Uni.I18n.translate('validation.readingType.empty.list.item1', 'DES', 'No reading types have been added yet.'),
+                            Uni.I18n.translate('validation.readingType.empty.list.item2', 'DES', 'No reading types comply to the filter.'),
                             Uni.I18n.translate('dataExportTasks.readingType.empty.list.item3', 'DES', 'All reading types have already been added to the data export task.')
                         ]
                     }
@@ -54,7 +54,7 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
                     },
                     items: [
                         {
-                            text: Uni.I18n.translate('general.add', 'CFG', 'Add'),
+                            text: Uni.I18n.translate('general.add', 'DES', 'Add'),
                             name: 'add',
                             itemId: 'btn-add-reading-types',
                             ui: 'action'
@@ -62,7 +62,7 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
                         {
                             name: 'cancel',
                             itemId: 'lnk-cancel-add-reading-types',
-                            text: Uni.I18n.translate('general.add', 'CFG', 'Cancel'),
+                            text: Uni.I18n.translate('general.add', 'DES', 'Cancel'),
                             ui: 'link'
                         }
                     ]

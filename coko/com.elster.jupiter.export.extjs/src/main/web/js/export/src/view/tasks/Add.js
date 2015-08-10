@@ -300,7 +300,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                             {
                                                 xtype: 'button',
                                                 itemId: 'addReadingTypeButton',
-                                                text: Uni.I18n.translate('general.addReadngTypes', 'CFG', 'Add reading types'),
+                                                text: Uni.I18n.translate('general.addReadngTypes', 'DES', 'Add reading types'),
                                                 margin: '0 0 0 10'
                                             }
                                         ]
@@ -426,7 +426,7 @@ Ext.define('Dxp.view.tasks.Add', {
                             {
                                 xtype: 'button',
                                 itemId: 'add-destination-button',
-                                text: Uni.I18n.translate('dataExportdestinations.addDestination', 'CFG', 'Add destination'),
+                                text: Uni.I18n.translate('dataExportdestinations.addDestination', 'DES', 'Add destination'),
                                 margin: '0 0 0 10'
                             }
 

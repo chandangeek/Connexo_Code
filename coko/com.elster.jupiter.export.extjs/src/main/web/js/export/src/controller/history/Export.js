@@ -8,7 +8,7 @@ Ext.define('Dxp.controller.history.Export', {
 
     routeConfig: {
         administration: {
-            title: Uni.I18n.translate('general.administration', 'UNI', 'Administration'),
+            title: Uni.I18n.translate('general.administration', 'DES', 'Administration'),
             route: 'administration',
             disabled: true,
             items: {

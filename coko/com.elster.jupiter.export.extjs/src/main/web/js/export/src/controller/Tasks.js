@@ -772,7 +772,7 @@ Ext.define('Dxp.controller.Tasks', {
                         }
                     });
                 }
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataExportTasks.run', 'DXP', 'Data export task run'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataExportTasks.run', 'DES', 'Data export task run'));
             },
             failure: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
@@ -786,8 +786,8 @@ Ext.define('Dxp.controller.Tasks', {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show({
-            msg: Uni.I18n.translate('general.remove.msg', 'DXP', 'This data export task will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'DXP', 'Remove') + '&nbsp' + record.data.name + '?',
+            msg: Uni.I18n.translate('general.remove.msg', 'DES', 'This data export task will no longer be available.'),
+            title: Uni.I18n.translate('general.remove', 'DES', 'Remove') + '&nbsp' + record.data.name + '?',
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {
@@ -811,15 +811,15 @@ Ext.define('Dxp.controller.Tasks', {
                 } else {
                     me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').forward();
                 }
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.remove.confirm.msg', 'DXP', 'Data export task removed'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.remove.confirm.msg', 'DES', 'Data export task removed'));
             },
             failure: function (object, operation) {
                 var json = Ext.decode(operation.response.responseText, true);
-                var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
+                var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'DES', 'Unknown error occurred');
                 if (json && json.errors) {
                     errorText = json.errors[0].msg;
                 }
-                //me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('general.remove.error.msg', 'DXP', 'Remove operation failed'), errorText);
+                //me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('general.remove.error.msg', 'DES', 'Remove operation failed'), errorText);
                 if (!Ext.ComponentQuery.query('#remove-error-messagebox')[0]) {
                     Ext.widget('messagebox', {
                         itemId: 'remove-error-messagebox',
@@ -843,7 +843,7 @@ Ext.define('Dxp.controller.Tasks', {
                         ]
                     }).show({
                         ui: 'notification-error',
-                        title: Uni.I18n.translate('general.remove.error.msg', 'DXP', 'Remove operation failed'),
+                        title: Uni.I18n.translate('general.remove.error.msg', 'DES', 'Remove operation failed'),
                         msg: errorText,
                         modal: false,
                         icon: Ext.MessageBox.ERROR
