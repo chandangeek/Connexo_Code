@@ -133,6 +133,9 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
                     case ENCRYPTION_REQUIRED:
                         this.response.sendError(HttpServletResponse.SC_FORBIDDEN, "The device with the id specified in the request requires encrypted data to be sent.");
                         break;
+                    case DUPLICATE_DEVICE:
+                        this.response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Multiple devices were found in the system with the provided serialnumber.");
+                        break;
                     case DEVICE_NOT_FOUND:
                         this.response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Device for which data is posted does not exist.");
                         break;
