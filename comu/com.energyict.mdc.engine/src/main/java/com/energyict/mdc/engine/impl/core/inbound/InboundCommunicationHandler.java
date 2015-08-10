@@ -1,9 +1,10 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.StopWatch;
-import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -48,7 +49,6 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.FindMultipleDevices;
 import com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.exceptions.DuplicateException;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
@@ -61,6 +61,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -162,14 +163,8 @@ public class InboundCommunicationHandler {
                 this.logger.deviceIdentified(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
                 this.handleKnownDevice(inboundDeviceProtocol, context, discoverResultType, device);
             }
-        } catch (NotFoundException e) {
-            // Device that is identified by the identifier that was discovered does not exist
-            this.handleUnknownDevice(inboundDeviceProtocol);
-        } catch (DuplicateException e) {
-            // the findDevice on DeviceIdentifier resulted in multiple devices
-            this.handleDuplicateDevicesFound(inboundDeviceProtocol, e);
-        } catch (CommunicationException e) {
-            this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.FAILURE);
+        } catch (Throwable e) {
+            this.handleRuntimeExceptionDuringDiscovery(inboundDeviceProtocol, e);
         }
         this.closeContext();
     }
@@ -191,30 +186,62 @@ public class InboundCommunicationHandler {
     }
 
     /**
-     * For each Device we found, we will create a failing InboundComSession so it is clear the the
-     * connection was not properly setup because we don't know which endDevice to use.
+     * For each Device we found, we will create a failing InboundComSession so it is clear that the
+     * connection was not properly setup because an error occurred during discovery.
      *
      * @param inboundDeviceProtocol the inboundDeviceProtocol
-     * @param e                     the DuplicateException
+     * @param t                     the exception
      */
-    private void handleDuplicateDevicesFound(InboundDeviceProtocol inboundDeviceProtocol, DuplicateException e) {
+    private void handleRuntimeExceptionDuringDiscovery(InboundDeviceProtocol inboundDeviceProtocol, Throwable t) {
+        this.responseType = InboundDeviceProtocol.DiscoverResponseType.FAILURE;
+        if (inboundDeviceProtocol.getDeviceIdentifier() != null) {
+            List<? extends BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister>> allDevices = getAllPossiblyRelatedDevices(inboundDeviceProtocol);
+            if (allDevices.size() > 1) {
+                this.responseType = InboundDeviceProtocol.DiscoverResponseType.DUPLICATE_DEVICE;
+            } else if (allDevices.size() == 0) {
+                this.responseType = InboundDeviceProtocol.DiscoverResponseType.DEVICE_NOT_FOUND;
+            }
+            allDevices.stream().filter(device -> deviceIsReadyForInboundCommunicationOnThisPort(new OfflineDeviceImpl((Device) device, new DeviceOfflineFlags(), new OfflineDeviceServiceProvider()))).forEach(device -> {
+                List<DeviceCommandExecutionToken> tokens = this.deviceCommandExecutor.tryAcquireTokens(1);
+                if (!tokens.isEmpty() && this.connectionTask != null) {
+                    CompositeDeviceCommand storeCommand = new ComSessionRootDeviceCommand();
+                    storeCommand.add(createFailedInboundComSessionDeviceCommand(this.responseType.equals(InboundDeviceProtocol.DiscoverResponseType.DUPLICATE_DEVICE) ?
+                            createDuplicateSerialNumberComSessionBuilder(device.getSerialNumber()) : createErrorComSessionBuilder(t)));
+                    this.deviceCommandExecutor.execute(storeCommand, tokens.get(0));
+                } else {
+                    this.responseType = InboundDeviceProtocol.DiscoverResponseType.SERVER_BUSY;
+                }
+            });
+        }
+        provideResponse(inboundDeviceProtocol, this.responseType);
+    }
+
+    private ComSessionBuilder createErrorComSessionBuilder(Throwable t) {
+        return serviceProvider.connectionTaskService().
+                buildComSession(connectionTask, comPort.getComPortPool(), comPort, now()).
+                addJournalEntry(now(), ComServer.LogLevel.ERROR, t);
+    }
+
+    private ComSessionBuilder createDuplicateSerialNumberComSessionBuilder(String serialNumber) {
+        return serviceProvider.connectionTaskService().
+                buildComSession(connectionTask, comPort.getComPortPool(), comPort, now()).
+                addJournalEntry(now(), ComServer.LogLevel.ERROR,
+                        getThesaurus().getFormat(MessageSeeds.INBOUND_DUPLICATE_SERIALNUMBER_FAILURE).format(serialNumber));
+    }
+
+    private Thesaurus getThesaurus() {
+        return serviceProvider.nlsService().getThesaurus("MDC", Layer.DOMAIN);
+    }
+
+    private List<? extends BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister>> getAllPossiblyRelatedDevices(InboundDeviceProtocol inboundDeviceProtocol) {
+        List<? extends BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister>> allDevices;
         if (FindMultipleDevices.class.isAssignableFrom(inboundDeviceProtocol.getDeviceIdentifier().getClass())) {
             FindMultipleDevices<?> multipleDevicesFinder = (FindMultipleDevices<?>) inboundDeviceProtocol.getDeviceIdentifier();
-            List<? extends BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister>> allDevices = multipleDevicesFinder.getAllDevices();
-            for (BaseDevice<?, ?, ?> device : allDevices) {
-                if (deviceIsReadyForInboundCommunicationOnThisPort(new OfflineDeviceImpl((Device) device, new DeviceOfflineFlags(), new OfflineDeviceServiceProvider()))) {
-                    List<DeviceCommandExecutionToken> tokens = this.deviceCommandExecutor.tryAcquireTokens(1);
-                    if (!tokens.isEmpty() && this.connectionTask != null) {
-                        CompositeDeviceCommand storeCommand = new ComSessionRootDeviceCommand();
-                        storeCommand.add(createFailedInboundComSessionForDuplicateDevice(e));
-                        this.deviceCommandExecutor.execute(storeCommand, tokens.get(0));
-                    } else {
-                        this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.SERVER_BUSY);
-                    }
-                }
-            }
+            allDevices = multipleDevicesFinder.getAllDevices();
+        } else {
+            allDevices = Collections.singletonList(inboundDeviceProtocol.getDeviceIdentifier().findDevice());
         }
-        this.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.DEVICE_NOT_FOUND);
+        return allDevices;
     }
 
     /**
@@ -222,14 +249,10 @@ public class InboundCommunicationHandler {
      * {@link ComSession.SuccessIndicator#SetupError} and a ComSessionJournalEntryShadow which
      * contains the detailed exception.
      *
-     * @param e the duplicateException
+     * @param comSessionBuilder
      * @return the CreateInboundComSession
      */
-    private CreateInboundComSession createFailedInboundComSessionForDuplicateDevice(DuplicateException e) {
-        ComSessionBuilder comSessionBuilder =
-                serviceProvider.connectionTaskService().
-                        buildComSession(connectionTask, comPort.getComPortPool(), comPort, now()).
-                        addJournalEntry(now(), ComServer.LogLevel.ERROR, e);
+    private CreateInboundComSession createFailedInboundComSessionDeviceCommand(ComSessionBuilder comSessionBuilder) {
         return new CreateInboundComSession(getComPort(), this.connectionTask, comSessionBuilder, ComSession.SuccessIndicator.SetupError, serviceProvider.clock());
     }
 
@@ -357,7 +380,7 @@ public class InboundCommunicationHandler {
         }
     }
 
-    public void complete(){
+    public void complete() {
         this.appendStatisticalInformationToComSession();
     }
 
@@ -407,25 +430,20 @@ public class InboundCommunicationHandler {
                 assert false : "if-test that was supposed to verify that the discovery response type was NOT success clearly failed";
                 throw CodingException.unrecognizedEnumValue(this.responseType);
             }
-            case DEVICE_DOES_NOT_EXPECT_INBOUND: {
-                return ComSession.SuccessIndicator.SetupError;
+            case DATA_ONLY_PARTIALLY_HANDLED: {
+                // Should not be marked as failed, but as success (the logging will mention part of the data is not handled/stored)
+                return ComSession.SuccessIndicator.Success;
             }
-            case DEVICE_NOT_FOUND: {
-                /* Todo: deal with unknown device situation in which no ComSession is built yet
-                return comSessionBuilder.endSession(serviceProvider.clock().now(), ComSession.SuccessIndicator.Success);
-                */
-                return null;
-            }
-            case STORING_FAILURE: {
-                return ComSession.SuccessIndicator.Broken;
-            }
+            case DEVICE_DOES_NOT_EXPECT_INBOUND:
+            case DEVICE_NOT_FOUND:
+            case DUPLICATE_DEVICE:
             case ENCRYPTION_REQUIRED: {
                 return ComSession.SuccessIndicator.SetupError;
             }
+
+            case FAILURE:
+            case STORING_FAILURE:
             case SERVER_BUSY: {
-                return ComSession.SuccessIndicator.Broken;
-            }
-            case FAILURE: {
                 return ComSession.SuccessIndicator.Broken;
             }
             default: {
@@ -444,6 +462,10 @@ public class InboundCommunicationHandler {
         switch (responseType) {
             case DEVICE_NOT_FOUND: {
                 this.logger.deviceNotFound(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
+                break;
+            }
+            case DUPLICATE_DEVICE: {
+                this.logger.discoveryFailed(inboundDeviceProtocol.getClass().getName(), this.getComPort());
                 break;
             }
             case FAILURE: {
@@ -481,7 +503,7 @@ public class InboundCommunicationHandler {
 
     private boolean deviceRequiresEncryption(OfflineDevice device) {
         // Todo: Use one of the typed properties so may need to delegate this to the protocol
-        return true;
+        return false;
     }
 
     protected void handOverToDeviceProtocol(DeviceCommandExecutionToken token) {

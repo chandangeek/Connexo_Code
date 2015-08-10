@@ -475,12 +475,14 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
             assignThreadUser();
             Throwable causeOfFailure = null;
             try {
-                if (duringShutdown) {
-                    this.command.executeDuringShutdown(this.comServerDAO);
-                } else {
-                    this.command.execute(this.comServerDAO);
-                }
-                return true;
+                return comServerDAO.executeTransaction(() -> {
+                    if (duringShutdown) {
+                        this.command.executeDuringShutdown(this.comServerDAO);
+                    } else {
+                        this.command.execute(this.comServerDAO);
+                    }
+                    return true;
+                });
             } catch (Throwable t) {
                 /* Use Throwable rather than Exception or BusinessException and SQLException
                  * to make sure that the Semaphore#release method is called
