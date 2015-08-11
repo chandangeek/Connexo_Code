@@ -11,7 +11,7 @@ import java.util.List;
  * This message will always contain a list of schedules and (either a device filter or list of mRIDs)
  */
 public class ItemizeComScheduleQueueMessage implements QueueMessage {
-    public ComScheduleOnDevicesFilterSpecification comScheduleOnDevicesFilterSpecification;
+    public ComScheduleOnDevicesFilterSpecification filter;
     public List<String> deviceMRIDs;
     public List<Long> scheduleIds;
     public ScheduleAction action;

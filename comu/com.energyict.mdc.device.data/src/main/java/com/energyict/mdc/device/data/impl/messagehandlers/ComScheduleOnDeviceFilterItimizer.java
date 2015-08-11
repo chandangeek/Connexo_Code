@@ -4,16 +4,12 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.impl.ComScheduleOnDeviceQueueMessage;
-import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.TaskService;
 import com.google.common.base.Strings;
 
 import java.util.*;
@@ -42,8 +38,8 @@ public class ComScheduleOnDeviceFilterItimizer implements MessageHandler {
             ItemizeComScheduleQueueMessage queueMessage = jsonService.deserialize(message.getPayload(), ItemizeComScheduleQueueMessage.class);
             for (Long scheduleId : queueMessage.scheduleIds) {
                 Stream<Device> deviceStream;
-                if (queueMessage.comScheduleOnDevicesFilterSpecification!=null) {
-                    Condition deviceSearchCondition = buildFilterFromJsonQuery(queueMessage.comScheduleOnDevicesFilterSpecification);
+                if (queueMessage.filter !=null) {
+                    Condition deviceSearchCondition = buildFilterFromJsonQuery(queueMessage.filter);
                     deviceStream = deviceService.findAllDevices(deviceSearchCondition).stream();
                 }
                 else {
