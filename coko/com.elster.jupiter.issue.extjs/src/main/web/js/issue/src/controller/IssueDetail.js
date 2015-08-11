@@ -47,7 +47,7 @@ Ext.define('Isu.controller.IssueDetail', {
     makeLinkToList: function (router, routeToList, issueType) {
         var link = '<a href="{0}">' + Uni.I18n.translate('workspace.issues.title', 'ISU', 'Issues').toLowerCase() + '</a>',
             filter = this.getStore('Isu.store.Clipboard').get(issueType + '-latest-issues-filter'),
-            queryParams = filter ? {filter: filter} : null;
+            queryParams = filter ? filter : null;
 
         return Ext.String.format(link, router.getRoute(routeToList).buildUrl(null, queryParams));
     },
