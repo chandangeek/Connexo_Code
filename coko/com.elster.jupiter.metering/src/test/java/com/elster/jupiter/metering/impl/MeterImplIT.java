@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachine;
@@ -12,6 +13,7 @@ import com.elster.jupiter.fsm.impl.FiniteStateMachineServiceImpl;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
@@ -23,6 +25,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -36,6 +39,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
+import java.time.ZonedDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -124,6 +128,98 @@ public class MeterImplIT {
             assertThat(meter.getState().isPresent()).isTrue();
             assertThat(meter.getState().get().getId()).isEqualTo(stateMachine.getInitialState().getId());
         }
+    }
+
+    @Test
+    public void deactivateAndReinstallNonAdjacent() {
+        ZonedDateTime activation = ZonedDateTime.of(2015, 4, 10, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
+        ZonedDateTime deactivation = ZonedDateTime.of(2015, 4, 11, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
+        ZonedDateTime reinstall = ZonedDateTime.of(2015, 4, 12, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+
+        // activation
+
+        Meter meter;
+        try (TransactionContext context = transactionService.getContext()) {
+            meter = meteringService.findAmrSystem(1).get().newMeter("amrID", "mRID");
+            meter.save();
+            meter.activate(activation.toInstant());
+            context.commit();
+        }
+        meter = meteringService.findMeter(meter.getId()).get();
+        assertThat(meter.getMeterActivations()).hasSize(1);
+        MeterActivation meterActivation = meter.getMeterActivations().get(0);
+        assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(activation.toInstant()));
+
+        // deactivation
+
+        try (TransactionContext context = transactionService.getContext()) {
+            meterActivation.endAt(deactivation.toInstant());
+            context.commit();
+        }
+        meter = meteringService.findMeter(meter.getId()).get();
+        assertThat(meter.getMeterActivations()).hasSize(1);
+        meterActivation = meter.getMeterActivations().get(0);
+        assertThat(meterActivation.getRange()).isEqualTo(Range.closedOpen(activation.toInstant(), deactivation.toInstant()));
+
+        // reinstall
+
+        try (TransactionContext context = transactionService.getContext()) {
+            meter.activate(reinstall.toInstant());
+            context.commit();
+        }
+        meter = meteringService.findMeter(meter.getId()).get();
+        assertThat(meter.getMeterActivations()).hasSize(2);
+        meterActivation = meter.getMeterActivations().get(1);
+        assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(reinstall.toInstant()));
+
+    }
+
+    @Test
+    public void deactivateAndReinstallAdjacent() {
+        ZonedDateTime activation = ZonedDateTime.of(2015, 4, 10, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
+        ZonedDateTime deactivation = ZonedDateTime.of(2015, 4, 11, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
+        ZonedDateTime reinstall = deactivation;
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        MeteringService meteringService = injector.getInstance(MeteringService.class);
+
+        // activation
+
+        Meter meter;
+        try (TransactionContext context = transactionService.getContext()) {
+            meter = meteringService.findAmrSystem(1).get().newMeter("amrID", "mRID");
+            meter.save();
+            meter.activate(activation.toInstant());
+            context.commit();
+        }
+        meter = meteringService.findMeter(meter.getId()).get();
+        assertThat(meter.getMeterActivations()).hasSize(1);
+        MeterActivation meterActivation = meter.getMeterActivations().get(0);
+        assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(activation.toInstant()));
+
+        // deactivation
+
+        try (TransactionContext context = transactionService.getContext()) {
+            meterActivation.endAt(deactivation.toInstant());
+            context.commit();
+        }
+        meter = meteringService.findMeter(meter.getId()).get();
+        assertThat(meter.getMeterActivations()).hasSize(1);
+        meterActivation = meter.getMeterActivations().get(0);
+        assertThat(meterActivation.getRange()).isEqualTo(Range.closedOpen(activation.toInstant(), deactivation.toInstant()));
+
+        // reinstall
+
+        try (TransactionContext context = transactionService.getContext()) {
+            meter.activate(reinstall.toInstant());
+            context.commit();
+        }
+        meter = meteringService.findMeter(meter.getId()).get();
+        assertThat(meter.getMeterActivations()).hasSize(2);
+        meterActivation = meter.getMeterActivations().get(1);
+        assertThat(meterActivation.getRange()).isEqualTo(Range.atLeast(reinstall.toInstant()));
+
     }
 
     private FiniteStateMachine createTinyFiniteStateMachine() {
