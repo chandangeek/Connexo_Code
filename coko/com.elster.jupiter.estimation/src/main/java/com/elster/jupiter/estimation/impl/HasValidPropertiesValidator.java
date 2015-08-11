@@ -8,6 +8,7 @@ import javax.validation.ConstraintValidatorContext;
 
 import com.elster.jupiter.estimation.EstimatorNotFoundException;
 import com.elster.jupiter.estimation.MessageSeeds;
+import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 
@@ -29,6 +30,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
             this.validatePropertiesAreLinkedToAttributeSpecs(properties, propertySpecs, context);
             this.validateRequiredPropertiesArePresent(properties, propertySpecs, context);
             this.validatePropertyValues(properties, propertySpecs, context);
+            this.validateAdvanceReadingsSettingsProperty(properties, context);
             return this.valid;
         } catch (EstimatorNotFoundException e) {
             context.buildConstraintViolationWithTemplate(e.getLocalizedMessage()).addConstraintViolation().disableDefaultConstraintViolation();
@@ -36,13 +38,29 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         }
     }
 
+    private void validateAdvanceReadingsSettingsProperty(Map<String, Object> properties, ConstraintValidatorContext context) {
+        String propertyName = "averagewithsamples.advanceReadingsSettings";
+        if(properties.containsKey(propertyName)) {
+            Object propertyValue = properties.get(propertyName);
+            if (propertyValue instanceof ReadingTypeAdvanceReadingsSettings) {
+                if (((ReadingTypeAdvanceReadingsSettings) propertyValue).toString().isEmpty()) {
+                    context.disableDefaultConstraintViolation();
+                    context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+                            .addPropertyNode(propertyName)
+                            .addConstraintViolation();
+                    this.valid = false;
+                }
+            }
+        }
+
+    }
+
     private void validatePropertiesAreLinkedToAttributeSpecs(Map<String, Object> properties, List<PropertySpec> propertySpecs, ConstraintValidatorContext context) {
         for (String propertyName : properties.keySet()) {
             if (getPropertySpec(propertySpecs, propertyName) == null) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.ESTIMATOR_PROPERTY_NOT_IN_SPEC_KEY + "}")
-                       .addPropertyNode("properties")
-                       .addPropertyNode(propertyName)
+                        .addPropertyNode(propertyName)
                        .addConstraintViolation();
                 this.valid = false;
             }
@@ -53,7 +71,6 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         for (PropertySpec propertySpec : propertySpecs) {
             if (propertySpec.isRequired() && !properties.containsKey(propertySpec.getName())) {
                 context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.ESTIMATOR_REQUIRED_PROPERTY_MISSING_KEY + "}")
-                       .addPropertyNode("properties")
                        .addPropertyNode(propertySpec.getName())
                        .addConstraintViolation()
                        .disableDefaultConstraintViolation();
@@ -75,7 +92,6 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
             propertySpec.validateValue(propertyValue);
         } catch (InvalidValueException e) {
             context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.ESTIMATOR_PROPERTY_INVALID_VALUE_KEY + "}")
-                   .addPropertyNode("properties")
                    .addPropertyNode(propertySpec.getName())
                    .addConstraintViolation()
                    .disableDefaultConstraintViolation();

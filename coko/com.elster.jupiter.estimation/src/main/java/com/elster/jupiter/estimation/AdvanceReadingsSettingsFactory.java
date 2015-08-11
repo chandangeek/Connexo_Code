@@ -48,9 +48,7 @@ public class AdvanceReadingsSettingsFactory extends AbstractValueFactory<Advance
             return BulkAdvanceReadingsSettings.INSTANCE;
         } else {
             ReadingType readingType = meteringService.getReadingType(stringValue).orElse(null);
-            return (readingType == null) ?
-                    NoneAdvanceReadingsSettings.INSTANCE :
-                    new ReadingTypeAdvanceReadingsSettings(readingType);
+            return new ReadingTypeAdvanceReadingsSettings(readingType);
         }
     }
 

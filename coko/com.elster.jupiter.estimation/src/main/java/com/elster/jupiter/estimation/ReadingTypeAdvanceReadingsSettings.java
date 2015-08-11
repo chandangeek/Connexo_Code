@@ -14,7 +14,7 @@ public class ReadingTypeAdvanceReadingsSettings implements AdvanceReadingsSettin
     }
 
     public String toString() {
-        return readingType.getMRID();
+        return readingType != null ? readingType.getMRID() : "";
     }
 
     public ReadingType getReadingType() {

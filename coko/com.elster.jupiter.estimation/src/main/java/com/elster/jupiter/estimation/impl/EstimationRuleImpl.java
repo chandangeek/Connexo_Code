@@ -125,6 +125,7 @@ class EstimationRuleImpl implements IEstimationRule {
         for (EstimationRuleProperties property : entryDiff.getRemaining()) {
             property.setValue(propertyMap.get(property.getName()));
             rulePropertiesFactory().update(property);
+            properties.stream().filter(p -> p.getName().equals(property.getName())).findFirst().ifPresent(p -> p.setValue(propertyMap.get(property.getName())));
         }
         for (EstimationRuleProperties property : entryDiff.getAdditions()) {
             properties.add(property);
@@ -273,12 +274,13 @@ class EstimationRuleImpl implements IEstimationRule {
     }
 
     public void save() {
-        this.getEstimator().validateProperties(this.properties);
-
         if (getId() == 0) {
+            this.getEstimator().validateProperties(this.properties);
             doPersist();
             return;
         }
+        Save.UPDATE.validate(dataModel, this);
+        this.getEstimator().validateProperties(this.properties);
         doUpdate();
     }
 
