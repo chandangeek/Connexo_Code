@@ -140,7 +140,8 @@ Ext.define('Uni.view.search.field.Selection', {
                                     });
                                 }
                             } else {
-                                store.removeFilter(me.displayField);
+                                store.removeFilter(me.displayField, false);
+                                store.load();
                             }
                             Ext.resumeLayouts(true);
                         }

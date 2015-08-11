@@ -67,6 +67,7 @@ Ext.define('Uni.controller.Search', {
 
     criteriaMap: {
         'Boolean': 'uni-view-search-field-yesno',
+        'Instant': 'uni-view-search-field-date-field',
         'TimeDuration': 'uni-view-search-field-date-field',
         'BigDecimal': 'uni-view-search-field-number-field'
     },
@@ -175,16 +176,6 @@ Ext.define('Uni.controller.Search', {
         Ext.apply(options.params, params);
     },
 
-    //updateRemovableContainerVisibility: function () {
-    //    var me = this,
-    //        container = me.getRemovablePropertiesContainer(),
-    //        itemCount = container.items.length,
-    //        placeholder = me.getRemovablePropertiesPlaceholder();
-    //
-    //    placeholder.setVisible(itemCount > 0);
-    //    container.setVisible(itemCount > 0);
-    //},
-
     onSearchPropertiesLoad: function (records, operation, success) {
         var me = this,
             criteriaStore = Ext.getStore('Uni.store.search.Removables');
@@ -267,7 +258,7 @@ Ext.define('Uni.controller.Search', {
                         searchResults.removeAll(true);
                         searchResults.clearFilter(true);
                         searchResults.getProxy().url = searchDomain.get('selfHref');
-                        searchResults.load();
+                        //searchResults.load();
                     }
                 },
                 scope: me
@@ -404,19 +395,18 @@ Ext.define('Uni.controller.Search', {
                     item.setDisabled(false);
                     if (item.store && Ext.isFunction(item.getStore)) {
                         store = item.getStore();
-                        //if (store.isLoading()) {
-                        //    Ext.Ajax.abort(store.lastRequest);
-                        //}
+                        if (store.isLoading()) {
+                            Ext.Ajax.abort(store.lastRequest);
+                        }
                         store.clearFilter(true);
                         store.addFilter(widget.getFilter(), false);
-                        store.load();
-                        //store.load({
-                        //    callback: function () {
-                        //        //item.setDisabled(!!store.count());
-                        //        item.setDisabled(false);
-                        //    }
-                        //});
-                        //store.lastRequest = Ext.Ajax.getLatest();
+                        item.menu.setLoading(true);
+                        store.load({
+                            callback: function () {
+                                item.menu.setLoading(false);
+                            }
+                        });
+                        store.lastRequest = Ext.Ajax.getLatest();
                     }
                 } else {
                     item.setDisabled(true);
