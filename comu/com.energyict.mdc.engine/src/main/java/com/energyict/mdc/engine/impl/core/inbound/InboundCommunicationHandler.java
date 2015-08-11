@@ -531,7 +531,7 @@ public class InboundCommunicationHandler {
                         inboundDeviceProtocol,
                         offlineDevice,
                         this.serviceProvider,
-                        this);
+                        this, logger);
         inboundJobExecutionDataProcessor.setToken(token);
         inboundJobExecutionDataProcessor.setConnectionTask(this.connectionTask);
         inboundJobExecutionDataProcessor.executeDeviceProtocol(this.deviceComTaskExecutions);
@@ -659,8 +659,8 @@ public class InboundCommunicationHandler {
         }
 
         @Override
-        public void collectedDataWasFiltered(DeviceIdentifier deviceIdentifier, InboundComPort comPort, int numberOfItemsFiltered) {
-            this.loggers.forEach(each -> each.collectedDataWasFiltered(deviceIdentifier, comPort, numberOfItemsFiltered));
+        public void collectedDataWasFiltered(String dataType, DeviceIdentifier deviceIdentifier, ComPort comPort) {
+            this.loggers.forEach(each -> each.collectedDataWasFiltered(dataType, deviceIdentifier, comPort));
         }
 
     }

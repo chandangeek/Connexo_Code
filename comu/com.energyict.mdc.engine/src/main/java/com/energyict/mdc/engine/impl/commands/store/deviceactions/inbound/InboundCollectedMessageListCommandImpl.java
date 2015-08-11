@@ -7,10 +7,12 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.MessagesCommandImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageAcknowledgement;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.MessagesTask;
@@ -34,7 +36,10 @@ public class InboundCollectedMessageListCommandImpl extends MessagesCommandImpl 
 
     @Override
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        this.addListOfCollectedDataItems(collectedData);
+        collectedData.stream().filter(dataItem -> dataItem instanceof CollectedMessage
+                || dataItem instanceof CollectedMessageList
+                || dataItem instanceof CollectedMessageAcknowledgement
+                || dataItem instanceof DeviceIpAddress).forEach(this::addCollectedDataItem);
     }
 
     @Override

@@ -56,7 +56,7 @@ public class TopologyCommandImpl extends SimpleComCommand implements TopologyCom
         addCollectedDataItem(this.deviceTopology);
     }
 
-    private List<DeviceIdentifier> getSlaveIdentifiersFromOfflineDevices() {
+    protected List<DeviceIdentifier> getSlaveIdentifiersFromOfflineDevices() {
         return this.offlineDevice.getAllSlaveDevices().stream().map(OfflineDevice::getDeviceIdentifier).collect(Collectors.toList());
     }
 

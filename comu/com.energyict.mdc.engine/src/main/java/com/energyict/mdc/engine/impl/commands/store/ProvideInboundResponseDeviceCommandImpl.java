@@ -32,6 +32,9 @@ public class ProvideInboundResponseDeviceCommandImpl extends DeviceCommandImpl i
     @Override
     protected void doExecute(ComServerDAO comServerDAO) {
         try {
+            if(responseType.equals(InboundDeviceProtocol.DiscoverResponseType.SUCCESS) && !inboundCommunicationHandler.getContext().isAllCollectedDataWasProcessed()){
+                this.responseType = InboundDeviceProtocol.DiscoverResponseType.DATA_ONLY_PARTIALLY_HANDLED;
+            }
             inboundCommunicationHandler.provideResponse(inboundDeviceProtocol, responseType);
         } catch (Exception e) {
             executionContext.getStoreCommand().getChildren().stream().filter(deviceCommand -> deviceCommand instanceof CreateComSessionDeviceCommand)

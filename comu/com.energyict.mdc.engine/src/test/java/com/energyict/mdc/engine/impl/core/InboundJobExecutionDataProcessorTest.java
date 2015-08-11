@@ -8,6 +8,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.CreateComTaskExecutionSessionCommand;
 import com.energyict.mdc.engine.impl.commands.collect.CreateComTaskExecutionSessionCommandType;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.inbound.ComPortDiscoveryLogger;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
@@ -66,6 +67,8 @@ public class InboundJobExecutionDataProcessorTest {
     private DeviceProtocol deviceProtocol;
     @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
+    @Mock
+    private ComPortDiscoveryLogger testComPortDiscoveryLogger;
 
     @Before
     public void setup() {
@@ -98,7 +101,7 @@ public class InboundJobExecutionDataProcessorTest {
     }
 
     private InboundJobExecutionDataProcessor getTestInstance() {
-        return new InboundJobExecutionDataProcessor(comPort, comServerDAO, deviceCommandExecutor, inboundDiscoveryContext, inboundDeviceProtocol, offlineDevice, serviceProvider, inboundCommunicationHandler);
+        return new InboundJobExecutionDataProcessor(comPort, comServerDAO, deviceCommandExecutor, inboundDiscoveryContext, inboundDeviceProtocol, offlineDevice, serviceProvider, inboundCommunicationHandler, testComPortDiscoveryLogger);
     }
 
 }

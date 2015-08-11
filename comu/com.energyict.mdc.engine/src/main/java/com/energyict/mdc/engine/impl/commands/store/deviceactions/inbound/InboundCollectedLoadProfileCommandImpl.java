@@ -4,8 +4,10 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.LoadProfileCommandImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 
@@ -32,7 +34,10 @@ public class InboundCollectedLoadProfileCommandImpl extends LoadProfileCommandIm
 
     @Override
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        this.addListOfCollectedDataItems(this.collectedData);
+        collectedData.stream().filter(dataItem ->
+                dataItem instanceof CollectedLoadProfile || dataItem instanceof DeviceIpAddress)
+                .forEach(this::addCollectedDataItem);
+
         if (this.getLoadProfilesTask().createMeterEventsFromStatusFlags()) {
             this.getCreateMeterEventsFromStatusFlagsCommand().execute(deviceProtocol, executionContext);
         }

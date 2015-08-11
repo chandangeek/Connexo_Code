@@ -123,6 +123,9 @@ public class ComServlet extends HttpServlet {
             case STORING_FAILURE: {
                 // Intentional fallthrough
             }
+            case DATA_ONLY_PARTIALLY_HANDLED: {
+                // Intentional fallthrough
+            }
             default: {
                 // Does not count as a configuration error
             }

@@ -248,19 +248,10 @@ public class ComServerDAOImpl implements ComServerDAO {
         return new OfflineLogBookImpl((LogBook) logBookIdentifier.getLogBook(), this.serviceProvider.identificationService());
     }
 
-    //    @Override
-//    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
-//        EndDeviceMessage deviceMessage = (EndDeviceMessage) identifier.getDeviceMessage();
-//        return deviceMessage.goOffline();
-//    }
-
     @Override
     public void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
-        TypedProperties properties = connectionTask.getTypedProperties();
-        properties.setProperty(connectionTaskPropertyName, ipAddress);
-        // TODO: JP-1123
-        // serverConnectionTask.updateProperties(properties);
-        // add/remove/update properties
+        connectionTask.setProperty(connectionTaskPropertyName, ipAddress);
+        connectionTask.save();
     }
 
     @Override

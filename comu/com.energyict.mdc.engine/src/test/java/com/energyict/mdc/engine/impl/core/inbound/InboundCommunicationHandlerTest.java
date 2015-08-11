@@ -90,6 +90,8 @@ public class InboundCommunicationHandlerTest {
     private static final long INBOUND_COMPORT_POOL_ID = DEVICE_ID + 1;
 
     @Mock
+    private ComPortDiscoveryLogger testDiscoveryLogger;
+    @Mock
     private ComServer comServer;
     @Mock
     private InboundComPortPool comPortPool;
@@ -454,22 +456,17 @@ public class InboundCommunicationHandlerTest {
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(Arrays.asList(token));
         when(this.connectionTaskService.buildComSession(eq(connectionTask), eq(this.comPortPool), eq(this.comPort), any(Instant.class))).thenReturn(this.comSessionBuilder);
 
-        Future<? extends Object> future = mock(Future.class);
-        when(deviceCommandExecutor.execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class))).thenAnswer(new Answer<Future>() {
-            @Override
-            public Future answer(InvocationOnMock invocationOnMock) throws Throwable {
-                ComSessionRootDeviceCommand comSessionRootDeviceCommand = (ComSessionRootDeviceCommand) invocationOnMock.getArguments()[0];
-                for (DeviceCommand deviceCommand : comSessionRootDeviceCommand.getChildren()) {
-                    if(deviceCommand instanceof ProvideInboundResponseDeviceCommand){
-                        ProvideInboundResponseDeviceCommand provideInboundResponseDeviceCommand = (ProvideInboundResponseDeviceCommand) deviceCommand;
-                        if(!storingSuccess){
-                            provideInboundResponseDeviceCommand.dataStorageFailed();
-                        }
-                        provideInboundResponseDeviceCommand.execute(comServerDAO);
-                    }
+        Future future = mock(Future.class);
+        when(deviceCommandExecutor.execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class))).thenAnswer(invocationOnMock -> {
+            ComSessionRootDeviceCommand comSessionRootDeviceCommand = (ComSessionRootDeviceCommand) invocationOnMock.getArguments()[0];
+            comSessionRootDeviceCommand.getChildren().stream().filter(deviceCommand -> deviceCommand instanceof ProvideInboundResponseDeviceCommand).forEach(deviceCommand -> {
+                ProvideInboundResponseDeviceCommand provideInboundResponseDeviceCommand = (ProvideInboundResponseDeviceCommand) deviceCommand;
+                if (!storingSuccess) {
+                    provideInboundResponseDeviceCommand.dataStorageFailed();
                 }
-                return future;
-            }
+                provideInboundResponseDeviceCommand.execute(comServerDAO);
+            });
+            return future;
         });
 
         // Business method
@@ -688,7 +685,7 @@ public class InboundCommunicationHandlerTest {
     private class TestInboundJobExecutionDataProcessor extends InboundJobExecutionDataProcessor {
 
         public TestInboundJobExecutionDataProcessor(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundDiscoveryContextImpl inboundDiscoveryContext, InboundDeviceProtocol inboundDeviceProtocol, OfflineDevice offlineDevice, InboundCommunicationHandler inboundCommunicationHandler) {
-            super(comPort, comServerDAO, deviceCommandExecutor, inboundDiscoveryContext, inboundDeviceProtocol, offlineDevice, serviceProvider, inboundCommunicationHandler);
+            super(comPort, comServerDAO, deviceCommandExecutor, inboundDiscoveryContext, inboundDeviceProtocol, offlineDevice, serviceProvider, inboundCommunicationHandler, testDiscoveryLogger);
         }
 
         @Override

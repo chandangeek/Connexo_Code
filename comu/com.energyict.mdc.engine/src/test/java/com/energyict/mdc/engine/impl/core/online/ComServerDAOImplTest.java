@@ -272,9 +272,8 @@ public class ComServerDAOImplTest {
         this.comServerDAO.updateIpAddress(IP_ADDRESS, connectionTask, IP_ADDRESS_PROPERTY_NAME);
 
         // Asserts
-        verify(connectionTask).getTypedProperties();
-        verify(properties).setProperty(IP_ADDRESS_PROPERTY_NAME, IP_ADDRESS);
-        // Todo (JP-1123) verify(connectionTask).updateProperties(properties);
+        verify(connectionTask).setProperty(IP_ADDRESS_PROPERTY_NAME, IP_ADDRESS);
+        verify(connectionTask).save();
     }
 
     @Test
