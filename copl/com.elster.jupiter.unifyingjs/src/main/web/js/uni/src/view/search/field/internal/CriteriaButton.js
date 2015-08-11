@@ -15,7 +15,8 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
         var me = this;
         return new Ext.util.Filter({
             property: me.dataIndex,
-            value: me.getValue()
+            value: me.getValue(),
+            id: me.dataIndex
         });
     },
 

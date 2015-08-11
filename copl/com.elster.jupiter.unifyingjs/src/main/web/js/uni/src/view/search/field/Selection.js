@@ -23,7 +23,7 @@ Ext.define('Uni.view.search.field.Selection', {
     store: null,
     menuConfig: {
         width: 300,
-        maxHeight: 400
+        maxHeight: 600
     },
 
     onSelectionChange: function () {
@@ -33,6 +33,7 @@ Ext.define('Uni.view.search.field.Selection', {
         }));
         me.down('#filter-selected').setDisabled(!me.selection.length);
     },
+
     initComponent: function () {
         var me = this,
             selection = me.selection = Ext.create('Ext.util.MixedCollection', {
@@ -59,7 +60,6 @@ Ext.define('Uni.view.search.field.Selection', {
                 style: {
                     borderRadius: '0'
                 },
-                //width: '100%',
                 items: {
                     dataIndex: me.displayField,
                     flex: 1
@@ -90,53 +90,22 @@ Ext.define('Uni.view.search.field.Selection', {
                                 xtype: 'search-criteria-input',
                                 tooltip: 'Specify filter to narrow down selection list. Maximum 100 records are displayed.',
                                 emptyText: 'Start typing to find devices...',
-                                lbar: {
-                                    xtype: 'button',
-                                    itemId: 'filter-selected',
-                                    iconCls: 'icon-checkbox-unchecked2',
-                                    iconClsUnpressed: 'icon-checkbox-unchecked2',
-                                    iconClsPressed: 'icon-checkbox',
-                                    enableToggle: true,
-                                    style: {
-                                        fontSize: '16px'
-                                    },
-                                    padding: 5,
-                                    margin: 0,
-                                    tooltip: 'Filter all selected values',
-                                    ui: 'plain',
-                                    disabled: true,
-                                    handler: function () {
-                                        var store = me.grid.getStore();
-                                        Ext.suspendLayouts();
-
-                                        if (this.pressed) {
-                                            this.setIconCls(this.iconClsPressed);
-                                            store.clearFilter(true);
-                                            if (store.remoteFilter) {
-                                                store.removeAll();
-                                                store.add(selection.getRange());
-                                            } else {
-                                                store.filter({
-                                                    filterFn: function (item) {
-                                                        return selection.getRange().indexOf(item) >= 0;
-                                                    }
-                                                });
-                                            }
-                                        } else {
-                                            this.setIconCls(this.iconClsUnpressed);
-                                            store.clearFilter();
-                                        }
-                                        Ext.resumeLayouts(true);
-                                    }
-                                },
                                 listeners: {
                                     change: function (elm, value) {
                                         var store = me.grid.getStore();
                                         Ext.suspendLayouts();
-                                        store.clearFilter(true);
                                         if (store.remoteFilter) {
-                                            store.filter(me.displayField, value);
+                                            if (Ext.isEmpty(value)) {
+                                                store.removeFilter(me.displayField)
+                                            } else {
+                                                store.addFilter({
+                                                    id: me.displayField,
+                                                    property: me.displayField,
+                                                    value: value
+                                                });
+                                            }
                                         } else {
+                                            store.clearFilter(true);
                                             me.enableRegEx
                                                 ? store.filter(me.displayField, new RegExp(value))
                                                 : store.filter(me.displayField, value);
@@ -150,10 +119,31 @@ Ext.define('Uni.view.search.field.Selection', {
                         ]
                     },
                     {
-                        xtype: 'container',
-                        itemId: 'limit-notification',
-                        hidden: true,
-                        html: 'Only the first 100 records are displayed. Use filter to narrow down.'
+                        xtype: 'checkboxfield',
+                        itemId: 'filter-selected',
+                        boxLabel: 'Show all selected items',
+                        disabled: true,
+                        handler: function () {
+                            var store = me.grid.getStore();
+                            Ext.suspendLayouts();
+
+                            if (this.checked) {
+                                //store.clearFilter(true);
+                                if (store.remoteFilter) {
+                                    store.removeAll();
+                                    store.add(selection.getRange());
+                                } else {
+                                    store.filter({
+                                        filterFn: function (item) {
+                                            return selection.getRange().indexOf(item) >= 0;
+                                        }
+                                    });
+                                }
+                            } else {
+                                store.removeFilter(me.displayField);
+                            }
+                            Ext.resumeLayouts(true);
+                        }
                     },
                     {
                         xtype: 'checkboxfield',
@@ -178,7 +168,7 @@ Ext.define('Uni.view.search.field.Selection', {
                     },
                     {
                         xtype: 'checkboxfield',
-                        boxLabel: 'Is empty',
+                        boxLabel: 'Include empty values',
                         name: 'topping',
                         inputValue: '1'
                     }
@@ -191,44 +181,21 @@ Ext.define('Uni.view.search.field.Selection', {
                 toggleUiHeader: function(isChecked) {
                     me.grid.down('#select-all').setRawValue(isChecked);
                 },
-                //processSelection: function() {
-                //    //var me = this,
-                //    //    handler = me.handler;
-                //    //if (handler) {
-                //    //    handler.call(me.scope || me, me, newVal);
-                //    //}
-                //    this.callParent(arguments);
-                //    debugger;
-                //},
-                //onSelectChange: function() {
-                //    debugger;
-                //    this.callOverridden(arguments);
-                //}
-
-                //onStoreLoad: function(){
-                //    debugger;
-                //    //this.callParent(arguments);
-                //    //this.updateHeaderState();
-                //
-                //},
                 onStoreAdd: function() {
                     this.superclass.onStoreAdd.apply(this);
                     this.select(_.intersection(this.getStore().getRange(), selection.getRange()), true, true);
                     this.updateHeaderState();
                 },
-
                 onStoreLoad: function () {
                     this.superclass.onStoreLoad.apply(this);
                     this.select(selection.getRange(), true, true);
                     this.updateHeaderState();
                 },
-
                 onStoreRefresh: function () {
                     this.superclass.onStoreRefresh.apply(this);
                     this.select(_.intersection(this.getStore().getRange(), selection.getRange()), true, true);
                     this.updateHeaderState();
                 },
-
                 listeners: {
                     beforeselect: function (s, record) {
                         selection.add(record);
@@ -248,10 +215,9 @@ Ext.define('Uni.view.search.field.Selection', {
             margin: 0,
             border: false,
             store: me.store,
-            displayField: me.displayField,
             focusOnToFront: false,
             pageSize: me.pageSize,
-            maxHeight: 300,
+            maxHeight: 450,
             style: {
                 border: 'none'
             },

@@ -66,12 +66,9 @@ Ext.define('Uni.controller.Search', {
     }),
 
     criteriaMap: {
-        'String': 'search-criteria-simple',
         'Boolean': 'uni-view-search-field-yesno',
         'TimeDuration': 'uni-view-search-field-date-field',
-        'BigDecimal': 'uni-view-search-field-number-field',
-        'DeviceType': 'search-combo',
-        'DeviceConfiguration': 'search-combo'
+        'BigDecimal': 'uni-view-search-field-number-field'
     },
 
     init: function () {
@@ -394,8 +391,8 @@ Ext.define('Uni.controller.Search', {
     },
 
     updateConstraints: function (widget, value) {
-        var me = this;
-        var deps = me.filters.filterBy(function(filter){
+        var me = this, store;
+        var deps = me.filters.filterBy(function(filter) {
             return !!(filter.property.get('constraints')
             && filter.property.get('constraints').length
             && filter.property.get('constraints').indexOf(widget.property.get('name')) >= 0);
@@ -405,14 +402,26 @@ Ext.define('Uni.controller.Search', {
             deps.each(function(item) {
                 if (!Ext.isEmpty(value)) {
                     item.setDisabled(false);
-                    if (item.store) {
-                        item.store.clearFilter(true);
-                        item.store.filter(widget.getFilter());
+                    if (item.store && Ext.isFunction(item.getStore)) {
+                        store = item.getStore();
+                        //if (store.isLoading()) {
+                        //    Ext.Ajax.abort(store.lastRequest);
+                        //}
+                        store.clearFilter(true);
+                        store.addFilter(widget.getFilter(), false);
+                        store.load();
+                        //store.load({
+                        //    callback: function () {
+                        //        //item.setDisabled(!!store.count());
+                        //        item.setDisabled(false);
+                        //    }
+                        //});
+                        //store.lastRequest = Ext.Ajax.getLatest();
                     }
                 } else {
                     item.setDisabled(true);
                     if (item.store) {
-                        item.store.clearFilter();
+                        item.getStore().clearFilter();
                     }
                 }
             });
@@ -498,8 +507,8 @@ Ext.define('Uni.controller.Search', {
         var me = this,
             type = property.get('type'),
             displayValue = property.get('displayValue'),
-            widgetConfig = me.criteriaMap[type],
             config = {
+                xtype: me.criteriaMap[type],
                 text: displayValue,
                 emptyText: displayValue,
                 dataIndex: property.get('name'),
@@ -513,26 +522,13 @@ Ext.define('Uni.controller.Search', {
             },
             widget;
 
-        if (!widgetConfig) {
-            if (property.get('selectionMode') === 'single') {
-                widgetConfig = 'search-criteria-simple'
-            }
-        }
-
-        if (property.get('constraints') && property.get('constraints').length) {
-            Ext.apply(config, {
-                disabled: true
-            });
-        }
-
         if (property.get('exhaustive')) {
             var store = Ext.create('Uni.store.search.PropertyValues', {
-                pageSize: 10,
                 proxy: {
                     type: 'ajax',
-                    //pageParam: undefined,
-                    //startParam: undefined,
-                    //limitParam: undefined,
+                    pageParam: undefined,
+                    startParam: undefined,
+                    limitParam: undefined,
                     url: property.get('linkHref'),
                     reader: {
                         type: 'json',
@@ -549,59 +545,23 @@ Ext.define('Uni.controller.Search', {
                 store: store,
                 valueField: 'id',
                 displayField: 'displayValue',
-                multiSelect: true
+                multiSelect: property.get('selectionMode') === 'multiple'
             });
         }
 
-            //widget = Ext.create('Uni.view.search.field.Combobox', {
-            //
-            //});
+        if (property.get('constraints') && property.get('constraints').length) {
+            Ext.apply(config, {
+                disabled: true
+            });
+        }
 
-            //widget.on('afterrender', function () {
+        if (Ext.isEmpty(config.xtype)){
+            Ext.apply(config, {
+                xtype: 'search-criteria-simple'
+            });
+        }
 
-            //}, me);
-            //} else {
-            //    switch (type) {
-            //        case 'String':
-            //            widget = Ext.create('Uni.view.search.field.Simple', {
-            //                text: displayValue,
-            //                emptyText: displayValue
-            //            });
-            //            break;
-            //        case 'BigDecimal':
-            //            widget = Ext.create('Uni.view.search.field.NumberField', {
-            //                text: displayValue,
-            //                emptyText: displayValue
-            //            });
-            //            break;
-            //        case 'Boolean':
-            //            widget = Ext.create('Uni.view.search.field.YesNo', {
-            //                emptyText: displayValue,
-            //                defaultText: displayValue
-            //            });
-            //            break;
-            //        case 'TimeDuration':
-            //            widget = Ext.create('Uni.view.search.field.DateRangeField', {
-            //                emptyText: displayValue,
-            //                text: displayValue,
-            //                defaultText: displayValue
-            //            });
-            //            break;
-            //        default:
-            //            // <debug>
-            //            console.log('Unknown search property type: ' + type);
-            //            // </debug>
-            //            return undefined;
-            //            break;
-            //    }
-            //}
-            //{
-            //    text: displayValue,
-            //        emptyText: displayValue
-            //}
-        widget = Ext.isString(widgetConfig)
-            ? Ext.widget(Ext.apply(config, {xtype: widgetConfig}))
-            : Ext.widget(Ext.apply(config, widgetConfig));
+        widget = Ext.widget(config);
 
         if (removable) {
             widget = Ext.create('Uni.view.search.field.internal.Adapter', {
