@@ -27,6 +27,10 @@ Ext.define('Usr.controller.GroupEdit', {
             selector: 'groupEdit #applicationList'
         },
         {
+            ref: 'editPage',
+            selector: 'groupEdit'
+        },
+        {
             ref: 'selectFeaturesGrid',
             selector: 'groupEdit #featureList'
         }
@@ -206,45 +210,55 @@ Ext.define('Usr.controller.GroupEdit', {
     },
 
     saveGroup: function (button) {
-        var me = this;
-        var form = button.up('form');
+        var me = this,
+            editPageForm = me.getEditPage(),
+            form = editPageForm.down('#editForm'),
+            formErrorsPanel = editPageForm.down('#form-errors');
 
         form.updateRecord();
         var record = form.getRecord();
 
-        record.privilegesStore.removeAll();
-        var features = this.getSelectFeaturesGrid().getStore();
-        features.clearFilter(true);
+        if (!form.isValid()) {
+            formErrorsPanel.show();
+        } else {
+            if (!formErrorsPanel.isHidden()) {
+                formErrorsPanel.hide();
+            }
 
-        for (var i = 0; i < features.count(); i++) {
-            var privileges = features.data.items[i].privileges();
-            for (var j = 0; j < privileges.data.items.length; j++) {
-                if (privileges.data.items[j].get('selected')) {
-                    privileges.data.items[j].set('applicationName',features.data.items[i].get('componentName'));
-                    record.privilegesStore.add(privileges.data.items[j]);
+            record.privilegesStore.removeAll();
+            var features = this.getSelectFeaturesGrid().getStore();
+            features.clearFilter(true);
+
+            for (var i = 0; i < features.count(); i++) {
+                var privileges = features.data.items[i].privileges();
+                for (var j = 0; j < privileges.data.items.length; j++) {
+                    if (privileges.data.items[j].get('selected')) {
+                        privileges.data.items[j].set('applicationName', features.data.items[i].get('componentName'));
+                        record.privilegesStore.add(privileges.data.items[j]);
+                    }
                 }
             }
+
+            record.save({
+                success: function (record) {
+                    var message;
+                    if (me.mode == 'edit') {
+                        message = Uni.I18n.translatePlural('group.saved', record.get('name'), 'USR', 'Role \'{0}\' saved.');
+                    }
+                    else {
+                        message = Uni.I18n.translatePlural('group.added', record.get('name'), 'USR', 'Role \'{0}\' added.');
+                    }
+                    me.getApplication().fireEvent('acknowledge', message);
+                    me.back();
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        form.markInvalid(json.errors);
+                    }
+                }
+            });
         }
-
-        record.save({
-            success: function (record) {
-                var message;
-                if (me.mode == 'edit') {
-                    message = Uni.I18n.translatePlural('group.saved', record.get('name'), 'USR', 'Role \'{0}\' saved.');
-                }
-                else {
-                    message = Uni.I18n.translatePlural('group.added', record.get('name'), 'USR', 'Role \'{0}\' added.');
-                }
-                me.getApplication().fireEvent('acknowledge', message);
-                me.back();
-            },
-            failure: function (record, operation) {
-                var json = Ext.decode(operation.response.responseText);
-                if (json && json.errors) {
-                    form.markInvalid(json.errors);
-                }
-            }
-        });
     },
 
     updateApplicationRow: function () {

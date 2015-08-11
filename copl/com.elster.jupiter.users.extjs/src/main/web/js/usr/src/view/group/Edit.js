@@ -23,7 +23,6 @@ Ext.define('Usr.view.group.Edit', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                //layout: 'vbox',
                 layout: {
                     type: 'vbox',
                     align: 'stretch'
@@ -36,15 +35,19 @@ Ext.define('Usr.view.group.Edit', {
                         itemId: 'editForm',
                         hydrator: 'Uni.util.Hydrator',
                         buttonAlign: 'left',
-                        layout: {
-                            type: 'vbox',
-                            align: 'stretch'
-                        },
                         defaults: {
-                            xtype: 'textfield',
                             labelWidth: 250
                         },
                         items: [
+                            {
+                                itemId: 'form-errors',
+                                xtype: 'uni-form-error-message',
+                                name: 'form-errors',
+                                width: 750,
+                                align: 'left',
+                                margin: '0 0 10 0',
+                                hidden: true
+                            },
                             {
                                 xtype: 'uni-form-info-message',
                                 itemId: 'alertmessagerole',
@@ -55,18 +58,23 @@ Ext.define('Usr.view.group.Edit', {
                             },
 
                             {
+                                xtype: 'textfield',
                                 name: 'name',
                                 fieldLabel: Uni.I18n.translate('group.name', 'USR', 'Name'),
                                 maxWidth: 650,
+                                width: 750,
                                 required: true,
                                 msgTarget: 'under',
+                                allowBlank: false,
                                 maxLength: 80,
                                 enforceMaxLength: true
                             },
                             {
+                                xtype: 'textfield',
                                 name: 'description',
                                 fieldLabel: Uni.I18n.translate('group.description', 'USR', 'Description'),
-                                maxWidth: 650
+                                maxWidth: 650,
+                                width: 750
                             },
                             {
                                 xtype: 'label',
@@ -102,7 +110,7 @@ Ext.define('Usr.view.group.Edit', {
                                 items: [
                                     {
                                         itemId: 'roleAddButton',
-                                        text: Uni.I18n.translate('general.add', 'USR', 'Add'),
+                                        text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                         xtype: 'button',
                                         ui: 'action',
                                         action: 'save'
