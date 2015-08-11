@@ -79,4 +79,6 @@ public interface InboundDiscoveryContext {
      */
     public TypedProperties getDeviceProtocolProperties (DeviceIdentifier deviceIdentifier);
 
+    public void markNotAllCollectedDataWasProcessed();
+
 }
