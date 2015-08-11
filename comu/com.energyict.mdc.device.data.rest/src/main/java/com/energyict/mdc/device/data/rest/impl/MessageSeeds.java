@@ -208,8 +208,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     CIM_DATE_SHOULD_BE_AFTER_X(238, "CIMDateShouldBeAfterX" , "This date should be greater than (or equal) ''{0}''"),
     NO_APPSERVER(239, "NoAppServer", "There is no active application server that can handle this request"),
     NO_SUCH_MESSAGE_QUEUE(240, "NoSuchMessageQueue", "Unable to queue command: no message queue was found"),
-
-    ;
+    BAD_ACTION(241, "BadAction", "Expected action to be either 'add' or 'remove'");
     private final int number;
     private final String key;
     private final String format;

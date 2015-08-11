@@ -1,9 +1,15 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -38,13 +44,17 @@ import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Currency;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -111,6 +121,10 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     FirmwareService firmwareService;
     @Mock
     DeviceLifeCycleService deviceLifeCycleService;
+    @Mock
+    AppService appService;
+    @Mock
+    MessageService messageService;
 
     @Before
     public void setup() {
@@ -170,6 +184,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setYellowfinGroupsService(yellowfinGroupsService);
         application.setFirmwareService(firmwareService);
         application.setDeviceLifeCycleService(deviceLifeCycleService);
+        application.setAppService(appService);
+        application.setMessageService(messageService);
         return application;
     }
 
@@ -194,5 +210,28 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
         return readingType;
     }
+
+    AppServer mockAppServers(String ...name) {
+        AppServer appServer = mock(AppServer.class);
+        List<SubscriberExecutionSpec> execSpecs = new ArrayList<>();
+        for (String specName: name) {
+            SubscriberExecutionSpec subscriberExecutionSpec = mock(SubscriberExecutionSpec.class);
+            SubscriberSpec spec = mock(SubscriberSpec.class);
+            when(subscriberExecutionSpec.getSubscriberSpec()).thenReturn(spec);
+            DestinationSpec destinationSpec = mock(DestinationSpec.class);
+            when(spec.getDestination()).thenReturn(destinationSpec);
+            when(destinationSpec.getName()).thenReturn(specName);
+            when(destinationSpec.isActive()).thenReturn(true);
+            List<SubscriberSpec> list = mock(List.class);
+            when(list.isEmpty()).thenReturn(false);
+            when(destinationSpec.getSubscribers()).thenReturn(list);
+            execSpecs.add(subscriberExecutionSpec);
+        }
+        doReturn(execSpecs).when(appServer).getSubscriberExecutionSpecs();
+        when(appServer.isActive()).thenReturn(true);
+        when(appService.findAppServers()).thenReturn(Arrays.asList(appServer));
+        return appServer;
+    }
+
 
 }

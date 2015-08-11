@@ -7,6 +7,8 @@ import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -34,6 +36,7 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.ComScheduleOnDevicesFilterSpecification;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceValidation;
@@ -56,12 +59,15 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 import org.assertj.core.data.MapEntry;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 
 import javax.validation.ConstraintViolationException;
@@ -85,7 +91,13 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by bvn on 6/19/14.
@@ -339,75 +351,83 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testComSchedulesBulkActionsWithWrongDevice() {
+    public void testComSchedulesBulkAddOnDevice() {
         BulkRequestInfo request = new BulkRequestInfo();
-        request.deviceMRIDs = Arrays.asList("mrid1", "unexisting");
-        request.scheduleIds = Arrays.asList(1L);
-        Entity<BulkRequestInfo> json = Entity.json(request);
-
-        ComTaskExecutionBuilder<ScheduledComTaskExecution> builder = mock(ComTaskExecutionBuilder.class);
-
-        Device device = mock(Device.class);
-        when(device.getmRID()).thenReturn("mrid1");
-        when(device.getName()).thenReturn("Device with mrid1");
-        when(device.newScheduledComTaskExecution(any(ComSchedule.class))).thenReturn(builder);
-        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device));
-        when(deviceService.findByUniqueMrid("unexisting")).thenReturn(Optional.<Device>empty());
-
-        ComSchedule schedule = mock(ComSchedule.class);
-        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(schedule));
-
-        ComSchedulesBulkInfo response = target("/devices/schedules").request().put(json, ComSchedulesBulkInfo.class);
-        assertThat(response.actions.size()).isEqualTo(1);
-        assertThat(response.actions.get(0).successCount).isEqualTo(1);
-        assertThat(response.actions.get(0).failCount).isEqualTo(1);
-        assertThat(response.actions.get(0).fails.size()).isEqualTo(1);
-        assertThat(response.actions.get(0).fails.get(0).message).isNotEmpty();
-    }
-
-    @Test
-    public void testComSchedulesBulkActionsAddAlreadyAdded() {
-        BulkRequestInfo request = new BulkRequestInfo();
+        request.action = "add";
         request.deviceMRIDs = Arrays.asList("mrid1", "mrid2");
         request.scheduleIds = Arrays.asList(1L);
         Entity<BulkRequestInfo> json = Entity.json(request);
+        Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
+        when(messageService.getDestinationSpec(SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION)).thenReturn(destinationSpec);
+        when(jsonService.serialize(any())).thenAnswer(invocation -> new ObjectMapper().writeValueAsString(invocation.getArguments()[0]));
+        MessageBuilder builder = mock(MessageBuilder.class);
+        when(destinationSpec.get().message(anyString())).thenReturn(builder);
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        when(destinationSpec.get().message(stringArgumentCaptor.capture())).thenReturn(builder);
+        mockAppServers(SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION);
 
-        ComTaskExecutionBuilder<ScheduledComTaskExecution> builder = mock(ComTaskExecutionBuilder.class);
-        DeviceType deviceType = mock(DeviceType.class);
-        when(deviceType.getId()).thenReturn(10L);
-        when(deviceType.getName()).thenReturn("Router");
+        Response response = target("/devices/schedules").request().put(json);
 
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getId()).thenReturn(10L);
-        when(deviceConfiguration.getName()).thenReturn("BaseConfig");
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.model(stringArgumentCaptor.getValue());
+        assertThat(jsonModel.<String>get("$.action")).isEqualTo("Add");
+        assertThat(jsonModel.<List>get("$.deviceMRIDs")).containsOnly("mrid1", "mrid2");
+        assertThat(jsonModel.<List>get("$.scheduleIds")).containsOnly(1);
+    }
 
-        Device device1 = mock(Device.class);
-        when(device1.getmRID()).thenReturn("mrid1");
-        when(device1.getName()).thenReturn("Device with mrid1");
-        when(device1.getDeviceType()).thenReturn(deviceType);
-        when(device1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(device1.newScheduledComTaskExecution(any(ComSchedule.class))).thenReturn(builder);
-        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
-        doReturn("translated").when(thesaurus).getString(anyString(), anyString());
+    @Test
+    public void testComSchedulesBulkAddOnDeviceWithFilter() {
+        BulkRequestInfo request = new BulkRequestInfo();
+        request.action = "add";
+        request.filter = new ComScheduleOnDevicesFilterSpecification();
+        request.filter.mRID = "DAO*";
+        request.scheduleIds = Arrays.asList(1L);
+        Entity<BulkRequestInfo> json = Entity.json(request);
+        Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
+        when(messageService.getDestinationSpec(SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION)).thenReturn(destinationSpec);
+        when(jsonService.serialize(any())).thenAnswer(invocation -> new ObjectMapper().writeValueAsString(invocation.getArguments()[0]));
+        MessageBuilder builder = mock(MessageBuilder.class);
+        when(destinationSpec.get().message(anyString())).thenReturn(builder);
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        when(destinationSpec.get().message(stringArgumentCaptor.capture())).thenReturn(builder);
+        mockAppServers(SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION);
 
-        Device device2 = mock(Device.class);
-        when(device2.getmRID()).thenReturn("mrid2");
-        when(device2.getName()).thenReturn("Device with mrid2");
-        when(device2.getDeviceType()).thenReturn(deviceType);
-        when(device2.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(device2.newScheduledComTaskExecution(any(ComSchedule.class))).thenReturn(builder);
-        doThrow(new ConstraintViolationException("already exists", null)).when(device2).save();
-        when(deviceService.findByUniqueMrid("mrid2")).thenReturn(Optional.of(device2));
+        Response response = target("/devices/schedules").request().put(json);
 
-        ComSchedule schedule = mock(ComSchedule.class);
-        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(schedule));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.model(stringArgumentCaptor.getValue());
+        assertThat(jsonModel.<String>get("$.action")).isEqualTo("Add");
+        assertThat(jsonModel.<List>get("$.deviceMRIDs")).isNull();
+        assertThat(jsonModel.<String>get("$.filter.mRID")).isEqualTo("DAO*");
+        assertThat(jsonModel.<List<Integer>>get("$.scheduleIds")).containsOnly(1);
+    }
 
-        ComSchedulesBulkInfo response = target("/devices/schedules").request().put(json, ComSchedulesBulkInfo.class);
-        assertThat(response.actions.size()).isEqualTo(1);
-        assertThat(response.actions.get(0).successCount).isEqualTo(1);
-        assertThat(response.actions.get(0).failCount).isEqualTo(1);
-        assertThat(response.actions.get(0).fails.size()).isEqualTo(1);
-        assertThat(response.actions.get(0).fails.get(0).message).isNotEmpty();
+    @Test
+    public void testComSchedulesBulkRemoveFromDeviceWithFilter() {
+        BulkRequestInfo request = new BulkRequestInfo();
+        request.action = "remove";
+        request.filter = new ComScheduleOnDevicesFilterSpecification();
+        request.filter.serialNumber = "*001";
+        request.scheduleIds = Arrays.asList(1L);
+        Entity<BulkRequestInfo> json = Entity.json(request);
+        Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
+        when(messageService.getDestinationSpec(SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION)).thenReturn(destinationSpec);
+        when(jsonService.serialize(any())).thenAnswer(invocation -> new ObjectMapper().writeValueAsString(invocation.getArguments()[0]));
+        MessageBuilder builder = mock(MessageBuilder.class);
+        when(destinationSpec.get().message(anyString())).thenReturn(builder);
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        when(destinationSpec.get().message(stringArgumentCaptor.capture())).thenReturn(builder);
+        mockAppServers(SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION);
+
+        Response response = target("/devices/schedules").request().put(json);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.model(stringArgumentCaptor.getValue());
+        System.out.println(stringArgumentCaptor.getValue());
+        assertThat(jsonModel.<String>get("$.action")).isEqualTo("Remove");
+        assertThat(jsonModel.<List>get("$.deviceMRIDs")).isNull();
+        assertThat(jsonModel.<String>get("$.filter.serialNumber")).isEqualTo("*001");
+        assertThat(jsonModel.<List<Integer>>get("$.scheduleIds")).containsOnly(1);
     }
 
     @Test

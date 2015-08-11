@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.rest.AppServerHelper;
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
@@ -7,6 +9,7 @@ import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -105,6 +108,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile License license;
     private volatile FirmwareService firmwareService;
     private volatile DeviceLifeCycleService deviceLifeCycleService;
+    private volatile AppService appService;
+    private volatile MessageService messageService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -313,6 +318,16 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
+    public void setAppService(AppService appService) {
+        this.appService = appService;
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
@@ -407,6 +422,9 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
             bind(com.elster.jupiter.estimation.rest.PropertyUtils.class).to(com.elster.jupiter.estimation.rest.PropertyUtils.class);
             bind(DeviceAttributesInfoFactory.class).to(DeviceAttributesInfoFactory.class);
+            bind(AppServerHelper.class).to(AppServerHelper.class);
+            bind(appService).to(AppService.class);
+            bind(messageService).to(MessageService.class);
         }
     }
 
