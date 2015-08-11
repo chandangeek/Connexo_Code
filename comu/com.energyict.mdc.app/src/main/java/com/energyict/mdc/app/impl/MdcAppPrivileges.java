@@ -126,9 +126,11 @@ class MdcAppPrivileges {
 
                 //mdc.scheduling.security
                 com.energyict.mdc.scheduling.security.Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE,
-                com.energyict.mdc.scheduling.security.Privileges.VIEW_SHARED_COMMUNICATION_SCHEDULE
+                com.energyict.mdc.scheduling.security.Privileges.VIEW_SHARED_COMMUNICATION_SCHEDULE,
 
-
+                //com.elster.
+                com.elster.jupiter.time.security.Privileges.ADMINISTRATE_RELATIVE_PERIOD,
+                com.elster.jupiter.time.security.Privileges.VIEW_RELATIVE_PERIOD
         );
     }
 
