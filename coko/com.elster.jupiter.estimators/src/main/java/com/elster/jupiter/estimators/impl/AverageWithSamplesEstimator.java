@@ -159,14 +159,17 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
             if (property.getName().equals(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS)) {
                 Long value = (Long) property.getValue();
                 if (value.intValue() < 1) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS_SHOULD_BE_INTEGER_VALUE, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
+                    throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS_SHOULD_BE_INTEGER_VALUE, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
                 }
             } else if (property.getName().equals(ADVANCE_READINGS_SETTINGS)) {
                 Object settings = property.getValue();
                 if (settings instanceof ReadingTypeAdvanceReadingsSettings) {
                     ReadingType readingType = ((ReadingTypeAdvanceReadingsSettings) settings).getReadingType();
+                    if (readingType == null) {
+                        throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ADVANCE_READINGTYPE_NONE_NOT_ALLOWED, ADVANCE_READINGS_SETTINGS);
+                    }
                     if (!readingType.isCumulative()) {
-                        throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ADVANCE_READINGTYPE, "properties." + ADVANCE_READINGS_SETTINGS);
+                        throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ADVANCE_READINGTYPE, ADVANCE_READINGS_SETTINGS);
                     }
                 }
             } else if (property.getName().equals(MAX_NUMBER_OF_SAMPLES)) {
@@ -176,7 +179,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
             }
         }
         if ((maxSamples != null) && (minSamples != null) && (maxSamples < minSamples)) {
-            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_SAMPLES, "properties." + MAX_NUMBER_OF_SAMPLES);
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_SAMPLES, MAX_NUMBER_OF_SAMPLES);
         }
     }
 
