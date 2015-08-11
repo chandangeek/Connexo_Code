@@ -26,14 +26,32 @@ package com.energyict.protocolimpl.dlms;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSObis;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.DemandResetProtocol;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
@@ -44,7 +62,12 @@ import com.energyict.protocolimpl.dlms.siemenszmd.ZmdMessages;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 
 @Deprecated
@@ -90,9 +113,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
         return calendar;
     }
 
-    /**
-     * ProtocolVersion *
-     */
+    /** The ProtocolVersion date */
     public String getProtocolVersion() {
         return "$Date$";
     }

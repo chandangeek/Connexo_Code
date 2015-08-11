@@ -159,11 +159,19 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
         return bufferResponseData;
     }
 
+    /**
+     * Method to parse the CapturedObjects as array of UniversalObject<br/>
+     * <b>Note:</b> always keep in mind that the returned UniversalObjects are in the form of 'Captured Objects',
+     * thus all further operations should only do 'captured objects' operations (e.g.: method #getLNAco instead of #getLNA).
+     * When directly accessing the UniversalObjects 'fields' array, this has also to be taken into account (so the correct array positions are used).
+     */
     public UniversalObject[] getCaptureObjectsAsUniversalObjects() throws IOException {
-        if (capturedObjects == null) {
-            capturedObjects = data2UOL(getCapturedObjectsResponseData());
+        List<UniversalObject> universalObjects = new ArrayList<UniversalObject>();
+        for (CapturedObject capturedObject : getCaptureObjects()) {
+            universalObjects.add(UniversalObject.createCaptureObject(capturedObject.getClassId(), capturedObject.getObisCode()));
         }
-        return capturedObjects;
+
+        return universalObjects.toArray(new UniversalObject[universalObjects.size()]);
     }
 
     public DataContainer getCaptureObjectsAsDataContainer() throws IOException {
