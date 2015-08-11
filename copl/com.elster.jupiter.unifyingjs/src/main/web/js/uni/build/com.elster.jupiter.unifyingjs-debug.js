@@ -937,7 +937,7 @@ Ext.define('Uni.Number', {
  *
  *     @example
  *     Ext.create('Ext.panel.Panel' {
- *         title: Uni.I18n.translate('my.key', 'CMP', 'Fallback')
+ *         title: Uni.I18n.translate('my.key', 'UNI', 'Fallback')
  *     });
  *
  * Be mindful that you will need to add {@link Uni.I18n} as a requirement every time, which can be
@@ -951,7 +951,7 @@ Ext.define('Uni.Number', {
  *
  *     @example
  *     Ext.create('Ext.panel.Panel' {
- *         title: Uni.I18n.translate('my.key', 'CMP', 'Fallback')
+ *         title: Uni.I18n.translate('my.key', 'UNI', 'Fallback')
  *     });
  *
  * More information and examples can be found at the {@link #translate} function.
@@ -975,7 +975,7 @@ Ext.define('Uni.Number', {
  * A full list of supported formats can be found at the {Ext.Date} documentation.
  *
  *     @example
- *     var formattedNow = Uni.I18n.formatDate('long.date.format', new Date(), 'CMP', ''F j Y g:i A'');
+ *     var formattedNow = Uni.I18n.formatDate('long.date.format', new Date(), 'UNI', ''F j Y g:i A'');
  *     console.log(formattedNow); // January 28 2014 11:14 AM
  *
  * More information and examples can be found at the {@link #formatDate} function.
@@ -988,7 +988,7 @@ Ext.define('Uni.Number', {
  * should be used.
  *
  *     @example
- *     var formattedNumber = Uni.I18n.formatNumber(130000.037, 'CMP');
+ *     var formattedNumber = Uni.I18n.formatNumber(130000.037, 'UNI');
  *     console.log(formattedNumber); // 130,000.04
  *
  * More information and examples can be found at the {@link #formatNumber} function.
@@ -1000,7 +1000,7 @@ Ext.define('Uni.Number', {
  * create a complete formatted currency string.
  *
  *     @example
- *     var formattedCurrency = Uni.I18n.formatCurrency(130000.037, 'CMP');
+ *     var formattedCurrency = Uni.I18n.formatCurrency(130000.037, 'UNI');
  *     console.log(formattedCurrency); // €130,000.04
  *
  * More information and examples can be found at the {@link #formatCurrency} function.
@@ -5391,28 +5391,28 @@ Ext.define('Uni.view.grid.SelectionGrid', {
  *             return Uni.I18n.translatePlural(
  *                 'validation.noValidationRuleSetSelected',
  *                 count,
- *                 'MDC',
+ *                 'UNI',
  *                 '{0} validation rule sets selected'
  *             );
  *         },
  *
- *         allLabel: Uni.I18n.translate('ruleset.allRuleSets', 'MDC', 'All validation rule sets'),
+ *         allLabel: Uni.I18n.translate('ruleset.allRuleSets', 'UNI', 'All validation rule sets'),
  *         allDescription: Uni.I18n.translate(
  *             'ruleset.selectAllRuleSets',
- *             'MDC',
+ *             'UNI',
  *             'Select all validation rule sets related to device configuration'
  *         ),
  *
- *         selectedLabel: Uni.I18n.translate('ruleset.selectedRuleSets', 'MDC', 'Selected validation rule sets'),
+ *         selectedLabel: Uni.I18n.translate('ruleset.selectedRuleSets', 'UNI', 'Selected validation rule sets'),
  *         selectedDescription: Uni.I18n.translate(
  *             'ruleset.selectRuleSets',
- *             'MDC',
+ *             'UNI',
  *             'Select validation rule sets in table'
  *         ),
  *
  *         columns: [
  *             {
- *                 header: Uni.I18n.translate('validation.ruleSetName', 'MDC', 'Validation rule set'),
+ *                 header: Uni.I18n.translate('validation.ruleSetName', 'UNI', 'Validation rule set'),
  *                 dataIndex: 'name',
  *                 renderer: function (value, metaData, record) {
  *                     metaData.tdAttr = 'data-qtip="' + record.get('description') + '"';
@@ -5421,7 +5421,7 @@ Ext.define('Uni.view.grid.SelectionGrid', {
  *                 flex: 1
  *             },
  *             {
- *                 header: Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'),
+ *                 header: Uni.I18n.translate('validation.activeRules', 'UNI', 'Active rules'),
  *                 dataIndex: 'numberOfRules',
  *                 flex: 1,
  *                 renderer: function (value, b, record) {
@@ -5430,7 +5430,7 @@ Ext.define('Uni.view.grid.SelectionGrid', {
  *                 }
  *             },
  *             {
- *                 header: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'),
+ *                 header: Uni.I18n.translate('validation.inactiveRules', 'UNI', 'Inactive rules'),
  *                 dataIndex: 'numberOfInactiveRules',
  *                 flex: 1
  *             },
@@ -7927,7 +7927,7 @@ Ext.define('Uni.form.RelativePeriod', {
  *     Ext.create('Uni.form.field.DateTime', {
  *       itemId: 'endOfInterval',
  *       name: 'intervalStart',
- *       fieldLabel: Uni.I18n.translate('deviceloadprofiles.filter.from', 'MDC', 'From'),
+ *       fieldLabel: Uni.I18n.translate('deviceloadprofiles.filter.from', 'UNI', 'From'),
  *       labelAlign: 'top',
  *       dateConfig: {
  *         width: 100,
@@ -8274,7 +8274,7 @@ Ext.define('Uni.form.RelativePeriodPreview', {
                     },
                     {
                         xtype: 'button',
-                        tooltip: Uni.I18n.translate('relativeperiod.form.referencedate.tooltip', 'TME', 'Select a reference date to evaluate the relative period.'),
+                        tooltip: Uni.I18n.translate('relativeperiod.form.referencedate.tooltip', 'UNI', 'Select a reference date to evaluate the relative period.'),
                         iconCls: 'uni-icon-info-small',
                         ui: 'blank',
                         itemId: 'latestReadingHelp',
@@ -9343,7 +9343,7 @@ Ext.define('Uni.form.field.Password', {
             this.items[1] = (
                 {
                     xtype: 'checkbox',
-                    boxLabel: Uni.I18n.translate('comServerComPorts.form.showChar', 'MDC', 'Show characters')
+                    boxLabel: Uni.I18n.translate('comServerComPorts.form.showChar', 'UNI', 'Show characters')
                 }
             )
             this.items[1].handler = this.handler;
@@ -9822,12 +9822,12 @@ Ext.define('Uni.grid.column.Icon', {
             var time = Ext.isDate(value.editedTime) ? value.editedTime : new Date(value.editedTime);
             res.value = time;
             res.iconCls = 'uni-icon-edit';
-            res.tipString = Uni.I18n.formatDate('editedDate.format', time, 'MDC', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
+            res.tipString = Uni.I18n.formatDate('editedDate.format', time, 'UNI', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
         }
         if (Ext.isDefined(value.deletedTime)) {
             res.value = value.deletedTime;
             res.iconCls = 'uni-icon-deleted';
-            res.tipString = Uni.I18n.formatDate('deletedDate.format', value.deletedTime, 'MDC', '\\D\\e\\l\\e\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
+            res.tipString = Uni.I18n.formatDate('deletedDate.format', value.deletedTime, 'UNI', '\\D\\e\\l\\e\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
         }
         Ext.defer(me.deferredRenderer, 1, me, [res, record, view]);
     }
@@ -9941,7 +9941,7 @@ Ext.define('Uni.grid.column.ReadingType', {
 Ext.define('Uni.grid.column.ValidationFlag', {
     extend: 'Ext.grid.column.Column',
     xtype: 'validation-flag-column',
-    header: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
+    header: Uni.I18n.translate('device.registerData.value', 'UNI', 'Value'),
     renderer: function (value, metaData, record) {
         if (record.get('validationResult')) {
             var result = record.get('validationResult'),
@@ -10200,7 +10200,7 @@ Ext.define('Uni.property.view.property.Base', {
             cancelText: Uni.I18n.translate('general.no', 'UNI', 'No')
         }).show({
             msg: Ext.String.format(Uni.I18n.translate('property.valueSameAsInherited', 'UNI', 'The value of \'{0}\' is the same as the default value.  Do you want to link the value to the default value?'), property.get('key')),
-            title: Ext.String.format(Uni.I18n.translate('property.valueSameAs', 'MDC', 'Set \'{0}\' to its default value?'), property.get('key')),
+            title: Ext.String.format(Uni.I18n.translate('property.valueSameAs', 'UNI', 'Set \'{0}\' to its default value?'), property.get('key')),
             config: {
                 property: me,
                 field: field
@@ -12141,7 +12141,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
 
                         listConfig: {
                             cls: 'isu-combo-color-list',
-                            emptyText: Uni.I18n.translate('general.readingtype.noreadingtypefound', 'MDC', 'No readingtype found')
+                            emptyText: Uni.I18n.translate('general.readingtype.noreadingtypefound', 'UNI', 'No readingtype found')
                         },
 
                         queryMode: 'remote',
@@ -12152,7 +12152,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
                         editable:true,
                         typeAhead:true,
                         // anchor: '100%',
-                        emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'MDC', 'Start typing to select a reading type...')
+                        emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'UNI', 'Start typing to select a reading type...')
                     }
 
                 ]
@@ -12304,7 +12304,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
 
                         listConfig: {
                             cls: 'isu-combo-color-list',
-                            emptyText: Uni.I18n.translate('general.readingtype.noreadingtypefound', 'MDC', 'No readingtype found')
+                            emptyText: Uni.I18n.translate('general.readingtype.noreadingtypefound', 'UNI', 'No readingtype found')
                         },
 
                         queryMode: 'remote',
@@ -12315,7 +12315,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
                         editable:true,
                         typeAhead:true,
                         // anchor: '100%',
-                        emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'MDC', 'Start typing to select a reading type...')
+                        emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'UNI', 'Start typing to select a reading type...')
                     }
 
                 ]
@@ -15044,18 +15044,18 @@ Ext.define('Uni.view.form.CheckboxGroup', {
  *
  * {
  *   xtype: 'fieldcontainer',
- *       fieldLabel: Uni.I18n.translate('comtask.messages', 'MDC', 'Messages'),
+ *       fieldLabel: Uni.I18n.translate('comtask.messages', 'UNI', 'Messages'),
  *   labelWidth: 200,
  *   items:[
  *     {
  *       xtype: 'displayfield',
- *       value: Uni.I18n.translate('comtask.messages.text', 'MDC', 'Send pending messages of these message categories every time this communication task executes')
+ *       value: Uni.I18n.translate('comtask.messages.text', 'UNI', 'Send pending messages of these message categories every time this communication task executes')
  *     },
  *     {
  *       xtype: 'connected-grid',
- *       allItemsTitle: Uni.I18n.translate('comtask.message.cathegories', 'MDC', 'Message categories'),
+ *       allItemsTitle: Uni.I18n.translate('comtask.message.cathegories', 'UNI', 'Message categories'),
  *       allItemsStoreName: 'Mdc.store.MessageCategories',
- *       selectedItemsTitle: Uni.I18n.translate('comtask.selected.message.cathegories', 'MDC', 'Selected message categories'),
+ *       selectedItemsTitle: Uni.I18n.translate('comtask.selected.message.cathegories', 'UNI', 'Selected message categories'),
  *       selectedItemsStoreName: 'Mdc.store.SelectedMessageCategories',
  *       displayedColumn: 'name',
  *       disableIndication: true,
@@ -15494,13 +15494,13 @@ Ext.define('Uni.view.menu.NavigationMenu', {
  *             xtype: 'menu',
  *             items: [
  *               {
- *                   text: Uni.I18n.translate('devicemenu.loadProfiles', 'MDC', 'Load profiles'),
+ *                   text: Uni.I18n.translate('devicemenu.loadProfiles', 'UNI', 'Load profiles'),
  *                   itemId: 'loadProfilesLink',
  *                   href: '#/devices/' + mRID + '/loadprofiles',
  *                   showCondition: me.device.get('hasLoadProfiles')
  *               },
  *               {
- *                   text: Uni.I18n.translate('devicemenu.channels', 'MDC', 'Channels'),
+ *                   text: Uni.I18n.translate('devicemenu.channels', 'UNI', 'Channels'),
  *                   itemId: 'channelsLink',
  *                   href: '#/devices/' + mRID + '/channels',
  *                   showCondition: me.device.get('hasLoadProfiles')
@@ -16971,7 +16971,7 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
      * Name of items.
      * A link to a items list can be provided. For example:
      *
-     *     itemsName: '<a href="' + me.router.getRoute('devices/device/registers').buildUrl() + '">' + Uni.I18n.translate('deviceregisterconfiguration.registers', 'MDC', 'Registers').toLowerCase() + '</a>'
+     *     itemsName: '<a href="' + me.router.getRoute('devices/device/registers').buildUrl() + '">' + Uni.I18n.translate('deviceregisterconfiguration.registers', 'UNI', 'Registers').toLowerCase() + '</a>'
      */
     itemsName: Uni.I18n.translate('general.items', 'UNI', 'Items').toLowerCase(),
 

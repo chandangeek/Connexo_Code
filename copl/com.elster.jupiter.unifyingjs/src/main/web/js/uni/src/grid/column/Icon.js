@@ -31,12 +31,12 @@ Ext.define('Uni.grid.column.Icon', {
             var time = Ext.isDate(value.editedTime) ? value.editedTime : new Date(value.editedTime);
             res.value = time;
             res.iconCls = 'uni-icon-edit';
-            res.tipString = Uni.I18n.formatDate('editedDate.format', time, 'MDC', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
+            res.tipString = Uni.I18n.formatDate('editedDate.format', time, 'UNI', '\\E\\d\\i\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
         }
         if (Ext.isDefined(value.deletedTime)) {
             res.value = value.deletedTime;
             res.iconCls = 'uni-icon-deleted';
-            res.tipString = Uni.I18n.formatDate('deletedDate.format', value.deletedTime, 'MDC', '\\D\\e\\l\\e\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
+            res.tipString = Uni.I18n.formatDate('deletedDate.format', value.deletedTime, 'UNI', '\\D\\e\\l\\e\\t\\e\\d \\o\\n F d, Y \\a\\t H:i')
         }
         Ext.defer(me.deferredRenderer, 1, me, [res, record, view]);
     }

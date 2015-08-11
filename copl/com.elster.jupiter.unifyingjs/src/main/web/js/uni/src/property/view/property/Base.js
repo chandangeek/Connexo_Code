@@ -237,7 +237,7 @@ Ext.define('Uni.property.view.property.Base', {
             cancelText: Uni.I18n.translate('general.no', 'UNI', 'No')
         }).show({
             msg: Ext.String.format(Uni.I18n.translate('property.valueSameAsInherited', 'UNI', 'The value of \'{0}\' is the same as the default value.  Do you want to link the value to the default value?'), key),
-            title: Ext.String.format(Uni.I18n.translate('property.valueSameAs', 'MDC', 'Set \'{0}\' to its default value?'), key),
+            title: Ext.String.format(Uni.I18n.translate('property.valueSameAs', 'UNI', 'Set \'{0}\' to its default value?'), key),
             config: {
                 property: me,
                 field: field

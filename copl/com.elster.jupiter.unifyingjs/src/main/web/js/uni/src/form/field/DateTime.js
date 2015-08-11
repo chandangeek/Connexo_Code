@@ -6,7 +6,7 @@
  *     Ext.create('Uni.form.field.DateTime', {
  *       itemId: 'endOfInterval',
  *       name: 'intervalStart',
- *       fieldLabel: Uni.I18n.translate('deviceloadprofiles.filter.from', 'MDC', 'From'),
+ *       fieldLabel: Uni.I18n.translate('deviceloadprofiles.filter.from', 'UNI', 'From'),
  *       labelAlign: 'top',
  *       dateConfig: {
  *         width: 100,

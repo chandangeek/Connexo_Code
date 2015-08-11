@@ -39,7 +39,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
 
                         listConfig: {
                             cls: 'isu-combo-color-list',
-                            emptyText: Uni.I18n.translate('general.readingtype.noreadingtypefound', 'MDC', 'No readingtype found')
+                            emptyText: Uni.I18n.translate('general.readingtype.noreadingtypefound', 'UNI', 'No readingtype found')
                         },
 
                         queryMode: 'remote',
@@ -50,7 +50,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
                         editable:true,
                         typeAhead:true,
                         // anchor: '100%',
-                        emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'MDC', 'Start typing to select a reading type...')
+                        emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'UNI', 'Start typing to select a reading type...')
                     }
 
                 ]

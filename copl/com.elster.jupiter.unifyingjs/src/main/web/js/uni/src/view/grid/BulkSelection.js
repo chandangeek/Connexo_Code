@@ -19,28 +19,28 @@
  *             return Uni.I18n.translatePlural(
  *                 'validation.noValidationRuleSetSelected',
  *                 count,
- *                 'MDC',
+ *                 'UNI',
  *                 '{0} validation rule sets selected'
  *             );
  *         },
  *
- *         allLabel: Uni.I18n.translate('ruleset.allRuleSets', 'MDC', 'All validation rule sets'),
+ *         allLabel: Uni.I18n.translate('ruleset.allRuleSets', 'UNI', 'All validation rule sets'),
  *         allDescription: Uni.I18n.translate(
  *             'ruleset.selectAllRuleSets',
- *             'MDC',
+ *             'UNI',
  *             'Select all validation rule sets related to device configuration'
  *         ),
  *
- *         selectedLabel: Uni.I18n.translate('ruleset.selectedRuleSets', 'MDC', 'Selected validation rule sets'),
+ *         selectedLabel: Uni.I18n.translate('ruleset.selectedRuleSets', 'UNI', 'Selected validation rule sets'),
  *         selectedDescription: Uni.I18n.translate(
  *             'ruleset.selectRuleSets',
- *             'MDC',
+ *             'UNI',
  *             'Select validation rule sets in table'
  *         ),
  *
  *         columns: [
  *             {
- *                 header: Uni.I18n.translate('validation.ruleSetName', 'MDC', 'Validation rule set'),
+ *                 header: Uni.I18n.translate('validation.ruleSetName', 'UNI', 'Validation rule set'),
  *                 dataIndex: 'name',
  *                 renderer: function (value, metaData, record) {
  *                     metaData.tdAttr = 'data-qtip="' + record.get('description') + '"';
@@ -49,7 +49,7 @@
  *                 flex: 1
  *             },
  *             {
- *                 header: Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'),
+ *                 header: Uni.I18n.translate('validation.activeRules', 'UNI', 'Active rules'),
  *                 dataIndex: 'numberOfRules',
  *                 flex: 1,
  *                 renderer: function (value, b, record) {
@@ -58,7 +58,7 @@
  *                 }
  *             },
  *             {
- *                 header: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'),
+ *                 header: Uni.I18n.translate('validation.inactiveRules', 'UNI', 'Inactive rules'),
  *                 dataIndex: 'numberOfInactiveRules',
  *                 flex: 1
  *             },

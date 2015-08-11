@@ -33,7 +33,7 @@
  *
  *     @example
  *     Ext.create('Ext.panel.Panel' {
- *         title: Uni.I18n.translate('my.key', 'CMP', 'Fallback')
+ *         title: Uni.I18n.translate('my.key', 'UNI', 'Fallback')
  *     });
  *
  * Be mindful that you will need to add {@link Uni.I18n} as a requirement every time, which can be
@@ -47,7 +47,7 @@
  *
  *     @example
  *     Ext.create('Ext.panel.Panel' {
- *         title: Uni.I18n.translate('my.key', 'CMP', 'Fallback')
+ *         title: Uni.I18n.translate('my.key', 'UNI', 'Fallback')
  *     });
  *
  * More information and examples can be found at the {@link #translate} function.
@@ -71,7 +71,7 @@
  * A full list of supported formats can be found at the {Ext.Date} documentation.
  *
  *     @example
- *     var formattedNow = Uni.I18n.formatDate('long.date.format', new Date(), 'CMP', ''F j Y g:i A'');
+ *     var formattedNow = Uni.I18n.formatDate('long.date.format', new Date(), 'UNI', ''F j Y g:i A'');
  *     console.log(formattedNow); // January 28 2014 11:14 AM
  *
  * More information and examples can be found at the {@link #formatDate} function.
@@ -84,7 +84,7 @@
  * should be used.
  *
  *     @example
- *     var formattedNumber = Uni.I18n.formatNumber(130000.037, 'CMP');
+ *     var formattedNumber = Uni.I18n.formatNumber(130000.037, 'UNI');
  *     console.log(formattedNumber); // 130,000.04
  *
  * More information and examples can be found at the {@link #formatNumber} function.
@@ -96,7 +96,7 @@
  * create a complete formatted currency string.
  *
  *     @example
- *     var formattedCurrency = Uni.I18n.formatCurrency(130000.037, 'CMP');
+ *     var formattedCurrency = Uni.I18n.formatCurrency(130000.037, 'UNI');
  *     console.log(formattedCurrency); // €130,000.04
  *
  * More information and examples can be found at the {@link #formatCurrency} function.

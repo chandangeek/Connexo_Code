@@ -55,7 +55,7 @@ Ext.define('Uni.view.toolbar.PreviousNextNavigation', {
      * Name of items.
      * A link to a items list can be provided. For example:
      *
-     *     itemsName: '<a href="' + me.router.getRoute('devices/device/registers').buildUrl() + '">' + Uni.I18n.translate('deviceregisterconfiguration.registers', 'MDC', 'Registers').toLowerCase() + '</a>'
+     *     itemsName: '<a href="' + me.router.getRoute('devices/device/registers').buildUrl() + '">' + Uni.I18n.translate('deviceregisterconfiguration.registers', 'UNI', 'Registers').toLowerCase() + '</a>'
      */
     itemsName: Uni.I18n.translate('general.items', 'UNI', 'Items').toLowerCase(),
 

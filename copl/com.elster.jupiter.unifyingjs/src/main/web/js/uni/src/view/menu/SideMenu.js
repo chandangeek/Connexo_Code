@@ -23,13 +23,13 @@
  *             xtype: 'menu',
  *             items: [
  *               {
- *                   text: Uni.I18n.translate('devicemenu.loadProfiles', 'MDC', 'Load profiles'),
+ *                   text: Uni.I18n.translate('devicemenu.loadProfiles', 'UNI', 'Load profiles'),
  *                   itemId: 'loadProfilesLink',
  *                   href: '#/devices/' + mRID + '/loadprofiles',
  *                   showCondition: me.device.get('hasLoadProfiles')
  *               },
  *               {
- *                   text: Uni.I18n.translate('devicemenu.channels', 'MDC', 'Channels'),
+ *                   text: Uni.I18n.translate('devicemenu.channels', 'UNI', 'Channels'),
  *                   itemId: 'channelsLink',
  *                   href: '#/devices/' + mRID + '/channels',
  *                   showCondition: me.device.get('hasLoadProfiles')
