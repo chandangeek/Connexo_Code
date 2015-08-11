@@ -14,7 +14,9 @@ import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
@@ -35,6 +37,10 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
 
+@DeviceStatesRestricted(
+        value = {DefaultState.DECOMMISSIONED},
+        methods = {HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE},
+        ignoredUserRoles = {Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
 public class ChannelResource {
     private final Provider<ChannelResourceHelper> channelHelper;
     private final ResourceHelper resourceHelper;
@@ -72,8 +78,8 @@ public class ChannelResource {
     }
 
     private List<Channel> getFilteredChannels(Device device, JsonQueryFilter filter){
-        Predicate<String> filterByLoadProfileName = getFilterIfAvailable("loadProfileName", filter);
-        Predicate<String> filterByChannelName = getFilterIfAvailable("channelName", filter);
+        Predicate<String> filterByLoadProfileName = getStringListFilterIfAvailable("loadProfileName", filter);
+        Predicate<String> filterByChannelName = getStringFilterIfAvailable("channelName", filter);
         return device.getLoadProfiles().stream()
                 .filter(l -> filterByLoadProfileName.test(l.getLoadProfileSpec().getLoadProfileType().getName()))
                 .flatMap(l -> l.getChannels().stream())
@@ -81,11 +87,34 @@ public class ChannelResource {
                 .collect(Collectors.toList());
     }
 
-    private Predicate<String> getFilterIfAvailable(String name, JsonQueryFilter filter){
+    private Predicate<String> getStringFilterIfAvailable(String name, JsonQueryFilter filter){
         if (filter.hasProperty(name)){
             Pattern pattern = getFilterPattern(filter.getString(name));
             if (pattern != null){
                 return s -> pattern.matcher(s).matches();
+            }
+        }
+        return s -> true;
+    }
+
+    private Predicate<String> getStringListFilterIfAvailable(String name, JsonQueryFilter filter){
+        if (filter.hasProperty(name)){
+            List<String> entries = filter.getStringList(name);
+            List<Pattern> patterns = new ArrayList<>();
+            for (String entry : entries) {
+                patterns.add(getFilterPattern(entry));
+            }
+            if (!patterns.isEmpty()){
+                return s -> {
+                    boolean match = false;
+                    for (Pattern pattern : patterns) {
+                        match = match || pattern.matcher(s).matches();
+                        if (match) {
+                            break;
+                        }
+                    }
+                    return match;
+                };
             }
         }
         return s -> true;
@@ -102,15 +131,19 @@ public class ChannelResource {
     @GET
     @Path("/{channelid}/data")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA})
-    public Response getChannelData(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, @QueryParam("intervalStart") Long intervalStart, @QueryParam("intervalEnd") Long intervalEnd, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
+    public Response getChannelData(
+            @PathParam("mRID") String mRID,
+            @PathParam("channelid") long channelId,
+            @BeanParam JsonQueryFilter filter,
+            @BeanParam JsonQueryParameters queryParameters) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
         boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.instant());
-        if (intervalStart != null && intervalEnd != null) {
-            List<LoadProfileReading> channelData = channel.getChannelData(Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd)));
-            List<ChannelDataInfo> infos = channelData.stream().map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(loadProfileReading, isValidationActive, deviceValidation)).collect(Collectors.toList());
-            infos = filter(infos, uriInfo.getQueryParameters());
+        if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
+            List<LoadProfileReading> channelData = channel.getChannelData(Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd")));
+            List<ChannelDataInfo> infos = channelData.stream().map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReading, isValidationActive, deviceValidation)).collect(Collectors.toList());
+            infos = filter(infos, filter);
             List<ChannelDataInfo> paginatedChannelData = ListPager.of(infos).from(queryParameters).find();
             PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("data", paginatedChannelData, queryParameters);
             return Response.ok(pagedInfoList).build();
@@ -118,30 +151,31 @@ public class ChannelResource {
         return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
-    private List<ChannelDataInfo> filter(List<ChannelDataInfo> infos, MultivaluedMap<String, String> queryParameters) {
-        Predicate<ChannelDataInfo> fromParams = getFilter(queryParameters);
+    private List<ChannelDataInfo> filter(List<ChannelDataInfo> infos, JsonQueryFilter filter) {
+        Predicate<ChannelDataInfo> fromParams = getFilter(filter);
         return infos.stream().filter(fromParams).collect(Collectors.toList());
     }
 
-    private Predicate<ChannelDataInfo> getFilter(MultivaluedMap<String, String> queryParameters) {
+    private Predicate<ChannelDataInfo> getFilter(JsonQueryFilter filter) {
         ImmutableList.Builder<Predicate<ChannelDataInfo>> list = ImmutableList.builder();
-        boolean onlySuspect = filterActive(queryParameters, "onlySuspect");
-        boolean onlyNonSuspect = filterActive(queryParameters, "onlyNonSuspect");
-        if (onlySuspect ^ onlyNonSuspect) {
-            if (onlySuspect) {
-                list.add(this::hasSuspects);
-            } else {
-                list.add(not(this::hasSuspects));
+        if (filter.hasProperty("suspect")){
+            List<String> suspectFilters = filter.getStringList("suspect");
+            if (suspectFilters.size() == 0) {
+                if ("suspect".equals(filter.getString("suspect"))) {
+                    list.add(this::hasSuspects);
+                } else {
+                    list.add(not(this::hasSuspects));
+                }
             }
         }
-        if (filterActive(queryParameters, "hideMissing")) {
+        if (filterActive(filter, "hideMissing")) {
             list.add(this::hasMissingData);
         }
         return cdi -> list.build().stream().allMatch(p -> p.test(cdi));
     }
 
-    private boolean filterActive(MultivaluedMap<String, String> queryParameters, String key) {
-        return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
+    private boolean filterActive(JsonQueryFilter filter, String key) {
+        return filter.hasProperty(key) && filter.getBoolean(key);
     }
 
 
@@ -158,15 +192,16 @@ public class ChannelResource {
     @Path("/{channelid}/data")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_DATA)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
     public Response editChannelData(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, @BeanParam JsonQueryParameters queryParameters, List<ChannelDataInfo> channelDataInfos) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
         List<BaseReading> editedReadings = new ArrayList<>();
         List<BaseReading> editedBulkReadings = new ArrayList<>();
+        List<BaseReading> confirmedReadings = new ArrayList<>();
         List<Range<Instant>> removeCandidates = new ArrayList<>();
         channelDataInfos.forEach((channelDataInfo) -> {
-            if (channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
+            if (!(isToBeConfirmed(channelDataInfo)) && channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
                 removeCandidates.add(
                         Range.openClosed(
                                 Instant.ofEpochMilli(channelDataInfo.interval.start),
@@ -179,18 +214,26 @@ public class ChannelResource {
                 if (channelDataInfo.collectedValue != null) {
                     editedBulkReadings.add(channelDataInfo.createNewBulk());
                 }
+                if (isToBeConfirmed(channelDataInfo)) {
+                    confirmedReadings.add(channelDataInfo.createConfirm());
+                }
             }
         });
-        channel.startEditingData().removeChannelData(removeCandidates).editChannelData(editedReadings).editBulkChannelData(editedBulkReadings).complete();
+        channel.startEditingData().removeChannelData(removeCandidates).editChannelData(editedReadings).editBulkChannelData(editedBulkReadings).confirmChannelData(confirmedReadings).complete();
 
         return Response.status(Response.Status.OK).build();
+    }
+
+    private boolean isToBeConfirmed(ChannelDataInfo channelDataInfo) {
+        return ((channelDataInfo.validationInfo != null && channelDataInfo.validationInfo.mainValidationInfo != null && channelDataInfo.validationInfo.mainValidationInfo.isConfirmed) ||
+                (channelDataInfo.validationInfo != null && channelDataInfo.validationInfo.bulkValidationInfo != null && channelDataInfo.validationInfo.bulkValidationInfo.isConfirmed));
     }
 
     @POST
     @Path("/{channelid}/data/estimate")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_DATA)
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_DATA})
     public List<ChannelDataInfo> previewEstimateChannelData(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, EstimateChannelDataInfo estimateChannelDataInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);

@@ -6,17 +6,20 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
+import com.energyict.mdc.device.data.rest.DevicePrivileges;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
@@ -54,11 +57,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.util.Checks.is;
+
 @Path("/devices")
 public class DeviceResource {
     private static final int RECENTLY_ADDED_COUNT = 5;
 
-    private final DeviceImportService deviceImportService;
+    private final BatchService batchService;
     private final DeviceService deviceService;
     private final TopologyService topologyService;
     private final DeviceConfigurationService deviceConfigurationService;
@@ -94,7 +99,7 @@ public class DeviceResource {
     public DeviceResource(
             ResourceHelper resourceHelper,
             ExceptionFactory exceptionFactory,
-            DeviceImportService deviceImportService,
+            BatchService batchService,
             DeviceService deviceService,
             TopologyService topologyService,
             DeviceConfigurationService deviceConfigurationService,
@@ -125,7 +130,7 @@ public class DeviceResource {
             Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
-        this.deviceImportService = deviceImportService;
+        this.batchService = batchService;
         this.deviceService = deviceService;
         this.topologyService = topologyService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -182,15 +187,17 @@ public class DeviceResource {
         if (info.deviceConfigurationId != null) {
             deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId);
         }
-
-        Device newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID);
+        Device newDevice;
+        if (!is(info.batch).emptyOrOnlyWhiteSpace()) {
+            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID, info.batch);
+        } else {
+            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID);
+        }
         newDevice.setSerialNumber(info.serialNumber);
         newDevice.setYearOfCertification(Integer.valueOf(info.yearOfCertification));
         newDevice.save();
 
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
-
-        this.deviceImportService.addDeviceToBatch(newDevice, info.batch);
         return deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice));
     }
 
@@ -202,9 +209,6 @@ public class DeviceResource {
     public DeviceInfo updateDevice(@PathParam("id") long id, DeviceInfo info, @Context SecurityContext securityContext) {
         Device device = deviceService.findAndLockDeviceByIdAndVersion(id, info.version).orElseThrow(() -> new WebApplicationException(Status.CONFLICT));
         updateGateway(info, device);
-        if (info.estimationStatus != null) {
-            updateEstimationStatus(info.estimationStatus, device);
-        }
         return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
     }
 
@@ -215,14 +219,6 @@ public class DeviceResource {
             removeGateway(device);
         }
         return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
-    }
-
-    private void updateEstimationStatus(DeviceEstimationStatusInfo info, Device device) {
-        if (info.active) {
-            device.forEstimation().activateEstimation();
-        } else {
-            device.forEstimation().deactivateEstimation();
-        }
     }
 
     private void updateGateway(Device device, String gatewayMRID) {
@@ -292,6 +288,19 @@ public class DeviceResource {
         return Response.ok(deviceAttributesInfoFactory.from(device)).build();
     }
 
+    @GET
+    @Path("/{mRID}/privileges")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_DEVICE})
+    public Response getDeviceConstraintsBasedOnDeviceState(@PathParam("mRID") String id, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
+        User user = (User) securityContext.getUserPrincipal();
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+        List<IdWithNameInfo> privileges = DevicePrivileges.getPrivilegesFor(device, user)
+                .stream()
+                .map(privilege -> new IdWithNameInfo(null, privilege))
+                .collect(Collectors.toList());
+        return Response.ok(PagedInfoList.fromCompleteList("privileges", privileges, queryParameters)).build();
+    }
     /**
      * List all device message categories with devices messages:
      * - that are supported by the device protocol defined on the device's device type

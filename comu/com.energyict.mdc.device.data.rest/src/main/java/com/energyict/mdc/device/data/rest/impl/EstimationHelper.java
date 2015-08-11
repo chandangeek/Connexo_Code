@@ -1,21 +1,29 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.estimation.*;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.estimation.Estimatable;
+import com.elster.jupiter.estimation.EstimationBlock;
+import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.Estimator;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.rest.ValueModificationFlag;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfileReading;
 import com.google.common.collect.Range;
-
 
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -68,7 +76,7 @@ public class EstimationHelper {
         List<LoadProfileReading> channelData = new ArrayList<>();
         channelData.addAll(ranges.stream().flatMap(r -> channel.getChannelData(Ranges.openClosed(r.lowerEndpoint(), r.upperEndpoint())).stream()).collect(Collectors.toList()));
 
-        for(EstimationResult result : results) {
+        for (EstimationResult result : results) {
             for (EstimationBlock block : result.estimated()) {
                 for (Estimatable estimatable : block.estimatables()) {
                     channelDataInfos.addAll(fillChannelDataInfoList(channel, block, estimatable, channelData, isValidationActive, deviceValidation));
@@ -78,7 +86,7 @@ public class EstimationHelper {
         return channelDataInfos;
     }
 
-    private List<ChannelDataInfo> fillChannelDataInfoList(Channel channel, EstimationBlock block, Estimatable estimatable, List<LoadProfileReading> channelData,  boolean isValidationActive, DeviceValidation deviceValidation) {
+    private List<ChannelDataInfo> fillChannelDataInfoList(Channel channel, EstimationBlock block, Estimatable estimatable, List<LoadProfileReading> channelData, boolean isValidationActive, DeviceValidation deviceValidation) {
         List<ChannelDataInfo> channelDataInfos = new ArrayList<>();
         for (LoadProfileReading reading : channelData) {
             if (reading.getRange().upperEndpoint().equals(estimatable.getTimestamp())) {
@@ -90,23 +98,17 @@ public class EstimationHelper {
     }
 
     private ChannelDataInfo getChannelDataInfo(Channel channel, EstimationBlock block, LoadProfileReading reading, boolean isValidationActive, DeviceValidation deviceValidation, Estimatable estimatable) {
-        ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(reading, isValidationActive, deviceValidation);
+        ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, reading, isValidationActive, deviceValidation);
         if (!channel.getReadingType().isCumulative()) {
-        channelDataInfo.value = estimatable.getEstimation();
-        channelDataInfo.validationInfo.mainValidationInfo.valueModificationFlag = ValueModificationFlag.ESTIMATED;
-        channelDataInfo.validationInfo.mainValidationInfo.validationRules = Collections.EMPTY_SET;
-        channelDataInfo.validationInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+            channelDataInfo.value = estimatable.getEstimation();
+            channelDataInfo.validationInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
         } else {
             if (block.getReadingType().equals(channel.getReadingType())) {
                 channelDataInfo.collectedValue = estimatable.getEstimation();
-                channelDataInfo.validationInfo.bulkValidationInfo.valueModificationFlag = ValueModificationFlag.ESTIMATED;
-                channelDataInfo.validationInfo.bulkValidationInfo.validationRules = Collections.EMPTY_SET;
                 channelDataInfo.validationInfo.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
             }
             if (channel.getReadingType().getCalculatedReadingType().isPresent() && channel.getReadingType().getCalculatedReadingType().get().equals(block.getReadingType())) {
                 channelDataInfo.value = estimatable.getEstimation();
-                channelDataInfo.validationInfo.mainValidationInfo.valueModificationFlag = ValueModificationFlag.ESTIMATED;
-                channelDataInfo.validationInfo.mainValidationInfo.validationRules = Collections.EMPTY_SET;
                 channelDataInfo.validationInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
             }
         }

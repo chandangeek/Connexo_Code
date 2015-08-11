@@ -13,11 +13,12 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -38,7 +39,9 @@ import org.mockito.Mock;
 import javax.ws.rs.core.Application;
 import java.time.Clock;
 import java.util.Currency;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -61,7 +64,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     TopologyService topologyService;
     @Mock
-    DeviceImportService deviceImportService;
+    BatchService batchService;
     @Mock
     DeviceConfigurationService deviceConfigurationService;
     @Mock
@@ -109,7 +112,6 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     DeviceLifeCycleService deviceLifeCycleService;
 
-
     @Before
     public void setup() {
         when(thesaurus.getStringBeyondComponent(any(String.class), any(String.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
@@ -124,9 +126,22 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         return MessageSeeds.values();
     }
 
+    protected boolean disableDeviceConstraintsBasedOnDeviceState(){
+        return true;
+    }
+
     @Override
     protected Application getApplication() {
-        DeviceApplication application = new DeviceApplication();
+        DeviceApplication application = new DeviceApplication(){
+            @Override
+            public Set<Class<?>> getClasses() {
+                Set<Class<?>> classes = new HashSet<>(super.getClasses());
+                if (disableDeviceConstraintsBasedOnDeviceState()){
+                    classes.remove(DeviceStateAccessFeature.class);
+                }
+                return classes;
+            }
+        };
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setMasterDataService(masterDataService);
@@ -137,7 +152,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setConnectionTaskService(connectionTaskService);
         application.setDeviceService(deviceService);
         application.setTopologyService(topologyService);
-        application.setDeviceImportService(deviceImportService);
+        application.setBatchService(batchService);
         application.setEngineConfigurationService(engineConfigurationService);
         application.setIssueService(issueService);
         application.setIssueDataValidationService(issueDataValidationService);
@@ -177,8 +192,6 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
-        when(readingType.getCalculatedReadingType()).thenReturn(Optional.<ReadingType>empty());
-        when(readingType.isCumulative()).thenReturn(true);
         return readingType;
     }
 

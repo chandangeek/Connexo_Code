@@ -20,9 +20,6 @@ public class ChannelDataInfo {
     public IntervalInfo interval;
     @JsonProperty("readingTime")
     public Instant readingTime;
-    @JsonProperty("modificationFlag")
-    @XmlJavaTypeAdapter(ReadingModificationFlagAdapter.class)
-    public ReadingModificationFlag modificationFlag;
     @JsonProperty("reportedDateTime")
     public Instant reportedDateTime;
     @JsonProperty("intervalFlags")
@@ -38,7 +35,7 @@ public class ChannelDataInfo {
     public Boolean validationStatus;
 
     @JsonProperty("validationInfo")
-    public ValidationInfo validationInfo;
+    public VeeReadingInfo validationInfo;
 
     public BaseReading createNew() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value);
@@ -46,5 +43,9 @@ public class ChannelDataInfo {
 
     public BaseReading createNewBulk() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.collectedValue);
+    }
+
+    public BaseReading createConfirm() {
+        return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), null);
     }
 }
