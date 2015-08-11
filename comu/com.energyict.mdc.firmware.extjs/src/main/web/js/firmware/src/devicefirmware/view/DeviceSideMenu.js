@@ -14,7 +14,5 @@ Ext.define('Fwc.devicefirmware.view.DeviceSideMenu', {
                 }
             ]
         }]);
-
-        this.checkNavigation(Ext.util.History.getToken());
     }
 });

@@ -251,7 +251,6 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                         container.doLayout();
                     }
 
-                    widget.down('deviceMenu #deviceOverviewLink').removeCls(widget.down('deviceMenu').activeItemCls);
                     widget.setLoading(false);
                 }
             });
