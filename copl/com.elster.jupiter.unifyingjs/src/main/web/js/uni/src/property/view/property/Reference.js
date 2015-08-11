@@ -39,12 +39,15 @@ Ext.define('Uni.property.view.property.Reference', {
             cls: 'uni-property-displayfield',
             renderer: function (value) {
                 var result;
+
                 if (value) {
                     result = Ext.Array.findBy(me.getProperty().getPossibleValues(), function (item) {
                         return value == item.id;
                     });
-                    return result.name;
+                    result = Ext.isObject(result) ? result.name : value;
                 }
+
+                return result || me.emptyText;
             }
         }
     },
