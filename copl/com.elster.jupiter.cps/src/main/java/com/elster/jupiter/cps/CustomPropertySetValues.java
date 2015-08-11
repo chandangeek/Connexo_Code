@@ -8,7 +8,7 @@ import java.util.Set;
 /**
  * CustomAttributeSetProperties model the values for a set of custom properties
  * defined by a {@link CustomPropertySet}.
- * Each property has a name and fa corresponding value.
+ * Each property has a name and a corresponding value.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-07-20 (16:31)

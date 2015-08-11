@@ -2,7 +2,9 @@ package com.elster.jupiter.cps;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides support for adding custom properties to
@@ -34,20 +36,93 @@ public interface CustomPropertySetService {
     void removeCustomPropertySet(CustomPropertySet customPropertySet);
 
     /**
-     * Finds all {@link RegisteredCustomPropertySet}s.
+     * Finds all {@link RegisteredCustomPropertySet}s that are currently active.
+     * For remembrence's sake: a CustomPropertySet may have registered before
+     * but is currently not deployed in the OSGi container
+     * and will therefore NOT be returned.
      *
      * @return The List of RegisteredCustomPropertySet
      */
-    List<RegisteredCustomPropertySet> findRegisteredCustomPropertySets();
+    List<RegisteredCustomPropertySet> findActiveCustomPropertySets();
 
     /**
-     * Finds all {@link RegisteredCustomPropertySet}s that provide
-     * custom properties for the specified domain class.
+     * Finds all {@link RegisteredCustomPropertySet}s that are currently active
+     * and that provide custom properties for the specified domain class.
+     * For remembrence's sake: a CustomPropertySet may have registered before
+     * but is currently not deployed in the OSGi container
+     * and will therefore NOT be returned.
      *
      * @param domainClass The domain class
      * @return The List of RegisteredCustomPropertySet
      */
-    List<RegisteredCustomPropertySet> findRegisteredCustomPropertySets(Class domainClass);
+    List<RegisteredCustomPropertySet> findActiveCustomPropertySets(Class domainClass);
 
+    /**
+     * Gets the values for the {@link CustomPropertySet} that were saved for
+     * the specified businesObject object.
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is versioned because in that case
+     * you need to specify an instant in time when the values are effective.
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param businesObject The businesObject object
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @return The CustomPropertySetValues
+     * @see CustomPropertySet#isVersioned()
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is versioned
+     */
+    <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
+
+    /**
+     * Gets the values for the {@link CustomPropertySet} that were saved for
+     * the specified businesObject object.
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is <strong>NOT</strong> versioned because in that case
+     * you do not need to specify an instant in time when the values are effective.
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param businesObject The businesObject object
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @return The CustomPropertySetValues
+     * @see CustomPropertySet#isVersioned()
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
+     */
+    <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp);
+
+    /**
+     * Gets the values for the {@link CustomPropertySet} that were saved for
+     * the specified domain object.
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is versioned because in that case
+     * you need to specify an instant in time when the values are effective.
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param businesObject The domain object
+     * @param <D> The domain class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @return The CustomPropertySetValues
+     * @see CustomPropertySet#isVersioned()
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is versioned
+     */
+    <D, T extends PersistentDomainExtension<D>> Optional<T> getValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
+
+    /**
+     * Gets the values for the {@link CustomPropertySet} that were saved for
+     * the specified businesObject object.
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is <strong>NOT</strong> versioned because in that case
+     * you do not need to specify an instant in time when the values are effective.
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param businesObject The businesObject object
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @return The CustomPropertySetValues
+     * @see CustomPropertySet#isVersioned()
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
+     */
+    <D, T extends PersistentDomainExtension<D>> Optional<T> getValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp);
 
 }
