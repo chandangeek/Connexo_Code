@@ -44,8 +44,8 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                     {
                         xtype: 'uni-form-info-message',
                         name: 'warning',
-                        title: Uni.I18n.translate('deviceFirmware.title.optionsDisabled', 'MDC', 'Firmware management is not allowed on devices of this device type.'),
-                        html: Uni.I18n.translate('deviceFirmware.optionsDisabled', 'MDC', 'Devices of this type won\'t have the option to upload new firmware versions.<br>If you want to activate firmware management for this device type, click <a href="{0}"> here </a>', [this.router.getRoute('administration/devicetypes/view/firmwareoptions').buildUrl().toString()]),
+                        title: Uni.I18n.translate('deviceFirmware.title.optionsDisabled', 'FWC', 'Firmware management is not allowed on devices of this device type.'),
+                        html: Uni.I18n.translate('deviceFirmware.optionsDisabled', 'FWC', 'Devices of this type won\'t have the option to upload new firmware versions.<br>If you want to activate firmware management for this device type, click <a href="{0}"> here </a>', [this.router.getRoute('administration/devicetypes/view/firmwareoptions').buildUrl().toString()]),
                         hidden: true,
                         margin: '32 0 32 0',
                         height: 130
@@ -59,14 +59,14 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
                             itemId: 'empty-panel',
-                            title: Uni.I18n.translate('firmware.empty.title', 'MDC', 'No firmware versions found'),
+                            title: Uni.I18n.translate('firmware.empty.title', 'FWC', 'No firmware versions found'),
                             reasons: [
-                                Uni.I18n.translate('firmware.empty.list.item1', 'MDC', 'No firmware versions have been added yet.'),
-                                Uni.I18n.translate('firmware.empty.list.item2', 'MDC', 'The filter is too narrow.')
+                                Uni.I18n.translate('firmware.empty.list.item1', 'FWC', 'No firmware versions have been added yet.'),
+                                Uni.I18n.translate('firmware.empty.list.item2', 'FWC', 'The filter is too narrow.')
                             ],
                             stepItems: [
                                 {
-                                    text: Uni.I18n.translate('firmware.add', 'MDC', 'Add firmware version'),
+                                    text: Uni.I18n.translate('firmware.add', 'FWC', 'Add firmware version'),
                                     itemId: 'add-firmware-button',
                                     action: 'addFirmware'
                                 }

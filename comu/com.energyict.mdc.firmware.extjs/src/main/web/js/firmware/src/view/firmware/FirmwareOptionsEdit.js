@@ -93,7 +93,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                         items: [
                             {
                                 itemId: 'rbtn-is-allowed-yes',
-                                boxLabel: '<b>' + Uni.I18n.translate('general.yes', 'MDC', 'Yes') + '</b>',
+                                boxLabel: '<b>' + Uni.I18n.translate('general.yes', 'FWC', 'Yes') + '</b>',
                                 inputValue: 1
 
                             },
@@ -123,7 +123,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                                 itemId: 'firmwareUpgradeOptionsLater',
                                 boxLabel: '<b>' + Uni.I18n.translate('general.upload.fw.later', 'FWC', 'Upload firmware and activate later') + '</b>',
                                 inputValue: 'install',
-                                afterSubTpl: '<span style="font-style:italic;color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.later.comment', 'MDC', 'Firmware will be uploaded to the device. The user will need to send an command afterwards in order to activate firmware') + '</span>'
+                                afterSubTpl: '<span style="font-style:italic;color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('general.upload.fw.later.comment', 'FWC', 'Firmware will be uploaded to the device. The user will need to send an command afterwards in order to activate firmware') + '</span>'
                             },
                             {
                                 itemId: 'firmwareUpgradeOptionsImmediately',
@@ -153,14 +153,14 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                         },
                         items: [
                             {
-                                text: Uni.I18n.translate('general.add', 'MDC', 'Save'),
+                                text: Uni.I18n.translate('general.add', 'FWC', 'Save'),
                                 xtype: 'button',
                                 ui: 'action',
                                 action: 'saveOptionsAction',
                                 itemId: 'saveButton'
                             },
                             {
-                                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
+                                text: Uni.I18n.translate('general.cancel', 'FWC', 'Cancel'),
                                 xtype: 'button',
                                 ui: 'link',
                                 itemId: 'cancelLink',

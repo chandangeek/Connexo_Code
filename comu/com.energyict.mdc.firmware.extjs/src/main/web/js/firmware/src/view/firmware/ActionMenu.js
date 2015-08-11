@@ -7,12 +7,12 @@ Ext.define('Fwc.view.firmware.ActionMenu', {
     shadow: false,
     items: [
         {
-            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+            text: Uni.I18n.translate('general.edit', 'FWC', 'Edit'),
             action: 'editFirmware',
             itemId: 'editFirmware'
         },
         {
-            text: Uni.I18n.translate('firmware.final', 'MDC', 'Set as final'),
+            text: Uni.I18n.translate('firmware.final', 'FWC', 'Set as final'),
             action: 'setFinal',
             itemId: 'setFinal',
             visible: function () {
@@ -21,7 +21,7 @@ Ext.define('Fwc.view.firmware.ActionMenu', {
             }
         },
         {
-            text: Uni.I18n.translate('firmware.deprecate', 'MDC', 'Deprecate'),
+            text: Uni.I18n.translate('firmware.deprecate', 'FWC', 'Deprecate'),
             action: 'deprecate',
             itemId: 'deprecate'
         }
