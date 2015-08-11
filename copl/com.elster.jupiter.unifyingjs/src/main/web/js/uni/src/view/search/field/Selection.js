@@ -123,6 +123,7 @@ Ext.define('Uni.view.search.field.Selection', {
                         itemId: 'filter-selected',
                         boxLabel: 'Show all selected items',
                         disabled: true,
+                        hidden: !me.multiSelect,
                         handler: function () {
                             var store = me.grid.getStore();
                             Ext.suspendLayouts();
@@ -149,6 +150,7 @@ Ext.define('Uni.view.search.field.Selection', {
                     {
                         xtype: 'checkboxfield',
                         itemId: 'select-all',
+                        hidden: !me.multiSelect,
                         boxLabel: 'Select all displayed values',
                         name: 'topping',
                         inputValue: '1',
