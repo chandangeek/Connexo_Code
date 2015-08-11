@@ -65,7 +65,7 @@ public class RequestDiscover extends AbstractDiscover {
 
     @Override
     public void provideResponse(DiscoverResponseType responseType) {
-        if (responseType == DiscoverResponseType.SUCCESS) {
+        if (responseType == DiscoverResponseType.SUCCESS || responseType == DiscoverResponseType.DATA_ONLY_PARTIALLY_HANDLED) {
             getInboundConnection().ackFrames();
         }
     }

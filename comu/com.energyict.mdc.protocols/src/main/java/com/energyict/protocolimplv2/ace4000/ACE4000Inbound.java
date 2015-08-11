@@ -103,7 +103,7 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
      */
     @Override
     public void provideResponse(DiscoverResponseType responseType) {
-        if (responseType == DiscoverResponseType.SUCCESS) {
+        if (responseType == DiscoverResponseType.SUCCESS || responseType == DiscoverResponseType.DATA_ONLY_PARTIALLY_HANDLED) {
             getObjectFactory().provideReponseAfterInbound();
         } else {
             //TODO ?

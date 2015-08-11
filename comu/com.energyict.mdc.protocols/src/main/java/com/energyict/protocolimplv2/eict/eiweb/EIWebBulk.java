@@ -121,6 +121,9 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
                     case SUCCESS:
                         this.responseWriter.success();
                         break;
+                    case DATA_ONLY_PARTIALLY_HANDLED:
+                        this.response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "The data was received correctly but due to a configuration issue not all data was processed and/or stored!");
+                        break;
                     case FAILURE:
                         this.response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "The inbound discovery failed. No data was processed nor stored!");
                         break;

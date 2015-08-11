@@ -68,7 +68,7 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
 
     @Override
     public void provideResponse(DiscoverResponseType responseType) {
-        if (!responseType.equals(DiscoverResponseType.SUCCESS)) {
+        if (!(responseType.equals(DiscoverResponseType.SUCCESS) || responseType.equals(DiscoverResponseType.DATA_ONLY_PARTIALLY_HANDLED))) {
             logOff();
         }
     }
