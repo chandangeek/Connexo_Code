@@ -353,5 +353,4 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         // How do I update the 'model'
         getLifeCycleStatesEditForm().updateRecord(); // This is needed so the model reflects the situation on the screen
     }
-
 });

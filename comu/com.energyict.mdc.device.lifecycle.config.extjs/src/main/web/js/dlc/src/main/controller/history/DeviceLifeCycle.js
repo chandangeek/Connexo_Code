@@ -3,7 +3,7 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
     rootToken: 'administration',
     routeConfig: {
         administration: {
-            title: Uni.I18n.translate('general.administration', 'UNI', 'Administration'),
+            title: Uni.I18n.translate('general.administration', 'DLC', 'Administration'),
             route: 'administration',
             disabled: true,
             items: {
