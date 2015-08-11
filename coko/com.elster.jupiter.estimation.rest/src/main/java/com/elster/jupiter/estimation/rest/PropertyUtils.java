@@ -21,10 +21,7 @@ import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.time.RelativePeriod;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class PropertyUtils {
 
@@ -66,6 +63,26 @@ public class PropertyUtils {
         Object defaultValue = getDefaultValue(propertySpec);
         if (propertyValue == null && defaultValue == null) {
             return null;
+        }
+        if(Objects.equals(propertySpec.getValueFactory().getValueType(), AdvanceReadingsSettings.class)) {
+            Map <String, Boolean> defaultValueMap = new HashMap<>();
+            if (defaultValue != null) {
+                defaultValueMap.put(defaultValue.toString(), true);
+                if (propertyValue != null && propertyValue.toString().equals(defaultValue.toString())) {
+                    propertyValue = defaultValueMap;
+                }
+            }
+            return new PropertyValueInfo<>(propertyValue, defaultValueMap);
+        }
+        if(Objects.equals(propertySpec.getValueFactory().getValueType(), RelativePeriod.class)) {
+            Map <String, Integer> defaultValueMap = new HashMap<>();
+            if (defaultValue != null) {
+                defaultValueMap.put("id", 0);
+                if (propertyValue != null && propertyValue.toString().equals(defaultValue.toString())) {
+                    propertyValue = defaultValueMap;
+                }
+            }
+            return new PropertyValueInfo<>(propertyValue, defaultValueMap);
         }
         return new PropertyValueInfo<>(propertyValue, defaultValue);
     }
@@ -152,7 +169,7 @@ public class PropertyUtils {
             } else if (map.get("readingType") != null) {
                 advanceSettings = (String) ((Map) map.get("readingType")).get("mRID");
             }
-            return propertySpec.getValueFactory().fromStringValue(advanceSettings);
+            return  propertySpec.getValueFactory().fromStringValue(advanceSettings);
         }
         if (Objects.equals(propertySpec.getValueFactory().getValueType(), Boolean.class)) {
             if (Boolean.class.isAssignableFrom(value.getClass())) {
