@@ -100,6 +100,12 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
         when(finiteStateMachine.getStates()).thenReturn(states);
         when(dlc.getAuthorizedActions()).thenReturn(actions);
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
+        when(deviceLifeCycleService.getName(Matchers.any(MicroAction.class))).thenAnswer(invocation ->
+                ((MicroAction) invocation.getArguments()[0]).name());
+        when(deviceLifeCycleService.getDescription(Matchers.any(MicroAction.class))).thenAnswer(invocation ->
+                ((MicroAction) invocation.getArguments()[0]).name());
+        when(deviceLifeCycleService.getCategoryName(Matchers.any(MicroAction.class))).thenAnswer(invocation ->
+                ((MicroAction) invocation.getArguments()[0]).name());
 
         String  response = target("/devicelifecycles/1/actions/microactions")
                 .queryParam("fromState", 1)
@@ -130,6 +136,12 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
         when(finiteStateMachine.getStates()).thenReturn(states);
         when(dlc.getAuthorizedActions()).thenReturn(actions);
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
+        when(deviceLifeCycleService.getName(Matchers.any(MicroCheck.class))).thenAnswer(invocation ->
+            ((MicroCheck)invocation.getArguments()[0]).name());
+        when(deviceLifeCycleService.getDescription(Matchers.any(MicroCheck.class))).thenAnswer(invocation ->
+            ((MicroCheck)invocation.getArguments()[0]).name());
+        when(deviceLifeCycleService.getCategoryName(Matchers.any(MicroCheck.class))).thenAnswer(invocation ->
+            ((MicroCheck)invocation.getArguments()[0]).name());
 
         String  response = target("/devicelifecycles/1/actions/microchecks")
                 .queryParam("fromState", 1)

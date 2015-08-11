@@ -9,6 +9,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
@@ -43,6 +44,8 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
     protected EventService eventService;
     @Mock
     protected DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    protected DeviceLifeCycleService deviceLifeCycleService;
 
     @Override
     protected Application getApplication() {
@@ -55,6 +58,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         application.setFiniteStateMachineService(finiteStateMachineService);
         application.setEventService(eventService);
         application.setDeviceConfigurationService(deviceConfigurationService);
+        application.setDeviceLifeCycleService(deviceLifeCycleService);
         when(nlsService.getThesaurus(DeviceLifeCycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT, Layer.REST)).thenReturn(thesaurus);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getId()).thenReturn(1L);

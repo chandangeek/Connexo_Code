@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 
@@ -23,6 +24,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.energyict.mdc.device.lifecycle.impl.DeviceLifeCycleModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -81,7 +83,8 @@ public class InMemoryPersistence {
                 new DomainUtilModule(),
                 new NlsModule(),
                 new FiniteStateMachineModule(),
-                new DeviceLifeCycleConfigurationModule()
+                new DeviceLifeCycleConfigurationModule(),
+                new DeviceLifeCycleModule()
         );
     }
 
@@ -102,6 +105,7 @@ public class InMemoryPersistence {
             this.injector.getInstance(EventService.class);
             this.injector.getInstance(FiniteStateMachineService.class);
             this.injector.getInstance(DeviceLifeCycleConfigurationService.class);
+            this.injector.getInstance(DeviceLifeCycleService.class);
             ctx.commit();
         }
     }
