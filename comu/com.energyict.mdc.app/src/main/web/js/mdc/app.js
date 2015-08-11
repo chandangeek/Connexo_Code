@@ -28,10 +28,6 @@ Ext.onReady(function () {
             path: '../../apps/idv/src'
         },
         {
-            name: 'Dvi',
-            path: '../../apps/dvi/src'
-        },
-        {
             name: 'Ddv',
             path: '../../apps/ddv/src'
         },
