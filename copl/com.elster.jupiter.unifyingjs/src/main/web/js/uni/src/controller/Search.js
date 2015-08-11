@@ -395,18 +395,18 @@ Ext.define('Uni.controller.Search', {
                     item.setDisabled(false);
                     if (item.store && Ext.isFunction(item.getStore)) {
                         store = item.getStore();
-                        if (store.isLoading()) {
-                            Ext.Ajax.abort(store.lastRequest);
-                        }
+                        //if (store.isLoading()) {
+                        //    Ext.Ajax.abort(store.lastRequest);
+                        //}
                         store.clearFilter(true);
                         store.addFilter(widget.getFilter(), false);
-                        item.menu.setLoading(true);
-                        store.load({
-                            callback: function () {
-                                item.menu.setLoading(false);
-                            }
-                        });
-                        store.lastRequest = Ext.Ajax.getLatest();
+                        //item.menu.setLoading(true);
+                        //store.load({
+                        //    callback: function () {
+                        //        item.menu.setLoading(false);
+                        //    }
+                        //});
+                        //store.lastRequest = Ext.Ajax.getLatest();
                     }
                 } else {
                     item.setDisabled(true);

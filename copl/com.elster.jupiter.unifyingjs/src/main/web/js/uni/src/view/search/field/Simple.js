@@ -1,7 +1,6 @@
 Ext.define('Uni.view.search.field.Simple', {
     extend: 'Uni.view.search.field.internal.CriteriaButton',
     xtype: 'search-criteria-simple',
-    menuAlign: 'tr-br',
     requires: [
         'Uni.view.search.field.internal.Input'
     ],

@@ -235,5 +235,8 @@ Ext.define('Uni.view.search.field.Selection', {
         me.callParent(arguments);
         me.bindStore(me.store || 'ext-empty-store', true);
         me.grid = me.down('grid');
+        me.on('menushow', function(){
+            me.store.load();
+        })
     }
 });

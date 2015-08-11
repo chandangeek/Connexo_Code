@@ -13,7 +13,13 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     menuAlign: 'tr-br',
 
     setChecked: function(property, value, suppressEvents) {
-        var item = this.menu.items.findBy(function(i){return i.criteria === property;});
+        var item, me = this;
+        var base = property.get('group')
+            ? me.menu.items.findBy(function(i){return i.value === property.get('group');}).menu
+            : me.menu;
+
+        item = base.items.findBy(function(i){return i.criteria === property;});
+
         if (item) {
             item.setChecked(value, suppressEvents);
         }
