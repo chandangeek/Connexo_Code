@@ -37,6 +37,11 @@ public interface Thesaurus extends MessageInterpolator {
 
 	NlsMessageFormat getFormat(MessageSeed seed);
 
+    /**
+     * Provides the simple format to be used to translate a TranslationKey, that is: without error id, level or module.
+     */
+	NlsMessageFormat getSimpleFormat(TranslationKey key);
+
     void addTranslations(Iterable<? extends Translation> translations);
 
     Map<String, String> getTranslations();
