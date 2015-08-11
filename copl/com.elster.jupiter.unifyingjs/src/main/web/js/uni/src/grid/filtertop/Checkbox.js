@@ -29,10 +29,19 @@ Ext.define('Uni.grid.filtertop.Checkbox', {
         }
 
         if (Ext.isDefined(me.options) && !Ext.isDefined(me.items)) {
+            me.resetItemsFromOptions();
             me.items = me.createItemsFromOptions();
         }
 
         me.callParent(arguments);
+    },
+
+    resetItemsFromOptions: function () {
+        var me = this;
+
+        Ext.Array.each(me.options, function (option) {
+            option.name = undefined;
+        });
     },
 
     createItemsFromOptions: function () {
