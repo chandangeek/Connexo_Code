@@ -3,8 +3,10 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import java.time.Instant;
@@ -19,11 +21,12 @@ import java.util.List;
  * Date: 23/06/15
  * Time: 15:45
  */
-public class CloseAllIssues implements ServerMicroAction {
+public class CloseAllIssues extends TranslatableServerMicroAction {
 
     private final IssueService issueService;
 
-    public CloseAllIssues(IssueService issueService) {
+    public CloseAllIssues(Thesaurus thesaurus, IssueService issueService) {
+        super(thesaurus);
         this.issueService = issueService;
     }
 
@@ -36,4 +39,8 @@ public class CloseAllIssues implements ServerMicroAction {
         }
     }
 
+    @Override
+    protected MicroAction getMicroAction() {
+        return MicroAction.CLOSE_ALL_ISSUES;
+    }
 }

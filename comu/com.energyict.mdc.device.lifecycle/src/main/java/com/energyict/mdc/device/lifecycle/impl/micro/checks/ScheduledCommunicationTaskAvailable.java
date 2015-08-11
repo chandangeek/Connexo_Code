@@ -25,13 +25,15 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-15 (09:28)
  */
-public class ScheduledCommunicationTaskAvailable implements ServerMicroCheck {
-
-    private final Thesaurus thesaurus;
+public class ScheduledCommunicationTaskAvailable extends TranslatableServerMicroCheck {
 
     public ScheduledCommunicationTaskAvailable(Thesaurus thesaurus) {
-        super();
-        this.thesaurus = thesaurus;
+        super(thesaurus);
+    }
+
+    @Override
+    protected MicroCheck getMicroCheck() {
+        return MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE;
     }
 
     @Override

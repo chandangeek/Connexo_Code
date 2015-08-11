@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -49,6 +50,8 @@ public class StartCommunicationTest {
     private ComTask comTask1, comTask2, comTask3;
     @Mock
     private Device device;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Test
     public void testGetPropertySpecs() {
@@ -108,7 +111,7 @@ public class StartCommunicationTest {
     }
 
     private StartCommunication getTestInstance() {
-        return new StartCommunication();
+        return new StartCommunication(thesaurus);
     }
 
 }

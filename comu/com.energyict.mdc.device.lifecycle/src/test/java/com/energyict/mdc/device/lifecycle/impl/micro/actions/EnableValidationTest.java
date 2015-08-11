@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -39,6 +40,8 @@ public class EnableValidationTest {
     private PropertySpecService propertySpecService;
     @Mock
     private Device device;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Test
     public void testGetPropertySpecsDelegatesToPropertySpecService() {
@@ -73,7 +76,7 @@ public class EnableValidationTest {
     }
 
     public EnableValidation getTestInstance() {
-        return new EnableValidation();
+        return new EnableValidation(thesaurus);
     }
 
 }

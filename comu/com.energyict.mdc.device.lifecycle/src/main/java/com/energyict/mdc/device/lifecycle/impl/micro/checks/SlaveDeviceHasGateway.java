@@ -19,14 +19,12 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-15 (10:41)
  */
-public class SlaveDeviceHasGateway implements ServerMicroCheck {
+public class SlaveDeviceHasGateway extends TranslatableServerMicroCheck {
 
-    private final Thesaurus thesaurus;
     private final TopologyService topologyService;
 
     public SlaveDeviceHasGateway(Thesaurus thesaurus, TopologyService topologyService) {
-        super();
-        this.thesaurus = thesaurus;
+        super(thesaurus);
         this.topologyService = topologyService;
     }
 
@@ -51,4 +49,8 @@ public class SlaveDeviceHasGateway implements ServerMicroCheck {
         return device.isLogicalSlave() || !device.getDeviceConfiguration().isDirectlyAddressable();
     }
 
+    @Override
+    protected MicroCheck getMicroCheck() {
+        return MicroCheck.SLAVE_DEVICE_HAS_GATEWAY;
+    }
 }

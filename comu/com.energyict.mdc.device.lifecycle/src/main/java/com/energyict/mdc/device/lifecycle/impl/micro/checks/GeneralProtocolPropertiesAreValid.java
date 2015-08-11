@@ -21,13 +21,10 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-17 (09:39)
  */
-public class GeneralProtocolPropertiesAreValid implements ServerMicroCheck {
-
-    private final Thesaurus thesaurus;
+public class GeneralProtocolPropertiesAreValid extends ConsolidatedServerMicroCheck {
 
     public GeneralProtocolPropertiesAreValid(Thesaurus thesaurus) {
-        super();
-        this.thesaurus = thesaurus;
+        super(thesaurus);
     }
 
     @Override

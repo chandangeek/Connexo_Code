@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import com.elster.jupiter.metering.AmrSystem;
@@ -23,13 +25,13 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-07 (12:40)
  */
-public class RemoveDeviceFromStaticGroups implements ServerMicroAction {
+public class RemoveDeviceFromStaticGroups extends TranslatableServerMicroAction {
 
     private final MeteringService meteringService;
     private final MeteringGroupsService meteringGroupsService;
 
-    public RemoveDeviceFromStaticGroups(MeteringService meteringService, MeteringGroupsService meteringGroupsService) {
-        super();
+    public RemoveDeviceFromStaticGroups(Thesaurus thesaurus, MeteringService meteringService, MeteringGroupsService meteringGroupsService) {
+        super(thesaurus);
         this.meteringService = meteringService;
         this.meteringGroupsService = meteringGroupsService;
     }
@@ -72,4 +74,8 @@ public class RemoveDeviceFromStaticGroups implements ServerMicroAction {
             .ifPresent(group::remove);
     }
 
+    @Override
+    protected MicroAction getMicroAction() {
+        return MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS;
+    }
 }

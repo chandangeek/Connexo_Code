@@ -1,9 +1,11 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import java.time.Instant;
@@ -18,7 +20,11 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-05 (16:58)
  */
-public class DisableCommunication implements ServerMicroAction {
+public class DisableCommunication extends TranslatableServerMicroAction {
+
+    public DisableCommunication(Thesaurus thesaurus) {
+        super(thesaurus);
+    }
 
     @Override
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
@@ -26,4 +32,8 @@ public class DisableCommunication implements ServerMicroAction {
         device.getComTaskExecutions().forEach(ComTaskExecution::putOnHold);
     }
 
+    @Override
+    protected MicroAction getMicroAction() {
+        return MicroAction.DISABLE_COMMUNICATION;
+    }
 }

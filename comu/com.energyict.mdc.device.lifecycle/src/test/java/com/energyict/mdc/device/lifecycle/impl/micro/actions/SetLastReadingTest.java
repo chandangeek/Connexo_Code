@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
@@ -40,6 +41,8 @@ public class SetLastReadingTest {
     private PropertySpecService propertySpecService;
     @Mock
     private Device device;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Test
     public void testGetPropertySpecsDelegatesToPropertySpecService() {
@@ -105,7 +108,7 @@ public class SetLastReadingTest {
     }
 
     private SetLastReading getTestInstance() {
-        return new SetLastReading();
+        return new SetLastReading(thesaurus);
     }
 
 }

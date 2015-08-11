@@ -14,6 +14,7 @@ import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import java.time.Instant;
 import java.util.List;
@@ -155,4 +156,15 @@ public interface DeviceLifeCycleService {
      */
     public void triggerEvent(CustomStateTransitionEventType eventType, Device device, Instant effectiveTimestamp);
 
+    String getName(MicroCheck microCheck);
+
+    String getDescription(MicroCheck microCheck);
+
+    String getCategoryName(MicroCheck microCheck);
+
+    String getName(MicroAction microAction);
+
+    String getDescription(MicroAction microAction);
+
+    String getCategoryName(MicroAction microAction);
 }

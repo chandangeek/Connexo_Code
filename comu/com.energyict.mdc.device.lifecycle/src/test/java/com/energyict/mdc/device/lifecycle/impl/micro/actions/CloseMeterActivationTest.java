@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -35,6 +36,8 @@ public class CloseMeterActivationTest {
     private PropertySpecService propertySpecService;
     @Mock
     private Device device;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Test
     public void testGetPropertySpecsDelegatesToPropertySpecService() {
@@ -62,7 +65,7 @@ public class CloseMeterActivationTest {
     }
 
     private CloseMeterActivation getTestInstance() {
-        return new CloseMeterActivation();
+        return new CloseMeterActivation(thesaurus);
     }
 
 }

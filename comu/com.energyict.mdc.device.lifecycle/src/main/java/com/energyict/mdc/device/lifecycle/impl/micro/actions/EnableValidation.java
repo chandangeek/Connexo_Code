@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import com.elster.jupiter.properties.PropertySpec;
@@ -22,7 +24,11 @@ import static com.energyict.mdc.device.lifecycle.impl.DeviceLifeCyclePropertySup
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-20 (09:29)
  */
-public class EnableValidation implements ServerMicroAction {
+public class EnableValidation extends TranslatableServerMicroAction {
+
+    public EnableValidation(Thesaurus thesaurus) {
+        super(thesaurus);
+    }
 
     @Override
     public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService) {
@@ -34,4 +40,8 @@ public class EnableValidation implements ServerMicroAction {
         device.forValidation().activateValidation(getLastCheckedTimestamp(properties));
     }
 
+    @Override
+    protected MicroAction getMicroAction() {
+        return MicroAction.ENABLE_VALIDATION;
+    }
 }

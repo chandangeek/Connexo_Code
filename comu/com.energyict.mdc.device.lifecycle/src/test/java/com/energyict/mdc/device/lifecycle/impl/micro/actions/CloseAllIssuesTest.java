@@ -3,6 +3,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.data.Device;
@@ -35,6 +36,8 @@ public class CloseAllIssuesTest {
     private PropertySpecService propertySpecService;
     @Mock
     private Device device;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Test
     public void testGetPropertySpecsDelegatesToPropertySpecService() {
@@ -71,7 +74,7 @@ public class CloseAllIssuesTest {
     }
 
     public CloseAllIssues getTestInstance(){
-        return new CloseAllIssues(issueService);
+        return new CloseAllIssues(thesaurus, issueService);
     }
 
 }

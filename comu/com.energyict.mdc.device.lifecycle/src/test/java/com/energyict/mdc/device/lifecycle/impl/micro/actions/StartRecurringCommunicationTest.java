@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -36,6 +37,8 @@ public class StartRecurringCommunicationTest {
     private PropertySpecService propertySpecService;
     @Mock
     private Device device;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Test
     public void testGetPropertySpecs() {
@@ -79,7 +82,7 @@ public class StartRecurringCommunicationTest {
     }
 
     private StartRecurringCommunication getTestInstance() {
-        return new StartRecurringCommunication();
+        return new StartRecurringCommunication(thesaurus);
     }
 
 }

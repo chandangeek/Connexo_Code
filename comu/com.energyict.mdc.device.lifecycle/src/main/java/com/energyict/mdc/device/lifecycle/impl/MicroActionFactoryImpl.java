@@ -2,9 +2,13 @@ package com.energyict.mdc.device.lifecycle.impl;
 
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.*;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -27,6 +31,7 @@ import javax.inject.Inject;
 @SuppressWarnings("unused")
 public class MicroActionFactoryImpl implements ServerMicroActionFactory {
 
+    private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile TopologyService topologyService;
@@ -44,8 +49,9 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
 
     // For unit testing purposes
     @Inject
-    public MicroActionFactoryImpl(MeteringService meteringService, MeteringGroupsService meteringGroupsService, TopologyService topologyService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService, ValidationService validationService, EstimationService estimationService, IssueService issueService) {
+    public MicroActionFactoryImpl(NlsService nlsService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, TopologyService topologyService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService, ValidationService validationService, EstimationService estimationService, IssueService issueService) {
         this();
+        this.setNlsService(nlsService);
         this.setMeteringService(meteringService);
         this.setMeteringGroupsService(meteringGroupsService);
         this.setTopologyService(topologyService);
@@ -101,56 +107,60 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
         this.issueDataCollectionService = issueDataCollectionService;
     }
 
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(DeviceLifeCycleService.COMPONENT_NAME, Layer.DOMAIN);
+    }
     @Override
     public ServerMicroAction from(MicroAction microAction) {
         switch (microAction) {
             case SET_LAST_READING: {
-                return new SetLastReading();
+                return new SetLastReading(thesaurus);
             }
             case ENABLE_VALIDATION: {
-                return new EnableValidation();
+                return new EnableValidation(thesaurus);
             }
             case DISABLE_VALIDATION: {
-                return new DisableValidation();
+                return new DisableValidation(thesaurus);
             }
             case ACTIVATE_CONNECTION_TASKS_IN_USE: {
-                return new ActivateConnectionTasks();
+                return new ActivateConnectionTasks(thesaurus);
             }
             case CREATE_METER_ACTIVATION: {
-                return new CreateMeterActivation();
+                return new CreateMeterActivation(thesaurus);
             }
             case CLOSE_METER_ACTIVATION: {
-                return new CloseMeterActivation();
+                return new CloseMeterActivation(thesaurus);
             }
             case START_COMMUNICATION: {
-                return new StartCommunication();
+                return new StartCommunication(thesaurus);
             }
             case DISABLE_COMMUNICATION: {
-                return new DisableCommunication();
+                return new DisableCommunication(thesaurus);
             }
             case DETACH_SLAVE_FROM_MASTER: {
-                return new DetachSlaveFromMaster(this.topologyService);
+                return new DetachSlaveFromMaster(thesaurus, this.topologyService);
             }
             case REMOVE_DEVICE_FROM_STATIC_GROUPS: {
-                return new RemoveDeviceFromStaticGroups(this.meteringService, this.meteringGroupsService);
+                return new RemoveDeviceFromStaticGroups(thesaurus, this.meteringService, this.meteringGroupsService);
             }
             case ENABLE_ESTIMATION: {
-                return new EnableEstimation();
+                return new EnableEstimation(thesaurus);
             }
             case DISABLE_ESTIMATION: {
-                return new DisableEstimation();
+                return new DisableEstimation(thesaurus);
             }
             case FORCE_VALIDATION_AND_ESTIMATION: {
-                return new ForceValidationAndEstimation(this.validationService, this.estimationService);
+                return new ForceValidationAndEstimation(thesaurus, this.validationService, this.estimationService);
             }
             case START_RECURRING_COMMUNICATION: {
-                return new StartRecurringCommunication();
+                return new StartRecurringCommunication(thesaurus);
             }
             case CLOSE_ALL_ISSUES: {
-                return new CloseAllIssues(issueService);
+                return new CloseAllIssues(thesaurus, issueService);
             }
             case REMOVE_DEVICE: {
-                return new RemoveDevice();
+                return new RemoveDevice(thesaurus);
             }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroAction " + microAction.name());

@@ -30,14 +30,12 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-15 (09:48)
  */
-public class AllLoadProfileDataCollected implements ServerMicroCheck {
+public class AllLoadProfileDataCollected extends TranslatableServerMicroCheck {
 
-    private final Thesaurus thesaurus;
     private final MeteringService meteringService;
 
     public AllLoadProfileDataCollected(Thesaurus thesaurus, MeteringService meteringService) {
-        super();
-        this.thesaurus = thesaurus;
+        super(thesaurus);
         this.meteringService = meteringService;
     }
 
@@ -94,4 +92,8 @@ public class AllLoadProfileDataCollected implements ServerMicroCheck {
         return this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
     }
 
+    @Override
+    protected MicroCheck getMicroCheck() {
+        return MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED;
+    }
 }

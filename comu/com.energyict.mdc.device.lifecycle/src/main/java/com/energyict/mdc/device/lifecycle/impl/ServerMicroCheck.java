@@ -27,4 +27,9 @@ public interface ServerMicroCheck {
      */
     public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp);
 
+    String getName();
+
+    String getDescription();
+
+    String getCategoryName();
 }

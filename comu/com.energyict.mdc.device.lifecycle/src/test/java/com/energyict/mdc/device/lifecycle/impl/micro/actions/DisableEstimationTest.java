@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.device.data.*;
@@ -29,6 +30,8 @@ public class DisableEstimationTest {
     private PropertySpecService propertySpecService;
     @Mock
     private Device device;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Test
     public void testGetPropertySpecs() {
@@ -55,7 +58,7 @@ public class DisableEstimationTest {
     }
 
     public DisableEstimation getTestInstance() {
-        return new DisableEstimation();
+        return new DisableEstimation(thesaurus);
     }
 
 }
