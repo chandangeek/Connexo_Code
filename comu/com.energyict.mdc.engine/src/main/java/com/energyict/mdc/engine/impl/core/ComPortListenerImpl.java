@@ -159,10 +159,17 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
             try {
                 this.doRun();
             } catch (CommunicationException e) {
+                logUnexpectedError(e);
                 waitAfterCommunicationTimeOut();
+            } catch (Throwable throwable) {
+                logUnexpectedError(throwable);
             }
         }
         this.status = ServerProcessStatus.SHUTDOWN;
+    }
+
+    private void logUnexpectedError(Throwable throwable) {
+        getLogger().unexpectedError(getThreadName(), throwable);
     }
 
     /**

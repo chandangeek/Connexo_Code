@@ -201,18 +201,11 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         while (this.continueRunning.get() && !Thread.currentThread().isInterrupted()) {
             try {
                 this.doRun();
-            }
-            catch (Throwable t) {
-                /* AOP handles logging.
-                 * Eat exception to avoid that the thread stops. */
-                this.eat(t);
+            } catch (Throwable t) {
+                getLogger().unexpectedError(getThreadName(), t);
             }
         }
         this.status = ServerProcessStatus.SHUTDOWN;
-    }
-
-    private void eat (Throwable yummy) {
-        yummy.printStackTrace(System.err);
     }
 
     protected abstract void doRun ();
@@ -250,10 +243,6 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     }
 
     protected abstract JobScheduler getJobScheduler ();
-
-    public void checkAndApplyChanges () {
-        // All changes are handled by the RunningComServer
-    }
 
     protected interface JobScheduler {
         public void scheduleAll(List<ComJob> jobs);
@@ -371,8 +360,8 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         }
 
         @Override
-        public void unexpectedError(Throwable unexpected, String comPortThreadName) {
-            this.loggers.forEach(each -> each.unexpectedError(unexpected, comPortThreadName));
+        public void unexpectedError(String comPortThreadName, Throwable unexpected) {
+            this.loggers.forEach(each -> each.unexpectedError(comPortThreadName, unexpected));
         }
 
     }

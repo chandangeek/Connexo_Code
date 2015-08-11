@@ -18,8 +18,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Provides an implementation for the {@link ScheduledComPort} interface
@@ -29,8 +27,6 @@ import java.util.logging.Logger;
  * @since 2012-04-03 (10:30)
  */
 public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
-
-    private static final Logger LOGGER = Logger.getLogger(MultiThreadedScheduledComPort.class.getName());
 
     private MultiThreadedJobScheduler jobScheduler;
     /**
@@ -87,15 +83,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
 
     @Override
     protected void doRun () {
-        try {
-            this.executeTasks();
-            this.checkAndApplyChanges();
-        }
-        catch (RuntimeException e) {
-            LOGGER.log(Level.SEVERE, e, () -> MultiThreadedScheduledComPort.class.getName() + " for comport(" + this.getComPort().getId() + ") encountered and ignored an unexpected problem");
-            e.printStackTrace(System.err);
-            this.getLogger().unexpectedError(e, this.getThreadName());
-        }
+        this.executeTasks();
     }
 
     @Override
