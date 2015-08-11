@@ -73,16 +73,16 @@ public class ComScheduleOnDeviceFilterItimizer implements MessageHandler {
     private Condition buildFilterFromJsonQuery(ComScheduleOnDevicesFilterSpecification primitiveFilter) {
         Condition condition = Condition.TRUE;
         if (primitiveFilter.deviceTypes!=null) {
-            condition.and(primitiveFilter.deviceTypes.stream().map(id->Where.where("deviceConfiguration.deviceType.id").isEqualTo(id)).collect(toCondition()));
+            condition=condition.and(primitiveFilter.deviceTypes.stream().map(id->Where.where("deviceConfiguration.deviceType.id").isEqualTo(id)).collect(toCondition()));
         }
         if (primitiveFilter.deviceConfigurations!=null) {
-            condition.and(primitiveFilter.deviceConfigurations.stream().map(id->Where.where("deviceConfiguration.id").isEqualTo(id)).collect(toCondition()));
+            condition=condition.and(primitiveFilter.deviceConfigurations.stream().map(id->Where.where("deviceConfiguration.id").isEqualTo(id)).collect(toCondition()));
         }
-        if (Strings.isNullOrEmpty(primitiveFilter.mRID)) {
-            condition.and(where("mRID").likeIgnoreCase(primitiveFilter.mRID));
+        if (!Strings.isNullOrEmpty(primitiveFilter.mRID)) {
+            condition=condition.and(where("mRID").likeIgnoreCase(primitiveFilter.mRID));
         }
-        if (Strings.isNullOrEmpty(primitiveFilter.serialNumber)) {
-            condition.and(where("serialNumber").likeIgnoreCase(primitiveFilter.mRID));
+        if (!Strings.isNullOrEmpty(primitiveFilter.serialNumber)) {
+            condition=condition.and(where("serialNumber").likeIgnoreCase(primitiveFilter.mRID));
         }
         return condition;
     }
