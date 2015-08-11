@@ -157,12 +157,12 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
     public boolean isRefPartition() {
     	return refPartitioned;
     }
-    
+
     @Override
 	public boolean noDdl() {
 		return noDdl;
 	}
-    
+
     @Override
     void validate() {
         super.validate();
@@ -170,7 +170,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
         Objects.requireNonNull(deleteRule);
         Objects.requireNonNull(fieldName);
         if (!deleteRule.equals(DeleteRule.RESTRICT) && getTable().hasJournal()) {
-            throw new IllegalTableMappingException("Table : " + getTable().getName() + " : A journalled table cannot have a foreign key with cascade or set null delete rule");        
+            throw new IllegalTableMappingException("Table : " + getTable().getName() + " : A journalled table cannot have a foreign key with cascade or set null delete rule");
         }
         if (getReferencedTable().isCached() && forwardEagers.length > 0) {
          	throw new IllegalStateException("Table: " + getTable().getName() + " Do not specify eager mapping when referencing cached table " + getReferencedTable().getName());
@@ -316,12 +316,12 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
     public boolean isAutoIndex() {
         return "position".equals(reverseOrderFieldName);
     }
-    
+
     public boolean delayDdl() {
     	int referencedIndex = getTable().getDataModel().getTables().indexOf(getReferencedTable());
     	return referencedIndex > getTable().getDataModel().getTables().indexOf(getTable());
     }
-    
+
     public Class<?>[] reverseEagers() {
     	return reverseEagers;
     }
@@ -366,7 +366,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
             constraint.forwardEagers = forwardEagers;
             return this;
         }
-        
+
         @Override
         public Builder references(String name) {
             TableImpl<?> referencedTable = constraint.getTable().getDataModel().getTable(name);
@@ -384,6 +384,12 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
             return this;
         }
 
+        @Override
+        public Builder references(Class apiClass) {
+            TableImpl<?> table = constraint.getTable().getDataModel().getOrmService().getTable(apiClass);
+            constraint.setReferencedTable(table);
+            return this;
+        }
 
         @Override
         public Builder reverseMap(String field) {
@@ -393,7 +399,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
             constraint.reverseFieldName = field;
             return this;
         }
-        
+
         @Override
         public Builder reverseMap(String field, Class<?> eager, Class<?> ... eagers) {
             reverseMap(field);
@@ -421,7 +427,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
             constraint.composition = true;
             return this;
         }
-        
+
         @Override
         public Builder refPartition() {
         	constraint.refPartitioned = true;
@@ -439,6 +445,6 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
             constraint.validate();
             constraint.getTable().add(constraint);
             return constraint;
-        }           
+        }
     }
 }

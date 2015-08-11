@@ -4,12 +4,14 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
 /*
  * Stream alternative for QueryExecutor
  */
+@ProviderType
 public interface QueryStream<T> extends Stream<T> {
 
 	/*
@@ -32,7 +34,7 @@ public interface QueryStream<T> extends Stream<T> {
 	 * more performant version of collect(Collectors.toList())
 	 */
 	List<T> select();
-	
+
 	@Override
 	QueryStream<T> distinct();
 	@Override
@@ -49,5 +51,5 @@ public interface QueryStream<T> extends Stream<T> {
 	QueryStream<T> unordered();
 	@Override
 	QueryStream<T> onClose(Runnable closeHandler);
-	
+
 }

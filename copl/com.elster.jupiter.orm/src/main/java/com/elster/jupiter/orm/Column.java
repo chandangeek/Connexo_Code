@@ -1,19 +1,20 @@
 package com.elster.jupiter.orm;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
- * 
- * Describes a column mapping
- *
+ * Describes a column mapping.
  */
+@ProviderType
 public interface Column {
 	/**
-	 * The dummy fieldname of a discriminator column 
+	 * The dummy fieldname of a discriminator column
 	 */
 	public static final String TYPEFIELDNAME = "class";
-	
+
 	Table<?> getTable();
 	String getName();
-	String getName(String alias);    
+	String getName(String alias);
     String getFieldName();
     ColumnConversion getConversion();
     boolean isPrimaryKeyColumn();
@@ -30,7 +31,8 @@ public interface Column {
 	boolean isNotNull();
 	boolean isDiscriminator();
 	boolean isVirtual();
-	
+
+	@ProviderType
 	interface Builder {
 		Builder type(String type);
 		Builder map(String field);
@@ -49,7 +51,8 @@ public interface Column {
 		VirtualBuilder as(String formula);
 		Column add();
 	}
-	
+
+	@ProviderType
 	interface VirtualBuilder {
 		VirtualBuilder alias(String name);
 		Column add();

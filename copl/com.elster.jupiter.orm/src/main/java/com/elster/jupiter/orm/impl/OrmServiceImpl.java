@@ -54,11 +54,14 @@ public class OrmServiceImpl implements OrmService, InstallService {
     private final Map<String, DataModelImpl> dataModels = Collections.synchronizedMap(new HashMap<>());
     private volatile SchemaInfoProvider schemaInfoProvider;
 
+    // For OSGi purposes
     public OrmServiceImpl() {
     }
 
+    // For testing purposes
     @Inject
     public OrmServiceImpl(Clock clock, DataSource dataSource, JsonService jsonService, ThreadPrincipalService threadPrincipalService, Publisher publisher, ValidationProviderResolver validationProviderResolver, FileSystem fileSystem) {
+        this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
         setDataSource(dataSource);
@@ -206,6 +209,15 @@ public class OrmServiceImpl implements OrmService, InstallService {
         }
     }
 
+    public TableImpl<?> getTable(Class<?> apiClass) {
+        return this.dataModels
+                .values()
+                .stream()
+                .flatMap(dataModel -> dataModel.getTables().stream())
+                .filter(table -> table.getApi().equals(apiClass))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("No table found that persists the api class " + apiClass.getName()));
+    }
 
     @Override
     public List<DataModelImpl> getDataModels() {
@@ -307,12 +319,12 @@ public class OrmServiceImpl implements OrmService, InstallService {
 	public void dropJournal(Instant upTo, Logger logger) {
 		dataModels.values().forEach(dataModel -> dataModel.dropJournal(upTo, logger));
 	}
-    
+
 	@Override
 	public void dropAuto(LifeCycleClass lifeCycleClass, Instant upTo, Logger logger) {
 		dataModels.values().forEach(dataModel -> dataModel.dropAuto(lifeCycleClass, upTo, logger));
 	}
-	
+
 	@Override
 	public void createPartitions(Instant upTo, Logger logger) {
 		dataModels.values().forEach(dataModel -> dataModel.createPartitions(upTo, logger));

@@ -1,11 +1,13 @@
 package com.elster.jupiter.orm;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 
 /*
- * describes an index.
- * 
+ * Models an index.
  */
+@ProviderType
 public interface Index {
     List<? extends Column> getColumns();
 
@@ -15,6 +17,7 @@ public interface Index {
 
     Table<?> getTable();
 
+    @ProviderType
     public interface Builder {
         Builder on(Column... columns);
 

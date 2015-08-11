@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.google.inject.Module;
 
@@ -12,10 +13,9 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- *
- *         DataModel is a container for a component's table description objects.
- *         
+ * DataModel is a container for a component's table description objects.
  */
+@ProviderType
 public interface DataModel {
 
     /*
@@ -24,7 +24,7 @@ public interface DataModel {
     void persist(Object entity);
 
     /*
-     * updates the tuple mapped to the first argument. 
+     * updates the tuple mapped to the first argument.
      * if fieldNames is empty, update all fields, otherwise only passed fields
      * note than ORM managed fields (user, modification time, version ...) are always updated
      */
@@ -57,10 +57,10 @@ public interface DataModel {
      * New code should prefer the stream api.
      */
     <T> QueryExecutor<T> query(Class<T> api, Class<?>... eagers);
-    
+
     /*
      * Provides a fluent API alternative for query
-     */    
+     */
     <T> QueryStream<T> stream(Class<T> api);
 
     /*
