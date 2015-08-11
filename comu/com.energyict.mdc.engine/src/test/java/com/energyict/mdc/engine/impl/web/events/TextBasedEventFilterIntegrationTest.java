@@ -78,6 +78,8 @@ public class TextBasedEventFilterIntegrationTest {
     private RequestParser.ServiceProvider requestParserServiceProvider;
 
     private EmbeddedWebServerFactory embeddedWebServerFactory;
+    private String eventRegistrationURL = "ws://localhost:8181/events/registration";
+
 
     @Before
     public void initializeMocks() {
@@ -115,7 +117,6 @@ public class TextBasedEventFilterIntegrationTest {
 
         // Start the EventServlet in a jetty context
         ComServer comServer = mock(ComServer.class);
-        String eventRegistrationURL = "ws://localhost:8080/events/registration";
         when(comServer.getEventRegistrationUriIfSupported()).thenReturn(eventRegistrationURL);
         CountDownLatch messagesReceivedLatch = new CountDownLatch(1);
         RegisterAndReceiveAllEventCategories webSocket = new RegisterAndReceiveAllEventCategories(messagesReceivedLatch);
@@ -161,7 +162,6 @@ public class TextBasedEventFilterIntegrationTest {
 
         // Start the EventServlet in a jetty context
         ComServer comServer = mock(ComServer.class);
-        String eventRegistrationURL = "ws://localhost:8080/events/registration";
         when(comServer.getEventRegistrationUriIfSupported()).thenReturn(eventRegistrationURL);
         CountDownLatch messagesReceivedLatch = new CountDownLatch(3);
         RegisterAndReceiveAllEventCategories webSocket = new RegisterAndReceiveAllEventCategories(messagesReceivedLatch);
@@ -203,7 +203,6 @@ public class TextBasedEventFilterIntegrationTest {
 
         // Start the EventServlet in a jetty context
         ComServer comServer = mock(ComServer.class);
-        String eventRegistrationURL = "ws://localhost:8080/events/registration";
         when(comServer.getEventRegistrationUriIfSupported()).thenReturn(eventRegistrationURL);
         CountDownLatch messagesReceivedLatch1 = new CountDownLatch(3);
         CountDownLatch messagesReceivedLatch2 = new CountDownLatch(3);
@@ -259,7 +258,6 @@ public class TextBasedEventFilterIntegrationTest {
 
         // Start the EventServlet in a jetty context
         ComServer comServer = mock(ComServer.class);
-        String eventRegistrationURL = "ws://localhost:8080/events/registration";
         when(comServer.getEventRegistrationUriIfSupported()).thenReturn(eventRegistrationURL);
         CountDownLatch messagesReceivedLatch = new CountDownLatch(1);
         RegisterAndReceiveAllEventCategories webSocket = new RegisterAndReceiveAllEventCategories(messagesReceivedLatch);

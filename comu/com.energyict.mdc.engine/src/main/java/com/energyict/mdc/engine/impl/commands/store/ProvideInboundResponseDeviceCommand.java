@@ -5,5 +5,9 @@ package com.energyict.mdc.engine.impl.commands.store;
  */
 public interface ProvideInboundResponseDeviceCommand extends DeviceCommand {
 
+    /**
+     * Indicate that the storage of the data was not performed
+     */
     void dataStorageFailed();
+
 }

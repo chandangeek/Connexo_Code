@@ -55,6 +55,7 @@ import java.util.stream.Stream;
  */
 public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
 
+    private final InboundCommunicationHandler inboundCommunicationHandler;
     private final ComPortDiscoveryLogger comPortDiscoveryLogger;
     private Logger logger = Logger.getLogger(InboundJobExecutionDataProcessor.class.getName());
 
@@ -68,6 +69,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         this.inboundDeviceProtocol = inboundDeviceProtocol;
         this.offlineDevice = offlineDevice;
         this.serviceProvider = serviceProvider;
+        this.inboundCommunicationHandler = inboundCommunicationHandler;
         this.comPortDiscoveryLogger = logger;
     }
 
@@ -168,10 +170,8 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         ComCommand command;
         if (ComCommandTypes.MESSAGES_COMMAND.appliesTo(protocolTask)) {
             command = new InboundCollectedMessageListCommandImpl(((MessagesTask) protocolTask), this.offlineDevice, root, data, comTaskExecution);
-            this.addToRoot(command, root, comTaskExecution);
         } else if (ComCommandTypes.LOGBOOKS_COMMAND.appliesTo(protocolTask)) {
             command = new InboundCollectedLogBookCommandImpl((LogBooksTask) protocolTask, this.offlineDevice, root, comTaskExecution, data, this.serviceProvider.deviceService());
-            this.addToRoot(command, root, comTaskExecution);
         } else if (ComCommandTypes.LOAD_PROFILE_COMMAND.appliesTo(protocolTask)) {
             command = new InboundCollectedLoadProfileCommandImpl((LoadProfilesTask) protocolTask, this.offlineDevice, root, comTaskExecution, data);
         } else if (ComCommandTypes.TOPOLOGY_COMMAND.appliesTo(protocolTask)) {
@@ -206,6 +206,12 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
                 .filter(collectedData -> collectedData.isConfiguredIn(comTaskExecution))
                 .map(ServerCollectedData.class::cast)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void failed(Throwable t, ExecutionFailureReason reason) {
+        inboundCommunicationHandler.provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.FAILURE);
+        super.failed(t, reason);
     }
 
     private class CommandRootServiceProvider implements CommandRoot.ServiceProvider {
