@@ -89,8 +89,10 @@ Ext.define('Uni.view.menu.SideMenu', {
         me.callParent(arguments);
 
         // Selects the correct item whenever the URL changes over time.
-        Ext.util.History.addListener('change', function (token) {
-            me.checkNavigation(token);
+        Ext.util.History.addListener('change', me.checkNavigation, me);
+
+        me.on('destroy', function () {
+            Ext.util.History.removeListener('change', me.checkNavigation, me);
         });
 
         if (Ext.isDefined(me.menuItems) && Ext.isArray(me.menuItems)) {
@@ -173,7 +175,7 @@ Ext.define('Uni.view.menu.SideMenu', {
         for (var i = 0; i < items.length; i++) {
             var item = items[i];
 
-            subItems = item.items;
+            subItems = item.items && item.items.items ? item.items.items : undefined;
 
             item.removeCls(me.activeItemCls);
 
