@@ -229,6 +229,11 @@ public abstract class ComPortImpl implements ComPort {
         this.setDescription(source.getDescription());
     }
 
+    @Override
+    public String toString() {
+        return getName();
+    }
+
     protected static class ComPortBuilderImpl<B extends ComPort.Builder<B, C>, C extends ComPort> implements ComPort.Builder<B, C> {
         C comPort;
         B self;
