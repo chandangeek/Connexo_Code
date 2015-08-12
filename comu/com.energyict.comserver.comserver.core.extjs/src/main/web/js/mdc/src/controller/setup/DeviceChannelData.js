@@ -270,7 +270,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             point,
             grid = me.getPage().down('deviceLoadProfileChannelDataGrid'),
             chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart;
-
+debugger;
         switch (item.action) {
             case 'editValue':
                 me.getPage().down('#deviceLoadProfileChannelDataGrid').getPlugin('cellplugin').startEdit(menu.record, 1);
@@ -595,6 +595,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             menu.down('#confirm-value').hide();
         } else {
             menu.down('#confirm-value').setVisible(mainStatus || bulkStatus);
+        }
+        if (menu.record.get('mainModificationState') == null && !menu.record.get('value') && !menu.record.get('collectedValue')) {
+            menu.down('#remove-reading').hide();
+        } else {
+            menu.down('#remove-reading').setVisible(true);
         }
     },
 
