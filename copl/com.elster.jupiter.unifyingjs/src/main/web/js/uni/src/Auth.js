@@ -12,7 +12,9 @@ Ext.define('Uni.Auth', {
 
     hasPrivilege: function (privilege) {
         for (var i = 0; i < Ldr.store.Privileges.getCount(); i++) {
-            if (privilege === Ldr.store.Privileges.getAt(i).get('name')) {
+            if ((privilege === Ldr.store.Privileges.getAt(i).get('name') && Ext.isDefined(Ext.Ajax.defaultHeaders) && (Ext.Ajax.defaultHeaders['X-CONNEXO-APPLICATION-NAME'] === Ldr.store.Privileges.getAt(i).get('applicationName'))) ||
+                (privilege === Ldr.store.Privileges.getAt(i).get('name') && !Ext.isDefined(Ext.Ajax.defaultHeaders)))
+            {
                 return true;
             }
         }
