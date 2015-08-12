@@ -3,7 +3,11 @@ package com.elster.jupiter.cps.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -25,9 +29,11 @@ import java.nio.file.FileSystems;
 import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
 
 import org.junit.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
@@ -40,47 +46,56 @@ import static org.mockito.Mockito.withSettings;
  */
 public class CustomPropertySetServiceImplIT {
 
-    private static BundleContext bundleContext;
-    private static Principal principal;
-    private static EventAdmin eventAdmin;
-    private static Clock clock;
-    private static TransactionService transactionService;
-    private static InMemoryBootstrapModule bootstrapModule;
+    private BundleContext bundleContext;
+    private Principal principal;
+    private EventAdmin eventAdmin;
+    private Clock clock;
+    private TransactionService transactionService;
+    private InMemoryBootstrapModule bootstrapModule;
 
-    private static Injector injector;
+    private Injector injector;
     private CustomPropertySetService testInstance;
 
-    @BeforeClass
-    public static void initialize() {
-        bootstrapModule = new InMemoryBootstrapModule();
+    @Before
+    public void initialize() {
+        this.bootstrapModule = new InMemoryBootstrapModule();
         initializeMocks(CustomPropertySetServiceImplIT.class.getSimpleName());
-        injector = Guice.createInjector(
+        this.injector = Guice.createInjector(
                 new MockModule(),
-                bootstrapModule,
+                this.bootstrapModule,
                 new ThreadSecurityModule(principal),
                 new NlsModule(),
                 new PubSubModule(),
                 new TransactionModule(),
                 new OrmModule(),
+                new BasicPropertiesModule(),
                 new CustomPropertySetsModule());
-        transactionService = injector.getInstance(TransactionService.class);
+        this.transactionService = this.injector.getInstance(TransactionService.class);
+        this.createTestInstance();
     }
 
-    private static void initializeMocks(String testName) {
-        clock = mock(Clock.class);
-        when(clock.instant()).thenReturn(Instant.now());
-        bundleContext = mock(BundleContext.class);
-        eventAdmin = mock(EventAdmin.class);
-        principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
-        when(principal.getName()).thenReturn(testName);
+    private void initializeMocks(String testName) {
+        this.clock = mock(Clock.class);
+        when(this.clock.instant()).thenReturn(Instant.now());
+        this.bundleContext = mock(BundleContext.class);
+        this.eventAdmin = mock(EventAdmin.class);
+        this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
+        when(this.principal.getName()).thenReturn(testName);
     }
 
-    @AfterClass
-    public static void cleanUpDataBase() {
-        bootstrapModule.deactivate();
+    private void createTestInstance() {
+        try (TransactionContext ctx = transactionService.getContext()) {
+            this.testInstance = injector.getInstance(CustomPropertySetService.class);
+            ctx.commit();
+        }
     }
 
-    private static class MockModule extends AbstractModule {
+    @After
+    public void cleanUpDataBase() {
+        this.bootstrapModule.deactivate();
+    }
+
+    private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
             bind(Clock.class).toInstance(clock);
@@ -90,19 +105,73 @@ public class CustomPropertySetServiceImplIT {
             bind(BeanService.class).toInstance(new BeanServiceImpl());
             bind(FileSystem.class).toInstance(FileSystems.getDefault());
         }
+
     }
 
-    @Before
-    public void createTestInstance() {
-        try (TransactionContext ctx = transactionService.getContext()) {
-            this.testInstance = injector.getInstance(CustomPropertySetService.class);
-            ctx.commit();
-        }
+    @Test(expected = IllegalArgumentException.class)
+    public void addNonVersionedCustomPropertySetWhenTestDomainIsNotRegisteredWithOrmService() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        List<? extends DataModel> dataModelsBeforeAdd = ormService.getDataModels();
+
+        // Business method
+        this.testInstance.addCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
+
+        // Asserts
+        List<? extends DataModel> dataModelsAfterAdd = ormService.getDataModels();
+        assertThat(dataModelsAfterAdd.size()).isGreaterThan(dataModelsBeforeAdd.size());
     }
 
     @Test
-    public void setTestInstance() {
+    public void addNonVersionedCustomPropertySet() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        try (TransactionContext ctx = transactionService.getContext()) {
+            TestDomain.install(ormService);
+        }
 
+        List<? extends DataModel> dataModelsBeforeAdd = ormService.getDataModels();
+
+        // Business method
+        this.testInstance.addCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
+
+        // Asserts
+        List<? extends DataModel> dataModelsAfterAdd = ormService.getDataModels();
+        assertThat(dataModelsAfterAdd.size()).isGreaterThan(dataModelsBeforeAdd.size());
+        assertThat(this.testInstance.findActiveCustomPropertySets()).isNotEmpty();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void addVersionedCustomPropertySetWhenTestDomainIsNotRegisteredWithOrmService() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        List<? extends DataModel> dataModelsBeforeAdd = ormService.getDataModels();
+
+        // Business method
+        this.testInstance.addCustomPropertySet(new VersionedCustomPropertySetForTestingPurposes(propertySpecService));
+
+        // Asserts
+        List<? extends DataModel> dataModelsAfterAdd = ormService.getDataModels();
+        assertThat(dataModelsAfterAdd.size()).isGreaterThan(dataModelsBeforeAdd.size());
+    }
+
+    @Test
+    public void addVersionedCustomPropertySet() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        try (TransactionContext ctx = transactionService.getContext()) {
+            TestDomain.install(ormService);
+        }
+
+        List<? extends DataModel> dataModelsBeforeAdd = ormService.getDataModels();
+
+        // Business method
+        this.testInstance.addCustomPropertySet(new VersionedCustomPropertySetForTestingPurposes(propertySpecService));
+
+        // Asserts
+        List<? extends DataModel> dataModelsAfterAdd = ormService.getDataModels();
+        assertThat(dataModelsAfterAdd.size()).isGreaterThan(dataModelsBeforeAdd.size());
+        assertThat(this.testInstance.findActiveCustomPropertySets()).isNotEmpty();
     }
 
 }

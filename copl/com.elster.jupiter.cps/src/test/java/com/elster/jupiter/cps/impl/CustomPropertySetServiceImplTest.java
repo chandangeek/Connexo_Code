@@ -17,6 +17,8 @@ import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -49,13 +51,19 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class CustomPropertySetServiceImplTest {
 
+    private static final String CUSTOM_PROPERTY_SET_COMPONENT_ID = "T01";
     private static final String CUSTOM_PROPERTY_SET_ID = "TEST";
     private static final String TABLE_NAME = "TST_TEST";
     private static final String DOMAIN_COLUMN_NAME = "testDomain";
     private static final String DOMAIN_FK_NAME = "FK_EXT_TESTDOMAIN";
+    private static final String VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID = "T02";
     private static final String VERSIONED_CUSTOM_PROPERTY_SET_ID = CUSTOM_PROPERTY_SET_ID + "_VERSIONED";
     private static final String VERSIONED_TABLE_NAME = TABLE_NAME + "_VERSIONED";
 
+    @Mock
+    private TransactionService transactionService;
+    @Mock
+    private TransactionContext transactionContext;
     @Mock
     private OrmService ormService;
     @Mock
@@ -101,11 +109,13 @@ public class CustomPropertySetServiceImplTest {
 
     @Before
     public void initializeMocks() {
+        when(this.transactionService.getContext()).thenReturn(this.transactionContext);
         when(this.ormService.newDataModel(eq(CustomPropertySetService.COMPONENT_NAME), anyString())).thenReturn(this.serviceDataModel);
-        when(this.ormService.newDataModel(eq(CUSTOM_PROPERTY_SET_ID), anyString())).thenReturn(this.customPropertySetDataModel);
-        when(this.ormService.newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_ID), anyString())).thenReturn(this.versionedCustomPropertySetDataModel);
+        when(this.ormService.newDataModel(eq(CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString())).thenReturn(this.customPropertySetDataModel);
+        when(this.ormService.newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString())).thenReturn(this.versionedCustomPropertySetDataModel);
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
         when(this.customPropertySet.isVersioned()).thenReturn(false);
+        when(this.customPropertySet.componentName()).thenReturn(CUSTOM_PROPERTY_SET_COMPONENT_ID);
         when(this.customPropertySet.getId()).thenReturn(CUSTOM_PROPERTY_SET_ID);
         when(this.customPropertySet.getName()).thenReturn("For testing purposes only");
         when(this.customPropertySet.getPersistenceSupport()).thenReturn(this.persistenceSupport);
@@ -121,6 +131,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.table.foreignKey(startsWith("FK_CPS_"))).thenReturn(this.customPropertySetForeignKeyConstraintBuilder);
         when(this.table.primaryKey(startsWith("PK_CPS_"))).thenReturn(this.primaryKeyConstraintBuilder);
         when(this.versionedCustomPropertySet.isVersioned()).thenReturn(true);
+        when(this.versionedCustomPropertySet.componentName()).thenReturn(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID);
         when(this.versionedCustomPropertySet.getId()).thenReturn(VERSIONED_CUSTOM_PROPERTY_SET_ID);
         when(this.versionedCustomPropertySet.getName()).thenReturn(null);   // Will be ackward for UI but backend should not worry about that
         when(this.versionedCustomPropertySet.getDomainClass()).thenReturn(TestDomain.class);
@@ -147,6 +158,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.domainColumnBuilder.add()).thenReturn(this.domainColumn);
         when(this.domainForeignKeyConstraintBuilder.on(anyVararg())).thenReturn(this.domainForeignKeyConstraintBuilder);
         when(this.domainForeignKeyConstraintBuilder.references(TestDomain.class)).thenReturn(this.domainForeignKeyConstraintBuilder);
+        when(this.domainForeignKeyConstraintBuilder.map(anyString())).thenReturn(this.domainForeignKeyConstraintBuilder);
         when(this.customPropertySetColumnBuilder.notNull()).thenReturn(this.customPropertySetColumnBuilder);
         when(this.customPropertySetColumnBuilder.map(anyString())).thenReturn(this.customPropertySetColumnBuilder);
         when(this.customPropertySetColumnBuilder.number()).thenReturn(this.customPropertySetColumnBuilder);
@@ -155,6 +167,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.customPropertySetColumnBuilder.add()).thenReturn(this.customPropertySetColumn);
         when(this.customPropertySetForeignKeyConstraintBuilder.on(anyVararg())).thenReturn(this.customPropertySetForeignKeyConstraintBuilder);
         when(this.customPropertySetForeignKeyConstraintBuilder.references(RegisteredCustomPropertySet.class)).thenReturn(this.customPropertySetForeignKeyConstraintBuilder);
+        when(this.customPropertySetForeignKeyConstraintBuilder.map(anyString())).thenReturn(this.customPropertySetForeignKeyConstraintBuilder);
         when(this.primaryKeyConstraintBuilder.on(anyVararg())).thenReturn(this.primaryKeyConstraintBuilder);
         when(this.primaryKeyConstraintBuilder.allowZero()).thenReturn(this.primaryKeyConstraintBuilder);
     }
@@ -175,11 +188,12 @@ public class CustomPropertySetServiceImplTest {
         service.addCustomPropertySet(this.customPropertySet);
 
         // Asserts
+        verify(this.customPropertySet).componentName();
         verify(this.customPropertySet, atLeastOnce()).getId();
         verify(this.customPropertySet).isVersioned();
         verify(this.customPropertySet, never()).defaultViewPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
         verify(this.customPropertySet, never()).defaultEditPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
-        verify(this.ormService).newDataModel(eq(CUSTOM_PROPERTY_SET_ID), anyString());
+        verify(this.ormService).newDataModel(eq(CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString());
         verify(this.persistenceSupport).tableName();
         verify(this.customPropertySetDataModel).addTable(TABLE_NAME, DomainExtensionForTestingPurposes.class);
         verify(this.persistenceSupport).domainColumnName();
@@ -220,16 +234,22 @@ public class CustomPropertySetServiceImplTest {
                         eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
                         anyString()))
                 .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        CustomPropertySetServiceImpl testInstance = new CustomPropertySetServiceImpl();
+        testInstance.setOrmService(this.ormService, false);
+        testInstance.setNlsService(this.nlsService);
+        testInstance.setTransactionService(this.transactionService);
+        testInstance.addCustomPropertySet(this.customPropertySet);
 
-        // Business method
-        new CustomPropertySetServiceImpl(this.ormService, this.nlsService, false, this.customPropertySet);
+        // Busines method
+        testInstance.activate();
 
         // Asserts
+        verify(this.customPropertySet).componentName();
         verify(this.customPropertySet, atLeastOnce()).getId();
         verify(this.customPropertySet).isVersioned();
         verify(this.customPropertySet, never()).defaultViewPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
         verify(this.customPropertySet, never()).defaultEditPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
-        verify(this.ormService).newDataModel(eq(CUSTOM_PROPERTY_SET_ID), anyString());
+        verify(this.ormService).newDataModel(eq(CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString());
         verify(this.persistenceSupport).tableName();
         verify(this.customPropertySetDataModel).addTable(TABLE_NAME, DomainExtensionForTestingPurposes.class);
         verify(this.persistenceSupport).domainColumnName();
@@ -264,11 +284,12 @@ public class CustomPropertySetServiceImplTest {
         service.addCustomPropertySet(this.versionedCustomPropertySet);
 
         // Asserts
+        verify(this.versionedCustomPropertySet).componentName();
         verify(this.versionedCustomPropertySet, atLeastOnce()).getId();
         verify(this.versionedCustomPropertySet).isVersioned();
         verify(this.versionedCustomPropertySet, never()).defaultViewPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
         verify(this.versionedCustomPropertySet, never()).defaultEditPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
-        verify(this.ormService).newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_ID), anyString());
+        verify(this.ormService).newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString());
         verify(this.versionedPersistenceSupport).tableName();
         verify(this.versionedCustomPropertySetDataModel).addTable(VERSIONED_TABLE_NAME, VersionedDomainExtensionForTestingPurposes.class);
         verify(this.versionedPersistenceSupport).domainColumnName();
@@ -298,16 +319,22 @@ public class CustomPropertySetServiceImplTest {
                         eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
                         anyString()))
                 .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        CustomPropertySetServiceImpl testInstance = new CustomPropertySetServiceImpl();
+        testInstance.setOrmService(this.ormService, false);
+        testInstance.setNlsService(this.nlsService);
+        testInstance.setTransactionService(this.transactionService);
+        testInstance.addCustomPropertySet(this.versionedCustomPropertySet);
 
-        // Business method
-        new CustomPropertySetServiceImpl(this.ormService, this.nlsService, false, this.versionedCustomPropertySet);
+        // Busines method
+        testInstance.activate();
 
         // Asserts
+        verify(this.versionedCustomPropertySet).componentName();
         verify(this.versionedCustomPropertySet, atLeastOnce()).getId();
         verify(this.versionedCustomPropertySet).isVersioned();
         verify(this.versionedCustomPropertySet, never()).defaultViewPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
         verify(this.versionedCustomPropertySet, never()).defaultEditPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
-        verify(this.ormService).newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_ID), anyString());
+        verify(this.ormService).newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString());
         verify(this.versionedPersistenceSupport).tableName();
         verify(this.versionedCustomPropertySetDataModel).addTable(VERSIONED_TABLE_NAME, VersionedDomainExtensionForTestingPurposes.class);
         verify(this.versionedPersistenceSupport).domainColumnName();
@@ -508,7 +535,12 @@ public class CustomPropertySetServiceImplTest {
     }
 
     private CustomPropertySetServiceImpl testInstance() {
-        return new CustomPropertySetServiceImpl(this.ormService, this.nlsService, false);
+        CustomPropertySetServiceImpl testInstance = new CustomPropertySetServiceImpl();
+        testInstance.setOrmService(this.ormService, false);
+        testInstance.setNlsService(this.nlsService);
+        testInstance.setTransactionService(this.transactionService);
+        testInstance.activate();
+        return testInstance;
     }
 
 }

@@ -38,10 +38,10 @@ public class RegisteredCustomPropertySetImpl implements RegisteredCustomProperty
 
     }
     private final DataModel dataModel;
-    private final CustomPropertySetServiceImpl customPropertySetService;
+    private final ServerCustomPropertySetService customPropertySetService;
 
     @Inject
-    public RegisteredCustomPropertySetImpl(DataModel dataModel, CustomPropertySetServiceImpl customPropertySetService) {
+    public RegisteredCustomPropertySetImpl(DataModel dataModel, ServerCustomPropertySetService customPropertySetService) {
         super();
         this.dataModel = dataModel;
         this.customPropertySetService = customPropertySetService;
@@ -54,9 +54,9 @@ public class RegisteredCustomPropertySetImpl implements RegisteredCustomProperty
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String logicalId;
     private long viewPrivilegesBits;
-    private EnumSet<ViewPrivilege> viewPrivileges;
+    private EnumSet<ViewPrivilege> viewPrivileges = EnumSet.noneOf(ViewPrivilege.class);
     private long editPrivilegesBits;
-    private EnumSet<EditPrivilege> editPrivileges;
+    private EnumSet<EditPrivilege> editPrivileges = EnumSet.noneOf(EditPrivilege.class);
     private Optional<CustomPropertySet> customPropertySet;
 
     public RegisteredCustomPropertySetImpl initialize(CustomPropertySet customPropertySet, Set<ViewPrivilege> viewPrivileges, Set<EditPrivilege> editPrivileges) {

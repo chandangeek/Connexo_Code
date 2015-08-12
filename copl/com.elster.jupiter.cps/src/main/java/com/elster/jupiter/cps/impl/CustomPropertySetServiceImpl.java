@@ -18,6 +18,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.streams.Predicates;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -54,6 +56,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     private volatile DataModel dataModel;
     private volatile boolean installed = false;
     private volatile Thesaurus thesaurus;
+    private volatile TransactionService transactionService;
     /**
      * Holds the {@link CustomPropertySet}s that were published on the whiteboard.
      */
@@ -70,26 +73,15 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         super();
     }
 
-    // For integration testing purposes
+    // For testing purposes
     @Inject
-    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService) {
+    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
+        this.setTransactionService(transactionService);
         this.activate();
         this.install();
-    }
-
-    // For unit testing purposes
-    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, boolean install, CustomPropertySet... customPropertySets) {
-        this();
-        this.setOrmService(ormService, install);
-        this.setNlsService(nlsService);
-        Stream.of(customPropertySets).forEach(this::addCustomPropertySet);
-        this.activate();
-        if (install) {
-            this.install();
-        }
     }
 
     @SuppressWarnings("unused")
@@ -98,7 +90,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         this.setOrmService(ormService, true);
     }
 
-    private void setOrmService(OrmService ormService, boolean install) {
+    void setOrmService(OrmService ormService, boolean install) {
         this.ormService = ormService;
         DataModel dataModel = ormService.newDataModel(CustomPropertySetService.COMPONENT_NAME, "Custom Property Sets");
         if (install) {
@@ -114,6 +106,11 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         this.thesaurus = nlsService.getThesaurus(this.getComponentName(), Layer.DOMAIN);
     }
 
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -121,6 +118,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 bind(DataModel.class).toInstance(dataModel);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(TransactionService.class).toInstance(transactionService);
                 bind(CustomPropertySetService.class).toInstance(CustomPropertySetServiceImpl.this);
                 bind(ServerCustomPropertySetService.class).toInstance(CustomPropertySetServiceImpl.this);
             }
@@ -170,6 +168,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     public void install() {
         if (!dataModel.isInstalled()) {
             new Installer(this.dataModel).install(true);
+            this.installed = this.dataModel.isInstalled();
         }
     }
 
@@ -196,7 +195,10 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @Override
     public void addCustomPropertySet(CustomPropertySet customPropertySet) {
         if (this.installed) {
-            this.registerCustomPropertySet(customPropertySet);
+            try (TransactionContext ctx = transactionService.getContext()) {
+                this.registerCustomPropertySet(customPropertySet);
+                ctx.commit();
+            }
         }
         else {
             this.publishedPropertySets.add(customPropertySet);
@@ -204,10 +206,10 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     private void registerCustomPropertySet(CustomPropertySet customPropertySet) {
-        DataModel dataModel = this.ormService.newDataModel(customPropertySet.getId(), customPropertySet.getName());
+        DataModel dataModel = this.ormService.newDataModel(customPropertySet.componentName(), customPropertySet.getName());
         this.addTableFor(customPropertySet, dataModel);
         dataModel.register(this.getCustomPropertySetModule(dataModel, customPropertySet));
-        dataModel.install(true, true);
+        dataModel.install(true, false);
         RegisteredCustomPropertySet registeredCustomPropertySet =
                 this.dataModel
                     .mapper(RegisteredCustomPropertySet.class)
@@ -251,7 +253,9 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @Override
     public List<RegisteredCustomPropertySet> findActiveCustomPropertySets() {
         return this.dataModel
-                .stream(RegisteredCustomPropertySetImpl.class)
+                .mapper(RegisteredCustomPropertySetImpl.class)
+                .find()
+                .stream()
                 .filter(RegisteredCustomPropertySetImpl::isActive)
                 .collect(Collectors.toList());
     }
@@ -375,12 +379,17 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                     this.dataModel.addTable(
                             this.tableNameFor(this.customPropertySet),
                             this.customPropertySet.getPersistenceSupport().getPersistenceClass());
+            this.underConstruction.map(this.customPropertySet.getPersistenceSupport().getPersistenceClass());
         }
 
-        void addColumns() {
+        private void addColumns() {
+            this.addPrimaryKeyColumns();
+            this.customPropertySet.getPersistenceSupport().addCustomPropertyColumnsTo(this.underConstruction);
+        }
+
+        void addPrimaryKeyColumns() {
             this.domainReference = this.addDomainColumnTo(this.underConstruction, this.customPropertySet);
             this.customPropertySetReference = this.addPropertySetColumnTo(this.underConstruction, this.customPropertySet);
-            this.customPropertySet.getPersistenceSupport().addCustomPropertyColumnsTo(this.underConstruction);
         }
 
         private String tableNameFor(CustomPropertySet customPropertySet) {
@@ -400,7 +409,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                     table
                         .column(persistenceSupport.domainColumnName())
                         .notNull()
-                        .map(persistenceSupport.domainFieldName())
                         .number()
                         .conversion(ColumnConversion.NUMBER2LONG)
                         .skipOnUpdate()
@@ -409,6 +417,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 .foreignKey(persistenceSupport.domainForeignKeyName())
                 .on(domainReference)
                 .references(customPropertySet.getDomainClass())
+                .map(persistenceSupport.domainFieldName())
                 .add();
             return domainReference;
         }
@@ -424,7 +433,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             Column cps = table
                     .column(HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())
                     .notNull()
-                    .map(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName())
                     .number()
                     .conversion(ColumnConversion.NUMBER2LONG)
                     .skipOnUpdate()
@@ -432,7 +440,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             table
                 .foreignKey(this.customPropertySetForeignKeyName(customPropertySet))
                 .on(cps)
-                .references(RegisteredCustomPropertySet.class)
+                    .references(RegisteredCustomPropertySet.class)
+                    .map(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName())
                 .add();
             return cps;
         }
@@ -472,8 +481,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
         @SuppressWarnings("unchecked")
         @Override
-        void addColumns() {
-            super.addColumns();
+        void addPrimaryKeyColumns() {
+            super.addPrimaryKeyColumns();
             List<Column> intervalColumns = this.underConstruction().addIntervalColumns(HardCodedFieldNames.INTERVAL.javaName());
             this.effectivityStartColumn = intervalColumns.get(0);
         }

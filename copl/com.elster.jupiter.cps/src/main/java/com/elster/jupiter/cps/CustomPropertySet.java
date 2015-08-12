@@ -1,6 +1,7 @@
 package com.elster.jupiter.cps;
 
 import aQute.bnd.annotation.ConsumerType;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.Interval;
@@ -43,6 +44,14 @@ import java.util.Set;
  */
 @ConsumerType
 public interface CustomPropertySet<D, T extends PersistentDomainExtension<D>> {
+
+    /**
+     * Unique identifier for the {@link DataModel} that will be created
+     * for this CustomPropertySet. The String should be exactly 3 chars in length.
+     *
+     * @return The unique DataModel identifier
+     */
+    String componentName();
 
     /**
      * Uniquely identifies this set across all sets that are available in the system at runtime.

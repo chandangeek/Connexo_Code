@@ -3,8 +3,11 @@ package com.elster.jupiter.cps.impl;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
 /**
@@ -17,23 +20,31 @@ import java.math.BigDecimal;
 public class DomainExtensionForTestingPurposes implements PersistentDomainExtension<TestDomain> {
 
     public enum FieldNames {
-        BILLING_CYCLE("billingCycle"),
-        CONTRACT_NUMBER("contractNumber");
+        DOMAIN("testDomain", "testDomain"),
+        BILLING_CYCLE("billingCycle", "bill_cycle"),
+        CONTRACT_NUMBER("contractNumber", "contract_nr");
 
-        FieldNames(String name) {
-            this.name = name;
+        FieldNames(String javaName, String databaseName) {
+            this.javaName = javaName;
+            this.databaseName = databaseName;
         }
 
-        private final String name;
+        private final String javaName;
+        private final String databaseName;
 
-        public String fieldName() {
-            return name;
+        public String javaName() {
+            return javaName;
+        }
+
+        public String databaseName() {
+            return databaseName;
         }
     }
 
     private Reference<TestDomain> testDomain = Reference.empty();
     private Reference<CustomPropertySet<TestDomain, DomainExtensionForTestingPurposes>> customPropertySet = Reference.empty();
     private BigDecimal billingCycle;
+    @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "FieldTooLong")
     private String contractNumber;
 
     // For persistence framework
@@ -68,14 +79,14 @@ public class DomainExtensionForTestingPurposes implements PersistentDomainExtens
     public void copyFrom(TestDomain domainInstance, CustomPropertySet customPropertySet, CustomPropertySetValues propertyValues) {
         this.testDomain.set(domainInstance);
         this.customPropertySet.set(customPropertySet);
-        this.setBillingCycle((BigDecimal) propertyValues.getProperty(FieldNames.BILLING_CYCLE.fieldName()));
-        this.setContractNumber((String) propertyValues.getProperty(FieldNames.CONTRACT_NUMBER.fieldName()));
+        this.setBillingCycle((BigDecimal) propertyValues.getProperty(FieldNames.BILLING_CYCLE.javaName()));
+        this.setContractNumber((String) propertyValues.getProperty(FieldNames.CONTRACT_NUMBER.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues) {
-        propertySetValues.setProperty(FieldNames.BILLING_CYCLE.fieldName(), this.getBillingCycle());
-        propertySetValues.setProperty(FieldNames.CONTRACT_NUMBER.fieldName(), this.getContractNumber());
+        propertySetValues.setProperty(FieldNames.BILLING_CYCLE.javaName(), this.getBillingCycle());
+        propertySetValues.setProperty(FieldNames.CONTRACT_NUMBER.javaName(), this.getContractNumber());
     }
 
 }
