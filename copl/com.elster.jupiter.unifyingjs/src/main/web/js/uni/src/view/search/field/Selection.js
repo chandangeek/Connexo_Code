@@ -120,8 +120,36 @@ Ext.define('Uni.view.search.field.Selection', {
                     },
                     {
                         xtype: 'checkboxfield',
+                        itemId: 'select-all',
+                        hidden: !me.multiSelect,
+                        boxLabel: 'Select all displayed values',
+                        name: 'topping',
+                        inputValue: '1',
+                        handler: function (elm, value) {
+                            var selectionModel = me.grid.getSelectionModel();
+                            // Prevent focus changes on the view, since we're selecting/deselecting all records
+                            selectionModel.preventFocus = true;
+                            selection.suspendEvents();
+                            if (!value) {
+                                selectionModel.deselectAll();
+                            } else {
+                                selectionModel.selectAll();
+                            }
+                            selection.resumeEvents();
+                            me.onSelectionChange();
+                            delete selectionModel.preventFocus;
+                        }
+                    },
+                    {
+                        xtype: 'checkboxfield',
+                        boxLabel: 'Include empty values',
+                        disabled: true,
+                        name: 'topping'
+                    },
+                    {
+                        xtype: 'checkboxfield',
                         itemId: 'filter-selected',
-                        boxLabel: 'Show all selected items',
+                        boxLabel: 'Show all selected values',
                         disabled: true,
                         hidden: !me.multiSelect,
                         handler: function () {
@@ -146,34 +174,6 @@ Ext.define('Uni.view.search.field.Selection', {
                             }
                             Ext.resumeLayouts(true);
                         }
-                    },
-                    {
-                        xtype: 'checkboxfield',
-                        itemId: 'select-all',
-                        hidden: !me.multiSelect,
-                        boxLabel: 'Select all displayed values',
-                        name: 'topping',
-                        inputValue: '1',
-                        handler: function (elm, value) {
-                            var selectionModel = me.grid.getSelectionModel();
-                            // Prevent focus changes on the view, since we're selecting/deselecting all records
-                            selectionModel.preventFocus = true;
-                            selection.suspendEvents();
-                            if (!value) {
-                                selectionModel.deselectAll();
-                            } else {
-                                selectionModel.selectAll();
-                            }
-                            selection.resumeEvents();
-                            me.onSelectionChange();
-                            delete selectionModel.preventFocus;
-                        }
-                    },
-                    {
-                        xtype: 'checkboxfield',
-                        boxLabel: 'Include empty values',
-                        name: 'topping',
-                        inputValue: '1'
                     }
                 ]
             },
