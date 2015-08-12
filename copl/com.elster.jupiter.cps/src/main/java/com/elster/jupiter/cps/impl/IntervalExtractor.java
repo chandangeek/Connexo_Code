@@ -6,7 +6,6 @@ import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.properties.PropertySpec;
 
 import java.lang.reflect.Field;
-import java.util.List;
 
 /**
  * Extracts values from java fields for a List of {@link PropertySpec}s.
