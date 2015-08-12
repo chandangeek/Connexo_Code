@@ -38,6 +38,12 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                 },
                 items: [
                     {
+                        itemId: 'form-errors',
+                        xtype: 'uni-form-error-message',
+                        hidden: true,
+                        width: 650
+                    },
+                    {
                         xtype: 'combobox',
                         name: 'registerType',
                         fieldLabel: Uni.I18n.translate('registerConfig.registerType', 'MDC', 'Register type'),
