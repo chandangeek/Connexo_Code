@@ -3,9 +3,6 @@
  */
 Ext.define('Uni.model.search.Property', {
     extend: 'Ext.data.Model',
-    removeDomain: function (url) {
-        return url.replace(/http:\/\/.*:\d+(\/.*)/, '$1');
-    },
     fields: [
         {name: 'name', type: 'string'},
         {name: 'displayValue', type: 'string'},
@@ -15,7 +12,12 @@ Ext.define('Uni.model.search.Property', {
         {name: 'selectionMode', type: 'string'},
         {name: 'visibility', type: 'string'},
         {name: 'constraints', type: 'auto'},
-        {name: 'group', type: 'string'},
+        {name: 'group', type: 'auto'},
+        {
+            name: 'groupId', type: 'int', convert: function (v, record) {
+            return record.raw.group ? record.raw.group.id : null;
+        }
+        },
         {
             name: 'sticky', type: 'boolean', convert: function (v, record) {
             return record.raw.visibility === 'sticky';
@@ -27,7 +29,7 @@ Ext.define('Uni.model.search.Property', {
                 result = undefined;
 
             if(Ext.isDefined(linkParams)) {
-                result = record.removeDomain(linkParams.href);
+                result = linkParams.href;
             }
 
             return result;

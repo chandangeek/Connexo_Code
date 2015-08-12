@@ -72,6 +72,20 @@ Ext.define('Uni.controller.Search', {
         'BigDecimal': 'uni-view-search-field-number-field'
     },
 
+    fieldMap: {
+        'Boolean': 'boolean',
+        'Long': 'int',
+        'String': 'string'
+    },
+
+    columnMap: {
+        'Long': 'numbercolumn',
+        'Date': 'datecolumn',
+        'Boolean': 'booleancolumn',
+        'DeviceType': 'uni-grid-column-search-devicetype',
+        'DeviceConfiguration': 'uni-grid-column-search-deviceconfiguration'
+    },
+
     init: function () {
         var me = this;
 
@@ -131,9 +145,7 @@ Ext.define('Uni.controller.Search', {
     initStoreListeners: function () {
         var me = this,
             searchDomains = Ext.getStore('Uni.store.search.Domains'),
-            searchProperties = Ext.getStore('Uni.store.search.Properties'),
-            removableProperties = Ext.getStore('Uni.store.search.Removables'),
-            resultsStore = Ext.getStore('Uni.store.search.Results');
+            searchProperties = Ext.getStore('Uni.store.search.Properties');
 
         searchDomains.on({
             load: me.onSearchDomainsLoad,
@@ -144,11 +156,6 @@ Ext.define('Uni.controller.Search', {
             load: me.onSearchPropertiesLoad,
             scope: me
         });
-
-        //resultsStore.on({
-        //    beforeload: me.onBeforeLoad,
-        //    scope: me
-        //});
     },
 
     onBeforeLoad: function (store, options) {
@@ -274,53 +281,26 @@ Ext.define('Uni.controller.Search', {
 
     createColumnDefinitionFromModel: function (field) {
         var propertyName = field.get('propertyName'),
-            type = field.get('type'),
-            displayValue = field.get('displayValue'),
-            columnType = 'gridcolumn';
+            type = this.columnMap[field.get('type')],
+            displayValue = field.get('displayValue');
 
-        switch (type) {
-            case 'Long':
-                columnType = 'numbercolumn';
-                break;
-            case 'Date':
-                columnType = 'datecolumn';
-                break;
-            case 'Boolean':
-                columnType = 'booleancolumn';
-                break;
-            // Custom grid columns.
-            case 'DeviceType':
-                columnType = 'uni-grid-column-search-devicetype';
-                break;
-            case 'DeviceConfiguration':
-                columnType = 'uni-grid-column-search-deviceconfiguration';
-                break;
+        if (!type) {
+            type = 'gridcolumn';
         }
 
         return {
             dataIndex: propertyName,
             header: displayValue,
-            xtype: columnType
+            xtype: type
         };
     },
 
     createFieldDefinitionFromModel: function (field) {
         var propertyName = field.get('propertyName'),
-            type = field.get('type');
+            type = this.fieldMap[field.get('type')];
 
-        switch (type) {
-            case 'Boolean':
-                type = 'boolean';
-                break;
-            case 'Long':
-                type = 'int';
-                break;
-            case 'String':
-                type = 'string';
-                break;
-            default:
-                type = 'auto';
-                break;
+        if (!type) {
+            type = 'auto';
         }
 
         return {

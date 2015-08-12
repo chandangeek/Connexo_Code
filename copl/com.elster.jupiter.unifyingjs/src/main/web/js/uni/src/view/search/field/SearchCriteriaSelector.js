@@ -14,8 +14,8 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
 
     setChecked: function(property, value, suppressEvents) {
         var item, me = this;
-        var base = property.get('group')
-            ? me.menu.items.findBy(function(i){return i.value === property.get('group');}).menu
+        var base = property.get('groupId')
+            ? me.menu.items.findBy(function(i){return i.value === property.get('groupId');}).menu
             : me.menu;
 
         item = base.items.findBy(function(i){return i.criteria === property;});
@@ -148,11 +148,11 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         me.setDisabled(!store.count());
         Ext.suspendLayouts();
         me.menu.removeAll();
-        store.group('group');
+        store.group('groupId');
 
         if (store.count()) {
             store.each(function (item) {
-                if (!item.get('group')) {
+                if (!item.get('groupId')) {
                     me.menu.add(me.createMenuItem(item));
                 }
             });
@@ -163,14 +163,16 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
                     items.push(me.createMenuItem(item));
                 });
 
-                me.menu.add({
-                    xtype: 'menuitem',
-                    text: group.name,
-                    value: group.name,
-                    menu: {
-                        items: items
-                    }
-                })
+                if (items.length && !Ext.isEmpty(group.name)) {
+                    me.menu.add({
+                        xtype: 'menuitem',
+                        text: items[0].criteria.get('group').displayValue,
+                        value: group.name,
+                        menu: {
+                            items: items
+                        }
+                    })
+                }
             });
         }
         Ext.resumeLayouts(true);
