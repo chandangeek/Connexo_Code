@@ -5,11 +5,11 @@ Ext.define('Uni.view.search.field.Simple', {
         'Uni.view.search.field.internal.Input'
     ],
 
-    updateButtonText: function () {
-        Ext.isEmpty(this.value)
-            ? this.setText(this.emptyText)
-            : this.setText(this.emptyText + ': ' + this.value);
-    },
+    //updateButtonText: function () {
+    //    Ext.isEmpty(this.value)
+    //        ? this.setText(this.emptyText)
+    //        : this.setText(this.emptyText + ': ' + this.value);
+    //},
 
     initComponent: function () {
         var me = this;

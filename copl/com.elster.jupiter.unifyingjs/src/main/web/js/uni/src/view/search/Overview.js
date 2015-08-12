@@ -68,54 +68,54 @@ Ext.define('Uni.view.search.Overview', {
                                         itemId: 'search-object-selector',
                                         xtype: 'search-object-selector'
                                     },
-                                    {
-                                        xtype: 'search-combo',
-                                        itemId: 'domain',
-                                        store: Ext.create('Ext.data.Store', {
-                                            fields: ['name', 'value'],
-                                            data: [
-                                                {'name': 'SPE010000010079', 'value': '1'},
-                                                {'name': 'SPE010000010080', 'value': '2'},
-                                                {'name': 'SPE010000010081', 'value': '1'},
-                                                {'name': 'SPE010000010082', 'value': '2'},
-                                                {'name': 'SPE010000010083', 'value': '1'},
-                                                {'name': 'SPE010000010084', 'value': '2'},
-                                                {'name': 'SPE010000010085', 'value': '1'},
-                                                {'name': 'SPE010000010086', 'value': '2'},
-                                                {'name': 'SPE010000010087', 'value': '1'},
-                                                {'name': 'DME010000010088', 'value': '2'},
-                                                {'name': 'DME010000010079', 'value': '1'},
-                                                {'name': 'DME010000010080', 'value': '2'},
-                                                {'name': 'DME010000010081', 'value': '1'},
-                                                {'name': 'DME010000010082', 'value': '2'},
-                                                {'name': 'DME010000010083', 'value': '1'},
-                                                {'name': 'DME010000010084', 'value': '2'},
-                                                {'name': 'DME010000010085', 'value': '1'},
-                                                {'name': 'DME010000010086', 'value': '2'},
-                                                {'name': 'DME010000010087', 'value': '1'},
-                                                {'name': 'DME010000010088', 'value': '2'}
-                                            ],
-                                            limit: 10
-                                        }),
-                                        emptyText: 'mRID',
-                                        displayField: 'name',
-                                        valueField: 'id',
-                                        margin: '0 20 10 0',
-                                        forceSelection: true,
-                                        multiSelect: true
-                                    },
+                                    //{
+                                    //    xtype: 'search-combo',
+                                    //    itemId: 'domain',
+                                    //    store: Ext.create('Ext.data.Store', {
+                                    //        fields: ['name', 'value'],
+                                    //        data: [
+                                    //            {'name': 'SPE010000010079', 'value': '1'},
+                                    //            {'name': 'SPE010000010080', 'value': '2'},
+                                    //            {'name': 'SPE010000010081', 'value': '1'},
+                                    //            {'name': 'SPE010000010082', 'value': '2'},
+                                    //            {'name': 'SPE010000010083', 'value': '1'},
+                                    //            {'name': 'SPE010000010084', 'value': '2'},
+                                    //            {'name': 'SPE010000010085', 'value': '1'},
+                                    //            {'name': 'SPE010000010086', 'value': '2'},
+                                    //            {'name': 'SPE010000010087', 'value': '1'},
+                                    //            {'name': 'DME010000010088', 'value': '2'},
+                                    //            {'name': 'DME010000010079', 'value': '1'},
+                                    //            {'name': 'DME010000010080', 'value': '2'},
+                                    //            {'name': 'DME010000010081', 'value': '1'},
+                                    //            {'name': 'DME010000010082', 'value': '2'},
+                                    //            {'name': 'DME010000010083', 'value': '1'},
+                                    //            {'name': 'DME010000010084', 'value': '2'},
+                                    //            {'name': 'DME010000010085', 'value': '1'},
+                                    //            {'name': 'DME010000010086', 'value': '2'},
+                                    //            {'name': 'DME010000010087', 'value': '1'},
+                                    //            {'name': 'DME010000010088', 'value': '2'}
+                                    //        ],
+                                    //        limit: 10
+                                    //    }),
+                                    //    text: 'mRID',
+                                    //    displayField: 'name',
+                                    //    valueField: 'id',
+                                    //    margin: '0 20 10 0',
+                                    //    forceSelection: true,
+                                    //    multiSelect: true
+                                    //},
                                     // temp for testing date/number range field
                                     {
                                         xtype: 'uni-view-search-field-date-field',
-                                        emptyText: 'DateTime'
+                                        text: 'DateTime'
                                     },
                                     {
                                         xtype: 'uni-view-search-field-number-field',
-                                        emptyText: 'Interaval'
+                                        text: 'Interaval'
                                     },
                                     {
                                         xtype: 'uni-view-search-field-yesno',
-                                        emptyText: 'Boolean'
+                                        text: 'Boolean'
                                     },
                                     '->',
                                     {
@@ -173,7 +173,7 @@ Ext.define('Uni.view.search.Overview', {
                                     },
                                     {
                                         xtype: 'button',
-                                        text: Uni.I18n.translate('general.clearFilters', 'UNI', 'Clear filters'),
+                                        text: Uni.I18n.translate('general.clearFilters', 'UNI', 'Clear all'),
                                         action: 'clearFilters',
                                         margin: '0 0 0 0'
                                     }
@@ -205,40 +205,6 @@ Ext.define('Uni.view.search.Overview', {
                                     }
                                 ]
                             }
-
-
-
-/*                            { //leaved for integration default field
-                                cellCls: 'search-cell search-last',
-                                xtype: 'combo',
-                                itemId: 'addcriteria',
-                                emptyText: Uni.I18n.translate('search.overview.addCriteria.emptyText', 'UNI', 'Add criteria'),
-                                margin: '0 2 0 0',
-                                store: 'Uni.store.search.Removables',
-                                displayField: 'displayValue',
-                                valueField: 'name',
-                                forceSelection: true,
-                                queryMode: 'local',
-                                multiSelect: false
-                            },*/
-
-                            // Extra criteria.
-                            //{
-                            //    html: '&nbsp;',
-                            //    itemId: 'removablecriteriaplaceholder'
-                            //},
-                            //{
-                            //    colspan: 2,
-                            //    xtype: 'container',
-                            //    itemId: 'removablecriteria',
-                            //    defaults: {
-                            //        margin: '0 10 10 0'
-                            //    },
-                            //    layout: {
-                            //        type: 'column'
-                            //    }
-                            //},
-                            // Filter controls.
                         ]
                     },
                     {

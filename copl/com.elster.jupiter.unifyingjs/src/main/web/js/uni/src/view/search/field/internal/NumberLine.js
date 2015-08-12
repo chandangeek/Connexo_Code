@@ -8,20 +8,22 @@ Ext.define('Uni.view.search.field.internal.NumberLine', {
         margin: '0 10 0 0'
     },
 
+    removable: false,
+
     getValue: function() {
-        return this.down('numberfield').getValue();
+        return this.down('#filter-input').getValue();
     },
 
     reset: function() {
-        this.down('#filter-clear').setDisabled(true);
-        this.down('numberfield').reset();
-        this.fireEvent('reset');
+        this.down('#filter-input').reset();
+        this.fireEvent('reset', this);
     },
 
     onChange: function(elm, value) {
-        this.down('#filter-clear').setDisabled(!value);
         this.fireEvent('change', this, value);
     },
+
+    onRemove: Ext.emptyFn,
 
     initComponent: function () {
         var me = this;
@@ -39,9 +41,10 @@ Ext.define('Uni.view.search.field.internal.NumberLine', {
                 value: me.operator
             },
             {
-                xtype: 'numberfield',
-                value: 0,
+                xtype: 'textfield',
+                itemId: 'filter-input',
                 width: 180,
+                margin: '0 5 0 0',
                 listeners: {
                     change:{
                         fn: me.onChange,
@@ -51,34 +54,39 @@ Ext.define('Uni.view.search.field.internal.NumberLine', {
             }
         ];
 
-        me.rbar = {
-            width: 15,
-            items: {
-                xtype: 'button',
-                itemId: 'filter-clear',
-                ui: 'plain',
-                tooltip: 'Clear filter',
-                iconCls: ' icon-close4',
-                disabled: true,
-                hidden: true,
-                style: {
-                    fontSize: '16px'
-                },
-                handler: me.reset,
-                scope: me
-            }
-        };
+        if (me.removable) {
+            me.rbar = {
+                width: 15,
+                items: {
+                    xtype: 'button',
+                    itemId: 'filter-clear',
+                    ui: 'plain',
+                    tooltip: 'Remove filter',
+                    iconCls: ' icon-close4',
+                    margin: '0 10 0 0',
+                    hidden: true,
+                    style: {
+                        fontSize: '16px'
+                    },
+                    handler: me.onRemove,
+                    scope: me
+                }
+            };
+        }
+
 
         me.callParent(arguments);
 
-        me.on('render', function() {
-            var button = me.down('#filter-clear');
-            me.getEl().on('mouseover', function () {
-                button.setVisible(true);
+        if (me.removable) {
+            me.on('render', function() {
+                var button = me.down('#filter-clear');
+                me.getEl().on('mouseover', function () {
+                    button.setVisible(true);
+                });
+                me.getEl().on('mouseout', function () {
+                    button.setVisible(false);
+                });
             });
-            me.getEl().on('mouseout', function () {
-                button.setVisible(false);
-            });
-        });
+        }
     }
 });

@@ -2,8 +2,7 @@ Ext.define('Uni.view.search.field.DateInterval', {
     extend: 'Uni.view.search.field.internal.CriteriaButton',
     xtype: 'uni-view-search-field-date-field',
     requires: [
-        'Uni.view.search.field.internal.DateLine',
-        'Uni.view.search.field.internal.DateRange'
+        'Uni.view.search.field.internal.DateLine'
     ],
     text: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Last reading date'),
     emptyText: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Last reading date'),
@@ -40,7 +39,12 @@ Ext.define('Uni.view.search.field.DateInterval', {
     addRangeHandler: function () {
         var me = this;
         me.down('menu').add({
-            xtype: 'uni-view-search-field-date-range',
+            xtype: 'uni-view-search-field-date-line',
+            removable: true,
+            onRemove: function() {
+                me.menu.remove(this);
+                me.onInputChange();
+            },
             listeners: {
                 change: {
                     fn: me.onInputChange,
@@ -51,19 +55,11 @@ Ext.define('Uni.view.search.field.DateInterval', {
     },
 
     onHide: function (menu) {
-        if (menu.items.length > 2) {
-            menu.items.each(function (item) {
-                if (item && !item.default
-                    && Ext.isEmpty(item.down('#from').getValue())
-                    && Ext.isEmpty(item.down('#to').getValue())
-                ){
-                    menu.remove(item);
-                }
-            });
-            if (menu.items.length == 2) {
-                this.addRangeHandler();
+        menu.items.each(function (item) {
+            if (item && item.removable && Ext.isEmpty(item.getValue())) {
+                menu.remove(item);
             }
-        }
+        });
     },
 
     initComponent: function () {
@@ -78,18 +74,7 @@ Ext.define('Uni.view.search.field.DateInterval', {
         me.items = [
                 {
                     xtype: 'uni-view-search-field-date-line',
-                    default: true,
                     operator: '=',
-                    hideTime: true,
-                    listeners: listeners
-                },
-                {
-                    xtype: 'menuseparator',
-                    default: true,
-                    padding: 0
-                },
-                {
-                    xtype: 'uni-view-search-field-date-range',
                     listeners: listeners
                 }
             ]
@@ -98,6 +83,7 @@ Ext.define('Uni.view.search.field.DateInterval', {
         me.menuConfig = {
             minWidth: 150,
             defaults: {
+                margin: 0,
                 padding: 5
             },
             listeners: {

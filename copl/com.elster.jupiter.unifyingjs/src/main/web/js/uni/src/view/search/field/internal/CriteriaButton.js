@@ -33,14 +33,16 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
     },
 
     updateButtonText: function () {
+        var count = Ext.isArray(this.value) ? this.value.length : 1;
         Ext.isEmpty(this.value)
             ? this.setText(this.emptyText)
-            : this.setText(this.emptyText + '*');
+            : this.setText(this.emptyText + '&nbsp;(' + count + ')');
     },
 
     initComponent: function () {
         var me = this;
 
+        me.emptyText = me.text;
         Ext.apply(me, {
             menu: Ext.apply({
                 plain: true,

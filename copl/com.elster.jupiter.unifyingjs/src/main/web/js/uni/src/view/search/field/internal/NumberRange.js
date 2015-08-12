@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 Ext.define('Uni.view.search.field.internal.NumberRange', {
     extend: 'Ext.container.Container',
     alias: 'widget.uni-view-search-field-number-range',

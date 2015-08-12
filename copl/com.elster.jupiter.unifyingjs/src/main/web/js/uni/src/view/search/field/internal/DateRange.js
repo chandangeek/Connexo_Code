@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 Ext.define('Uni.view.search.field.internal.DateRange', {
     extend: 'Ext.container.Container',
     alias: 'widget.uni-view-search-field-date-range',

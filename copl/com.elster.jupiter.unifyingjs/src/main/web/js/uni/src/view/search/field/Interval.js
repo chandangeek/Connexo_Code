@@ -4,9 +4,9 @@ Ext.define('Uni.view.search.field.Interval', {
 
     text: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Interval'),
     emptyText: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Interval'),
+
     requires: [
-        'Uni.view.search.field.internal.NumberLine',
-        'Uni.view.search.field.internal.NumberRange'
+        'Uni.view.search.field.internal.NumberLine'
     ],
 
     getValue: function() {
@@ -28,18 +28,11 @@ Ext.define('Uni.view.search.field.Interval', {
     },
 
     onHide: function(menu) {
-        if (menu.items.length > 2) {
-            menu.items.each(function (item) {
-                if (item && !item.default
-                    && item.down('#from').getValue() === 0
-                    && item.down('#to').getValue() === 0) {
-                    menu.remove(item);
-                }
-            });
-            if (menu.items.length == 2) {
-                this.addRangeHandler();
+        menu.items.each(function (item) {
+            if (item && item.removable && Ext.isEmpty(item.getValue())) {
+                menu.remove(item);
             }
-        }
+        });
     },
 
     clearAllHandler: function () {
@@ -55,10 +48,16 @@ Ext.define('Uni.view.search.field.Interval', {
         this.down('#clearall').setDisabled(true);
     },
 
-    addRangeHandler: function () {
+    addCriteria: function () {
         var me = this;
         me.down('menu').add({
-            xtype: 'uni-view-search-field-number-range',
+            xtype: 'uni-view-search-field-number-line',
+            operator: '=',
+            removable: true,
+            onRemove: function() {
+                me.menu.remove(this);
+                me.onInputChange();
+            },
             listeners: {
                 change: {
                     fn: me.onInputChange,
@@ -69,35 +68,25 @@ Ext.define('Uni.view.search.field.Interval', {
     },
 
     initComponent: function () {
-        var me = this,
-            listeners = {
-                change: {
-                    fn: me.onInputChange,
-                    scope: me
-                }
-            };
+        var me = this;
 
         me.items = [
             {
                 xtype: 'uni-view-search-field-number-line',
-                default: true,
                 operator: '=',
-                listeners: listeners
-            },
-            {
-                xtype: 'menuseparator',
-                default: true,
-                padding: 0
-            },
-            {
-                xtype: 'uni-view-search-field-number-range',
-                listeners: listeners
+                listeners: {
+                    change: {
+                        fn: me.onInputChange,
+                        scope: me
+                    }
+                }
             }
         ];
 
         me.menuConfig = {
             minWidth: 150,
             defaults: {
+                margin: 0,
                 padding: 5
             },
             listeners: {
@@ -131,9 +120,9 @@ Ext.define('Uni.view.search.field.Interval', {
                         {
                             xtype: 'button',
                             ui: 'action',
-                            text: Uni.I18n.translate('general.addRange', 'UNI', 'Add number range'),
-                            action: 'addrange',
-                            handler: me.addRangeHandler,
+                            text: Uni.I18n.translate('general.addCriterion', 'UNI', 'Add criterion'),
+                            action: 'addcriteria',
+                            handler: me.addCriteria,
                             scope : me
                         }
                     ]
