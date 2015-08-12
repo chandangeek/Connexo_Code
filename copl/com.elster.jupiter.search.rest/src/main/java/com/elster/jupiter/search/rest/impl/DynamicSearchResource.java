@@ -74,7 +74,7 @@ public class DynamicSearchResource {
                                                      @BeanParam JsonQueryParameters jsonQueryParameters,
                                                      @Context UriInfo uriInfo) throws InvalidValueException {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
-        List propertyList = new ArrayList();
+        List propertyList;
         if (jsonQueryFilter.hasFilters()) {
             List<SearchablePropertyConstriction> searchablePropertyConstrictions = searchDomain.getProperties().stream().
                     filter(SearchableProperty::affectsAvailableDomainProperties).
@@ -233,11 +233,6 @@ public class DynamicSearchResource {
             link.add(Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DynamicSearchResource.class).path(DynamicSearchResource.class, "getSearchablePropertiesForDomain")).rel("glossary").build(searchDomain.getId()));
             link.add(Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DynamicSearchResource.class).path(DynamicSearchResource.class, "getDomainDescription")).rel("describedby").build(searchDomain.getId()));
         }
-    }
-
-    class IdWithDisplayValueInfo {
-        public Object id;
-        public String displayValue;
     }
 
     class ModelInfo {

@@ -73,6 +73,10 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         when(mRID.getName()).thenReturn("mRID");
         when(mRID.getDisplayName()).thenReturn("mRID");
         when(mRID.getSpecification()).thenReturn(propertySpec);
+        SearchablePropertyGroup group = mock(SearchablePropertyGroup.class);
+        when(group.getId()).thenReturn("Abc");
+        when(group.getDisplayName()).thenReturn("Group abc");
+        when(mRID.getGroup()).thenReturn(Optional.of(group));
         return mRID;
     }
 
@@ -164,6 +168,8 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         assertThat(model.<List>get("$.properties[0].constraints")).hasSize(0);
         assertThat(model.<Object>get("$.properties[0].link")).isNull();
         assertThat(model.<Boolean>get("$.properties[0].exhaustive")).isFalse();
+        assertThat(model.<String>get("$.properties[0].group.id")).isEqualTo("Abc");
+        assertThat(model.<String>get("$.properties[0].group.displayValue")).isEqualTo("Group abc");
 
         assertThat(model.<Boolean>get("$.properties[1].affectsAvailableDomainProperties")).isEqualTo(true);
 

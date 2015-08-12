@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 public class PropertyInfo {
     public String name; // the property's name: use this to communicate filter values to the server
     public String displayValue; // The value to use as label in the UI
-    public String group; // Identifies in which group this property should be listed; can be null;
+    public IdWithDisplayValueInfo group; // Identifies in which group this property should be listed; can be null;
     public String type; // Identifies the type of property: String, Integer, Date, ...
     public boolean exhaustive; // 'true' indicates UI can obtain an exhaustive list of values from which to select value(s)
     public boolean affectsAvailableDomainProperties; // true if using this property(with values) as filter will impact the available properties of a search domain

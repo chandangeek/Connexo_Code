@@ -22,10 +22,14 @@ public class SearchCriterionInfoFactory {
         propertyInfo.exhaustive = possibleValues!=null && possibleValues.isExhaustive();
         propertyInfo.affectsAvailableDomainProperties = property.affectsAvailableDomainProperties();
         propertyInfo.type = property.getSpecification().getValueFactory().getValueType().getSimpleName();
-        property.getGroup().ifPresent(g->propertyInfo.group=g.getId());
+        if (property.getGroup().isPresent()) {
+            propertyInfo.group=new IdWithDisplayValueInfo();
+            propertyInfo.group.id = property.getGroup().get().getId();
+            propertyInfo.group.displayValue = property.getGroup().get().getDisplayName();
+        };
         propertyInfo.selectionMode = property.getSelectionMode();
         propertyInfo.visibility = property.getVisibility();
-        propertyInfo.constraints = property.getConstraints().stream().map(c->c.getSpecification().getName()).collect(toList());
+        propertyInfo.constraints = property.getConstraints().stream().map(c -> c.getSpecification().getName()).collect(toList());
         if (propertyInfo.exhaustive) {
             URI uri = uriInfo.
                     getBaseUriBuilder().
