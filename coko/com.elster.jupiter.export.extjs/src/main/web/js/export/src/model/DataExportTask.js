@@ -76,7 +76,6 @@ Ext.define('Dxp.model.DataExportTask', {
             name: 'status',
             persist: false,
             mapping: function (data) {
-                debugger;
                 if (data.lastExportOccurrence && data.lastExportOccurrence.status) {
                     return data.lastExportOccurrence.status;
                 } else {
