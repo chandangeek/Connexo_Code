@@ -254,8 +254,9 @@ Ext.define('Usr.controller.GroupEdit', {
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
-                        form.markInvalid(json.errors);
+                        form.getForm().markInvalid(json.errors);
                     }
+                    formErrorsPanel.show();
                 }
             });
         }
