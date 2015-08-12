@@ -36,6 +36,7 @@ Ext.define('Uni.view.search.field.Selection', {
 
     reset: function() {
         this.selection.clear();
+        this.down('search-criteria-input').reset();
         this.getStore().clearFilter(true);
         this.grid.getSelectionModel().deselectAll();
         this.callParent(arguments);
