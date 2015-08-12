@@ -123,11 +123,4 @@ public interface CustomPropertySet<D, T extends PersistentDomainExtension<D>> {
      */
     List<PropertySpec> getPropertySpecs();
 
-    /**
-     * Gets the List of {@link UniqueConstraintSpec} for this CustomPropertySet.
-     *
-     * @return The List of UniqueConstraintSpec
-     */
-    List<UniqueConstraintSpec> getUniquenessConstraints();
-
 }

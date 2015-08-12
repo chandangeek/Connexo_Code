@@ -28,8 +28,18 @@ public class CustomPropertySetValuesTest {
         CustomPropertySetValues empty = CustomPropertySetValues.empty();
 
         // Asserts
+        assertThat(empty.isEmpty()).isTrue();
         assertThat(empty.size()).isZero();
         assertThat(empty.propertyNames()).isEmpty();
+    }
+
+    @Test
+    public void testSetProperty() {
+        CustomPropertySetValues typedProperties = CustomPropertySetValues.empty();
+        typedProperties.setProperty(PROP1_NAME, PROP1_VALUE);
+
+        // Asserts
+        assertThat(typedProperties.isEmpty()).isFalse();
     }
 
     @Test

@@ -37,6 +37,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link CustomPropertySetService}.
@@ -71,20 +72,30 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     // For unit testing purposes
     @Inject
-    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService) {
+    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, boolean install, CustomPropertySet... customPropertySets) {
         this();
-        this.setOrmService(ormService);
+        this.setOrmService(ormService, install);
         this.setNlsService(nlsService);
+        Stream.of(customPropertySets).forEach(this::addCustomPropertySet);
         this.activate();
-        this.install();
+        if (install) {
+            this.install();
+        }
     }
 
+    @SuppressWarnings("unused")
     @Reference
     public void setOrmService(OrmService ormService) {
+        this.setOrmService(ormService, true);
+    }
+
+    private void setOrmService(OrmService ormService, boolean install) {
         this.ormService = ormService;
         DataModel dataModel = ormService.newDataModel(CustomPropertySetService.COMPONENT_NAME, "Custom Property Sets");
-        for (TableSpecs tableSpecs : TableSpecs.values()) {
-            tableSpecs.addTo(dataModel);
+        if (install) {
+            for (TableSpecs tableSpecs : TableSpecs.values()) {
+                tableSpecs.addTo(dataModel);
+            }
         }
         this.dataModel = dataModel;
     }
@@ -412,7 +423,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             table
                 .foreignKey(this.customPropertySetForeignKeyName(customPropertySet))
                 .on(cps)
-                .references(customPropertySet.getDomainClass())
+                .references(RegisteredCustomPropertySet.class)
                 .add();
             return cps;
         }

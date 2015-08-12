@@ -74,6 +74,19 @@ public final class CustomPropertySetValues {
     }
 
     /**
+     * Tests if this set of values is empty.
+     * A set is empty if no properties were set.
+     * As soon as the {@link #setProperty(String, Object)} method
+     * is called once, even if the value of the property is <code>null</code>
+     * the set is no longer empty.
+     *
+     * @return A flag that indicates if there are properties in this set
+     */
+    public boolean isEmpty() {
+        return this.size() == 0;
+    }
+
+    /**
      * Returns the number of properties that are defined.
      *
      * @return The number of properties that are defined
