@@ -32,6 +32,17 @@ public interface UserService {
 
     Optional<Group> getGroup(long id);
 
+    /**
+     * @return the group with specified name
+     */
+    Optional<Group> getGroup(String name);
+
+    /**
+     * @return query to the import schedules
+     */
+
+    Query<Group> getGroupsQuery();
+
     Optional<User> getUser(long id);
 
     Optional<Privilege> getPrivilege(String privilegeName);

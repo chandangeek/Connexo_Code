@@ -1,43 +1,55 @@
 package com.elster.jupiter.users.impl;
 
 import static com.elster.jupiter.util.Checks.is;
+import static com.elster.jupiter.util.conditions.Where.where;
 
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.json.JsonService;
 import com.google.common.collect.ImmutableList;
+import org.hibernate.validator.constraints.NotEmpty;
 
-
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_GROUP_NAME + "}")
 final class GroupImpl implements Group , PersistenceAware {
 	//persistent fields
-	private long id;
-	private String name;
+
+    private long id;
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    private String name;
 	private long version;
 	private Instant createTime;
 	private Instant modTime;
-	
+    private volatile QueryService queryService;
+
 	//transient fields
 	private List<PrivilegeInGroup> privilegeInGroups;
     private final DataModel dataModel;
     private String description;
 
     @Inject
-	private GroupImpl(DataModel dataModel) {
+	private GroupImpl(DataModel dataModel, JsonService jsonService) {
         this.dataModel = dataModel;
     }
 	
 	GroupImpl init(String name, String description) {
-        validateName(name);
+        //validateName(name);
         this.name = name;
         this.description = description;
         return this;
@@ -101,7 +113,7 @@ final class GroupImpl implements Group , PersistenceAware {
     private List<PrivilegeInGroup> getPrivilegeInGroups(String applicationName) {
         return getPrivilegeInGroups()
                 .stream()
-                .filter(p -> (applicationName == null)? true: p.getApplicationName().equalsIgnoreCase(applicationName))
+                .filter(p -> (applicationName == null) ? true : p.getApplicationName().equalsIgnoreCase(applicationName))
                         .collect(Collectors.toList());
     }
     
@@ -158,9 +170,18 @@ final class GroupImpl implements Group , PersistenceAware {
 
 
     void persist() {
-		groupFactory().persist(this);
+		//groupFactory().persist(this);
+        if (id == 0) {
+            Save.CREATE.save(dataModel, this);
+        } else {
+            Save.UPDATE.save(dataModel, this);
+        }
 	}
-    
+
+    private void update() {
+        Save.UPDATE.save(dataModel, this);
+    }
+
     
     private DataMapper<Group> groupFactory() {
         return dataModel.mapper(Group.class);
@@ -183,9 +204,12 @@ final class GroupImpl implements Group , PersistenceAware {
 	
 	public void save() {
 		if (id == 0) {
-			groupFactory().persist(this);
+			//groupFactory().persist(this);
+            Save.CREATE.save(dataModel, this);
+
 		} else {
-			groupFactory().update(this);
+			//groupFactory().update(this);
+            Save.UPDATE.save(dataModel, this);
 		}
 	}
 
@@ -218,4 +242,18 @@ final class GroupImpl implements Group , PersistenceAware {
 	public void postLoad() {
 		getPrivileges();
 	}
+
+    @Override
+    public Optional<Group> getGroup(String name) {
+        return getGroupsQuery()
+                .select(where("name").isEqualTo(name))
+                .stream()
+                .findFirst();
+    }
+
+    @Override
+    public Query<Group> getGroupsQuery() {
+        return queryService.wrap(dataModel.query(Group.class));
+    }
+
 }
