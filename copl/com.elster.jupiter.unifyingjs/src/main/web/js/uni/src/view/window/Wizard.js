@@ -136,7 +136,7 @@ Ext.define('Uni.view.window.Wizard', {
             action: 'finish'
         },
         {
-            text: Uni.I18n.translate('window.wizard.tools.cancel', 'UNI', 'Cancel'),
+            text: Uni.I18n.translate('general.cancel', 'UNI', 'Cancel'),
             action: 'cancel'
         }
     ],

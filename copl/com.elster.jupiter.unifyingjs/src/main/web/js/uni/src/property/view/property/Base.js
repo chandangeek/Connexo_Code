@@ -314,7 +314,7 @@ Ext.define('Uni.property.view.property.Base', {
         }
         if (this.isEdit) {
             if (this.getProperty() && this.getProperty().get('hasValue') && !this.userHasViewPrivilege && this.userHasEditPrivilege) {
-                this.getField().emptyText = Uni.I18n.translate('Uni.value.provided', 'UNI', 'Value provided - no rights to see the value.');
+                this.getField().emptyText = Uni.I18n.translate('general.valueProvided', 'UNI', 'Value provided - no rights to see the value.');
             } else {
                 this.getField().emptyText = '';
             }

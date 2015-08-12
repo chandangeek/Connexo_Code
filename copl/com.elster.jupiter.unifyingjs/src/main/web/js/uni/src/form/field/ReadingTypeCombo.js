@@ -5,7 +5,7 @@ Ext.define('Uni.form.field.ReadingTypeCombo', {
     extend: 'Ext.form.field.ComboBox',
     alias: 'widget.reading-type-combo',
     requires: ['Ext.button.Button'],
-    fieldLabel: Uni.I18n.translate('readingType.label', 'UNI', 'Reading type'),
+    fieldLabel: Uni.I18n.translate('general.readingType', 'UNI', 'Reading type'),
     emptyText: Uni.I18n.translate('readingType.emptyText', 'UNI', 'Select reading type'),
     displayField: 'aliasName',
     valueField: 'mRID',

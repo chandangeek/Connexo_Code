@@ -41,7 +41,7 @@ Ext.define('Uni.grid.filtertop.Duration', {
                 multiSelect: false,
                 displayField: 'localizeValue',
                 valueField: 'id',
-                emptyText: Uni.I18n.translate('deviceloadprofiles.filter.duration', 'UNI', 'Duration'),
+                emptyText: Uni.I18n.translate('general.duration', 'UNI', 'Duration'),
                 store: me.store,
                 value: me.defaultDuration
             }

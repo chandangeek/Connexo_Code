@@ -23,7 +23,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettingsWithoutNone', {
                         fieldLabel: me.boxLabel ? me.boxLabel : '',
                         items: [
                             {boxLabel:  Uni.I18n.translate('advanceReadingProperty.bulkReading','UNI','Bulk Reading'), name: 'advanceRb', inputValue: '2'},
-                            {boxLabel: Uni.I18n.translate('advanceReadingProperty.readingType','UNI','Reading type'), name: 'advanceRb', inputValue: '3'}
+                            {boxLabel: Uni.I18n.translate('general.readingType','UNI','Reading type'), name: 'advanceRb', inputValue: '3'}
                         ]
                     },
                     {

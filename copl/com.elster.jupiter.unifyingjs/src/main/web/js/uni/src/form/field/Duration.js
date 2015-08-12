@@ -9,7 +9,7 @@ Ext.define('Uni.form.field.Duration', {
         'Uni.util.String'
     ],
 
-    fieldLabel: Uni.I18n.translate('form.field.duration.label', 'UNI', 'Duration'),
+    fieldLabel: Uni.I18n.translate('general.duration', 'UNI', 'Duration'),
 
     /**
      * @cfg usesSeconds
