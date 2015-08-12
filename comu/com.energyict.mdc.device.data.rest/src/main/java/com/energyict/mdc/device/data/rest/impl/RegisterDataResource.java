@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.services.ListPager;
@@ -33,6 +34,8 @@ import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
@@ -157,7 +160,9 @@ public class RegisterDataResource {
         try {
             register.startEditingData().editReading(readingInfo.createNew(register)).complete();
         } catch (NoMeterActivationAt e) {
-            throw this.exceptionFactory.newExceptionSupplier(MessageSeeds.CANT_ADD_READINGS_FOR_STATE, e.get("time")).get();
+            Instant time = (Instant) e.get("time");
+            String formattedTime = DefaultDateTimeFormatters.mediumDate().withLongTime().build().format(ZonedDateTime.ofInstant(time, ZoneId.systemDefault()));
+            throw this.exceptionFactory.newExceptionSupplier(MessageSeeds.CANT_ADD_READINGS_FOR_STATE, formattedTime).get();
         }
         return Response.status(Response.Status.OK).build();
     }
