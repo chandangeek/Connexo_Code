@@ -128,18 +128,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         if (dialectProperties == null) {
             dialectProperties = TypedProperties.empty();
         }
-
-        DeviceProtocolDialect theActualDialect = gatewayProtocol.getDeviceProtocolDialects().get(0);
-        for (PropertySpec propertySpec : theActualDialect.getOptionalProperties()) {
-            if (!dialectProperties.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
-                dialectProperties.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getDefault());
-            }
-        }
-        for (PropertySpec propertySpec : theActualDialect.getRequiredProperties()) {
-            if (!dialectProperties.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
-                dialectProperties.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getDefault());
-            }
-        }
+        addDefaultValuesIfNecessary(gatewayProtocol, dialectProperties);
 
         DLMSCache dummyCache = new DLMSCache(new UniversalObject[0], 0);     //Empty cache, prevents that the protocol will read out the object list
         OfflineDevice offlineDevice = context.getInboundDAO().findOfflineDevice(getDeviceIdentifier());
@@ -151,6 +140,23 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         gatewayProtocol.init(offlineDevice, tcpComChannel);
         gatewayProtocol.logOn();
         return gatewayProtocol;
+    }
+
+    /**
+     * For all properties who are not yet specified - but for which a default value exist - the default value will be added.
+     */
+    private void addDefaultValuesIfNecessary(DeviceProtocol gatewayProtocol, TypedProperties dialectProperties) {
+        DeviceProtocolDialect theActualDialect = gatewayProtocol.getDeviceProtocolDialects().get(0);
+        for (PropertySpec propertySpec : theActualDialect.getOptionalProperties()) {
+            if (!dialectProperties.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
+                dialectProperties.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getDefault());
+            }
+        }
+        for (PropertySpec propertySpec : theActualDialect.getRequiredProperties()) {
+            if (!dialectProperties.hasValueFor(propertySpec.getName()) && propertySpec.getPossibleValues() != null) {
+                dialectProperties.setProperty(propertySpec.getName(), propertySpec.getPossibleValues().getDefault());
+            }
+        }
     }
 
     private void createTcpComChannel() {
