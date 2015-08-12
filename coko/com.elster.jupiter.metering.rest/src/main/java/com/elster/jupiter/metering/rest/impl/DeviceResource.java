@@ -107,22 +107,13 @@ public class DeviceResource {
     @Path("/{mRID}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public MeterInfos getDevice(@PathParam("mRID") String mRID, @Context SecurityContext securityContext) {
-        Meter meter = fetchDevice(mRID, securityContext);
-        MeterInfos result = new MeterInfos(meter);
+    	MeterInfos result = null;
+        if (maySeeAny(securityContext)) {
+        	Optional<Meter> ometer = meteringService.findMeter(mRID);
+        	if ( ometer.isPresent()) {
+        		result = new MeterInfos(ometer.get());
+        	}
+        }
         return result;
-    }
-
-    private Meter fetchDevice(String mRID, SecurityContext securityContext) {
-    	  Query<com.elster.jupiter.metering.Meter> query = meteringService.getMeterQuery();
-          if (query == null) {
-              return null;
-          }
-          Condition condition = Where.where("meterActivations.interval").isEffective();
-          condition = condition.and(Where.where("mRID").isEqualTo(mRID));
-          List<com.elster.jupiter.metering.Meter> meters = query.select(condition, Order.ascending("mRID"));
-          if (meters.isEmpty()) {
-          	 return null;
-          }
-          return meters.get(0);
     }
 }
