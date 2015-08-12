@@ -18,6 +18,11 @@ public class PrivilegeInfo {
         name = privilege.getName();
     }
 
+    public PrivilegeInfo(String applicationName, Privilege privilege) {
+        this.applicationName = applicationName;
+        name = privilege.getName();
+    }
+
     public PrivilegeInfo() {
     }
 }
