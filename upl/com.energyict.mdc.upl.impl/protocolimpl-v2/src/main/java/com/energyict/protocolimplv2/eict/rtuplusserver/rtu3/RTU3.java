@@ -16,7 +16,8 @@ import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
+import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
+import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
@@ -51,7 +52,7 @@ import java.util.Random;
  * @author khe
  * @since 18/06/2015 - 15:07
  */
-public class RTU3 extends AbstractDlmsProtocol {
+public class RTU3 extends AbstractDlmsProtocol {    //TODO rename to Beacon 3100 ? also adjust release notes page title
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
     private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
@@ -160,9 +161,14 @@ public class RTU3 extends AbstractDlmsProtocol {
         return getRtu3Messaging().format(propertySpec, messageAttribute);
     }
 
+    /**
+     * There's 2 dialects:
+     * - 1 used to communicate to the mirrored device (= cached meter data) in the Beacon DC
+     * - 1 used to communicate straight to the actual meter, using the Beacon as a gateway.
+     */
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new TcpDeviceProtocolDialect());
+        return Arrays.<DeviceProtocolDialect>asList(new MirrorTcpDeviceProtocolDialect(), new GatewayTcpDeviceProtocolDialect());
     }
 
     @Override
@@ -226,7 +232,7 @@ public class RTU3 extends AbstractDlmsProtocol {
 
     protected DeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (dlmsSecuritySupport == null) {
-            dlmsSecuritySupport = new RTU3SecuritySupport();    //TODO this contains master key, OK?
+            dlmsSecuritySupport = new RTU3SecuritySupport();
         }
         return dlmsSecuritySupport;
     }
