@@ -242,22 +242,21 @@ Ext.define('Uni.controller.Search', {
             searchProperties.load({
                 callback: function () {
                     container.setLoading(false);
-                },
-                scope: me
-            });
+                    fields.removeAll();
+                    fields.getProxy().url = searchDomain.get('describedByHref');
+                    fields.load({
+                        callback: function (records, operation, success) {
+                            if (success) {
+                                me.updateResultModelAndColumnsFromFields(records);
 
-            fields.removeAll();
-            fields.getProxy().url = searchDomain.get('describedByHref');
-            fields.load({
-                callback: function (records, operation, success) {
-                    if (success) {
-                        me.updateResultModelAndColumnsFromFields(records);
-
-                        searchResults.removeAll(true);
-                        searchResults.clearFilter(true);
-                        searchResults.getProxy().url = searchDomain.get('selfHref');
-                        //searchResults.load();
-                    }
+                                searchResults.removeAll(true);
+                                searchResults.clearFilter(true);
+                                searchResults.getProxy().url = searchDomain.get('selfHref');
+                                searchResults.load();
+                            }
+                        },
+                        scope: me
+                    });
                 },
                 scope: me
             });
