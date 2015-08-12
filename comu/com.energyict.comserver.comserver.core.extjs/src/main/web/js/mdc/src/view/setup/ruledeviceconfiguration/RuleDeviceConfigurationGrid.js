@@ -11,13 +11,13 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationGrid',
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('validation.deviceConfiguration', 'CFG', 'Device configuration'),
+                header: Uni.I18n.translate('validation.deviceConfiguration', 'MDC', 'Device configuration'),
                 dataIndex: 'config_name_link',
                 flex: 1,
                 renderer: false
             },
             {
-                header: Uni.I18n.translate('validation.deviceType', 'CFG', 'Device type'),
+                header: Uni.I18n.translate('validation.deviceType', 'MDC', 'Device type'),
                 dataIndex: 'deviceType_name',
                 flex: 1
             },
@@ -33,15 +33,15 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationGrid',
             {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
-                displayMsg: Uni.I18n.translate('validation.deviceconfiguration.display.msg', 'CFG', '{0} - {1} of {2} device configurations'),
-                displayMoreMsg: Uni.I18n.translate('validation.deviceconfiguration.display.more.msg', 'CFG', '{0} - {1} of more than {2} device configurations'),
-                emptyMsg: Uni.I18n.translate('validation.deviceconfiguration.pagingtoolbartop.emptyMsg', 'CFG', 'There are no device configurations to display'),
+                displayMsg: Uni.I18n.translate('validation.deviceconfiguration.display.msg', 'MDC', '{0} - {1} of {2} device configurations'),
+                displayMoreMsg: Uni.I18n.translate('validation.deviceconfiguration.display.more.msg', 'MDC', '{0} - {1} of more than {2} device configurations'),
+                emptyMsg: Uni.I18n.translate('validation.deviceconfiguration.pagingtoolbartop.emptyMsg', 'MDC', 'There are no device configurations to display'),
                 dock: 'top',
                 border: false,
                 items: [
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('validation.deviceconfiguration.addMultiple', 'CFG', 'Add device configurations'),
+                        text: Uni.I18n.translate('validation.deviceconfiguration.addMultiple', 'MDC', 'Add device configurations'),
                         privileges: Cfg.privileges.Validation.deviceConfiguration,
                         action: 'addDeviceConfiguration',
                         listeners: {
@@ -56,7 +56,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationGrid',
             },
             {
                 xtype: 'pagingtoolbarbottom',
-                itemsPerPageMsg: Uni.I18n.translate('validation.deviceconfiguration.items.per.page.msg', 'CFG', 'Device configurations per page'),
+                itemsPerPageMsg: Uni.I18n.translate('validation.deviceconfiguration.items.per.page.msg', 'MDC', 'Device configurations per page'),
                 store: me.store,
                 dock: 'bottom',
                 params: {id: me.ruleSetId}

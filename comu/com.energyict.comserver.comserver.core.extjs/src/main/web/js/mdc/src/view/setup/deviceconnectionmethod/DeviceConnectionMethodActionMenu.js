@@ -45,9 +45,9 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodActionMe
             fn: function (menu) {
                 if (menu.record) {
                     if(menu.record.get('status')==='connectionTaskStatusActive'){
-                        menu.down('[action=toggleActive]').setText(Uni.I18n.translate('general.deactivate', 'EST', 'Deactivate'));
+                        menu.down('[action=toggleActive]').setText(Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'));
                     } else {
-                        menu.down('[action=toggleActive]').setText( Uni.I18n.translate('general.activate', 'EST', 'Activate'));
+                        menu.down('[action=toggleActive]').setText( Uni.I18n.translate('general.activate', 'MDC', 'Activate'));
                     }
 
                     if(menu.record.get('isDefault')=== true){

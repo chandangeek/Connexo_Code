@@ -25,13 +25,13 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetPreview', {
 
                     xtype: 'no-items-found-panel',
                     itemId: 'ctr-no-validation-rule',
-                    title: Uni.I18n.translate('validation.empty.versions.title', 'CFG', 'No validation rule set versions found'),
+                    title: Uni.I18n.translate('validation.empty.versions.title', 'MDC', 'No validation rule set versions found'),
                     reasons: [
-                        Uni.I18n.translate('validation.empty.versions.list.item1', 'CFG', 'No validation rule set versions have been added yet.')
+                        Uni.I18n.translate('validation.empty.versions.list.item1', 'MDC', 'No validation rule set versions have been added yet.')
                     ],
                     stepItems: [
                         {
-                            text: Uni.I18n.translate('validation.addValidationRulesetVersion', 'CFG', 'Add validation rule set version'),
+                            text: Uni.I18n.translate('validation.addValidationRulesetVersion', 'MDC', 'Add validation rule set version'),
                             privileges : Cfg.privileges.Validation.admin,
                             ui: 'action',
                             href: '#/administration/validation/rulesets/' + me.ruleSetId  + '/versions/add'

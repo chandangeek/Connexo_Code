@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: Uni.I18n.translate('registerGroup.edit', 'USM', 'Edit register group'),
+                title: Uni.I18n.translate('registerGroup.edit', 'MDC', 'Edit register group'),
 
                 items: [
                     {

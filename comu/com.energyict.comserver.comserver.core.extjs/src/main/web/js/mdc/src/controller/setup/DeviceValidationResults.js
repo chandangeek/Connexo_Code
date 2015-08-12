@@ -25,6 +25,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
     ],
     refs: [
         //{ref: 'page', selector: '#deviceValidationResultsMainView'},
+        {ref: 'mainPage', selector: 'mdc-device-validation-results-main-view'},
         {ref: 'validationResultsTabPanel', selector: '#tab-validation-results'},
         {ref: 'sideFilterForm', selector: '#frm-device-validation-results-filter'},
         {ref: 'filterPanel', selector: 'mdc-device-validation-results-main-view filter-top-panel'},
@@ -111,8 +112,10 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 me.getApplication().fireEvent('loadDevice', device);
                 viewport.setLoading(false);
 
-                var widget = Ext.widget('mdc-device-validation-results-main-view', {device: device});
-                me.getApplication().fireEvent('changecontentevent', widget);
+                if (!me.getMainPage()) {
+                    var widget = Ext.widget('mdc-device-validation-results-main-view', {device: device});
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                }
                 me.veto = true;
                 me.getValidationResultsTabPanel().setActiveTab(activeTab);
                 if (activeTab == 0)
@@ -137,6 +140,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 filterParams = {};
 
             if (tab.itemId === 'validationResults-configuration') {
+                Ext.util.History.removeListener('change', me.getMainPage().down('deviceMenu').checkNavigation, me.getMainPage().down('deviceMenu'));
                 routeParams.mRID = encodeURIComponent(me.mRID);
                 route = 'devices/device/validationresultsconfiguration';
                 route && (route = router.getRoute(route));

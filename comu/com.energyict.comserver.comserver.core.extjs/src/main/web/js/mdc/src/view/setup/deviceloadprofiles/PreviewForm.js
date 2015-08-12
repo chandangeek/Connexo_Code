@@ -55,22 +55,10 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.PreviewForm', {
                         }
                     },
                     {
+                        xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels', 'MDC', 'Channels'),
-                        name: 'channels',
-                        renderer: function (value, field) {
-                            var result = '',
-                                form = field.up('form'),
-                                id,
-                                url;
-                            if (value) {
-                                id = form.getRecord().getId();
-                                Ext.isArray(value) && Ext.Array.each(value, function (channel) {
-                                    url = me.router.getRoute('devices/device/channels/channeldata').buildUrl({mRID: encodeURIComponent(me.mRID), channelId: channel.id});
-                                    result += '<a href="' + url + '"> ' + Ext.String.htmlEncode(channel.name) + '</a><br>';
-                                });
-                            }
-                            return result;
-                        }
+                        itemId: 'channels-list-container',
+                        layout: 'fit'
                     }
                 ]
             },
@@ -81,5 +69,24 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.PreviewForm', {
         ];
 
         me.callParent(arguments);
+    },
+
+    loadRecord: function (record) {
+        var me = this,
+            channelsListContainer = me.down('#channels-list-container'),
+            channels = record.get('channels');
+
+        me.callParent(arguments);
+        Ext.suspendLayouts();
+        channelsListContainer.removeAll();
+        Ext.Array.each(channels, function (channel) {
+            channelsListContainer.add({
+                xtype: 'reading-type-displayfield',
+                fieldLabel: undefined,
+                value: channel.readingType,
+                link: me.router.getRoute('devices/device/channels/channeldata').buildUrl({mRID: encodeURIComponent(me.mRID), channelId: channel.id})
+            });
+        });
+        Ext.resumeLayouts(true);
     }
 });

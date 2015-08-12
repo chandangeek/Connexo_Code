@@ -20,15 +20,15 @@ Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Setup', {
                     xtype: 'uni-view-menu-side',
                     itemId: 'estimation-rule-set-side-menu',
                     router: me.router,
-                    title: Uni.I18n.translate('estimationrulesets.estimationruleset', 'EST', 'Estimation rule set'),
+                    title: Uni.I18n.translate('estimationrulesets.estimationruleset', 'MDC', 'Estimation rule set'),
                     menuItems: [
                         {
-                            text: Uni.I18n.translate('estimationrulesets.estimationruleset', 'EST', 'Estimation rule set'),
+                            text: Uni.I18n.translate('estimationrulesets.estimationruleset', 'MDC', 'Estimation rule set'),
                             itemId: 'estimation-rule-set-link',
                             href: me.router.getRoute('administration/estimationrulesets/estimationruleset').buildUrl()
                         },
                         {
-                            text: Uni.I18n.translate('general.estimationRules', 'EST', 'Estimation rules'),
+                            text: Uni.I18n.translate('general.estimationRules', 'MDC', 'Estimation rules'),
                             itemId: 'estimation-rules-link',
                             href: me.router.getRoute('administration/estimationrulesets/estimationruleset/rules').buildUrl()
                         },

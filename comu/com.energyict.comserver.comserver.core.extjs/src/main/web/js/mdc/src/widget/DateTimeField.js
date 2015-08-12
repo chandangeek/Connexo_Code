@@ -54,7 +54,7 @@ Ext.define('Mdc.widget.DateTimeField', {
             Ext.apply({
                 xtype: 'displayfield',
                 itemId: 'separator',
-                value: Uni.I18n.translate('datetimefield.at', 'UNI', 'at'),
+                value: Uni.I18n.translate('datetimefield.at', 'MDC', 'at'),
                 submitValue: false,
                 msgTarget: 'none',
                 margin: '0 5 0 10'

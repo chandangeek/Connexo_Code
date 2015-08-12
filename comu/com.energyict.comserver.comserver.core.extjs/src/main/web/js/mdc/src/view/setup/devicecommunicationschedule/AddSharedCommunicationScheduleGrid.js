@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
             return Uni.I18n.translatePlural(
                 'deviceCommunicationSchedule.BulkSelection.counterText',
                 count,
-                'UNI',
+                'MDC',
                 '{0} shared communication schedules selected'
             );
         };

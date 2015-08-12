@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetGrid', {
                 flex: 6
             },
             {
-                header: Uni.I18n.translate('validation.activeVersion', 'CFG', 'Active version'),
+                header: Uni.I18n.translate('validation.activeVersion', 'MDC', 'Active version'),
                 dataIndex: 'activeVersion',
                 flex: 8,
                 align: 'left',

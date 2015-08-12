@@ -41,13 +41,13 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationClone', {
                             {
                                 xtype: 'button',
                                 itemId: 'clone-button',
-                                text: Uni.I18n.translate('general.add', 'EST', 'Clone'),
+                                text: Uni.I18n.translate('general.add', 'MDC', 'Clone'),
                                 ui: 'action'
                             },
                             {
                                 xtype: 'button',
                                 itemId: 'cancel-link',
-                                text: Uni.I18n.translate('general.cancel', 'EST', 'Cancel'),
+                                text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                                 ui: 'link',
                                 href: me.router.getRoute('administration/devicetypes/view/deviceconfigurations').buildUrl()
                             }

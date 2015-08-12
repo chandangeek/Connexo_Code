@@ -176,8 +176,8 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                         return error.id === 'status'
                     })) {
                         Ext.create('Uni.view.window.Confirmation', {
-                            confirmText: Uni.I18n.translate('general.yes', 'UNI', 'Yes'),
-                            cancelText: Uni.I18n.translate('general.no', 'UNI', 'No')
+                            confirmText: Uni.I18n.translate('general.yes', 'MDC', 'Yes'),
+                            cancelText: Uni.I18n.translate('general.no', 'MDC', 'No')
                         }).show({
                             msg: Uni.I18n.translate('devicesecuritysetting.createIncomplete.msg', 'MDC', 'Are you sure you want to add this incomplete security setting?'),
                             title: Uni.I18n.translate('devicesecuritysetting.createIncomplete.title', 'MDC', 'One or more required attributes are missing'),

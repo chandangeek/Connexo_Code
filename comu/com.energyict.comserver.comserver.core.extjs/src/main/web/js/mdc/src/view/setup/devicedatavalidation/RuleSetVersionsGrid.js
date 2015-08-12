@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('validation.period', 'CFG', 'Period'),
+                header: Uni.I18n.translate('validation.period', 'MDC', 'Period'),
                 dataIndex: 'versionName',
                 flex: 6,
                 sortable: false,
@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('validation.versionDescription', 'CFG', 'Description'),
+                header: Uni.I18n.translate('validation.versionDescription', 'MDC', 'Description'),
                 dataIndex: 'description',
                 flex: 6,
                 align: 'left',
@@ -34,14 +34,14 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid', {
                 fixed: true
             },
 			{
-                header: Uni.I18n.translate('validation.activeRules', 'CFG', 'Active rules'),                
+                header: Uni.I18n.translate('validation.activeRules', 'MDC', 'Active rules'),
                 dataIndex: 'numberOfActiveRules',
 				align: 'left',
                 flex: 2,
                 fixed: true
             },
             {
-                header: Uni.I18n.translate('validation.inactiveRules', 'CFG', 'Inactive rules'),
+                header: Uni.I18n.translate('validation.inactiveRules', 'MDC', 'Inactive rules'),
                 align: 'left',
                 dataIndex: 'numberOfInactiveRules',
                 flex: 2,
@@ -52,9 +52,9 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RuleSetVersionsGrid', {
             {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
-                displayMsg: Uni.I18n.translate('validation.version.display.msg', 'CFG', '{0} - {1} of {2} versions'),
-                displayMoreMsg: Uni.I18n.translate('validation.version.display.more.msg', 'CFG', '{0} - {1} of more than {2} versions'),
-                emptyMsg: Uni.I18n.translate('validation.version.pagingtoolbartop.emptyMsg', 'CFG', 'There are no versions to display'),
+                displayMsg: Uni.I18n.translate('validation.version.display.msg', 'MDC', '{0} - {1} of {2} versions'),
+                displayMoreMsg: Uni.I18n.translate('validation.version.display.more.msg', 'MDC', '{0} - {1} of more than {2} versions'),
+                emptyMsg: Uni.I18n.translate('validation.version.pagingtoolbartop.emptyMsg', 'MDC', 'There are no versions to display'),
                 dock: 'top'               
             },
             {

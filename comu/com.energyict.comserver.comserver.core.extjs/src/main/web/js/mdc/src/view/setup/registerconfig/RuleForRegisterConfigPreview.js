@@ -35,20 +35,20 @@ Ext.define('Mdc.view.setup.registerconfig.RuleForRegisterConfigPreview', {
     items: [
         {
             name: 'name',
-            fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name')
+            fieldLabel: Uni.I18n.translate('validation.name', 'MDC', 'Name')
         },
         {
             name: 'ruleSetName',
-            fieldLabel: Uni.I18n.translate('validation.Rule', 'CFG', 'Rule')
+            fieldLabel: Uni.I18n.translate('validation.Rule', 'MDC', 'Rule')
         },
         {
             name: 'active',
-            fieldLabel: Uni.I18n.translate('validation.status', 'CFG', 'Status'),
+            fieldLabel: Uni.I18n.translate('validation.status', 'MDC', 'Status'),
             renderer: function (value) {
                 if (value) {
-                    return Uni.I18n.translate('validation.active', 'CFG', 'Active');
+                    return Uni.I18n.translate('validation.active', 'MDC', 'Active');
                 } else {
-                    return Uni.I18n.translate('validation.inactive', 'CFG', 'Inactive');
+                    return Uni.I18n.translate('validation.inactive', 'MDC', 'Inactive');
                 }
             }
         }

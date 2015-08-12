@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationBrowse
             {
                 ui: 'large',
                 xtype: 'panel',
-                title: Uni.I18n.translate('validation.deviceConfigurations', 'CFG', 'Device configurations'),
+                title: Uni.I18n.translate('validation.deviceConfigurations', 'MDC', 'Device configurations'),
                 items: [
                     {
                         xtype: 'preview-container',
@@ -26,13 +26,13 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationBrowse
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('validation.empty.deviceconfiguration.title', 'CFG', 'No device configurations found'),
+                            title: Uni.I18n.translate('validation.empty.deviceconfiguration.title', 'MDC', 'No device configurations found'),
                             reasons: [
-                                Uni.I18n.translate('validation.empty.deviceconfiguration.list.item1', 'CFG', 'No device configurations have been added yet.')
+                                Uni.I18n.translate('validation.empty.deviceconfiguration.list.item1', 'MDC', 'No device configurations have been added yet.')
                             ],
                             stepItems: [
                                 {
-                                    text: Uni.I18n.translate('validation.deviceconfiguration.add', 'CFG', 'Add device configuration'),
+                                    text: Uni.I18n.translate('validation.deviceconfiguration.add', 'MDC', 'Add device configuration'),
                                     privileges : Cfg.privileges.Validation.deviceConfiguration,
                                     itemId: 'addDeviceConfiguration',
                                     listeners: {

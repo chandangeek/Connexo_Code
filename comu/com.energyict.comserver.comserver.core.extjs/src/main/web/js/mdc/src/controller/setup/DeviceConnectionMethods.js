@@ -351,7 +351,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     addDeviceConnectionMethod: function (values) {
         if (values.name === "") {
             this.getDeviceConnectionMethodEditForm().down('#deviceConnectionMethodComboBox').markInvalid(
-                Uni.I18n.translate('deviceconnectionmethod.configurationConnectionMethodRequired', 'UNI', 'Configuration connection method is required')
+                Uni.I18n.translate('deviceconnectionmethod.configurationConnectionMethodRequired', 'MDC', 'Configuration connection method is required')
             );
         } else {
             var record = Ext.create(Mdc.model.DeviceConnectionMethod);
@@ -406,8 +406,8 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                         return error.id === 'status'
                     })) {
                         Ext.create('Uni.view.window.Confirmation', {
-                            confirmText: Uni.I18n.translate('general.yes', 'UNI', 'Yes'),
-                            cancelText: Uni.I18n.translate('general.no', 'UNI', 'No')
+                            confirmText: Uni.I18n.translate('general.yes', 'MDC', 'Yes'),
+                            cancelText: Uni.I18n.translate('general.no', 'MDC', 'No')
                         }).show({
                                 msg: Uni.I18n.translate('deviceconnectionmethod.createIncomplete.msg', 'MDC', 'Are you sure you want to add this incomplete connection method?'),
                                 title: Uni.I18n.translate('deviceconnectionmethod.createIncomplete.title', 'MDC', 'One or more required attributes are missing'),

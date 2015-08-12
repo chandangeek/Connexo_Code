@@ -12,7 +12,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationAdd', 
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: Uni.I18n.translate('validation.deviceconfiguration.addMultiple', 'CFG', 'Add device configurations'),
+                title: Uni.I18n.translate('validation.deviceconfiguration.addMultiple', 'MDC', 'Add device configurations'),
                 items: [
                     {
                         xtype: 'preview-container',
@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationAdd', 
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('validation.empty.deviceconfiguration.title', 'CFG', 'No device configurations found'),
+                            title: Uni.I18n.translate('validation.empty.deviceconfiguration.title', 'MDC', 'No device configurations found'),
                             reasons: [
                                 Uni.I18n.translate('deviceconfiguration.empty.list.item1', 'MDC', 'No device configurations have been added yet.'),
                                 Uni.I18n.translate('deviceconfiguration.empty.list.item2', 'MDC', 'Device configurations exists, but you do not have permission to view them.')

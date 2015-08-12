@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsMainView', {
                 ui: 'large',
                 title: Uni.I18n.translate('validationResults.title', 'MDC', 'Validation results'),
 				itemId: 'tab-validation-results',	
-				activeTab: -1,				
+				activeTab: -1,
                 items: [
                     {
 						ui: 'medium',

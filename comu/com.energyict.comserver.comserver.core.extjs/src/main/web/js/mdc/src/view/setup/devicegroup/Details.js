@@ -42,12 +42,12 @@ Ext.define('Mdc.view.setup.devicegroup.Details', {
                         itemId:'generate-report',
                         privileges: Yfn.privileges.Yellowfin.view,
                         margin: '20 10 0 0',
-                        text:Uni.I18n.translate('generatereport.generateReportButton', 'YFN', 'Generate report')
+                        text:Uni.I18n.translate('generatereport.generateReportButton', 'MDC', 'Generate report')
                     },
                     {
                         xtype: 'button',
                         itemId: 'deviceGroupDetailsActionMenu',
-                        text: Uni.I18n.translate('general.actions', 'DES', 'Actions'),
+                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                         iconCls: 'x-uni-action-iconD',
                         margin: '20 0 0 0',
                         menu: {

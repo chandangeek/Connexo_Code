@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
 
         this.columns = [
             {
-                header: Uni.I18n.translate('validation.validationRule', 'CFG', 'Validation rule'),
+                header: Uni.I18n.translate('validation.validationRule', 'MDC', 'Validation rule'),
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
                     return '<a href="#/administration/validation/rulesets/' + record.get('ruleSetId') 
@@ -32,17 +32,17 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
                 flex: 10
             },
             {
-                header: Uni.I18n.translate('validation.status', 'CFG', 'Status'), dataIndex: 'active', flex: 3, sortable: false, fixed: true,
+                header: Uni.I18n.translate('validation.status', 'MDC', 'Status'), dataIndex: 'active', flex: 3, sortable: false, fixed: true,
                 renderer: function (value) {
                     if (value) {
-                        return Uni.I18n.translate('validation.active', 'CFG', 'Active')
+                        return Uni.I18n.translate('validation.active', 'MDC', 'Active')
                     } else {
-                        return Uni.I18n.translate('validation.inactive', 'CFG', 'Inactive')
+                        return Uni.I18n.translate('validation.inactive', 'MDC', 'Inactive')
                     }
                 }
             },
             {
-                header: Uni.I18n.translate('validation.validationRuleSet', 'CFG', 'Validation rule set'),
+                header: Uni.I18n.translate('validation.validationRuleSet', 'MDC', 'Validation rule set'),
                 dataIndex: 'ruleSet',
                 renderer: function (value, metaData, record) {
                    var ruleSetVersion = record.get('ruleSetVersion');
@@ -69,9 +69,9 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('validation.pagingtoolbartop.displayMsgRule', 'CFG', '{0} - {1} of {2} validation rules'),
-                displayMoreMsg: Uni.I18n.translate('validation.pagingtoolbartop.displayMoreMsgRule', 'CFG', '{0} - {1} of more than {2} validation rules'),
-                emptyMsg: Uni.I18n.translate('validation.pagingtoolbartop.emptyMsgRule', 'CFG', 'There are no validation rules to display')
+                displayMsg: Uni.I18n.translate('validation.pagingtoolbartop.displayMsgRule', 'MDC', '{0} - {1} of {2} validation rules'),
+                displayMoreMsg: Uni.I18n.translate('validation.pagingtoolbartop.displayMoreMsgRule', 'MDC', '{0} - {1} of more than {2} validation rules'),
+                emptyMsg: Uni.I18n.translate('validation.pagingtoolbartop.emptyMsgRule', 'MDC', 'There are no validation rules to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
@@ -84,7 +84,7 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
                 pageStartParam: 'start2',
                 deferLoading: true,
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('validation.pagingtoolbarbottom.itemsPerPageRule', 'CFG', 'Validation rules per page'),
+                itemsPerPageMsg: Uni.I18n.translate('validation.pagingtoolbarbottom.itemsPerPageRule', 'MDC', 'Validation rules per page'),
                 dock: 'bottom'
             }
         ];

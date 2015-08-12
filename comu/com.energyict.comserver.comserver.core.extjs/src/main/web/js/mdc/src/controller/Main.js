@@ -117,7 +117,7 @@ Ext.define('Mdc.controller.Main', {
 
         if (Mdc.privileges.DeviceGroup.canView()) {
             var devicesMenuItem = Ext.create('Uni.model.MenuItem', {
-                text: Uni.I18n.translate('device.devices', 'DVI', 'Devices'),
+                text: Uni.I18n.translate('device.devices', 'MDC', 'Devices'),
                 href: '#/devices',
                 glyph: 'devices',
                 portal: 'devices',
@@ -253,6 +253,24 @@ Ext.define('Mdc.controller.Main', {
             }
             if (deviceManagementItem !== null) {
                 Uni.store.PortalItems.add(deviceManagementItem);
+            }
+
+            if (Mdc.privileges.Device.canAddDevice()) {
+                var portalItem = Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.deviceLifecycleManagement', 'MDC', 'Device lifecycle management'),
+                    portal: 'devices',
+                    route: 'devices',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('deviceAdd.title', 'MDC', 'Add device'),
+                            itemId: 'lnk-add-device',
+                            href: '#/devices/add',
+                            route: 'add'
+                        }
+                    ]
+                });
+
+                Uni.store.PortalItems.add(portalItem);
             }
         }
     }

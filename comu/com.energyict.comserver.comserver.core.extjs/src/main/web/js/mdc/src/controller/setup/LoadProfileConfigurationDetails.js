@@ -355,7 +355,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('validation.empty.rules.title', 'CFG', 'No validation rules found'),
+                        title: Uni.I18n.translate('validation.empty.rules.title', 'MDC', 'No validation rules found'),
                         reasons: [
                             Uni.I18n.translate('channelConfig.validationRules.empty.list.item1', 'MDC', 'No validation rules are applied on the channel configuration.')
                         ]
