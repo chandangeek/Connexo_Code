@@ -17,23 +17,23 @@ public class PrivilegeInfos {
     }
 
     public PrivilegeInfos(Privilege privilege) {
-        add(privilege);
+        add(null, privilege);
     }
 
     public PrivilegeInfos(Iterable<? extends Privilege> privileges) {
-        addAll(privileges);
+        addAll(null, privileges);
     }
 
-    public PrivilegeInfo add(Privilege privilege) {
-        PrivilegeInfo result = new PrivilegeInfo(privilege);
+    public PrivilegeInfo add(String application, Privilege privilege) {
+        PrivilegeInfo result = new PrivilegeInfo(application, privilege);
         privileges.add(result);
         total++;
         return result;
     }
 
-    public void addAll(Iterable<? extends Privilege> privileges) {
+    public void addAll(String application, Iterable<? extends Privilege> privileges) {
         for (Privilege each : privileges) {
-            add(each);
+            add(application, each);
         }
     }
 

@@ -20,12 +20,18 @@ public class UpdateGroupTransaction extends UpdateMembership implements Transact
 
     @Override
     public Group perform() {
-        Group group = fetchGroup();
+        final Group group = fetchGroup();
         validateUpdate(group);
-        info.privileges.stream().collect(Collectors.groupingBy(pi->pi.applicationName))
-                .entrySet()
-                .stream()
-                .forEach(p->doUpdate(p.getKey(), group));
+        if(info.privileges.isEmpty()){
+            Group groupNoRights = group;
+            groupNoRights = doUpdateEmpty(group);
+            return groupNoRights;
+        }else {
+            info.privileges.stream().collect(Collectors.groupingBy(pi -> pi.applicationName))
+                    .entrySet()
+                    .stream()
+                    .forEach(p -> doUpdate(p.getKey(), group));
+        }
         return group;
     }
 

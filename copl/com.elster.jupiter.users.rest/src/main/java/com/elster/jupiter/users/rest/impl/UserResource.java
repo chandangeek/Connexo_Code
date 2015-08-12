@@ -1,6 +1,7 @@
 package com.elster.jupiter.users.rest.impl;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.security.RolesAllowed;
@@ -24,6 +25,7 @@ import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.PrivilegeInfos;
@@ -110,7 +112,12 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PrivilegeInfos getUserPrivileges(@Context SecurityContext securityContext) {
         User user = (User) securityContext.getUserPrincipal();
-        return new PrivilegeInfos(user.getPrivileges());
+        Map<String, List<Privilege>> privileges = user.getApplicationPrivileges();
+        PrivilegeInfos infos = new PrivilegeInfos();
+        for(String application : privileges.keySet()){
+            infos.addAll(application, privileges.get(application));
+        }
+        return infos;
     }
 
     @PUT

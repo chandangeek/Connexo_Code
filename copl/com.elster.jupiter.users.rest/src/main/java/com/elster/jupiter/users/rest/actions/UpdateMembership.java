@@ -5,12 +5,11 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
 import com.elster.jupiter.users.rest.PrivilegeInfo;
-import java.util.Optional;
+
+import java.util.*;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 public class UpdateMembership {
     final GroupInfo info;
@@ -27,6 +26,18 @@ public class UpdateMembership {
         if (updated) {
             group.save();
         }
+        return group;
+    }
+
+    Group doUpdateEmpty(Group group){
+        Map<String,List<Privilege>> current = group.getPrivileges();
+        for (Map.Entry<String, List<Privilege>> entry : current.entrySet())
+        {
+            for(Privilege privilege: entry.getValue()) {
+                group.revoke(entry.getKey(), privilege);
+            }
+        }
+
         return group;
     }
 
