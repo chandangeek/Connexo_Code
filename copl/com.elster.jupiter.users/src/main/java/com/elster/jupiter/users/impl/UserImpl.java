@@ -13,6 +13,8 @@ import javax.inject.Inject;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -263,6 +265,24 @@ public class UserImpl implements User {
     @Override
     public Set<Privilege> getPrivileges() {
         return getPrivileges(null);
+    }
+
+    public Map<String, List<Privilege>> getApplicationPrivileges(){
+        Map<String, List<Privilege>> privileges = new HashMap<String, List<Privilege>>();
+        List<Group> groups = getGroups();
+        for(Group group : groups){
+            Map<String, List<Privilege>> groupPrivileges = group.getPrivileges();
+
+            privileges = Stream.of(groupPrivileges, privileges)
+                    .map(Map::entrySet)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> {
+                        List<Privilege> both = new ArrayList<>(a);
+                        both.addAll(b);
+                        return both;
+                    }));
+        }
+        return privileges;
     }
 
     @Override

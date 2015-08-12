@@ -2,12 +2,9 @@ package com.elster.jupiter.users;
 
 import java.security.Principal;
 import java.time.Instant;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 import com.elster.jupiter.util.HasName;
-import java.util.Optional;
 
 public interface User extends Principal, HasName {
 
@@ -61,6 +58,8 @@ public interface User extends Principal, HasName {
     void setLocale(Locale locale);
 
     Set<Privilege> getPrivileges();
+
+    Map<String, List<Privilege>> getApplicationPrivileges();
 
     Set<Privilege> getPrivileges(String applicationName);
 
