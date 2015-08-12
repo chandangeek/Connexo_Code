@@ -11,52 +11,6 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         'Isu.view.issues.MessagePanel'
     ],
 
-    listeners: {
-        retryRequest: function (wizard, failedItems) {
-            this.setFailedBulkRecordIssues(failedItems);
-            this.onWizardFinishedEvent(wizard);
-        }
-    },
-
-    refs: [
-        {
-            selector: 'bulk-browse bulk-navigation',
-            ref: 'bulkNavigation'
-        }
-    ],
-
-    init: function () {
-        this.control({
-            'bulk-browse bulk-wizard': {
-                wizardnext: this.onWizardNextEvent,
-                wizardprev: this.onWizardPrevEvent,
-                wizardstarted: this.onWizardStartedEvent,
-                wizardfinished: this.onWizardFinishedEvent,
-                wizardcancelled: this.onWizardCancelledEvent
-            },
-            'bulk-browse bulk-navigation': {
-                movetostep: this.setActivePage
-            },
-//            'bulk-browse bulk-wizard bulk-step1 issues-selection-grid': {
-//                afterrender: this.onIssuesListAfterRender
-//            },
-            'bulk-browse bulk-wizard bulk-step2 radiogroup': {
-                change: this.onStep2RadiogroupChangeEvent,
-                afterrender: this.getDefaultStep2Operation
-            },
-            'bulk-browse bulk-wizard bulk-step3 issues-close-form radiogroup': {
-                change: this.onStep3RadiogroupCloseChangeEvent,
-                afterrender: this.getDefaultCloseStatus
-            },
-            'bulk-browse bulk-step4': {
-                beforeactivate: this.beforeStep4
-            },
-            'bulk-browse bulk-wizard bulk-step3 issues-close-form': {
-                beforerender: this.issueClosingFormBeforeRenderEvent
-            }
-        });
-    },
-
     issueClosingFormBeforeRenderEvent: function (form) {
         var statusesContainer = form.down('[name=status]'),
             values = Ext.state.Manager.get('formCloseValues');
@@ -86,7 +40,30 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         }
     },
 
-    showOverview: function () {},
+    showOverview: function (issueType, bundlePrefix) {
+        var me = this,
+            issuesStore = this.getStore(bundlePrefix + '.store.IssuesBuffered'),
+            issuesStoreProxy = issuesStore.getProxy(),
+            widget, grid;
+
+        me.bundlePrefix = bundlePrefix;
+        issuesStoreProxy.extraParams = {};
+        issuesStoreProxy.setExtraParam('sort', ['dueDate', 'modTime']);
+
+        widget = Ext.widget('bulk-browse', {
+            itemId: issueType + '-bulk-browse'
+        });
+        grid = widget.down('bulk-step1').down('issues-selection-grid');
+        grid.reconfigure(issuesStore);
+
+        me.getApplication().fireEvent('changecontentevent', widget);
+        issuesStore.data.clear();
+        issuesStore.clearFilter(true);
+        issuesStore.filter([{property: 'status', value: ['status.open']}]);
+        issuesStore.on('load', function () {
+            grid.onSelectDefaultGroupType();
+        }, me, {single: true});
+    },
 
     setActivePage: function (index) {
         var wizard = this.createdWizard;
@@ -124,8 +101,10 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         });
     },
 
-    onBulkActionEvent: function () {
-        var widget = Ext.widget('bulk-browse');
+    onBulkActionEvent: function (issueType) {
+        var widget = Ext.widget('bulk-browse', {
+            itemId: issueType + '-bulk-browse'
+        });
         this.getApplication().fireEvent('changecontentevent', widget);
     },
 
@@ -150,11 +129,11 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
     onWizardFinishedEvent: function (wizard) {
         var me = this,
-            step5panel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step5'),
+            step5panel = me.getPage().down('bulk-wizard').down('bulk-step5'),
             record = me.getBulkRecord(),
             requestData = me.getRequestData(record),
             operation = record.get('operation'),
-            requestUrl = '/api/idc/issue/' + operation,
+            requestUrl = '/api/' + me.bundlePrefix.toLowerCase() + '/issue/' + operation,
             warnIssues = [],
             failedIssues = [],
             params = [],
@@ -359,7 +338,8 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         return requestData;
     },
 
-    onWizardCancelledEvent: function (wizard) {
+    onWizardCancelledEvent: function (issueType) {
+        this.getController('Uni.controller.history.Router').getRoute('workspace/' + issueType + 'issues').forward();
     },
 
     setBulkActionListActiveItem: function (wizard) {
@@ -372,7 +352,18 @@ Ext.define('Isu.controller.BulkChangeIssues', {
         }
     },
 
-    getBulkRecord: function () {},
+    getBulkRecord: function () {
+        var bulkStore = Ext.getStore(this.bundlePrefix + '.store.BulkChangeIssues'),
+            bulkRecord = bulkStore.getAt(0);
+
+        if (!bulkRecord) {
+            bulkStore.add({
+                operation: 'assign'
+            });
+        }
+
+        return bulkStore.getAt(0);
+    },
 
     onStep2RadiogroupChangeEvent: function (radiogroup, newValue, oldValue) {
         var record = this.getBulkRecord();
@@ -388,7 +379,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     },
 
     getDefaultStep2Operation: function () {
-        var formPanel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step2').down('panel'),
+        var formPanel = this.getPage().down('bulk-wizard').down('bulk-step2').down('panel'),
             default_operation = formPanel.down('radiogroup').getValue().operation,
             record = this.getBulkRecord();
         record.set('operation', default_operation);
@@ -396,7 +387,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
     },
 
     getDefaultCloseStatus: function () {
-        var formPanel = Ext.ComponentQuery.query('bulk-browse')[0].down('bulk-wizard').down('bulk-step3').down('issues-close-form'),
+        var formPanel = this.getPage().down('bulk-wizard').down('bulk-step3').down('issues-close-form'),
             default_status = formPanel.down('radiogroup').getValue().status,
             record = this.getBulkRecord();
         record.set('status', default_status);
@@ -506,7 +497,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
     beforeStep4: function () {
         if (this.getBulkRecord().get('operation') == 'assign') {
-            var form = Ext.ComponentQuery.query('bulk-step3 issues-assign-form')[0].getForm();
+            var form = this.getPage().down('bulk-step3 issues-assign-form').getForm();
             return !form || form.isValid();
         }
     }

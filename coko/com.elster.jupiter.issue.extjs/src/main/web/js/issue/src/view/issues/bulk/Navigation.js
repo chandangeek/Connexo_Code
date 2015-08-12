@@ -4,7 +4,8 @@ Ext.define('Isu.view.issues.bulk.Navigation', {
     alias: 'widget.bulk-navigation',
     componentCls: 'isu-bulk-navigation',
     width: 200,
-    jumpForward: true,
+    jumpForward: false,
+    jumpBack: false,
     items: [
         {
             itemId: 'SelectIssues',
