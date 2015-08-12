@@ -1,5 +1,7 @@
 package com.elster.jupiter.users.rest.impl;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -15,6 +17,9 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import org.mockito.Mock;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
@@ -36,6 +41,10 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     ThreadPrincipalService threadPrincipalService;
     @Mock
     static SecurityContext securityContext;
+    @Mock
+    NlsService nlsService;
+    @Mock
+    Thesaurus thesaurus;
     
     @Provider
     @Priority(Priorities.AUTHORIZATION)
@@ -71,6 +80,8 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(userService.getUserPreferencesService()).thenReturn(userPreferencesService);
         application.setUserService(userService);
         application.setThreadPrincipalService(threadPrincipalService);
+        when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
+        application.setNlsService(nlsService);
         return application;
     }
 
