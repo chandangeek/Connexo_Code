@@ -85,21 +85,12 @@ Ext.define('Uni.controller.Search', {
             'search-criteria-selector menu menucheckitem': {
                 checkchange: me.onCriteriaChange
             },
-
-            //removablePropertiesContainer.on({
-            //    add: me.updateRemovableContainerVisibility,
-            //    remove: me.updateRemovableContainerVisibility,
-            //    scope: me
-            //});
-            //
             'uni-view-search-overview button[action=search]': {
                 click: me.applyFilters
+            },
+            'uni-view-search-overview button[action=clearFilters]': {
+                click: me.clearFilters
             }
-            //
-            //clearFiltersButton.on({
-            //    click: me.clearFilters,
-            //    scope: me
-            //});
         });
     },
 
@@ -471,7 +462,7 @@ Ext.define('Uni.controller.Search', {
         var me = this;
 
         me.filters.each(function (filter) {
-            filter.resetValue();
+            filter.reset();
         }, me);
 
         me.removeRemovableProperties();
@@ -490,7 +481,8 @@ Ext.define('Uni.controller.Search', {
         });
 
         searchResults.clearFilter(true);
-        searchResults.filter(filters);
+        searchResults.filter(filters, true);
+        searchResults.load();
     },
 
     createWidgetForProperty: function (property, removable) {
