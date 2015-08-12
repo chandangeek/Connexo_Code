@@ -8,9 +8,9 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.rest.impl.DeviceAttributesInfo.DeviceAttribute;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
@@ -19,13 +19,13 @@ import java.time.Instant;
 import java.util.Optional;
 
 public class DeviceAttributesInfoFactory {
-    private final DeviceImportService deviceImportService;
+    private final BatchService batchService;
     private final MeteringService meteringService;
     private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceAttributesInfoFactory(DeviceImportService deviceImportService, MeteringService meteringService, Thesaurus thesaurus) {
-        this.deviceImportService = deviceImportService;
+    public DeviceAttributesInfoFactory(BatchService batchService, MeteringService meteringService, Thesaurus thesaurus) {
+        this.batchService = batchService;
         this.meteringService = meteringService;
         this.thesaurus = thesaurus;
     }
@@ -63,7 +63,7 @@ public class DeviceAttributesInfoFactory {
         fillAvailableAndEditable(info.lifeCycleState, DeviceAttribute.LIFE_CYCLE_STATE, state);
 
         info.batch = new DeviceAttributeInfo();
-        deviceImportService.findBatch(device.getId()).ifPresent(batch -> {
+        batchService.findBatch(device).ifPresent(batch -> {
             info.batch.attributeId = batch.getId();
             info.batch.displayValue = batch.getName();
         });
@@ -152,13 +152,12 @@ public class DeviceAttributesInfoFactory {
         if (DeviceAttribute.YEAR_OF_CERTIFICATION.isEditableForState(state) && info.yearOfCertification != null){
             device.setYearOfCertification(info.yearOfCertification.displayValue);
         }
-        if(DeviceAttribute.BATCH.isEditableForState(state) && info.batch != null){
+        if(DeviceAttribute.BATCH.isEditableForState(state) && info.batch != null) {
             if (Checks.is(info.batch.displayValue).emptyOrOnlyWhiteSpace()) {
-                deviceImportService.findBatch(device.getId()).ifPresent(batch -> {
-                    batch.removeDevice(device);
-                });
+                batchService.findBatch(device).ifPresent(batch -> batch.removeDevice(device));
+            } else {
+                batchService.findOrCreateBatch(info.batch.displayValue).addDevice(device);
             }
-            this.deviceImportService.addDeviceToBatch(device, info.batch.displayValue);
         }
         Optional<UsagePoint> currentUsagePoint = device.getUsagePoint();
         if(DeviceAttribute.USAGE_POINT.isEditableForState(state) && info.usagePoint != null
