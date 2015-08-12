@@ -8,51 +8,50 @@ Ext.define('Isu.controller.ApplyIssueAction', {
     showOverview: function (issueModelClass, issueId, actionId, widgetItemId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            widget = Ext.widget('issue-action-view', {router: router, itemId: widgetItemId}),
-            form = widget.down('#issue-action-view-form'),
-            issueModel = me.getModel(issueModelClass),
             actionModel = Ext.create(issueModelClass).actions().model,
-            cancelLink = form.down('#issue-action-cancel'),
+            issueModel = me.getModel(issueModelClass),
             fromOverview = router.queryParams.fromOverview === 'true';
 
-        cancelLink.href = router.getRoute(router.currentRoute.replace(fromOverview ? '/action' : '/view/action', '')).buildUrl();
-
-        me.getApplication().fireEvent('changecontentevent', widget);
-        widget.setLoading(true);
-
-        issueModel.load(issueId, {
-            success: function (record) {
-                me.getApplication().fireEvent('issueLoad', record);
-            }
-        });
         actionModel.getProxy().url = issueModel.getProxy().url + '/' + issueId + '/actions';
         actionModel.load(actionId, {
             success: function (record) {
-                me.getApplication().fireEvent('issueActionLoad', record);
-                form.loadRecord(record);
-                //todo: this definitely should be refactored. BE should send action button translation instead of this splitting
-                if (form.title === 'Close issue' || form.title === 'Notify user' || form.title === 'Assign issue' ) {
-                    form.down('#issue-action-apply').setText(form.title.split(' ')[0]);
+                if (record.properties().getCount() === 0) {
+                    me.applyAction(null, null, record);
+                } else {
+                    var widget = Ext.widget('issue-action-view', {router: router, itemId: widgetItemId}),
+                        form = widget.down('#issue-action-view-form'),
+                        cancelLink = form.down('#issue-action-cancel');
+
+                    cancelLink.href = router.getRoute(router.currentRoute.replace(fromOverview ? '/action' : '/view/action', '')).buildUrl();
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                    form.loadRecord(record);
+                    widget.setLoading(true);
+
+                    issueModel.load(issueId, {
+                        success: function (record) {
+                            me.getApplication().fireEvent('issueLoad', record);
+                        }
+                    });
+                    me.getApplication().fireEvent('issueActionLoad', record);
+                    //todo: this definitely should be refactored. BE should send action button translation instead of this splitting
+                    if (form.title === 'Close issue' || form.title === 'Notify user' || form.title === 'Assign issue') {
+                        form.down('#issue-action-apply').setText(form.title.split(' ')[0]);
+                    }
+                    widget.setLoading(false);
+
                 }
-                widget.setLoading(false);
             }
         });
     },
 
-    applyAction: function () {
+    applyAction: function (button, action, actionRecord) {
         var me = this,
-            page = me.getPage(),
-            form = me.getForm(),
-            basicForm = form.getForm(),
-            errorPanel = form.down('#issue-action-view-form-errors'),
             router = me.getController('Uni.controller.history.Router'),
-            fromOverview = router.queryParams.fromOverview === 'true';
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            fromOverview = router.queryParams.fromOverview === 'true',
+            recordCallback;
 
-        errorPanel.hide();
-        basicForm.clearInvalid();
-        form.updateRecord();
-        page.setLoading(true);
-        form.getRecord().save({
+        recordCallback = {
             callback: function (model, operation, success) {
                 var responseText = Ext.decode(operation.response.responseText, true);
                 if (responseText) {
@@ -64,14 +63,29 @@ Ext.define('Isu.controller.ApplyIssueAction', {
                             me.getApplication().getController('Uni.controller.Error').showError(form.getRecord().get('name'), responseText.actions[0].message);
                         }
                     } else if (operation.response.status === 400) {
-                        if (responseText.errors) {
+                        if (responseText.errors && !actionRecord) {
                             errorPanel.show();
                             basicForm.markInvalid(responseText.errors);
                         }
                     }
                 }
-                page.setLoading(false);
+                viewport.setLoading(false);
             }
-        });
+        };
+
+        viewport.setLoading(true);
+
+        if (!!actionRecord) {
+            actionRecord.save(recordCallback);
+        } else {
+            var form = me.getForm(),
+                basicForm = form.getForm(),
+                errorPanel = form.down('#issue-action-view-form-errors');
+
+            errorPanel.hide();
+            basicForm.clearInvalid();
+            form.updateRecord();
+            form.getRecord().save(recordCallback);
+        }
     }
 });
