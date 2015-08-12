@@ -25,7 +25,7 @@ Ext.define('Uni.view.search.field.DateInterval', {
         this.onChange(this, value);
     },
 
-    clearAllHandler: function () {
+    reset: function () {
         var me = this;
         me.menu.items.filterBy(function(item){
             return Ext.isFunction(item.reset);
@@ -34,12 +34,14 @@ Ext.define('Uni.view.search.field.DateInterval', {
         });
 
         me.onInputChange();
+        this.callParent(arguments);
     },
 
     addRangeHandler: function () {
         var me = this;
         me.down('menu').add({
             xtype: 'uni-view-search-field-date-line',
+            operator: '=',
             removable: true,
             onRemove: function() {
                 me.menu.remove(this);
@@ -111,7 +113,7 @@ Ext.define('Uni.view.search.field.DateInterval', {
                             style: {
                                 'background-color': '#71adc7'
                             },
-                            handler: me.clearAllHandler,
+                            handler: me.reset,
                             scope : me
                         },
                         {

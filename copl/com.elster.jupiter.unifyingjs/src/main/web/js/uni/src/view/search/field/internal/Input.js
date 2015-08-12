@@ -14,7 +14,7 @@ Ext.define('Uni.view.search.field.internal.Input', {
         this.fireEvent('change', this, value);
     },
 
-    onReset: function() {
+    reset: function() {
         this.down('#filter-input').reset();
         this.fireEvent('reset');
     },
@@ -58,7 +58,7 @@ Ext.define('Uni.view.search.field.internal.Input', {
             },
             listeners: {
                 click: {
-                    fn: me.onReset,
+                    fn: me.reset,
                     scope: me
                 }
             }

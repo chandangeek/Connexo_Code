@@ -35,7 +35,7 @@ Ext.define('Uni.view.search.field.Interval', {
         });
     },
 
-    clearAllHandler: function () {
+    reset: function () {
         var me = this;
 
         me.menu.items.filterBy(function(item){
@@ -45,7 +45,7 @@ Ext.define('Uni.view.search.field.Interval', {
         });
 
         me.onInputChange();
-        this.down('#clearall').setDisabled(true);
+        this.callParent(arguments);
     },
 
     addCriteria: function () {
@@ -114,7 +114,7 @@ Ext.define('Uni.view.search.field.Interval', {
                             style: {
                                 'background-color': '#71adc7'
                             },
-                            handler: me.clearAllHandler,
+                            handler: me.reset,
                             scope : me
                         },
                         {

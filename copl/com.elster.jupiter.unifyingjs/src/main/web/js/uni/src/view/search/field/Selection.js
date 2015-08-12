@@ -34,6 +34,13 @@ Ext.define('Uni.view.search.field.Selection', {
         me.down('#filter-selected').setDisabled(!me.selection.length);
     },
 
+    reset: function() {
+        this.selection.clear();
+        this.getStore().clearFilter(true);
+        this.grid.getSelectionModel().deselectAll();
+        this.callParent(arguments);
+    },
+
     initComponent: function () {
         var me = this,
             selection = me.selection = Ext.create('Ext.util.MixedCollection', {
@@ -96,9 +103,9 @@ Ext.define('Uni.view.search.field.Selection', {
                                         Ext.suspendLayouts();
                                         if (store.remoteFilter) {
                                             if (Ext.isEmpty(value)) {
-                                                store.removeFilter(me.displayField)
+                                                store.clearFilter();
                                             } else {
-                                                store.addFilter({
+                                                store.filter({
                                                     id: me.displayField,
                                                     property: me.displayField,
                                                     value: value
