@@ -22,7 +22,7 @@ Ext.define('Dxp.view.tasks.Grid', {
             },
             {
                 header: Uni.I18n.translate('general.status', 'DES', 'Status'),
-                dataIndex: 'lastExportOccurence',
+                dataIndex: 'lastExportOccurrence',
                 renderer: function (value) {
                     var result;
                     if (value && value.statusDate && value.statusDate != 0) {
