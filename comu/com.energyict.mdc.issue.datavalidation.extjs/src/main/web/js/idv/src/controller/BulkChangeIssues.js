@@ -1,47 +1,67 @@
 Ext.define('Idv.controller.BulkChangeIssues', {
     extend: 'Isu.controller.BulkChangeIssues',
 
+    refs: [
+        {
+            ref: 'page',
+            selector: '#datavalidation-bulk-browse'
+        },
+        {
+            ref: 'bulkNavigation',
+            selector: '#datavalidation-bulk-browse bulk-navigation'
+        }
+    ],
+
     stores: [
         'Idv.store.IssuesBuffered',
         'Idv.store.BulkChangeIssues'
     ],
 
-    showOverview: function () {
-        var me = this,
-            issuesStore = this.getStore('Idv.store.IssuesBuffered'),
-            issuesStoreProxy = issuesStore.getProxy(),
-            widget, grid;
-
-        issuesStoreProxy.extraParams = {};
-        issuesStoreProxy.setExtraParam('sort', ['dueDate', 'modTime']);
-
-        widget = Ext.widget('bulk-browse');
-        grid = widget.down('bulk-step1').down('issues-selection-grid');
-        grid.reconfigure(issuesStore);
-
-        me.getApplication().fireEvent('changecontentevent', widget);
-        issuesStore.data.clear();
-        issuesStore.clearFilter(true);
-        issuesStore.filter([{property: 'status', value: ['status.open']}]);
-        issuesStore.on('load', function () {
-            grid.onSelectDefaultGroupType();
-        }, me, {single: true});
-    },
-
-    onWizardCancelledEvent: function (wizard) {
-        this.getController('Uni.controller.history.Router').getRoute('workspace/datavalidationissues').forward();
-    },
-
-    getBulkRecord: function () {
-        var bulkStore = Ext.getStore('Idv.store.BulkChangeIssues'),
-            bulkRecord = bulkStore.getAt(0);
-
-        if (!bulkRecord) {
-            bulkStore.add({
-                operation: 'assign'
-            });
+    listeners: {
+        retryRequest: function (wizard, failedItems) {
+            this.setFailedBulkRecordIssues(failedItems);
+            this.onWizardFinishedEvent(wizard);
         }
+    },
 
-        return bulkStore.getAt(0);
+    init: function () {
+        this.control({
+            '#datavalidation-bulk-browse bulk-wizard': {
+                wizardnext: this.onWizardNextEvent,
+                wizardprev: this.onWizardPrevEvent,
+                wizardstarted: this.onWizardStartedEvent,
+                wizardfinished: this.onWizardFinishedEvent,
+                wizardcancelled: this.onWizardCancelledEvent
+            },
+            '#datavalidation-bulk-browse bulk-navigation': {
+                movetostep: this.setActivePage
+            },
+            '#datavalidation-bulk-browse bulk-wizard bulk-step2 radiogroup': {
+                change: this.onStep2RadiogroupChangeEvent,
+                afterrender: this.getDefaultStep2Operation
+            },
+            '#datavalidation-bulk-browse bulk-wizard bulk-step3 issues-close-form radiogroup': {
+                change: this.onStep3RadiogroupCloseChangeEvent,
+                afterrender: this.getDefaultCloseStatus
+            },
+            '#datavalidation-bulk-browse bulk-step4': {
+                beforeactivate: this.beforeStep4
+            },
+            '#datavalidation-bulk-browse bulk-wizard bulk-step3 issues-close-form': {
+                beforerender: this.issueClosingFormBeforeRenderEvent
+            }
+        });
+    },
+
+    showOverview: function () {
+        this.callParent(['datavalidation', 'Idv']);
+    },
+
+    onWizardCancelledEvent: function () {
+        this.callParent(['datavalidation']);
+    },
+
+    onBulkActionEvent: function () {
+        this.callParent(['datavalidation']);
     }
 });
