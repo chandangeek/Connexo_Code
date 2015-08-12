@@ -36,7 +36,6 @@ import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.*;
-import com.energyict.mdc.device.data.importers.impl.properties.TimeZonePropertySpec;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.google.common.collect.Range;
@@ -49,6 +48,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -114,6 +114,7 @@ public class DeviceReadingsImporterFactoryTest {
         context.setPropertySpecService(new PropertySpecServiceImpl());
         context.setThreadPrincipalService(threadPrincipalService);
         context.setUserService(userService);
+        context.setClock(Clock.system(ZoneOffset.UTC));
         when(context.getThesaurus()).thenReturn(thesaurus);
         when(userService.getUserPreferencesService()).thenReturn(userPreferencesService);
     }
@@ -159,7 +160,7 @@ public class DeviceReadingsImporterFactoryTest {
         //time zone
         Optional<PropertySpec> timeZone = propertySpecs.stream().filter(propertySpec -> propertySpec.getName().equals(TIME_ZONE.getPropertyKey())).findFirst();
         assertThat(timeZone).isPresent();
-        assertThat(timeZone.get().getPossibleValues().getDefault()).isEqualTo(TimeZonePropertySpec.DEFAULT);
+        assertThat(timeZone.get().getPossibleValues().getDefault()).isEqualTo("GMT+00:00");
 
         //number format
         Optional<PropertySpec> numberFormat = propertySpecs.stream().filter(propertySpec -> propertySpec.getName().equals(NUMBER_FORMAT.getPropertyKey())).findFirst();

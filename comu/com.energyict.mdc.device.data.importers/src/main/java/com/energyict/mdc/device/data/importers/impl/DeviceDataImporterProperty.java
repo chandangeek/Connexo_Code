@@ -37,7 +37,7 @@ public enum DeviceDataImporterProperty {
     TIME_ZONE("timeZone") {
         @Override
         public PropertySpec getPropertySpec(DeviceDataImporterContext context) {
-            return new TimeZonePropertySpec(getPropertyKey(), context.getThesaurus());
+            return new TimeZonePropertySpec(getPropertyKey(), context.getThesaurus(), context.getClock());
         }
     },
     NUMBER_FORMAT("numberFormat") {
