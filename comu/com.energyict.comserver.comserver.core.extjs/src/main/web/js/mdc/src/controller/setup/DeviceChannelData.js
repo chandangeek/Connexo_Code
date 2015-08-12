@@ -270,7 +270,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             point,
             grid = me.getPage().down('deviceLoadProfileChannelDataGrid'),
             chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart;
-debugger;
+
         switch (item.action) {
             case 'editValue':
                 me.getPage().down('#deviceLoadProfileChannelDataGrid').getPlugin('cellplugin').startEdit(menu.record, 1);
