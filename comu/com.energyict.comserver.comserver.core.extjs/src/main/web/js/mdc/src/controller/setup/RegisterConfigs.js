@@ -225,31 +225,44 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
     },
 
     createRegisterConfiguration: function () {
-        var me = this;
-        var record = Ext.create(Mdc.model.RegisterConfiguration),
-            values = this.getRegisterConfigEditForm().getValues(),
+        var me = this,
+            record = Ext.create(Mdc.model.RegisterConfiguration),
+            form = me.getRegisterConfigEditForm(),
+            baseForm = form.getForm(),
+            warningMsg = form.down('uni-form-error-message'),
+            values = form.getValues(),
+            newObisCode = form.down('#editObisCodeField').getValue(),
+            originalObisCode = form.down('#editOverruledObisCodeField').getValue(),
             router = this.getController('Uni.controller.history.Router');
 
-        var view = this.getRegisterConfigEditForm();
-        var newObisCode = view.down('#editObisCodeField').getValue();
-        var originalObisCode = view.down('#editOverruledObisCodeField').getValue();
-
+        Ext.suspendLayouts();
+        baseForm.clearInvalid();
+        warningMsg.hide();
+        Ext.resumeLayouts(true);
         if (record) {
             record.set(values);
             if (newObisCode === originalObisCode) {
                 record.overruledObisCode = null;
             }
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
+            form.setLoading();
             record.save({
-                success: function (record) {
+                success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowlegment.added', 'MDC', 'Register configuration added'));
                     router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').forward();
                 },
                 failure: function (record, operation) {
-                    var json = Ext.decode(operation.response.responseText);
+                    var json = Ext.decode(operation.response.responseText, true);
+
+                    Ext.suspendLayouts();
+                    warningMsg.show();
                     if (json && json.errors) {
-                        me.getRegisterConfigEditForm().getForm().markInvalid(json.errors);
+                        baseForm.markInvalid(json.errors);
                     }
+                    Ext.resumeLayouts(true);
+                },
+                callback: function () {
+                    form.setLoading(false);
                 }
             });
 
