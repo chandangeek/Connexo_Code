@@ -113,7 +113,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
         return calendar;
     }
 
-    /** The ProtocolVersion date */
+    /** ProtocolVersion date */
     public String getProtocolVersion() {
         return "$Date$";
     }

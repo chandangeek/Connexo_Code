@@ -6,6 +6,8 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
+import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -18,6 +20,24 @@ public class UniversalObjectTest {
     public void testIsCapturedObjectCumulative() throws Exception {
         UniversalObject col = new UniversalObject(Arrays.asList((long) 1, (long) 1, (long) 1, (long) 8, (long) 0, (long) 255), DLMSReference.LN.getReference());
         assertTrue(col.isCapturedObjectCumulative());
+    }
+
+    @Test
+    public void testIsCapturedObjectCumulative_2() throws Exception {
+        ObisCode obisCode = ObisCode.fromString("1.1.1.4.0.255");
+        int classId = DLMSClassId.EXTENDED_REGISTER.getClassId();
+
+        UniversalObject captureObject = UniversalObject.createCaptureObject(classId, obisCode);
+        assertFalse(captureObject.isCapturedObjectCumulative());
+    }
+
+    @Test
+    public void testIsCapturedObjectCumulative_3() throws Exception {
+        ObisCode obisCode = ObisCode.fromString("1.1.1.8.0.255");
+        int classId = DLMSClassId.EXTENDED_REGISTER.getClassId();
+
+        UniversalObject captureObject = UniversalObject.createCaptureObject(classId, obisCode);
+        assertTrue(captureObject.isCapturedObjectCumulative());
     }
 
     @Test
@@ -43,5 +63,21 @@ public class UniversalObjectTest {
 
         assertTrue(iol.equals(col));
         assertTrue(col.equals(iol));
+    }
+
+    @Test
+    public void testCreateCaptureObject() throws Exception {
+        ObisCode obisCode = ObisCode.fromString("1.1.1.4.0.255");
+        int classId = DLMSClassId.EXTENDED_REGISTER.getClassId();
+
+        UniversalObject captureObject = UniversalObject.createCaptureObject(classId, obisCode);
+
+        assertEquals(obisCode.getA(), captureObject.getLNAco());
+        assertEquals(obisCode.getB(), captureObject.getLNBco());
+        assertEquals(obisCode.getC(), captureObject.getLNCco());
+        assertEquals(obisCode.getD(), captureObject.getLNDco());
+        assertEquals(obisCode.getE(), captureObject.getLNEco());
+        assertEquals(obisCode.getF(), captureObject.getLNFco());
+        assertEquals(classId, captureObject.getClassIDco());
     }
 }

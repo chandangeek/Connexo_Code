@@ -113,7 +113,7 @@ public class UniversalObject implements Serializable {
 		uo.fields[2] = obisCode.getB();
 		uo.fields[3] = obisCode.getC();
 		uo.fields[4] = obisCode.getD();
-		uo.fields[2] = obisCode.getE();
+		uo.fields[5] = obisCode.getE();
 		uo.fields[6] = obisCode.getF();
 		return uo;
 	}
