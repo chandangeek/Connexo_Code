@@ -22,8 +22,12 @@ Ext.define('Uni.view.search.field.Interval', {
     },
 
     onInputChange: function () {
-        var value = this.getValue();
-        this.down('#clearall').setDisabled(!!Ext.isEmpty(value));
+        var value = this.getValue(),
+            clearBtn = this.down('#clearall');
+
+        if (clearBtn) {
+            clearBtn.setDisabled(!!Ext.isEmpty(value));
+        }
         this.onChange(this, value);
     },
 
