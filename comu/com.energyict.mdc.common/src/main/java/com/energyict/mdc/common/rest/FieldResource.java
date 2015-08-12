@@ -3,6 +3,7 @@ package com.energyict.mdc.common.rest;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import javax.ws.rs.GET;
@@ -252,6 +253,11 @@ public class FieldResource {
 
         @Override
         public NlsMessageFormat getFormat(MessageSeed seed) {
+            return null;
+        }
+
+        @Override
+        public NlsMessageFormat getSimpleFormat(TranslationKey key) {
             return null;
         }
 
