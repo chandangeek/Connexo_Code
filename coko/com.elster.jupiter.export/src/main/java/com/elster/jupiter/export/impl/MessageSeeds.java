@@ -24,7 +24,7 @@ public enum MessageSeeds implements MessageSeed {
     VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUseByTask", "Device group {0} is still in use by an export task", Level.SEVERE),
     MUST_SELECT_READING_TYPE(1012, Keys.MUST_SELECT_AT_LEAST_ONE_READING_TYPE, "At least one reading type has to be selected", Level.SEVERE),
     NO_SUCH_SELECTOR(1014, Keys.NO_SUCH_SELECTOR, "Selector {0} does not exist", Level.SEVERE),
-    FILE_IO(1015, "file.io.writing.failure", "Failure while doing IO on file {0}", Level.SEVERE),
+    FILE_IO(1015, "file.io.writing.failure", "Failure while doing IO on file {0} : {1}", Level.SEVERE),
     PARENT_BREAKING_PATH_NOT_ALLOWED(1016, Keys.PARENT_BREAKING_PATH, "Paths that navigate above parent are not allowed here", Level.SEVERE),
     INVALIDCHARS_EXCEPTION(1017, Keys.INVALIDCHARS_EXCEPTION, "Characters {0} are not allowed.", Level.SEVERE);
 

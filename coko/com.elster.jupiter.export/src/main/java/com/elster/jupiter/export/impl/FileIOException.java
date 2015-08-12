@@ -12,6 +12,6 @@ import java.nio.file.Path;
 public class FileIOException extends LocalizedException {
 
     public FileIOException(Thesaurus thesaurus, Path path, IOException cause) {
-        super(thesaurus, MessageSeeds.FILE_IO, cause, path.toAbsolutePath().toString());
+        super(thesaurus, MessageSeeds.FILE_IO, cause, path.toAbsolutePath().toString(), cause.toString());
     }
 }
