@@ -20,14 +20,8 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.ConflictGroupTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.DefaultLifeCycleTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
-import com.energyict.mdc.device.lifecycle.config.rest.i18n.MicroActionTranslationKey;
-import com.energyict.mdc.device.lifecycle.config.rest.i18n.MicroCategoryTranslationKey;
-import com.energyict.mdc.device.lifecycle.config.rest.i18n.MicroCheckTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.*;
 import com.energyict.mdc.device.lifecycle.config.rest.info.*;
-import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
-import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCategoryTranslationKey;
-import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCheckTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleActionResource;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleResource;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleStateResource;

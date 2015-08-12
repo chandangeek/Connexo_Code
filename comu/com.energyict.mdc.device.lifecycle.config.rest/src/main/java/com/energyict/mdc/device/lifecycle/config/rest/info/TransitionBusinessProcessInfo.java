@@ -6,6 +6,9 @@ public class TransitionBusinessProcessInfo {
     public String deploymentId;
     public String processId;
 
+    public TransitionBusinessProcessInfo() {
+    }
+
     public TransitionBusinessProcessInfo(long id, String deploymentId, String processId) {
         this.id = id;
         this.deploymentId = deploymentId;
