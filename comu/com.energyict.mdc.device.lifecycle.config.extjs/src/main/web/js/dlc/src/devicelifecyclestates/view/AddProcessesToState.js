@@ -17,15 +17,14 @@ Ext.define('Dlc.devicelifecyclestates.view.AddProcessesToState', {
             items: [
                 {
                     xtype: 'preview-container',
+                    itemId: 'gridContainer',
                     selectByDefault: false,
                     grid: {
                         xtype: 'add-process-to-state-selection-grid',
                         itemId: 'add-process-grid',
                         store: 'Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses',
-
                         height: 600
                     },
-
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
                         margin: '15 0 20 0',
@@ -61,9 +60,32 @@ Ext.define('Dlc.devicelifecyclestates.view.AddProcessesToState', {
              ]
         }
     ],
-    exclude: function( excludedProcessesArray) {
-        if (!Ext.isEmpty(excludedProcessesArray)) {
-            this.down('#add-process-grid').getStore().remove(excludedProcessesArray);
+    initComponent: function(){
+        var me = this,
+           availableProcesses = Ext.data.StoreManager.lookup('Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses');
+
+        me.callParent(arguments);
+        if (availableProcesses) {
+            availableProcesses.load(function(records, operation, success){
+               if (success) {
+                   if (me.storeToUpdate) {
+                       var usedProcessesIds = Ext.Array.map(me.storeToUpdate.data.items, function(item){
+                           return item.get("id");
+                       });
+                       availableProcesses.filterBy(function (record) {
+                           return (Ext.Array.indexOf(usedProcessesIds, record.get("id")) === -1);
+                       });
+                       // filtering can result to empty grid: gridContainer acts on this by showing 'empty component'
+                       me.down('#gridContainer').onChange(availableProcesses);
+                       me.down('#btn-add-process').setVisible(availableProcesses.count() !== 0);
+                   }
+               }else{
+                   console.warn("Available business processes could not be loaded");
+                   // show gridContainer's 'empty component'
+                   me.down('#gridContainer').onLoad(availableProcesses, records);
+                   me.down('#btn-add-process').setVisible(false);
+               }
+            })
         }
     },
     getSelection: function(){

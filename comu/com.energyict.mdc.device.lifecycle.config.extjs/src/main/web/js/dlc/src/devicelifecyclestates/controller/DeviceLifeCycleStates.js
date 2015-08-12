@@ -10,6 +10,8 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
     stores: [
         'Dlc.devicelifecyclestates.store.DeviceLifeCycleStates',
         'Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses',
+        'Dlc.devicelifecyclestates.store.TransitionBusinessProcessesOnEntry',
+        'Dlc.devicelifecyclestates.store.TransitionBusinessProcessesOnExit'
     ],
 
     models: [
@@ -63,10 +65,10 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             'device-life-cycle-state-edit #createEditButton': {
                 click: this.saveState
             },
-            'device-life-cycle-state-edit #addOnEntryTransitionBusinessProcess':{
+            'device-life-cycle-state-edit #addOnEntryTransitionBusinessProcess': {
                 click: this.addEntryTransitionBusinessProcessesToState
             },
-            'device-life-cycle-state-edit #addOnExitTransitionBusinessProcess':{
+            'device-life-cycle-state-edit #addOnExitTransitionBusinessProcess': {
                 click: this.addExitTransitionBusinessProcessesToState
             },
             'device-life-cycle-states-action-menu': {
@@ -80,7 +82,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             }
         });
     },
-    editLifeCyclePathArguments: null,
+
     configureMenu: function (menu) {
         var initialAction = menu.down('#initialAction'),
             isInitial = menu.record.get('isInitial');
@@ -96,19 +98,30 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         errorPanel.setVisible(value);
     },
 
+    getProcessItemsFromStore: function(store) {
+      var processItems = [];
+
+        store.each(function(record) {
+            processItems.push(record.getData());
+        });
+        return processItems;
+},
+
     saveState: function (btn) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             editForm = me.getLifeCycleStatesEditForm(),
             successMessage = Uni.I18n.translate('deviceLifeCycleStates.saved', 'DLC', 'State saved'),
+            entryProcessesStore = editForm.down('#processesOnEntryGridPanel').getStore(),
+            exitProcessesStore = editForm.down('#processesOnExitGridPanel').getStore(),
             record;
 
         editForm.updateRecord();
         record = editForm.getRecord();
-
         me.showErrorPanel(false);
         editForm.setLoading();
-
+        record.set('onEntry', me.getProcessItemsFromStore(entryProcessesStore));
+        record.set('onExit', me.getProcessItemsFromStore(exitProcessesStore));
         if (btn.action === 'add') {
             successMessage = Uni.I18n.translate('deviceLifeCycleStates.added', 'DLC', 'State added');
         }
@@ -123,6 +136,8 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
                 } else {
                     route = router.getRoute('administration/devicelifecycles/devicelifecycle/states');
                 }
+                entryProcessesStore.removeAll();
+                exitProcessesStore.removeAll();
                 route.forward();
                 me.getApplication().fireEvent('acknowledge', successMessage);
             },
@@ -146,6 +161,9 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
     cancelAction: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
+            editForm = me.getLifeCycleStatesEditForm(),
+            entryProcessesStore = editForm.down('#processesOnEntryGridPanel').getStore(),
+            exitProcessesStore = editForm.down('#processesOnExitGridPanel').getStore(),
             route;
 
         if (me.fromAddTransition) {
@@ -155,6 +173,8 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         } else {
             route = router.getRoute('administration/devicelifecycles/devicelifecycle/states');
         }
+        entryProcessesStore.removeAll();
+        exitProcessesStore.removeAll();
         route.forward();
     },
 
@@ -283,35 +303,35 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         });
     },
 
-    addEntryTransitionBusinessProcessesToState: function (){
+    addEntryTransitionBusinessProcessesToState: function () {
         this.addTransitionBusinessProcessesToState('onEntry');
     },
 
     addExitTransitionBusinessProcessesToState: function () {
         this.addTransitionBusinessProcessesToState('onExit');
     },
-    addTransitionBusinessProcessesToState: function (storeToUpdate){
+
+    addTransitionBusinessProcessesToState: function (storeToUpdate) {
         var router = this.getController('Uni.controller.history.Router');
-        this.editLifeCyclePathArguments = router.arguments;
-        router.getRoute('administration/devicelifecycles/devicelifecycle/states/edit'+(storeToUpdate === 'onEntry' ? '/addEntryProcesses' : '/addExitProcesses')).forward();
+        router.getRoute(router.currentRoute + (storeToUpdate === 'onEntry' ? '/addEntryProcesses' : '/addExitProcesses')).forward();
     },
-    showAvailableEntryTransitionProcesses: function (){
-        this.showAvailableTransitionProcesses('onEntry');
+
+    showAvailableEntryTransitionProcesses: function () {
+        this.showAvailableTransitionProcesses('Dlc.devicelifecyclestates.store.TransitionBusinessProcessesOnEntry');
     },
+
     showAvailableExitTransitionProcesses: function () {
-        this.showAvailableTransitionProcesses('onExit');
+        this.showAvailableTransitionProcesses('Dlc.devicelifecyclestates.store.TransitionBusinessProcessesOnExit');
     },
-    showAvailableTransitionProcesses: function(storeToUpdate){
-        var router = this.getController('Uni.controller.history.Router'),
-            store =  Ext.data.StoreManager.lookup(storeToUpdate),
-            widget = Ext.widget('AddProcessesToState');
-        if (store){
-             widget.storeToUpdate = store;
-             widget.exclude(store.data.items);
-        }
-        this.getApplication().fireEvent('changecontentevent', widget );
+
+    showAvailableTransitionProcesses: function (storeToUpdate) {
+        var store = Ext.data.StoreManager.lookup(storeToUpdate),
+            widget = Ext.widget('AddProcessesToState', {storeToUpdate: store});
+
+        this.getApplication().fireEvent('changecontentevent', widget);
     },
-    //Just like go back to next page????
+
+    //Just like 'go back to next page' ????
     forwardToPreviousPage: function () {
         var me = this;
         var router = me.getController('Uni.controller.history.Router'),
@@ -323,34 +343,15 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
     },
 
     addSelectedProcesses: function () {
-        var router = this.getController('Uni.controller.history.Router'),
-            widget = this.getAddProcessesToState(),
+        var widget = this.getAddProcessesToState(),
             selection = widget.getSelection();
 
         if (!Ext.isEmpty(selection)) {
             var store = widget.storeToUpdate;
-            console.log(store.storeId +' before :'+  store.count()+' processes set');
             Ext.each(selection, function (transitionBusinessProcess) {
                 store.add(transitionBusinessProcess);
             });
-            console.log(store.storeId +' after :'+store.count()+' processes set');
         }
-
-        // HELP, I NEED SOMEBODY
-        // HELP, NOT JUST ANYBODE
-        // HELP, YOU KNOW I NEED SOMEONE, HEEEEELP
-        // The Beatles...
-
-        // Is following code correct: I try to go back to the editPage
-        // By doing this the controller's showDeviceLifeCycleStateEdit method is called
-        // This will reload the state => my changes (added a entry/exit process) are lost ????
-        router.arguments = this.editLifeCyclePathArguments;
-        router.getRoute('administration/devicelifecycles/devicelifecycle/states/edit').forward();
-        // Problem !!!!!!!!!
-        // Here I am trying to update the deviceLifeCycle state used as model for the LifecycleStatesEditForm
-        // This does not work as getLifeCylceStatesEditForm() returns null ???
-        // As I'm not on the editPage => this doesn't work...
-        // How do I update the 'model'
-        getLifeCycleStatesEditForm().updateRecord(); // This is needed so the model reflects the situation on the screen
+        this.forwardToPreviousPage();
     }
 });

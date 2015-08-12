@@ -16,22 +16,18 @@ Ext.define('Dlc.devicelifecyclestates.model.DeviceLifeCycleState', {
                 return data.name;
             }
         },
-        {name: 'onEntry'},
-        {name: 'onExit'}
-    ],
-
-    associations: [
-        {name: 'onEntry', type: 'hasMany', model: 'Dlc.devicelifecyclestates.model.TransitionBusinessProcess', associationKey: 'onEntry'},
-        {name: 'onExit', type: 'hasMany', model: 'Dlc.devicelifecyclestates.model.TransitionBusinessProcess', associationKey: 'onExit'}
+        {name: 'onEntry', type: 'auto'},
+        {name: 'onExit', type: 'auto'}
     ],
     proxy: {
         type: 'rest',
-        urlTpl: '/api/dld/devicelifecycles/{id}/states',
+        urlTpl: '/api/dld/devicelifecycles/{id}/states/',
         reader: {
             type: 'json'
         },
         setUrl: function (params) {
             this.url = this.urlTpl.replace('{id}', params.deviceLifeCycleId);
+
         }
     }
 });

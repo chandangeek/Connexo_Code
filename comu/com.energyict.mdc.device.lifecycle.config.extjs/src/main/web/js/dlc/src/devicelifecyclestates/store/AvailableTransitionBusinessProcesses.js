@@ -5,6 +5,9 @@ Ext.define('Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses
     ],
     model: 'Dlc.devicelifecyclestates.model.TransitionBusinessProcess',
     storeId: 'AvailableTransitionBusinessProcesses',
+    remoteFilter: false,
+/*
+    // for 'playing' purposes
     proxy: {
         type: 'memory'
     },
@@ -13,16 +16,14 @@ Ext.define('Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses
          {id: 2, deploymentId: 'com.elster.print.installationAcceptance', processId: 'print installation acceptance'},
          {id: 3, deploymentId: 'com.elster.print.defectReport', processId: 'print defect report'}
     ]
- /*
+*/
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/dld/devicelifecycles/statechangebusinessprocesses',
+        url: '/api/dld/devicelifecycles/statechangebusinessprocesses',
         reader: {
             type: 'json',
             root: 'stateChangeBusinessProcesses'
         }
     }
-*/
-
 });

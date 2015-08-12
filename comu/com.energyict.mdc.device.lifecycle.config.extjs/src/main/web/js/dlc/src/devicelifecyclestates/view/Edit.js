@@ -3,9 +3,9 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
     alias: 'widget.device-life-cycle-state-edit',
     requires: [
         'Uni.view.container.ContentContainer',
-        'Uni.grid.column.Default',
-        'Dlc.devicelifecyclestates.store.TransitionBusinessProcesses'
+        'Uni.grid.column.Default'
     ],
+
     content: [
         {
             xtype: 'form',
@@ -57,6 +57,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                             width: 800,
                             height: 220,
                             itemId: 'processesOnEntryGridPanel',
+                            store: 'Dlc.devicelifecyclestates.store.TransitionBusinessProcessesOnEntry',
                             hideHeaders: true,
                             padding: 0,
                             columns: [
@@ -108,6 +109,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                             xtype: 'gridpanel',
                             width: 800,
                             height: 220,
+                            store: 'Dlc.devicelifecyclestates.store.TransitionBusinessProcessesOnExit',
                             itemId: 'processesOnExitGridPanel',
                             hideHeaders: true,
                             padding: 0,
@@ -187,22 +189,24 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                     }
                 }
                 this.getForm().loadRecord(record);
+                var processOnEntryStore = this.down('#processesOnEntryGridPanel').getStore();
+                if (processOnEntryStore.modelId != record.getId()){
+                    processOnEntryStore.removeAll();
+                    Ext.each(record.get("onEntry"), function (transitionBusinessProcess) {
+                        processOnEntryStore.add(transitionBusinessProcess);
+                    });
+                    processOnEntryStore.modelId = record.getId();
+                }
+                var processOnExitStore = this.down('#processesOnExitGridPanel').getStore();
+                if (processOnExitStore.modelId != record.getId()) {
+                    processOnExitStore.removeAll();
+                    Ext.each(record.get("onExit"), function (transitionBusinessProcess) {
+                        processOnExitStore.add(transitionBusinessProcess);
+                    });
+                    processOnExitStore.modelId = record.getId();
+                }
             }
 
         }
-    ],
-    initComponent: function() {
-        this.callParent(arguments);
-        var onEntryStore = Ext.data.StoreManager.lookup('onEntry');
-        if (!onEntryStore) {
-            onEntryStore = Ext.create('Dlc.devicelifecyclestates.store.TransitionBusinessProcesses', {storeId: 'onEntry'});
-        }
-        this.down('#processesOnEntryGridPanel').getView().bindStore(onEntryStore);
-
-        var onExitStore = Ext.data.StoreManager.lookup('onExit');
-        if (!onExitStore) {
-            onExitStore = Ext.create('Dlc.devicelifecyclestates.store.TransitionBusinessProcesses', {storeId: 'onExit'});
-        }
-        this.down('#processesOnExitGridPanel').getView().bindStore(onExitStore);
-    }
+    ]
 });
