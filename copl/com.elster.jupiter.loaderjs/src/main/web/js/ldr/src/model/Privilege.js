@@ -2,7 +2,7 @@ Ext.define('Ldr.model.Privilege', {
     extend: 'Ext.data.Model',
 
     fields: [
-        'name'
+        'name', 'applicationName'
     ],
     idProperty: 'name',
 
