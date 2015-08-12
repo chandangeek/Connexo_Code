@@ -1,12 +1,6 @@
 package com.elster.jupiter.fsm.impl;
 
-import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
-import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.fsm.StateChangeBusinessProcess;
-import com.elster.jupiter.fsm.StateTransitionEventType;
-import com.elster.jupiter.fsm.UnknownStateException;
+import com.elster.jupiter.fsm.*;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
@@ -14,6 +8,7 @@ import com.elster.jupiter.orm.DataModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link FiniteStateMachineUpdater} interface.
@@ -160,7 +155,10 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
 
         @Override
         public StateUpdater onEntry(StateChangeBusinessProcess process) {
-            this.underConstruction.addOnEntry(process);
+            if (this.underConstruction.getOnEntryProcesses().stream().map(ProcessReference::getStateChangeBusinessProcess)
+                    .noneMatch(p -> {return p.getId() == process.getId();})){
+                this.underConstruction.addOnEntry(process);
+            }
             return this;
         }
 
@@ -172,7 +170,10 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
 
         @Override
         public StateUpdater onExit(StateChangeBusinessProcess process) {
-            this.underConstruction.addOnExit(process);
+            if (this.underConstruction.getOnExitProcesses().stream().map(ProcessReference::getStateChangeBusinessProcess)
+                    .noneMatch(p -> {return p.getId() == process.getId();})){
+                this.underConstruction.addOnExit(process);
+            }
             return this;
         }
 

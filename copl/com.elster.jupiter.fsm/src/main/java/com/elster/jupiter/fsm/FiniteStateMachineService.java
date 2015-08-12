@@ -34,6 +34,13 @@ public interface FiniteStateMachineService {
     public List<StateChangeBusinessProcess> findStateChangeBusinessProcesses();
 
     /**
+     * Gets the {@link StateChangeBusinessProcess} with given id.
+     * @param id to find
+     * @return The Optional StateChangeBusinessProcess with given id
+     */
+    public Optional<StateChangeBusinessProcess> findStateChangeBusinessProcessById(long id);
+
+    /**
      * Enables the external business process identified by the specified
      * deploymentId and processId to be executed when a {@link State}
      * is entered or exited.
