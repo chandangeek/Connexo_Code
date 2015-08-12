@@ -90,17 +90,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
                 success: function () {
                     me.handleSuccessRequest(Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type removed'));
                     me.store.loadPage(1);
-                },
-                failure: function (response) {
-                    var errorText,
-                        errorTitle;
-
-                    if (response.status == 400) {
-                        errorText = Ext.decode(response.responseText, true).message;
-                        errorTitle = Uni.I18n.translate('loadProfileTypes.removeErrorMsg', 'MDC', 'Error during removing of load profile');
-
-                        me.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText);
-                    }
                 }
             });
         }
@@ -151,9 +140,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
             success: function () {
                 me.handleSuccessRequest('Load profile types added');
             },
-//            failure: function (response) {
-//                me.handleFailureRequest(response, 'Error during adding load profile types to device type', 'loadprofiletypeondevicetypenotificationerrorretry');
-//            },
             callback: function () {
                 preloader.destroy();
             }
