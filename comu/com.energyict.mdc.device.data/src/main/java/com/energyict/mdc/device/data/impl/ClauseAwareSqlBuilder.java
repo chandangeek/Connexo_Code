@@ -15,7 +15,7 @@ import java.sql.SQLException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-01 (09:13)
  */
-public class ClauseAwareSqlBuilder {
+public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
 
     private final SqlBuilder actualBuilder;
     private final Where where = new Where();
@@ -117,6 +117,7 @@ public class ClauseAwareSqlBuilder {
         return this.actualBuilder.asPageBuilder(from, to);
     }
 
+    @Override
     public PreparedStatement prepare(Connection connection) throws SQLException {
         return this.actualBuilder.prepare(connection);
     }

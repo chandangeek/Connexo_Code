@@ -25,10 +25,22 @@ public interface DeviceService {
      *
      * @param deviceConfiguration the deviceConfiguration which models the device
      * @param name                the name which should be used for the device
-     * @param mRID                The new Device's master resource identifier
+     * @param mRID                the new Device's master resource identifier
      * @return the newly created Device
      */
     public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID);
+
+    /**
+     * Creates a new Device based on the given name, DeviceConfiguration and batch.
+     * If batch with specified name doesn't exist then new one will be created.
+     *
+     * @param deviceConfiguration the deviceConfiguration which models the device
+     * @param name                the name which should be used for the device
+     * @param mRID                the new Device's master resource identifier
+     * @param batch               the name of batch
+     * @return the newly created Device
+     */
+    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, String batch);
 
     /**
      * Finds the Device based on his unique ID.

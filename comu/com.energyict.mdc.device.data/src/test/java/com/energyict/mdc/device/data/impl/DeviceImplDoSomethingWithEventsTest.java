@@ -44,6 +44,7 @@ import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.impl.EstimationModule;
@@ -335,7 +336,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(SecurityPropertyService.class),
                                 injector.getInstance(UserService.class),
                                 injector.getInstance(DeviceMessageSpecificationService.class),
-                                injector.getInstance(MeteringGroupsService.class));
+                                injector.getInstance(MeteringGroupsService.class),
+                                mock(QueryService.class));
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
             }
