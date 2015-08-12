@@ -3,6 +3,7 @@ package com.elster.jupiter.cps.impl;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.HardCodedFieldNames;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -119,7 +120,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             public void configure() {
                 customPropertySet.getPersistenceSupport().getModule().ifPresent(customModule -> customModule.configure(this.binder()));
                 bind(DataModel.class).toInstance(dataModel);
-                bind(CustomPropertySet.class).toInstance(customPropertySet);
                 bind(CustomPropertySetService.class).toInstance(CustomPropertySetServiceImpl.this);
             }
         };
@@ -272,12 +272,14 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     private <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues toCustomPropertySetValues(CustomPropertySet<D, T> customPropertySet, Optional<T> customPropertyValuesEntity) {
+        CustomPropertySetValues properties = CustomPropertySetValues.empty();
         if (customPropertyValuesEntity.isPresent()) {
-            return FieldValueExtractor.from(customPropertyValuesEntity.get()).andSpecs(customPropertySet.getPropertySpecs());
+            customPropertyValuesEntity.get().copyTo(properties);
+            if (customPropertySet.isVersioned()) {
+                IntervalExtractor.from(customPropertyValuesEntity.get()).into(properties);
+            }
         }
-        else {
-            return CustomPropertySetValues.empty();
-        }
+        return properties;
     }
 
     @Override
@@ -332,7 +334,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
         private void addPrimaryKey() {
             this.underConstruction
-                    .primaryKey(this.primaryKeyName(this.customPropertySet))
+                    .primaryKey(this.primaryKeyConstraintName(this.customPropertySet))
                     .on(this.primaryKeyColumns())
                     .add();
         }
@@ -400,9 +402,9 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
          */
         private Column addPropertySetColumnTo(Table table, CustomPropertySet customPropertySet) {
             Column cps = table
-                    .column("cps")
+                    .column(HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName())
                     .notNull()
-                    .map("customPropertySet")
+                    .map(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName())
                     .number()
                     .conversion(ColumnConversion.NUMBER2LONG)
                     .skipOnUpdate()
@@ -422,7 +424,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
          * @param customPropertySet The CustomPropertySet
          * @return The unique name for the primary key constraint
          */
-        private String primaryKeyName(CustomPropertySet customPropertySet) {
+        private String primaryKeyConstraintName(CustomPropertySet customPropertySet) {
             return "PK_CPS_" + customPropertySet.getId().hashCode();
         }
 
@@ -452,7 +454,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         @Override
         void addColumns() {
             super.addColumns();
-            List<Column> intervalColumns = this.underConstruction().addIntervalColumns("interval");
+            List<Column> intervalColumns = this.underConstruction().addIntervalColumns(HardCodedFieldNames.INTERVAL.javaName());
             this.effectivityStartColumn = intervalColumns.get(0);
         }
 

@@ -1,6 +1,7 @@
 package com.elster.jupiter.cps.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.HardCodedFieldNames;
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.properties.PropertySpec;
 
@@ -13,28 +14,26 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-08-11 (16:24)
  */
-public class FieldValueExtractor {
+public class IntervalExtractor {
 
     private final Object businessObject;
     private final Class domainClass;
-    private CustomPropertySetValues underConstruction = CustomPropertySetValues.empty();
 
-    public static FieldValueExtractor from(Object businessObject) {
-        return new FieldValueExtractor(businessObject);
+    public static IntervalExtractor from(Object businessObject) {
+        return new IntervalExtractor(businessObject);
     }
 
-    public CustomPropertySetValues andSpecs(List<PropertySpec> specs) {
-        specs.forEach(this::copy);
-        return this.underConstruction;
+    public void into(CustomPropertySetValues properties) {
+        this.copy(HardCodedFieldNames.INTERVAL.javaName(), properties);
     }
 
-    private void copy(PropertySpec propertySpec) {
-        Object value = this.valueFor(this.getField(propertySpec));
-        this.underConstruction.setProperty(propertySpec.getName(), value);
+    private void copy(String fieldName, CustomPropertySetValues properties) {
+        Object value = this.valueFor(this.getField(fieldName));
+        properties.setProperty(fieldName, value);
     }
 
-    private Field getField(PropertySpec propertySpec) {
-        return this.getField(this.domainClass, propertySpec.getName());
+    private Field getField(String fieldName) {
+        return this.getField(this.domainClass, fieldName);
     }
 
     private Object valueFor(Field field) {
@@ -46,7 +45,7 @@ public class FieldValueExtractor {
         }
     }
 
-    private FieldValueExtractor(Object businessObject) {
+    private IntervalExtractor(Object businessObject) {
         super();
         this.businessObject = businessObject;
         this.domainClass = businessObject.getClass();
