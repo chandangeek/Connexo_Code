@@ -56,7 +56,7 @@ Ext.define('Uni.view.search.field.DateInterval', {
         });
     },
 
-    onHide: function (menu) {
+    cleanup: function (menu) {
         menu.items.each(function (item) {
             if (item && item.removable && Ext.isEmpty(item.getValue())) {
                 menu.remove(item);
@@ -89,8 +89,8 @@ Ext.define('Uni.view.search.field.DateInterval', {
                 padding: 5
             },
             listeners: {
-                hide: {
-                    fn: me.onHide,
+                show: {
+                    fn: me.cleanup,
                     scope: me
                 }
             },
@@ -119,7 +119,7 @@ Ext.define('Uni.view.search.field.DateInterval', {
                         {
                             xtype: 'button',
                             ui: 'action',
-                            text: Uni.I18n.translate('general.addRange', 'UNI', 'Add number range'),
+                            text: Uni.I18n.translate('general.addCriterion', 'UNI', 'Add criterion'),
                             action: 'addrange',
                             handler: me.addRangeHandler,
                             scope : me

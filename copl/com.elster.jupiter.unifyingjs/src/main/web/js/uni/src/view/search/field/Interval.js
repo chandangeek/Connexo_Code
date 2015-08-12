@@ -27,7 +27,7 @@ Ext.define('Uni.view.search.field.Interval', {
         this.onChange(this, value);
     },
 
-    onHide: function(menu) {
+    cleanup: function(menu) {
         menu.items.each(function (item) {
             if (item && item.removable && Ext.isEmpty(item.getValue())) {
                 menu.remove(item);
@@ -90,8 +90,8 @@ Ext.define('Uni.view.search.field.Interval', {
                 padding: 5
             },
             listeners: {
-                hide: {
-                    fn: me.onHide,
+                show: {
+                    fn: me.cleanup,
                     scope: me
                 }
             },
