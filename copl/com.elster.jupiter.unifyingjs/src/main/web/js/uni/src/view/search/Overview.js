@@ -105,14 +105,14 @@ Ext.define('Uni.view.search.Overview', {
                                     //    multiSelect: true
                                     //},
                                     // temp for testing date/number range field
-                                    {
-                                        xtype: 'uni-view-search-field-date-field',
-                                        text: 'DateTime'
-                                    },
-                                    {
-                                        xtype: 'uni-view-search-field-number-field',
-                                        text: 'Interaval'
-                                    },
+                                    //{
+                                    //    xtype: 'uni-view-search-field-date-field',
+                                    //    text: 'DateTime'
+                                    //},
+                                    //{
+                                    //    xtype: 'uni-view-search-field-number-field',
+                                    //    text: 'Interaval'
+                                    //},
                                     {
                                         xtype: 'uni-view-search-field-yesno',
                                         text: 'Boolean'

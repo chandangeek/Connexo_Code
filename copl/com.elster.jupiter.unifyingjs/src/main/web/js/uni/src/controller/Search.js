@@ -86,6 +86,13 @@ Ext.define('Uni.controller.Search', {
         'DeviceConfiguration': 'uni-grid-column-search-deviceconfiguration'
     },
 
+    defaultColumns: {
+        'com.energyict.mdc.device.data.Device': ['id', 'mRID', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName'],
+        'com.elster.jupiter.metering.UsagePoint' : ['mRID', 'serviceCategory', 'name', 'aliasName', 'serviceLocationId', 'createTime']
+    },
+
+    searchDomain: null,
+
     init: function () {
         var me = this;
 
@@ -233,6 +240,7 @@ Ext.define('Uni.controller.Search', {
         container.setLoading(true);
 
         if (searchDomain !== null && Ext.isDefined(searchDomain)) {
+            me.searchDomain = searchDomain;
             Uni.util.History.suspendEventsForNextCall();
             Uni.util.History.setParsePath(false); //todo: this is probably a bug un unifying, so this line shouldn't be here
             router.getRoute().forward(null, {searchDomain: searchDomain.get('displayValue')});
@@ -267,11 +275,15 @@ Ext.define('Uni.controller.Search', {
         var me = this,
             grid = me.getResultsGrid(),
             fieldItems = [],
-            columnItems = [];
+            columnItems = [],
+            defaultColumns = me.defaultColumns[me.searchDomain.get('id')];
 
         fields.forEach(function (field) {
             fieldItems.push(me.createFieldDefinitionFromModel(field));
-            columnItems.push(me.createColumnDefinitionFromModel(field));
+
+            if (defaultColumns && defaultColumns.indexOf(field.get('propertyName')) >= 0) {
+                columnItems.push(me.createColumnDefinitionFromModel(field));
+            }
         });
 
         grid.store.model.setFields(fieldItems);
