@@ -13,10 +13,13 @@ Ext.define('Uni.view.search.field.SearchObjectSelector', {
 
     setValue: function(value) {
         this.value = value;
+        this.menu.items.each(function(item) {
+            item.setVisible(true);
+        });
         var item = this.menu.items.findBy(function(item){return item.value == value});
 
         if (item) {
-            item.setActive();
+            item.setVisible(false);
             this.setText(item.text);
             this.fireEvent('change', this, item.value);
         }

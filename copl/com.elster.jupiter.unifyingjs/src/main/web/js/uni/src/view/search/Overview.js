@@ -180,6 +180,9 @@ Ext.define('Uni.view.search.Overview', {
                                 ]
                             },
                             {
+                                xtype: 'menuseparator'
+                            },
+                            {
                                 // Sorting. (Not in scope at this moment of writing, removing breaks the column layout so just disabling the xtypes.)
                                 xtype: 'toolbar',
                                 margin: 0,
