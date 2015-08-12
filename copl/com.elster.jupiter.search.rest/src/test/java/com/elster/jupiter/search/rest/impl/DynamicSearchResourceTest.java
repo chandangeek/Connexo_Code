@@ -133,10 +133,11 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     @Test
     public void testGetDomains() throws Exception {
+        when(this.searchService.getDomains()).thenReturn(Arrays.asList(devicesDomain));
         Response response = target("/search").request().accept("application/json").get();
         JsonModel model = JsonModel.model((ByteArrayInputStream)response.getEntity());
-        assertThat(model.<Integer>get("$.total")).isEqualTo(2);
-        assertThat(model.<List>get("$.domains")).hasSize(2);
+        assertThat(model.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(model.<List>get("$.domains")).hasSize(1);
         assertThat(model.<String>get("$.domains[0].id")).isEqualTo("com.devices");
         assertThat(model.<String>get("$.domains[0].displayValue")).isEqualTo("devices");
         assertThat(model.<String>get("$.domains[0].link[0].href")).isEqualTo("http://localhost:9998/search/com.devices");
@@ -146,14 +147,6 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         assertThat(model.<String>get("$.domains[0].link[2].href")).isEqualTo("http://localhost:9998/search/com.devices/model");
         assertThat(model.<String>get("$.domains[0].link[2].params.rel")).isEqualTo("describedby");
 
-        assertThat(model.<String>get("$.domains[1].id")).isEqualTo("com.deviceTypes");
-        assertThat(model.<String>get("$.domains[1].displayValue")).isEqualTo("deviceTypes");
-        assertThat(model.<String>get("$.domains[1].link[0].href")).isEqualTo("http://localhost:9998/search/com.deviceTypes");
-        assertThat(model.<String>get("$.domains[1].link[0].params.rel")).isEqualTo("self");
-        assertThat(model.<String>get("$.domains[1].link[1].href")).isEqualTo("http://localhost:9998/search/com.deviceTypes/searchcriteria");
-        assertThat(model.<String>get("$.domains[1].link[1].params.rel")).isEqualTo("glossary");
-        assertThat(model.<String>get("$.domains[1].link[2].href")).isEqualTo("http://localhost:9998/search/com.deviceTypes/model");
-        assertThat(model.<String>get("$.domains[1].link[2].params.rel")).isEqualTo("describedby");
     }
 
     @Test
@@ -217,7 +210,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     @Test
     public void testGetDomainPropertyValuesFilterByName() throws Exception {
-        Response response = target("/search/com.devices/searchcriteria/deviceConfig").queryParam("filter", ExtjsFilter.filter().property("name", "2").create()).request().accept("application/json").get();
+        Response response = target("/search/com.devices/searchcriteria/deviceConfig").queryParam("filter", ExtjsFilter.filter().property("displayValue", "2").create()).request().accept("application/json").get();
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         assertThat(model.<Integer>get("$.total")).isEqualTo(1);
         assertThat(model.<List>get("$.values")).hasSize(1);

@@ -162,7 +162,7 @@ public class DynamicSearchResource {
         searchableProperty.refreshWithConstrictions(searchablePropertyConstrictions);
         PropertySpecPossibleValues possibleValuesOrNull = searchableProperty.getSpecification().getPossibleValues();
         List<?> possibleValues = possibleValuesOrNull!=null?possibleValuesOrNull.getAllValues():Collections.emptyList();
-        String nameFilter = jsonQueryFilter.getString("name");
+        String nameFilter = jsonQueryFilter.getString("displayValue");
         Predicate<IdWithDisplayValueInfo> nameFilterPredicate;
         if (nameFilter!=null) {
             nameFilterPredicate = dv -> dv.displayValue.toLowerCase().contains(nameFilter.toLowerCase());
