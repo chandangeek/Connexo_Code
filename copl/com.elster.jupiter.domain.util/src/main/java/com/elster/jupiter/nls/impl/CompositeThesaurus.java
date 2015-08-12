@@ -3,6 +3,7 @@ package com.elster.jupiter.nls.impl;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -68,12 +69,25 @@ public class CompositeThesaurus implements IThesaurus {
 
     }
 
+    @Override
+    public NlsMessageFormat getSimpleFormat(TranslationKey key) {
+        return components.stream()
+                .map(th -> th.getSimpleFormat(key))
+                .findAny()
+                .orElseGet(() -> new NlsTranslationFormatImpl(this, nlsStringFor(key)));
+    }
+
     private NlsString nlsStringFor(MessageSeed seed) {
         String key = seed.getKey();
         String defaultFormat = seed.getDefaultFormat();
         return NlsString.from(this, key, defaultFormat);
     }
 
+    private NlsString nlsStringFor(TranslationKey translationKey) {
+        String key = translationKey.getKey();
+        String defaultFormat = translationKey.getDefaultFormat();
+        return NlsString.from(this, key, defaultFormat);
+    }
 
     @Override
     public void addTranslations(Iterable<? extends Translation> translations) {
