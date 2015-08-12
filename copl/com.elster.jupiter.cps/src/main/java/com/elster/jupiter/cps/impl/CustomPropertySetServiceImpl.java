@@ -70,8 +70,17 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         super();
     }
 
-    // For unit testing purposes
+    // For integration testing purposes
     @Inject
+    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService) {
+        this();
+        this.setOrmService(ormService);
+        this.setNlsService(nlsService);
+        this.activate();
+        this.install();
+    }
+
+    // For unit testing purposes
     public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, boolean install, CustomPropertySet... customPropertySets) {
         this();
         this.setOrmService(ormService, install);
@@ -202,7 +211,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         RegisteredCustomPropertySet registeredCustomPropertySet =
                 this.dataModel
                     .mapper(RegisteredCustomPropertySet.class)
-                    .getUnique(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.getName(), customPropertySet.getId())
+                    .getUnique(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName(), customPropertySet.getId())
                     .map(Function.identity())
                     .orElseGet(() -> this.createRegisteredCustomPropertySet(customPropertySet));
         this.activePropertySets.add(new ActiveCustomPropertySet(customPropertySet, dataModel, registeredCustomPropertySet));

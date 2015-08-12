@@ -42,6 +42,9 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link CustomPropertySetServiceImpl} component.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2015-08-12 (08:45)
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CustomPropertySetServiceImplTest {
@@ -164,7 +167,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
         when(this.registeredCustomPropertySetMapper
                 .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.getName()),
+                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
                         anyString()))
                 .thenReturn(Optional.of(this.registeredCustomPropertySet));
 
@@ -214,7 +217,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
         when(this.registeredCustomPropertySetMapper
                 .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.getName()),
+                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
                         anyString()))
                 .thenReturn(Optional.of(this.registeredCustomPropertySet));
 
@@ -253,7 +256,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
         when(this.registeredCustomPropertySetMapper
                 .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.getName()),
+                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
                         anyString()))
                 .thenReturn(Optional.of(this.registeredCustomPropertySet));
 
@@ -292,7 +295,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
         when(this.registeredCustomPropertySetMapper
                 .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.getName()),
+                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
                         anyString()))
                 .thenReturn(Optional.of(this.registeredCustomPropertySet));
 
@@ -344,7 +347,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
         when(this.registeredCustomPropertySetMapper
                 .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.getName()),
+                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
                         anyString()))
                 .thenReturn(Optional.of(this.registeredCustomPropertySet));
 
@@ -362,7 +365,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
         when(this.registeredCustomPropertySetMapper
                 .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.getName()),
+                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
                         anyString()))
                 .thenReturn(Optional.of(this.registeredCustomPropertySet));
         service.addCustomPropertySet(this.versionedCustomPropertySet);
@@ -381,7 +384,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
         when(this.registeredCustomPropertySetMapper
                 .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.getName()),
+                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
                         anyString()))
                 .thenReturn(Optional.of(this.registeredCustomPropertySet));
         service.addCustomPropertySet(this.customPropertySet);
@@ -404,7 +407,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
         when(this.registeredCustomPropertySetMapper
                 .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.getName()),
+                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
                         anyString()))
                 .thenReturn(Optional.of(this.registeredCustomPropertySet));
         service.addCustomPropertySet(this.customPropertySet);
@@ -428,7 +431,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
         when(this.registeredCustomPropertySetMapper
                 .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.getName()),
+                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
                         anyString()))
                 .thenReturn(Optional.of(this.registeredCustomPropertySet));
 
@@ -446,7 +449,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
         when(this.registeredCustomPropertySetMapper
                 .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.getName()),
+                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
                         anyString()))
                 .thenReturn(Optional.of(this.registeredCustomPropertySet));
         service.addCustomPropertySet(this.customPropertySet);
@@ -465,7 +468,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
         when(this.registeredCustomPropertySetMapper
                 .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.getName()),
+                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
                         anyString()))
                 .thenReturn(Optional.of(this.registeredCustomPropertySet));
         service.addCustomPropertySet(this.versionedCustomPropertySet);
@@ -488,7 +491,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
         when(this.registeredCustomPropertySetMapper
                 .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.getName()),
+                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
                         anyString()))
                 .thenReturn(Optional.of(this.registeredCustomPropertySet));
         service.addCustomPropertySet(this.versionedCustomPropertySet);

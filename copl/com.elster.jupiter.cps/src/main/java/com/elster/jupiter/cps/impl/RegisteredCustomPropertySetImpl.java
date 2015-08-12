@@ -32,7 +32,7 @@ public class RegisteredCustomPropertySetImpl implements RegisteredCustomProperty
             this.name = name;
         }
 
-        String getName() {
+        String javaName() {
             return name;
         }
 

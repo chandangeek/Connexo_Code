@@ -13,7 +13,7 @@ import com.elster.jupiter.orm.Table;
  */
 public enum TableSpecs {
 
-    CPS_REGISTERED_CUSTOM_PROP_SET {
+    CPS_REGISTERED_CUSTOMPROPSET {
         @Override
         void addTo(DataModel dataModel) {
             Table<RegisteredCustomPropertySet> table = dataModel.addTable(name(), RegisteredCustomPropertySet.class);
@@ -23,7 +23,7 @@ public enum TableSpecs {
                     .column("LOGICALID")
                     .varChar()
                     .notNull()
-                    .map(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.name())
+                    .map(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName())
                     .add();
             table.primaryKey("PK_CPS_CPS").on(id).add();
             table.unique("UK_CPS_CPS").on(logicalId).add();
