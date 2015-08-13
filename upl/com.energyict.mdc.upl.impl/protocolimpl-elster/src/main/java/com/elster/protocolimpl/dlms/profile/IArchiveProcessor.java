@@ -12,11 +12,10 @@ import java.util.List;
  * User: heuckeg
  * Date: 04.09.12
  * Time: 14:43
- * To change this template use File | Settings | File Templates.
  */
 public interface IArchiveProcessor
 {
-    public void prepare(SimpleProfileObject profileObject, ArchiveStructure ArchiveStructure) throws IOException;
+    public void prepare(SimpleProfileObject profileObject, Object archiveStructure) throws IOException;
     public int getNumberOfChannels() throws IOException;
     public int getInterval() throws IOException;
     public List<ChannelInfo> buildChannelInfo() throws IOException;

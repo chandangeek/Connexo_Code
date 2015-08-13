@@ -1,6 +1,5 @@
 package com.elster.protocolimpl.lis200;
 
-import com.elster.protocolimpl.lis200.commands.AbstractCommand;
 import com.elster.protocolimpl.lis200.objects.AbstractObject;
 import com.elster.protocolimpl.lis200.objects.HistoricalValueObject;
 import com.elster.protocolimpl.lis200.objects.IntervalObject;
@@ -33,6 +32,7 @@ import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.instromet.dl220.commands.AbstractCommand;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -85,6 +85,10 @@ public class LIS200 extends AbstractIEC1107Protocol {
     * try if end device is still "on line", and disable sending B0 at end
     */
     private static final String DISABLE_AUTO_LOGOFF = "DisableLogOff";
+    /*
+     * if DisableLogOff, this value is a delay after checking if device is still 'online'
+     */
+    private static final String DELAY_AFTER_CHECK = "DelayAfterCheck";
 
     private Lis200Profile profile;
 
@@ -122,7 +126,7 @@ public class LIS200 extends AbstractIEC1107Protocol {
     /**
      * number of lock to use (0 - manufacturer, 1 - supplier, 2 - customer ...
      */
-    private int usedLock;
+    private LockObject usedLock;
     /**
      * state of lock
      */
@@ -134,6 +138,8 @@ public class LIS200 extends AbstractIEC1107Protocol {
     private int profileRequestBlockSize;
 
     private boolean disableAutoLogoff = false;
+
+    private int delayAfterCheck = 0;
 
     /**
      * interpreter for events
@@ -174,6 +180,7 @@ public class LIS200 extends AbstractIEC1107Protocol {
         keys.add(ARCHIVE_INTERVAL_ADDRESS);
         keys.add(SUPPRESS_WAKEUP_SEQUENCE);
         keys.add(DISABLE_AUTO_LOGOFF);
+        keys.add(DELAY_AFTER_CHECK);
         return keys;
     }
 
@@ -185,7 +192,7 @@ public class LIS200 extends AbstractIEC1107Protocol {
             throws MissingPropertyException, InvalidPropertyException {
 
         try {
-            securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "0").trim());  // Use 0 as default security level
+            securityLevel = Integer.parseInt(properties.getProperty("SecurityLevel", "0").trim());  //Default
         } catch (Exception e) {
             throw new InvalidPropertyException(
                     String.format("Incorrect %s property. If the value is not empty, then only numeric values greater 0 are allowed.", "SecurityLevel"));
@@ -212,23 +219,38 @@ public class LIS200 extends AbstractIEC1107Protocol {
         }
 
         /* check for lock to open... */
-        usedLock = LockObject.CUSTOMERLOCK;
-        String lock = properties.getProperty(USE_LOCK, "");
-        if (lock.length() > 0) {
-            usedLock = -1;
-            for (int i = 0; i < LockObject.MAXLOCKS; i++) {
-                if (lock.equalsIgnoreCase(LockObject.LockNames[i])) {
-                    usedLock = LockObject.LockNo[i];
+        usedLock = LockObject.CustomerLock;
+        final String lockName = properties.getProperty(USE_LOCK, "");
+        if (lockName.length() > 0)
+        {
+            usedLock = null;
+
+            for (LockObject lock : getLockObjects())
+            {
+                if (lockName.equalsIgnoreCase(lock.getName()))
+                {
+                    usedLock = lock;
                     break;
                 }
             }
-            if (usedLock < 0) {
-                String msg = "Incorrect UseLock property. Valid value are: ";
-                for (int i = 0; i < LockObject.MAXLOCKS; i++)
-                    msg += "'" + LockObject.LockNames[i] + "'";
-                msg += "If UseLock is empty, then default 'CustomerLock' will be used.";
+            if (usedLock == null)
+            {
+                StringBuilder msg = new StringBuilder("Incorrect UseLock property. Valid value are: ");
+                boolean first = true;
+                for (LockObject lock : getLockObjects())
+                {
+                    if (!first)
+                    {
+                        msg.append(",");
+                    }
+                    msg.append("'");
+                    msg.append(lock.getName());
+                    msg.append("'");
+                    first = false;
+                }
+                msg.append(". If UseLock is empty, then default 'CustomerLock' will be used.");
 
-                throw new InvalidPropertyException(msg);
+                throw new InvalidPropertyException(msg.toString());
             }
         }
 
@@ -260,7 +282,9 @@ public class LIS200 extends AbstractIEC1107Protocol {
         /* check if archive structure is given by property */
         String struct = properties.getProperty("ArchiveStructure", "");
         if ((struct != null) && (struct.length() > 0))
+        {
             archiveStructure = struct;
+        }
 
         archiveIntervalAddr = properties.getProperty("ArchiveIntervalAddress",
                 "");
@@ -270,6 +294,15 @@ public class LIS200 extends AbstractIEC1107Protocol {
                         "Incorrect ArchiveIntervalAddress property. Value is not a valid LIS200 address.");
             }
         }
+
+        try {
+            delayAfterCheck = Integer.parseInt(properties.getProperty(DELAY_AFTER_CHECK, "0"));
+        }
+        catch (NumberFormatException ignore) {
+
+        }
+
+
     }
 
     /**
@@ -286,14 +319,15 @@ public class LIS200 extends AbstractIEC1107Protocol {
             vma = com.elster.utils.VersionInfo.getVersionMajor();
             vmi = com.elster.utils.VersionInfo.getVersionMinor();
         } catch (NoClassDefFoundError de) {
-            String msg = "Wrong version of ElsterUtils. Needed: V1.2  Found: ?";
+            String msg = "Wrong version of ElsterUtils. Needed: V1.4  Found: ?";
             logger.severe("LIS200.init - " + msg);
             throw new IOException(msg);
         }
 
         final String euVersion = vma + "." + vmi;
-        if ((vma * 100 + (vmi % 100)) < 102) {
-            throw new IOException("Wrong version of ElsterUtils. Needed: V1.2  Found: " + euVersion);
+        if ((vma * 100 + (vmi % 100)) < 104)
+        {
+            throw new IOException("Wrong version of ElsterUtils. Needed: V1.4  Found: " + euVersion);
         }
 
         logger.info("LIS200.init - ElsterUtils V" + euVersion);
@@ -303,7 +337,7 @@ public class LIS200 extends AbstractIEC1107Protocol {
             flagIEC1107Connection = new Lis200Connection(inputStream,
                     outputStream, iec1107TimeoutProperty,
                     protocolRetriesProperty, forcedDelay, echoCancelling,
-                    iec1107Compatible, software7E1, suppressWakeupSequence, disableAutoLogoff);
+                    iec1107Compatible, software7E1, suppressWakeupSequence, disableAutoLogoff, delayAfterCheck);
             flagIEC1107Connection
                     .setErrorSignature(AbstractCommand.ERROR_INDICATION);
         } catch (ConnectionException e) {
@@ -311,8 +345,12 @@ public class LIS200 extends AbstractIEC1107Protocol {
         }
     }
 
-    public String getProtocolVersion() {
-        return "$Date: 2011-09-01 11:00:00 +0200 (do, 1 Sep 2011) $";
+    /**
+     * {@inheritDoc}
+     */
+    public String getProtocolVersion()
+    {
+        return "$Date: 2013-01-08 11:00:00 +0200 (do, 1 Sep 2011) $";
     }
 
     /**
@@ -322,47 +360,18 @@ public class LIS200 extends AbstractIEC1107Protocol {
     protected void doConnect() throws IOException {
         getLogger().info("--- entering doConnect....");
 
-        // if debug, list all locks
-        LockObject lock;
-        STATE state;
-        for (int i = 0; i < LockObject.MAXLOCKS; i++) {
-            lock = getObjectFactory().getLock(i);
-            try {
-                if (lock.isLockOpen()) {
-                    state = LockObject.STATE.open;
-                } else {
-                    state = LockObject.STATE.closed;
-                }
-            } catch (Exception e) {
-                state = LockObject.STATE.undefined;
-            }
-            getLogger().info("-- Lock [" + lock.getName() + "] = " + state);
-        }
-
         // get state of lock
-        lock = getObjectFactory().getLock(usedLock);
-        try {
-            if (lock.isLockOpen()) {
-                lockState = LockObject.STATE.open;
-            } else {
-                lockState = LockObject.STATE.closed;
+        usedLock.setLink(this);
+        lockState = usedLock.getLockState();
+        if (lockState != LockObject.STATE.open)
+        {
+            lockState = usedLock.openLock(this.strPassword);
             }
-        } catch (Exception e) {
-            lockState = LockObject.STATE.undefined;
-        }
+        getLogger().info("-- Lock " + usedLock.getName() + " " + lockState + "!");
 
-        if (lockState != LockObject.STATE.open) {
-            lock.openLock(this.strPassword);
-            try {
-                if (lock.isLockOpen()) {
-                    lockState = LockObject.STATE.opened;
-                    getLogger().info("-- Lock " + lock.getName() + " opened!");
-
-                }
-            } catch (Exception e) {
-                throw new IOException("Wrong password to open lock "
-                        + lock.getName() + "!");
-            }
+        if ((lockState == STATE.closed) || (lockState == STATE.undefined))
+        {
+            throw new IOException("Wrong password to open lock " + usedLock.getName() + "!");
         }
 
         // verify device type
@@ -373,7 +382,7 @@ public class LIS200 extends AbstractIEC1107Protocol {
 
         String sv = getObjectFactory().getSoftwareVersionObject().getValue();
         softwareVersion = (int) Math.round(Double.parseDouble(sv) * 100);
-        getLogger().info("-- SW version of device: " + (softwareVersion / 100));
+        getLogger().info("-- SW version of device: " + (softwareVersion / 100.0));
 
         /* get instance of archive to readout */
         if (archiveIndex > 0) {
@@ -409,8 +418,10 @@ public class LIS200 extends AbstractIEC1107Protocol {
 //        IntervalArchiveRecordConfig recordConfig = new IntervalArchiveRecordConfig(archiveStructure);
 
         if (archiveIntervalAddr.length() == 0)
+        {
             throw new IOException(
                     "ArchiveIntervalAddress is empty. Correct archive to read out or set ArchiveIntervalAddress as property");
+        }
 
     }
 
@@ -436,17 +447,12 @@ public class LIS200 extends AbstractIEC1107Protocol {
     /**
      * {@inheritDoc}
      */
-    public String getFirmwareVersion() throws IOException {
-        StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append("Manufacturer : ");
-        strBuilder
-                .append(getObjectFactory().getManufacturerObject().getValue());
-        strBuilder.append(" - DeviceType : ");
-        strBuilder.append(getObjectFactory().getMeterTypeObject().getValue());
-        strBuilder.append(" - SoftwareVersion : ");
-        strBuilder.append(getObjectFactory().getSoftwareVersionObject()
-                .getValue());
-        return strBuilder.toString();
+    public String getFirmwareVersion()
+            throws IOException
+    {
+        return "Manufacturer : " + getObjectFactory().getManufacturerObject().getValue() +
+               " - DeviceType : " + getObjectFactory().getMeterTypeObject().getValue() +
+               " - SoftwareVersion : " + getObjectFactory().getSoftwareVersionObject().getValue();
     }
 
     public int getNumberOfChannels() throws IOException {
@@ -468,10 +474,10 @@ public class LIS200 extends AbstractIEC1107Protocol {
     public void disconnect() throws NestedIOException {
         try {
             // close opened lock...
-            if (lockState == LockObject.STATE.opened) {
-                getObjectFactory().getLock(usedLock).closeLock();
-                getLogger().info(
-                        "-- Lock " + getObjectFactory().getLock(usedLock).getName() + " closed!");
+            if (lockState == LockObject.STATE.opened)
+            {
+                usedLock.closeLock();
+                getLogger().info("-- Lock " + usedLock.getName() + " closed!");
             }
             // disconnect...
             if (!disableAutoLogoff) {
@@ -609,6 +615,11 @@ public class LIS200 extends AbstractIEC1107Protocol {
         return archiveInstance;
     }
 
+    protected LockObject[] getLockObjects()
+    {
+        return new LockObject[]{LockObject.ManufacturerLock, LockObject.SupplierLock, LockObject.CustomerLock};
+    }
+
     /**
      * Translation of meterIndex to archive instance
      *
@@ -623,30 +634,47 @@ public class LIS200 extends AbstractIEC1107Protocol {
         // DL210 -> 1 --> Archive 2
         if (mType.startsWith("DL210")) {
             if (meterIndex != 1)
+            {
                 throw new InvalidPropertyException(
                         "Incorrect MeterIndex property. For DL210 only 1 is allowed.");
+            }
             return 2;
         }
         // DL220 & DL220W -> 1 & 2 --> Archive 2 and 4
         if (mType.startsWith("DL220")) {
             if ((meterIndex < 1) || meterIndex > 2)
+            {
                 throw new InvalidPropertyException(
                         "Incorrect MeterIndex property. For DL220 only 1 and 2 are allowed.");
+            }
+            return meterIndex * 2;
+        }
+        if (mType.startsWith("DL230"))
+        {
+            if ((meterIndex < 1) || meterIndex > 4)
+            {
+                throw new InvalidPropertyException(
+                        "Incorrect MeterIndex property. For DL230 only 1 to 4 are allowed.");
+            }
             return meterIndex * 2;
         }
         // DL220 & DL220W -> 1 - 4 --> Archive 2, 4, 6, 8
         if (mType.startsWith("DL240")) {
             if ((meterIndex < 1) || meterIndex > 4)
+            {
                 throw new InvalidPropertyException(
                         "Incorrect MeterIndex property. For DL240 only 1 to 4 are allowed.");
+            }
             return meterIndex * 2;
         }
 
         // EK2x0 -> 1 --> Archive 3
         if (mType.startsWith("EK2") || mType.startsWith("TVC")) {
             if (meterIndex != 1)
+            {
                 throw new InvalidPropertyException(
                         "Incorrect MeterIndex property. For EK2x0 only 1 is allowed.");
+            }
             return 3;
         }
 
@@ -767,6 +795,8 @@ public class LIS200 extends AbstractIEC1107Protocol {
         } else if (meterType.equalsIgnoreCase("DL210")) {
             return 10;
         } else if (meterType.toUpperCase().startsWith("DL220")) {
+            return 10;
+        } else if (meterType.equalsIgnoreCase("DL230")) {
             return 10;
         } else if (meterType.equalsIgnoreCase("DL240")) {
             return 10;

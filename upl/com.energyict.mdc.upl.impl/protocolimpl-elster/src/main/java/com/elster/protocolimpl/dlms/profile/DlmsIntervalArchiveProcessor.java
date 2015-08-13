@@ -32,23 +32,24 @@ public class DlmsIntervalArchiveProcessor implements IArchiveProcessor
     private int evtIndex;
     private int[] chnIndex;
 
-    public DlmsIntervalArchiveProcessor(Logger logger)
-    {
+    public DlmsIntervalArchiveProcessor(final Logger logger) {
         this.logger = logger;
     }
 
-    public void prepare(final SimpleProfileObject profile, final ArchiveStructure archiveStructure)
-            throws IOException
-    {
+    public void prepare(final SimpleProfileObject profile, final Object archiveStructure)
+            throws IOException {
+        if (!(archiveStructure instanceof ArchiveStructure)) {
+            throw new IllegalArgumentException("GeneralArchiveProcessor.prepare: wrong argument for archiveStructure. Should be ArchiveStructure. Is " + archiveStructure.getClass().getName());
+        }
+
         this.profile = profile;
-        this.archiveStructure = archiveStructure;
+        this.archiveStructure = (ArchiveStructure) archiveStructure;
 
-        tstIndex = findInCapturedObjects(archiveStructure.getTSTEntry());
+        tstIndex = findInCapturedObjects(this.archiveStructure.getTSTEntry());
 
-        chnIndex = new int[archiveStructure.channelCount()];
-        for (int i = 0; i < archiveStructure.channelCount(); i++)
-        {
-            chnIndex[i] = findInCapturedObjects(archiveStructure.getChannelEntry(i));
+        chnIndex = new int[this.archiveStructure.channelCount()];
+        for (int i = 0; i < this.archiveStructure.channelCount(); i++) {
+            chnIndex[i] = findInCapturedObjects(this.archiveStructure.getChannelEntry(i));
         }
     }
 
@@ -70,6 +71,7 @@ public class DlmsIntervalArchiveProcessor implements IArchiveProcessor
         return (int) profile.getCapturePeriod();
     }
 
+    @SuppressWarnings("deprecation")
     public List<ChannelInfo> buildChannelInfo()
             throws IOException
     {
@@ -106,7 +108,7 @@ public class DlmsIntervalArchiveProcessor implements IArchiveProcessor
             }
 
             channelInfo.add(ci);
-            //System.out.println(String.format("%d: %s [%s] %s %g", ci.getChannelId(), ci.getName(), ci.getUnit().toString(), ci.isCumulative(), ci.getCumulativeWrapValue()));
+            System.out.println(String.format("%d: %s [%s] %s %g", ci.getChannelId(), ci.getName(), ci.getUnit().toString(), ci.isCumulative(), ci.getCumulativeWrapValue()));
         }
 
         return channelInfo;
@@ -139,13 +141,14 @@ public class DlmsIntervalArchiveProcessor implements IArchiveProcessor
 
             /* get time stamp */
             DlmsDateTime tst = (DlmsDateTime) profile.getValue(i, tstIndex);
+            System.out.print(tst.toString());
 
             /* determine status */
             int eiStatus = 0;
-            if ((tst.getClockStatus() & 0xF) > 0)
-            {
+//            if ((tst.getClockStatus() & 0xF) > 0)
+//            {
                 //eiStatus |= IntervalStateBits.BADTIME;
-            }
+//            }
 
             /* build list of values of line */
             intervalValues = new ArrayList<IntervalValue>();
@@ -164,8 +167,13 @@ public class DlmsIntervalArchiveProcessor implements IArchiveProcessor
                 }
             }
 
-            id = new IntervalData(tst.getUtcDate(), eiStatus, 0, 0, intervalValues);
+            Date d = tst.getUtcDate();
+            if (d == null) {
+                d = tst.getLocalDate();
+            }
+            id = new IntervalData(d, eiStatus, 0, 0, intervalValues);
             intervalList.add(id);
+            System.out.println(id);
         }
 
         logger.info("DlmsIntervalArchiveProcessor.getIntervalData: generated interval list with " + intervalList.size() + " of IntervalData.");

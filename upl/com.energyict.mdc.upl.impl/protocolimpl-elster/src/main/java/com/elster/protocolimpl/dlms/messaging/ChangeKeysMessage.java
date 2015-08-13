@@ -1,11 +1,16 @@
 package com.elster.protocolimpl.dlms.messaging;
 
 import com.elster.coding.CodingUtils;
-import com.elster.dlms.cosem.simpleobjectmodel.*;
+import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleSecuritySetupObject;
 import com.elster.protocolimpl.dlms.SecurityData;
 import com.energyict.cbo.BusinessException;
 import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -19,10 +24,10 @@ import java.io.IOException;
 public class ChangeKeysMessage extends AbstractDlmsMessage {
 
     /**
-     * OldDeviceMessage tags for the key change message
+     * RtuMessage tags for the key change message
      */
     public static final String MESSAGE_TAG = "ChangeKeys";
-    public static final String MESSAGE_DESCRIPTION = "Change keys in EK280";
+    public static final String MESSAGE_DESCRIPTION = "Change keys in device";
     public static final String ATTR_CLIENT_ID = "ClientId";
     public static final String ATTR_AUTHENTICATION_KEY = "NewAuthenticationKey";
     public static final String ATTR_ENCRYPTION_KEY = "NewEncryptionKey";

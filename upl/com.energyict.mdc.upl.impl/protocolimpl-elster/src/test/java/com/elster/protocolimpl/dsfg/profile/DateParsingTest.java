@@ -1,6 +1,8 @@
 package com.elster.protocolimpl.dsfg.profile;
 
 import com.elster.protocolimpl.dsfg.objects.ClockObject;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -16,11 +18,24 @@ import static org.junit.Assert.assertEquals;
  */
 public class DateParsingTest {
 
+    private Locale savedLocale;
+
+    @Before
+    public void setup() {
+        savedLocale = Locale.getDefault();
+        Locale.setDefault(Locale.GERMANY);
+    }
+
+    @After
+    public void tearDown() {
+        if (!Locale.getDefault().equals(savedLocale)) {
+            Locale.setDefault(savedLocale);
+        }
+    }
+
     @Test
     public void testSuWiDateParsing1() throws ParseException {
         Date d;
-
-        Locale.setDefault(Locale.GERMANY);
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss");
 
         Date dates[] = {
@@ -51,8 +66,6 @@ public class DateParsingTest {
     @Test
     public void testSuWiDateParsing2() throws ParseException {
         Date d;
-
-        Locale.setDefault(Locale.GERMANY);
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss");
 
         Date base = sdf.parse("26.10.2014 00:00:00");
@@ -84,8 +97,6 @@ public class DateParsingTest {
     @Test
     public void testSuWiDateParsing3() throws ParseException {
         Date d;
-
-        Locale.setDefault(Locale.GERMANY);
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss");
 
         Date dates[] = {
@@ -117,8 +128,6 @@ public class DateParsingTest {
     @Test
     public void testSuWi15minDateParsing() throws ParseException {
         Date d;
-
-        Locale.setDefault(Locale.GERMANY);
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss");
 
         Date dates[] = {
@@ -167,8 +176,6 @@ public class DateParsingTest {
     @Test
     public void testWiSuDateParsing() throws ParseException {
         Date d;
-
-        Locale.setDefault(Locale.GERMANY);
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss");
 
         Date dates[] = {

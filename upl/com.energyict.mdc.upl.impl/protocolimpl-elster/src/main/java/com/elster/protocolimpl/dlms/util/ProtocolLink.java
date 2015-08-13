@@ -8,13 +8,12 @@ package com.elster.protocolimpl.dlms.util;
 
 import com.elster.protocolimpl.dlms.HasSimpleObjectManager;
 import com.elster.protocolimpl.dlms.connection.DlmsConnection;
-import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
-
+@SuppressWarnings("unused")
 public interface ProtocolLink extends HasSimpleObjectManager {
 
 	DlmsConnection getDlmsConnection();
@@ -23,13 +22,13 @@ public interface ProtocolLink extends HasSimpleObjectManager {
 
 	boolean isIEC1107Compatible();
 
-	int getNumberOfChannels() throws UnsupportedException, IOException;
+	int getNumberOfChannels() throws IOException;
 
 	String getPassword();
 
 	byte[] getDataReadout();
 
-	int getProfileInterval() throws UnsupportedException, IOException;
+	int getProfileInterval() throws IOException;
 
 	Logger getLogger();
 

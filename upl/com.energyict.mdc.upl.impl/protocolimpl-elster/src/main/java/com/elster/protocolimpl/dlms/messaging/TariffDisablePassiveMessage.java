@@ -1,10 +1,14 @@
 package com.elster.protocolimpl.dlms.messaging;
 
-import com.elster.dlms.cosem.simpleobjectmodel.*;
+import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleActivityCalendarObject;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
 import com.elster.dlms.types.basic.DlmsDateTime;
 import com.energyict.cbo.BusinessException;
 import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValueSpec;
 
 import java.io.IOException;
 
@@ -15,7 +19,7 @@ import java.io.IOException;
  */
 public class TariffDisablePassiveMessage extends AbstractDlmsMessage {
 
-    private static String MESSAGE_TAG = "ClearPassiveTariff";
+    private static final String MESSAGE_TAG = "ClearPassiveTariff";
     private static final String MESSAGE_DESCRIPTION = "Clear and disable the passive tariff";
 
     public TariffDisablePassiveMessage(DlmsMessageExecutor messageExecutor) {

@@ -2,6 +2,8 @@ package com.elster.protocolimpl.dsfg.profile;
 
 import com.elster.protocolimpl.dsfg.telegram.DataElement;
 import com.energyict.protocol.IntervalData;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -14,13 +16,26 @@ import java.util.TimeZone;
 import static org.junit.Assert.assertEquals;
 
 public class IntervalDataMapTest {
-	
+
+    private Locale savedLocale;
+
+    @Before
+    public void setup() {
+        savedLocale = Locale.getDefault();
+        Locale.setDefault(Locale.GERMANY);
+    }
+
+    @After
+    public void tearDown() {
+        if (!Locale.getDefault().equals(savedLocale)) {
+            Locale.setDefault(savedLocale);
+        }
+    }
+
 	@Test
 	public void testBuildMap1() throws ParseException
     {
 		IntervalDataMap idm = new IntervalDataMap();
-
-        Locale.setDefault(Locale.GERMANY);
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss");
 
         Date d = sdf.parse("26.10.2014 00:00:00");
@@ -37,8 +52,6 @@ public class IntervalDataMapTest {
 	public void testBuildMap2() throws ParseException
     {
 		IntervalDataMap idm = new IntervalDataMap();
-
-        Locale.setDefault(Locale.GERMANY);
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss");
 
         Date d = sdf.parse("26.10.2014 00:00:00");
@@ -57,10 +70,7 @@ public class IntervalDataMapTest {
 	public void testBuildMap3() throws ParseException
     {
         Date d;
-
 		IntervalDataMap idm = new IntervalDataMap();
-
-        Locale.setDefault(Locale.GERMANY);
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss");
 
         d = sdf.parse("26.10.2014 01:00:00");
@@ -81,12 +91,8 @@ public class IntervalDataMapTest {
 	@Test
 	public void testBuildMap4() throws ParseException
     {
-
         Date d;
-
         IntervalDataMap idm = new IntervalDataMap();
-
-        Locale.setDefault(Locale.GERMANY);
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss");
 
         d = sdf.parse("26.10.2014 00:00:00");
@@ -115,12 +121,8 @@ public class IntervalDataMapTest {
     @Test
     public void testBuildMap5() throws ParseException
     {
-
         Date d;
-
         IntervalDataMap idm = new IntervalDataMap();
-
-        Locale.setDefault(Locale.GERMANY);
         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss");
 
         d = sdf.parse("26.10.2014 00:00:00");

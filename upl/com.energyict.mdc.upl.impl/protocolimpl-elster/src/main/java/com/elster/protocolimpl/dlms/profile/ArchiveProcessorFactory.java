@@ -3,6 +3,7 @@ package com.elster.protocolimpl.dlms.profile;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleProfileObject;
 
 import java.io.IOException;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -14,11 +15,18 @@ import java.util.logging.Logger;
  */
 public class ArchiveProcessorFactory
 {
-    public static IArchiveProcessor createArchiveProcessor(final String meterType, final String archiveStructureString, final SimpleProfileObject profileObject, final Logger logger)
+    public static IArchiveProcessor createArchiveProcessor(final String meterType, final String archiveStructureString, final SimpleProfileObject profileObject, TimeZone timeZone, final Logger logger)
             throws IOException
     {
         IArchiveProcessor result = null;
         ArchiveStructure archiveStructure = null;
+
+        if (meterType.equalsIgnoreCase("A1V1"))
+        {
+            result = new GeneralArchiveProcessor(timeZone, logger);
+            result.prepare(profileObject, archiveStructureString);
+            return result;
+        }
 
         if (meterType.equalsIgnoreCase("EK280"))
         {
@@ -34,10 +42,6 @@ public class ArchiveProcessorFactory
                 }
             }
         }
-        if ((result == null) && (archiveStructureString.length() > 0))
-        {
-            result = new DlmsIntervalArchiveProcessor(logger);
-        }
         if (result != null)
         {
             result.prepare(profileObject, archiveStructure);
@@ -45,7 +49,8 @@ public class ArchiveProcessorFactory
         return result;
     }
 
-    public static ILogProcessor createLogProcessor(final String meterType, final String logStructureString, final SimpleProfileObject profileObject, final Logger logger)
+    @SuppressWarnings({"unused"})
+    public static ILogProcessor createLogProcessor(final String meterType, final String logStructureString, final SimpleProfileObject profileObject, final TimeZone timeZone, final Logger logger)
             throws IOException
     {
         if ((logStructureString == null) || (logStructureString.length() == 0))
@@ -54,6 +59,14 @@ public class ArchiveProcessorFactory
         }
 
         ILogProcessor result = null;
+
+        if (meterType.equalsIgnoreCase("A1V1"))
+        {
+            result = new GeneralDlmsLogProcessor(timeZone, logger);
+            result.prepare(profileObject, logStructureString);
+            return result;
+        }
+
         ArchiveStructure archiveStructure = new ArchiveStructure(logStructureString);
 
         if (!archiveStructure.hasTSTEntry() || !archiveStructure.hasEventEntry())
@@ -61,10 +74,11 @@ public class ArchiveProcessorFactory
             throw new IOException("Definition for log profile structure contains no TST and/or Event entry.");
         }
 
-        if (archiveStructure.getEventEntry().getTag().equalsIgnoreCase("LIS200"))
+        final String tag = archiveStructure.getEventEntry().getTag().toUpperCase();
+        if (tag.equals("LIS200"))
         {
             result = new Lis200LogProcessor(logger);
-        } else if (archiveStructure.getEventEntry().getTag().equalsIgnoreCase("DLMS"))
+        } else if (tag.equals("DLMS"))
         {
             result = new DlmsLogProcessor(logger);
         }

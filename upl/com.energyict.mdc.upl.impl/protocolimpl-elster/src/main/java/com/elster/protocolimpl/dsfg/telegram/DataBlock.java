@@ -7,7 +7,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * @version  1.0 (5/10/2010)
@@ -113,7 +117,7 @@ public class DataBlock {
 			try {
 				Date tda = sdf.parse(d);
 				TST.setTime(tda.getTime());
-			} catch (ParseException e) {
+			} catch (ParseException ignored) {
 
 			}
 		}
@@ -122,7 +126,7 @@ public class DataBlock {
 			try {
 				Date tti = stf.parse(d);
 				TST.setTime(tti.getTime() + TST.getTime());
-			} catch (ParseException e) {
+			} catch (ParseException ignored) {
 
 			}
 		}
@@ -240,7 +244,10 @@ public class DataBlock {
 		}
 		this.data.clear();
 
-		this.data.addAll(Arrays.asList(data));
+        if (data != null)
+        {
+            this.data.addAll(Arrays.asList(data));
+        }
 	}
 
 	/**
@@ -319,10 +326,7 @@ public class DataBlock {
 	 * 
 	 * @param key
 	 *            - of the value
-	 * 
-	 * @param pos
-	 *            - position of value
-	 * 
+	 *
 	 * @return value
 	 */
 	public DataElement getElementOf(String key) {
@@ -341,10 +345,7 @@ public class DataBlock {
 	 * 
 	 * @param index
 	 *            - of data element in the answer
-	 * 
-	 * @param pos
-	 *            - of value
-	 * 
+	 *
 	 * @return value
 	 */
 	public DataElement getElementAt(int index) {

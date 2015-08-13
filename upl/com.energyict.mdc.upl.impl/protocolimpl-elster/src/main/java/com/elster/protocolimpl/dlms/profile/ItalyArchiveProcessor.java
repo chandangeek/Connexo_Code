@@ -40,7 +40,7 @@ public class ItalyArchiveProcessor implements IArchiveProcessor
     Stat1       0.2.96.10.1.255, attributeIndex=2, dataIndex=0}
     GNO         7.128.96.5.67.255, attributeIndex=2, dataIndex=0}
     */
-    private ObisCode[] capturedObjects = {
+    private final ObisCode[] capturedObjects = {
             Ek280Defs.VOLUME_AT_BASE_CONDITIONS,           // Vcu
             Ek280Defs.VOLUME_AT_MEASUREMENT_CONDITIONS,    // Vmu
             Ek280Defs.VB_WITHIN_LAST_MEASURING_PERIOD,     // Delta Vcu
@@ -49,7 +49,7 @@ public class ItalyArchiveProcessor implements IArchiveProcessor
             Ek280Defs.MEAN_VALUE_T_OF_LAST_MEAS_PERIOD     // T
     };
 
-    private int[] capturedOverflow = {
+    private final int[] capturedOverflow = {
             8
             , 8
             , 0
@@ -61,18 +61,17 @@ public class ItalyArchiveProcessor implements IArchiveProcessor
     private final Logger logger;
     private SimpleProfileObject profile;
 
-    public ItalyArchiveProcessor(Logger logger)
+    public ItalyArchiveProcessor(final Logger logger)
     {
         this.logger = logger;
     }
 
-    public void prepare(SimpleProfileObject profileObject, ArchiveStructure archiveStructure)
+    public void prepare(final SimpleProfileObject profileObject, final Object archiveStructure)
     {
         this.profile = profileObject;
     }
 
     public int getNumberOfChannels()
-            throws IOException
     {
         return capturedObjects.length;
     }
@@ -83,6 +82,7 @@ public class ItalyArchiveProcessor implements IArchiveProcessor
         return (int) profile.getCapturePeriod();
     }
 
+    @SuppressWarnings("deprecation")
     public List<ChannelInfo> buildChannelInfo()
             throws IOException
     {
@@ -158,9 +158,10 @@ public class ItalyArchiveProcessor implements IArchiveProcessor
 
             /* determine status */
             int eiStatus = 0;
-            if ((tst.getClockStatus() & 0xF) > 0) {
+            //if ((tst.getClockStatus() & 0xF) > 0)
+            //{
                 //eiStatus |= IntervalStateBits.BADTIME;
-            }
+            //}
             if (stateIndex >= 0) {
                 BitString state = getAsBitString(profile.getValue(i, stateIndex));
                 if (state != null) {

@@ -1,6 +1,9 @@
 package com.elster.protocolimpl.lis200;
 
-import com.elster.protocolimpl.lis200.objects.*;
+import com.elster.protocolimpl.lis200.objects.AbstractObject;
+import com.elster.protocolimpl.lis200.objects.ClockObject;
+import com.elster.protocolimpl.lis200.objects.SimpleObject;
+import com.elster.protocolimpl.lis200.objects.SoftwareVersionObject;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 /**
@@ -24,8 +27,6 @@ public class Lis200ObjectFactory {
 	private AbstractObject meterTypeObject;
 	/** The used SoftwareVersionObject} */
 	private SoftwareVersionObject softwareVersionObject;
-	/** The used SuppliersCombinationObject} */
-	private LockObject[] locks;
 
 	/**
 	 * Default constructor
@@ -34,12 +35,6 @@ public class Lis200ObjectFactory {
 	 */
 	public Lis200ObjectFactory(ProtocolLink link) {
 		this.link = link;
-
-		/* create all lock objects */
-		locks = new LockObject[LockObject.MAXLOCKS];
-		
-		for (int i = 0; i < LockObject.MAXLOCKS; i++)
-			locks[i] = new LockObject(link, LockObject.LockInstance[i]);
 	}
 
 	/**
@@ -98,43 +93,4 @@ public class Lis200ObjectFactory {
 	public ClockObject getClockObject() {
 		return new ClockObject(link);
 	}
-
-	/**
-	 * Getter for a LockObject (identified by lockNo
-	 * 
-	 * @param lockNo - identifies lock object
-	 *
-	 * @return a lock object for the manufacturer lock
-	 */
-	public LockObject getLock(int lockNo) {
-		return locks[lockNo];
-	}
-	
-	/**
-	 * Getter for the manufacturerLockObject
-	 *
-	 * @return a lock object for the manufacturer lock
-	 */
-	public LockObject getManufacturerLock() {
-		return locks[LockObject.MANUFACTURERLOCK];
-	}
-
-	/**
-	 * Getter for the supplierLockObject
-	 *
-	 * @return a lock object for the supplier lock
-	 */
-	public LockObject getSupplierLock() {
-		return locks[LockObject.SUPPLIERLOCK];
-	}
-
-	/**
-	 * Getter for the customerLockObject
-	 *
-	 * @return a lock object for the customer lock
-	 */
-	public LockObject getCustomerLock() {
-		return locks[LockObject.CUSTOMERLOCK];
-	}
-
 }

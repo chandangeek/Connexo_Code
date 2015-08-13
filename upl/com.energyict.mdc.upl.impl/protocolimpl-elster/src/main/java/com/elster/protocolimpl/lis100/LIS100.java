@@ -73,6 +73,8 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
     private DeviceData deviceData = null;
     /* class to get values as registers */
     private SimpleObisCodeMapper obisCodeMapper = null;
+    /* Serial number to verify */
+    protected String serialNumber;
 
     /**
      * channel data of all channels
@@ -105,7 +107,6 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
     }
 
     /**
-     * /**
      * the implementation returns both the address and password key
      *
      * @return a list of strings
@@ -164,10 +165,19 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
         getLogger().info("-- Type of device: " + deviceData.getMeterType());
         getLogger().info("---- has channels: " + deviceData.getNumberOfChannels());
 
+        if ((serialNumber != null) && (serialNumber.length() > 0))
+        {
+            verifySerialNumber();
+        }
     }
 
     public void disconnect() throws IOException {
         connection.disconnect();
+    }
+
+    public void verifySerialNumber() throws IOException
+    {
+
     }
 
     public String getFirmwareVersion() throws IOException {
@@ -267,6 +277,8 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
                     throw new MissingPropertyException(key + " key missing");
                 }
             }
+
+            serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER);
 
             strPassword = properties.getProperty(MeterProtocol.PASSWORD);
             protocolRetriesProperty = Integer.parseInt(properties.getProperty(

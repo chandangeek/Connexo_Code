@@ -6,7 +6,9 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimplv2.MdcManager;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Connection class that allows a wake up before the IEC1107 Sign on
@@ -27,7 +29,7 @@ public class Lis200Connection extends FlagIEC1107Connection {
     private InputStream inputStream;
 
     private boolean suppressWakeupSequence;
-
+    private int delayAfterCheck;
     /**
      * Default constructor for the DL220 protocol
      *
@@ -48,13 +50,15 @@ public class Lis200Connection extends FlagIEC1107Connection {
      */
     public Lis200Connection(InputStream inputStream, OutputStream outputStream,
                             int timeout, int maxRetries, int forceDelay, int echoCancelling,
-                            int compatible, boolean software7e1, boolean suppressWakeupSequence, boolean disableAutoLogoff)
+                            int compatible, boolean software7e1, boolean suppressWakeupSequence,
+                            boolean disableAutoLogoff, int delayAfterCheck)
             throws ConnectionException {
         super(inputStream, outputStream, timeout, maxRetries, forceDelay,
                 echoCancelling, compatible, software7e1);
         this.inputStream = inputStream;
         this.suppressWakeupSequence = suppressWakeupSequence;
         this.disableAutoLogoff = disableAutoLogoff;
+        this.delayAfterCheck = delayAfterCheck;
     }
 
     /**
@@ -62,14 +66,14 @@ public class Lis200Connection extends FlagIEC1107Connection {
      */
     @Override
     public MeterType connectMAC(String strIdentConfig, String strPass,
-                                int iSecurityLevel, String meterID, int baudrate)
+                                int iSecurityLevel, String meterID, int baudRate)
             throws IOException {
 
         this.strIdentConfig = strIdentConfig;
         this.strPass = strPass;
         this.iSecurityLevel = iSecurityLevel;
         this.meterID = meterID;
-        this.baudrate = baudrate;
+        this.baudrate = baudRate;
 
         if (!boolFlagIEC1107Connected) {
             MeterType meterType = null;
@@ -81,6 +85,14 @@ public class Lis200Connection extends FlagIEC1107Connection {
 
                     if (disableAutoLogoff) {
                         meterType = tryReceiveDeviceType();
+                        if (delayAfterCheck > 0) {
+                            try {
+                                Thread.sleep(delayAfterCheck);
+                            } catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                            }
+                        }
                     }
 
                     stillConnected = meterType != null;
@@ -93,8 +105,7 @@ public class Lis200Connection extends FlagIEC1107Connection {
                         meterType = signOn(strIdentConfig, meterID);
                     }
                 } else {
-                    meterType = hhuSignOn.signOn(strIdentConfig, meterID, true,
-                            baudrate);
+                    meterType = hhuSignOn.signOn(strIdentConfig, meterID, true, baudRate);
                 }
                 boolFlagIEC1107Connected = true;
 

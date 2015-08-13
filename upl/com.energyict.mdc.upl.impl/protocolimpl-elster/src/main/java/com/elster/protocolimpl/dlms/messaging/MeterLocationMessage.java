@@ -6,7 +6,10 @@ import com.elster.dlms.types.basic.CosemAttributeDescriptor;
 import com.elster.dlms.types.data.DlmsDataVisibleString;
 import com.energyict.cbo.BusinessException;
 import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -21,7 +24,7 @@ public class MeterLocationMessage extends AbstractDlmsMessage {
     public static final int METERLOCATION_MAX_LENGTH = 30;
 
     /**
-     * OldDeviceMessage tags for the GPRS modem setup message
+     * RtuMessage tags for the GPRS modem setup message
      */
     public final static String MESSAGE_DESC = "Change meter location";
 

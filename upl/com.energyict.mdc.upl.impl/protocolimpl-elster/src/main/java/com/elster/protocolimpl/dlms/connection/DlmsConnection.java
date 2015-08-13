@@ -6,10 +6,12 @@ import com.elster.dlms.cosem.profiles.hdlc.EictDlmsHdlcStack;
 import com.elster.protocolimpl.dlms.SecurityData;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.SocketTimeoutException;
 
 /**
  * Implementation of dsfg protocol. <br>
@@ -37,7 +39,8 @@ public class DlmsConnection extends Connection {
     private int timeout = -1;
 
     private EictDlmsHdlcStack stack = null;
-    private boolean useModeE;
+    private boolean useModeE = false;
+    private int clientMaxReceivePduSize = 0;
     /*
       * possible additional parameters: this.iMaxRetries = iMaxRetries;
       * this.lForceDelay = lForceDelay; this.iEchoCancelling = iEchoCancelling;
@@ -63,24 +66,27 @@ public class DlmsConnection extends Connection {
     /**
      * starting communication
      *
-     * @param serverAddress - address of device
-     * @param logicalDevice - address of logical device
-     * @param clientID      - party connecting to device
-     * @param securityData  - as the name said...
-     * @param useModeE      - if used with optical head
-     * @param timeout       -  timeout
-     *
+     * @param serverAddress           - address of device
+     * @param logicalDevice           - address of logical device
+     * @param clientID                - party connecting to device
+     * @param securityData            - as the name said...
+     * @param useModeE                - if used with optical head
+     * @param timeout                 -  timeout
+     * @param clientMaxReceivePduSize - dlms block size
      * @return always null
-     * @throws java.io.IOException - in case of an error
      */
-    public String connect(int serverAddress, int logicalDevice, int clientID, SecurityData securityData, boolean useModeE, int timeout) throws IOException {
-
+    public String connect(int serverAddress, int logicalDevice, int clientID, SecurityData securityData, boolean useModeE, int timeout, int clientMaxReceivePduSize) {
         this.serverAddress = serverAddress;
         this.logicalDevice = logicalDevice;
         this.clientID = clientID;
         this.secData = securityData;
         this.useModeE = useModeE;
         this.timeout = timeout;
+        this.clientMaxReceivePduSize = clientMaxReceivePduSize;
+
+        // "replace" input stream with version what operates like rxtx serio stream
+        in = new MyInputStream(in);
+
         return null;
     }
 
@@ -97,8 +103,7 @@ public class DlmsConnection extends Connection {
 
         stack = new EictDlmsHdlcStack(in, out);
 
-        if (timeout > 0)
-        {
+        if (timeout > 0) {
             stack.setResponseTimeOut(timeout);
         }
 
@@ -108,6 +113,10 @@ public class DlmsConnection extends Connection {
         stack.setServerLowerHdlcAddress(serverAddress);
         stack.setClientId(clientID);
         stack.setModeE(useModeE);
+
+        if (clientMaxReceivePduSize > 0) {
+            stack.setClientMaxReceivePduSize(clientMaxReceivePduSize);
+        }
 
         switch (secData.getAuthenticationLevel()) {
             case 0:
@@ -149,6 +158,72 @@ public class DlmsConnection extends Connection {
             stack.close();
         } finally {
             stack.cleanup();
+        }
+    }
+
+    private static class MyInputStream extends InputStream {
+
+        private final InputStream in;
+        private final int timeout;
+
+        public MyInputStream(InputStream in) {
+            this.in = in;
+            this.timeout = 100;
+        }
+
+        @Override
+        public int read() throws IOException {
+            long time = System.currentTimeMillis() + timeout;
+
+            do {
+                if (in.available() > 0) {
+                    return in.read();
+                }
+
+                if (System.currentTimeMillis() > time) {
+                    throw new SocketTimeoutException("timeout");
+                }
+                try {
+                    Thread.sleep(20);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                }
+            }
+            while (true);
+        }
+
+        @Override
+        public int available() throws IOException {
+            return in.available();
+        }
+
+        @Override
+        public int read(byte[] b) throws IOException {
+            try {
+                return super.read(b);
+            } catch (final SocketTimeoutException sto) {
+                return 0;
+            }
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            try {
+                return super.read(b, off, len);
+            } catch (final SocketTimeoutException sto) {
+                return 0;
+            }
+
+        }
+
+        @Override
+        public long skip(long n) throws IOException {
+            try {
+                return super.skip(n);
+            } catch (final SocketTimeoutException sto) {
+                return 0;
+            }
         }
     }
 }

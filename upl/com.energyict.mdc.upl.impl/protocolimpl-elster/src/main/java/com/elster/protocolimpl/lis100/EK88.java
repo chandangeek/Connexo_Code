@@ -1,8 +1,11 @@
 package com.elster.protocolimpl.lis100;
 
+import com.elster.protocolimpl.lis100.objects.api.IBaseObject;
 import com.elster.protocolimpl.lis100.registers.Lis100Register;
 import com.elster.protocolimpl.lis100.registers.RegisterMap;
 import com.energyict.obis.ObisCode;
+
+import java.io.IOException;
 
 /**
  * driver class for LIS100 device EK88
@@ -50,4 +53,43 @@ public class EK88 extends LIS100 {
     protected RegisterMap getRegisterMap() {
         return new RegisterMap(registers);
     }
+
+    public void verifySerialNumber() throws IOException
+    {
+        IBaseObject sno = getDeviceData().objectFactory.getSerialNumberObject();
+        String sn = sno.getValue();
+        getLogger().info("-- Device channel no: " + sn);
+
+        long baseSN = Long.parseLong(serialNumber);
+        long channelSN = Long.parseLong(sn);
+
+        if (!isSameDeviceNo(baseSN, channelSN))
+        {
+            throw new IOException("Device serial (" + channelSN + ") doesn't match base serial (" + baseSN + ")");
+        }
+    }
+
+    private boolean isSameDeviceNo(long baseSN, long channelSN)
+    {
+        String s1 = Long.toString(baseSN);
+        String s2 = Long.toString(channelSN);
+
+        if (s1.length() != s2.length())
+            return false;
+
+        // compare from right to left...
+        int len = s1.length() - 1;
+        for (int i = 0; i < s1.length(); i++)
+        {
+            if (i == 4) continue;
+
+            if (s1.charAt(len - i) != s2.charAt(len - i))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
 }

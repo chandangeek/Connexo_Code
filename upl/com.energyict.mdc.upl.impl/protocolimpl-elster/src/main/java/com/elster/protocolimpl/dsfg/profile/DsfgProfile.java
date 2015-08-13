@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.elster.protocolimpl.dsfg.profile;
 
 import com.elster.protocolimpl.dsfg.ChannelDefinition;

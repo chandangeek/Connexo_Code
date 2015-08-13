@@ -58,7 +58,7 @@ public enum Lis200ObisCode {
     MAX_INT_VAL_MEAS_COND_HIST("(7\\.0\\.13\\.54\\.0\\.)(([1-9])|([1][0-5]))", "Maximum measurement period Vm (historic)"),
     MAX_DAY_VAL_MEAS_COND_HIST("(7\\.0\\.13\\.60\\.0\\.)(([1-9])|([1][0-5]))", "Maximum daily Vm (historic)"),
     MAX_INT_VAL_BASE_COND_HIST("(7\\.0\\.13\\.56\\.0\\.)(([1-9])|([1][0-5]))", "Maximum measurement period Vb (historic)"),
-    MAX_DAY_VAL_BASE_COND_HIST("(7\\.0\\.13\\.62\\.0\\.)(([1-9])|([1][0-5]))", "Maximum daily Vb (historic)"),
+    MAX_DAY_VAL_BASE_COND_HIST("(7\\.0\\.11\\.62\\.0\\.)(([1-9])|([1][0-5]))", "Maximum daily Vb (historic)"),
 
     MAX_INT_FR_BASE_COND_HIST("(7\\.0\\.43\\.57\\.255\\.)(([1-9])|([1][0-5]))", "Maximum interval flow rate at base conditions (historic)"),
     MIN_INT_FR_BASE_COND_HIST("(7\\.128\\.43\\.22\\.255\\.)(([1-9])|([1][0-5]))", "Minumum interval flow rate as base conditions (historic)"),
@@ -74,7 +74,34 @@ public enum Lis200ObisCode {
     MIN_INT_TEMPERATURE_HIST("(7\\.0\\.41\\.54\\.0\\.)(([1-9])|([1][0-5]))", "Minimum temperature (historic)"),
 
     MEAN_CONVERSION_FACTOR_HIST("(7\\.0\\.52\\.42\\.0\\.)(([1-9])|([1][0-5]))", "mean conversion factor (historic)"),
-    MEAN_COMPRESS_FACTOR_HIST("(7\\.0\\.53\\.42\\.0\\.)(([1-9])|([1][0-5]))", "mean compressibility factor (historic)");
+    MEAN_COMPRESS_FACTOR_HIST("(7\\.0\\.53\\.42\\.0\\.)(([1-9])|([1][0-5]))", "mean compressibility factor (historic)"),
+
+    //EK280
+    MOMENTARY_STATUS_TOTAL_2("7.129.96.5.1.255", "Momentary status, total"),
+    SERIAL_NUMBER_PRESSURE_SENS_2("7.0.0.15.1.255", "Serial number of pressure sensor"),
+    SERIAL_NUMBER_TEMP_SENS_2("7.0.0.15.2.255", "Serial number of temperature sensor"),
+    GSM_RECEPTION_LEVEL_int("0.2.96.12.5.255", "GSM reception level"),
+    GSM_RECEPTION_LEVEL_ext("0.3.96.12.5.255", "GSM reception level"),
+    VOLUME_MEAS_COND_ORG_CURR_2("7.0.3.0.0.255", "Original volume"),
+
+    MAX_INT_FR_BASE_COND_HIST_2("(7\\.0\\.43\\.206\\.20\\.)(([1-9])|([1][0-5]))", "Maximum interval flow rate at base conditions (historic)"),
+    MIN_INT_FR_BASE_COND_HIST_2("(7\\.0\\.43\\.216\\.20\\.)(([1-9])|([1][0-5]))", "Minumum interval flow rate as base conditions (historic)"),
+    MAX_INT_FR_MEAS_COND_HIST_2("(7\\.0\\.43\\.206\\.0\\.)(([1-9])|([1][0-5]))", "Maximum interval flow rate as meas. conditions (historic)"),
+    MIN_INT_FR_MEAS_COND_HIST_2("(7\\.0\\.43\\.216\\.0\\.)(([1-9])|([1][0-5]))", "Minimum interval flow rate as meas. conditions (historic)"),
+
+    MEAN_PREASURE_HIST_2("(7\\.0\\.42\\.78\\.0\\.)(([1-9])|([1][0-5]))", "mean pressure (historic)"),
+    MAX_INT_PREASURE_HIST_2("(7\\.0\\.42\\.84\\.0\\.)(([1-9])|([1][0-5]))", "Maximum pressure (historic)"),
+    MIN_INT_PREASURE_HIST_2("(7\\.0\\.42\\.81\\.0\\.)(([1-9])|([1][0-5]))", "Minimum pressure (historic)"),
+
+    MEAN_TEMPERATURE_HIST_2("(7\\.0\\.41\\.78\\.0\\.)(([1-9])|([1][0-5]))", "mean temperature (historic)"),
+    MAX_INT_TEMPERATURE_HIST_2("(7\\.0\\.41\\.84\\.0\\.)(([1-9])|([1][0-5]))", "Maximum temperature (historic)"),
+    MIN_INT_TEMPERATURE_HIST_2("(7\\.0\\.41\\.81\\.0\\.)(([1-9])|([1][0-5]))", "Minimum temperature (historic)"),
+
+    MEAN_CONVERSION_FACTOR_HIST_2("(7\\.0\\.52\\.0\\.20\\.)(([1-9])|([1][0-5]))", "mean conversion factor (historic)"),
+    MEAN_COMPRESS_FACTOR_HIST_2("(7\\.0\\.55\\.0\\.20\\.)(([1-9])|([1][0-5]))", "mean compressibility factor (historic)"),
+
+    FLOW_RATE_MEAS_COND_CURR_2("7.0.43.0.0.255", "flow rate at measurement conditions"),
+    FLOW_RATE_BASE_COND_CURR_2("7.0.43.2.0.255", "flow rate at base conditions");
 
     private final String obisCode;
     private final String desc;

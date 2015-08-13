@@ -17,7 +17,7 @@ public class DlmsUtils {
      * @return the Unit
      */
     public static Unit getUnitFromString(String strUnit) {
-        int scaler = 0;
+        int scaler;
         if ((strUnit.equalsIgnoreCase("m3")) ||
                 strUnit.equalsIgnoreCase("m\u00B3")) {
             return Unit.get(BaseUnit.CUBICMETER);
@@ -57,6 +57,26 @@ public class DlmsUtils {
         } else {
             return Unit.getUndefined();
         }
+    }
+
+    public static Unit getUnitFromDlmsUnit(com.elster.dlms.cosem.classes.class03.Unit unit)
+    {
+        int unitId = unit.getId();
+        if (unitId > 52)
+        {
+            switch (unitId)
+            {
+                case 255:
+                case 254:
+                    break;
+                case 57:
+                    unitId = 520;
+                    break;
+                default:
+                    unitId = 255;
+            }
+        }
+        return Unit.get(unitId);
     }
 
 }

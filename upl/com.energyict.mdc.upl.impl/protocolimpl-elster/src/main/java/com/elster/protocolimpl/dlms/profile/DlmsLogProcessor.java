@@ -28,11 +28,15 @@ public class DlmsLogProcessor
         this.logger = logger;
     }
 
-    public void prepare(SimpleProfileObject profileObject, ArchiveStructure archiveStructure)
+    public void prepare(SimpleProfileObject profileObject, Object archiveStructure)
             throws IOException
     {
+        if (!(archiveStructure instanceof ArchiveStructure))
+        {
+            throw new IllegalArgumentException("DlmsLogProcessor.prepare: wrong argument for archiveStructure. Should be ArchiveStructure. Is " + archiveStructure.getClass().getName());
+        }
         this.profile = profileObject;
-        this.archiveStructure = archiveStructure;
+        this.archiveStructure = (ArchiveStructure)archiveStructure;
     }
 
     public List<MeterEvent> getMeterEvents(Date from, Date to)

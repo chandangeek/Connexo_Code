@@ -2,6 +2,8 @@ package com.elster.protocolimpl.dlms.profile;
 
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleProfileObject;
 import com.elster.dlms.types.basic.DlmsDateTime;
+import com.elster.utils.lis200.events.Ek280EventInterpreter;
+import com.elster.utils.lis200.events.EventInterpreter;
 import com.energyict.protocol.MeterEvent;
 
 import java.io.IOException;
@@ -28,11 +30,15 @@ public class Lis200LogProcessor
         this.logger = logger;
     }
 
-    public void prepare(SimpleProfileObject profileObject, ArchiveStructure archiveStructure)
+    public void prepare(SimpleProfileObject profileObject, Object archiveStructure)
             throws IOException
     {
+        if (!(archiveStructure instanceof ArchiveStructure))
+        {
+            throw new IllegalArgumentException("A1LogProcessor.prepare: wrong argument for archiveStructure. Should be ArchiveStructure. Is " + archiveStructure.getClass().getName());
+        }
         this.profile = profileObject;
-        this.archiveStructure = archiveStructure;
+        this.archiveStructure = (ArchiveStructure)archiveStructure;
     }
 
     public List<MeterEvent> getMeterEvents(Date from, Date to)
@@ -55,6 +61,7 @@ public class Lis200LogProcessor
 
         logger.info("Lis200LogProcessor.getMeterEvents(" + from + "," + to + "): lines to parse: " + profile.getRowCount());
 
+        EventInterpreter eventInterpreter = new Ek280EventInterpreter();
         MeterEvent me;
 
         /* for every line we have... */
@@ -65,13 +72,11 @@ public class Lis200LogProcessor
 
             int event = (Integer) profile.getValue(i, eventIndex);
 
-//            DlmsEvent dlmsEvent = DlmsEvent.findEvent(event);
-//            if (dlmsEvent != null) {
-//                me = new MeterEvent(tst.getUtcDate(), dlmsEvent.getEisEventCode(), dlmsEvent.getLisEventCode(), dlmsEvent.getMsg());
-//            } else {
-//            me = new MeterEvent(tst.getUtcDate(), MeterEvent.OTHER, event, "Lis 200 event" + Integer.toHexString(event));
-//            }
-//            events.add(me);
+            me = eventInterpreter.interpretEvent(tst.getUtcDate(), event);
+            if (me != null)
+            {
+                events.add(me);
+            }
         }
 
         logger.info("Lis200LogProcessor.getMeterEvents: generated list with " + events.size() + " of MeterEvents.");

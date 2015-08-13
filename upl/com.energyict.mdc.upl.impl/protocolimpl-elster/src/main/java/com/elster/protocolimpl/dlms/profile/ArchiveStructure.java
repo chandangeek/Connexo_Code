@@ -97,7 +97,7 @@ public class ArchiveStructure
     {
         private final static Pattern ENTRY_PATTERN =
                 Pattern.compile(
-                        "(([Cc][Hh][Nn]([0-9]+)(\\[[Cc]([0-9])*?\\])??)|TST|EVT|EVT_L2|EVT_DLMS|SYS)=(([0-9]+\\.){5}?[0-9]+)([Aa]([0-9]+))??");
+                        "(([Cc][Hh][Nn]([0-9]+)(\\[[Cc]([0-9])*?\\])??)|TST|EVT|EVT_L2|EVT_DLMS|SYS|EVT_UMI1)=(([0-9]+\\.){5}?[0-9]+)([Aa]([0-9]+))??");
         //                ^--- CHN n --------^                    or    TST|EVT|SYS
         //                               opt ^---- [C] or [Cn] ----^
         //                                             obis code     ^---- n.n.n.n.n.n ----^
@@ -161,6 +161,11 @@ public class ArchiveStructure
                 } else if (n.equalsIgnoreCase("SYS"))
                 {
                     channelNo = -3;
+                    tag = "A1";
+                } else if (n.equalsIgnoreCase("EVT_UMI1"))
+                {
+                    channelNo = -2;
+                    tag = "A1";
                 }
             } else
             {

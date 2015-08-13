@@ -8,7 +8,9 @@ import com.elster.protocolimpl.dlms.util.ProtocolLink;
 import com.energyict.protocol.MeterEvent;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * User: heuckeg
@@ -84,7 +86,6 @@ EVENT           1	7.128.96.5.74.255	2	0
 
         System.out.println("getMeterEvents: lines to parse: " + getProfileObject().getRowCount());
 
-        Object v;
         MeterEvent me;
 
         /* for every line we have... */

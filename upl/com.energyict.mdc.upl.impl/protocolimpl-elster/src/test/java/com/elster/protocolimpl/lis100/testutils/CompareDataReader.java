@@ -1,6 +1,9 @@
 package com.elster.protocolimpl.lis100.testutils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -63,9 +66,9 @@ public class CompareDataReader {
 
                     if (lineData.length > 2) {
                         int state = Integer.parseInt(lineData[2]);
-                        result.append(date + "," + bdval + "," + state + "\r");
+                        result.append(date).append(",").append(bdval).append(",").append(state).append("\r");
                     } else {
-                        result.append(date + "," + bdval + ",-\r");
+                        result.append(date).append(",").append(bdval).append(",-\r");
                     }
                 }
             }

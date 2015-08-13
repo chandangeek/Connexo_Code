@@ -1,10 +1,14 @@
 package com.elster.protocolimpl.dlms.messaging;
 
-import com.elster.dlms.cosem.simpleobjectmodel.*;
+import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleDataObject;
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.ProcessingException;
 import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.utils.MessagingTools;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -51,7 +55,7 @@ public class WriteMeterMasterDataMessage extends AbstractDlmsMessage {
         try {
             writeMeterMasterData(meterType, caliber, serial);
         } catch (IOException e) {
-            throw new ProcessingException("Unable to write meter master data.", e);
+            throw new BusinessException("Unable to write meter master data: " + e.getMessage());
         }
     }
 

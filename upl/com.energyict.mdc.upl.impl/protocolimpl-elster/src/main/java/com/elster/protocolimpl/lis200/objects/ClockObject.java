@@ -36,13 +36,6 @@ import java.util.TimeZone;
  */
 public class ClockObject extends AbstractObject {
 
-	/**
-	 * TODO: necessary? read flag if device changes to summer time TODO:
-	 * necessary? read switch times to summer / to winter time TODO: necessary?
-	 * read time zone (offset to GMT in min.) TODO: necessary? clarify what to
-	 * do if device is externally synchronized
-	 */
-
 	/** SimpleDateFormat class to convert LIS200 date to normal date */
 	/* (defined as static to speed up conversion) */
 	private static SimpleDateFormat sdf = new SimpleDateFormat(

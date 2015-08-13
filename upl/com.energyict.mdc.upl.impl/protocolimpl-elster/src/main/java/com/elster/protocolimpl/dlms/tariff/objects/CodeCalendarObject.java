@@ -13,6 +13,7 @@ import java.util.Date;
  * Date: 4/04/11
  * Time: 14:34
  */
+@SuppressWarnings("unused")
 public class CodeCalendarObject implements Serializable {
 
     private int codeId;
@@ -166,9 +167,9 @@ public class CodeCalendarObject implements Serializable {
         Calendar cc = getCalendar();
         if (calendar != null) {
             boolean same = true;
-            same &= (cc.get(Calendar.YEAR) == calendar.get(Calendar.YEAR));
-            same &= (cc.get(Calendar.MONTH) == calendar.get(Calendar.MONTH));
-            same &= (cc.get(Calendar.DAY_OF_MONTH) == calendar.get(Calendar.DAY_OF_MONTH));
+            same = same && (cc.get(Calendar.YEAR) == calendar.get(Calendar.YEAR));
+            same = same && (cc.get(Calendar.MONTH) == calendar.get(Calendar.MONTH));
+            same = same && (cc.get(Calendar.DAY_OF_MONTH) == calendar.get(Calendar.DAY_OF_MONTH));
             return same;
         } else {
             return false;
@@ -188,11 +189,11 @@ public class CodeCalendarObject implements Serializable {
         if (obj instanceof CodeCalendarObject) {
             CodeCalendarObject that = (CodeCalendarObject) obj;
             boolean same = true;
-            same &= (this.year == that.year);
-            same &= (this.month == that.month);
-            same &= (this.day == that.day);
-            same &= that.dayTypeName.startsWith(this.dayTypeName.substring(0, 2));
-            same &= that.dayTypeName.startsWith(this.dayTypeName.substring(3, dayTypeName.length() - 1), 3);
+            same = same && (this.year == that.year);
+            same = same && (this.month == that.month);
+            same = same && (this.day == that.day);
+            same = same && that.dayTypeName.startsWith(this.dayTypeName.substring(0, 2));
+            same = same && that.dayTypeName.startsWith(this.dayTypeName.substring(3, dayTypeName.length() - 1), 3);
             return same;
         }
         return false;

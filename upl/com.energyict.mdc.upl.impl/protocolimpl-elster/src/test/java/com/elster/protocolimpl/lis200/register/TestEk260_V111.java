@@ -4,13 +4,24 @@ import com.elster.protocolimpl.lis200.EK260;
 import com.elster.protocolimpl.lis200.objects.ClockObject;
 import com.elster.protocolimpl.lis200.objects.GenericArchiveObject;
 import com.elster.protocolimpl.lis200.registers.HistoricalArchive;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -22,13 +33,24 @@ import static junit.framework.Assert.assertEquals;
  */
 public class TestEk260_V111 extends EK260 {
 
+    private Locale savedLocale;
+
+    @Before
+    public void setup() {
+        savedLocale = Locale.getDefault();
+        Locale.setDefault(Locale.ENGLISH);
+    }
+
+    @After
+    public void tearDown() {
+        if (!Locale.getDefault().equals(savedLocale)) {
+            Locale.setDefault(savedLocale);
+        }
+    }
+
     @Test
     public void RegisterReaderTestWithDLData() throws IOException {
-
-        Locale.setDefault(Locale.ENGLISH);
-
         StringBuilder sb = new StringBuilder();
-
         RegisterValue rv;
 
         setSoftwareVersion(111);
@@ -51,7 +73,7 @@ public class TestEk260_V111 extends EK260 {
             rv = this.readRegister(new ObisCode(7, 0, 13, 56, 0, i));
             sb.append(rv);
             sb.append("\n");
-            rv = this.readRegister(new ObisCode(7, 0, 13, 62, 0, i));
+            rv = this.readRegister(new ObisCode(7, 0, 11, 62, 0, i));
             sb.append(rv);
             sb.append("\n");
         }
@@ -98,7 +120,10 @@ public class TestEk260_V111 extends EK260 {
 
         String compareData = getResourceAsString("/com/elster/protocolimpl/lis200/register/ek260_1V11_registertest.txt");
 
-        assertEquals(compareData, sb.toString());
+        Unit degCelsius = Unit.get(BaseUnit.DEGREE_CELSIUS);
+        String c = compareData.replaceAll("--CC--", degCelsius.toString());
+
+        assertEquals(c, sb.toString());
     }
 
 
@@ -138,11 +163,8 @@ public class TestEk260_V111 extends EK260 {
     }
 
     private String getResourceAsString(String resourceName) {
-
         StringBuilder stringBuilder = new StringBuilder();
-
         InputStream stream = TestRegisterReader.class.getResourceAsStream(resourceName);
-
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
 
         String line;
@@ -152,7 +174,7 @@ public class TestEk260_V111 extends EK260 {
                 stringBuilder.append("\n");
             }
             bufferedReader.close();
-        } catch (IOException e) {
+        } catch (IOException ignore) {
 
         }
 

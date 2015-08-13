@@ -155,7 +155,7 @@ public class Lis200ProfileTest implements ProtocolLink {
                 stringBuilder.append("\n");
             }
             bufferedReader.close();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
 
         }
 

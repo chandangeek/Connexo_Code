@@ -3,8 +3,13 @@ package com.elster.protocolimpl.lis100.profile;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.TreeMap;
 
 /**
  * class to hold the read out raw data from a lis100 device
@@ -32,7 +37,7 @@ public class IntervalDataMap {
     public void addElement(DataElement de, int index) {
 
         Long date = de.getDateLong();
-        if (date == null) {
+        if (date == 0) {
             return;
         }
 

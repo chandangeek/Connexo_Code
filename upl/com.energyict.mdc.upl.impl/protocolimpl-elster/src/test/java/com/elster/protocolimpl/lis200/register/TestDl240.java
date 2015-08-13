@@ -9,8 +9,14 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import org.junit.Test;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.TimeZone;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -162,7 +168,7 @@ public class TestDl240 extends DL240 {
                 stringBuilder.append("\n");
             }
             bufferedReader.close();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
 
         }
 

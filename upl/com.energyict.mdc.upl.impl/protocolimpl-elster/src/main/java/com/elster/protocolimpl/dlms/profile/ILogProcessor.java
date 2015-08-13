@@ -15,6 +15,6 @@ import java.util.List;
  */
 public interface ILogProcessor
 {
-    public void prepare(SimpleProfileObject profileObject, ArchiveStructure ArchiveStructure) throws IOException;
+    public void prepare(SimpleProfileObject profileObject, Object ArchiveStructure) throws IOException;
     public List<MeterEvent> getMeterEvents(final Date from, final Date to) throws IOException;
 }

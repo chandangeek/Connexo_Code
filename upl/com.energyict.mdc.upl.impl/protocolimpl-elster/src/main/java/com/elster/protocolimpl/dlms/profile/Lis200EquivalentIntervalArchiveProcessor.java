@@ -37,19 +37,24 @@ public class Lis200EquivalentIntervalArchiveProcessor implements IArchiveProcess
         this.logger = logger;
     }
 
-    public void prepare(final SimpleProfileObject profile, final ArchiveStructure archiveStructure)
+    public void prepare(final SimpleProfileObject profile, final Object archiveStructure)
             throws IOException
     {
-        this.profile = profile;
-        this.archiveStructure = archiveStructure;
-
-        tstIndex = findInCapturedObjects(archiveStructure.getTSTEntry());
-        evtIndex = findInCapturedObjects(archiveStructure.getEventEntry());
-
-        chnIndex = new int[archiveStructure.channelCount()];
-        for (int i = 0; i < archiveStructure.channelCount(); i++)
+        if (!(archiveStructure instanceof ArchiveStructure))
         {
-            chnIndex[i] = findInCapturedObjects(archiveStructure.getChannelEntry(i));
+            throw new IllegalArgumentException("GeneralArchiveProcessor.prepare: wrong argument for archiveStructure. Should be ArchiveStructure. Is " + archiveStructure.getClass().getName());
+        }
+
+        this.profile = profile;
+        this.archiveStructure = (ArchiveStructure)archiveStructure;
+
+        tstIndex = findInCapturedObjects(this.archiveStructure.getTSTEntry());
+        evtIndex = findInCapturedObjects(this.archiveStructure.getEventEntry());
+
+        chnIndex = new int[this.archiveStructure.channelCount()];
+        for (int i = 0; i < this.archiveStructure.channelCount(); i++)
+        {
+            chnIndex[i] = findInCapturedObjects(this.archiveStructure.getChannelEntry(i));
         }
     }
 
@@ -71,6 +76,7 @@ public class Lis200EquivalentIntervalArchiveProcessor implements IArchiveProcess
         return (int) profile.getCapturePeriod();
     }
 
+    @SuppressWarnings({"deprecation"})
     public List<ChannelInfo> buildChannelInfo()
             throws IOException
     {
@@ -143,10 +149,10 @@ public class Lis200EquivalentIntervalArchiveProcessor implements IArchiveProcess
 
             /* determine status */
             int eiStatus = 0;
-            if ((tst.getClockStatus() & 0xF) > 0)
-            {
+            //if ((tst.getClockStatus() & 0xF) > 0)
+            //{
                 //eiStatus |= IntervalStateBits.BADTIME;
-            }
+            //}
 
             int event = 0;
             v = profile.getValue(i, evtIndex);

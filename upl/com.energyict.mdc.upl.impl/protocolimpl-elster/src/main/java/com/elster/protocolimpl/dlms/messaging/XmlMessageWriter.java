@@ -1,7 +1,15 @@
 package com.elster.protocolimpl.dlms.messaging;
 
 import com.elster.protocolimpl.dlms.tariff.CodeTableBase64Builder;
-import com.energyict.protocol.messaging.*;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.core.UserFileFactory;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.Messaging;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +32,66 @@ public class XmlMessageWriter implements Messaging {
     public String writeTag(MessageTag tag) {
         if (tag.getName().equals(TariffUploadPassiveMessage.MESSAGE_TAG)) {
             return writeTariffTag(tag);
-        } else {
+        } else if (tag.getName().equals(A1WriteSpecialDaysTableMessage.MESSAGE_TAG))
+        {
+            return writeUserFileTag(tag, A1WriteSpecialDaysTableMessage.ATTR_SPT_FILE);
+        } else if (tag.getName().equals(A1WritePassiveCalendarMessage.MESSAGE_TAG))
+        {
+            return writeUserFileTag(tag, A1WritePassiveCalendarMessage.ATTR_TC_FILE);
+        } else
+        {
             return writeNormalTag(tag);
         }
+    }
+
+    private String writeUserFileTag(MessageTag msgTag, String fileTag)
+    {
+        StringBuilder builder = new StringBuilder();
+
+        // a. Opening tag
+        builder.append("<");
+        builder.append(msgTag.getName());
+
+        // b. Attributes
+        for (Object maObject : msgTag.getAttributes())
+        {
+            MessageAttribute ma = (MessageAttribute) maObject;
+            String specName = ma.getSpec().getName();
+            if (specName.equals(fileTag))
+            {
+                if ((ma.getValue() != null) && (ma.getValue().length() != 0))
+                {
+                    String[] nameParts = ma.getValue().split("\\.");
+                    String name = nameParts[0];
+                    UserFileFactory factory = MeteringWarehouse.getCurrent().getUserFileFactory();
+                    List files = factory.findByName(name);
+
+                    String data = "";
+                    if (files.size() > 0)
+                    {
+                        data = new String(((UserFile) files.get(0)).loadFileInByteArray());
+                        data = data.replaceAll("\"", "''");
+                    }
+                    builder.append(" ").append(specName);
+                    builder.append("=").append('"').append(data).append('"');
+                }
+            } else
+            {
+                if ((ma.getValue() != null) && (ma.getValue().length() != 0))
+                {
+                    builder.append(" ").append(specName);
+                    builder.append("=").append('"').append(ma.getValue()).append('"');
+                }
+            }
+        }
+        builder.append(">");
+
+        // c. Closing tag
+        builder.append("</");
+        builder.append(msgTag.getName());
+        builder.append(">");
+
+        return builder.toString();
     }
 
     public String writeValue(MessageValue value) {

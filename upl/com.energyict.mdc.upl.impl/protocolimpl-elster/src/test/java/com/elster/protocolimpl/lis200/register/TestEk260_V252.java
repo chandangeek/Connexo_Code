@@ -4,13 +4,21 @@ import com.elster.protocolimpl.lis200.EK260;
 import com.elster.protocolimpl.lis200.objects.ClockObject;
 import com.elster.protocolimpl.lis200.objects.GenericArchiveObject;
 import com.elster.protocolimpl.lis200.registers.HistoricalArchive;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import org.junit.Test;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.TimeZone;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -55,7 +63,7 @@ public class TestEk260_V252 extends EK260 {
             rv = this.readRegister(new ObisCode(7, 0, 13, 56, 0, i));
             sb.append(rv);
             sb.append("\n");
-            rv = this.readRegister(new ObisCode(7, 0, 13, 62, 0, i));
+            rv = this.readRegister(new ObisCode(7, 0, 11, 62, 0, i));
             sb.append(rv);
             sb.append("\n");
         }
@@ -101,7 +109,11 @@ public class TestEk260_V252 extends EK260 {
         }
 
         String compareData = getResourceAsString("/com/elster/protocolimpl/lis200/register/ek260_2V52_registertest.txt");
-        assertEquals(compareData, sb.toString());
+
+        Unit degCelsius = Unit.get(BaseUnit.DEGREE_CELSIUS);
+        String c = compareData.replaceAll("--CC--", degCelsius.toString());
+
+        assertEquals(c, sb.toString());
     }
 
 
@@ -155,7 +167,7 @@ public class TestEk260_V252 extends EK260 {
                 stringBuilder.append("\n");
             }
             bufferedReader.close();
-        } catch (IOException e) {
+        } catch (IOException ignore) {
 
         }
 

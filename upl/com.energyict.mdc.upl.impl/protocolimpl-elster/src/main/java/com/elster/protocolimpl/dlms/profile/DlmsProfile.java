@@ -28,7 +28,7 @@ public class DlmsProfile
     public DlmsProfile(final ProtocolLink link, final String meterType, final String archiveStructure, final SimpleProfileObject profile)
             throws IOException
     {
-        archiveProcessor = ArchiveProcessorFactory.createArchiveProcessor(meterType, archiveStructure, profile, link.getLogger());
+        archiveProcessor = ArchiveProcessorFactory.createArchiveProcessor(meterType, archiveStructure, profile, link.getTimeZone(), link.getLogger());
     }
 
     /**

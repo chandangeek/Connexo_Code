@@ -25,7 +25,6 @@ import com.elster.protocolimpl.dlms.tariff.objects.CodeObject;
 import com.elster.protocolimpl.dlms.tariff.objects.SeasonObject;
 import com.elster.protocolimpl.dlms.tariff.objects.SeasonTransitionObject;
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.ProcessingException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.MessageAttributeSpec;
 import com.energyict.protocol.messaging.MessageSpec;
@@ -72,7 +71,7 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
             int defaultTariff = validateDefaultTariffString(defaultTariffStr);
             writeCodeTable(codeObject, activationTime, defaultTariff);
         } catch (IOException e) {
-            throw new ProcessingException("Unable to write new tariff to device: " + e.getMessage(), e);
+            throw new BusinessException("Unable to write new tariff to device: " + e.getMessage());
         }
     }
 
@@ -154,6 +153,10 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
         WeekProfile w1 = new WeekProfile("Profile_1", 1, 1, 1, 1, 1, 2, 3); //Nur genau das Profil scheint möglich zu sein.
         profilesPassive.setWeekProfiles(new WeekProfile[]{w1}); //Genau 1 Profil möglich
 
+        //EK280 array attribute workaround...
+        //set empty arrays to clear entries in ek280
+        profilesPassive.setDayProfiles(new DayProfile[0]);
+
         profilesPassive.setDayProfiles(new DayProfile[]{d1, d2, d3});
 
         activityCalendar.setActivatePassiveCalendarTime(new DlmsDateTime(dd, dt));
@@ -192,8 +195,13 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
         SimpleCosemObjectManager objectManager = getExecutor().getDlms().getObjectManager();
         final SimpleSpecialDaysTable specialDaysTable = objectManager.getSimpleCosemObject(Ek280Defs.SPECIAL_DAYS_TABLE, SimpleSpecialDaysTable.class);
 
-        System.out.println("Holiday list:");
+        //System.out.println("Holiday list:");
         ArrayList<SpecialDayEntry> specialDays = new ArrayList<SpecialDayEntry>();
+
+        //EK280 array attribute workaround...
+        //set empty array to clear entries in ek280
+        specialDaysTable.setEntries(new SpecialDayEntry[] {});
+
         int i = 0;
         for (Map.Entry<Calendar, CodeCalendarObject> entry : holidays.entrySet()) {
             Calendar c = entry.getKey();
@@ -289,8 +297,8 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
 
     class SeasonAndDate {
 
-        private SeasonObject season;
-        private Calendar cal;
+        private final SeasonObject season;
+        private final Calendar cal;
 
         public SeasonAndDate(SeasonObject season, Calendar cal) {
             this.season = season;

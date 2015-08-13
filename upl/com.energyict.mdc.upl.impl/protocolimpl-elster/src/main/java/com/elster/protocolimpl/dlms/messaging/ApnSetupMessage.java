@@ -1,9 +1,14 @@
 package com.elster.protocolimpl.dlms.messaging;
 
-import com.elster.dlms.cosem.simpleobjectmodel.*;
+import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleGprsModemSetupObject;
 import com.energyict.cbo.BusinessException;
 import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
@@ -20,7 +25,7 @@ public class ApnSetupMessage extends AbstractDlmsMessage {
     public static final int USER_MAX_LENGTH = 30;
 
     /**
-     * OldDeviceMessage tags for the GPRS modem setup message
+     * RtuMessage tags for the GPRS modem setup message
      */
     public static final String GPRS_MODEM_SETUP = "GPRS_modem_setup";
     public static final String GPRS_APN = "APN";
@@ -57,7 +62,8 @@ public class ApnSetupMessage extends AbstractDlmsMessage {
         }
     }
 
-    private void write(String apn, String user, String password) throws BusinessException, IOException {
+    protected void write(String apn, String user, String password) throws IOException
+    {
         SimpleCosemObjectManager objectManager = getExecutor().getDlms().getObjectManager();
 
         SimpleGprsModemSetupObject gprsModemSetup = objectManager.getSimpleCosemObject(Ek280Defs.GPRS_MODEM_SETUP,
@@ -68,7 +74,7 @@ public class ApnSetupMessage extends AbstractDlmsMessage {
     }
 
 
-    private void validateApnSetupMessage(String apn, String user, String pssw) throws BusinessException {
+    protected void validateApnSetupMessage(String apn, String user, String pssw) throws BusinessException {
         if ("".equals(apn) || apn == null) {
             throw new BusinessException("Parameter APN was 'null'.");
         } else if ("".equals(pssw) || pssw == null) {

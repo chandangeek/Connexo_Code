@@ -295,6 +295,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     G3_AS330D_V2(259, "com.energyict.protocolimplv2.dlms.g3.AS330D", FamilyRule.G3_LINKY_DLMS),
     G3_RTU3(260, "com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.RTU3", FamilyRule.G3_LINKY_DLMS),
     E35C(261, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C.E35C"),
+    ELSTER_A1_THEMISPLUS(262, "com.elster.protocolimpl.dlms.A1"),
+    DL230_LIS200(263, "com.elster.protocolimpl.lis200.DL230"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
@@ -308,7 +310,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     DLMSZMD_EXT(10011, "com.energyict.protocolimpl.dlms.DLMSZMD_EXT"),
     GATE_WAY_Z3(10012, "com.energyict.protocolimplv2.eict.gatewayz3.GateWayZ3", FamilyRule.EICT_Z3),
     CORONIS_WAVECELL(10013, "com.energyict.genericprotocolimpl.coronis.wavecell.WaveCellGateway", FamilyRule.CORONIS),
-    ELSTER_A1_THEMISPLUS(10014, "com.elster.genericprotocolimpl.dlms.a1.A1"),
+    ELSTER_A1_THEMISPLUS_GENERIC(10014, "com.elster.genericprotocolimpl.dlms.a1.A1"),
     ELSTER_EK155(10015, "com.energyict.genericprotocolimpl.elster.ek155.EK155"),
     ELSTER_EK280(10016, "com.elster.genericprotocolimpl.dlms.ek280.EK280"),
     IDIS_RTUPLUSSERVER(10017, "com.energyict.genericprotocolimpl.rtuplusserver.idis.RtuPlusServer", FamilyRule.ELSTER_IDIS),

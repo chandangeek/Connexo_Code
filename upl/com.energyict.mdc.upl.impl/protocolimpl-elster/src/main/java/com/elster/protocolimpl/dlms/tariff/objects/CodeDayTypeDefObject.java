@@ -9,6 +9,7 @@ import java.io.Serializable;
  * Date: 4/04/11
  * Time: 14:50
  */
+@SuppressWarnings("unused")
 public class CodeDayTypeDefObject implements Serializable, Comparable<CodeDayTypeDefObject> {
 
     private int dayTypeId;

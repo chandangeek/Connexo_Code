@@ -1,16 +1,36 @@
 package com.elster.protocolimpl.lis200.register;
 
-import com.elster.protocolimpl.lis200.objects.*;
-import com.elster.protocolimpl.lis200.registers.*;
+import com.elster.protocolimpl.lis200.objects.ClockObject;
+import com.elster.protocolimpl.lis200.objects.HistoricalValueObject;
+import com.elster.protocolimpl.lis200.objects.SimpleObject;
+import com.elster.protocolimpl.lis200.registers.HistoricRegisterDefinition;
+import com.elster.protocolimpl.lis200.registers.HistoricalArchive;
+import com.elster.protocolimpl.lis200.registers.IRegisterReadable;
+import com.elster.protocolimpl.lis200.registers.Lis200ObisCode;
+import com.elster.protocolimpl.lis200.registers.Lis200RegisterN;
+import com.elster.protocolimpl.lis200.registers.MaxRegisterDefinition;
+import com.elster.protocolimpl.lis200.registers.RegisterDefinition;
+import com.elster.protocolimpl.lis200.registers.RegisterMapN;
+import com.elster.protocolimpl.lis200.registers.RegisterReader;
+import com.elster.protocolimpl.lis200.registers.SimpleRegisterDefinition;
+import com.elster.protocolimpl.lis200.registers.StateRegisterDefinition;
+import com.elster.protocolimpl.lis200.registers.ValueRegisterDefinition;
 import com.elster.protocolimpl.lis200.utils.RawArchiveLineInfo;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocolimpl.iec1107.ChannelMap;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import org.junit.Test;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import static junit.framework.Assert.assertEquals;
@@ -96,49 +116,49 @@ public class TestRegisterReader implements ProtocolLink, IRegisterReadable {
         rv = reader.getRegisterValue(new ObisCode(7, 0, 96, 5, 0, 255), date);
         s = rv.toString();
         parts = s.split(",");
-        sb.append(parts[0] + "," + parts[1].trim());
+        sb.append(parts[0]).append(",").append(parts[1].trim());
         sb.append("\n");
 
         rv = reader.getRegisterValue(new ObisCode(0, 0, 96, 6, 6, 255), date);
         s = rv.toString();
         parts = s.split(",");
-        sb.append(parts[0] + "," + parts[1].trim());
+        sb.append(parts[0]).append(",").append(parts[1].trim());
         sb.append("\n");
 
         rv = reader.getRegisterValue(new ObisCode(0, 0, 96, 12, 5, 255), date);
         s = rv.toString();
         parts = s.split(",");
-        sb.append(parts[0] + "," + parts[1].trim());
+        sb.append(parts[0]).append(",").append(parts[1].trim());
         sb.append("\n");
 
         rv = reader.getRegisterValue(new ObisCode(7, 0, 0, 2, 2, 255), date);
         s = rv.toString();
         parts = s.split(",");
-        sb.append(parts[0] + "," + parts[1].trim());
+        sb.append(parts[0]).append(",").append(parts[1].trim());
         sb.append("\n");
 
         rv = reader.getRegisterValue(new ObisCode(7, 0, 0, 2, 14, 255), date);
         s = rv.toString();
         parts = s.split(",");
-        sb.append(parts[0] + "," + parts[1].trim());
+        sb.append(parts[0]).append(",").append(parts[1].trim());
         sb.append("\n");
 
         rv = reader.getRegisterValue(new ObisCode(7, 0, 23, 2, 0, 255), date);
         s = rv.toString();
         parts = s.split(",");
-        sb.append(parts[0] + "," + parts[1].trim());
+        sb.append(parts[0]).append(",").append(parts[1].trim());
         sb.append("\n");
 
         rv = reader.getRegisterValue(new ObisCode(7, 128, 23, 2, 0, 255), date);
         s = rv.toString();
         parts = s.split(",");
-        sb.append(parts[0] + "," + parts[1].trim());
+        sb.append(parts[0]).append(",").append(parts[1].trim());
         sb.append("\n");
 
         rv = reader.getRegisterValue(new ObisCode(7, 0, 43, 0, 255, 255), date);
         s = rv.toString();
         parts = s.split(",");
-        sb.append(parts[0] + "," + parts[1].trim());
+        sb.append(parts[0]).append(",").append(parts[1].trim());
         sb.append("\n");
 
 
@@ -278,7 +298,7 @@ public class TestRegisterReader implements ProtocolLink, IRegisterReadable {
                 stringBuilder.append("\n");
             }
             bufferedReader.close();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
 
         }
 
