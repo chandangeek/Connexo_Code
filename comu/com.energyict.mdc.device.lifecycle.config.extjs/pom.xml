@@ -38,6 +38,7 @@
             <id>sencha-build</id>
             <properties>
                 <js.dir>js/dlc</js.dir>
+                <package.name>com.energyict.mdc.device.lifecycle.config.extjs</package.name>
             </properties>
         </profile>
     </profiles>
