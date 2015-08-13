@@ -492,6 +492,8 @@ sub start_connexo {
 			print $FH "com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts\n";
 			close($FH);
 			if ("$OS" eq "MSWin32") {
+				system("sc config \"Connexo$SERVICE_VERSION\"  start= delayed-auto");
+				system("sc failure \"Connexo$SERVICE_VERSION\" actions= restart/10000/restart/10000/\"\"/10000 reset= 86400");
 				system("sc start Connexo$SERVICE_VERSION");
 			} else {
 				system("/sbin/service connexo start");
@@ -505,6 +507,8 @@ sub start_tomcat {
 		print "\n\nStarting Apache Tomcat 7 ...\n";
 		print "==========================================================================\n";
 		if ("$OS" eq "MSWin32") {
+			system("sc config \"ConnexoTomcat$SERVICE_VERSION\"  start= delayed-auto");
+			system("sc failure \"ConnexoTomcat$SERVICE_VERSION\" actions= restart/10000/restart/10000/\"\"/10000 reset= 86400");
 			system("sc start ConnexoTomcat$SERVICE_VERSION");
 			sleep 10;
 			while (`sc query ConnexoTomcat$SERVICE_VERSION | find "STATE" | find "RUNNING"` eq "") {
