@@ -8,7 +8,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
     ],
     layout: 'fit',
     frame: true,
-    title: '&nbsp;',
 
     channels: null,
 

@@ -4,7 +4,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
     itemId: 'deviceLogbookDataPreview',
     layout: 'fit',
     frame: true,
-    title: '&nbsp;',
+
     device: null,
     router: null,
     requires: [

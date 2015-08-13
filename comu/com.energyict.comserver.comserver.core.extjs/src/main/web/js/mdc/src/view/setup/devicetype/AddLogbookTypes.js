@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
         'Mdc.view.setup.devicetype.AddLogbookTypesGrid',
-        'Uni.view.container.PreviewContainer'
+        'Uni.view.container.EmptyGridContainer'
     ],
     router: null,
 
@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                         width: 380
                     },
                     {
-                        xtype: 'preview-container',
+                        xtype: 'emptygridcontainer',
                         grid: {
                             xtype: 'add-logbook-types-grid',
                             itemId: 'logbook-type-add-grid'
@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                         },
                         onLoad: function (store, records) {
                             this.up('#addLogbookPanel').down('button[action=add]').setVisible(records && records.length);
-                            this.updateOnChange(!(records && records.length));
+                            this.getLayout().setActiveItem(records && records.length ? this.getGridCt() : this.getEmptyCt());
                         }
                     },
                     {

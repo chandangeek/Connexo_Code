@@ -124,7 +124,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                 me.showValidateNowMessage(menu.record);
                 break;
             case 'viewSuspects':
-                filterParams.onlySuspect = true;
+                filterParams.suspect = 'suspect';
                 route = 'devices/device/channels/channeldata';
                 break;
         }
