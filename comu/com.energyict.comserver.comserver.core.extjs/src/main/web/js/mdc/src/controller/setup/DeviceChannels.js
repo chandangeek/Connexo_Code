@@ -225,6 +225,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             confWindow.down('#validateChannelDateErrors').update(Uni.I18n.translate('deviceloadprofiles.activation.error', 'MDC', 'The date should be before or equal to the default date.'));
             confWindow.down('#validateChannelDateErrors').setVisible(true);
         } else {
+            confWindow.down('button').setDisabled(true);
             Ext.Ajax.request({
                 url: '../../api/ddr/devices/' + encodeURIComponent(mRID) + '/channels/' + record.get('id') + '/validate',
                 method: 'PUT',
