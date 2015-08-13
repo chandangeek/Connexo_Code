@@ -31,7 +31,7 @@ import java.util.Set;
 public class CustomPropertySetForTestingPurposes implements CustomPropertySet<TestDomain, DomainExtensionForTestingPurposes> {
 
     public static final String TABLE_NAME = "T02_CUSTOM_BILLING";
-    public static final String FK_CUST_BILLING_DOMAIN = "FK_CUST_BILLING_DOMAIN";
+    public static final String FK_CUST_BILLING_DOMAIN = "FK_02CUST_BILLING_DOMAIN";
 
     private final PropertySpecService propertySpecService;
 

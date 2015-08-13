@@ -23,6 +23,9 @@ import com.elster.jupiter.transaction.TransactionService;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -368,6 +371,36 @@ public class CustomPropertySetServiceImplTest {
         verify(this.ormService, never()).newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_ID), anyString());
     }
 
+    @Test(timeout = 5000)
+    public void addCustomPropertySetsWhileActivating() throws InterruptedException {
+        when(this.serviceDataModel.isInstalled()).thenReturn(false);
+        CustomPropertySetServiceImpl testInstance = new CustomPropertySetServiceImpl();
+        testInstance.setOrmService(this.ormService, false);
+        testInstance.setNlsService(this.nlsService);
+        testInstance.setTransactionService(this.transactionService);
+
+        /* Create 3 threads that will wait on CountdownLatch to start simultaneously
+         *    1. activate the service
+         *    2. Add non versioned CustomPropertySet
+         *    3. Add versioned CustomPropertySet */
+        CountDownLatch startLatch = new CountDownLatch(1);
+        CountDownLatch stopLatch = new CountDownLatch(3);
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        executorService.execute(new Felix(testInstance, startLatch, stopLatch));
+        executorService.execute(new AddCustomPropertySet(testInstance, startLatch, stopLatch));
+        executorService.execute(new AddVersionedCustomPropertySet(testInstance, startLatch, stopLatch));
+
+        // Here is where all the action will happen
+        startLatch.countDown();
+
+        // Now wait until all 3 threads have completed
+        stopLatch.await();
+
+        // Asserts
+        verify(this.ormService, never()).newDataModel(eq(CUSTOM_PROPERTY_SET_ID), anyString());
+        verify(this.ormService, never()).newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_ID), anyString());
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void getCustomPropertiesWhenSetIsNotRegisteredYet() {
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
@@ -543,6 +576,68 @@ public class CustomPropertySetServiceImplTest {
         testInstance.setTransactionService(this.transactionService);
         testInstance.activate();
         return testInstance;
+    }
+
+    private abstract class LatchDrivenRunnable implements Runnable {
+        private final CustomPropertySetServiceImpl service;
+        private final CountDownLatch startLatch;
+        private final CountDownLatch stopLatch;
+
+        protected LatchDrivenRunnable(CustomPropertySetServiceImpl service, CountDownLatch startLatch, CountDownLatch stopLatch) {
+            super();
+            this.service = service;
+            this.startLatch = startLatch;
+            this.stopLatch = stopLatch;
+        }
+
+        @Override
+        public void run() {
+            try {
+                this.startLatch.await();
+                this.doRun(this.service);
+                this.stopLatch.countDown();
+            }
+            catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        protected abstract void doRun(CustomPropertySetServiceImpl service);
+
+    }
+    private class Felix extends LatchDrivenRunnable {
+        private Felix(CustomPropertySetServiceImpl service, CountDownLatch startLatch, CountDownLatch stopLatch) {
+            super(service, startLatch, stopLatch);
+        }
+
+        @Override
+        protected void doRun(CustomPropertySetServiceImpl service) {
+            service.activate();
+        }
+    }
+
+    private class AddCustomPropertySet extends LatchDrivenRunnable {
+
+        protected AddCustomPropertySet(CustomPropertySetServiceImpl service, CountDownLatch startLatch, CountDownLatch stopLatch) {
+            super(service, startLatch, stopLatch);
+        }
+
+        @Override
+        protected void doRun(CustomPropertySetServiceImpl service) {
+            service.addCustomPropertySet(CustomPropertySetServiceImplTest.this.customPropertySet);
+        }
+    }
+
+    private class AddVersionedCustomPropertySet extends LatchDrivenRunnable {
+
+        protected AddVersionedCustomPropertySet(CustomPropertySetServiceImpl service, CountDownLatch startLatch, CountDownLatch stopLatch) {
+            super(service, startLatch, stopLatch);
+        }
+
+        @Override
+        protected void doRun(CustomPropertySetServiceImpl service) {
+            service.addCustomPropertySet(CustomPropertySetServiceImplTest.this.versionedCustomPropertySet);
+        }
     }
 
 }
