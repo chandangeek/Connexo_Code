@@ -51,6 +51,7 @@ public class ComScheduleOnDeviceMessageHandler implements MessageHandler {
                 break;
             default: LOGGER.log(Level.WARNING, "Unknown action for ComSchedule on device: "+ queueMessage.action);
         }
+        device.get().save();
     }
 
     @Override
