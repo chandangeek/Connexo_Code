@@ -67,6 +67,7 @@
             <id>sencha-build</id>
             <properties>
                 <js.dir>js/firmware</js.dir>
+                <package.name>com.energyict.mdc.firmware.extjs</package.name>
             </properties>
         </profile>
     </profiles>
