@@ -48,6 +48,7 @@
             <id>sencha-build</id>
             <properties>
                 <js.dir>js/ddv</js.dir>
+                <package.name>${project.groupId}.${project.artifactId}</package.name>
             </properties>
         </profile>
     </profiles>
