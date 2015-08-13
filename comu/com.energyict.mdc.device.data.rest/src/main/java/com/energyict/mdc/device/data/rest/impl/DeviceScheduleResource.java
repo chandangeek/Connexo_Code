@@ -14,6 +14,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
@@ -39,12 +41,14 @@ public class DeviceScheduleResource {
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
     private final TaskService taskService;
+    private final SchedulingService schedulingService;
 
     @Inject
-    public DeviceScheduleResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, TaskService taskService) {
+    public DeviceScheduleResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, TaskService taskService, SchedulingService schedulingService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.taskService = taskService;
+        this.schedulingService = schedulingService;
     }
 
     @GET
@@ -121,7 +125,6 @@ public class DeviceScheduleResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
-    //TODO comTaskExecId should be path param
     public Response updateComTaskExecution(@PathParam("mRID") String mrid, SchedulingInfo schedulingInfo) {
         checkForNoActionsAllowedOnSystemComTask(schedulingInfo.id);
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
@@ -136,7 +139,20 @@ public class DeviceScheduleResource {
             }
             // TODO throw NOT FOUND if not found
         }
-        return Response.status(Response.Status.CREATED).build(); // TODO should be ok, not created
+        return Response.status(Response.Status.OK).build();
+    }
+
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    @Path("/{comScheduleId}")
+    public Response addComScheduleOnDevice(@PathParam("mRID") String mrid, @PathParam("comScheduleId") long comScheduleId) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        ComSchedule comSchedule = schedulingService.findSchedule(comScheduleId).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_SCHEDULE, comScheduleId));
+        device.newScheduledComTaskExecution(comSchedule);
+        device.save();
+        return Response.status(Response.Status.OK).build();
     }
 
     @DELETE
