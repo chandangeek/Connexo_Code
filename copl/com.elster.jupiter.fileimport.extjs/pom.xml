@@ -39,6 +39,7 @@
             <id>sencha-build</id>
             <properties>
                 <js.dir>js/fileimport</js.dir>
+                <package.name>com.elster.jupiter.fileimport.extjs</package.name>
             </properties>
         </profile>
     </profiles>
