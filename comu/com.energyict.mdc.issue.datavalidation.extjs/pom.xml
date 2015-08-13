@@ -39,6 +39,7 @@
             <id>sencha-build</id>
             <properties>
                 <js.dir>js/idv</js.dir>
+                <package.name>com.energyict.mdc.issue.datavalidation.extjs</package.name>
             </properties>
         </profile>
     </profiles>
