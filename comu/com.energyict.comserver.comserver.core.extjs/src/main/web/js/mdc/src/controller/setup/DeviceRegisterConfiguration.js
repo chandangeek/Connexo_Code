@@ -198,6 +198,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             confWindow.down('#validateRegisterDateErrors').update(Uni.I18n.translate('deviceloadprofiles.activation.error', 'MDC', 'The date should be before or equal to the default date.'));
             confWindow.down('#validateRegisterDateErrors').setVisible(true);
         } else {
+            confWindow.down('button').setDisabled(true);
             Ext.Ajax.request({
                 url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/registers/' + me.registerId + '/validate',
                 method: 'PUT',
