@@ -207,6 +207,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_SUCH_DEVICE_LIFE_CYCLE_ACTION(236, "NoSuchDeviceLifeCycleAction" , "No device life cycle action with id = {0}"),
     THIS_FIELD_IS_REQUIRED(237, "ThisFieldIsRequired" , "This field is required"),
     CIM_DATE_SHOULD_BE_AFTER_X(238, "CIMDateShouldBeAfterX" , "This date should be greater than (or equal) ''{0}''"),
+    CANT_ADD_READINGS_FOR_STATE(239, "cantAddReadingForState", "The state of the device at {0} does not allow adding readings."),
     ;
     private final int number;
     private final String key;
