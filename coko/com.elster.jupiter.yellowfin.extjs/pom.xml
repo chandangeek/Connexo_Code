@@ -39,6 +39,7 @@
             <id>sencha-build</id>
             <properties>
                 <js.dir>js/yfn</js.dir>
+                <package.name>com.elster.jupiter.yellowfin.extjs</package.name>
             </properties>
         </profile>
     </profiles>
