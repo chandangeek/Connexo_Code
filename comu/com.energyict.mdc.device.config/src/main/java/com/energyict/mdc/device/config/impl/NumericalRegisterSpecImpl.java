@@ -31,7 +31,7 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
     private Integer numberOfFractionDigits;
     @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE + "}")
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_OVERFLOW_IS_REQUIRED + "}")
-    private BigDecimal overflowValue;
+    private BigDecimal overflow;
 
     @Inject
     public NumericalRegisterSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
@@ -67,12 +67,12 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
     }
 
     public BigDecimal getOverflowValue() {
-        return overflowValue;
+        return overflow;
     }
 
     @Override
     public void setOverflowValue(BigDecimal overflowValue) {
-        this.overflowValue = overflowValue;
+        this.overflow = overflowValue;
     }
 
     protected void validate() {
@@ -82,10 +82,10 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
     }
 
     private void validateNumberOfFractionDigitsOfOverFlowValue() {
-        if (this.overflowValue != null) {
-            int scale = this.overflowValue.scale();
+        if (this.overflow != null) {
+            int scale = this.overflow.scale();
             if (scale > this.numberOfFractionDigits) {
-                throw new OverFlowValueHasIncorrectFractionDigitsException(this.getThesaurus(), this.overflowValue, scale, this.numberOfFractionDigits);
+                throw new OverFlowValueHasIncorrectFractionDigitsException(this.getThesaurus(), this.overflow, scale, this.numberOfFractionDigits);
             }
         }
     }
@@ -94,9 +94,9 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
      * We need to validate the OverFlow value and the NumberOfDigits together.
      */
     private void validateOverFlowAndNumberOfDigits() {
-        if (this.overflowValue != null && this.numberOfDigits > 0) {
-            if (this.overflowValue.compareTo(BigDecimal.valueOf(10).pow(numberOfDigits)) == 1) {
-                throw new OverFlowValueCanNotExceedNumberOfDigitsException(this.getThesaurus(), this.overflowValue, Math.pow(10, this.numberOfDigits), this.numberOfDigits);
+        if (this.overflow != null && this.numberOfDigits > 0) {
+            if (this.overflow.compareTo(BigDecimal.valueOf(10).pow(numberOfDigits)) == 1) {
+                throw new OverFlowValueCanNotExceedNumberOfDigitsException(this.getThesaurus(), this.overflow, Math.pow(10, this.numberOfDigits), this.numberOfDigits);
             }
             // should be covered by field validation
             //else if (this.overflowValue.compareTo(BigDecimal.ZERO) <= 0) {
