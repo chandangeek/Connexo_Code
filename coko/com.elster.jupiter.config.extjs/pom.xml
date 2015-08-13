@@ -37,6 +37,7 @@
             <id>sencha-build</id>
             <properties>
                 <js.dir>js/cfg</js.dir>
+                <package.name>com.elster.jupiter.config.extjs</package.name>
             </properties>
         </profile>
     </profiles>
