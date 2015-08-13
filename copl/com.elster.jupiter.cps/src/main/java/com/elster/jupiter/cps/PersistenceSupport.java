@@ -17,6 +17,9 @@ public interface PersistenceSupport<D, T extends PersistentDomainExtension<D>> {
 
     /**
      * Gets the name of the table that will hold the persistent properties.
+     * Note that when the related {@link CustomPropertySet} is versioned
+     * then the table name is suffixed with "JRNL". You may want to take
+     * that into account when deciding on a name for your table.
      *
      * @return The name of the database table
      */
