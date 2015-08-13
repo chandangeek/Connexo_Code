@@ -37,6 +37,7 @@
             <id>sencha-build</id>
             <properties>
                 <js.dir>js/est</js.dir>
+                <package.name>com.elster.jupiter.estimation.extjs</package.name>
             </properties>
         </profile>
     </profiles>
