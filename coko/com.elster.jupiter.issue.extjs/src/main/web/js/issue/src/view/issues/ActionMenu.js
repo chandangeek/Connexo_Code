@@ -155,7 +155,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
         }
 
         // add specific actions
-        if (Isu.privileges.viewDeviceCommunication) {
+        if (Isu.privileges.Device.viewDeviceCommunication) {
             deviceMRID = me.record.get('deviceMRID');
             if (deviceMRID) {
                 comTaskId = me.record.get('comTaskId');
