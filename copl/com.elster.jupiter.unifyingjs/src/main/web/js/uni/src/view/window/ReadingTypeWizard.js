@@ -215,7 +215,7 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
 
                             {
                                 xtype: 'component',
-                                html: '<p>' + Uni.I18n.translate('window.readingtypewizard.measuringperiod.interval',
+                                html: '<p>' + Uni.I18n.translate('grid.filter.interval.label',
                                     'UNI', 'Interval') + '</p>'
                             },
                             {
