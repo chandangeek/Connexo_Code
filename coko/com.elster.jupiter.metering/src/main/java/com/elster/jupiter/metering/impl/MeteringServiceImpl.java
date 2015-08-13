@@ -173,8 +173,10 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public Optional<EndDevice> findEndDevice(String mRid) {
-        List<EndDevice> endDevices = dataModel.mapper(EndDevice.class).select(Operator.EQUAL.compare("mRID", mRid));
-        return endDevices.isEmpty() ? Optional.empty() : Optional.of(endDevices.get(0));
+        return dataModel.stream(EndDevice.class)
+                .filter(Operator.EQUAL.compare("mRID", mRid))
+                .filter(Operator.ISNULL.compare("obsoleteTime"))
+                .findFirst();
     }
 
     @Override

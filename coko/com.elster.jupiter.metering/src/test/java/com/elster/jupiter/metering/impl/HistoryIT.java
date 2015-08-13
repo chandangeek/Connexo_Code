@@ -78,7 +78,7 @@ public class HistoryIT {
                     inMemoryBootstrapModule,
                     new InMemoryMessagingModule(),
                     new IdsModule(),
-                    new MeteringModule(),
+                    new MeteringModule(false),
                     new PartyModule(),
                     new EventsModule(),
                     new DomainUtilModule(),

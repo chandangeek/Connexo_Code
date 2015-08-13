@@ -26,6 +26,12 @@ import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -33,11 +39,6 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.Optional;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -77,7 +78,12 @@ public class NtaReadingTypeTest {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
-                new MeteringModule(),
+                new MeteringModule(false, "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                        "11.0.0.9.1.1.12.0.0.0.0.1.0.0.0.3.72.0",
+                        "11.0.0.4.1.1.12.0.0.0.0.1.0.0.0.3.72.0",
+                        "13.0.0.9.1.1.12.0.0.0.0.1.0.0.0.3.72.0",
+                        "13.0.0.4.1.1.12.0.0.0.0.1.0.0.0.3.72.0"),
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
