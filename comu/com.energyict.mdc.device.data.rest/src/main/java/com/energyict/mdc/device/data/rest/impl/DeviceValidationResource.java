@@ -135,12 +135,14 @@ public class DeviceValidationResource {
                     .filter(loadProfile -> lpPeriod.id.equals(loadProfile.getId()))
                     .flatMap(l -> l.getChannels().stream())
                     .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), intervalLP).stream())
+                    .filter(s -> (s.getReadingQualities().stream().anyMatch(q -> q.getType().qualityIndex().orElse(QualityCodeIndex.DATAVALID).equals(QualityCodeIndex.SUSPECT))))
                     .collect(Collectors.toList()));
         });
         Range<Instant> intervalReg = Range.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
 
         List<DataValidationStatus> rgStatuses = device.getRegisters().stream()
                 .flatMap(r -> device.forValidation().getValidationStatus(r, Collections.emptyList(), intervalReg).stream())
+                .filter(s -> (s.getReadingQualities().stream().anyMatch(q -> q.getType().qualityIndex().orElse(QualityCodeIndex.DATAVALID).equals(QualityCodeIndex.SUSPECT))))
                 .collect(Collectors.toList());
 
         validationStatusInfo.allDataValidated = isAllDataValidated(lpStatuses, rgStatuses, device);
