@@ -1,5 +1,10 @@
 package com.elster.jupiter.cps;
 
+import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -16,14 +21,39 @@ import java.util.Set;
 public final class CustomPropertySetValues {
 
     private Map<String, Object> values = new HashMap<>();
+    private Range<Instant> effective;
 
     /**
-     * Returns a new empty CustomAttributeSetProperties.
+     * Returns a new empty CustomAttributeSetProperties
+     * that is always effective.
      *
      * @return The empty CustomAttributeSetProperties
      */
     public static CustomPropertySetValues empty () {
         return new CustomPropertySetValues();
+    }
+
+    /**
+     * Returns a new empty CustomAttributeSetProperties
+     * that is effective from the specified instant in time
+     * until the end of time.
+     *
+     * @param effectiveTimestamp The instant in time when the new CustomPropertySetValues are effective
+     * @return The empty CustomAttributeSetProperties
+     */
+    public static CustomPropertySetValues emptyFrom (Instant effectiveTimestamp) {
+        return new CustomPropertySetValues(Ranges.closedOpen(effectiveTimestamp, Instant.MAX));
+    }
+
+    /**
+     * Returns a new empty CustomAttributeSetProperties
+     * that is effective during the specified Interval.
+     *
+     * @param interval The Interval during which the new CustomPropertySetValues are effective
+     * @return The empty CustomAttributeSetProperties
+     */
+    public static CustomPropertySetValues emptyDuring (Interval interval) {
+        return new CustomPropertySetValues(interval.toClosedOpenRange());
     }
 
     /**
@@ -36,11 +66,36 @@ public final class CustomPropertySetValues {
     public static CustomPropertySetValues copyOf (CustomPropertySetValues other) {
         CustomPropertySetValues copy = CustomPropertySetValues.empty();
         copy.values.putAll(other.values);
+        copy.effective = other.effective;
         return copy;
     }
 
     private CustomPropertySetValues() {
+        this(Interval.sinceEpoch().toClosedOpenRange());
+    }
+
+    private CustomPropertySetValues(Range<Instant> effective) {
         super();
+        this.effective = effective;
+    }
+
+    /**
+     * Gets the Ranges during which this set of property values is effective.
+     *
+     * @return The Range
+     */
+    public Range<Instant> getEffectiveRange() {
+        return this.effective;
+    }
+
+    /**
+     * Tests if this set of property values is effective at the specified instant in time.
+     *
+     * @param instant The instant in time
+     * @return A flag that indicates if this set of property values is effective
+     */
+    public boolean isEffectiveAt(Instant instant) {
+        return this.getEffectiveRange().contains(instant);
     }
 
     /**

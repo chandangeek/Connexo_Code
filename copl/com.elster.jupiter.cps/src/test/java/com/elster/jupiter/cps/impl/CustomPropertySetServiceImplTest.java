@@ -19,6 +19,7 @@ import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.time.Interval;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -457,6 +458,9 @@ public class CustomPropertySetServiceImplTest {
 
         // Asserts
         assertThat(properties.isEmpty()).isTrue();
+        assertThat(properties.getEffectiveRange().hasLowerBound()).isTrue();
+        assertThat(properties.getEffectiveRange().lowerEndpoint()).isEqualTo(Instant.EPOCH);
+        assertThat(properties.getEffectiveRange().hasUpperBound()).isFalse();
     }
 
     @Test
@@ -481,6 +485,9 @@ public class CustomPropertySetServiceImplTest {
 
         // Asserts
         verify(extension).copyTo(properties);
+        assertThat(properties.getEffectiveRange().hasLowerBound()).isTrue();
+        assertThat(properties.getEffectiveRange().lowerEndpoint()).isEqualTo(Instant.EPOCH);
+        assertThat(properties.getEffectiveRange().hasUpperBound()).isFalse();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -541,6 +548,9 @@ public class CustomPropertySetServiceImplTest {
 
         // Asserts
         assertThat(properties.isEmpty()).isTrue();
+        assertThat(properties.getEffectiveRange().hasLowerBound()).isTrue();
+        assertThat(properties.getEffectiveRange().lowerEndpoint()).isEqualTo(Instant.EPOCH);
+        assertThat(properties.getEffectiveRange().hasUpperBound()).isFalse();
     }
 
     @Test
@@ -555,16 +565,22 @@ public class CustomPropertySetServiceImplTest {
                         anyString()))
                 .thenReturn(Optional.of(this.registeredCustomPropertySet));
         service.addCustomPropertySet(this.versionedCustomPropertySet);
-        VersionedDomainExtensionForTestingPurposes extension = mock(VersionedDomainExtensionForTestingPurposes.class);
+        TestDomain testDomain = new TestDomain(1L);
+        Interval expectedInterval = Interval.startAt(Instant.ofEpochSecond(1000L));
+        VersionedDomainExtensionForTestingPurposes extension = new VersionedDomainExtensionForTestingPurposes(testDomain, this.versionedCustomPropertySet, expectedInterval);
         DataMapper<VersionedDomainExtensionForTestingPurposes> dataMapper = mock(DataMapper.class);
         when(dataMapper.getOptional(anyVararg())).thenReturn(Optional.of(extension));
         when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
 
         // Business method
-        CustomPropertySetValues properties = service.getValuesFor(this.versionedCustomPropertySet, new TestDomain(1L), Instant.now());
+        CustomPropertySetValues properties = service.getValuesFor(this.versionedCustomPropertySet, testDomain, Instant.now());
 
         // Asserts
-        verify(extension).copyTo(properties);
+        assertThat(extension.getInterval()).isEqualTo(expectedInterval);
+        assertThat(properties.propertyNames())
+                .containsOnly(
+                        VersionedDomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(),
+                        VersionedDomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName());
     }
 
     private CustomPropertySetServiceImpl testInstance() {

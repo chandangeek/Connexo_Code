@@ -60,9 +60,11 @@ public interface CustomPropertySetService {
     /**
      * Gets the values for the {@link CustomPropertySet} that were saved for
      * the specified businesObject object.
+     * <p>
      * Note that this will throw an UnsupportedOperationException
      * when the CustomPropertySet is versioned because in that case
      * you need to specify an instant in time when the values are effective.
+     * </p>
      *
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The businesObject object
@@ -75,11 +77,37 @@ public interface CustomPropertySetService {
     <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
 
     /**
+     * Sets the values for the {@link CustomPropertySet} that were saved for
+     * the specified businesObject object.
+     * <p>
+     * Note that previous values are lost forever.If you do not want this,
+     * then you need to mark the CustomPropertySet as versioned.
+     * This is not something that you can change once the set is in use.
+     * </p>
+     * <p>
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is versioned because in that case
+     * you need to specify an instant in time when the values are effective.
+     * </p>
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param businesObject The businesObject object
+     * @param values The CustomPropertySetValues
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @see CustomPropertySet#isVersioned()
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is versioned
+     */
+    <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values);
+
+    /**
      * Gets the values for the {@link CustomPropertySet} that were saved for
      * the specified businesObject object.
+     * <p>
      * Note that this will throw an UnsupportedOperationException
      * when the CustomPropertySet is <strong>NOT</strong> versioned because in that case
      * you do not need to specify an instant in time when the values are effective.
+     * </p>
      *
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The businesObject object
@@ -92,11 +120,35 @@ public interface CustomPropertySetService {
     <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp);
 
     /**
+     * Sets the values for the {@link CustomPropertySet} that were saved for
+     * the specified businesObject object.
+     * <p>
+     * Note that previous values are not lost but retained for historical purposes.
+     * </p>
+     * <p>
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is <strong>NOT</strong> versioned because in that case
+     * you do not need to specify an instant in time when the values are effective.
+     * </p>
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param businesObject The businesObject object
+     * @param values The CustomPropertySetValues
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @see CustomPropertySet#isVersioned()
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
+     */
+    <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Instant effectiveTimestamp);
+
+    /**
      * Gets the values for the {@link CustomPropertySet} that were saved for
      * the specified domain object.
+     * <p>
      * Note that this will throw an UnsupportedOperationException
      * when the CustomPropertySet is versioned because in that case
      * you need to specify an instant in time when the values are effective.
+     * </p>
      *
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The domain object
@@ -111,9 +163,11 @@ public interface CustomPropertySetService {
     /**
      * Gets the values for the {@link CustomPropertySet} that were saved for
      * the specified businesObject object.
+     * <p>
      * Note that this will throw an UnsupportedOperationException
      * when the CustomPropertySet is <strong>NOT</strong> versioned because in that case
      * you do not need to specify an instant in time when the values are effective.
+     * </p>
      *
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The businesObject object
