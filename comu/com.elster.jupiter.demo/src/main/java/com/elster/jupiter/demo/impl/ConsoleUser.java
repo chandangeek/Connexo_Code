@@ -5,11 +5,7 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Insert your comments here.
@@ -117,6 +113,11 @@ public class ConsoleUser implements User {
     @Override
     public Set<Privilege> getPrivileges() {
         return Collections.emptySet();
+    }
+
+    @Override
+    public Map<String, List<Privilege>> getApplicationPrivileges() {
+        return Collections.emptyMap();
     }
 
     @Override
