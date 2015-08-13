@@ -34,6 +34,7 @@
             <id>sencha-build</id>
             <properties>
                 <js.dir>js/time</js.dir>
+                <package.name>com.elster.jupiter.time.extjs</package.name>
             </properties>
         </profile>
     </profiles>
