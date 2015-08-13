@@ -1,7 +1,6 @@
 package com.energyict.mdc.issues.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.google.inject.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -10,7 +9,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
