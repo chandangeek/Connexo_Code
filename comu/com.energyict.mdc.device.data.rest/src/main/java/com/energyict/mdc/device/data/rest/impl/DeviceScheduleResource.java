@@ -150,7 +150,7 @@ public class DeviceScheduleResource {
     public Response addComScheduleOnDevice(@PathParam("mRID") String mrid, @PathParam("comScheduleId") long comScheduleId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ComSchedule comSchedule = schedulingService.findSchedule(comScheduleId).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_SCHEDULE, comScheduleId));
-        device.newScheduledComTaskExecution(comSchedule);
+        device.newScheduledComTaskExecution(comSchedule).add();
         device.save();
         return Response.status(Response.Status.OK).build();
     }
