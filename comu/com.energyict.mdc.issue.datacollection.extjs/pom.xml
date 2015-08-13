@@ -39,6 +39,7 @@
             <id>sencha-build</id>
             <properties>
                 <js.dir>js/idc</js.dir>
+                <package.name>com.energyict.mdc.issue.datacollection.extjs</package.name>
             </properties>
         </profile>
     </profiles>
