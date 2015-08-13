@@ -37,6 +37,7 @@
             <id>sencha-build</id>
             <properties>
                 <js.dir>js/export</js.dir>
+                <package.name>com.elster.jupiter.export.extjs</package.name>
             </properties>
         </profile>
     </profiles>
