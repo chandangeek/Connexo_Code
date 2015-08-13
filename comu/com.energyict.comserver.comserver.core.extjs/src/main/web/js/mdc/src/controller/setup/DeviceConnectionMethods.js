@@ -254,15 +254,19 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     showPropertiesAsInherited: function (connectionMethod) {
-        if (connectionMethod.propertiesStore.data.items.length > 0) {
+        var propertiesArray = connectionMethod.propertiesStore.data.items;
+        if (propertiesArray.length > 0) {
             this.getDeviceConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(true);
+            Ext.Array.each(propertiesArray, function (property) {
+                if (property.get('key') == 'host' || property.get('key') == 'portNumber') {
+                    property.getPropertyValue().set('defaultValue', property.getPropertyValue().get('value'));
+                }
+            });
         } else {
             this.getDeviceConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(false);
         }
         this.getDeviceConnectionMethodEditView().down('property-form').loadRecord(connectionMethod);
         this.getDeviceConnectionMethodEditView().down('property-form').useInheritedValues();
-
-        //this.getPropertiesController().showPropertiesAsInherited(connectionMethod, this.getDeviceConnectionMethodEditView(), false);
     },
 
     selectDeviceConfigConnectionMethod: function (comboBox) {
@@ -376,6 +380,14 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             if (propertyForm) {
                 propertyForm.updateRecord(record);
                 record.propertiesStore = propertyForm.getRecord().properties();
+                var propertiesArray = record.propertiesStore.data.items;
+                if (propertiesArray.length > 0) {
+                    Ext.Array.each(propertiesArray, function (property) {
+                        if (property.get('key') == 'host' || property.get('key') == 'portNumber') {
+                            (property.getPropertyValue().get('value') == property.getPropertyValue().get('defaultValue')) && property.getPropertyValue().set('value', '');
+                        }
+                    });
+                }
             }
 
             this.saveRecord(record, isNewRecord);
