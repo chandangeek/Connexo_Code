@@ -44,7 +44,7 @@ public class BulkScheduleResource {
         if (!appServerHelper.verifyActiveAppServerExists(SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION) || !appServerHelper.verifyActiveAppServerExists(SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
-        if (request.action!=null && !request.action.equalsIgnoreCase("add") && !request.action.equalsIgnoreCase("remove")) {
+        if (request.action == null || (!request.action.equalsIgnoreCase("add") && !request.action.equalsIgnoreCase("remove"))) {
             throw exceptionFactory.newException(MessageSeeds.BAD_ACTION);
         }
         ItemizeComScheduleQueueMessage message = new ItemizeComScheduleQueueMessage();

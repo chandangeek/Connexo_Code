@@ -431,6 +431,23 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
+    public void testComSchedulesBulkWithoutAction() {
+        BulkRequestInfo request = new BulkRequestInfo();
+        request.action = null;
+        request.filter = new ComScheduleOnDevicesFilterSpecification();
+        request.filter.serialNumber = "*001";
+        request.scheduleIds = Arrays.asList(1L);
+        Entity<BulkRequestInfo> json = Entity.json(request);
+        Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
+        when(messageService.getDestinationSpec(SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION)).thenReturn(destinationSpec);
+        mockAppServers(SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION);
+
+        Response response = target("/devices/schedules").request().put(json);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
     public void testGetAllLoadProfiles() throws Exception {
         Device device1 = mock(Device.class);
         Channel channel1 = mockChannel("channel1", "1.1.1", 1);
