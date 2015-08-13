@@ -354,9 +354,12 @@ public class TypedProperties {
         return this.isLocalValueFor(value, propertyName) || this.isInheritedValueFor(value, propertyName);
     }
 
+    /**
+     * Return a list of all properties (inlcuding the inherited ones) in string format
+     */
     public Properties toStringProperties() {
         Properties newProps = new Properties();
-        for (String propertyName : this.localPropertyNames()) {
+        for (String propertyName : this.propertyNames()) {
             Object value = this.getProperty(propertyName);
             if (value instanceof Boolean) {
                 Boolean flag = (Boolean) value;
@@ -368,6 +371,7 @@ public class TypedProperties {
         }
         return newProps;
     }
+
 
     @Override
     public String toString () {
