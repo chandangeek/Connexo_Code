@@ -380,7 +380,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             primaryKeyColumns.add(this.customPropertySetReference);
         }
 
-        void initializeUnderConstruction() {
+        private void initializeUnderConstruction() {
             this.underConstruction =
                     this.dataModel.addTable(
                             this.tableNameFor(this.customPropertySet),
@@ -483,12 +483,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
         private VersionedTableBuilder(DataModel dataModel, CustomPropertySet customPropertySet) {
             super(dataModel, customPropertySet);
-        }
-
-        @Override
-        void initializeUnderConstruction() {
-            super.initializeUnderConstruction();
-            this.underConstruction().setJournalTableName(this.customPropertySet().getPersistenceSupport().tableName() + "JRNL");
         }
 
         @SuppressWarnings("unchecked")
