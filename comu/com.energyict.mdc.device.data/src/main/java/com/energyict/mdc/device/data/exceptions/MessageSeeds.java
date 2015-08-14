@@ -109,7 +109,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     USER_IS_NOT_ALLOWED_TO_EDIT_SECURITY_PROPERTIES(2075, Keys.USER_IS_NOT_ALLOWED_TO_EDIT_SECURITY_PROPERTIES, "You are not allowed to edit the security properties", Level.SEVERE),
     NO_SUCH_COM_SCHEDULE(2076, "NoSuchComSchedule" , "No communication schedule with id {0}", Level.SEVERE),
     NO_SUCH_DEVICE(2077, "NoSuchDevice" , "No device with mRID {0}", Level.SEVERE),
-    ;
+    NO_METER_ACTIVATION_AT(2076, Keys.NO_METER_ACTIVATION_AT, "There is no meter activation at {0}", Level.SEVERE),    ;
 
     private final int number;
     private final String key;
@@ -243,5 +243,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String DEVICE_GROUP_MUST_BE_UNIQUE = "kpi.deviceGroup.unique";
         public static final String CAN_NOT_CHANGE_FREQUENCY = "kpi.frequency.immutable";
         public static final String USER_IS_NOT_ALLOWED_TO_EDIT_SECURITY_PROPERTIES = "securityPropertySet.edit.notAllowed";
+        public static final String NO_METER_ACTIVATION_AT = "no.meteractivation";
     }
 }
