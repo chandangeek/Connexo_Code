@@ -1,7 +1,7 @@
 Ext.define('Isu.controller.IssueDetail', {
     extend: 'Ext.app.Controller',
     requires: [
-       'Isu.privileges.Issue'
+        'Isu.privileges.Issue'
     ],
 
     showOverview: function (id, issueModel, issuesStore, widgetXtype, routeToList, issueType) {
@@ -33,8 +33,8 @@ Ext.define('Isu.controller.IssueDetail', {
 
                     // todo: disabled due to bug in data validation issues (link is hardcoded)
                     //if (queryParams) {
-                        //var breadcrumbLink = Ext.ComponentQuery.query('breadcrumbLink[href=#/workspace/datacollectionissues]')[0];
-                        //breadcrumbLink.getEl().down('a').set({href: router.getRoute(routeToList).buildUrl(null, queryParams)});
+                    //var breadcrumbLink = Ext.ComponentQuery.query('breadcrumbLink[href=#/workspace/datacollectionissues]')[0];
+                    //breadcrumbLink.getEl().down('a').set({href: router.getRoute(routeToList).buildUrl(null, queryParams)});
                     //}
                 }
             },
@@ -66,7 +66,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 commentsStore.add(records);
                 commentsView.show();
                 commentsView.previousSibling('#no-issue-comments').setVisible(!records.length && !router.queryParams.addComment);
-                commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && !Isu.privileges.Issue.canComment());
+                commentsView.up('issue-comments').down('#issue-comments-add-comment-button').setVisible(records.length && !router.queryParams.addComment && Isu.privileges.Issue.canComment());
                 Ext.resumeLayouts(true);
                 commentsView.setLoading(false);
             }
@@ -94,7 +94,7 @@ Ext.define('Isu.controller.IssueDetail', {
         Ext.suspendLayouts();
         commentsPanel.down('#issue-add-comment-form').hide();
         commentsPanel.down('#issue-add-comment-area').reset();
-        commentsPanel.down('#issue-comments-add-comment-button').setVisible(hasComments && !Isu.privileges.Issue.canComment());
+        commentsPanel.down('#issue-comments-add-comment-button').setVisible(hasComments && Isu.privileges.Issue.canComment());
         commentsPanel.down('#no-issue-comments').setVisible(!hasComments);
         Ext.resumeLayouts(true);
     },
@@ -106,10 +106,18 @@ Ext.define('Isu.controller.IssueDetail', {
     addComment: function () {
         var me = this,
             commentsPanel = me.getCommentsPanel(),
-            commentsStore = commentsPanel.down('#issue-comments-view').getStore();
+            commentsView = commentsPanel.down('#issue-comments-view'),
+            commentsStore = commentsView.getStore();
 
+        commentsView.setLoading();
         commentsStore.add(commentsPanel.down('#issue-add-comment-form').getValues());
-        commentsStore.sync();
+        commentsStore.sync({callback: function () {
+            commentsStore.load(function (records) {
+                this.add(records);
+                commentsView.setLoading(false);
+            })
+        }});
+
         me.hideCommentForm();
     },
 
