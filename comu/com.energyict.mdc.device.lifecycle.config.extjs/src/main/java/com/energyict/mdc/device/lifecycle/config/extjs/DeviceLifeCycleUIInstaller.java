@@ -30,10 +30,9 @@ public class DeviceLifeCycleUIInstaller implements TranslationKeyProvider {
 
     @Activate
     public void activate(BundleContext context) {
-//        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
-        // EXAMPLE: Below is how to enable local development mode.
-
-      HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "C:/repositorysvn/jupiterrepo/comu/com.energyict.mdc.device.lifecycle.config.extjs/src/main/web/js/dlc", new FileResolver());
+      HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
+      // EXAMPLE: Below is how to enable local development mode.
+      // HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "C:/repositorysvn/jupiterrepo/comu/com.energyict.mdc.device.lifecycle.config.extjs/src/main/web/js/dlc", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 
