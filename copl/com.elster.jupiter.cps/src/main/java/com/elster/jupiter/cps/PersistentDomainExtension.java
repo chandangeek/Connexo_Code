@@ -13,7 +13,7 @@ import aQute.bnd.annotation.ConsumerType;
  * <li>{@link com.elster.jupiter.orm.DataModel}: The DataModel that holds the table of your domain extension should you need to run queries</li>
  * <li>{@link CustomPropertySetService}: The CustomPropertySetService</li>
  * </ul>
- * If the implementation class need any additional services,
+ * If the implementation class needs any additional services,
  * be it connexo services or services that the custom code is providing
  * then the {@link PersistenceSupport} implementation class should
  * return a Module that will bind these services.
