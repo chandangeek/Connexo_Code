@@ -5,6 +5,7 @@ Ext.define('InsightApp.controller.Main', {
     extend: 'Uni.controller.AppController',
 
     requires: [
+        'Cfg.controller.Main',
         'Uni.controller.Navigation',
         'Mtr.controller.Main',
         'InsightApp.controller.History'
@@ -30,7 +31,7 @@ Ext.define('InsightApp.controller.Main', {
         
         // default route redirect
         router.initRoute('default', {
-            redirect: this.defaultToken.slice(2, this.defaultToken.length),
+            redirect: this.defaultToken.slice(1, this.defaultToken.length),
             route: ''
         });
 
@@ -55,16 +56,6 @@ Ext.define('InsightApp.controller.Main', {
                     text: Uni.I18n.translate('general.usagePointAdd', 'MTR', 'Add Usage Point'),
                     href: '#/administration/usagepoints/add',
                     itemId: 'add-usagepoints'
-                },
-                {
-                    text: Uni.I18n.translate('general.usagePointView', 'MTR', 'View Usage Point'),
-                    href: '#/administration/usagepoints',
-                    itemId: 'view-usagepoints'
-                },
-                {
-                    text: Uni.I18n.translate('general.deviceView', 'MTR', 'View Device'),
-                    href: '#/administration/devices',
-                    itemId: 'view-devices'
                 }
             ]
         });
