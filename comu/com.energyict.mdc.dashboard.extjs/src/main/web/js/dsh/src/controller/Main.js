@@ -82,7 +82,7 @@ Ext.define('Dsh.controller.Main', {
                     route: 'datacommunication',
                     items: [
                         {
-                            text: Uni.I18n.translate('title.connections', 'DSH', 'Connections'),
+                            text: Uni.I18n.translate('general.connections', 'DSH', 'Connections'),
                             href: router.getRoute('workspace/connections/details').buildUrl()
                         },
                         {
@@ -90,7 +90,7 @@ Ext.define('Dsh.controller.Main', {
                             href: router.getRoute('workspace/connections').buildUrl()
                         },
                         {
-                            text: Uni.I18n.translate('title.communications', 'DSH', 'Communications'),
+                            text: Uni.I18n.translate('general.communications', 'DSH', 'Communications'),
                             href: router.getRoute('workspace/communications/details').buildUrl()
                         },
                         {

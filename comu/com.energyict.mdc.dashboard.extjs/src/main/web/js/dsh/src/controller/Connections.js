@@ -263,7 +263,7 @@ Ext.define('Dsh.controller.Connections', {
         var me = this;
 
         record.run(function () {
-            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connection.run.now', 'DSH', 'Run succeeded'));
+            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.runSucceeded', 'DSH', 'Run succeeded'));
             record.set('nextExecution', new Date());
             me.showOverview();
         });

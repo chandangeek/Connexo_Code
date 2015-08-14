@@ -27,7 +27,7 @@ Ext.define('Dsh.controller.history.Workspace', {
                     filter: 'Dsh.model.OverviewFilter',
                     items: {
                         details: {
-                            title: Uni.I18n.translate('title.connections', 'DSH', 'Connections'),
+                            title: Uni.I18n.translate('general.connections', 'DSH', 'Connections'),
                             route: 'details',
                             controller: 'Dsh.controller.Connections',
                             privileges: Mdc.privileges.Device.viewOrAdministrateOrOperateDeviceCommunication,
@@ -35,7 +35,7 @@ Ext.define('Dsh.controller.history.Workspace', {
                             filter: 'Dsh.model.Filter',
                             items: {
                                 bulk: {
-                                    title: Uni.I18n.translate('title.bulkAction', 'DSH', 'Bulk action'),
+                                    title: Uni.I18n.translate('general.bulkAction', 'DSH', 'Bulk action'),
                                     route: 'bulk',
                                     controller: 'Dsh.controller.ConnectionsBulk',
                                     privileges: Mdc.privileges.Device.viewOrAdministrateOrOperateDeviceCommunication,
@@ -55,7 +55,7 @@ Ext.define('Dsh.controller.history.Workspace', {
                     filter: 'Dsh.model.OverviewFilter',
                     items: {
                         details: {
-                            title: Uni.I18n.translate('title.communications', 'DSH', 'Communications'),
+                            title: Uni.I18n.translate('general.communications', 'DSH', 'Communications'),
                             route: 'details',
                             controller: 'Dsh.controller.Communications',
                             privileges: Mdc.privileges.Device.viewOrAdministrateOrOperateDeviceCommunication,
@@ -63,7 +63,7 @@ Ext.define('Dsh.controller.history.Workspace', {
                             filter: 'Dsh.model.Filter',
                             items: {
                                 bulk: {
-                                    title: Uni.I18n.translate('title.bulkAction', 'DSH', 'Bulk action'),
+                                    title: Uni.I18n.translate('general.bulkAction', 'DSH', 'Bulk action'),
                                     route: 'bulk',
                                     controller: 'Dsh.controller.CommunicationsBulk',
                                     privileges: Mdc.privileges.Device.viewOrAdministrateOrOperateDeviceCommunication,
@@ -85,7 +85,7 @@ Ext.define('Dsh.controller.history.Workspace', {
             filter: 'Dsh.model.OverviewFilter',
             items: {
                 selectfavoritedevicegroups: {
-                    title: Uni.I18n.translate('title.selectFavoriteDeviceGroups', 'DSH', 'Select favorite device groups'),
+                    title: Uni.I18n.translate('general.selectFavoriteDeviceGroups', 'DSH', 'Select favorite device groups'),
                     route: 'selectfavoritedevicegroups',
                     controller: 'Dsh.controller.OperatorDashboard',
                     //privileges: ['privilege.administrate.deviceGroup'],

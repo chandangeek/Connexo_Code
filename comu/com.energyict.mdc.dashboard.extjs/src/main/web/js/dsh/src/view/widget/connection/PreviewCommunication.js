@@ -26,14 +26,14 @@ Ext.define('Dsh.view.widget.connection.PreviewCommunication', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('connection.communication.widget.details.commTaskName', 'DSH', 'Name'),
+                    fieldLabel: Uni.I18n.translate('general.name', 'DSH', 'Name'),
                     name: 'comTask',
                     renderer: function (val) {
                         return Ext.String.htmlEncode(val.name);
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('connection.communication.widget.details.device', 'DSH', 'Device'),
+                    fieldLabel: Uni.I18n.translate('general.device', 'DSH', 'Device'),
                     name: 'device',
                     renderer: function (val) {
                         var res = '';
@@ -45,7 +45,7 @@ Ext.define('Dsh.view.widget.connection.PreviewCommunication', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('connection.communication.widget.details.deviceType', 'DSH', 'Device type'),
+                    fieldLabel: Uni.I18n.translate('general.deviceType', 'DSH', 'Device type'),
                     name: 'deviceType',
                     renderer: function (val) {
                         var res = '';
@@ -57,7 +57,7 @@ Ext.define('Dsh.view.widget.connection.PreviewCommunication', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('connection.communication.widget.details.deviceConfig', 'DSH', 'Device configuration'),
+                    fieldLabel: Uni.I18n.translate('general.deviceConfig', 'DSH', 'Device configuration'),
                     name: 'devConfig',
                     renderer: function (val) {
                         var res = '';
@@ -74,12 +74,12 @@ Ext.define('Dsh.view.widget.connection.PreviewCommunication', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('connection.communication.widget.details.frequency', 'DSH', 'Frequency'),
+                    fieldLabel: Uni.I18n.translate('general.frequency', 'DSH', 'Frequency'),
                     name: 'comScheduleFrequency',
                     renderer: function (val) {
                         var res = '';
                         if (val) {
-                            res = Uni.I18n.translate('connection.communication.widget.details.every', 'DSH', 'Every')
+                            res = Uni.I18n.translate('general.every', 'DSH', 'Every')
                             + ' '
                             + val.every.count
                             + ' '
@@ -89,11 +89,11 @@ Ext.define('Dsh.view.widget.connection.PreviewCommunication', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('connection.communication.widget.details.urgency', 'DSH', 'Urgency'),
+                    fieldLabel: Uni.I18n.translate('general.urgency', 'DSH', 'Urgency'),
                     name: 'urgency'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('connection.communication.widget.details.executeOnInbound', 'DSH', 'Always execute on inbound'),
+                    fieldLabel: Uni.I18n.translate('general.alwaysExecuteOnInbound', 'DSH', 'Always execute on inbound'),
                     name: 'alwaysExecuteOnInbound',
                     renderer: function (val) {
                         if (!_.isUndefined(val)) {
@@ -113,35 +113,35 @@ Ext.define('Dsh.view.widget.connection.PreviewCommunication', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('connection.communication.widget.details.currentState', 'DSH', 'Current state'),
+                    fieldLabel: Uni.I18n.translate('general.currentState', 'DSH', 'Current state'),
                     name: 'currentState',
                     renderer: function (val) {
                         return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '';
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('connection.communication.widget.details.latestResult', 'DSH', 'Result'),
+                    fieldLabel: Uni.I18n.translate('general.result', 'DSH', 'Result'),
                     name: 'result',
                     renderer: function (val) {
                         return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '';
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('connection.communication.widget.details.startedOn', 'DSH', 'Started on'),
+                    fieldLabel: Uni.I18n.translate('general.startedOn', 'DSH', 'Started on'),
                     name: 'startTime',
                     renderer: function (value) {
                         return value ? Uni.DateTime.formatDateTimeLong(value) : '';
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('connection.communication.widget.details.finishedOn', 'DSH', 'Finished on'),
+                    fieldLabel: Uni.I18n.translate('general.finishedOn', 'DSH', 'Finished on'),
                     name: 'stopTime',
                     renderer: function (value) {
                         return value ? Uni.DateTime.formatDateTimeLong(value) : '';
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('connection.communication.widget.details.nextComm', 'DSH', 'Next communication'),
+                    fieldLabel: Uni.I18n.translate('general.nextCommunication', 'DSH', 'Next communication'),
                     name: 'nextCommunication',
                     renderer: function (value) {
                         return value ? Uni.DateTime.formatDateTimeLong(value) : '';

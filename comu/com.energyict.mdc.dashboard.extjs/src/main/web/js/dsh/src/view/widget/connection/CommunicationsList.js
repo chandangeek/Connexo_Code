@@ -19,7 +19,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
         items: [
             {
                 itemId: 'name',
-                text: Uni.I18n.translate('connection.communication.widget.details.commmunication', 'DSH', 'Communication task'),
+                text: Uni.I18n.translate('general.commTask', 'DSH', 'Communication task'),
                 dataIndex: 'comTask',
                 renderer: function (val) {
                     return Ext.String.htmlEncode(val.name);
@@ -28,7 +28,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
             },
             {
                 itemId: 'device',
-                text: Uni.I18n.translate('connection.communication.widget.details.device', 'DSH', 'Device'),
+                text: Uni.I18n.translate('general.device', 'DSH', 'Device'),
                 dataIndex: 'device',
                 flex: 1,
                 renderer: function (val) {
@@ -37,7 +37,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
             },
             {
                 itemId: 'currentState',
-                text: Uni.I18n.translate('connection.communication.widget.details.currentState', 'DSH', 'Current state'),
+                text: Uni.I18n.translate('general.currentState', 'DSH', 'Current state'),
                 dataIndex: 'currentState',
                 flex: 1,
                 renderer: function (val) {
@@ -46,7 +46,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
             },
             {
                 itemId: 'Result',
-                text: Uni.I18n.translate('connection.communication.widget.details.result', 'DSH', 'Result'),
+                text: Uni.I18n.translate('general.result', 'DSH', 'Result'),
                 dataIndex: 'result',
                 flex: 1,
                 renderer: function (val) {
@@ -55,7 +55,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
             },
             {
                 itemId: 'nextCommunication',
-                text: Uni.I18n.translate('connection.communication.widget.details.nextCommunication', 'DSH', 'Next communication'),
+                text: Uni.I18n.translate('general.nextCommunication', 'DSH', 'Next communication'),
                 dataIndex: 'nextCommunication',
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '';
@@ -64,7 +64,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
             },
             {
                 itemId: 'startTime',
-                text: Uni.I18n.translate('connection.communication.widget.details.startedOn', 'DSH', 'Started on'),
+                text: Uni.I18n.translate('general.startedOn', 'DSH', 'Started on'),
                 dataIndex: 'startTime',
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '';
@@ -73,7 +73,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
             },
             {
                 itemId: 'stopTime',
-                text: Uni.I18n.translate('connection.communication.widget.details.finishedOn', 'DSH', 'Finished on'),
+                text: Uni.I18n.translate('general.finishedOn', 'DSH', 'Finished on'),
                 dataIndex: 'stopTime',
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '';
@@ -97,7 +97,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
                 xtype: 'pagingtoolbartop',
                 dock: 'top',
                 store: me.store,
-                displayMsg: Uni.I18n.translate('connection.communication.widget.details.displayMsg', 'DDSH', '{0} - {1} of {2} communication tasks'),
+                displayMsg: Uni.I18n.translate('connection.communication.widget.details.displayMsg', 'DSH', '{0} - {1} of {2} communication tasks'),
                 displayMoreMsg: Uni.I18n.translate('connection.communication.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} communication tasks'),
                 emptyMsg: Uni.I18n.translate('connection.communication.widget.details.emptyMsg', 'DSH', 'There are no communication task to display'),
                 items:[

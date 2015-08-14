@@ -62,11 +62,11 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
     serverTpl: new Ext.XTemplate(
         '<table>',
             '<tr>',
-                '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.server.name', 'DSH', 'Name') + '</td>',
+                '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('general.name', 'DSH', 'Name') + '</td>',
                 '<td>{comServerName}</td>',
             '</tr>',
             '<tr>',
-                '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.server.type', 'DSH', 'Type') + '</td>',
+                '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('general.type', 'DSH', 'Type') + '</td>',
                 '<td>{comServerType}</td>',
             '</tr>',
             '<tpl if="blockedSince">',
@@ -121,7 +121,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                     xtype: 'button',
                     itemId: 'lnk-view-all-communication-servers',
                     ui: 'link',
-                    text: Uni.I18n.translate('overview.widget.communicationServers.viewAll', 'DSH', 'View all'),
+                    text: Uni.I18n.translate('general.viewAll', 'DSH', 'View all'),
                     href: typeof me.router.getRoute('administration/comservers') !== 'undefined'
                         ? me.router.getRoute('administration/comservers').buildUrl() : ''
                 }

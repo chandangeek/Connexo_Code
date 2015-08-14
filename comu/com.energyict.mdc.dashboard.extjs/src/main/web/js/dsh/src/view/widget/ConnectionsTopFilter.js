@@ -8,7 +8,7 @@ Ext.define('Dsh.view.widget.ConnectionsTopFilter', {
         {
             type: 'combobox',
             dataIndex: 'deviceGroups',
-            emptyText: Uni.I18n.translate('connection.widget.filter.deviceGroup', 'DSH', 'Device group'),
+            emptyText: Uni.I18n.translate('general.deviceGroup', 'DSH', 'Device group'),
             multiSelect: true,
             displayField: 'name',
             valueField: 'id',
@@ -18,7 +18,7 @@ Ext.define('Dsh.view.widget.ConnectionsTopFilter', {
         {
             type: 'combobox',
             dataIndex: 'currentStates',
-            emptyText: Uni.I18n.translate('connection.widget.filter.currentState', 'DSH', 'Current state'),
+            emptyText: Uni.I18n.translate('general.currentState', 'DSH', 'Current state'),
             multiSelect: true,
             displayField: 'localizedValue',
             valueField: 'taskStatus',
@@ -28,7 +28,7 @@ Ext.define('Dsh.view.widget.ConnectionsTopFilter', {
         {
             type: 'combobox',
             dataIndex: 'latestStates',
-            emptyText: Uni.I18n.translate('connection.widget.filter.latestStatus', 'DSH', 'Latest status'),
+            emptyText: Uni.I18n.translate('general.latestStatus', 'DSH', 'Latest status'),
             multiSelect: true,
             displayField: 'localizedValue',
             valueField: 'successIndicator',
@@ -38,7 +38,7 @@ Ext.define('Dsh.view.widget.ConnectionsTopFilter', {
         {
             type: 'combobox',
             dataIndex: 'latestResults',
-            emptyText: Uni.I18n.translate('connection.widget.filter.latestResult', 'DSH', 'Latest result'),
+            emptyText: Uni.I18n.translate('general.latestResult', 'DSH', 'Latest result'),
             multiSelect: true,
             displayField: 'localizedValue',
             valueField: 'successIndicator',
@@ -48,7 +48,7 @@ Ext.define('Dsh.view.widget.ConnectionsTopFilter', {
         {
             type: 'combobox',
             dataIndex: 'comPortPools',
-            emptyText: Uni.I18n.translate('connection.widget.filter.comPortPool', 'DSH', 'Communication port pool'),
+            emptyText: Uni.I18n.translate('general.commPortPool', 'DSH', 'Communication port pool'),
             multiSelect: true,
             displayField: 'name',
             valueField: 'id',
@@ -58,7 +58,7 @@ Ext.define('Dsh.view.widget.ConnectionsTopFilter', {
         {
             type: 'combobox',
             dataIndex: 'connectionTypes',
-            emptyText: Uni.I18n.translate('connection.widget.filter.connectionType', 'DSH', 'Connection type'),
+            emptyText: Uni.I18n.translate('general.connectionType', 'DSH', 'Connection type'),
             multiSelect: true,
             displayField: 'name',
             valueField: 'id',
@@ -68,7 +68,7 @@ Ext.define('Dsh.view.widget.ConnectionsTopFilter', {
         {
             type: 'combobox',
             dataIndex: 'deviceTypes',
-            emptyText: Uni.I18n.translate('connection.widget.filter.deviceType', 'DSH', 'Device type'),
+            emptyText: Uni.I18n.translate('general.deviceType', 'DSH', 'Device type'),
             multiSelect: true,
             displayField: 'name',
             valueField: 'id',

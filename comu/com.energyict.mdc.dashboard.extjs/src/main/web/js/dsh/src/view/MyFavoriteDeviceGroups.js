@@ -2,7 +2,7 @@ Ext.define('Dsh.view.MyFavoriteDeviceGroups', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.my-favorite-device-groups',
     itemId: 'my-favorite-device-groups',
-    title: Uni.I18n.translate('myFavoriteDeviceGroups.pageTitle', 'DSH', 'Select favorite device groups'),
+    title: Uni.I18n.translate('general.selectFavoriteDeviceGroups', 'DSH', 'Select favorite device groups'),
     ui: 'large',
     margin: '0 20',
     requires: [
@@ -57,12 +57,12 @@ Ext.define('Dsh.view.MyFavoriteDeviceGroups', {
                         width: 35
                     },
                     {
-                        header: Uni.I18n.translate('myFavoriteDeviceGroups.grid.column.name', 'DSH', 'Name'),
+                        header: Uni.I18n.translate('general.name', 'DSH', 'Name'),
                         dataIndex: 'name',
                         flex: 1
                     },
                     {
-                        header: Uni.I18n.translate('myFavoriteDeviceGroups.grid.column.type', 'DSH', 'Type'),
+                        header: Uni.I18n.translate('general.type', 'DSH', 'Type'),
                         dataIndex: 'dynamic',
                         flex: 1,
                         renderer: function (value) {

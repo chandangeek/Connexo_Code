@@ -90,7 +90,7 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
             {
                 xtype: 'button',
                 itemId: 'lnk-unassigned-issues-link',
-                text: Ext.String.format(Uni.I18n.translate('overview.widget.openDataCollectionIssues.unassigned', 'DSH', 'Unassigned ({0})'), unassigned.get('total')),
+                text: Ext.String.format(Uni.I18n.translate('general.unassignedCounter', 'DSH', 'Unassigned ({0})'), unassigned.get('total')),
                 ui: 'link',
                 href: me.router.getRoute('workspace/datacollectionissues').buildUrl(null, unassignedFilter)
             }

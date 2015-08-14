@@ -21,7 +21,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
         items: [
             {
                 itemId: 'Device',
-                text: Uni.I18n.translate('connection.widget.details.device', 'DSH', 'Device'),
+                text: Uni.I18n.translate('general.device', 'DSH', 'Device'),
                 dataIndex: 'device',
                 flex: 1,
                 renderer: function (val) {
@@ -31,7 +31,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             },
             {
                 itemId: 'connectionMethod',
-                text: Uni.I18n.translate('connection.widget.details.connectionMethod', 'DSH', 'Connection method'),
+                text: Uni.I18n.translate('general.connectionMethod', 'DSH', 'Connection method'),
                 dataIndex: 'connectionMethod',
                 flex: 1,
                 renderer: function (val) {
@@ -40,7 +40,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             },
             {
                 itemId: 'currentState',
-                text: Uni.I18n.translate('connection.widget.details.currentState', 'DSH', 'Current state'),
+                text: Uni.I18n.translate('general.currentState', 'DSH', 'Current state'),
                 dataIndex: 'currentState',
                 flex: 1,
                 renderer: function (val) {
@@ -49,7 +49,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             },
             {
                 itemId: 'latestStatus',
-                text: Uni.I18n.translate('connection.widget.details.latestStatus', 'DSH', 'Latest status'),
+                text: Uni.I18n.translate('general.latestStatus', 'DSH', 'Latest status'),
                 dataIndex: 'latestStatus',
                 flex: 1,
                 renderer: function (val) {
@@ -58,7 +58,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             },
             {
                 itemId: 'latestResult',
-                text: Uni.I18n.translate('connection.widget.details.latestResult', 'DSH', 'Latest result'),
+                text: Uni.I18n.translate('general.latestResult', 'DSH', 'Latest result'),
                 dataIndex: 'latestResult',
                 name: 'latestResult',
                 flex: 1,
@@ -85,7 +85,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             },
             {
                 itemId: 'startDateTime',
-                text: Uni.I18n.translate('connection.widget.details.startedOn', 'DSH', 'Started on'),
+                text: Uni.I18n.translate('general.startedOn', 'DSH', 'Started on'),
                 dataIndex: 'startDateTime',
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '';
@@ -110,7 +110,7 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             xtype: 'pagingtoolbartop',
             dock: 'top',
             store: 'Dsh.store.ConnectionTasks',
-            displayMsg: Uni.I18n.translate('connection.widget.details.displayMsg', 'DDSH', '{0} - {1} of {2} connections'),
+            displayMsg: Uni.I18n.translate('connection.widget.details.displayMsg', 'DSH', '{0} - {1} of {2} connections'),
             displayMoreMsg: Uni.I18n.translate('connection.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} connections'),
             emptyMsg: Uni.I18n.translate('connection.widget.details.emptyMsg', 'DSH', 'There are no connections to display'),
             items:[

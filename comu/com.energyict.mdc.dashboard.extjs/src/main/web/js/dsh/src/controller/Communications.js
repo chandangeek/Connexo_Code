@@ -172,7 +172,7 @@ Ext.define('Dsh.controller.Communications', {
         if (record.get('connectionTask').connectionStrategy && record.get('connectionTask').connectionStrategy.id) {
             if (record.get('connectionTask').connectionStrategy.id === 'minimizeConnections') {
                 menuItems.push({
-                    text: Uni.I18n.translate('connection.widget.details.menuItem.run', 'DSH', 'Run'),
+                    text: Uni.I18n.translate('general.run', 'DSH', 'Run'),
                     action: {
                         action: 'run',
                         record: record,
@@ -185,7 +185,7 @@ Ext.define('Dsh.controller.Communications', {
             }
 
             menuItems.push({
-                text: Uni.I18n.translate('connection.widget.details.menuItem.runNow', 'DSH', 'Run now'),
+                text: Uni.I18n.translate('general.runNow', 'DSH', 'Run now'),
                 action: {
                     action: 'runNow',
                     record: record,
@@ -316,7 +316,7 @@ Ext.define('Dsh.controller.Communications', {
         var record = item.action.record;
         record.run(function () {
             me.getApplication().fireEvent('acknowledge',
-                Uni.I18n.translate('device.communication.run.wait', 'DSH', 'Run succeeded')
+                Uni.I18n.translate('general.runSucceeded', 'DSH', 'Run succeeded')
             );
             record.set('plannedDate', new Date());
             me.showOverview();

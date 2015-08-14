@@ -171,7 +171,7 @@ Ext.define('Dsh.controller.OperatorDashboard', {
                                 if (lastUpdateField) {
                                     lastUpdateField.update(
                                         Ext.String.format(
-                                            Uni.I18n.translate('operator.dashboard.lastUpdatedAt', 'DSH', 'Last updated at {0}'), Uni.DateTime.formatTimeShort(new Date())
+                                            Uni.I18n.translate('general.lastUpdatedAt', 'DSH', 'Last updated at {0}'), Uni.DateTime.formatTimeShort(new Date())
                                         )
                                     );
                                 }
