@@ -67,9 +67,12 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
         timesWithoutReadings.removeAll(timesWithReadings);
 
         timesWithoutReadings.forEach(readingTimestamp -> {
-            List<ReadingQuality> qualities = new ArrayList<>(readingQualities.get(readingTimestamp));
+            List<ReadingQualityRecord> qualities = new ArrayList<>(readingQualities.get(readingTimestamp));
             boolean wasValidated = wasValidated(lastChecked, readingTimestamp);
             boolean fullyValidated = configured && wasValidated;
+            if (configured && wasValidated && qualities.stream().noneMatch(ReadingQualityRecord::isSuspect)) {
+                qualities.add(channel.createReadingQuality(validatedAndOk, readingTimestamp));
+            }
             result.add(createDataValidationStatusListFor(readingTimestamp, fullyValidated, qualities, Collections.<ReadingQualityRecord>emptyList(), validationRuleMap, null));
         });
 //        result.sort(Comparator.comparing(DataValidationStatus::getReadingTimestamp));
