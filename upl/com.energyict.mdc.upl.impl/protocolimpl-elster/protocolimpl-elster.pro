@@ -1,7 +1,7 @@
 -dontshrink
 -dontoptimize
 -verbose
-
+-ignorewarnings
 
 # Keep - Applications. Keep all application classes that have a main method.
 -keepclasseswithmembers public class * {
@@ -45,6 +45,8 @@
 
 -keepnames class com.elster.protocolimpl.lis200.DL220
 
+-keepnames class com.elster.protocolimpl.lis200.DL230
+
 -keepnames class com.elster.protocolimpl.lis200.DL240
 
 -keepnames class com.elster.protocolimpl.lis200.EK220
@@ -55,10 +57,13 @@
 
 # DLMS EK280
 -keepnames class com.elster.genericprotocolimpl.dlms.ek280.EK280
+-keepnames class com.elster.protocolimpl.dlms.EK280
 
 -keepnames class com.elster.protocolimpl.dlms.Dlms
 
--keepnames class com.elster.protocolimpl.dlms.EK280
+# DLMS A1
+-keepnames class com.elster.genericprotocolimpl.dlms.a1.A1
+-keepnames class com.elster.protocolimpl.dlms.A1
 
 # LIS100 drivers
 -keepnames class com.elster.protocolimpl.lis100.EK88
