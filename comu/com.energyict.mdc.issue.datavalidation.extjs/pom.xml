@@ -32,6 +32,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>systemadmin</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.data.validation</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
