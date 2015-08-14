@@ -42,11 +42,10 @@ org.osgi.framework.system.packages.extra=sun.net.http,sun.net.www.protocol.http,
 
 felix.log.level=1
 
-
-#
-# Bundle config properties.
-#
-
+mail.smtp.host=
+mail.user=
+mail.password=
+mail.from=
 
 # Property to set the appserver and comserver name that will start up.
 # Please set to appropriate value if the hostname of the machine cannot be used
