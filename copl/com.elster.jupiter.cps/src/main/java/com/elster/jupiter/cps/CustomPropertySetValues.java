@@ -12,7 +12,7 @@ import java.util.Set;
 
 /**
  * CustomAttributeSetProperties model the values for a set of custom properties
- * defined by a {@link CustomPropertySet}.
+ * defined by a {@link CustomPropertySet} and when these values are effective.
  * Each property has a name and a corresponding value.
  *
  * @author Rudi Vankeirsbilck (rudi)
