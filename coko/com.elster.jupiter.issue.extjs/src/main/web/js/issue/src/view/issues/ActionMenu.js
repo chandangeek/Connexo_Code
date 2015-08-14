@@ -82,6 +82,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
             item = undefined;
         }
         me.fireEvent('click', me, item, e);
+        me.hide();
     },
 
     onLoad: function () {
