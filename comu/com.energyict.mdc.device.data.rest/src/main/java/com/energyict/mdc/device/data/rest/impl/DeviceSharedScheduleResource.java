@@ -1,31 +1,14 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.TaskService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -52,9 +35,9 @@ public class DeviceSharedScheduleResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response addComScheduleOnDevice(@PathParam("mRID") String mrid, List<Long> comScheduleIds) {
+    public Response addComScheduleOnDevice(@PathParam("mRID") String mrid, ScheduleIdsInfo info) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        comScheduleIds.stream()
+        info.scheduleIds.stream()
                 .map(schedulingService::findSchedule)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -63,4 +46,10 @@ public class DeviceSharedScheduleResource {
         return Response.status(Response.Status.OK).build();
     }
 
+    static class ScheduleIdsInfo {
+        public List<Long> scheduleIds;
+
+        public ScheduleIdsInfo() {
+        }
+    }
 }
