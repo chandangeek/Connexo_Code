@@ -67,7 +67,7 @@
             <id>sencha-build</id>
             <properties>
                 <js.dir>js/mdc</js.dir>
-                <package.name>com.energyict.comserver.core.extjs</package.name>
+                <package.name>com.energyict.comserver.comserver.core.extjs</package.name>
             </properties>
         </profile>
     </profiles>
