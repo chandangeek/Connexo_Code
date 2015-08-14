@@ -63,7 +63,7 @@
 
 # DLMS A1
 -keepnames class com.elster.genericprotocolimpl.dlms.a1.A1
--keepnamles class com.elster.protocolimpl.dlms.A1
+-keepnames class com.elster.protocolimpl.dlms.A1
 
 # LIS100 drivers
 -keepnames class com.elster.protocolimpl.lis100.EK88
