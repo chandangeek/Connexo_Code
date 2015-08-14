@@ -446,7 +446,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                         success: function (deviceType) {
                             me.getApplication().fireEvent('loadDeviceType', deviceType);
                             widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
-                            me.getDeviceTypeLogbookPanel().setTitle(Uni.I18n.translate('logbooktype.logbookTypes', 'MDC', 'Logbook types'));
+                            me.getDeviceTypeLogbookPanel().setTitle(Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'));
                             widget.setLoading(false);
                         }
                     });

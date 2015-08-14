@@ -12,7 +12,7 @@ Ext.define('Mdc.view.setup.generalattributes.Setup', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
+            title: Uni.I18n.translate('general.generalAttributes', 'MDC', 'General attributes'),
             layout: {
                 type: 'vbox',
                 align: 'stretch'

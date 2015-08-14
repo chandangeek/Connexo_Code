@@ -91,7 +91,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                         {
                                             xtype: 'displayfield',
                                             name: 'name',
-                                            fieldLabel: Uni.I18n.translate('devicetype.name', 'MDC', 'Name')
+                                            fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name')
                                         },
                                         {
                                             xtype: 'displayfield',
@@ -157,7 +157,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                             items: [
                                                 {
                                                     name: 'registerCount',
-                                                    text: Uni.I18n.translate('devicetype.registers', 'MDC', 'Register types'),
+                                                    text: Uni.I18n.translate('general.registerTypes', 'MDC', 'Register types'),
                                                     itemId: 'deviceTypeDetailRegistersLink'
                                                 },
 

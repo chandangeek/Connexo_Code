@@ -32,7 +32,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.view.AddRuleSetsSetup', {
             {
                 ui: 'large',
                 xtype: 'panel',
-                title: Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.add', 'MDC', 'Add estimation rule sets'),
+                title: Uni.I18n.translate('estimationRuleSet.add', 'MDC', 'Add estimation rule sets'),
 
                 items: [
                     {
@@ -52,7 +52,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.view.AddRuleSetsSetup', {
                             ],
                             stepItems: [
                                 {
-                                    text: Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.add', 'MDC', 'Add estimation rule sets'),
+                                    text: Uni.I18n.translate('estimationRuleSet.add', 'MDC', 'Add estimation rule sets'),
                                     action: 'addEstimationRuleSet'
                                 }
                             ]

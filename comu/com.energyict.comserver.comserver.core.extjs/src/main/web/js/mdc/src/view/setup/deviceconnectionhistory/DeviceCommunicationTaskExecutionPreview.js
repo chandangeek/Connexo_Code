@@ -57,7 +57,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                     {
                                         xtype: 'displayfield',
                                         name: 'name',
-                                        fieldLabel: Uni.I18n.translate('deviceconnectionhistory.name', 'MDC', 'Name'),
+                                        fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                         itemId: 'name'
                                     },
                                 {
@@ -91,7 +91,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                 {
                                     xtype: 'displayfield',
                                     name: 'deviceType',
-                                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.deviceType', 'MDC', 'Device type'),
+                                    fieldLabel: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
                                     itemId: 'deviceType',
                                     renderer: function(deviceType){
                                         return deviceType!==''?'<a href="#/administration/devicetypes/'+deviceType.id+'">' + Ext.String.htmlEncode(deviceType.name) + '</a>':'';
@@ -100,7 +100,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                                 {
                                     xtype: 'displayfield',
                                     name: 'deviceConfiguration',
-                                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.deviceConfiguration', 'MDC', 'Device configuration'),
+                                    fieldLabel: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
                                     itemId: 'deviceConfiguration',
                                     renderer: function(deviceConfiguration){
                                         return deviceConfiguration!=''?'<a href="#/administration/devicetypes/'+deviceConfiguration.deviceTypeId+'/deviceconfigurations/' + deviceConfiguration.id+'">' + Ext.String.htmlEncode(deviceConfiguration.name) + '</a>':'';

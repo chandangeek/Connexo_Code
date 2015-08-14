@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Setup', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: Uni.I18n.translate('deviceregisterconfiguration.registers', 'MDC', 'Registers'),
+                title: Uni.I18n.translate('general.registers', 'MDC', 'Registers'),
                 items: [
                     {
                         xtype: 'preview-container',

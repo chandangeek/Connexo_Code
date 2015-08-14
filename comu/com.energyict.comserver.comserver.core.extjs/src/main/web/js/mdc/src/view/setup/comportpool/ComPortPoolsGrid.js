@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
 
         me.columns= [
             {
-                header: Uni.I18n.translate('comPortPool.title.communicationPortPool', 'MDC', 'Communication port pool'),
+                header: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool'),
               //  xtype: 'templatecolumn',
               //  tpl: '<a href="#/administration/comportpools/{id}">{name}</a>',
                 flex: 1,

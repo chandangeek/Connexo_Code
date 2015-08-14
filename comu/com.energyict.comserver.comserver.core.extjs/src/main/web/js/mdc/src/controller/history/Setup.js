@@ -173,7 +173,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     action: 'showDeviceConfigurationEditView'
                                                 },
                                                 generalattributes: {
-                                                    title: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
+                                                    title: Uni.I18n.translate('general.generalAttributes', 'MDC', 'General attributes'),
                                                     route: 'generalattributes',
                                                     privileges: Mdc.privileges.DeviceType.view,
                                                     controller: 'Mdc.controller.setup.GeneralAttributes',
@@ -466,14 +466,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 },
                                                 //Estimation rule sets
                                                 estimationrulesets: {
-                                                    title: Uni.I18n.translate('estimation.title', 'MDC', 'Estimation rule sets'),
+                                                    title: Uni.I18n.translate('general.estimationRuleSets', 'MDC', 'Estimation rule sets'),
                                                     route: 'estimationrulesets',
                                                     controller: 'Mdc.deviceconfigurationestimationrules.controller.RuleSets',
                                                     privileges : Mdc.privileges.DeviceConfigurationEstimations.view,
                                                     action: 'showEstimationRuleSets',
                                                     items: {
                                                         add: {
-                                                            title: Uni.I18n.translate('estimation.rule.set.add.title', 'MDC', 'Add estimation rule sets'),
+                                                            title: Uni.I18n.translate('estimationRuleSet.add', 'MDC', 'Add estimation rule sets'),
                                                             route: 'add',
                                                             controller: 'Mdc.deviceconfigurationestimationrules.controller.AddRuleSets',
                                                             privileges : Mdc.privileges.DeviceConfigurationEstimations.view,
@@ -725,7 +725,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showLicensedProtocols'
                 },
                 comportpools: {
-                    title: 'Communication port pools',
+                    title: Uni.I18n.translate('general.comPortPools', 'MDC', 'Communication port pools'),
                     route: 'comportpools',
                     privileges:Mdc.privileges.Communication.view,
                     controller: 'Mdc.controller.setup.SetupOverview',
@@ -839,7 +839,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showRegisterGroups',
                     items: {
                         create: {
-                            title: Uni.I18n.translate('registerGroup.create', 'MDC', 'Add register group'),
+                            title: Uni.I18n.translate('registerGroup.add', 'MDC', 'Add register group'),
                             route: 'add',
                             privileges: Mdc.privileges.MasterData.admin,
                             controller: 'Mdc.controller.setup.RegisterGroups',
@@ -900,7 +900,7 @@ Ext.define('Mdc.controller.history.Setup', {
                     action: 'showDataCollectionKpiView',
                     items: {
                         add: {
-                            title: Uni.I18n.translate('datacollectionkpis.addDataCollectionKpi', 'MDC', 'Add data collection KPI'),
+                            title: Uni.I18n.translate('datacollectionkpis.add', 'MDC', 'Add data collection KPI'),
                             route: 'add',
                             controller: 'Mdc.controller.setup.DataCollectionKpi',
                             action: 'showDataCollectionKpiEditView'
@@ -959,7 +959,7 @@ Ext.define('Mdc.controller.history.Setup', {
             disabled: true,
             items: {
                 devicegroups: {
-                    title: Uni.I18n.translate('deviceGroups.title', 'MDC', 'Device groups'),
+                    title: Uni.I18n.translate('general.deviceGroups', 'MDC', 'Device groups'),
                     route: 'devicegroups',
                     controller: 'Mdc.controller.setup.DeviceGroups',
                     privileges: Mdc.privileges.DeviceGroup.view,
@@ -1030,7 +1030,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showDeviceHistory'
                         },
                         transitions: {
-                            title: Uni.I18n.translate('', 'MDC', 'Transition'),
+                            title: Uni.I18n.translate('general.transition', 'MDC', 'Transition'),
                             route: 'transitions/{transitionId}',
                             controller: 'Mdc.controller.setup.DeviceTransitionExecute',
                             action: 'showExecuteTransition',
@@ -1100,7 +1100,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showTopologyView'
                         },
                         generalattributes: {
-                            title: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
+                            title: Uni.I18n.translate('general.generalAttributes', 'MDC', 'General attributes'),
                             route: 'generalattributes',
                             controller: 'Mdc.controller.setup.DeviceGeneralAttributes',
                             privileges: Mdc.privileges.Device.deviceOperator,
@@ -1209,7 +1209,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         },
                         registers: {
-                            title: Uni.I18n.translate('deviceregisterconfiguration.registers', 'MDC', 'Registers'),
+                            title: Uni.I18n.translate('general.registers', 'MDC', 'Registers'),
                             route: 'registers',
                             controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
                             privileges: Mdc.privileges.Device.viewDeviceCommunication,
@@ -1246,7 +1246,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     },
                                     items: {
                                         create: {
-                                            title: Uni.I18n.translate('device.registerData.addReading', 'MDC', 'Add reading'),
+                                            title: Uni.I18n.translate('general.addReading', 'MDC', 'Add reading'),
                                             route: 'add',
                                             controller: 'Mdc.controller.setup.DeviceRegisterDataEdit',
                                             privileges: Mdc.privileges.Device.administrateDeviceData,
@@ -1461,7 +1461,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         },
                         channels: {
-                            title: Uni.I18n.translate('routing.channels', 'MDC', 'Channels'),
+                            title: Uni.I18n.translate('general.channels', 'MDC', 'Channels'),
                             route: 'channels',
                             controller: 'Mdc.controller.setup.DeviceChannels',
                             privileges: Mdc.privileges.Device.viewDevice,
@@ -1526,14 +1526,14 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         },
                         logbooks: {
-                            title: Uni.I18n.translate('router.logbooks', 'MDC', 'Logbooks'),
+                            title: Uni.I18n.translate('general.logbooks', 'MDC', 'Logbooks'),
                             route: 'logbooks',
                             controller: 'Mdc.controller.setup.DeviceLogbooks',
                             privileges: Mdc.privileges.Device.viewDeviceCommunication,
                             action: 'showView',
                             items: {
                                 logbook: {
-                                    title: Uni.I18n.translate('router.logbook', 'MDC', 'Logbook'),
+                                    title: Uni.I18n.translate('general.logbook', 'MDC', 'Logbook'),
                                     route: '{logbookId}',
                                     controller: 'Mdc.controller.setup.DeviceLogbookOverview',
                                     privileges: Mdc.privileges.Device.viewDeviceCommunication,
@@ -1548,7 +1548,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     }
                                 },
                                 logbookoverview: {
-                                    title: Uni.I18n.translate('router.overview', 'MDC', 'Overview'),
+                                    title: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
                                     route: '{logbookId}/overview',
                                     controller: 'Mdc.controller.setup.DeviceLogBookTab',
                                     privileges: Mdc.privileges.Device.viewDeviceCommunication,
@@ -1579,7 +1579,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             }
                         },
                         events: {
-                            title: Uni.I18n.translate('router.events', 'MDC', 'Events'),
+                            title: Uni.I18n.translate('general.events', 'MDC', 'Events'),
                             route: 'events',
                             controller: 'Mdc.controller.setup.DeviceEvents',
                             privileges: Mdc.privileges.Device.viewDeviceCommunication,

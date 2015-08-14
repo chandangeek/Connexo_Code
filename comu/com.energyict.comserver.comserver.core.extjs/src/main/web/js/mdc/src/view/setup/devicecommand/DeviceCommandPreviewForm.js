@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandPreviewForm', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdStatus', 'MDC', 'Status'),
+                    fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                     name: 'status',
                     renderer: function (val) {
                         return val.displayValue ? Ext.String.htmlEncode(val.displayValue): ''

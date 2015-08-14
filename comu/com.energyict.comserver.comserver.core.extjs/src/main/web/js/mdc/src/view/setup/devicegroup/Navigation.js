@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.devicegroup.Navigation', {
         },
         {
             itemId: 'DeviceGroup',
-            text: Uni.I18n.translate('devicegroup.add.devicegroup', 'MDC', 'Device group')
+            text: Uni.I18n.translate('general.deviceGroup', 'MDC', 'Device group')
         }
     ]
 });

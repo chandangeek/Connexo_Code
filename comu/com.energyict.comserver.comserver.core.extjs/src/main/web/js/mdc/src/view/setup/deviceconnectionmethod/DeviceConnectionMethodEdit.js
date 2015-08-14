@@ -73,7 +73,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                             {
                                 xtype: 'combobox',
                                 name: 'comPortPool',
-                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.comPortPool', 'MDC', 'Communication port pool'),
+                                fieldLabel: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool'),
                                 itemId: 'communicationPortPoolComboBox',
                                 store: this.comPortPools,
                                 queryMode: 'local',
@@ -267,7 +267,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                             },
                             {
                                 xtype: 'radiogroup',
-                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.active', 'MDC', 'Active'),
+                                fieldLabel: Uni.I18n.translate('general.active', 'MDC', 'Active'),
                                 itemId: 'activeRadioGroup',
                                 allowBlank: false,
                                 vertical: true,

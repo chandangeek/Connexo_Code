@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('deviceSecuritySetting.status', 'MDC', 'Status'),
+                header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                 dataIndex: 'status',
                 renderer: function (value) {
                     return Ext.String.htmlEncode(value.name);

@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('deviceCommunicationProtocol.protocols', 'MDC', 'Communication protocols'),
+            title: Uni.I18n.translate('general.deviceComProtocols', 'MDC', 'Communication protocols'),
             items: [
                 {
                     xtype: 'preview-container',

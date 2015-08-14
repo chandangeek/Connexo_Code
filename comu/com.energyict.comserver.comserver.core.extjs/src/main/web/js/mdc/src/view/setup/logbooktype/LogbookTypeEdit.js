@@ -58,7 +58,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeEdit', {
                                         name: 'name',
                                         msgTarget: 'under',
                                         required: true,
-                                        fieldLabel: Uni.I18n.translate('logbooktype.name', 'MDC', 'Name'),
+                                        fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                         itemId: 'editLogbookTypeNameField',
                                         maxLength: 80,
                                         enforceMaxLength: true,

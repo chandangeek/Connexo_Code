@@ -15,7 +15,7 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointAttributesFormMain', {
         me.items = [
             {
                 xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes', 'MDC', 'General attributes'),
+                fieldLabel: Uni.I18n.translate('general.generalAttributes', 'MDC', 'General attributes'),
                 itemId: "usagePointGeneralAttributes",
                 labelAlign: 'top',
                 layout: 'vbox',
@@ -32,7 +32,7 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointAttributesFormMain', {
                     {
                         name: 'name',
                         itemId: 'fld-up-name',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.name', 'MDC', 'Name'),
+                        fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                         renderer: function (value) {
                             return value ? value : '-';
                         }

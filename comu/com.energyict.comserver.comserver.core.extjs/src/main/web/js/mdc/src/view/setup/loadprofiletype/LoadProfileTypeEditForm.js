@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
             regex: /[a-zA-Z0-9]+/,
             allowBlank: false,
             required: true,
-            fieldLabel: Uni.I18n.translate('general.formFieldLabel.name', 'MDC', 'Name'),
+            fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
             msgTarget: 'under'
         },
         {
@@ -55,7 +55,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
         },
         {
             xtype: 'fieldcontainer',
-            fieldLabel: Uni.I18n.translate('loadProfileTypes.registerTypes', 'MDC', 'Register types'),
+            fieldLabel: Uni.I18n.translate('general.registerTypes', 'MDC', 'Register types'),
             itemId: 'register-types-fieldcontainer',
             required: true,
             msgTarget: 'under',

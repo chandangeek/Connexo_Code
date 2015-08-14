@@ -79,7 +79,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                 {
                                     xtype: 'displayfield',
                                     name: 'comTask',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.name', 'MDC', 'Name'),
+                                    fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                     renderer: function (value) {
                                         return Ext.String.htmlEncode(value.name);
                                     }

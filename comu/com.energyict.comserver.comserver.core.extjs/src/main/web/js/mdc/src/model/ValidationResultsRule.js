@@ -18,9 +18,9 @@ Ext.define('Mdc.model.ValidationResultsRule', {
             name: 'active',            
             convert: function (value, record) {
                 if (value) {
-                    return Uni.I18n.translate('validationResults.active', 'MDC', 'Active');                    
+                    return Uni.I18n.translate('general.active', 'MDC', 'Active');
                 }
-                return Uni.I18n.translate('validationResults.inactive', 'MDC', 'Inactive');    
+                return Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
             }
         },
 		{

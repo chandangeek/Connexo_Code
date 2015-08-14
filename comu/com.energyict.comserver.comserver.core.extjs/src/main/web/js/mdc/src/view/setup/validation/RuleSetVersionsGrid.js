@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetVersionsGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('validation.inactiveRules', 'MDC', 'Inactive rules'),
+                header: Uni.I18n.translate('general.inactiveRules', 'MDC', 'Inactive rules'),
                 align: 'left',
                 dataIndex: 'numberOfInactiveRules',
                 flex: 1

@@ -37,12 +37,12 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                                 {
                                     xtype: 'displayfield',
                                     name: 'name',
-                                    fieldLabel: Uni.I18n.translate('deviceCommunicationSchedule.name', 'MDC', 'Name')
+                                    fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name')
                                 },
                                 {
                                     xtype: 'fieldcontainer',
                                     name: 'communicationTasks',
-                                    fieldLabel: Uni.I18n.translate('deviceCommunicationSchedule.communicationTasks', 'MDC', 'Communication tasks'),
+                                    fieldLabel: Uni.I18n.translate('general.communicationTasks', 'MDC', 'Communication tasks'),
                                     items: [
                                         {
                                             xtype: 'container',

@@ -342,7 +342,7 @@ Ext.define('Mdc.controller.setup.Devices', {
                 cls: 'x-uni-form-error-msg-icon'
             },
             {
-                html: Uni.I18n.translate('addDevice.form.errors', 'MDC', 'There are errors on this page that require your attention.')
+                html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.')
             });
         formErrorsPlaceHolder.show();
     },

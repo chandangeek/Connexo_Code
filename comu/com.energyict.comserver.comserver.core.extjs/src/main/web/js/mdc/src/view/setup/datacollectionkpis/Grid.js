@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Grid', {
     initComponent: function () {
         this.columns = [
             {
-                header: Uni.I18n.translate('datacollectionkpis.deviceGroup', 'MDC', 'Device group'),
+                header: Uni.I18n.translate('general.deviceGroup', 'MDC', 'Device group'),
                 dataIndex: 'deviceGroup',
                 flex: 1,
                 renderer: function (value) {

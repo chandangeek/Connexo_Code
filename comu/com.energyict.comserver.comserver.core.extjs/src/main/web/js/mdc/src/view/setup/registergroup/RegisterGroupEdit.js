@@ -54,7 +54,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                         name: 'name',
                                         msgTarget: 'under',
                                         required: true,
-                                        fieldLabel: Uni.I18n.translate('registerGroup.name', 'MDC', 'Name'),
+                                        fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                         itemId: 'editRegisterGroupNameField',
                                         maxWidth: 650,
                                         maxLength: 80,
@@ -71,7 +71,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                         name: 'selectedRegisterTypes',
                                         msgTarget: 'under',
                                         itemId: 'editRegisterGroupSelectedField',
-                                        fieldLabel: Uni.I18n.translate('registerGroup.registerTypes', 'MDC', 'Register types'),
+                                        fieldLabel: Uni.I18n.translate('general.registerTypes', 'MDC', 'Register types'),
                                         value: Uni.I18n.translate('registerGroup.selectedRegisterTypes', 'MDC', 'Register types selected'),
                                         required: true
                                     },

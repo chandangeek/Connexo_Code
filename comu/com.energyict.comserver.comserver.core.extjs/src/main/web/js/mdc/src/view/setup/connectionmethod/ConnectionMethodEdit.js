@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 name: 'name',
                                 msgTarget: 'under',
                                 required: true,
-                                fieldLabel: Uni.I18n.translate('connectionmethod.name', 'MDC', 'Name'),
+                                fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                 itemId: 'editConnectionMethodNameField',
                                 maxLength: 80,
                                 enforceMaxLength: true
@@ -82,7 +82,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                             {
                                 xtype: 'combobox',
                                 name: 'comPortPool',
-                                fieldLabel: Uni.I18n.translate('connectionmethod.comPortPool', 'MDC', 'Communication port pool'),
+                                fieldLabel: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool'),
                                 itemId: 'communicationPortPoolComboBox',
                                 store: this.comPortPools,
                                 queryMode: 'local',

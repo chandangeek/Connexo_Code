@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskSetup', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('comtask.comtasks', 'MDC', 'Communication tasks'),
+            title: Uni.I18n.translate('general.communicationTasks', 'MDC', 'Communication tasks'),
             items: [
                 {
                     xtype: 'preview-container',

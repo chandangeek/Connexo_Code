@@ -308,7 +308,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         var record = this.getSharedCommunicationScheduleGrid().getSelectionModel().getSelection()[0];
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('deviceCommunicationSchedule.deleteConfirmationSharedSchedule.msg', 'MDC', 'This shared communication schedule will no longer be available on this device.'),
-            title: Ext.String.format(Uni.I18n.translate('deviceCommunicationSchedule.deleteConfirmationSharedSchedule.title', 'MDC', 'Remove \'{0}\'?'), record.get('name')),
+            title: Uni.I18n.translate('general.removeConfirmation', 'MDC', 'Remove \'{0}\'?', [record.get('name')]),
             fn: function (state) {
                 switch (state) {
                     case 'confirm':
@@ -333,7 +333,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             jsonData: jsonData,
             timeout: 180000,
             success: function (response) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.removeSharedScheduleSucceeded', 'MDC', 'Shared communication schedule removed'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationSchedule.removed', 'MDC', 'Shared communication schedule removed'));
                 me.showDeviceCommunicationScheduleView(me.mrid);
             }
         });

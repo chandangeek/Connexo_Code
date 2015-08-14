@@ -24,7 +24,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodsGrid', 
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('deviceconnectionmethod.name', 'MDC', 'Name'),
+                header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 flex: 2
             },
@@ -39,16 +39,16 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodsGrid', 
                 flex: 3
             },
             {
-                header: Uni.I18n.translate('deviceconnectionmethod.status', 'MDC', 'Status'),
+                header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                 dataIndex: 'status',
                 renderer: function (value, b, record) {
                     switch (value) {
                         case 'connectionTaskStatusIncomplete':
                             return Uni.I18n.translate('deviceconnectionmethod.status.incomplete', 'MDC', 'Incomplete');
                         case 'connectionTaskStatusActive':
-                            return Uni.I18n.translate('deviceconnectionmethod.status.active', 'MDC', 'Active');
+                            return Uni.I18n.translate('general.active', 'MDC', 'Active');
                         case 'connectionTaskStatusInActive':
-                            return Uni.I18n.translate('deviceconnectionmethod.status.inactive', 'MDC', 'Inactive');
+                            return Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                         default :
                             return '';
                     }

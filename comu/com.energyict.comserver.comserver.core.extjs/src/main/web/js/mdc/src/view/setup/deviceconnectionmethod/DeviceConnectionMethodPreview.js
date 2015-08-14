@@ -76,7 +76,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                                 {
                                     xtype: 'displayfield',
                                     name: 'name',
-                                    fieldLabel: Uni.I18n.translate('deviceconnectionmethod.name', 'MDC', 'Name'),
+                                    fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                     itemId: 'deviceName'
 
                                 },
@@ -105,16 +105,16 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                                 {
                                     xtype: 'displayfield',
                                     name: 'status',
-                                    fieldLabel: Uni.I18n.translate('deviceconnectionmethod.status', 'MDC', 'Status'),
+                                    fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                                     dataIndex: 'status',
                                     renderer: function (value, b, record) {
                                         switch (value) {
                                             case 'connectionTaskStatusIncomplete':
                                                 return Uni.I18n.translate('deviceconnectionmethod.status.incomplete', 'MDC', 'Incomplete');
                                             case 'connectionTaskStatusActive':
-                                                return Uni.I18n.translate('deviceconnectionmethod.status.active', 'MDC', 'Active');
+                                                return Uni.I18n.translate('general.active', 'MDC', 'Active');
                                             case 'connectionTaskStatusInActive':
-                                                return Uni.I18n.translate('deviceconnectionmethod.status.inactive', 'MDC', 'Inactive');
+                                                return Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                                             default :
                                                 return '';
                                         }
@@ -141,7 +141,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodPreview'
                                 {
                                     xtype: 'displayfield',
                                     name: 'comPortPool',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.comPortPool', 'MDC', 'Communication port pool')
+                                    fieldLabel: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool')
                                 },
                                 {
                                     xtype: 'displayfield',

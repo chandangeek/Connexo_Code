@@ -48,7 +48,7 @@ Ext.define('Mdc.controller.setup.DeviceEvents', {
             dataStoreProxy = dataStore.getProxy(),
             widget,
             toggleId = 'events',
-            title = Uni.I18n.translate('deviceevents.header', 'MDC', 'Events');
+            title = Uni.I18n.translate('general.events', 'MDC', 'Events');
 
         dataStoreProxy.setUrl({mRID: mRID, logbookId: logbookId});
         if (Ext.isDefined(logbookId)) {

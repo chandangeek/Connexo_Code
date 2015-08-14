@@ -244,7 +244,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         if (editPage) {
             if (!id) {
                 Ext.suspendLayouts();
-                editPage.setTitle(Uni.I18n.translate('loadProfileTypes.LoadProfileTypeEdit.addTitle', 'MDC', 'Add load profile type'));
+                editPage.setTitle(Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'));
                 editPage.getLayout().setActiveItem(0);
                 Ext.resumeLayouts(true);
                 return;
@@ -317,7 +317,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 }
             });
         } else {
-            me.getEditPage().setTitle(Uni.I18n.translate('loadProfileTypes.LoadProfileTypeEdit.addTitle', 'MDC', 'Add load profile type'));
+            me.getEditPage().setTitle(Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'));
             form.setEdit(false, returnLink, addRegisterTypesLink);
             form.loadRecord(Ext.create('Mdc.model.LoadProfileType'));
         }

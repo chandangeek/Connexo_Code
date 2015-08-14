@@ -45,26 +45,26 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         showCondition: me.device.get('hasLoadProfiles')
                     },
                     {
-                        text: Uni.I18n.translate('devicemenu.channels', 'MDC', 'Channels'),
+                        text: Uni.I18n.translate('general.channels', 'MDC', 'Channels'),
                         privileges: Mdc.privileges.Device.viewDevice,
                         itemId: 'channelsLink',
                         href: '#/devices/' + encodeURIComponent(mRID) + '/channels',
                         showCondition: me.device.get('hasLoadProfiles')
                     },
                     {
-                        text: Uni.I18n.translate('devicemenu.logbooks', 'MDC', 'Logbooks'),
+                        text: Uni.I18n.translate('general.logbooks', 'MDC', 'Logbooks'),
                         itemId: 'logbooksLink',
                         href: '#/devices/' + encodeURIComponent(mRID) + '/logbooks',
                         showCondition: me.device.get('hasLogBooks')
                     },
                     {
-                        text: Uni.I18n.translate('devicemenu.events', 'MDC', 'Events'),
+                        text: Uni.I18n.translate('general.events', 'MDC', 'Events'),
                         itemId: 'events',
                         href: '#/devices/' + encodeURIComponent(mRID) + '/events',
                         showCondition: me.device.get('hasLogBooks')
                     },
                     {
-                        text: Uni.I18n.translate('devicemenu.registerTypes', 'MDC', 'Registers'),
+                        text: Uni.I18n.translate('general.registers', 'MDC', 'Registers'),
                         itemId: 'registersLink',
                         href: '#/devices/' + encodeURIComponent(mRID) + '/registers',
                         showCondition: me.device.get('hasRegisters')
@@ -75,7 +75,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 title: 'Communication',
                 items: [
                     {
-                        text: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
+                        text: Uni.I18n.translate('general.generalAttributes', 'MDC', 'General attributes'),
                         itemId: 'deviceGeneralAttributesLink',
                         href: '#/devices/' + encodeURIComponent(mRID) + '/generalattributes'
                     },
@@ -86,12 +86,12 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                         dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationPlanningPages
                     },
                     {
-                        text: Uni.I18n.translate('devicemenu.communicationTasks', 'MDC', 'Communication tasks'),
+                        text: Uni.I18n.translate('general.communicationTasks', 'MDC', 'Communication tasks'),
                         itemId: 'communicationTasksLink',
                         href: '#/devices/' + encodeURIComponent(mRID) + '/communicationtasks'
                     },
                     {
-                        text: Uni.I18n.translate('devicemenu.connectionMethods', 'MDC', 'Connection methods'),
+                        text: Uni.I18n.translate('general.connectionMethods', 'MDC', 'Connection methods'),
                         itemId: 'connectionMethodsLink',
                         href: '#/devices/' + encodeURIComponent(mRID) + '/connectionmethods'
                     },

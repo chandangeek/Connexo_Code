@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.comportpool.SideMenu', {
     extend: 'Uni.view.menu.SideMenu',
     alias: 'widget.comportpoolsidemenu',
-    title: Uni.I18n.translate('comportpool.sidemenu.title', 'MDC', 'Communication port pools'),
+    title: Uni.I18n.translate('general.comPortPools', 'MDC', 'Communication port pools'),
     initComponent: function () {
         var me = this,
             poolId = me.poolId;
