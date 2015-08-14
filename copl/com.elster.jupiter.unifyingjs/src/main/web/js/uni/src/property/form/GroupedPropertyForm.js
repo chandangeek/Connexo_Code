@@ -34,7 +34,7 @@ Ext.define('Uni.property.form.GroupedPropertyForm', {
                         allowBlank: !property.get('required'),
                         name: property.get('key'),
                         itemId: property.get('key'),
-                        boxLabel: Uni.I18n.translate(property.get('key'), 'DES', property.get('key'))
+                        boxLabel: Uni.I18n.translate(property.get('key'), null, property.get('key'))
 
                     }),
                     groupName = partitions.join('.');
@@ -57,7 +57,7 @@ Ext.define('Uni.property.form.GroupedPropertyForm', {
                     itemId: 'group-fieldcontainer'
                 };
             if (namesArray.length > 1) {
-                fieldContainer.fieldLabel = Uni.I18n.translate(namesArray[1], 'DES', namesArray[1]);
+                fieldContainer.fieldLabel = Uni.I18n.translate(namesArray[1], null, namesArray[1]);
                 fieldContainer.items = groupItems;
                 Ext.Array.each(groupItems, function (groupItem) {
                     groupItem.setWidth(600);
@@ -68,12 +68,12 @@ Ext.define('Uni.property.form.GroupedPropertyForm', {
                     me.add({
                         xtype: 'displayfield',
                         renderer: function () {
-                            return '<b>' + Uni.I18n.translate(namesArray[0], 'DES', namesArray[0]) + '</b>'
+                            return '<b>' + Uni.I18n.translate(namesArray[0], null, namesArray[0]) + '</b>'
                         }
                     });
                 } else {
                     me.add({
-                        title: Uni.I18n.translate(namesArray[0], 'DES', namesArray[0]),
+                        title: Uni.I18n.translate(namesArray[0], null, namesArray[0]),
                         ui: 'medium'
                     });
                 }
