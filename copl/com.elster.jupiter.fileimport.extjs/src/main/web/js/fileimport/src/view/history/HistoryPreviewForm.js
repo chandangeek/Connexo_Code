@@ -38,8 +38,7 @@ Ext.define('Fim.view.history.HistoryPreviewForm', {
             },
             {
                 xtype: 'uni-form-field-duration',
-                name: 'duration',
-                usesSeconds: true
+                name: 'duration'
             },
             {
                 xtype: 'displayfield',
