@@ -4,6 +4,7 @@
 package com.elster.protocolimpl.lis200.profile;
 
 import com.elster.protocolimpl.lis200.LIS200Utils;
+import com.elster.protocolimpl.lis200.commands.ArchiveEmptyException;
 import com.elster.protocolimpl.lis200.objects.GenericArchiveObject;
 import com.elster.protocolimpl.lis200.objects.IntervalObject;
 import com.elster.protocolimpl.lis200.utils.RawArchiveLine;
@@ -17,7 +18,6 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.instromet.dl220.commands.ArchiveEmptyException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
