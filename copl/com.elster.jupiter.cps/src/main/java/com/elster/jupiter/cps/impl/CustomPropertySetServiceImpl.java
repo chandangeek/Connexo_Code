@@ -302,7 +302,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         CustomPropertySetValues properties;
         if (customPropertyValuesEntity.isPresent()) {
             if (customPropertySet.isVersioned()) {
-                Interval interval = IntervalAccessor.getValue(customPropertyValuesEntity.get());
+                Interval interval = DomainExtensionAccessor.getInterval(customPropertyValuesEntity.get());
                 properties = CustomPropertySetValues.emptyDuring(interval);
             }
             else {

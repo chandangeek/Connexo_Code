@@ -19,10 +19,12 @@ import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -174,6 +176,30 @@ public class CustomPropertySetServiceImplTest {
         when(this.customPropertySetForeignKeyConstraintBuilder.map(anyString())).thenReturn(this.customPropertySetForeignKeyConstraintBuilder);
         when(this.primaryKeyConstraintBuilder.on(anyVararg())).thenReturn(this.primaryKeyConstraintBuilder);
         when(this.primaryKeyConstraintBuilder.allowZero()).thenReturn(this.primaryKeyConstraintBuilder);
+    }
+
+    @Test
+    public void getPrerequisiteModulesDoesNotReturnNull() {
+        // Business method @ assert
+        assertThat(this.testInstance().getPrerequisiteModules()).isNotNull();
+    }
+
+    @Test
+    public void getKeysDoesNotReturnNull() {
+        // Business method @ assert
+        assertThat(this.testInstance().getKeys()).isNotNull();
+    }
+
+    @Test
+    public void getComponentNameDoesNotReturnEmptyString() {
+        // Business method @ assert
+        assertThat(this.testInstance().getComponentName()).isNotEmpty();
+    }
+
+    @Test
+    public void getLayerDoesNotReturnNull() {
+        // Business method @ assert
+        assertThat(this.testInstance().getLayer()).isNotNull();
     }
 
     @Test
@@ -477,7 +503,7 @@ public class CustomPropertySetServiceImplTest {
         service.addCustomPropertySet(this.customPropertySet);
         DomainExtensionForTestingPurposes extension = mock(DomainExtensionForTestingPurposes.class);
         DataMapper<DomainExtensionForTestingPurposes> dataMapper = mock(DataMapper.class);
-        when(dataMapper.getOptional(anyVararg())).thenReturn(Optional.of(extension));
+        when(dataMapper.select(any(Condition.class))).thenReturn(Collections.singletonList(extension));
         when(this.customPropertySetDataModel.mapper(DomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
 
         // Business method
@@ -567,9 +593,9 @@ public class CustomPropertySetServiceImplTest {
         service.addCustomPropertySet(this.versionedCustomPropertySet);
         TestDomain testDomain = new TestDomain(1L);
         Interval expectedInterval = Interval.startAt(Instant.ofEpochSecond(1000L));
-        VersionedDomainExtensionForTestingPurposes extension = new VersionedDomainExtensionForTestingPurposes(testDomain, this.versionedCustomPropertySet, expectedInterval);
+        VersionedDomainExtensionForTestingPurposes extension = new VersionedDomainExtensionForTestingPurposes(testDomain, this.registeredCustomPropertySet, expectedInterval);
         DataMapper<VersionedDomainExtensionForTestingPurposes> dataMapper = mock(DataMapper.class);
-        when(dataMapper.getOptional(anyVararg())).thenReturn(Optional.of(extension));
+        when(dataMapper.select(any(Condition.class))).thenReturn(Collections.singletonList(extension));
         when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
 
         // Business method

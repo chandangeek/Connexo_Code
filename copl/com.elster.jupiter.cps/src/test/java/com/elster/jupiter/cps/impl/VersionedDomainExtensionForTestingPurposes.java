@@ -1,13 +1,14 @@
 package com.elster.jupiter.cps.impl;
 
-import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.time.Interval;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
@@ -42,10 +43,13 @@ public class VersionedDomainExtensionForTestingPurposes implements PersistentDom
         }
     }
 
+    @SuppressWarnings("unused")
     private Reference<TestDomain> testDomain = Reference.empty();
-    private Reference<CustomPropertySet<TestDomain, VersionedDomainExtensionForTestingPurposes>> customPropertySet = Reference.empty();
+    @SuppressWarnings("unused")
+    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
     @SuppressWarnings("unused")
     private Interval interval;
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "CannotBeNull")
     private BigDecimal billingCycle;
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "FieldTooLong")
     private String contractNumber;
@@ -56,10 +60,10 @@ public class VersionedDomainExtensionForTestingPurposes implements PersistentDom
     }
 
     // For testing purposes
-    public VersionedDomainExtensionForTestingPurposes(TestDomain testDomain, CustomPropertySet<TestDomain, VersionedDomainExtensionForTestingPurposes> customPropertySet, Interval interval) {
+    public VersionedDomainExtensionForTestingPurposes(TestDomain testDomain, RegisteredCustomPropertySet registeredCustomPropertySet, Interval interval) {
         this();
         this.testDomain.set(testDomain);
-        this.customPropertySet.set(customPropertySet);
+        this.registeredCustomPropertySet.set(registeredCustomPropertySet);
         this.interval = interval;
     }
 
@@ -88,9 +92,8 @@ public class VersionedDomainExtensionForTestingPurposes implements PersistentDom
     }
 
     @Override
-    public void copyFrom(TestDomain domainInstance, CustomPropertySet customPropertySet, CustomPropertySetValues propertyValues) {
+    public void copyFrom(TestDomain domainInstance, CustomPropertySetValues propertyValues) {
         this.testDomain.set(domainInstance);
-        this.customPropertySet.set(customPropertySet);
         this.setBillingCycle((BigDecimal) propertyValues.getProperty(FieldNames.BILLING_CYCLE.javaName()));
         this.setContractNumber((String) propertyValues.getProperty(FieldNames.CONTRACT_NUMBER.javaName()));
     }

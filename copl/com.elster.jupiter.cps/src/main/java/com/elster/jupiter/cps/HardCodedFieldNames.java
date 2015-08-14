@@ -13,18 +13,18 @@ import com.elster.jupiter.util.time.Interval;
 public enum HardCodedFieldNames {
 
     /**
-     * Holds a {@link Reference} to the {@link CustomPropertySet}.
+     * Holds a {@link Reference} to the {@link RegisteredCustomPropertySet}.
      * In other words:
      * <pre>
      *     <code>
-     *         private Reference<CustomPropertySet> customPropertySet = Reference.absent();
+     *         private Reference<RegisteredCustomPropertySet> customPropertySet = Reference.absent();
      *     </code>
      * </pre>
      */
     CUSTOM_PROPERTY_SET {
         @Override
         public String javaName() {
-            return "customPropertySet";
+            return "registeredCustomPropertySet";
         }
 
         @Override

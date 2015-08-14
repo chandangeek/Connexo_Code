@@ -50,7 +50,7 @@ public class TestDomain {
         this.id = id;
     }
 
-    public static void install(OrmService ormService) {
+    public static DataModel install(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel("T01", "Test Domain, for testing purposes only");
         Table<TestDomain> table = dataModel.addTable("T01_TESTDOMAIN", TestDomain.class).map(TestDomain.class);
         Column id = table.addAutoIdColumn();
@@ -71,6 +71,7 @@ public class TestDomain {
             .add();
         dataModel.register();
         dataModel.install(true, true);
+        return dataModel;
     }
 
     @SuppressWarnings("unused")

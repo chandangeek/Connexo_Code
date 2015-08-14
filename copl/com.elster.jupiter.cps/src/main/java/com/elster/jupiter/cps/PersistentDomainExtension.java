@@ -32,10 +32,9 @@ public interface PersistentDomainExtension<T> {
      * the Interval will be copied for you.
      *
      * @param domainInstance The domain object that is being extended
-     * @param customPropertySet The CustomPropertySet
      * @param propertyValues The CustomPropertySetValues
      */
-    void copyFrom(T domainInstance, CustomPropertySet customPropertySet, CustomPropertySetValues propertyValues);
+    void copyFrom(T domainInstance, CustomPropertySetValues propertyValues);
 
     /**
      * Copies the extension properties into the {@link CustomPropertySetValues}.

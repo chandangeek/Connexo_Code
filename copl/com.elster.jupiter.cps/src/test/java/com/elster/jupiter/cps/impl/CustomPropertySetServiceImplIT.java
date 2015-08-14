@@ -3,6 +3,9 @@ package com.elster.jupiter.cps.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
@@ -20,12 +23,15 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
+import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
+import javax.validation.ConstraintViolationException;
+import java.math.BigDecimal;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.security.Principal;
@@ -60,6 +66,9 @@ public class CustomPropertySetServiceImplIT {
 
     private Injector injector;
     private CustomPropertySetService testInstance;
+
+    @Rule
+    public ExpectedConstraintViolationRule rule = new ExpectedConstraintViolationRule();
 
     @Before
     public void initialize() {
@@ -212,6 +221,219 @@ public class CustomPropertySetServiceImplIT {
         List<? extends DataModel> dataModelsAfterAdd = ormService.getDataModels();
         assertThat(dataModelsAfterAdd.size()).isEqualTo(dataModelsBeforeAdd.size() + 2);
         assertThat(service.findActiveCustomPropertySets()).hasSize(2);
+    }
+
+    @Test
+    public void createNonVersionedValues() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        CustomPropertySetForTestingPurposes customPropertySet = new CustomPropertySetForTestingPurposes(propertySpecService);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("createNonVersionedValues");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        BigDecimal expectedBillingCycle = BigDecimal.TEN;
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
+        String expectedContractNumber = "createNonVersionedValues";
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), expectedContractNumber);
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            // Business method
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values);
+
+            // Asserts: not expecting any exceptions
+        }
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void createNonVersionedValuesWithVersionedApi() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        CustomPropertySetForTestingPurposes customPropertySet = new CustomPropertySetForTestingPurposes(propertySpecService);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("createNonVersionedValues");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            // Business method
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values, Instant.now());
+
+            // Asserts: see expected exception rule
+        }
+    }
+
+    @Test
+    @ExpectedConstraintViolation(messageId = "CannotBeNull", property = "billingCycle")
+    public void createNonVersionedValuesWithMissingRequiredProperty() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        CustomPropertySetForTestingPurposes customPropertySet = new CustomPropertySetForTestingPurposes(propertySpecService);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("createNonVersionedValuesWithMissingRequiredProperty");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), "dontCareBecauseWillFailAnyway");
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            // Business method
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values);
+
+            // Asserts: see expected contraint violation rule
+        }
+    }
+
+    @Test
+    @ExpectedConstraintViolation(messageId = "FieldTooLong", property = "contractNumber")
+    public void createNonVersionedValuesWithTooLargeOptionalValue() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        CustomPropertySetForTestingPurposes customPropertySet = new CustomPropertySetForTestingPurposes(propertySpecService);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("createNonVersionedValuesWithTooLargeOptionalValue");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        BigDecimal expectedBillingCycle = BigDecimal.TEN;
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), Strings.repeat("Too long", 100));
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            // Business method
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values);
+
+            // Asserts: see expected contraint violation rule
+        }
+    }
+
+    @Test
+    public void createVersionedValues() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        VersionedCustomPropertySetForTestingPurposes customPropertySet = new VersionedCustomPropertySetForTestingPurposes(propertySpecService);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("createVersionedValues");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        BigDecimal expectedBillingCycle = BigDecimal.TEN;
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
+        String expectedContractNumber = "createVersionedValues";
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), expectedContractNumber);
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            // Business method
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values, Instant.now());
+
+            // Asserts: not expecting any exceptions
+        }
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void createVersionedValuesWithVersionedApi() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        VersionedCustomPropertySetForTestingPurposes customPropertySet = new VersionedCustomPropertySetForTestingPurposes(propertySpecService);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("createNonVersionedValues");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            // Business method
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values);
+
+            // Asserts: see expected exception rule
+        }
+    }
+
+    @Test
+    @ExpectedConstraintViolation(messageId = "CannotBeNull", property = "billingCycle")
+    public void createVersionedValuesWithMissingRequiredProperty() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        VersionedCustomPropertySetForTestingPurposes customPropertySet = new VersionedCustomPropertySetForTestingPurposes(propertySpecService);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("createNonVersionedValuesWithMissingRequiredProperty");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), "dontCareBecauseWillFailAnyway");
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            // Business method
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values, Instant.now());
+
+            // Asserts: see expected contraint violation rule
+        }
+    }
+
+    @Test
+    @ExpectedConstraintViolation(messageId = "FieldTooLong", property = "contractNumber")
+    public void createVersionedValuesWithTooLargeOptionalValue() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        VersionedCustomPropertySetForTestingPurposes customPropertySet = new VersionedCustomPropertySetForTestingPurposes(propertySpecService);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("createNonVersionedValuesWithTooLargeOptionalValue");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        BigDecimal expectedBillingCycle = BigDecimal.TEN;
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), Strings.repeat("Too long", 100));
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            // Business method
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values, Instant.now());
+
+            // Asserts: see expected contraint violation rule
+        }
     }
 
     private abstract class LatchDrivenRunnable implements Runnable {
