@@ -23,6 +23,7 @@ import com.energyict.protocolimplv2.messages.enums.LoadControlActions;
 import com.energyict.protocolimplv2.messages.enums.MonitoredValue;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -54,6 +55,7 @@ public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessag
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         if (supportedMessages == null) {
+            supportedMessages = new ArrayList<>();
             supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
             supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND);
             supportedMessages.add(AlarmConfigurationMessage.RESET_ALL_ALARM_BITS);

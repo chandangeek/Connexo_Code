@@ -6,6 +6,7 @@ import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130Messaging;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessageExecutor;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,6 +29,7 @@ public class AM540Messaging extends AM130Messaging {
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         if (supportedMessages == null) {
+            supportedMessages = new ArrayList<>();
             addSupportedDeviceMessages(supportedMessages);
         }
         return supportedMessages;

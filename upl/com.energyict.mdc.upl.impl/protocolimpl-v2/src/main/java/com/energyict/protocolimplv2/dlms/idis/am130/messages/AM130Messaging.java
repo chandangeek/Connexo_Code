@@ -17,6 +17,7 @@ import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,6 +42,7 @@ public class AM130Messaging extends IDISMessaging {
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         if (supportedMessages == null) {
+            supportedMessages = new ArrayList<>();
             addSupportedDeviceMessages(supportedMessages);
         }
         return supportedMessages;
