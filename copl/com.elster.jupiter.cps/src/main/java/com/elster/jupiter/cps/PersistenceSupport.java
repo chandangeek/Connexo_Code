@@ -1,6 +1,7 @@
 package com.elster.jupiter.cps;
 
 import aQute.bnd.annotation.ConsumerType;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.google.inject.Module;
 
@@ -14,6 +15,14 @@ import java.util.Optional;
  */
 @ConsumerType
 public interface PersistenceSupport<D, T extends PersistentDomainExtension<D>> {
+
+    /**
+     * Unique identifier for the {@link DataModel} that will be created
+     * for this CustomPropertySet. The String should be exactly 3 chars in length.
+     *
+     * @return The unique DataModel identifier
+     */
+    String componentName();
 
     /**
      * Gets the name of the table that will hold the persistent properties.

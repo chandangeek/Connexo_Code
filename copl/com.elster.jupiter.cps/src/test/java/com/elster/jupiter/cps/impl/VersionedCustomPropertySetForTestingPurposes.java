@@ -41,11 +41,6 @@ public class VersionedCustomPropertySetForTestingPurposes implements CustomPrope
     }
 
     @Override
-    public String componentName() {
-        return "T03";
-    }
-
-    @Override
     public String getName() {
         return VersionedCustomPropertySetForTestingPurposes.class.getSimpleName();
     }
@@ -96,6 +91,11 @@ public class VersionedCustomPropertySetForTestingPurposes implements CustomPrope
     }
 
     private static class MyPeristenceSupport implements PersistenceSupport<TestDomain, VersionedDomainExtensionForTestingPurposes> {
+        @Override
+        public String componentName() {
+            return "T03";
+        }
+
         @Override
         public String tableName() {
             return TABLE_NAME;

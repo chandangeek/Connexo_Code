@@ -209,7 +209,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     private void registerCustomPropertySet(CustomPropertySet customPropertySet) {
-        DataModel dataModel = this.ormService.newDataModel(customPropertySet.componentName(), customPropertySet.getName());
+        DataModel dataModel = this.ormService.newDataModel(customPropertySet.getPersistenceSupport().componentName(), customPropertySet.getName());
         this.addTableFor(customPropertySet, dataModel);
         dataModel.register(this.getCustomPropertySetModule(dataModel, customPropertySet));
         dataModel.install(true, false);

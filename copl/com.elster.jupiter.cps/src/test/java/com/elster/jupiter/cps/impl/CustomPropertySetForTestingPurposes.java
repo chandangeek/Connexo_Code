@@ -41,11 +41,6 @@ public class CustomPropertySetForTestingPurposes implements CustomPropertySet<Te
     }
 
     @Override
-    public String componentName() {
-        return "T02";
-    }
-
-    @Override
     public String getName() {
         return CustomPropertySetForTestingPurposes.class.getSimpleName();
     }
@@ -96,6 +91,11 @@ public class CustomPropertySetForTestingPurposes implements CustomPropertySet<Te
     }
 
     private static class MyPeristenceSupport implements PersistenceSupport<TestDomain, DomainExtensionForTestingPurposes> {
+        @Override
+        public String componentName() {
+            return "T02";
+        }
+
         @Override
         public String tableName() {
             return TABLE_NAME;

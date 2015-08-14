@@ -119,12 +119,12 @@ public class CustomPropertySetServiceImplTest {
         when(this.ormService.newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString())).thenReturn(this.versionedCustomPropertySetDataModel);
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
         when(this.customPropertySet.isVersioned()).thenReturn(false);
-        when(this.customPropertySet.componentName()).thenReturn(CUSTOM_PROPERTY_SET_COMPONENT_ID);
         when(this.customPropertySet.getId()).thenReturn(CUSTOM_PROPERTY_SET_ID);
         when(this.customPropertySet.getName()).thenReturn("For testing purposes only");
         when(this.customPropertySet.getPersistenceSupport()).thenReturn(this.persistenceSupport);
         when(this.customPropertySet.getDomainClass()).thenReturn(TestDomain.class);
         when(this.customPropertySetDataModel.addTable(TABLE_NAME, DomainExtensionForTestingPurposes.class)).thenReturn(this.table);
+        when(this.persistenceSupport.componentName()).thenReturn(CUSTOM_PROPERTY_SET_COMPONENT_ID);
         when(this.persistenceSupport.tableName()).thenReturn(TABLE_NAME);
         when(this.persistenceSupport.domainColumnName()).thenReturn(DOMAIN_COLUMN_NAME);
         when(this.persistenceSupport.domainForeignKeyName()).thenReturn(DOMAIN_FK_NAME);
@@ -135,13 +135,13 @@ public class CustomPropertySetServiceImplTest {
         when(this.table.foreignKey(startsWith("FK_CPS_"))).thenReturn(this.customPropertySetForeignKeyConstraintBuilder);
         when(this.table.primaryKey(startsWith("PK_CPS_"))).thenReturn(this.primaryKeyConstraintBuilder);
         when(this.versionedCustomPropertySet.isVersioned()).thenReturn(true);
-        when(this.versionedCustomPropertySet.componentName()).thenReturn(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID);
         when(this.versionedCustomPropertySet.getId()).thenReturn(VERSIONED_CUSTOM_PROPERTY_SET_ID);
         when(this.versionedCustomPropertySet.getName()).thenReturn(null);   // Will be ackward for UI but backend should not worry about that
         when(this.versionedCustomPropertySet.getDomainClass()).thenReturn(TestDomain.class);
         when(this.versionedCustomPropertySet.getPersistenceSupport()).thenReturn(this.versionedPersistenceSupport);
         when(this.versionedCustomPropertySetDataModel.addTable(VERSIONED_TABLE_NAME, VersionedDomainExtensionForTestingPurposes.class)).thenReturn(this.versionedTable);
         when(this.versionedTable.column(DOMAIN_COLUMN_NAME)).thenReturn(this.domainColumnBuilder);
+        when(this.versionedPersistenceSupport.componentName()).thenReturn(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID);
         when(this.versionedPersistenceSupport.tableName()).thenReturn(VERSIONED_TABLE_NAME);
         when(this.versionedPersistenceSupport.domainColumnName()).thenReturn(DOMAIN_COLUMN_NAME);
         when(this.versionedPersistenceSupport.domainForeignKeyName()).thenReturn(DOMAIN_FK_NAME);
@@ -192,7 +192,7 @@ public class CustomPropertySetServiceImplTest {
         service.addCustomPropertySet(this.customPropertySet);
 
         // Asserts
-        verify(this.customPropertySet).componentName();
+        verify(this.persistenceSupport).componentName();
         verify(this.customPropertySet, atLeastOnce()).getId();
         verify(this.customPropertySet).isVersioned();
         verify(this.customPropertySet, never()).defaultViewPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
@@ -248,7 +248,7 @@ public class CustomPropertySetServiceImplTest {
         testInstance.activate();
 
         // Asserts
-        verify(this.customPropertySet).componentName();
+        verify(this.persistenceSupport).componentName();
         verify(this.customPropertySet, atLeastOnce()).getId();
         verify(this.customPropertySet).isVersioned();
         verify(this.customPropertySet, never()).defaultViewPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
@@ -288,7 +288,7 @@ public class CustomPropertySetServiceImplTest {
         service.addCustomPropertySet(this.versionedCustomPropertySet);
 
         // Asserts
-        verify(this.versionedCustomPropertySet).componentName();
+        verify(this.versionedPersistenceSupport).componentName();
         verify(this.versionedCustomPropertySet, atLeastOnce()).getId();
         verify(this.versionedCustomPropertySet).isVersioned();
         verify(this.versionedCustomPropertySet, never()).defaultViewPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
@@ -333,7 +333,7 @@ public class CustomPropertySetServiceImplTest {
         testInstance.activate();
 
         // Asserts
-        verify(this.versionedCustomPropertySet).componentName();
+        verify(this.versionedPersistenceSupport).componentName();
         verify(this.versionedCustomPropertySet, atLeastOnce()).getId();
         verify(this.versionedCustomPropertySet).isVersioned();
         verify(this.versionedCustomPropertySet, never()).defaultViewPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet

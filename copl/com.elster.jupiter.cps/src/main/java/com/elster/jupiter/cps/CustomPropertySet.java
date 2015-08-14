@@ -46,14 +46,6 @@ import java.util.Set;
 public interface CustomPropertySet<D, T extends PersistentDomainExtension<D>> {
 
     /**
-     * Unique identifier for the {@link DataModel} that will be created
-     * for this CustomPropertySet. The String should be exactly 3 chars in length.
-     *
-     * @return The unique DataModel identifier
-     */
-    String componentName();
-
-    /**
      * Uniquely identifies this set across all sets that are available in the system at runtime.
      *
      * @return This set's unique identifier
