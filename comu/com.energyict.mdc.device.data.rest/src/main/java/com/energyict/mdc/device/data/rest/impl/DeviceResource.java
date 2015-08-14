@@ -63,13 +63,11 @@ import static com.elster.jupiter.util.Checks.is;
 public class DeviceResource {
     private static final int RECENTLY_ADDED_COUNT = 5;
 
-    private final BatchService batchService;
     private final DeviceService deviceService;
     private final TopologyService topologyService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
-    private final IssueService issueService;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
     private final Provider<LoadProfileResource> loadProfileResourceProvider;
     private final Provider<LogBookResource> logBookResourceProvider;
@@ -93,17 +91,14 @@ public class DeviceResource {
     private final Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider;
     private final DeviceInfoFactory deviceInfoFactory;
     private final DeviceAttributesInfoFactory deviceAttributesInfoFactory;
-    private final Thesaurus thesaurus;
 
     @Inject
     public DeviceResource(
             ResourceHelper resourceHelper,
             ExceptionFactory exceptionFactory,
-            BatchService batchService,
             DeviceService deviceService,
             TopologyService topologyService,
             DeviceConfigurationService deviceConfigurationService,
-            IssueService issueService,
             Provider<ProtocolDialectResource> protocolDialectResourceProvider,
             Provider<LoadProfileResource> loadProfileResourceProvider,
             Provider<LogBookResource> logBookResourceProvider,
@@ -126,15 +121,12 @@ public class DeviceResource {
             Provider<DeviceHistoryResource> deviceHistoryResourceProvider,
             Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider,
             DeviceInfoFactory deviceInfoFactory,
-            DeviceAttributesInfoFactory deviceAttributesInfoFactory,
-            Thesaurus thesaurus) {
+            DeviceAttributesInfoFactory deviceAttributesInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
-        this.batchService = batchService;
         this.deviceService = deviceService;
         this.topologyService = topologyService;
         this.deviceConfigurationService = deviceConfigurationService;
-        this.issueService = issueService;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
         this.loadProfileResourceProvider = loadProfileResourceProvider;
         this.logBookResourceProvider = logBookResourceProvider;
@@ -158,7 +150,6 @@ public class DeviceResource {
         this.deviceLifeCycleActionResourceProvider = deviceLifeCycleActionResourceProvider;
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceAttributesInfoFactory = deviceAttributesInfoFactory;
-        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -246,16 +237,6 @@ public class DeviceResource {
             slaves = DeviceTopologyInfo.from(topologyService.findPhysicalConnectedDevices(device));
         }
         return slaves;
-    }
-
-    @DELETE
-    @Path("/{mRID}")
-    @RolesAllowed(Privileges.REMOVE_DEVICE)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response deleteDevice(@PathParam("mRID") String id) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        device.delete();
-        return Response.ok().build();
     }
 
     @GET
