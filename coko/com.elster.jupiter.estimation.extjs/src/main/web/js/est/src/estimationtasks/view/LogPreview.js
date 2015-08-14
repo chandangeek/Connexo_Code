@@ -15,7 +15,7 @@ Ext.define('Est.estimationtasks.view.LogPreview', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('estimationtasks.general.name', 'EST', 'Name'),
+                    fieldLabel: Uni.I18n.translate('general.name', 'EST', 'Name'),
                     name: 'name',
                     renderer: function (value) {
                         var url = me.router.getRoute('administration/estimationtasks/estimationtask').buildUrl();
@@ -27,7 +27,7 @@ Ext.define('Est.estimationtasks.view.LogPreview', {
                     itemId: 'run-started-on'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('estimationtasks.general.status', 'EST', 'Status'),
+                    fieldLabel: Uni.I18n.translate('general.status', 'EST', 'Status'),
                     name: 'status'
                 }
             ]

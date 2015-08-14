@@ -31,7 +31,7 @@ Ext.define('Est.estimationtasks.view.HistoryGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('estimationtasks.general.status', 'EST', 'Status'),
+                header: Uni.I18n.translate('general.status', 'EST', 'Status'),
                 dataIndex: 'status',
                 textAlign: 'center',
                 flex: 1

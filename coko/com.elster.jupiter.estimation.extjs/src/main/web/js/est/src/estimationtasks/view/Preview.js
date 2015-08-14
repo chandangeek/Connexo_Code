@@ -11,7 +11,7 @@ Ext.define('Est.estimationtasks.view.Preview', {
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('estimationtasks.general.actions', 'EST', 'Actions'),
+            text: Uni.I18n.translate('general.actions', 'EST', 'Actions'),
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'estimationtasks-action-menu'

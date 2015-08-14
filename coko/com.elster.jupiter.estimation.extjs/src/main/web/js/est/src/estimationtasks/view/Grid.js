@@ -16,7 +16,7 @@ Ext.define('Est.estimationtasks.view.Grid', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('estimationtasks.general.estimationTasksLabel', 'EST', 'Estimation Task'),
+                header: Uni.I18n.translate('general.estimationTask', 'EST', 'Estimation task'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute('administration/estimationtasks/estimationtask').buildUrl({taskId: record.get('id')});
@@ -25,7 +25,7 @@ Ext.define('Est.estimationtasks.view.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('estimationtasks.general.status', 'EST', 'Status'),
+                header: Uni.I18n.translate('general.status', 'EST', 'Status'),
                 dataIndex: 'status_formatted',
                 flex: 1
             },

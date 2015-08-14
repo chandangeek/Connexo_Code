@@ -15,7 +15,7 @@ Ext.define('Est.estimationrulesets.view.RuleSetDetails', {
         me.content = [
             {
                 xtype: 'form',
-                title: Uni.I18n.translate('estimationrulesets.details.title', 'EST', 'Overview'),
+                title: Uni.I18n.translate('general.overview', 'EST', 'Overview'),
                 ui: 'large',
                 itemId: 'rule-set-form',
                 defaults: {
@@ -25,19 +25,19 @@ Ext.define('Est.estimationrulesets.view.RuleSetDetails', {
                 items: [
                     {
                         name: 'name',
-                        fieldLabel: Uni.I18n.translate('estimationrulesets.details.name', 'EST', 'Name')
+                        fieldLabel: Uni.I18n.translate('general.name', 'EST', 'Name')
                     },
                     {
                         name: 'description',
-                        fieldLabel: Uni.I18n.translate('estimationrulesets.details.description', 'EST', 'Description')
+                        fieldLabel: Uni.I18n.translate('general.description', 'EST', 'Description')
                     },
                     {
                         name: 'numberOfActiveRules',
-                        fieldLabel: Uni.I18n.translate('estimationrulesets.details.activeRules', 'EST', 'Active rules')
+                        fieldLabel: Uni.I18n.translate('estimationrulesets.activeRules', 'EST', 'Active rules')
                     },
                     {
                         name: 'numberOfInactiveRules',
-                        fieldLabel: Uni.I18n.translate('estimationrulesets.details.inactiveRules', 'EST', 'Inactive rules')
+                        fieldLabel: Uni.I18n.translate('estimationrulesets.inactiveRules', 'EST', 'Inactive rules')
                     }
                 ],
                 tools: [{
@@ -45,7 +45,7 @@ Ext.define('Est.estimationrulesets.view.RuleSetDetails', {
                     iconCls: 'x-uni-action-iconD',
                     itemId: 'action-button',
                     privileges: Est.privileges.EstimationConfiguration.administrate,
-                    text: Uni.I18n.translate('estimationrulesets.details.action', 'EST', 'Actions'),
+                    text: Uni.I18n.translate('general.actions', 'EST', 'Actions'),
                     menu: {
                         xtype: 'estimation-rule-sets-action-menu'
                     }

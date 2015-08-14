@@ -11,7 +11,7 @@ Ext.define('Est.estimationtasks.view.DetailForm', {
         me.items = [
             {
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('estimationtasks.general.name', 'EST', 'Name'),
+                fieldLabel: Uni.I18n.translate('general.name', 'EST', 'Name'),
                 name: 'name',
                 labelWidth: 250
             },
@@ -46,7 +46,7 @@ Ext.define('Est.estimationtasks.view.DetailForm', {
                         name: 'lastRun_formatted_long'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('estimationtasks.general.status', 'EST', 'Status'),
+                        fieldLabel: Uni.I18n.translate('general.status', 'EST', 'Status'),
                         name: 'status'
                     },
                     {
@@ -69,7 +69,7 @@ Ext.define('Est.estimationtasks.view.DetailForm', {
             },
             {
                 xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('estimationtasks.general.dataOptions', 'EST', 'Data options'),
+                fieldLabel: Uni.I18n.translate('general.dataOptions', 'EST', 'Data options'),
                 labelAlign: 'top',
                 layout: 'vbox',
                 defaults: {

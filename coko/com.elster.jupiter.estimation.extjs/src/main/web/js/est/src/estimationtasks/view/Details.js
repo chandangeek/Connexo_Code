@@ -16,7 +16,7 @@ Ext.define('Est.estimationtasks.view.Details', {
         items: [
             {
                 ui: 'large',
-                title: Uni.I18n.translate('estimationtasks.general.overview', 'EST', 'Overview'),
+                title: Uni.I18n.translate('general.overview', 'EST', 'Overview'),
                 flex: 1,
                 items: {
                     xtype: 'estimationtasks-detail-form',
@@ -26,7 +26,7 @@ Ext.define('Est.estimationtasks.view.Details', {
             },
             {
                 xtype: 'button',
-                text: Uni.I18n.translate('estimationtasks.general.actions', 'EST', 'Actions'),
+                text: Uni.I18n.translate('general.actions', 'EST', 'Actions'),
                 iconCls: 'x-uni-action-iconD',
                 margin: '20 0 0 0',
                 menu: {

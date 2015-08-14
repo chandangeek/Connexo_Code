@@ -29,14 +29,14 @@ Ext.define('Est.estimationrulesets.view.RuleSetEdit', {
                     },
                     {
                         xtype: 'textfield',
-                        fieldLabel: Uni.I18n.translate('estimationrulesets.add.name', 'EST', 'Name'),
+                        fieldLabel: Uni.I18n.translate('general.name', 'EST', 'Name'),
                         name: 'name',
                         itemId: 'name',
                         required: true
                     },
                     {
                         xtype: 'textareafield',
-                        fieldLabel: Uni.I18n.translate('estimationrulesets.add.description', 'EST', 'Description'),
+                        fieldLabel: Uni.I18n.translate('general.description', 'EST', 'Description'),
                         name: 'description',
                         itemId: 'description',
                         minHeight: 100
