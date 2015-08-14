@@ -29,13 +29,9 @@ Ext.define('Uni.property.view.property.Multiselect', {
                                 var count = newValue.length;
 
                                 if (me.itemId == 'intervalFlags') {
-                                    if (count == 1) {
-                                        field.nextSibling('#multiselectSelectedItemsInfo').update(Ext.String.format(Uni.I18n.translatePlural('multiselect.intervalflags.selected[1]', count, 'UNI', '{0} interval flag selected'), count));
-                                    } else {
-                                        field.nextSibling('#multiselectSelectedItemsInfo').update(Ext.String.format(Uni.I18n.translatePlural('multiselect.intervalflags.selected', count, 'UNI', '{0} interval flags selected'), count));
-                                    }
+                                    field.nextSibling('#multiselectSelectedItemsInfo').update(Uni.I18n.translatePlural('multiselect.intervalflags.selected', count, 'UNI', '{0} interval flags selected'));
                                 } else {
-                                    field.nextSibling('#multiselectSelectedItemsInfo').update(Ext.String.format(Uni.I18n.translatePlural('multiselect.selected', count, 'UNI', '{0} items selected'), count));
+                                    field.nextSibling('#multiselectSelectedItemsInfo').update(Uni.I18n.translatePlural('multiselect.selected', count, 'UNI', '{0} items selected'));
 
                                 }
                                                             },

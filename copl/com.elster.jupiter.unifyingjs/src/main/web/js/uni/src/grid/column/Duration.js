@@ -9,7 +9,7 @@ Ext.define('Uni.grid.column.Duration', {
         'Uni.util.String'
     ],
 
-    header: Uni.I18n.translate('grid.column.duration.header', 'UNI', 'Duration'),
+    header: Uni.I18n.translate('general.duration', 'UNI', 'Duration'),
     shortFormat: false,
 
     /**

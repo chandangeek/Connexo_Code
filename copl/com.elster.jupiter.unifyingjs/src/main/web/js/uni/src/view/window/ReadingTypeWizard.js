@@ -215,7 +215,7 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
 
                             {
                                 xtype: 'component',
-                                html: '<p>' + Uni.I18n.translate('window.readingtypewizard.measuringperiod.interval',
+                                html: '<p>' + Uni.I18n.translate('grid.filter.interval.label',
                                     'UNI', 'Interval') + '</p>'
                             },
                             {
@@ -425,7 +425,7 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
                 ]
             },
             {
-                title: Uni.I18n.translate('window.readingtypewizard.commodity', 'UNI', 'Commodity'),
+                title: Uni.I18n.translate('readingType.commodity', 'UNI', 'Commodity'),
                 xtype: 'container',
                 layout: {
                     type: 'anchor'
@@ -482,7 +482,7 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
                 ]
             },
             {
-                title: Uni.I18n.translate('window.readingtypewizard.timeofuse', 'UNI', 'Time of use'),
+                title: Uni.I18n.translate('readingType.timeOfUse', 'UNI', 'Time of use'),
                 xtype: 'container',
                 layout: 'vbox',
                 items: [
@@ -493,7 +493,7 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
                 ]
             },
             {
-                title: Uni.I18n.translate('window.readingtypewizard.criticalpeakperiod', 'UNI', 'Critical peak period'),
+                title: Uni.I18n.translate('readingType.criticalPeakPeriod', 'UNI', 'Critical peak period'),
                 xtype: 'container',
                 layout: 'vbox',
                 items: [
@@ -504,7 +504,7 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
                 ]
             },
             {
-                title: Uni.I18n.translate('window.readingtypewizard.consumptiontier', 'UNI', 'Consumption tier'),
+                title: Uni.I18n.translate('readingType.comsumptionTier', 'UNI', 'Consumption tier'),
                 xtype: 'container',
                 layout: 'vbox',
                 items: [
@@ -515,7 +515,7 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
                 ]
             },
             {
-                title: Uni.I18n.translate('window.readingtypewizard.phase', 'UNI', 'Phase'),
+                title: Uni.I18n.translate('readingType.phase', 'UNI', 'Phase'),
                 xtype: 'container',
                 layout: 'vbox',
                 items: [
@@ -526,7 +526,7 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
                 ]
             },
             {
-                title: Uni.I18n.translate('window.readingtypewizard.multiplier', 'UNI', 'Multiplier'),
+                title: Uni.I18n.translate('readingType.multiplier', 'UNI', 'Multiplier'),
                 xtype: 'container',
                 layout: 'vbox',
                 items: [
@@ -537,7 +537,7 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
                 ]
             },
             {
-                title: Uni.I18n.translate('window.readingtypewizard.unitofmeasure', 'UNI', 'Unit of measure'),
+                title: Uni.I18n.translate('readingType.unitOfMeasure', 'UNI', 'Unit of measure'),
                 xtype: 'container',
                 layout: 'vbox',
                 items: [
@@ -548,7 +548,7 @@ Ext.define('Uni.view.window.ReadingTypeWizard', {
                 ]
             },
             {
-                title: Uni.I18n.translate('window.readingtypewizard.currency', 'UNI', 'Currency'),
+                title: Uni.I18n.translate('readingType.currency', 'UNI', 'Currency'),
                 xtype: 'container',
                 layout: 'vbox',
                 items: [

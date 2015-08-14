@@ -155,7 +155,7 @@ Ext.define('Uni.controller.Error', {
                     'Request failed'
                 );
                 message = Uni.I18n.translate(
-                    'error.notFoundErrorMessage',
+                    'error.internalServerErrorMessage',
                     'UNI',
                     'Please contact your system administrator.'
                 );
@@ -171,7 +171,7 @@ Ext.define('Uni.controller.Error', {
                     'Request failed'
                 );
                 message = Uni.I18n.translate(
-                    'error.notFoundErrorMessage',
+                    'error.internalServerErrorMessage',
                     'UNI',
                     'Please contact your system administrator.'
                 );

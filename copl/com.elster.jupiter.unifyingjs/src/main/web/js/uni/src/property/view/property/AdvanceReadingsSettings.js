@@ -24,7 +24,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
                         items: [
                             {boxLabel: Uni.I18n.translate('advanceReadingProperty.None','UNI','None'), name: 'advanceRb', inputValue: '1'},
                             {boxLabel:  Uni.I18n.translate('advanceReadingProperty.bulkReading','UNI','Bulk Reading'), name: 'advanceRb', inputValue: '2'},
-                            {boxLabel: Uni.I18n.translate('advanceReadingProperty.readingType','UNI','Reading type'), name: 'advanceRb', inputValue: '3'}
+                            {boxLabel: Uni.I18n.translate('general.readingType','UNI','Reading type'), name: 'advanceRb', inputValue: '3'}
                         ]
                     },
                     {
@@ -39,7 +39,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
                         store: this.readingTypes,//'Uni.property.store.PropertyReadingTypes',
                         listConfig: {
                             cls: 'isu-combo-color-list',
-                            emptyText: Uni.I18n.translate('advanceReadingProperty.readingtype.noreadingtypefound', 'UNI', 'No readingtype found')
+                            emptyText: Uni.I18n.translate('general.readingtype.noreadingtypefound', 'UNI', 'No readingtype found')
                         },
 
                         queryMode: 'remote',
@@ -50,7 +50,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
                         editable:true,
                         typeAhead:true,
                         // anchor: '100%',
-                        emptyText: Uni.I18n.translate('advanceReadingProperty.readingtype.selectreadingtype', 'UNI', 'Start typing to select a reading type...')
+                        emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'UNI', 'Start typing to select a reading type...')
                     }
 
                 ]
