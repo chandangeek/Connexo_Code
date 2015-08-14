@@ -2,8 +2,7 @@ Ext.define('Uni.view.search.field.Numeric', {
     extend: 'Uni.view.search.field.internal.CriteriaButton',
     xtype: 'uni-search-criteria-numeric',
 
-    text: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Interval'),
-    emptyText: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Interval'),
+    text: Uni.I18n.translate('search.field.numeric.text', 'UNI', 'Numeric'),
 
     requires: [
         'Uni.view.search.field.internal.NumberLine'

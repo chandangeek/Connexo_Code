@@ -33,89 +33,6 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
             defaults: {
                 xtype: 'menucheckitem'
             }
-            //items: [
-            //    {
-            //        text: 'Batch',
-            //        checked: false,
-            //        //checkHandler: onItemCheck
-            //    },
-            //    {
-            //        text: 'Has open data collection issues',
-            //        checked: false
-            //    },
-            //    {
-            //        text: 'Service category',
-            //        checked: false
-            //    },
-            //    {
-            //        text: 'Shared schedule name',
-            //        checked: false
-            //    },
-            //    {
-            //        text: 'Usage point',
-            //        checked: false
-            //    },
-            //    {
-            //        text: 'Year of certification',
-            //        checked: false
-            //    },
-            //    {
-            //        arrowAlign: 'left',
-            //        text: 'Load profile',
-            //        menu: {
-            //            items: [
-            //                {
-            //                    text: 'Last reading',
-            //                    checked: false,
-            //                    //checkHandler: onItemCheck
-            //                }, {
-            //                    text: 'Interval',
-            //                    checked: false,
-            //                    //checkHandler: onItemCheck
-            //                }, {
-            //                    text: 'OBIS code',
-            //                    checked: false,
-            //                    //checkHandler: onItemCheck
-            //                }, {
-            //                    text: 'Name',
-            //                    checked: false,
-            //                    //checkHandler: onItemCheck
-            //                }
-            //            ]
-            //        }
-            //    },
-            //    {
-            //        text: 'Communication task',
-            //        disabled: true,
-            //        tooltip: {
-            //            title: 'Enable connection properties',
-            //            text: 'Connection properties become available as soon as a search value has been specified for Device type, Device configuration and Connection properties.',
-            //            maxWidth: 150
-            //        },
-            //
-            //        menu: {
-            //            items: [
-            //                {
-            //                    text: 'Last reading',
-            //                    checked: false,
-            //                    //checkHandler: onItemCheck
-            //                }, {
-            //                    text: 'Interval',
-            //                    checked: false,
-            //                    disabled: true
-            //                    //checkHandler: onItemCheck
-            //                }, {
-            //                    text: 'OBIS code',
-            //                    checked: false,
-            //                    //checkHandler: onItemCheck
-            //                }, {
-            //                    text: 'Name',
-            //                    checked: false,
-            //                    //checkHandler: onItemCheck
-            //                }
-            //            ]
-            //        }
-            //    }]
         };
 
         this.callParent(arguments);
@@ -132,12 +49,13 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
 
         if (criteria.get('constraints') && criteria.get('constraints').length) {
             Ext.apply(menuitem, {
-                disabled: true,
-                tooltip: {
-                    title: 'Enable connection properties',
-                    text: 'Connection properties become available as soon as a search value has been specified for Device type, Device configuration and Connection properties.',
-                    maxWidth: 150
-                }
+                disabled: true
+                //todo: fix tooltip
+                //tooltip: {
+                //    title: 'Enable connection properties',
+                //    text: 'Connection properties become available as soon as a search value has been specified for Device type, Device configuration and Connection properties.',
+                //    maxWidth: 150
+                //}
             })
         }
         return menuitem

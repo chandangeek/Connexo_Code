@@ -49,7 +49,7 @@ Ext.define('Uni.view.search.field.internal.Input', {
             itemId: 'filter-clear',
             hidden: true,
             ui: 'plain',
-            tooltip: 'Clear filter',
+            tooltip: Uni.I18n.translate('search.field.reset', 'UNI', 'Clear filter'),
             iconCls: ' icon-close4',
             padding: 6,
             margin: 0,

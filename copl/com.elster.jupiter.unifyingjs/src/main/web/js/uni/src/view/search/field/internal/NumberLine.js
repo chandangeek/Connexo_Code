@@ -61,7 +61,7 @@ Ext.define('Uni.view.search.field.internal.NumberLine', {
                     xtype: 'button',
                     itemId: 'filter-clear',
                     ui: 'plain',
-                    tooltip: 'Remove filter',
+                    tooltip: Uni.I18n.translate('search.field.remove', 'UNI', 'Remove filter'),
                     iconCls: ' icon-close4',
                     margin: '0 10 0 0',
                     hidden: true,

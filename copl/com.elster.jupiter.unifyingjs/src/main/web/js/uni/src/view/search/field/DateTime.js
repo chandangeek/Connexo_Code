@@ -4,8 +4,7 @@ Ext.define('Uni.view.search.field.DateTime', {
     requires: [
         'Uni.view.search.field.internal.DateLine'
     ],
-    text: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Last reading date'),
-    emptyText: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Last reading date'),
+    text: Uni.I18n.translate('search.field.dateTime.text', 'UNI', 'DateTime'),
 
     getValue: function() {
         var value = [];

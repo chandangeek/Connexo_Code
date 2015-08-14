@@ -63,7 +63,7 @@ Ext.define('Uni.view.search.field.internal.DateLine', {
                 xtype: 'label',
                 itemId: 'label',
                 hidden: this.hideTime,
-                text: 'at',
+                text: Uni.I18n.translate('search.field.datetime.at', 'UNI', 'at'),
                 padding: 5,
                 margin: 0
             },
@@ -105,7 +105,7 @@ Ext.define('Uni.view.search.field.internal.DateLine', {
                     xtype: 'button',
                     itemId: 'filter-clear',
                     ui: 'plain',
-                    tooltip: 'Clear filter',
+                    tooltip: Uni.I18n.translate('search.field.remove', 'UNI', 'Remove filter'),
                     iconCls: ' icon-close4',
                     hidden: true,
                     style: {

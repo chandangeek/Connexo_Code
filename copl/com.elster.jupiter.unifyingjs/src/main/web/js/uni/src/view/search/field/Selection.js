@@ -135,8 +135,8 @@ Ext.define('Uni.view.search.field.Selection', {
                             {
                                 xtype: 'uni-search-internal-input',
                                 itemId: 'filter-input',
-                                tooltip: 'Specify filter to narrow down selection list. Maximum 100 records are displayed.',
-                                emptyText: 'Start typing to find devices...',
+                                tooltip: Uni.I18n.translate('search.field.selection.filter.tooltip', 'UNI', 'Specify filter to narrow down selection list'),
+                                emptyText: Uni.I18n.translate('search.field.selection.filter.placeholder', 'UNI', 'Start typing to find {0}...', [me.emptyText]),
                                 listeners: {
                                     change: function (elm, value) {
                                         var store = me.grid.getStore();
@@ -169,7 +169,7 @@ Ext.define('Uni.view.search.field.Selection', {
                         xtype: 'checkboxfield',
                         itemId: 'select-all',
                         hidden: !me.multiSelect,
-                        boxLabel: 'Select all displayed values',
+                        boxLabel: Uni.I18n.translate('search.field.selection.checkbox.select-all', 'UNI', 'Select all displayed values'),
                         name: 'topping',
                         inputValue: '1',
                         handler: function (elm, value) {
@@ -189,14 +189,14 @@ Ext.define('Uni.view.search.field.Selection', {
                     },
                     {
                         xtype: 'checkboxfield',
-                        boxLabel: 'Include empty values',
+                        boxLabel: Uni.I18n.translate('search.field.selection.checkbox.empty', 'UNI', 'Include empty values'),
                         disabled: true,
                         name: 'topping'
                     },
                     {
                         xtype: 'checkboxfield',
                         itemId: 'filter-selected',
-                        boxLabel: 'Show all selected values',
+                        boxLabel: Uni.I18n.translate('search.field.selection.checkbox.show-selected', 'UNI', 'Show all selected values'),
                         disabled: true,
                         hidden: !me.multiSelect,
                         handler: function () {
