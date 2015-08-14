@@ -34,7 +34,7 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.data.validation</artifactId>
+            <artifactId>mdc.device.data.validation.extjs</artifactId>
         </dependency>
     </dependencies>
 
