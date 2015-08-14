@@ -34,7 +34,7 @@
             <id>sencha-build</id>
             <properties>
                 <js.dir>js/skyline</js.dir>
-                <package.name>com.elster.jupiter.theme.skyline</package.name>
+                <package.name>uni-theme-skyline</package.name>
             </properties>
         </profile>
     </profiles>
