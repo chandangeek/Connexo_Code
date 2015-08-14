@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('securitySetting.name','MDC','Name'),
+                header: Uni.I18n.translate('general.name','MDC','Name'),
                 dataIndex: 'name',
                 flex: 2
             },

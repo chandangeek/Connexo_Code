@@ -39,8 +39,8 @@ Ext.define('Mdc.model.Register', {
             name: 'validationInfo_validationActive',
             persist: false,
             mapping: function (data) {
-                return (data.detailedValidationInfo && data.detailedValidationInfo.validationActive) ? Uni.I18n.translate('communicationtasks.task.active', 'MDC', 'Active')
-                    : Uni.I18n.translate('communicationtasks.task.inactive', 'MDC', 'Inactive');
+                return (data.detailedValidationInfo && data.detailedValidationInfo.validationActive) ? Uni.I18n.translate('general.active', 'MDC', 'Active')
+                    : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
             }
         },
         {

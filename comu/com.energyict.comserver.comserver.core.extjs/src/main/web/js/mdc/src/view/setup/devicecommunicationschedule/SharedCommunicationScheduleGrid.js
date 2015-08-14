@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.SharedCommunicationSchedu
             padding: '0 0 0 0',
             columns: [
                 {
-                    header: Uni.I18n.translate('deviceCommunicationSchedules.name', 'MDC', 'Name'),
+                    header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                     flex: 1,
                     dataIndex: 'name'
                 },

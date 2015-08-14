@@ -116,7 +116,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
         record.getProxy().setUrl(router.arguments);
 
         Ext.create('Uni.view.window.Confirmation').show({
-            title: Uni.I18n.translate('estimationrules.ruleset.remove', 'MDC', "Remove '{0}'?", [record.get('name')]),
+            title: Uni.I18n.translate('general.removeConfirmation', 'MDC', 'Remove \'{0}\'?', [record.get('name')]),
             msg: Uni.I18n.translate('estimationrules.ruleset.remove.confirmation.msg', 'MDC',
                 'This estimation rule set type will no longer be available on the device configuration.'),
             config: {
@@ -147,8 +147,8 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
                     if (response.status === 400) {
                         var record = cfg.config.record,
                             result = Ext.decode(response.responseText, true),
-                            title = Uni.I18n.translate('estimationrules.ruleset.remove.failed', 'MDC', 'Failed to remove {0}', [record.data.name]),
-                            message = Uni.I18n.translate('general.server.error', 'MDC', 'Server error');
+                            title = Uni.I18n.translate('general.failedToRemove', 'MDC', 'Failed to remove {0}', [record.data.name]),
+                            message = Uni.I18n.translate('general.serverError', 'MDC', 'Server error');
                         if (!Ext.isEmpty(response.statusText)) {
                             message = response.statusText;
                         }

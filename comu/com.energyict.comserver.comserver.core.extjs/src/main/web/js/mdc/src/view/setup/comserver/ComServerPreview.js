@@ -38,11 +38,11 @@ Ext.define('Mdc.view.setup.comserver.ComServerPreview', {
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('comserver.preview.name', 'MDC', 'Name'),
+                        fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                         name: 'name'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('comserver.preview.type', 'MDC', 'Type'),
+                        fieldLabel: Uni.I18n.translate('general.type', 'MDC', 'Type'),
                         name: 'comServerType'
                     },
                     {
@@ -78,7 +78,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerPreview', {
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('comserver.preview.status', 'MDC', 'Status'),
+                        fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                         name: 'active',
                         renderer: function (val) {
                             val ? val = 'Active' : val = 'Inactive';

@@ -46,7 +46,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                 name: 'name',
                                 msgTarget: 'under',
                                 required: true,
-                                fieldLabel: Uni.I18n.translate('communicationschedule.name', 'MDC', 'Name'),
+                                fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                 itemId: 'editConnectionMethodNameField',
                                 maxLength: 80,
                                 enforceMaxLength: true
@@ -77,7 +77,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                             },
                             {
                                 xtype: 'fieldcontainer',
-                                fieldLabel: Uni.I18n.translate('communicationschedule.communicationTasks', 'MDC', 'Communication tasks'),
+                                fieldLabel: Uni.I18n.translate('general.communicationTasks', 'MDC', 'Communication tasks'),
                                 required: true,
                                 items: [
                                     {

@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupGrid', {
         var me = this;
         this.columns = [
             {
-                header: Uni.I18n.translate('registerGroup.name', 'MDC', 'Name'),
+                header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 flex: 3
             },

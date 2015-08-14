@@ -149,7 +149,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             Ext.suspendLayouts();
 
             registerLink.setHref('#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/registerconfigurations');
-            registerLink.setText(deviceConfigurations[0].get('registerCount') + ' ' + Uni.I18n.translatePlural('deviceconfig.registerconfigs', deviceConfigurations[0].get('registerCount'), 'MDC', 'register configurations'));
+            registerLink.setText(deviceConfigurations[0].get('registerCount') + ' ' + Uni.I18n.translatePlural('general.edit', deviceConfigurations[0].get('registerCount'), 'MDC', 'register configurations'));
 
             logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/logbookconfigurations');
             logBookLink.setText(deviceConfigurations[0].get('logBookCount') + ' ' + Uni.I18n.translatePlural('general.logbookConfigurations', deviceConfigurations[0].get('logBookCount'), 'MDC', 'logbook configurations'));

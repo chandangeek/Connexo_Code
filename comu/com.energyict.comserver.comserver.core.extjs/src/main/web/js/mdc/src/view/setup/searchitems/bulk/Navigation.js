@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Navigation', {
         },
         {
             itemId: 'Status',
-            text: Uni.I18n.translate('searchItems.bulk.status', 'MDC', 'Status')
+            text: Uni.I18n.translate('general.status', 'MDC', 'Status')
         }
     ]
 

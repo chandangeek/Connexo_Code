@@ -304,7 +304,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         var me = this;
 
         Ext.create('Uni.view.window.Confirmation').show({
-            title: Uni.I18n.translate('validation.removeRule.title', 'MDC', "Remove '{0}'?", [record.data.name]),
+            title: Uni.I18n.translate('general.removeConfirmation', 'MDC', 'Remove \'{0}\'?', [record.data.name]),
             msg: Uni.I18n.translate('validation.deviceconfig.remove.confirmation.msg', 'MDC',
                 'This validation rule set type will no longer be available on the device configuration.'),
             config: {
@@ -340,8 +340,8 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                     if (response.status === 400) {
                         var record = cfg.config.record,
                             result = Ext.decode(response.responseText, true),
-                            title = Uni.I18n.translate('validation.remove.failed', 'MDC', 'Failed to remove {0}', [record.data.name]),
-                            message = Uni.I18n.translate('general.server.error', 'MDC', 'Server error');
+                            title = Uni.I18n.translate('general.failedToRemove', 'MDC', 'Failed to remove {0}', [record.data.name]),
+                            message = Uni.I18n.translate('general.serverError', 'MDC', 'Server error');
                         if (!Ext.isEmpty(response.statusText)) {
                             message = response.statusText;
                         }

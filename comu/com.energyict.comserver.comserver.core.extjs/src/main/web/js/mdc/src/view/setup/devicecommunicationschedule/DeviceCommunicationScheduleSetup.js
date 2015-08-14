@@ -42,14 +42,14 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.DeviceCommunicationSchedu
                         items: [
                             {
                                 xtype: 'panel',
-                                title: Uni.I18n.translate('deviceCommunicationSchedule.sharedCommunicationSchedules', 'MDC', 'Shared communication schedules'),
+                                title: Uni.I18n.translate('general.comSchedules', 'MDC', 'Shared communication schedules'),
                                 ui: 'small',
                                 cls: 'no-side-padding',
                                 header:{
                                     titlePosition: 0,
                                     items:[{
                                         xtype:'button',
-                                        text: Uni.I18n.translate('deviceCommunicationSchedule.addSharedCommunicationSchedule', 'MDC', 'Add shared communication schedule'),
+                                        text: Uni.I18n.translate('communicationSchedule.add', 'MDC', 'Add shared communication schedule'),
                                         privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                                         ui: 'action',
                                         action: 'addSharedCommunicationSchedule',

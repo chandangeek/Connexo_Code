@@ -225,7 +225,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
 
         executionLevelsgrid.down('pagingtoolbartop').store = record.executionLevels();
         executionLevelsgrid.down('pagingtoolbartop').store.totalCount = record.executionLevels().getCount();
-        executionLevelsgrid.down('pagingtoolbartop').displayMsg = Uni.I18n.translatePlural('executionLevel.pagingtoolbartop.displayMsg', record.executionLevels().getCount(), 'MDC', '{2} privileges'),
+        executionLevelsgrid.down('pagingtoolbartop').displayMsg = Uni.I18n.translatePlural('executionLevel.pagingtoolbartop.displayMsg', record.executionLevels().getCount(), 'MDC', '{0} privileges'),
             executionLevelsgrid.down('pagingtoolbartop').updateInfo();
 
         preloader.destroy();
@@ -333,7 +333,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         Ext.suspendLayouts();
         formErrorsPanel.removeAll();
         formErrorsPanel.add({
-            html: Ext.String.htmlEncode('There are errors on this page that require your attention.')
+            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.')
         });
         Ext.resumeLayouts();
         formErrorsPanel.show();

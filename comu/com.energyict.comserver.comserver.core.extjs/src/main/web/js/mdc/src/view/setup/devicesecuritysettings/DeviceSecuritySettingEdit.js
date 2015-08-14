@@ -110,12 +110,12 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                         items: [
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('deviceSecuritySetting.name', 'MDC', 'Name'),
+                                fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                 name: 'name'
                             },
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('deviceSecuritySetting.status', 'MDC', 'Status'),
+                                fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                                 name: 'status',
                                 renderer: function (value) {
                                     return Ext.String.htmlEncode(value.name);

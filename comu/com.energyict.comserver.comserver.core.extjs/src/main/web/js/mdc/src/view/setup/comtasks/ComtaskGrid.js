@@ -12,7 +12,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskGrid', {
         },
         items: [
             {
-                header: Uni.I18n.translate('comtask.name', 'MDC', 'Name'),
+                header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 flex: 1
             },

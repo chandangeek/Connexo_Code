@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.devicetopology.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('deviceCommunicationTopology.type', 'MDC', 'Type'),
+                header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
                 dataIndex: 'deviceTypeName',
                 flex: 1
             },

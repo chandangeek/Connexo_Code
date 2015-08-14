@@ -61,7 +61,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                         }
                     },
                     {
-                        header: Uni.I18n.translate('deviceCommunicationTopology.type', 'MDC', 'Type'),
+                        header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
                         dataIndex: 'deviceTypeName',
                         flex: 1
                     },

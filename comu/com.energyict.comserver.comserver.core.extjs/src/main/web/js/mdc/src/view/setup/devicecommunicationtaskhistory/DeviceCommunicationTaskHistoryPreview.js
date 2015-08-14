@@ -191,7 +191,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                 {
                                     xtype: 'displayfield',
                                     name: 'deviceType',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.deviceType', 'MDC', 'Device type'),
+                                    fieldLabel: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
                                     itemId: 'deviceType',
                                     renderer: function (deviceType) {
                                         return deviceType !== '' ? '<a href="#/administration/devicetypes/' + deviceType.id + '">' + Ext.String.htmlEncode(deviceType.name) + '</a>' : '';
@@ -200,7 +200,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                 {
                                     xtype: 'displayfield',
                                     name: 'deviceConfiguration',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.deviceConfiguration', 'MDC', 'Device configuration'),
+                                    fieldLabel: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
                                     itemId: 'deviceConfiguration',
                                     renderer: function (deviceConfiguration) {
                                         return deviceConfiguration != '' ? '<a href="#/administration/devicetypes/' + deviceConfiguration.deviceTypeId + '/deviceconfigurations/' + deviceConfiguration.id + '">' + Ext.String.htmlEncode(deviceConfiguration.name) + '</a>' : '';
@@ -238,7 +238,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                 {
                                     xtype: 'displayfield',
                                     name: 'status',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.status', 'MDC', 'Status')
+                                    fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status')
                                 },
                                 {
                                     xtype: 'displayfield',
@@ -250,7 +250,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.communicationTasks', 'MDC', 'Communication tasks'),
+                                    fieldLabel: Uni.I18n.translate('general.communicationTasks', 'MDC', 'Communication tasks'),
                                     name: 'comTaskCount',
                                     cls: 'communication-tasks-status',
                                     renderer: function (val) {

@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.devicesearch.BufferedDevicesTopFilter', {
                 type: 'combobox',
                 itemId: 'mdc-buffered-device-types-combo',
                 dataIndex: 'deviceTypes',
-                emptyText: Uni.I18n.translate('searchItems.type', 'MDC', 'Type'),
+                emptyText: Uni.I18n.translate('general.type', 'MDC', 'Type'),
                 multiSelect: true,
                 displayField: 'name',
                 valueField: 'id',

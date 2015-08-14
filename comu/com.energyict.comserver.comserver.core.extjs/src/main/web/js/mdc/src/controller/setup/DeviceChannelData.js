@@ -191,7 +191,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
 
     makeLinkToChannels: function (router) {
-        var link = '<a href="{0}">' + Uni.I18n.translate('deviceloadprofiles.channels', 'MDC', 'Channels').toLowerCase() + '</a>',
+        var link = '<a href="{0}">' + Uni.I18n.translate('general.channels', 'MDC', 'Channels').toLowerCase() + '</a>',
             filter = this.getStore('Mdc.store.Clipboard').get('latest-device-channels-filter'),
             queryParams = filter ? {filter: filter} : null;
         return Ext.String.format(link, router.getRoute('devices/device/channels').buildUrl(null, queryParams));

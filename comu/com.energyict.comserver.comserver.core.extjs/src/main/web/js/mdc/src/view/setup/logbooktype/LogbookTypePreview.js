@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypePreview', {
                                     xtype: 'displayfield',
                                     itemId: 'logbookTypeDetailsName',
                                     name: 'name',
-                                    fieldLabel: Uni.I18n.translate('logbooktype.name', 'MDC', 'Name')
+                                    fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name')
                                 }
                             ]
                         },

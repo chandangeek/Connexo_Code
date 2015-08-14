@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.device.DeviceDataValidationPanel', {
                         items: [
                             {
                                 itemId: 'statusField',
-                                fieldLabel: Uni.I18n.translate('device.dataValidation.statusSection.title', 'MDC', 'Status'),
+                                fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                                 name: 'isActive',
                                 renderer: function (value) {
                                     return value ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')

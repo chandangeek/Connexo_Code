@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
         me.store = Ext.getStore(me.store) || Ext.create(me.store);
         me.columns = [
             {
-                header: Uni.I18n.translate('communicationschedule.name', 'MDC', 'Name'),
+                header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 flex: 1
             },
@@ -65,7 +65,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
                 emptyMsg: Uni.I18n.translate('communicationschedule.pagingtoolbartop.emptyMsg', 'MDC', 'There are no shared communication schedules to display'),
                 items: [
                     {
-                        text: Uni.I18n.translate('communicationschedule.addCommunicationSchedule', 'MDC', 'Add shared communication schedule'),
+                        text: Uni.I18n.translate('communicationSchedule.add', 'MDC', 'Add shared communication schedule'),
                         privileges: Mdc.privileges.CommunicationSchedule.admin,
                         itemId: 'createCommunicationSchedule',
                         xtype: 'button',

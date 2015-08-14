@@ -77,7 +77,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                                     {
                                         xtype: 'displayfield',
                                         name: 'name',
-                                        fieldLabel: Uni.I18n.translate('deviceCommunicationProtocol.name', 'MDC', 'Name'),
+                                        fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                         labelAlign: 'right',
                                         labelWidth: 250
                                     }

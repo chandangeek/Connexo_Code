@@ -81,7 +81,7 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
             {
                 name: 'deviceType',
                 itemId: 'fld-device-type-name',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.deviceType', 'MDC', 'Device type'),
+                fieldLabel: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
                 renderer: function (value) {
                     if (value && (value.available || me.fullInfo)) {
                         this.show();
@@ -103,7 +103,7 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
             },
             {
                 name: 'deviceConfigurationDisplay',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.deviceConfiguration', 'MDC', 'Device configuration'),
+                fieldLabel: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
                 itemId: 'fld-device-config-name',
                 renderer: function (value) {
                     if (value && (value.available || me.fullInfo)) {
@@ -127,7 +127,7 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
             {
                 name: 'usagePoint',
                 itemId: 'fld-usage-point',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.usagePoint', 'MDC', 'Usage point'),
+                fieldLabel: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
                 renderer: function (value) {
                     if (value && (value.available || me.fullInfo)) {
                         this.show();

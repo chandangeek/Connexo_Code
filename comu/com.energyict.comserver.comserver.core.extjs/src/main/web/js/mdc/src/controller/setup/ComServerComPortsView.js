@@ -226,8 +226,8 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                         method: 'PUT',
                         jsonData: jsonObject,
                         success: function () {
-                            var msg = activeChange ? Uni.I18n.translate('comPortOnComServer.changeState.activated', 'MDC', 'activated') :
-                                Uni.I18n.translate('comPortOnComServer.changeState.deactivated', 'MDC', 'deactivated');
+                            var msg = activeChange ? Uni.I18n.translate('general.activated', 'MDC', 'activated') :
+                                Uni.I18n.translate('general.deactivated', 'MDC', 'deactivated');
                             record.set('active', activeChange);
                             gridView.refresh();
                             me.getComPortsGrid().fireEvent('select', gridView, record);
@@ -275,7 +275,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('comServerComPorts.deleteConfirmation.msg', 'MDC', 'This communication port will no longer be available.'),
-            title: Ext.String.format(Uni.I18n.translate('comServerComPorts.deleteConfirmation.title', 'MDC', "Remove '{0}'?"), record.get('name')),
+            title: Uni.I18n.translate('general.removeConfirmation', 'MDC', 'Remove \'{0}\'?', [record.get('name')]),
             fn: function (state) {
                 switch (state) {
                     case 'confirm':

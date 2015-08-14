@@ -20,7 +20,7 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
             flex: 4
         },
         {
-            header: Uni.I18n.translate('messages.grid.Active', 'MDC', 'Active'),
+            header: Uni.I18n.translate('general.active', 'MDC', 'Active'),
             dataIndex: 'active',
             flex: 2,
             renderer: function (value) {

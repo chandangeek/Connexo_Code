@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
                                 {
                                     xtype: 'displayfield',
                                     name: 'name',
-                                    fieldLabel: Uni.I18n.translate('communicationschedule.name', 'MDC', 'Name'),
+                                    fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                     itemId: 'deviceName'
 
                                 },
@@ -64,7 +64,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
                                 {
                                     xtype: 'fieldcontainer',
                                     name: 'communicationTasks',
-                                    fieldLabel: Uni.I18n.translate('communicationschedule.communicationTasks', 'MDC', 'Communication tasks'),
+                                    fieldLabel: Uni.I18n.translate('general.communicationTasks', 'MDC', 'Communication tasks'),
                                     items: [
                                         {
                                             xtype: 'container',

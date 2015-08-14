@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
         me.store = Ext.getStore(me.store) || Ext.create(me.store);
         this.columns = [
             {
-                header: Uni.I18n.translate('deviceCommunicationProtocols.name', 'MDC', 'Name'),
+                header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 flex: 3
             },

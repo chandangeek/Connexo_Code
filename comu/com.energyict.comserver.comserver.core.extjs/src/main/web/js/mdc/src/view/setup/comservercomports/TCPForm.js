@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
         {
             xtype: 'fieldcontainer',
             required: false,
-            fieldLabel: Uni.I18n.translate('comServerComPorts.form.outPools', 'MDC', 'Communication port pools'),
+            fieldLabel: Uni.I18n.translate('general.comPortPools', 'MDC', 'Communication port pools'),
             itemId: 'comportpoolid',
             items: [
                 {
@@ -61,7 +61,7 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
         },
         {
             xtype: 'combobox',
-            fieldLabel: Uni.I18n.translate('comServerComPorts.form.inPools', 'MDC', 'Communication port pool'),
+            fieldLabel: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool'),
             required: false,
             store: 'Mdc.store.InboundComPortPools',
             editable: false,

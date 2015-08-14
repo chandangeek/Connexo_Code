@@ -109,7 +109,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.view.RuleSetsGrid', {
                 {
                     xtype: 'button',
                     itemId: 'add-rulset-button',
-                    text: Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.add', 'MDC', 'Add estimation rule sets'),
+                    text: Uni.I18n.translate('estimationRuleSet.add', 'MDC', 'Add estimation rule sets'),
                     action: 'addEstimationRuleSet',
                     privileges : Mdc.privileges.DeviceConfigurationEstimations.administrate
                 }

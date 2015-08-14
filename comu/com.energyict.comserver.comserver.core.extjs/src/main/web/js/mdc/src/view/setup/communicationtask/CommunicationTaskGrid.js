@@ -35,13 +35,13 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
                 flex: 3
             },
             {
-                header: Uni.I18n.translate('communicationtasks.task.status', 'MDC', 'Status'),
+                header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                 dataIndex: 'suspended',
                 renderer: function (value) {
                     if (value === true) {
-                        return Uni.I18n.translate('communicationtasks.task.inactive', 'MDC', 'Inactive');
+                        return Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                     }
-                    return Uni.I18n.translate('communicationtasks.task.active', 'MDC', 'Active');
+                    return Uni.I18n.translate('general.active', 'MDC', 'Active');
                 },
                 fixed: true,
                 flex: 3

@@ -34,7 +34,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Preview', {
                     },
                     items: [
                         {
-                            fieldLabel: Uni.I18n.translate('datacollectionkpis.deviceGroup', 'MDC', 'Device group'),
+                            fieldLabel: Uni.I18n.translate('general.deviceGroup', 'MDC', 'Device group'),
                             dataIndex: 'deviceGroup',
                             flex: 1,
                             renderer: function (value) {

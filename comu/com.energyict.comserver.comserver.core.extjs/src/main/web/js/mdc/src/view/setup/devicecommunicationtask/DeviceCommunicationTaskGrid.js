@@ -76,7 +76,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskGrid',
 
             },
             {
-                header: Uni.I18n.translate('deviceCommunicationTask.status', 'MDC', 'Status'),
+                header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                 dataIndex: 'status',
                 flex: 1,
                 renderer: function(value,metadata) {
