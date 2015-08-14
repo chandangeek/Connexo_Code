@@ -51,7 +51,7 @@ public class DeviceDataImporterMessageHandler implements MessageHandlerFactory, 
 
     @Override
     public Layer getLayer() {
-        return Layer.DOMAIN;
+        return Layer.REST;
     }
 
     @Override

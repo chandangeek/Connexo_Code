@@ -65,6 +65,7 @@ public abstract class AbstractDeviceDataFileImporterFactory implements FileImpor
     @Override
     public String getPropertyDefaultFormat(String property) {
         return EnumSet.of(
+                TranslationKeys.DEVICE_DATA_IMPORTER_PROPERTIES,
                 TranslationKeys.DEVICE_DATA_IMPORTER_DELIMITER,
                 TranslationKeys.DEVICE_DATA_IMPORTER_DATE_FORMAT,
                 TranslationKeys.DEVICE_DATA_IMPORTER_TIMEZONE,

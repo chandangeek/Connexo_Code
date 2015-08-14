@@ -40,6 +40,7 @@ public enum TranslationKeys implements TranslationKey {
     READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN("ReadingsImportResultSuccessWithWarn", "Finished successfully with (some) warnings. {0} readings of {1} devices processed successfully of which {2} readings contain a warning."),
 
     // Properties translations
+    DEVICE_DATA_IMPORTER_PROPERTIES(AbstractDeviceDataFileImporterFactory.IMPORTER_FACTORY_PROPERTY_PREFIX, "File importer properties"),
     DEVICE_DATA_IMPORTER_DELIMITER(DeviceDataImporterProperty.DELIMITER.getPropertyKey(), "Delimiter"),
     DEVICE_DATA_IMPORTER_DATE_FORMAT(DeviceDataImporterProperty.DATE_FORMAT.getPropertyKey(), "Date format"),
     DEVICE_DATA_IMPORTER_TIMEZONE(DeviceDataImporterProperty.TIME_ZONE.getPropertyKey(), "Time zone"),
