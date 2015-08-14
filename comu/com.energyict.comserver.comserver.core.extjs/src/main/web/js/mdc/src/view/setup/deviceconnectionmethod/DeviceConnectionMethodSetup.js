@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodSetup', 
                 ui: 'large',
                 xtype: 'panel',
                 itemId: 'deviceConnectionMethodSetupPanel',
-                title: Uni.I18n.translate('deviceconnectionmethod.connectionMethods', 'MDC', 'Connection methods'),
+                title: Uni.I18n.translate('general.connectionMethods', 'MDC', 'Connection methods'),
 
                 items: [
                     {

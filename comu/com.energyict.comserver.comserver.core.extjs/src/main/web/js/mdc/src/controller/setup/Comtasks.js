@@ -94,7 +94,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         switch (item.action) {
             case 'edit':
                 var router = this.getController('Uni.controller.history.Router');
-                router.getRoute('administration/communicationtasks/edit').forward({id: record.get('id')});
+                router.getRoute('administration/general.edit').forward({id: record.get('id')});
                 break;
             case 'delete':
                 this.showConfirmationPanel();
@@ -114,7 +114,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             callback: function () {
                 widget.setLoading(false);
                 window = Ext.create('Mdc.view.setup.comtasks.ComTaskAddCommandWindow', {
-                    title: Uni.I18n.translate('communicationtasks.task.addCommand', 'MDC', 'Add action'),
+                    title: Uni.I18n.translate('general.addAction', 'MDC', 'Add action'),
                     btnAction: 'add',
                     btnText: Uni.I18n.translate('general.add', 'MDC', 'Add')
                 });
@@ -196,7 +196,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             });
 
         Ext.create('Uni.view.window.Confirmation').show({
-            title: Ext.String.format(Uni.I18n.translate('comtask.remove.confirmation.title', 'MDC', 'Remove \'{0}\'?'), record.data.name),
+            title: Uni.I18n.translate('general.removeConfirmation', 'MDC', 'Remove \'{0}\'?', [record.data.name]),
             msg: Uni.I18n.translate('comtask.remove.confirmation.msg', 'MDC', 'This communication task will no longer be available'),
             fn: function (state) {
                 if (state === 'confirm') {
@@ -215,8 +215,8 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         failure: function (response) {
                             if (response.status == 400) {
                                 var result = Ext.decode(response.responseText, true),
-                                    title = Ext.String.format(Uni.I18n.translate('comtask.remove.failed', 'MDC', 'Failed to remove {0}'), record.data.name),
-                                    message = Uni.I18n.translate('general.server.error', 'MDC', 'Server error');
+                                    title = Uni.I18n.translate('general.failedToRemove', 'MDC', 'Failed to remove {0}', [record.data.name]),
+                                    message = Uni.I18n.translate('general.serverError', 'MDC', 'Server error');
                                 if (!Ext.isEmpty(response.statusText)) {
                                     message = response.statusText;
                                 }

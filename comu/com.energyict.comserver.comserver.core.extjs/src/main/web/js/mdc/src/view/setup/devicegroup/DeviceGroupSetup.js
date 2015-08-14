@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupSetup', {
                 ui: 'large',
                 xtype: 'panel',
                 itemId: 'deviceGroupSetupPanel',
-                title: Uni.I18n.translate('deviceGroup.deviceGroups', 'MDC', 'Device groups'),
+                title: Uni.I18n.translate('general.deviceGroups', 'MDC', 'Device groups'),
                 items: [
                     {
                         xtype: 'preview-container',

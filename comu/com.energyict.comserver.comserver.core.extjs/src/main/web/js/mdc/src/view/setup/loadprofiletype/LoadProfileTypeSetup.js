@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('loadProfileTypes.title', 'MDC', 'Load profile types'),
+            title: Uni.I18n.translate('general.loadProfileTypes', 'MDC', 'Load profile types'),
             items: [
                 {
                     xtype: 'preview-container',

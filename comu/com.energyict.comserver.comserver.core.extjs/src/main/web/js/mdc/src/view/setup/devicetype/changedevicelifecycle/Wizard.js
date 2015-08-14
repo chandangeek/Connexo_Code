@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Wizard', {
                 router: me.router,
                 itemId: 'change-device-life-cycle-step2',
                 title: Ext.String.format(Uni.I18n.translate('deviceLifeCycle.change.stepTitle', 'MDC', 'Change device life cycle - Step {0} of {1}:'), 2, 2)
-                + ' ' + Uni.I18n.translate('validationResults.status', 'MDC', 'Status')
+                + ' ' + Uni.I18n.translate('general.status', 'MDC', 'Status')
             }
         ];
 

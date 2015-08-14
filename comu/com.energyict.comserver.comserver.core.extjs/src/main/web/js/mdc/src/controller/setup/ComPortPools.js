@@ -93,12 +93,12 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
             record.set('active', activeChange);
             record.save({
                 callback: function (model) {
-                    var msg = activeChange ? Uni.I18n.translate('comPortPool.changeState.activated', 'MDC', 'activated') :
-                        Uni.I18n.translate('comPortPool.changeState.deactivated', 'MDC', 'deactivated');
+                    var msg = activeChange ? Uni.I18n.translate('general.activated', 'MDC', 'activated') :
+                        Uni.I18n.translate('general.deactivated', 'MDC', 'deactivated');
                     gridView.refresh();
                     form.loadRecord(model);
                     me.getPreviewActionMenu().record = model;
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortPool.changeState.msg', 'MDC', 'Communication port pool') + ' ' + msg);
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool') + ' ' + msg);
                 }
             });
         }
@@ -138,7 +138,7 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
         var me = this;
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('comPortPool.deleteConfirmation.msg', 'MDC', 'This communication port pool will no longer be available.'),
-            title: Ext.String.format(Uni.I18n.translate('comPortPool.deleteConfirmation.title', 'MDC', 'Remove \'{0}\'?'), record.get('name')),
+            title: Uni.I18n.translate('general.removeConfirmation', 'MDC', 'Remove \'{0}\'?', [record.get('name')]),
             fn: function (state) {
                 switch (state) {
                     case 'confirm':

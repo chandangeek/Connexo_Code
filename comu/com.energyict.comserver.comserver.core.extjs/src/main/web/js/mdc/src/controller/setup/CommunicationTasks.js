@@ -76,7 +76,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             suspended = record.get('suspended');
 
         if (!Ext.isEmpty(suspended)) {
-            var textKey = ((suspended == true) ? 'communicationtasks.activate' : 'communicationtasks.deactivate'),
+            var textKey = ((suspended == true) ? 'general.activate' : 'general.deactivate'),
                 text = ((suspended == true) ? 'Activate' : 'Deactivate'),
                 menuItems = Ext.ComponentQuery.query('menu menuitem[action=activatecommunicationtask]');
 
@@ -128,7 +128,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
     previewConnectionTask: function (record) {
         var me = this,
             form = me.getCommunicationTaskPreviewForm();
-        me.setPreLoader(form, Uni.I18n.translate('communicationtasks.loading', 'MDC', 'Loading...'));
+        me.setPreLoader(form, Uni.I18n.translate('general.loading', 'MDC', 'Loading...'));
         me.getCommunicationTaskPreviewPanel().setTitle(record.getData().comTask.name);
         form.loadRecord(record);
         me.clearPreLoader();
@@ -322,7 +322,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                                 if (!Ext.isEmpty(communicationTask.get('comTask'))) {
                                                     comTaskName = communicationTask.get('comTask').name;
                                                 }
-                                                var title = Uni.I18n.translate('communicationtasks.edit', 'MDC', 'Edit') + " '" + comTaskName + "'";
+                                                var title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + comTaskName + "'";
                                                 widget.down('#communicationTaskEditForm').setTitle(title);
                                                 widget.setValues(communicationTask);
                                                 widget.setLoading(false);
@@ -357,7 +357,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('communicationtasks.deleteCommunicationTask.message', 'MDC', 'On this device configuration it wont be possible anymore to execute this communication task'),
-            title: Uni.I18n.translate('communicationtasks.deleteCommunicationTask.title', 'MDC', 'Remove') + ' \'' + lastSelected.get('comTask').name + '\'?',
+            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' \'' + lastSelected.get('comTask').name + '\'?',
             config: {
                 communicationTaskToDelete: lastSelected,
                 me: me
@@ -424,7 +424,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this,
             record = me.getCommunicationTaskEditForm().getRecord();
         me.updateRecord(record, values, Ext.apply({
-            successMessage: Uni.I18n.translate('communicationtasks.updated', 'MDC', 'Communication task saved')
+            successMessage: Uni.I18n.translate('comtask.saved', 'MDC', 'Communication task saved')
         }, cfg));
     },
 
@@ -488,7 +488,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                 errorText = json.error;
                             }
                         }
-                        var titleKey = ((cfg.operation == 'add') ? 'communicationtasks.add.operation.failed' : 'communicationtasks.edit.operation.failed'),
+                        var titleKey = ((cfg.operation == 'add') ? 'communicationtasks.add.operation.failed' : 'general.edit.operation.failed'),
                             titleValue = ((cfg.operation == 'add') ? 'Add operation failed' : 'Update operation failed');
 
                         me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate(titleKey, 'MDC', titleValue), errorText);
@@ -538,7 +538,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         formErrorsPlaceHolder.hide();
         formErrorsPlaceHolder.removeAll();
         formErrorsPlaceHolder.add({
-            html: Uni.I18n.translate('communicationtasks.form.errors', 'MDC', 'There are errors on this page that require your attention')
+            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention')
         });
         formErrorsPlaceHolder.show();
     },

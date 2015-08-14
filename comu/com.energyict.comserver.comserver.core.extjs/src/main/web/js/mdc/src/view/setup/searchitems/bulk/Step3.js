@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                 ],
                 stepItems: [
                     {
-                        text: Uni.I18n.translate('communicationschedule.add', 'MDC', 'Add shared communication schedule'),
+                        text: Uni.I18n.translate('communicationSchedule.add', 'MDC', 'Add shared communication schedule'),
                         action: 'createCommunicationSchedule',
                         itemId: 'createCommunicationSchedule'
                     }

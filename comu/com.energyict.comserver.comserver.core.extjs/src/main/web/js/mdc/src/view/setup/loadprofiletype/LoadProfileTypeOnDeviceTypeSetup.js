@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeOnDeviceTypeSetup', {
             xtype: 'panel',
             ui: 'large',
             itemId: 'loadProfileTypes',
-            title: Uni.I18n.translate('loadprofiletype.loadprofiletypes', 'MDC', 'Load profile types'),
+            title: Uni.I18n.translate('general.loadProfileTypes', 'MDC', 'Load profile types'),
             layout: {
                 type: 'vbox',
                 align: 'stretch'

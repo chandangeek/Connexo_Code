@@ -11,13 +11,13 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationGrid',
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('validation.deviceConfiguration', 'MDC', 'Device configuration'),
+                header: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
                 dataIndex: 'config_name_link',
                 flex: 1,
                 renderer: false
             },
             {
-                header: Uni.I18n.translate('validation.deviceType', 'MDC', 'Device type'),
+                header: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
                 dataIndex: 'deviceType_name',
                 flex: 1
             },

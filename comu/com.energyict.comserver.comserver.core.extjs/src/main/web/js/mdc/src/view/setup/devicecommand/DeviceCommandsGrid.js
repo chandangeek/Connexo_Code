@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 flex: 2
             },
             {
-                header: Uni.I18n.translate('deviceCommands.view.cmdStatus', 'MDC', 'Status'),
+                header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                 dataIndex: 'status',
                 renderer: function (val) {
                     return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : ''

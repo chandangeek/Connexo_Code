@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingPreview', {
                     items: [
                         {
                             xtype: 'displayfield',
-                            fieldLabel: Uni.I18n.translate('securitySetting.name','MDC','Name'),
+                            fieldLabel: Uni.I18n.translate('general.name','MDC','Name'),
                             name: 'name'
                         }
                     ]

@@ -36,9 +36,9 @@ Ext.define('Mdc.model.RuleDeviceConfiguration', {
             persist: false,
             mapping: function (data) {
                 if (data.config.active) {
-                    return Uni.I18n.translate('validation.active', 'MDC', 'Active')
+                    return Uni.I18n.translate('general.active', 'MDC', 'Active')
                 } else {
-                    return Uni.I18n.translate('validation.inactive', 'MDC', 'Inactive')
+                    return Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
                 }
             }
         },

@@ -29,18 +29,18 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationAddGri
 
     columns: [
         {
-            header: Uni.I18n.translate('validation.deviceConfiguration', 'MDC', 'Device configuration'),
+            header: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
             dataIndex: 'config_name_link',
             flex: 1,
             renderer: false
         },
         {
-            header: Uni.I18n.translate('validation.deviceType', 'MDC', 'Device type'),
+            header: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
             dataIndex: 'deviceType_name',
             flex: 1
         },
         {
-            header: Uni.I18n.translate('validation.status', 'MDC', 'Status'),
+            header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
             dataIndex: 'config_active'
         }
     ],

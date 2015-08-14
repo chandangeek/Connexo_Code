@@ -21,7 +21,7 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulesSetGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('estimationDeviceConfigurations.status', 'MDC', 'Status'),
+                header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                 dataIndex: 'active',
                 flex: 1,
                 renderer: function (value) {

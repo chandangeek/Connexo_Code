@@ -5,14 +5,14 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
     deviceTypeId: null,
     deviceConfigurationId: null,
 
-    title: Uni.I18n.translate('deviceGeneralInformation.deviceConfiguration', 'MDC', 'Device configuration'),
+    title: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
 
     initComponent: function () {
         var me = this;
 
         me.menuItems = [
             {
-                text: Uni.I18n.translate('deviceconfigurationmenu.overview', 'MDC', 'Overview'),
+                text: Uni.I18n.translate('general.overview', 'MDC', 'Overview'),
                 itemId: 'deviceConfigurationOverviewLink',
                 href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId
             },
@@ -42,17 +42,17 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                 xtype: 'menu',
                 items: [
                     {
-                        text: Uni.I18n.translate('deviceconfigurationmenu.generalAttributes', 'MDC', 'General attributes'),
+                        text: Uni.I18n.translate('general.generalAttributes', 'MDC', 'General attributes'),
                         itemId: 'generalAttributesLink',
                         href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/generalattributes'
                     },
                     {
-                        text: Uni.I18n.translate('devicecommunicationTask.communicationTasks', 'MDC', 'Communication tasks'),
+                        text: Uni.I18n.translate('general.communicationTasks', 'MDC', 'Communication tasks'),
                         itemId: 'communicationTasksLink',
                         href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId+ '/comtaskenablements'
                     },
                     {
-                        text: Uni.I18n.translate('deviceconfigurationmenu.connectionMethods', 'MDC', 'Connection methods'),
+                        text: Uni.I18n.translate('general.connectionMethods', 'MDC', 'Connection methods'),
                         itemId: 'connectionMethodsLink',
                         href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/connectionmethods'
                     },
@@ -85,7 +85,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu', {
                         href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/validationrulesets'
                     },
                     {
-                        text: Uni.I18n.translate('deviceconfiguration.estimation.rule.sets', 'MDC', 'Estimation rule sets'),
+                        text: Uni.I18n.translate('general.estimationRuleSets', 'MDC', 'Estimation rule sets'),
                         itemId: 'estimationRuleSetsLink',
                         href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/estimationrulesets',
                         privileges : Mdc.privileges.DeviceConfigurationEstimations.view

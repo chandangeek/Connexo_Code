@@ -21,7 +21,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RuleSetVersionRuleList', {
                 }
             },
             { 
-				header: Uni.I18n.translate('validationResults.status', 'MDC', 'Status'), 
+				header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
 				dataIndex: 'active', 
 				flex: 0.3, 
 				align: 'left', 

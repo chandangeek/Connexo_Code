@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainEdit', {
         } else {
             me.down('#addEditButton').setText(Uni.I18n.translate('general.add', 'MDC', 'Add'));
             me.down('#addEditButton').action = 'addRegisterDataAction';
-            me.down('#registerDataEditForm').setTitle(Uni.I18n.translate('device.registerData.addReading', 'MDC', 'Add reading'));
+            me.down('#registerDataEditForm').setTitle(Uni.I18n.translate('general.addReading', 'MDC', 'Add reading'));
         }
         me.down('#cancelLink').href = returnLink;
     },
@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainEdit', {
                 items: [
                     {
                         xtype: 'uni-view-menu-side',
-                        title: Uni.I18n.translate('deviceregisterconfiguration.registers', 'MDC', 'Registers'),
+                        title: Uni.I18n.translate('general.registers', 'MDC', 'Registers'),
                         itemId: 'stepsMenu',
                         menuItems: [
                             {

@@ -93,7 +93,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                         {
                                             xtype: 'displayfield',
                                             name: 'name',
-                                            fieldLabel: Uni.I18n.translate('deviceconfiguration.name', 'MDC', 'Name'),
+                                            fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                             itemId: 'deviceName'
 
                                         },
@@ -106,7 +106,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                         {
                                             xtype: 'displayfield',
                                             name: 'active',
-                                            fieldLabel: Uni.I18n.translate('deviceconfiguration.status', 'MDC', 'Status'),
+                                            fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                                             itemId: 'deviceConfigurationStatus',
                                             renderer: function (item) {
                                                 return item ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');

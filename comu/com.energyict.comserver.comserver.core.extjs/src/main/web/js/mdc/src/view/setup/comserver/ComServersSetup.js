@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersSetup', {
 
     content: {
         ui: 'large',
-        title: Uni.I18n.translate('comserver.title.communicationServers', 'MDC', 'Communication servers'),
+        title: Uni.I18n.translate('general.comServers', 'MDC', 'Communication servers'),
         items: [
             {
                 xtype: 'preview-container',
@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersSetup', {
                     ],
                     stepItems: [
                         {
-                            text: Uni.I18n.translate('deviceType.add', 'MDC', 'Add online communication server'),
+                            text: Uni.I18n.translate('comServer.addOnline', 'MDC', 'Add online communication server'),
                             itemId: 'btn-no-items-add-online-communication-server',
                             privileges: Mdc.privileges.Communication.admin,
                             action: 'addOnlineComServer',

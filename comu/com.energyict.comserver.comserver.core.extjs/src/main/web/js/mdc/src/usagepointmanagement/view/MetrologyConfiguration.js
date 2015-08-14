@@ -30,7 +30,7 @@ Ext.define('Mdc.usagepointmanagement.view.MetrologyConfiguration', {
                 labelAlign: 'right',
                 xtype: 'fieldcontainer',
                 labelWidth: 125,
-                fieldLabel: Uni.I18n.translate('usagePointManagement.history', 'MDC', 'History'),
+                fieldLabel: Uni.I18n.translate('general.history', 'MDC', 'History'),
                 layout: {
                     type: 'vbox'
                 },

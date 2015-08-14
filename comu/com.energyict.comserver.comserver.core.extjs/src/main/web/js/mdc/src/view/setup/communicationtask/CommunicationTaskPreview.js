@@ -73,13 +73,13 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskPreview', {
                     },
                     items: [
                         {
-                            fieldLabel: Uni.I18n.translate('communicationtasks.task.status', 'MDC', 'Status'),
+                            fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                             name: 'suspended',
                             renderer: function (value) {
                                 if (value === true) {
-                                    return Uni.I18n.translate('communicationtasks.task.inactive', 'MDC', 'Inactive');
+                                    return Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                                 }
-                                return Uni.I18n.translate('communicationtasks.task.active', 'MDC', 'Active');
+                                return Uni.I18n.translate('general.active', 'MDC', 'Active');
                             }
                         },
                         {

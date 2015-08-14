@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                     xtype: 'textfield',
                     name: 'name',
                     itemId: 'addComtaskName',
-                    fieldLabel: Uni.I18n.translate('comtask.name', 'MDC', 'Name'),
+                    fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                     required: true,
                     width: 500
                 },
@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                                 {
                                     xtype: 'button',
                                     name: 'addCommands',
-                                    text: Uni.I18n.translate('comtask.add.command', 'MDC', 'Add action'),
+                                    text: Uni.I18n.translate('general.addAction', 'MDC', 'Add action'),
                                     margin: '5 0 5 0',
                                     itemId: 'addCommandsToTask',
                                     action: 'addCommand'

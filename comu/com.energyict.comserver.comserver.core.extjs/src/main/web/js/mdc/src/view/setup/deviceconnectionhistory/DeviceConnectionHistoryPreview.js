@@ -114,7 +114,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                 {
                                     xtype: 'displayfield',
                                     name: 'status',
-                                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.status', 'MDC', 'Status'),
+                                    fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                                     itemId: 'statusLink',
                                     htmlEncode: false
                                 },
@@ -131,7 +131,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryPrevie
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.communicationTasks', 'MDC', 'Communication tasks'),
+                                    fieldLabel: Uni.I18n.translate('general.communicationTasks', 'MDC', 'Communication tasks'),
                                     name: 'comTaskCount',
                                     cls: 'communication-tasks-status',
                                     renderer: function (val) {

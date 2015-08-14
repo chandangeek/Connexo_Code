@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
     store: 'AvailableCommunicationSchedulesForDevice',
     columns: [
         {
-            header: Uni.I18n.translate('deviceCommunicationSchedule.name', 'MDC', 'Name'),
+            header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
             dataIndex: 'name',
             sortable: false,
             hideable: false,

@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.PreviewForm', {
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('deviceloadprofiles.name', 'MDC', 'Name'),
+                        fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                         name: 'loadProfile',
                         renderer: function (value) {
                             var res = '';
@@ -56,7 +56,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.PreviewForm', {
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('deviceloadprofiles.channels', 'MDC', 'Channels'),
+                        fieldLabel: Uni.I18n.translate('general.channels', 'MDC', 'Channels'),
                         itemId: 'channels-list-container',
                         layout: 'fit'
                     }

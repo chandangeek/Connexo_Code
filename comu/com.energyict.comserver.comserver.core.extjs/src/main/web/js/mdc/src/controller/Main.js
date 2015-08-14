@@ -117,7 +117,7 @@ Ext.define('Mdc.controller.Main', {
 
         if (Mdc.privileges.DeviceGroup.canView()) {
             var devicesMenuItem = Ext.create('Uni.model.MenuItem', {
-                text: Uni.I18n.translate('device.devices', 'MDC', 'Devices'),
+                text: Uni.I18n.translate('general.devices', 'MDC', 'Devices'),
                 href: '#/devices',
                 glyph: 'devices',
                 portal: 'devices',
@@ -127,7 +127,7 @@ Ext.define('Mdc.controller.Main', {
             Uni.store.MenuItems.add(devicesMenuItem);
 
             var portalItem = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.deviceGroups', 'MDC', 'Device group'),
+                title: Uni.I18n.translate('general.deviceGroup', 'MDC', 'Device group'),
                 portal: 'devices',
                 route: 'devices',
                 items: [
@@ -171,7 +171,7 @@ Ext.define('Mdc.controller.Main', {
                             route: 'devicetypes'
                         },
                         {
-                            text: Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types'),
+                            text: Uni.I18n.translate('general.registerTypes', 'MDC', 'Register types'),
                             href: '#/administration/registertypes',
                             itemId: 'lnk-register-types',
                             privileges: Mdc.privileges.MasterData.view,
@@ -234,7 +234,7 @@ Ext.define('Mdc.controller.Main', {
                             route: 'communicationschedules'
                         },
                         {
-                            text: Uni.I18n.translate('registerConfig.communicationTasks', 'MDC', 'Communication tasks'),
+                            text: Uni.I18n.translate('general.communicationTasks', 'MDC', 'Communication tasks'),
                             href: '#/administration/communicationtasks',
                             privileges: Mdc.privileges.Communication.view,
                             route: 'communicationtasks'

@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Navigation', {
         {
             itemId: 'status',
             action: 'status',
-            text: Uni.I18n.translate('validationResults.status', 'MDC', 'Status')
+            text: Uni.I18n.translate('general.status', 'MDC', 'Status')
         }
     ]
 });

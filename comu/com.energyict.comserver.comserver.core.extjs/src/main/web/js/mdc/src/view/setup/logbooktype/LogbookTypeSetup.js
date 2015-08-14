@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeSetup', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('logbooktype.logbookTypes', 'MDC', 'Logbook types'),
+            title: Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),
             items: [
                 {
                     xtype: 'preview-container',

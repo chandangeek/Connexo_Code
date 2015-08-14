@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.devicechannels.ValidationPreview', {
             fieldLabel: Uni.I18n.translate('device.channelData.validationStatus', 'MDC', 'Validation status'),
             name: 'validationStatus',
             renderer: function (value) {
-                return value ? Uni.I18n.translate('communicationtasks.task.active', 'MDC', 'Active') : Uni.I18n.translate('communicationtasks.task.inactive', 'MDC', 'Inactive');
+                return value ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
             }
         },
         {

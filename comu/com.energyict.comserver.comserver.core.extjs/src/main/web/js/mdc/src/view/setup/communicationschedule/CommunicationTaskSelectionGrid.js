@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationTaskSelectionGrid'
     ],
     columns: [
         {
-            header: Uni.I18n.translate('communicationtask.name', 'MDC', 'Name'),
+            header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
             dataIndex: 'name',
             sortable: false,
             hideable: false,

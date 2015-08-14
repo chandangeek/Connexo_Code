@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.devicegroup.DevicesOfDeviceGroupGrid', {
                 flex: 3
             },
             {
-                header: Uni.I18n.translate('searchItems.type', 'MDC', 'Type'),
+                header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
                 dataIndex: 'deviceTypeName',
                 sortable: false,
                 hideable: false,

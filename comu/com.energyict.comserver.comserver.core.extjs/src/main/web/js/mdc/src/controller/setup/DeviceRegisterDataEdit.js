@@ -256,7 +256,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                         widget.setValues(register);
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        widget.down('#stepsMenu #editReading').setText(Uni.I18n.translate('device.registerData.addReading', 'MDC', 'Add reading'));
+                        widget.down('#stepsMenu #editReading').setText(Uni.I18n.translate('general.addReading', 'MDC', 'Add reading'));
                     },
 
                     callback: function () {
@@ -292,7 +292,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         Ext.suspendLayouts();
         formErrorsPlaceHolder.removeAll();
         formErrorsPlaceHolder.add({
-            html: Uni.I18n.translate('device.registerData.form.errors', 'MDC', 'There are errors on this page that require your attention')
+            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention')
         });
         Ext.resumeLayouts();
         formErrorsPlaceHolder.show();

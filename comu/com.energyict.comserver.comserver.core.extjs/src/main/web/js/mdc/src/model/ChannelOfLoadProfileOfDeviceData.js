@@ -99,6 +99,11 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                     delta = data.validationInfo.mainValidationInfo,
                     bulk = data.validationInfo.bulkValidationInfo;
 
+                if (delta) {
+                    result.delta.suspect = delta.validationResult.split('.')[1] == 'suspect';
+                    delta.validationResult == 'validationStatus.notValidated' ? result.delta.notValidated = true : result.delta.notValidated = false
+                }
+
                 if (delta && delta.validationRules) {
                     _.each(delta.validationRules, function (item) {
                         if (item.action == 'FAIL') {
@@ -110,8 +115,9 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                         }
                     });
                 }
-                if (delta) {
-                    delta.validationResult == 'validationStatus.notValidated' ? result.delta.notValidated = true : result.delta.notValidated = false
+
+                if (bulk) {
+                    bulk.validationResult == 'validationStatus.notValidated' ? result.bulk.notValidated = true : result.bulk.notValidated = false
                 }
 
                 if (bulk && bulk.validationRules) {
@@ -124,9 +130,6 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                             result.bulk.suspect ? result.bulk.informative = false : result.bulk.informative = true;
                         }
                     });
-                }
-                if (bulk) {
-                    bulk.validationResult == 'validationStatus.notValidated' ? result.bulk.notValidated = true : result.bulk.notValidated = false
                 }
 
                 return result;

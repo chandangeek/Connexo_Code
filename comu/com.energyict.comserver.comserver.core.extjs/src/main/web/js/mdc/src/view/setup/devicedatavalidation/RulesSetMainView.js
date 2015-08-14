@@ -42,14 +42,14 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
                                 itemId: 'dataValidationStatusPanel',
                                 ui: 'medium',
                                 layout: 'column',
-                                title: Uni.I18n.translate('device.dataValidation.statusSection.title', 'MDC', 'Status'),
+                                title: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                                 items: [
                                     {
                                         xtype: 'displayfield',
                                         itemId: 'deviceDataValidationStatusField',
                                         columnWidth: 1,
                                         labelAlign: 'left',
-                                        fieldLabel: Uni.I18n.translate('device.dataValidation.statusSection.title', 'MDC', 'Status'),
+                                        fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                                         value: Uni.I18n.translate('device.dataValidation.updatingStatus', 'MDC', 'Updating status...')
                                     },
                                     {

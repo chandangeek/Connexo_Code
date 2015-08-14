@@ -76,7 +76,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'name',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.name', 'MDC', 'Name'),
+                                    fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                     itemId: 'deviceName'
 
                                 },
@@ -160,7 +160,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'comPortPool',
-                                    fieldLabel: Uni.I18n.translate('connectionmethod.comPortPool', 'MDC', 'Communication port pool')
+                                    fieldLabel: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool')
                                 },
                                 {
                                     xtype: 'displayfield',
