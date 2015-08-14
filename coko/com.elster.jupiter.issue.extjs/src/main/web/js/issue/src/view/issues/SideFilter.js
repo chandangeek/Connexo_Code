@@ -19,7 +19,7 @@ Ext.define('Isu.view.issues.SideFilter', {
             xtype: 'checkboxstore',
             store: 'Isu.store.IssueStatuses',
             name: 'status',
-            fieldLabel: Uni.I18n.translate('general.title.status', 'ISU', 'Status'),
+            fieldLabel: Uni.I18n.translate('general.status', 'ISU', 'Status'),
             columns: 1,
             vertical: true
         },
@@ -27,7 +27,7 @@ Ext.define('Isu.view.issues.SideFilter', {
             itemId: 'filter-by-assignee',
             xtype: 'issues-assignee-combo',
             name: 'assignee',
-            fieldLabel: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
+            fieldLabel: Uni.I18n.translate('general.assignee', 'ISU', 'Assignee'),
             forceSelection: true,
             anyMatch: true,
             emptyText: 'Start typing to select an assignee'
@@ -37,7 +37,7 @@ Ext.define('Isu.view.issues.SideFilter', {
             itemId: 'filter-by-reason',
             xtype: 'combobox',
             name: 'reason',
-            fieldLabel: Uni.I18n.translate('general.title.reason', 'ISU', 'Reason'),
+            fieldLabel: Uni.I18n.translate('general.reason', 'ISU', 'Reason'),
 
             displayField: 'name',
             valueField: 'id',

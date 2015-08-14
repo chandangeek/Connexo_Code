@@ -48,13 +48,13 @@ Ext.define('Isu.view.issues.Grid', {
             },
             {
                 itemId: 'issues-grid-status',
-                header: Uni.I18n.translate('general.title.status', 'ISU', 'Status'),
+                header: Uni.I18n.translate('general.status', 'ISU', 'Status'),
                 dataIndex: 'status_name',
                 width: 100
             },
             {
                 itemId: 'issues-grid-assignee',
-                header: Uni.I18n.translate('general.title.assignee', 'ISU', 'Assignee'),
+                header: Uni.I18n.translate('general.assignee', 'ISU', 'Assignee'),
                 xtype: 'isu-assignee-column',
                 dataIndex: 'assignee',
                 flex: 1

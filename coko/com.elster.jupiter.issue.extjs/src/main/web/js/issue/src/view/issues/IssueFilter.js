@@ -11,7 +11,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
             {
                 type: 'combobox',
                 dataIndex: 'status',
-                emptyText: Uni.I18n.translate('view.issues.issueFilter.status', 'ISU', 'Status'),
+                emptyText: Uni.I18n.translate('general.status', 'ISU', 'Status'),
                 multiSelect: true,
                 displayField: 'name',
                 valueField: 'id',
@@ -41,7 +41,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
             {
                 type: 'combobox',
                 dataIndex: 'reason',
-                emptyText: Uni.I18n.translate('view.issues.issueFilter.reason', 'ISU', 'Reason'),
+                emptyText: Uni.I18n.translate('general.reason', 'ISU', 'Reason'),
                 displayField: 'name',
                 valueField: 'id',
                 store: 'Isu.store.IssueReasons',

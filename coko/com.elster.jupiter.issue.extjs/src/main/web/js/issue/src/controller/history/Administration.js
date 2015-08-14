@@ -20,20 +20,20 @@ Ext.define('Isu.controller.history.Administration', {
                     privileges: Isu.privileges.Issue.viewRule
                 },
                 creationrules: {
-                    title: Uni.I18n.translate('route.issueCreationRules', 'ISU', 'Issue creation rules'),
+                    title: Uni.I18n.translate('general.issueCreationRules', 'ISU', 'Issue creation rules'),
                     route: 'creationrules',
                     controller: 'Isu.controller.CreationRules',
                     privileges: Isu.privileges.Issue.adminCreateRule,
                     items: {
                         add: {
-                            title: Uni.I18n.translate('route.addIssueCreationRule', 'ISU', 'Add issue creation rule'),
+                            title: Uni.I18n.translate('general.issueCreationRules.add', 'ISU', 'Add issue creation rule'),
                             route: 'add',
                             controller: 'Isu.controller.CreationRuleEdit',
                             privileges: Isu.privileges.Issue.createRule,
                             action: 'showEdit',
                             items: {
                                 addaction: {
-                                    title: Uni.I18n.translate('route.addAction', 'ISU', 'Add action'),
+                                    title: Uni.I18n.translate('general.addAction', 'ISU', 'Add action'),
                                     route: 'addaction',
                                     controller: 'Isu.controller.CreationRuleActionEdit',
                                     action: 'showEdit'
@@ -56,7 +56,7 @@ Ext.define('Isu.controller.history.Administration', {
                             },
                             items: {
                                 addaction: {
-                                    title: Uni.I18n.translate('route.addAction', 'ISU', 'Add action'),
+                                    title: Uni.I18n.translate('general.addAction', 'ISU', 'Add action'),
                                     route: 'addaction',
                                     controller: 'Isu.controller.CreationRuleActionEdit',
                                     action: 'showEdit'

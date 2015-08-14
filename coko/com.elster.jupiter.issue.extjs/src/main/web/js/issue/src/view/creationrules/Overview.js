@@ -14,7 +14,7 @@ Ext.define('Isu.view.creationrules.Overview', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('administration.issueCreationRules.title', 'ISU', 'Issue creation rules'),
+            title: Uni.I18n.translate('general.issueCreationRules', 'ISU', 'Issue creation rules'),
             items: [
                 {
                     xtype: 'preview-container',
