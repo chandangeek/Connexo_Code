@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.Setup', {
         me.content = {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('devicelogbooks.title', 'MDC', 'Logbooks'),
+            title: Uni.I18n.translate('general.logbooks', 'MDC', 'Logbooks'),
             items: [
                 {
                     xtype: 'preview-container',

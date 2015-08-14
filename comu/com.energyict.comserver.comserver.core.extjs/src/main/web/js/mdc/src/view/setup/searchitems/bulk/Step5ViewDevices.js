@@ -41,13 +41,13 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step5ViewDevices', {
                         },
                         {
                             itemId: 'deviceType',
-                            header: Uni.I18n.translate('searchItems.bulk.deviceType', 'MDC', 'Device type'),
+                            header: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
                             dataIndex: 'deviceTypeName',
                             flex: 1
                         },
                         {
                             itemId: 'deviceConfiguration',
-                            header: Uni.I18n.translate('searchItems.bulk.deviceConfig', 'MDC', 'Device configuration'),
+                            header: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
                             dataIndex: 'deviceConfigurationName',
                             flex: 1
                         }

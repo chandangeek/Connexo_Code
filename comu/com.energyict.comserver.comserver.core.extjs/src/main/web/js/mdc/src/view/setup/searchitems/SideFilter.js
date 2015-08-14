@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.searchitems.SideFilter', {
                     xtype: 'combobox',
                     name: 'type',
                     itemId: 'type',
-                    fieldLabel: Uni.I18n.translate('searchItems.type', 'MDC', 'Type'),
+                    fieldLabel: Uni.I18n.translate('general.type', 'MDC', 'Type'),
                     displayField: 'name',
                     valueField: 'id',
 

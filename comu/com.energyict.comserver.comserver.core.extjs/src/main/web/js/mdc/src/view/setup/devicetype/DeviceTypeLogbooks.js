@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                             },
                             items: [
                                 {
-                                    header: Uni.I18n.translate('logbooktype.name', 'MDC', 'Name'),
+                                    header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                     dataIndex: 'name',
                                     flex: 3
                                 },
@@ -135,7 +135,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                                         items: [
                                             {
                                                 xtype: 'displayfield',
-                                                fieldLabel: Uni.I18n.translate('logbooktype.name', 'MDC', 'Name'),
+                                                fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                                 name: 'name'
                                             }
                                         ]

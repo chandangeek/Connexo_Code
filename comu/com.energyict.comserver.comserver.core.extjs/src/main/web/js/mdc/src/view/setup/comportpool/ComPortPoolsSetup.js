@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsSetup', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('', 'MDC', 'Communication port pools'),
+            title: Uni.I18n.translate('general.comPortPools', 'MDC', 'Communication port pools'),
             items: [
                 {
                     xtype: 'preview-container',

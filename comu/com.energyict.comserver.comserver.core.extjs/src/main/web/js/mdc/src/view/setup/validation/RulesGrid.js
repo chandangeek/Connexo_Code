@@ -31,14 +31,14 @@ Ext.define('Mdc.view.setup.validation.RulesGrid', {
                 }
             },
             {
-				header: Uni.I18n.translate('validation.status', 'MDC', 'Status'),
+				header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                 dataIndex: 'active',
                 flex: 5,
                 renderer: function (value) {				
                     if (value) {
-                        return Uni.I18n.translate('validation.active', 'MDC', 'Active')
+                        return Uni.I18n.translate('general.active', 'MDC', 'Active')
                     } else {
-                        return Uni.I18n.translate('validation.inactive', 'MDC', 'Inactive')
+                        return Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
                     }
                 }
             },

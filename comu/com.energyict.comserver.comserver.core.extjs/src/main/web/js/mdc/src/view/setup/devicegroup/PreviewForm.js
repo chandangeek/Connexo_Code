@@ -16,19 +16,19 @@ Ext.define('Mdc.view.setup.devicegroup.PreviewForm', {
                 {
                             xtype: 'displayfield',
                             name: 'name',
-                            fieldLabel: Uni.I18n.translate('devicegroup.name', 'MDC', 'Name'),
+                            fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                             itemId: 'deviceGroupName'
 
                 },
                 {
                             xtype: 'displayfield',
                             name: 'dynamic',
-                            fieldLabel: Uni.I18n.translate('devicegroup.type', 'MDC', 'Type'),
+                            fieldLabel: Uni.I18n.translate('general.type', 'MDC', 'Type'),
                             renderer: function (value) {
                                 if (value) {
-                                    return Uni.I18n.translate('devicegroup.dynamic', 'MDC', 'Dynamic')
+                                    return Uni.I18n.translate('general.dynamic', 'MDC', 'Dynamic')
                                 } else {
-                                    return Uni.I18n.translate('devicegroup.static', 'MDC', 'Static')
+                                    return Uni.I18n.translate('general.static', 'MDC', 'Static')
                                 }
                             }
                 },

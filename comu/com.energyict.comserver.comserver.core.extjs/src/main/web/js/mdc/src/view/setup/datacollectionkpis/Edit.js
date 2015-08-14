@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Edit', {
                     name: 'deviceGroup',
                     emptyText: Uni.I18n.translate('datacollectionkpis.selectDeviceGroup', 'MDC', 'Select a device group...'),
                     itemId: 'cmb-device-group',
-                    fieldLabel: Uni.I18n.translate('datacollectionkpis.deviceGroup', 'MDC', 'Device group'),
+                    fieldLabel: Uni.I18n.translate('general.deviceGroup', 'MDC', 'Device group'),
                     store: 'Mdc.store.MeterExportGroups',
                     queryMode: 'local',
                     editable: false,
@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Edit', {
                 {
                     xtype: 'displayfield',
                     itemId: 'devicegroupDisplayField',
-                    fieldLabel: Uni.I18n.translate('datacollectionkpis.deviceGroup', 'MDC', 'Device group'),
+                    fieldLabel: Uni.I18n.translate('general.deviceGroup', 'MDC', 'Device group'),
                     required: true,
                     htmlEncode: false,
                     hidden: true

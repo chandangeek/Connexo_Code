@@ -32,12 +32,12 @@ Ext.define('Mdc.view.setup.registerconfig.RulesForRegisterConfigGrid', {
                 flex: 10
             },
             {
-                header: Uni.I18n.translate('validation.status', 'MDC', 'Status'), dataIndex: 'active', flex: 3, sortable: false, fixed: true,
+                header: Uni.I18n.translate('general.status', 'MDC', 'Status'), dataIndex: 'active', flex: 3, sortable: false, fixed: true,
                 renderer: function (value) {
                     if (value) {
-                        return Uni.I18n.translate('validation.active', 'MDC', 'Active')
+                        return Uni.I18n.translate('general.active', 'MDC', 'Active')
                     } else {
-                        return Uni.I18n.translate('validation.inactive', 'MDC', 'Inactive')
+                        return Uni.I18n.translate('general.inactive', 'MDC', 'Inactive')
                     }
                 }
             },

@@ -80,7 +80,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogMain', {
                                             {
                                                 xtype: 'displayfield',
                                                 name: 'status',
-                                                fieldLabel: Uni.I18n.translate('deviceconnectionhistory.status', 'MDC', 'Status'),
+                                                fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                                                 itemId: 'status'
                                             }
                                         ]

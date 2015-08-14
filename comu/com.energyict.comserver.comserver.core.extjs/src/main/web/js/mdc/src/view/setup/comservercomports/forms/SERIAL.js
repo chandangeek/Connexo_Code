@@ -17,11 +17,11 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERIAL', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('general.formFieldLabel.name', 'MDC', 'Name'),
+                    fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                     name: 'name'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('comports.preview.comServer', 'MDC', 'Communication server'),
+                    fieldLabel: Uni.I18n.translate('general.comServer', 'MDC', 'Communication server'),
                     name: 'comServerName'
                 },
                 {
@@ -61,12 +61,12 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERIAL', {
                     name: 'comPortType'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('comports.preview.communicationPortPools', 'MDC', 'Communication port pools'),
+                    fieldLabel: Uni.I18n.translate('general.comPortPools', 'MDC', 'Communication port pools'),
                     name: 'outboundComPortPoolIds',
                     htmlEncode: false
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('comports.preview.communicationPortPools', 'MDC', 'Communication port pools'),
+                    fieldLabel: Uni.I18n.translate('general.comPortPools', 'MDC', 'Communication port pools'),
                     name: 'inboundComPortPools',
                     htmlEncode: false
                 },

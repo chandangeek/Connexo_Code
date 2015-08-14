@@ -112,7 +112,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                         var widget = Ext.widget('connectionMethodSetup', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigurationId, isDirectlyAddressable: deviceConfig.get('isDirectlyAddressable')});
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
-                        widget.down('#connectionMethodSetupPanel').setTitle(Uni.I18n.translate('connectionmethod.connectionmethods', 'MDC', 'Connection methods'));
+                        widget.down('#connectionMethodSetupPanel').setTitle(Uni.I18n.translate('general.connectionMethods', 'MDC', 'Connection methods'));
                         me.getApplication().fireEvent('changecontentevent', widget);
                         me.getConnectionmethodsgrid().getView().refresh();
                         me.getConnectionmethodsgrid().getSelectionModel().doSelect(0);
@@ -128,7 +128,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
             var toggleDefaultMenuItemText =
                 connectionMethod[0].get('isDefault') ?
-                    Uni.I18n.translate('connectionmethod.unsetAsDefault', 'MDC', 'Remove as default') :
+                    Uni.I18n.translate('general.unsetAsDefault', 'MDC', 'Remove as default') :
                     Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default');
             if(this.getToggleDefaultMenuItem())
                 this.getToggleDefaultMenuItem().setText(toggleDefaultMenuItemText);
@@ -138,7 +138,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             this.getConnectionMethodPreview().getLayout().setActiveItem(1);
             this.getConnectionMethodPreview().setTitle(Ext.String.htmlEncode(connectionMethodName));
             var menuItem =  this.getConnectionMethodPreview().down('#toggleDefaultMenuItem');
-            menuItem && menuItem.setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('connectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default'));
+            menuItem && menuItem.setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('general.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default'));
             this.getConnectionMethodPreview().down('property-form').loadRecord(connectionMethod[0]);
             if (connectionMethod[0].propertiesStore.data.items.length > 0) {
                 this.getConnectionMethodPreview().down('#connectionDetailsTitle').setVisible(true);

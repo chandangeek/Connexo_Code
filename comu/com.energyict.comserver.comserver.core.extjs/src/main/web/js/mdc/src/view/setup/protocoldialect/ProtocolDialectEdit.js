@@ -59,7 +59,7 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectEdit', {
                             /* {
                              xtype: 'displayfield',
                              name: 'name',
-                             fieldLabel: Uni.I18n.translate('protocolDialect.name', 'MDC', 'Name'),
+                             fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                              itemId: 'editProtocolDialectNameField',
                              width: 650
                              }*/

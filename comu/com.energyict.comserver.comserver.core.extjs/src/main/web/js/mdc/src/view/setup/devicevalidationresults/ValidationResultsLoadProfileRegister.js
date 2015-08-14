@@ -92,7 +92,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsLoadProfileR
                         ui: 'medium',
                         itemId: 'validation-result-register-list',
                         hidden: true,
-                        title: Uni.I18n.translate('device.dataValidation.registers', 'MDC', 'Registers'),
+                        title: Uni.I18n.translate('general.registers', 'MDC', 'Registers'),
                         xtype: 'mdc-register-list'
                     }
 

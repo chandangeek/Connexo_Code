@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Add', {
 
                             columns: [
                                 {
-                                    header: Uni.I18n.translate('estimationDeviceConfigurations.deviceConfiguration', 'MDC', 'Device configuration'),
+                                    header: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
                                     dataIndex: 'name',
                                     renderer: function (value, metaData, record) {
                                         var url = me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view').buildUrl({deviceTypeId: record.get('deviceTypeId'), deviceConfigurationId: record.get('id')});
@@ -52,12 +52,12 @@ Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Add', {
                                     flex: 1
                                 },
                                 {
-                                    header: Uni.I18n.translate('estimationDeviceConfigurations.deviceType', 'MDC', 'Device type'),
+                                    header: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
                                     dataIndex: 'deviceTypeName',
                                     flex: 1
                                 },
                                 {
-                                    header: Uni.I18n.translate('estimationDeviceConfigurations.status', 'MDC', 'Status'),
+                                    header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                                     dataIndex: 'config_active',
                                     flex: 1
                                 }

@@ -12,7 +12,7 @@ Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Grid', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('estimationDeviceConfigurations.deviceConfiguration', 'MDC', 'Device configuration'),
+                header: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {
                     var url = me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view').buildUrl({deviceTypeId: record.get('deviceTypeId'), deviceConfigurationId: record.get('id')});
@@ -21,7 +21,7 @@ Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('estimationDeviceConfigurations.deviceType', 'MDC', 'Device type'),
+                header: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
                 dataIndex: 'deviceTypeName',
                 flex: 1
             }

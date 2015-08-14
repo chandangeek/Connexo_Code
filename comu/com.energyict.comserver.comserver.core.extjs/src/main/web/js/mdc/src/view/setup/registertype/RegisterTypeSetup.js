@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeSetup', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('registerType.registerTypes', 'MDC', 'Register types'),
+            title: Uni.I18n.translate('general.registerTypes', 'MDC', 'Register types'),
             items: [
                 {
                     xtype: 'preview-container',

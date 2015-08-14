@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodActionMe
                     }
 
                     if(menu.record.get('isDefault')=== true){
-                        menu.down('[action=toggleDefault]').setText(Uni.I18n.translate('deviceconnectionmethod.unsetAsDefault', 'MDC', 'Remove as default'));
+                        menu.down('[action=toggleDefault]').setText(Uni.I18n.translate('general.unsetAsDefault', 'MDC', 'Remove as default'));
                     } else {
                         menu.down('[action=toggleDefault]').setText(Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'));
                     }

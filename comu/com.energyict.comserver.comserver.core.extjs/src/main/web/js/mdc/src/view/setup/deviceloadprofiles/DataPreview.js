@@ -116,9 +116,9 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                             name: 'validationActive',
                             renderer: function (value) {
                                 if (value) {
-                                    return Uni.I18n.translate('communicationtasks.task.active', 'MDC', 'Active');
+                                    return Uni.I18n.translate('general.active', 'MDC', 'Active');
                                 } else {
-                                    return Uni.I18n.translate('communicationtasks.task.inactive', 'MDC', 'Inactive');
+                                    return Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
                                 }
                             }
                         }

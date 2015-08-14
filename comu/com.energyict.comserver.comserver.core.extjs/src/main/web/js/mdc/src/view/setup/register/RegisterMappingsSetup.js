@@ -34,7 +34,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsSetup', {
                 ui: 'large',
                 xtype: 'panel',
                 itemId: 'registerMappingsSetupPanel',
-                title: Uni.I18n.translate('registerMapping.registerTypes', 'MDC', 'Register types'),
+                title: Uni.I18n.translate('general.registerTypes', 'MDC', 'Register types'),
 
                 items: [
                     {

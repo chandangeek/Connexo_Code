@@ -147,7 +147,7 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
                 var message = Uni.I18n.translatePlural(
                     'validation.deviceconfiguration.addSuccess',
                     selection.length,
-                    'CFG',
+                    'MDC',
                     'Succesfully added device configurations'
                 );
                 me.getApplication().fireEvent('acknowledge', message);

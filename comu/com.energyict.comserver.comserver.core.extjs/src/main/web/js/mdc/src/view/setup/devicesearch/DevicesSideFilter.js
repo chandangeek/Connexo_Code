@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.devicesearch.DevicesSideFilter', {
                 xtype: 'uni-filter-combo',
                 name: 'deviceTypes',
                 itemId: 'type',
-                fieldLabel: Uni.I18n.translate('searchItems.type', 'MDC', 'Type'),
+                fieldLabel: Uni.I18n.translate('general.type', 'MDC', 'Type'),
                 displayField: 'name',
                 valueField: 'id',
                 store: Ext.getStore('Mdc.store.filter.DeviceTypes') || Ext.create('Mdc.store.filter.DeviceTypes'),

@@ -50,7 +50,7 @@ Ext.define('Mdc.view.setup.devicegroup.Edit', {
                         xtype: 'textfield',
                         itemId: 'deviceGroupNameTextField',
                         required: true,
-                        fieldLabel: Uni.I18n.translate('devicetype.name', 'MDC', 'Name'),
+                        fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                         allowBlank: false,
                         enforceMaxLength: true,
                         maxLength: 80,
@@ -61,12 +61,12 @@ Ext.define('Mdc.view.setup.devicegroup.Edit', {
                         itemId: 'device-group-type',
                         required: true,
                         disabled: true,
-                        fieldLabel: Uni.I18n.translate('comserver.preview.type', 'MDC', 'Type'),
+                        fieldLabel: Uni.I18n.translate('general.type', 'MDC', 'Type'),
                         width: 500
                     },
                     {
                         ui: 'medium',
-                        title: Uni.I18n.translate('deviceregisterconfiguration.devices', 'MDC', 'Devices')
+                        title: Uni.I18n.translate('general.devices', 'MDC', 'Devices')
                     },
                     {
                         xtype: 'mdc-search-results'

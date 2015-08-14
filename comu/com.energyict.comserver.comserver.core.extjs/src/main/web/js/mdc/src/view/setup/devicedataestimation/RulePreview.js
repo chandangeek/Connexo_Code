@@ -24,7 +24,7 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulePreview', {
         },
         {
             name: 'active',
-            fieldLabel: Uni.I18n.translate('estimationDeviceConfigurations.status', 'MDC', 'Status'),
+            fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
             itemId: 'status-field',
             renderer: function (value) {
                 if (value) {

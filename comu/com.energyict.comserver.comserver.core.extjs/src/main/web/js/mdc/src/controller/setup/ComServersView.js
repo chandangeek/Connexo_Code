@@ -111,10 +111,10 @@ Ext.define('Mdc.controller.setup.ComServersView', {
                                 menu.record = model;
                             }
 
-                            var msg = activeChange ? Uni.I18n.translate('comserver.changeState.activated', 'MDC', 'activated') :
-                                Uni.I18n.translate('comserver.changeState.deactivated', 'MDC', 'deactivated');
+                            var msg = activeChange ? Uni.I18n.translate('general.activated', 'MDC', 'activated') :
+                                Uni.I18n.translate('general.deactivated', 'MDC', 'deactivated');
                             form.loadRecord(model);
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comserver.changeState.msg', 'MDC', 'Communication server') + ' ' + msg);
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.comServer', 'MDC', 'Communication server') + ' ' + msg);
                         }
                     });
                 },
@@ -167,7 +167,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('comServer.deleteConfirmation.msg', 'MDC', 'This communication server will no longer be available.'),
-            title: Ext.String.format(Uni.I18n.translate('comServer.deleteConfirmation.title', 'MDC', "Remove '{0}'?"), record.get('name')),
+            title: Uni.I18n.translate('general.removeConfirmation', 'MDC', 'Remove \'{0}\'?', [record.get('name')]),
             fn: function (state) {
                 switch (state) {
                     case 'confirm':

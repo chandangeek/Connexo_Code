@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
             xtype: 'panel',
             ui: 'large',
             layout: 'fit',
-            title: Uni.I18n.translate('devicechannels.channels', 'MDC', 'Channels'),
+            title: Uni.I18n.translate('general.channels', 'MDC', 'Channels'),
             items: [
                 {
                     xtype: 'preview-container',

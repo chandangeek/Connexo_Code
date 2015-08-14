@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.PreviewForm', {
     },
     items: [
         {
-            fieldLabel: Uni.I18n.translate('general.formFieldLabel.name', 'MDC', 'Name'),
+            fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
             name: 'name'
         },
         {

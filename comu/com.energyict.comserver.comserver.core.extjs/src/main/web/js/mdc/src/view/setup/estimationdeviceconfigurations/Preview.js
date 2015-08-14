@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Preview', {
         },
         items: [
             {
-                fieldLabel: Uni.I18n.translate('estimationDeviceConfigurations.deviceConfiguration', 'MDC', 'Device configuration'),
+                fieldLabel: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
                 name: 'name',
                 itemId: 'config-name',
                 renderer: function (value) {
@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Preview', {
                 }
             },
             {
-                fieldLabel: Uni.I18n.translate('estimationDeviceConfigurations.deviceType', 'MDC', 'Device type'),
+                fieldLabel: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
                 name: 'deviceTypeName',
                 itemId: 'device-type-name'
             },

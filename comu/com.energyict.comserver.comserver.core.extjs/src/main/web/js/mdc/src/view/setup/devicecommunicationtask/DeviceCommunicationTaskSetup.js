@@ -34,7 +34,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskSetup'
                 ui: 'large',
                 xtype: 'panel',
                 itemId: 'deviceCommunicatioTaskSetupPanel',
-                title: Uni.I18n.translate('devicecommunicationTask.communicationTasks', 'MDC', 'Communication tasks'),
+                title: Uni.I18n.translate('general.communicationTasks', 'MDC', 'Communication tasks'),
 
                 items: [
                     {

@@ -35,7 +35,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskPreview', {
         items: [
             {
                 itemId: 'comtaskName',
-                fieldLabel: Uni.I18n.translate('comtask.name', 'MDC', 'Name'),
+                fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                 name: 'name'
             },
             {

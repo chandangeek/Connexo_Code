@@ -88,7 +88,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
 
     translateCriteriaName: function(criteriaName) {
         if (criteriaName == 'deviceConfiguration.deviceType.name') {
-            criteriaName = Uni.I18n.translate('devicetype.deviceType', 'MDC', 'Device type')
+            criteriaName = Uni.I18n.translate('general.deviceType', 'MDC', 'Device type')
         }
         else if (criteriaName == 'mRID') {
             criteriaName = Uni.I18n.translate('deviceGeneralInformation.mrid', 'MDC', 'MRID')
@@ -97,7 +97,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
             criteriaName = Uni.I18n.translate('deviceGeneralInformation.serialNumber', 'MDC', 'Serial number')
         }
         else if (criteriaName == 'deviceConfiguration.name') {
-            criteriaName = Uni.I18n.translate('deviceGeneralInformation.deviceConfiguration', 'MDC', 'Device configuration')
+            criteriaName = Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration')
         }
         return criteriaName;
     },

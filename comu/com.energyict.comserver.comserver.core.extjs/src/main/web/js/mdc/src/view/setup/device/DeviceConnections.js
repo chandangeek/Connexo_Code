@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
         '<td>{[values.connectionStrategy.displayValue]}</td>',
         '</tr>',
         '<tr>',
-        '<td>' + Uni.I18n.translate('device.connections.comPortPool', 'MDC', 'Communication port pool') + '</td>',
+        '<td>' + Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool') + '</td>',
         '<td>{[values.comPortPool.name]}</td>',
         '</tr>',
         '<tr>',
@@ -116,7 +116,7 @@ Ext.define('Mdc.view.setup.device.DeviceConnections', {
                             template += '<tpl><span  class="icon-stop2"></span>' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</tpl>';                        
                         return template;
                     },
-                    header: Uni.I18n.translate('device.connections.taskCount', 'MDC', 'Communication tasks'),
+                    header: Uni.I18n.translate('general.communicationTasks', 'MDC', 'Communication tasks'),
                     flex: 20
                 },
                 {

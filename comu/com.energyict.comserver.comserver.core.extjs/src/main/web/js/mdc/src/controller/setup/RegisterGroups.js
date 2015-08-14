@@ -184,7 +184,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 me.mode = 'create';
                 me.getApplication().fireEvent('changecontentevent', widget);
                 widget.setLoading(true);
-                widget.down('panel').setTitle(Uni.I18n.translate('registerGroup.create', 'MDC', 'Add register group'));
+                widget.down('panel').setTitle(Uni.I18n.translate('registerGroup.add', 'MDC', 'Add register group'));
                 registerGroup = Ext.create(Ext.ModelManager.getModel('Mdc.model.RegisterGroup'));
                 widget.down('form').loadRecord(registerGroup);
                 if (this.totalCount > 0) {

@@ -26,7 +26,7 @@ Ext.define('Mdc.model.LoadProfileOfDevice', {
             name: 'validationInfo_validationActive',
             persist: false,
             mapping: function (data) {
-                return (data.validationInfo && data.validationInfo.validationActive) ? Uni.I18n.translate('communicationtasks.task.active', 'MDC', 'Active') : Uni.I18n.translate('communicationtasks.task.inactive', 'MDC', 'Inactive');
+                return (data.validationInfo && data.validationInfo.validationActive) ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive');
             }
         },
         {
@@ -61,7 +61,7 @@ Ext.define('Mdc.model.LoadProfileOfDevice', {
             name: 'lastReading_formatted',
             persist: false,
             mapping: function (data) {
-                return data.lastReading ? Uni.I18n.formatDate('deviceloadprofiles.dateFormat', new Date(data.lastReading), 'MDC', 'M d, Y H:i') : '';
+                return data.lastReading ? Uni.DateTime.formatDateTimeShort(new Date(data.lastReading)) : '';
             }
         },
         {

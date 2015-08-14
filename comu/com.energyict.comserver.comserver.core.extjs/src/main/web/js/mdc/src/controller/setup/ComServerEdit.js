@@ -97,7 +97,7 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
 
         this.getApplication().fireEvent('changecontentevent', widget);
         form = widget.down('form');
-        form.setTitle(Uni.I18n.translate('comServer.title.addOnline', 'MDC', 'Add online communication server'));
+        form.setTitle(Uni.I18n.translate('comServer.addOnline', 'MDC', 'Add online communication server'));
         this.modelToForm(model, form);
         widget.setEdit(false, '#/administration/comservers');
     },

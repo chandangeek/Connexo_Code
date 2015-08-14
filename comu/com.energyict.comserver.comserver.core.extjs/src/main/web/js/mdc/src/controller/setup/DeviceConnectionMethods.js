@@ -143,7 +143,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         if (connectionMethod.length == 1) {
             this.getConnectionMethodActionMenu().record = connectionMethod[0];
             if (!!this.getToggleDefaultMenuItem()) {
-                this.getToggleDefaultMenuItem().setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('deviceconnectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'));
+                this.getToggleDefaultMenuItem().setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('general.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'));
                 this.getToggleActiveMenuItem().setText(connectionMethod[0].get('status') === 'connectionTaskStatusInActive' ? Uni.I18n.translate('deviceconnectionmethod.activate', 'MDC', 'Activate') : Uni.I18n.translate('deviceconnectionmethod.deActivate', 'MDC', 'Deactivate'));
                 if (connectionMethod[0].get('status') === 'connectionTaskStatusIncomplete') {
                     this.getToggleActiveMenuItem().setVisible(false);
@@ -155,7 +155,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             var connectionMethodName = connectionMethod[0].get('name');
             this.getDeviceConnectionMethodPreview().getLayout().setActiveItem(1);
             this.getDeviceConnectionMethodPreview().setTitle(connectionMethodName);
-            !!this.getDeviceConnectionMethodPreview().down('#toggleDefaultMenuItem') && this.getDeviceConnectionMethodPreview().down('#toggleDefaultMenuItem').setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('deviceconnectionmethod.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'));
+            !!this.getDeviceConnectionMethodPreview().down('#toggleDefaultMenuItem') && this.getDeviceConnectionMethodPreview().down('#toggleDefaultMenuItem').setText(connectionMethod[0].get('isDefault') === true ? Uni.I18n.translate('general.unsetAsDefault', 'MDC', 'Remove as default') : Uni.I18n.translate('deviceconnectionmethod.setAsDefault', 'MDC', 'Set as default'));
             if (!!this.getDeviceConnectionMethodPreview().down('#toggleActiveMenuItem')) {
                 this.getDeviceConnectionMethodPreview().down('#toggleActiveMenuItem').setText(connectionMethod[0].get('status') === 'connectionTaskStatusInActive' || connectionMethod[0].get('status') === 'connectionTaskStatusIncomplete' ? Uni.I18n.translate('deviceconnectionmethod.activate', 'MDC', 'Activate') : Uni.I18n.translate('deviceconnectionmethod.deActivate', 'MDC', 'Deactivate'));
                 if (connectionMethod[0].get('status') === 'connectionTaskStatusIncomplete') {

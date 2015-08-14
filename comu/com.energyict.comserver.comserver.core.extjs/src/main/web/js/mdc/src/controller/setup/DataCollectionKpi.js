@@ -222,7 +222,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                         createBtn.disable();
                         Ext.resumeLayouts(true);
                     }
-                    widget.down('#dataCollectionKpiEditForm').setTitle(Uni.I18n.translate('datacollectionkpis.addDataCollectionKpi', 'MDC', 'Add data collection KPI'));
+                    widget.down('#dataCollectionKpiEditForm').setTitle(Uni.I18n.translate('datacollectionkpis.add', 'MDC', 'Add data collection KPI'));
                     widget.setLoading(false);
                 }
             }

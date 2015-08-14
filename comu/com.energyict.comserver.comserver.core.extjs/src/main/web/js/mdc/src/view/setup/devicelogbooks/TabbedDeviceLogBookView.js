@@ -21,7 +21,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.TabbedDeviceLogBookView', {
                         itemId: 'logBook-specifications'
                     },
                     {
-                        title: Uni.I18n.translate('devicelogbooks.events', 'MDC', 'Events'),
+                        title: Uni.I18n.translate('general.events', 'MDC', 'Events'),
                         itemId: 'logBook-data'
                     }
                 ],
@@ -38,7 +38,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.TabbedDeviceLogBookView', {
                                 store: 'Mdc.store.LogbooksOfDevice',
                                 router: me.router,
                                 routerIdArgument: 'logbookId',
-                                itemsName: '<a href="' + me.router.getRoute('devices/device/logbooks').buildUrl() + '">' + Uni.I18n.translate('devicelogbooks.title', 'MDC', 'Logbooks').toLowerCase() + '</a>'
+                                itemsName: '<a href="' + me.router.getRoute('devices/device/logbooks').buildUrl() + '">' + Uni.I18n.translate('general.logbooks', 'MDC', 'Logbooks').toLowerCase() + '</a>'
                             }
                         ]);
                     }

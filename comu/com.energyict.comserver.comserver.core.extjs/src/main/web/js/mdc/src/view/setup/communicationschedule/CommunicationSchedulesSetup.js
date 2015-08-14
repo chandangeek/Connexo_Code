@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesSetup', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('communicationschedule.communicationSchedules', 'MDC', 'Shared communication schedules'),
+            title: Uni.I18n.translate('general.comSchedules', 'MDC', 'Shared communication schedules'),
             items: [
                 {
                     xtype: 'preview-container',
@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesSetup', {
                         ],
                         stepItems: [
                             {
-                                text: Uni.I18n.translate('communicationschedule.add', 'MDC', 'Add shared communication schedule'),
+                                text: Uni.I18n.translate('communicationSchedule.add', 'MDC', 'Add shared communication schedule'),
                                 privileges: Mdc.privileges.CommunicationSchedule.admin,
                                 action: 'createCommunicationSchedule'
                             }

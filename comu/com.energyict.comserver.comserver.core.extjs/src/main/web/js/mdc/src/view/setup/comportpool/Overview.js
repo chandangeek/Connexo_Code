@@ -55,7 +55,7 @@ Ext.define('Mdc.view.setup.comportpool.Overview', {
                             name: 'direction'
                         },
                         {
-                            fieldLabel: Uni.I18n.translate('comPortPool.preview.type', 'MDC', 'Type'),
+                            fieldLabel: Uni.I18n.translate('general.type', 'MDC', 'Type'),
                             name: 'comPortType'
                         },
                         {

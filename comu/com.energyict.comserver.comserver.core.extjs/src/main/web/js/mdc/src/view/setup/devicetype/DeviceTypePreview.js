@@ -53,7 +53,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                             {
                                 xtype: 'displayfield',
                                 name: 'name',
-                                fieldLabel: Uni.I18n.translate('devicetype.name', 'MDC', 'Name'),
+                                fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                 itemId: 'deviceName'
 
                             },
@@ -64,7 +64,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                             },
                             {
                                 xtype: 'fieldcontainer',
-                                fieldLabel: Uni.I18n.translate('general.devicelifecycle', 'MDC', 'Device life cycle'),
+                                fieldLabel: Uni.I18n.translate('general.deviceLifeCycle', 'MDC', 'Device life cycle'),
                                 items: [
                                     {
                                         itemId: 'device-life-cycle-link',
@@ -121,7 +121,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 items: [
                                     {
                                         name: 'registerCount',
-                                        text: Uni.I18n.translate('devicetype.registers', 'MDC', 'Register types'),
+                                        text: Uni.I18n.translate('general.registerTypes', 'MDC', 'Register types'),
                                         itemId: 'deviceTypeRegistersLink'
                                     },
 

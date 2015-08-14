@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
 
     columns: [
         {
-            header: Uni.I18n.translate('comserver.title.communicationServer', 'MDC', 'Communication server'),
+            header: Uni.I18n.translate('general.comServer', 'MDC', 'Communication server'),
             flex: 1,
             dataIndex: 'name',
             renderer: function (value, b, record) {
@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
             flex: 1
         },
         {
-            header: Uni.I18n.translate('comserver.status', 'MDC', 'Status'),
+            header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
             dataIndex: 'active',
             width: 100,
             renderer: function (value) {
@@ -60,7 +60,7 @@ Ext.define('Mdc.view.setup.comserver.ComServersGrid', {
                 {
                     xtype: 'button',
                     itemId: 'btn-add-online-communication-server',
-                    text: Uni.I18n.translate('deviceType.addOnline', 'MDC', 'Add online communication server'),
+                    text: Uni.I18n.translate('comServer.addOnline', 'MDC', 'Add online communication server'),
                     privileges: Mdc.privileges.Communication.admin,
                     href: '#/administration/comservers/add/online'
                 }

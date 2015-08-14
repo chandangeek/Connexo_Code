@@ -53,16 +53,16 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
             {
                 name: 'deviceType',
                 itemId: 'deviceTypeView',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.deviceType', 'MDC', 'Device type')
+                fieldLabel: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type')
             },
             {
                 name: 'deviceConfiguration',
                 itemId: 'deviceConfigurationView',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.deviceConfiguration', 'MDC', 'Device configuration')
+                fieldLabel: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration')
             },
             {
                 itemId: 'usagePointEmptyStoreField',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.usagePoint', 'MDC', 'Usage point'),
+                fieldLabel: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
                 renderer: function () {
                     return '<span style="font-style:italic;color: grey;">' + Uni.I18n.translate('deviceGeneralInformation.usagePoint.notAvailable', 'MDC', 'No usage points available') + '</span>';
                 }
@@ -70,14 +70,14 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
             {
                 name: 'usagePoint',
                 itemId: 'usagePointView',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.usagePoint', 'MDC', 'Usage point')
+                fieldLabel: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point')
             },
             {
                 name: 'usagePointEdit',
                 xtype: 'combobox',
                 store: 'Mdc.store.UsagePointsForDeviceAttributes',
                 itemId: 'usagePointEdit',
-                fieldLabel: Uni.I18n.translate('deviceGeneralInformation.usagePoint', 'MDC', 'Usage point'),
+                fieldLabel: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
                 valueField: 'id',
                 displayField: 'mRID'
             },

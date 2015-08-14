@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulesSetMainView', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: Uni.I18n.translate('estimationDevice.dataEstimation', 'MDC', 'Data estimation'),
+                title: Uni.I18n.translate('general.dataEstimation', 'MDC', 'Data estimation'),
                 items: [
                     {
                         xtype: 'container',
@@ -42,14 +42,14 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulesSetMainView', {
                                 itemId: 'dataEstimationStatusPanel',
                                 ui: 'medium',
                                 layout: 'column',
-                                title: Uni.I18n.translate('estimationDeviceConfigurations.status', 'MDC', 'Status'),
+                                title: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                                 items: [
                                     {
                                         xtype: 'displayfield',
                                         itemId: 'deviceDataEstimationStatusField',
                                         columnWidth: 1,
                                         labelAlign: 'left',
-                                        fieldLabel: Uni.I18n.translate('estimationDeviceConfigurations.status', 'MDC', 'Status'),
+                                        fieldLabel: Uni.I18n.translate('general.status', 'MDC', 'Status'),
                                         value: Uni.I18n.translate('estimationDevice.updatingStatus', 'MDC', 'Updating status...')
                                     },
                                     {
@@ -65,7 +65,7 @@ Ext.define('Mdc.view.setup.devicedataestimation.RulesSetMainView', {
                     },
                     {
                         ui: 'medium',
-                        title: Uni.I18n.translate('estimationDevice.estimationRuleSets', 'MDC', 'Estimation rule sets'),
+                        title: Uni.I18n.translate('general.estimationRuleSets', 'MDC', 'Estimation rule sets'),
                         margin: '0 0 0 -10',
                         items: [
                             {

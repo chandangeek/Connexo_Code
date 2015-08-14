@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
             }];
         if (me.eventsView) {
             items.push({
-                fieldLabel: Uni.I18n.translate('deviceevents.logbook', 'MDC', 'Logbook'),
+                fieldLabel: Uni.I18n.translate('general.logbook', 'MDC', 'Logbook'),
                 name: 'logBookId',
                 itemId: 'logBookId',
                 renderer: function (value) {
@@ -68,7 +68,7 @@ Ext.define('Mdc.view.setup.deviceevents.DataPreview', {
                                 name: 'code'
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('deviceevents.deviceType', 'MDC', 'Device type'),
+                                fieldLabel: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
                                 name: 'deviceType',
                                 renderer: function (value) {
                                     return value ? value.name + ' ' + '(' + value.id + ')' : '';

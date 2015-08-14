@@ -110,7 +110,7 @@ Ext.define('Mdc.controller.setup.SearchItems', {
 
         if (searchItems.down('#type').getValue() != '') {
             var button = searchItems.down('button[name=typeBtn]');
-            button = this.createCriteriaButton(button, criteriaContainer, 'typeBtn', Uni.I18n.translate('searchItems.type', 'MDC', 'Type') + ': ' + searchItems.down('#type').getRawValue());
+            button = this.createCriteriaButton(button, criteriaContainer, 'typeBtn', Uni.I18n.translate('general.type', 'MDC', 'Type') + ': ' + searchItems.down('#type').getRawValue());
             store.getProxy().setExtraParam('deviceTypeName', searchItems.down('#type').getRawValue());
         } else {
             delete store.getProxy().extraParams.deviceTypeName;
