@@ -56,7 +56,7 @@ public interface PersistenceSupport<D, T extends PersistentDomainExtension<D>> {
      *
      * @return The persistence class
      */
-    Class<T> getPersistenceClass();
+    Class<T> persistenceClass();
 
     /**
      * Gets the Module that will provide additional bindings
@@ -66,7 +66,7 @@ public interface PersistenceSupport<D, T extends PersistentDomainExtension<D>> {
      *
      * @return The Module
      */
-    Optional<Module> getModule();
+    Optional<Module> module();
 
     /**
      * Adds the columns for each of the custom properties

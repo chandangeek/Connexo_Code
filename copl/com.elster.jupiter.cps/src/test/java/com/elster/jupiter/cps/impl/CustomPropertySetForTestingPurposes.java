@@ -112,12 +112,12 @@ public class CustomPropertySetForTestingPurposes implements CustomPropertySet<Te
         }
 
         @Override
-        public Class<DomainExtensionForTestingPurposes> getPersistenceClass() {
+        public Class<DomainExtensionForTestingPurposes> persistenceClass() {
             return DomainExtensionForTestingPurposes.class;
         }
 
         @Override
-        public Optional<Module> getModule() {
+        public Optional<Module> module() {
             return Optional.empty();
         }
 

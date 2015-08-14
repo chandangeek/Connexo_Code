@@ -112,12 +112,12 @@ public class VersionedCustomPropertySetForTestingPurposes implements CustomPrope
         }
 
         @Override
-        public Class<VersionedDomainExtensionForTestingPurposes> getPersistenceClass() {
+        public Class<VersionedDomainExtensionForTestingPurposes> persistenceClass() {
             return VersionedDomainExtensionForTestingPurposes.class;
         }
 
         @Override
-        public Optional<Module> getModule() {
+        public Optional<Module> module() {
             return Optional.empty();
         }
 

@@ -39,7 +39,7 @@ class ActiveCustomPropertySet {
     @SuppressWarnings("unchecked")
     <T extends PersistentDomainExtension<D>, D> Optional<T> getValuesEntityFor(D businessObject) {
         return this.customPropertySetDataModel
-                .mapper(this.customPropertySet.getPersistenceSupport().getPersistenceClass())
+                .mapper(this.customPropertySet.getPersistenceSupport().persistenceClass())
                 .getOptional(
                         businessObject,
                         this.registeredCustomPropertySet);
@@ -48,7 +48,7 @@ class ActiveCustomPropertySet {
     @SuppressWarnings("unchecked")
     <T extends PersistentDomainExtension<D>, D> Optional<T> getValuesEntityFor(D businessObject, Instant effectiveTimestamp) {
         return this.customPropertySetDataModel
-                .mapper(this.customPropertySet.getPersistenceSupport().getPersistenceClass())
+                .mapper(this.customPropertySet.getPersistenceSupport().persistenceClass())
                 .getOptional(
                         businessObject,
                         this.registeredCustomPropertySet,
@@ -72,14 +72,14 @@ class ActiveCustomPropertySet {
 
     @SuppressWarnings("unchecked")
     private <T extends PersistentDomainExtension<D>, D> void createExtension(D businessObject, CustomPropertySetValues values) {
-        T domainExtension = (T) this.customPropertySetDataModel.getInstance(this.customPropertySet.getPersistenceSupport().getPersistenceClass());
+        T domainExtension = (T) this.customPropertySetDataModel.getInstance(this.customPropertySet.getPersistenceSupport().persistenceClass());
         domainExtension.copyFrom(businessObject, this.customPropertySet, values);
         this.customPropertySetDataModel.persist(domainExtension);
     }
 
     @SuppressWarnings("unchecked")
     private <T extends PersistentDomainExtension<D>, D> void createExtension(D businessObject, CustomPropertySetValues values, Instant effectiveTimestamp) {
-        T domainExtension = (T) this.customPropertySetDataModel.getInstance(this.customPropertySet.getPersistenceSupport().getPersistenceClass());
+        T domainExtension = (T) this.customPropertySetDataModel.getInstance(this.customPropertySet.getPersistenceSupport().persistenceClass());
         domainExtension.copyFrom(businessObject, this.customPropertySet, values);
         IntervalAccessor.setValue(domainExtension, Interval.startAt(effectiveTimestamp));
         this.customPropertySetDataModel.persist(domainExtension);

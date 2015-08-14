@@ -59,7 +59,7 @@ public interface CustomPropertySet<D, T extends PersistentDomainExtension<D>> {
      * @return This set's unique identifier
      */
     default String getId() {
-        return getPersistenceSupport().getPersistenceClass().getName();
+        return getPersistenceSupport().persistenceClass().getName();
     }
 
     /**

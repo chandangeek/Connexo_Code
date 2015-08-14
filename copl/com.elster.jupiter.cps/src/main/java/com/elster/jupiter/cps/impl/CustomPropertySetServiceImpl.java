@@ -138,7 +138,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         return new AbstractModule() {
             @Override
             public void configure() {
-                customPropertySet.getPersistenceSupport().getModule().ifPresent(customModule -> customModule.configure(this.binder()));
+                customPropertySet.getPersistenceSupport().module().ifPresent(customModule -> customModule.configure(this.binder()));
                 bind(DataModel.class).toInstance(dataModel);
                 bind(CustomPropertySetService.class).toInstance(CustomPropertySetServiceImpl.this);
             }
@@ -410,8 +410,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             this.underConstruction =
                     this.dataModel.addTable(
                             this.tableNameFor(this.customPropertySet),
-                            this.customPropertySet.getPersistenceSupport().getPersistenceClass());
-            this.underConstruction.map(this.customPropertySet.getPersistenceSupport().getPersistenceClass());
+                            this.customPropertySet.getPersistenceSupport().persistenceClass());
+            this.underConstruction.map(this.customPropertySet.getPersistenceSupport().persistenceClass());
         }
 
         private void addColumns() {
