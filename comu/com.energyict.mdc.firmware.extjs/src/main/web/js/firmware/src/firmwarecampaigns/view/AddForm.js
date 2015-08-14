@@ -31,7 +31,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 xtype: 'textfield',
                 itemId: 'firmware-campaign-name',
                 name: 'name',
-                fieldLabel: Uni.I18n.translate('general.nam', 'FWC', 'Name'),
+                fieldLabel: Uni.I18n.translate('general.name', 'FWC', 'Name'),
                 required: true
             },
             {
@@ -102,7 +102,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 xtype: 'dynamic-radiogroup',
                 itemId: 'firmware-type',
                 name: 'firmwareType',
-                fieldLabel: Uni.I18n.translate('firmware.campaigns.firmwareType', 'FWC', 'Firmware type'),
+                fieldLabel: Uni.I18n.translate('general.firmwareType', 'FWC', 'Firmware type'),
                 required: true,
                 hidden: true,
                 listeners: {

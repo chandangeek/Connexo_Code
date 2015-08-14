@@ -21,7 +21,7 @@ Ext.define('Fwc.view.firmware.ActionMenu', {
             }
         },
         {
-            text: Uni.I18n.translate('firmware.deprecate', 'FWC', 'Deprecate'),
+            text: Uni.I18n.translate('general.deprecate', 'FWC', 'Deprecate'),
             action: 'deprecate',
             itemId: 'deprecate'
         }

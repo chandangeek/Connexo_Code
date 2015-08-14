@@ -10,11 +10,11 @@ Ext.define('Fwc.view.firmware.Grid', {
 
     columns: [
         {
-            text: Uni.I18n.translate('firmware.field.version', 'FWC', 'Version'),
+            text: Uni.I18n.translate('general.version', 'FWC', 'Version'),
             dataIndex: 'firmwareVersion'
         },
         {
-            text: Uni.I18n.translate('firmware.field.type', 'FWC', 'Firmware type'),
+            text: Uni.I18n.translate('general.firmwareType', 'FWC', 'Firmware type'),
             flex: 1,
             dataIndex: 'type'
         },
@@ -42,7 +42,7 @@ Ext.define('Fwc.view.firmware.Grid', {
         this.dockedItems = [
             {
                 dock: 'top',
-                title: Uni.I18n.translate('firmware.sort.title', 'FWC', 'Sort'),
+                title: Uni.I18n.translate('general.sort', 'FWC', 'Sort'),
                 xtype: 'filter-toolbar',
                 itemId: 'firmware-sort-top',
                 showClearButton: false,
@@ -50,7 +50,7 @@ Ext.define('Fwc.view.firmware.Grid', {
                     xtype: 'button',
                     ui: 'tag',
                     iconCls: 'x-btn-sort-item-desc',
-                    text: Uni.I18n.translate('firmware.sort.version', 'FWC', 'Version')
+                    text: Uni.I18n.translate('general.version', 'FWC', 'Version')
                 }
             },
             {
@@ -61,7 +61,7 @@ Ext.define('Fwc.view.firmware.Grid', {
                 displayMoreMsg: Uni.I18n.translate('firmware.pagingtoolbartop.displayMoreMsg', 'FWC', '{0} - {1} of more than {2} firmware versions'),
                 emptyMsg: Uni.I18n.translate('firmware.pagingtoolbartop.emptyMsg', 'FWC', 'There are no firmware versions to display'),
                 items: [{
-                    text: Uni.I18n.translate('firmware.add', 'FWC', 'Add firmware version'),
+                    text: Uni.I18n.translate('firmwareVersion.add', 'FWC', 'Add firmware version'),
                     itemId: 'addFirmware',
                     xtype: 'button',
                     action: 'addFirmware'

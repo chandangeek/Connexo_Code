@@ -15,11 +15,11 @@ Ext.define('Fwc.view.firmware.FormEditGhost', {
             xtype: 'displayfield',
             itemId: 'displayFirmwareVersion',
             name: 'firmwareVersion',
-            fieldLabel: Uni.I18n.translate('firmware.field.version', 'FWC', 'Version')
+            fieldLabel: Uni.I18n.translate('general.version', 'FWC', 'Version')
         },
         {
             xtype: 'displayfield',
-            fieldLabel: Uni.I18n.translate('firmware.field.type', 'FWC', 'Firmware type'),
+            fieldLabel: Uni.I18n.translate('general.firmwareType', 'FWC', 'Firmware type'),
             name: 'type'
         },
         {

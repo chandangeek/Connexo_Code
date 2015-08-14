@@ -4,7 +4,7 @@ Ext.define('Fwc.view.firmware.field.FirmwareType', {
         'Fwc.store.FirmwareTypes'
     ],
     xtype: 'firmware-type',
-    fieldLabel: Uni.I18n.translate('firmware.field.type', 'FWC', 'Firmware type'),
+    fieldLabel: Uni.I18n.translate('general.firmwareType', 'FWC', 'Firmware type'),
     columns: 1,
     vertical: true,
     name: 'firmwareType',

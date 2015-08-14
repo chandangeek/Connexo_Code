@@ -32,7 +32,7 @@ Ext.define('Fwc.devicefirmware.view.Setup', {
         me.content = {
             ui: 'large',
             itemId: 'device-firmwares',
-            title: Uni.I18n.translate('deviceFirmware.title', 'FWC', 'Firmware'),
+            title: Uni.I18n.translate('general.firmware', 'FWC', 'Firmware'),
             defaults: {
                 margin: '0 0 20 0'
             },
