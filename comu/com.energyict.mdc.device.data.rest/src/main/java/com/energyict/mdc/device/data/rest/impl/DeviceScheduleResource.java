@@ -142,19 +142,6 @@ public class DeviceScheduleResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @PUT
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
-    @Path("/{comScheduleId}")
-    public Response addComScheduleOnDevice(@PathParam("mRID") String mrid, @PathParam("comScheduleId") long comScheduleId) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        ComSchedule comSchedule = schedulingService.findSchedule(comScheduleId).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_SCHEDULE, comScheduleId));
-        device.newScheduledComTaskExecution(comSchedule).add();
-        device.save();
-        return Response.status(Response.Status.OK).build();
-    }
-
     @DELETE
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)

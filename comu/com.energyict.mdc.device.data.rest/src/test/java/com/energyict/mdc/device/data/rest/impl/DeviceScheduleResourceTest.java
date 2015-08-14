@@ -225,7 +225,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         when(scheduledComTaskExecutionUpdater.scheduleAccordingTo(schedulingInfo.schedule.asTemporalExpression())).thenReturn(scheduledComTaskExecutionUpdater);
 
         Response response = target("/devices/1/schedules").request().put(Entity.json(schedulingInfo));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(scheduledComTaskExecutionUpdater, times(1)).scheduleAccordingTo(schedulingInfo.schedule.asTemporalExpression());
         verify(scheduledComTaskExecutionUpdater, times(1)).update();
     }
@@ -256,7 +256,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
 
 
         Response response = target("/devices/1/schedules").request().put(Entity.json(schedulingInfo));
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(device, times(1)).removeComTaskExecution(comTaskExecution);
     }
 
