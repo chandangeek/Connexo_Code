@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.HardCodedFieldNames;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
@@ -67,6 +68,7 @@ class ActiveCustomPropertySet {
 
     private <T extends PersistentDomainExtension<D>, D> void updateExtension(T domainExtension, D businessObject, CustomPropertySetValues values) {
         domainExtension.copyFrom(businessObject, this.customPropertySet, values);
+        Save.UPDATE.validate(this.customPropertySetDataModel, domainExtension);
         this.customPropertySetDataModel.update(domainExtension);
     }
 
@@ -82,6 +84,7 @@ class ActiveCustomPropertySet {
         T domainExtension = (T) this.customPropertySetDataModel.getInstance(this.customPropertySet.getPersistenceSupport().persistenceClass());
         domainExtension.copyFrom(businessObject, this.customPropertySet, values);
         IntervalAccessor.setValue(domainExtension, Interval.startAt(effectiveTimestamp));
+        Save.CREATE.validate(this.customPropertySetDataModel, domainExtension);
         this.customPropertySetDataModel.persist(domainExtension);
     }
 
