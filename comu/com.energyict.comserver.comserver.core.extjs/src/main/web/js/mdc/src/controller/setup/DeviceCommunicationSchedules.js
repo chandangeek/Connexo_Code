@@ -253,29 +253,25 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         var request = {};
 
         if (this.checkValidSelection(communicationSchedules)) {
-            var callbackCount = communicationSchedules.length;
-            function callback(){
-                debugger;
-                callbackCount--;
-                if(callbackCount==0){
+            Ext.each(communicationSchedules, function (communicationSchedule) {
+                scheduleIds.push(communicationSchedule.get('id'));
+            });
+            request.scheduleIds = scheduleIds;
+            jsonData = Ext.encode(request);
+            Ext.Ajax.request({
+                url: '/api/ddr/devices/'+ this.mrid +'/sharedschedules',
+                method: 'PUT',
+                params: '',
+                jsonData: jsonData,
+                timeout: 180000,
+                success: function (response) {
                     location.href = '#/devices/' + encodeURIComponent(me.mrid) + '/communicationplanning';
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.addSharedScheduleSucceeded', 'MDC', 'Add shared communication schedule succeeded'));
                 }
-            }
-            Ext.each(communicationSchedules, function (communicationSchedule) {
-                Ext.Ajax.request({
-                    url: '/api/ddr/devices/'+me.mrid+'/schedules/'+communicationSchedule.get('id'),
-                    method: 'PUT',
-                    params: '',
-                    jsonData: jsonData,
-                    timeout: 180000,
-                    success: function (response) {
-                       callback();
-                    }
-                });
             });
         }
     },
+
 
     checkValidSelection: function (communicationSchedules) {
         var me = this;
