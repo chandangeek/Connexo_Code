@@ -7,7 +7,7 @@ Ext.define('Apr.view.appservers.ImportServiceActionMenu', {
     items: [
         {
             itemId: 'remove-import-service',
-            text: Uni.I18n.translate('general.remove', 'UNI', 'Remove'),
+            text: Uni.I18n.translate('general.remove', 'APR', 'Remove'),
             action: 'removeImportService'
         }
     ]

@@ -39,6 +39,7 @@
             <id>sencha-build</id>
             <properties>
                 <js.dir>js/appserver</js.dir>
+                <package.name>com.elster.jupiter.appserver.extjs</package.name>
             </properties>
         </profile>
     </profiles>
