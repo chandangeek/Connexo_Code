@@ -596,6 +596,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         } else {
             menu.down('#confirm-value').setVisible(mainStatus || bulkStatus);
         }
+        if (menu.record.get('mainModificationState') == null && !menu.record.get('value') && !menu.record.get('collectedValue')) {
+            menu.down('#remove-reading').hide();
+        } else {
+            menu.down('#remove-reading').setVisible(true);
+        }
     },
 
     checkSuspects: function (menu) {

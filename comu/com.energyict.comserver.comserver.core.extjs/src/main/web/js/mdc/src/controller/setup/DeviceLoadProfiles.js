@@ -186,6 +186,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             confWindow.down('#validateLoadProfileDateErrors').update(Uni.I18n.translate('deviceloadprofiles.activation.error', 'MDC', 'The date should be before or equal to the default date.'));
             confWindow.down('#validateLoadProfileDateErrors').setVisible(true);
         } else {
+            confWindow.down('button').setDisabled(true);
             Ext.Ajax.request({
                 url: '../../api/ddr/devices/' + encodeURIComponent(mRID) + '/loadprofiles/' + loadProfileId + '/validate',
                 method: 'PUT',
