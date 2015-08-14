@@ -8,7 +8,12 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DemandRegister;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
+import com.energyict.dlms.cosem.Register;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
@@ -21,6 +26,7 @@ import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.idis.registers.AlarmBitsRegister;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -55,7 +61,7 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
         return result;
     }
 
-    private CollectedRegister readRegister(OfflineRegister offlineRegister) {
+    protected CollectedRegister readRegister(OfflineRegister offlineRegister) {
         ObisCode obisCode = offlineRegister.getObisCode();
 
         try {
@@ -129,15 +135,19 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
             }
             return createCollectedRegister(registerValue, offlineRegister);
         } catch (IOException e) {
-            if (IOExceptionHandler.isUnexpectedResponse(e, am130.getDlmsSession())) {
-                if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
-                    return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
-                } else {
-                    return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
-                }
+            return handleIOException(offlineRegister, e);
+        }
+    }
+
+    protected CollectedRegister handleIOException(OfflineRegister offlineRegister, IOException e) {
+        if (IOExceptionHandler.isUnexpectedResponse(e, am130.getDlmsSession())) {
+            if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+                return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
             } else {
-                throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, am130.getDlmsSession().getProperties().getRetries() + 1);
+                return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
             }
+        } else {
+            throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, am130.getDlmsSession().getProperties().getRetries() + 1);
         }
     }
 
@@ -145,7 +155,7 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
         return ((obisCode.getA() == 0) && (obisCode.getC() == 24) && (obisCode.getD() == 2) && (obisCode.getE() > 0 && obisCode.getE() < 5) && obisCode.getF() == 255);
     }
 
-    private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
+    protected RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
         return new RegisterIdentifierById(offlineRtuRegister.getRegisterId(), offlineRtuRegister.getObisCode());
     }
 
@@ -164,6 +174,10 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
         return deviceRegister;
+    }
+
+    public AbstractDlmsProtocol getMeterProtocol() {
+        return am130;
     }
 
     private enum DisconnectControlState {

@@ -11,7 +11,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RespondingFrameCoun
  * @author khe
  * @since 12/02/2015 - 10:14
  */
-public class DSMR40SecurityProvider extends NTASecurityProvider {
+public class IDISSecurityProvider extends NTASecurityProvider {
 
     /**
      * Create a new instance of NTASecurityProvider
@@ -19,7 +19,7 @@ public class DSMR40SecurityProvider extends NTASecurityProvider {
      * @param properties          - contains the keys for the authentication/encryption
      * @param authenticationLevel
      */
-    public DSMR40SecurityProvider(TypedProperties properties, int authenticationLevel) {
+    public IDISSecurityProvider(TypedProperties properties, int authenticationLevel) {
         super(properties, authenticationLevel);
         setRespondingFrameCounterHandling(new DSMR40RespondingFrameCounterHandler());
     }

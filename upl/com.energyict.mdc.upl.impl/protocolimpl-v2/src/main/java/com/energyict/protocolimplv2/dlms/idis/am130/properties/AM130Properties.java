@@ -19,7 +19,7 @@ public class AM130Properties extends IDISProperties {
     @Override
     public SecurityProvider getSecurityProvider() {
         if (securityProvider == null) {
-            securityProvider = new DSMR40SecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel());
+            securityProvider = new IDISSecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel());
         }
         return securityProvider;
     }

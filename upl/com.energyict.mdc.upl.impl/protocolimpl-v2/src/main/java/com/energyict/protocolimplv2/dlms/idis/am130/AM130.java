@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.dlms.idis.am130;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
@@ -27,6 +26,7 @@ import com.energyict.protocolimplv2.dlms.idis.am130.topology.AM130MeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
+import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
@@ -48,7 +48,7 @@ public class AM130 extends AM500 {
 
     private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.0.255");
 
-    private AM130RegisterFactory registerFactory = null;
+    protected AM130RegisterFactory registerFactory;
 
     /**
      * The protocol version date
@@ -58,22 +58,12 @@ public class AM130 extends AM500 {
         return "$Date$";
     }
 
-    /**
-     * A collection of general AM130 properties.
-     * These properties are not related to the security or the protocol dialects.
-     */
-    protected ConfigurationSupport getDlmsConfigurationSupport() {
-        if (dlmsConfigurationSupport == null) {
-            dlmsConfigurationSupport = new AM130ConfigurationSupport();
-        }
-        return dlmsConfigurationSupport;
+    protected ConfigurationSupport getNewInstanceOfConfigurationSupport() {
+        return new AM130ConfigurationSupport();
     }
 
-    public AM130Properties getDlmsSessionProperties() {
-        if (dlmsProperties == null) {
-            dlmsProperties = new AM130Properties();
-        }
-        return (AM130Properties) dlmsProperties;
+    protected IDISProperties getNewInstanceOfProperties() {
+        return new AM130Properties();
     }
 
     @Override
@@ -94,14 +84,14 @@ public class AM130 extends AM500 {
      */
     protected void checkCacheObjects() {
         boolean readCache = getDlmsSessionProperties().isReadCache();
-        if ((((DLMSCache) getDeviceCache()).getObjectList() == null) || (readCache)) {
+        if ((getDeviceCache().getObjectList() == null) || (readCache)) {
             getLogger().info("ReadCache property is true, reading cache!");
             readObjectList();
-            ((DLMSCache) getDeviceCache()).saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
+            getDeviceCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
         } else {
             getLogger().info("Cache exist, will not be read!");
         }
-        getDlmsSession().getMeterConfig().setInstantiatedObjectList(((DLMSCache) getDeviceCache()).getObjectList());
+        getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDeviceCache().getObjectList());
     }
 
     @Override
@@ -127,7 +117,7 @@ public class AM130 extends AM500 {
     protected void readFrameCounter(ComChannel comChannel) {
         TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
-        AM130Properties publicClientProperties = new AM130Properties();
+        IDISProperties publicClientProperties = getNewInstanceOfProperties();
         publicClientProperties.addProperties(clone);
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, clone));    //SecurityLevel 0:0
 
@@ -153,7 +143,7 @@ public class AM130 extends AM500 {
         return idisLogBookFactory;
     }
 
-    protected IDISMessaging getIdisMessaging() {
+    protected IDISMessaging getIDISMessaging() {
         if (idisMessaging == null) {
             idisMessaging = new AM130Messaging(this);
         }
@@ -173,7 +163,7 @@ public class AM130 extends AM500 {
         return getAM130RegisterFactory().readRegisters(registers);
     }
 
-    private AM130RegisterFactory getAM130RegisterFactory() {
+    protected AM130RegisterFactory getAM130RegisterFactory() {
         if (this.registerFactory == null) {
             this.registerFactory = new AM130RegisterFactory(this);
         }

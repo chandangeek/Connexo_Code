@@ -55,7 +55,7 @@ public class AM130ConfigurationSupport implements ConfigurationSupport {
         );
     }
 
-    private PropertySpec serverUpperMacAddressPropertySpec() {
+    protected PropertySpec serverUpperMacAddressPropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
     }
 

@@ -9,7 +9,11 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
@@ -67,16 +71,24 @@ public class AM500 extends AbstractDlmsProtocol {
      */
     protected ConfigurationSupport getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
-            dlmsConfigurationSupport = new IDISConfigurationSupport();
+            dlmsConfigurationSupport = getNewInstanceOfConfigurationSupport();
         }
         return dlmsConfigurationSupport;
     }
 
+    protected ConfigurationSupport getNewInstanceOfConfigurationSupport() {
+        return new IDISConfigurationSupport();
+    }
+
     public IDISProperties getDlmsSessionProperties() {
         if (dlmsProperties == null) {
-            dlmsProperties = new IDISProperties();
+            dlmsProperties = getNewInstanceOfProperties();
         }
         return (IDISProperties) dlmsProperties;
+    }
+
+    protected IDISProperties getNewInstanceOfProperties() {
+        return new IDISProperties();
     }
 
     /**
@@ -136,15 +148,15 @@ public class AM500 extends AbstractDlmsProtocol {
      */
     protected void checkCacheObjects() {
         boolean readCache = getDlmsSessionProperties().isReadCache();
-        if ((((DLMSCache) getDeviceCache()).getObjectList() == null) || (readCache)) {
+        if ((getDeviceCache().getObjectList() == null) || (readCache)) {
             if (readCache) {
                 getLogger().info("ReadCache property is true, reading cache!");
                 readObjectList();
-                ((DLMSCache) getDeviceCache()).saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
+                getDeviceCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
             } else {
                 getLogger().info("Cache does not exist, using hardcoded copy of object list");
                 UniversalObject[] objectList = new IDISObjectList().getObjectList();
-                ((DLMSCache) getDeviceCache()).saveObjectList(objectList);
+                getDeviceCache().saveObjectList(objectList);
             }
         } else {
             getLogger().info("Cache exist, will not be read!");
@@ -216,25 +228,25 @@ public class AM500 extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return getIdisMessaging().getSupportedMessages();
+        return getIDISMessaging().getSupportedMessages();
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return getIdisMessaging().executePendingMessages(pendingMessages);
+        return getIDISMessaging().executePendingMessages(pendingMessages);
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return getIdisMessaging().updateSentMessages(sentMessages);
+        return getIDISMessaging().updateSentMessages(sentMessages);
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return getIdisMessaging().format(propertySpec, messageAttribute);
+        return getIDISMessaging().format(propertySpec, messageAttribute);
     }
 
-    protected IDISMessaging getIdisMessaging() {
+    protected IDISMessaging getIDISMessaging() {
         if (idisMessaging == null) {
             idisMessaging = new IDISMessaging(this);
         }

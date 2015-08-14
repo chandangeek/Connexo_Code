@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.nta.dsmr50.elster.am540.registers;
+package com.energyict.protocolimplv2.dlms.idis.am540.registers;
 
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;

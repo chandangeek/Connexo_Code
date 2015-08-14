@@ -10,7 +10,6 @@ import com.energyict.dlms.axrdencoding.util.AXDRDate;
 import com.energyict.dlms.axrdencoding.util.AXDRTime;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
@@ -18,6 +17,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DLMSStoredValues;
+import com.energyict.protocolimplv2.dlms.idis.am540.registers.AM540PLCRegisterMapper;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.dsmr40.registers.Dsmr40RegisterFactory;
 

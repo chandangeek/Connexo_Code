@@ -10,12 +10,19 @@ import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.GeneralDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
+import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
+import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.enums.LoadControlActions;
 import com.energyict.protocolimplv2.messages.enums.MonitoredValue;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -29,33 +36,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  */
 public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
-    private final static List<DeviceMessageSpec> supportedMessages;
-
-    static {
-        supportedMessages = new ArrayList<>();
-
-        // Contactor
-        supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
-        supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND);
-        supportedMessages.add(AlarmConfigurationMessage.RESET_ALL_ALARM_BITS);
-        supportedMessages.add(AlarmConfigurationMessage.RESET_ALL_ERROR_BITS);
-        supportedMessages.add(AlarmConfigurationMessage.WRITE_ALARM_FILTER);
-        supportedMessages.add(GeneralDeviceMessage.WRITE_FULL_CONFIGURATION);
-        supportedMessages.add(ContactorDeviceMessage.CLOSE_RELAY);
-        supportedMessages.add(ContactorDeviceMessage.OPEN_RELAY);
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN);
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE);
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
-        supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
-        supportedMessages.add(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
-        supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS);
-        supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_SUPERVISION_MONITOR);
-        supportedMessages.add(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP1);
-        supportedMessages.add(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP2);
-        supportedMessages.add(MBusSetupDeviceMessage.Commission);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetTimeoutNotAddressed);
-        supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION);
-    }
+    protected List<DeviceMessageSpec> supportedMessages;
 
     protected IDISMessageExecutor messageExecutor;
 
@@ -72,6 +53,28 @@ public class IDISMessaging extends AbstractDlmsMessaging implements DeviceMessag
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
+        if (supportedMessages == null) {
+            supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME);
+            supportedMessages.add(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND);
+            supportedMessages.add(AlarmConfigurationMessage.RESET_ALL_ALARM_BITS);
+            supportedMessages.add(AlarmConfigurationMessage.RESET_ALL_ERROR_BITS);
+            supportedMessages.add(AlarmConfigurationMessage.WRITE_ALARM_FILTER);
+            supportedMessages.add(GeneralDeviceMessage.WRITE_FULL_CONFIGURATION);
+            supportedMessages.add(ContactorDeviceMessage.CLOSE_RELAY);
+            supportedMessages.add(ContactorDeviceMessage.OPEN_RELAY);
+            supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN);
+            supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE);
+            supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
+            supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
+            supportedMessages.add(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
+            supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS);
+            supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_SUPERVISION_MONITOR);
+            supportedMessages.add(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP1);
+            supportedMessages.add(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP2);
+            supportedMessages.add(MBusSetupDeviceMessage.Commission);
+            supportedMessages.add(PLCConfigurationDeviceMessage.SetTimeoutNotAddressed);
+            supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION);
+        }
         return supportedMessages;
     }
 

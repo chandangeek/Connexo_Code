@@ -297,6 +297,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     E35C(261, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C.E35C"),
     ELSTER_A1_THEMISPLUS(262, "com.elster.protocolimpl.dlms.A1"),
     DL230_LIS200(263, "com.elster.protocolimpl.lis200.DL230"),
+    AM540_IDIS_P2_DEVICE(264, "com.energyict.protocolimplv2.dlms.idis.am540.AM540", FamilyRule.ELSTER_IDIS, FamilyRule.ELSTER_IDIS_P2),
+    AM540_IDIS_P2_MBUS_DEVICE(265, "com.energyict.protocolimplv2.dlms.idis.am540.MBusDevice", FamilyRule.ELSTER_IDIS, FamilyRule.ELSTER_IDIS_P2),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
