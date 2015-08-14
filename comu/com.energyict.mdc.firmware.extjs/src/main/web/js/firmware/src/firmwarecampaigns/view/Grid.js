@@ -32,7 +32,7 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
                 }
             },
             {
-                header: Uni.I18n.translate('firmware.campaigns.firmwareType', 'FWC', 'Firmware type'),
+                header: Uni.I18n.translate('general.firmwareType', 'FWC', 'Firmware type'),
                 dataIndex: 'firmwareType',
                 flex: 1,
                 renderer: function (value) {

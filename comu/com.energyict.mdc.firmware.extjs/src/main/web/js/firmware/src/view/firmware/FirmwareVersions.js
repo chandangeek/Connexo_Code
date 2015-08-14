@@ -66,7 +66,7 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                             ],
                             stepItems: [
                                 {
-                                    text: Uni.I18n.translate('firmware.add', 'FWC', 'Add firmware version'),
+                                    text: Uni.I18n.translate('firmwareVersion.add', 'FWC', 'Add firmware version'),
                                     itemId: 'add-firmware-button',
                                     action: 'addFirmware'
                                 }

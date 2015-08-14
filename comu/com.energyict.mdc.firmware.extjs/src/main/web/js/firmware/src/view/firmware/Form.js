@@ -21,7 +21,7 @@ Ext.define('Fwc.view.firmware.Form', {
 
         me.buttons = [
             {
-                text: me.edit ? Uni.I18n.translate('general.edit', 'FWC', 'Save') : Uni.I18n.translate('general.add', 'FWC', 'Add'),
+                text: me.edit ? Uni.I18n.translate('general.save', 'FWC', 'Save') : Uni.I18n.translate('general.add', 'FWC', 'Add'),
                 ui: 'action',
                 action: 'saveFirmware',
                 itemId: 'createEditButton'

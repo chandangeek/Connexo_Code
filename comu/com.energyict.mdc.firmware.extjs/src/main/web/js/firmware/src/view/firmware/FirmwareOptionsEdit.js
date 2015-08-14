@@ -11,7 +11,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
         this.content = [
             {
                 xtype: 'form',
-                title: Uni.I18n.translate('deviceType.firmwaremanagemenoptions.edit', 'FWC', 'Edit firmware management options'),
+                title: Uni.I18n.translate('general.firmwareManagementOptions.edit', 'FWC', 'Edit firmware management options'),
                 ui: 'large',
                 border: false,
                 width: 850,
@@ -106,7 +106,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                     },
                     {
                         xtype: 'checkboxgroup',
-                        fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.options', 'FWC', 'Firmware management options'),
+                        fieldLabel: Uni.I18n.translate('general.firmwareManagementOptions', 'FWC', 'Firmware management options'),
                         required: true,
                         itemId: 'firmwareUpgradeOptions',
                         columns: 1,
@@ -153,7 +153,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptionsEdit', {
                         },
                         items: [
                             {
-                                text: Uni.I18n.translate('general.add', 'FWC', 'Save'),
+                                text: Uni.I18n.translate('general.save', 'FWC', 'Save'),
                                 xtype: 'button',
                                 ui: 'action',
                                 action: 'saveOptionsAction',

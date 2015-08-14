@@ -8,7 +8,7 @@ Ext.define('Fwc.view.firmware.FirmwareVersionsTopFilter', {
         {
             type: 'combobox',
             dataIndex: 'firmwareType',
-            emptyText: Uni.I18n.translate('firmware.field.type', 'FWC', 'Firmware type'),
+            emptyText: Uni.I18n.translate('general.firmwareType', 'FWC', 'Firmware type'),
             multiSelect: true,
             displayField: 'localizedValue',
             valueField: 'id',

@@ -4,15 +4,15 @@ Ext.define('Fwc.view.devicetype.SideMenu', {
     initComponent: function () {
         this.callParent(arguments);
         this.addMenuItems([{
-            title: Uni.I18n.translate('firmware.navigation.title', 'FWC', 'Firmware'),
+            title: Uni.I18n.translate('general.firmware', 'FWC', 'Firmware'),
             items: [
                 {
-                    text: Uni.I18n.translate('firmware.management.options', 'FWC', 'Firmware management options'),
+                    text: Uni.I18n.translate('general.firmwareManagementOptions', 'FWC', 'Firmware management options'),
                     itemId: 'firmwareoptionsLink',
                     href: '#/administration/devicetypes/' + this.deviceTypeId + '/firmware/options'
                 },
                 {
-                    text: Uni.I18n.translate('firmware.versions', 'FWC', 'Firmware versions'),
+                    text: Uni.I18n.translate('general.firmwareVersions', 'FWC', 'Firmware versions'),
                     itemId: 'firmwareversionsLink',
                     href: '#/administration/devicetypes/' + this.deviceTypeId + '/firmware/versions'
                 }

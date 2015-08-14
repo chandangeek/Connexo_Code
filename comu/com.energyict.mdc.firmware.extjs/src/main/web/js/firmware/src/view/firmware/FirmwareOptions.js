@@ -34,13 +34,13 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
             {
                 ui: 'large',
                 layout: 'hbox',
-                title: Uni.I18n.translate('deviceType.firmwaremanagementoptions.title', 'FWC', 'Firmware management options'),
+                title: Uni.I18n.translate('general.firmwareManagementOptions', 'FWC', 'Firmware management options'),
                 tools: [
                     {
                         xtype: 'button',
                         itemId: 'button-edit',
                         name: 'Edit',
-                        text: Uni.I18n.translate('deviceType.firmwaremanagementoptions.edit', 'FWC', 'Edit'),
+                        text: Uni.I18n.translate('general.edit', 'FWC', 'Edit'),
                         action: 'editFirmwareOptions'
                     }
                 ],
@@ -90,7 +90,7 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                                 itemId: 'allowed-options',
                           /*      fieldCls: 'x-form-display-field-multiple-values',*/
                                 fieldStyle: 'margin-top : 3px;',
-                                fieldLabel: Uni.I18n.translate('deviceType.firmwaremanagementoptions.options', 'FWC', 'Firmware management options'),
+                                fieldLabel: Uni.I18n.translate('general.firmwareManagementOptions', 'FWC', 'Firmware management options'),
                                 renderer: function (value) {
                                     var tpl = Ext.create('FirmwareOptionsXTemplate');
                                     return tpl.apply(value);

@@ -60,7 +60,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                     },
                     {
                         itemId: 'firmware-type-field',
-                        fieldLabel: Uni.I18n.translate('firmware.campaigns.firmwareType', 'FWC', 'Firmware type'),
+                        fieldLabel: Uni.I18n.translate('general.firmwareType', 'FWC', 'Firmware type'),
                         name: 'firmwareType',
                         renderer: function (value) {
                             return value ? value.localizedValue : ''
