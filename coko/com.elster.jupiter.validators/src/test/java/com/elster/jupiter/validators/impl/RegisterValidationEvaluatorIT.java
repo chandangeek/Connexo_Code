@@ -1,31 +1,5 @@
 package com.elster.jupiter.validators.impl;
 
-import static com.elster.jupiter.validation.ValidationResult.SUSPECT;
-import static com.elster.jupiter.validation.ValidationResult.VALID;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import com.elster.jupiter.validation.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
-import com.elster.jupiter.tasks.impl.TaskModule;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
@@ -36,6 +10,7 @@ import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.AmrSystem;
@@ -44,6 +19,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
@@ -53,16 +29,45 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.ValidationResult;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetResolver;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
+import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.validation.ValidationResult.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests integration of all internal components involved in validation.
@@ -105,7 +110,7 @@ public class RegisterValidationEvaluatorIT {
                 new InMemoryMessagingModule(),
                 new IdsModule(),
                 new FiniteStateMachineModule(),
-                new MeteringModule(),
+                new MeteringModule(false, "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                 new MeteringGroupsModule(),
                 new TaskModule(),
                 new PartyModule(),
@@ -197,7 +202,7 @@ public class RegisterValidationEvaluatorIT {
         validationResults =  validationStates.stream()
         		.map(DataValidationStatus::getValidationResult)
         		.collect(Collectors.toList());
-        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT));
+        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, VALID));
     }
 
 }

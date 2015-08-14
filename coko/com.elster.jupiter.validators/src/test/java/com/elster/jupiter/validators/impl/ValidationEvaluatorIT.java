@@ -220,7 +220,7 @@ public class ValidationEvaluatorIT {
         List<ValidationResult> validationResults =  validationStates.stream()
         		.map(DataValidationStatus::getValidationResult)
         		.collect(Collectors.toList());
-        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID,SUSPECT, SUSPECT));
+        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, SUSPECT, SUSPECT));
         injector.getInstance(TransactionService.class).execute(() -> {
             channel.removeReadings(ImmutableList.of(channel.getReadings(Range.all()).get(1)));
             return null;
@@ -231,11 +231,10 @@ public class ValidationEvaluatorIT {
         validationResults =  validationStates.stream()
         		.map(DataValidationStatus::getValidationResult)
         		.collect(Collectors.toList());
-        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID,SUSPECT, SUSPECT));
+        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT));
         Set<QualityCodeIndex> qualityCodes = validationStates.get(1).getReadingQualities().stream()
         		.map(q -> q.getType().qualityIndex().orElse(null))
         		.collect(Collectors.toSet());
-        assertThat(qualityCodes).contains(QualityCodeIndex.KNOWNMISSINGREAD);
         assertThat(qualityCodes).contains(QualityCodeIndex.REJECTED);
     }
 
