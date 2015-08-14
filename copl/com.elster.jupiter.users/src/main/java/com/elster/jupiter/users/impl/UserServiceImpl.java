@@ -13,6 +13,7 @@ import com.elster.jupiter.users.*;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Where;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.*;
@@ -25,6 +26,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.Checks.is;
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.users",
@@ -173,7 +175,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     @Override
     public Group createGroup(String name, String description) {
         GroupImpl result = GroupImpl.from(dataModel, name, description);
-        result.persist();
+        result.save();
 
         return result;
     }
@@ -570,5 +572,18 @@ public class UserServiceImpl implements UserService, InstallService, Translation
                 Arrays.asList(Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE)));
 
         return resources;
+    }
+
+    @Override
+    public Optional<Group> getGroup(String name) {
+        return getGroupsQuery()
+                .select(where("name").isEqualTo(name))
+                .stream()
+                .findFirst();
+    }
+
+    @Override
+    public Query<Group> getGroupsQuery() {
+        return queryService.wrap(dataModel.query(Group.class));
     }
 }
