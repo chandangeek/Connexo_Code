@@ -407,7 +407,7 @@ Ext.define('Dxp.view.tasks.Add', {
                         xtype: 'fieldcontainer',
                         itemId: 'destinationsFieldcontainer',
                         required: true,
-                        fieldLabel: Uni.I18n.translate('dataExportdestinations.destinations', 'DES', 'Destinations'),
+                        fieldLabel: Uni.I18n.translate('general.destinations', 'DES', 'Destinations'),
                         layout: 'hbox',
                         items: [
 
@@ -426,7 +426,7 @@ Ext.define('Dxp.view.tasks.Add', {
                             {
                                 xtype: 'button',
                                 itemId: 'add-destination-button',
-                                text: Uni.I18n.translate('dataExportdestinations.addDestination', 'DES', 'Add destination'),
+                                text: Uni.I18n.translate('dataExport.addDestination', 'DES', 'Add destination'),
                                 margin: '0 0 0 10'
                             }
 
