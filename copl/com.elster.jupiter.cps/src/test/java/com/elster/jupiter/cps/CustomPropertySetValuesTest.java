@@ -1,6 +1,10 @@
 package com.elster.jupiter.cps;
 
+import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
+
 import java.math.BigDecimal;
+import java.time.Instant;
 
 import org.junit.*;
 
@@ -31,6 +35,120 @@ public class CustomPropertySetValuesTest {
         assertThat(empty.isEmpty()).isTrue();
         assertThat(empty.size()).isZero();
         assertThat(empty.propertyNames()).isEmpty();
+        Range<Instant> effectiveRange = empty.getEffectiveRange();
+        assertThat(effectiveRange).isNotNull();
+        assertThat(effectiveRange.hasLowerBound()).isTrue();
+        assertThat(effectiveRange.lowerEndpoint()).isEqualTo(Instant.EPOCH);
+        assertThat(effectiveRange.hasUpperBound()).isFalse();
+    }
+
+    @Test
+    public void testFromEmptyConstructor () {
+        Instant from = Instant.ofEpochSecond(1000L);
+
+        // Business method
+        CustomPropertySetValues empty = CustomPropertySetValues.emptyFrom(from);
+
+        // Asserts
+        assertThat(empty.isEmpty()).isTrue();
+        assertThat(empty.size()).isZero();
+        assertThat(empty.propertyNames()).isEmpty();
+        Range<Instant> effectiveRange = empty.getEffectiveRange();
+        assertThat(effectiveRange).isNotNull();
+        assertThat(effectiveRange.hasLowerBound()).isTrue();
+        assertThat(effectiveRange.lowerEndpoint()).isEqualTo(from);
+        assertThat(effectiveRange.hasUpperBound()).isFalse();
+    }
+
+    @Test
+    public void testDurationEmptyConstructor () {
+        Instant from = Instant.ofEpochSecond(1000L);
+        Instant to = from.plusSeconds(1000L);
+
+        // Business method
+        CustomPropertySetValues empty = CustomPropertySetValues.emptyDuring(Interval.of(from, to));
+
+        // Asserts
+        assertThat(empty.isEmpty()).isTrue();
+        assertThat(empty.size()).isZero();
+        assertThat(empty.propertyNames()).isEmpty();
+        Range<Instant> effectiveRange = empty.getEffectiveRange();
+        assertThat(effectiveRange).isNotNull();
+        assertThat(effectiveRange.hasLowerBound()).isTrue();
+        assertThat(effectiveRange.lowerEndpoint()).isEqualTo(from);
+        assertThat(effectiveRange.hasUpperBound()).isTrue();
+        assertThat(effectiveRange.upperEndpoint()).isEqualTo(to);
+    }
+
+    @Test
+    public void notEffectiveWithFromConstructor() {
+        Instant instant = Instant.ofEpochSecond(1000L);
+        Instant from = instant.plusSeconds(1000L);
+        CustomPropertySetValues empty = CustomPropertySetValues.emptyFrom(from);
+
+        // Business method & asserts
+        assertThat(empty.isEffectiveAt(instant)).isFalse();
+    }
+
+    @Test
+    public void effectiveAtFromWithFromConstructor() {
+        Instant from = Instant.ofEpochSecond(1000L);
+        CustomPropertySetValues empty = CustomPropertySetValues.emptyFrom(from);
+
+        // Business method & asserts
+        assertThat(empty.isEffectiveAt(from)).isTrue();
+    }
+
+    @Test
+    public void effectiveAfterFromWithFromConstructor() {
+        Instant from = Instant.ofEpochSecond(1000L);
+        Instant instant = from.plusSeconds(1000L);
+        CustomPropertySetValues empty = CustomPropertySetValues.emptyFrom(from);
+
+        // Business method & asserts
+        assertThat(empty.isEffectiveAt(instant)).isTrue();
+    }
+
+    @Test
+    public void notEffectiveWithDuringConstructor() {
+        Instant instant = Instant.ofEpochSecond(1000L);
+        Instant from = instant.plusSeconds(1000L);
+        Instant to = from.plusSeconds(1000L);
+        CustomPropertySetValues empty = CustomPropertySetValues.emptyDuring(Interval.of(from, to));
+
+        // Business method & asserts
+        assertThat(empty.isEffectiveAt(instant)).isFalse();
+    }
+
+    @Test
+    public void effectiveAtFromWithDuringConstructor() {
+        Instant from = Instant.ofEpochSecond(1000L);
+        Instant to = from.plusSeconds(1000L);
+        CustomPropertySetValues empty = CustomPropertySetValues.emptyDuring(Interval.of(from, to));
+
+        // Business method & asserts
+        assertThat(empty.isEffectiveAt(from)).isTrue();
+    }
+
+    @Test
+    public void effectiveAfterFromWithDuringConstructor() {
+        Instant from = Instant.ofEpochSecond(1000L);
+        Instant instant = from.plusSeconds(500L);
+        Instant to = instant.plusSeconds(500L);
+        CustomPropertySetValues empty = CustomPropertySetValues.emptyDuring(Interval.of(from, to));
+
+        // Business method & asserts
+        assertThat(empty.isEffectiveAt(instant)).isTrue();
+    }
+
+    @Test
+    public void notEffectiveAtToWithDuringConstructor() {
+        Instant from = Instant.ofEpochSecond(1000L);
+        Instant to = from.plusSeconds(1000L);
+        CustomPropertySetValues empty = CustomPropertySetValues.emptyDuring(Interval.of(from, to));
+
+        // Business method & asserts
+        assertThat(empty.isEffectiveAt(to)).isFalse();
     }
 
     @Test

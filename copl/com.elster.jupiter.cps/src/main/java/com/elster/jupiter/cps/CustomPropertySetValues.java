@@ -1,6 +1,5 @@
 package com.elster.jupiter.cps;
 
-import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
@@ -42,7 +41,7 @@ public final class CustomPropertySetValues {
      * @return The empty CustomAttributeSetProperties
      */
     public static CustomPropertySetValues emptyFrom (Instant effectiveTimestamp) {
-        return new CustomPropertySetValues(Ranges.closedOpen(effectiveTimestamp, Instant.MAX));
+        return new CustomPropertySetValues(Range.atLeast(effectiveTimestamp));
     }
 
     /**
