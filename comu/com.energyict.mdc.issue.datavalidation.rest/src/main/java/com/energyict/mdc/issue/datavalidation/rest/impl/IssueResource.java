@@ -238,8 +238,13 @@ public class IssueResource {
         IssueAssigneeInfo issueAssigneeInfo = jsonFilter.getProperty("assignee", new IssueAssigneeInfoAdapter());
         String assigneeType = issueAssigneeInfo.getType();
         Long assigneeId = issueAssigneeInfo.getId();
-        if (IssueAssignee.Types.USER.equals(assigneeType)) {
-            userService.getUser(assigneeId).ifPresent(filter::setAssignee);
+
+        if (assigneeId != null && assigneeId > 0) {
+            if (IssueAssignee.Types.USER.equals(assigneeType)) {
+                userService.getUser(assigneeId).ifPresent(filter::setAssignee);
+            }
+        } else if (assigneeId != null && assigneeId != 0) {
+            filter.setUnassignedOnly();
         }
         return filter;
     }
