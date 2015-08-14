@@ -10,7 +10,7 @@ Ext.define('Cfg.view.validationtask.Menu', {
 
         me.menuItems = [
             {
-                text: Uni.I18n.translate('validationTasks.general.overview', 'CFG', 'Overview'),
+                text: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
                 itemId: 'tasks-view-link',
                 href:  '#/administration/validationtasks/' + this.taskId
             }

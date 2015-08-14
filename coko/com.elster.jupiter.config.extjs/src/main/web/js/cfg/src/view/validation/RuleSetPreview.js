@@ -21,11 +21,11 @@ Ext.define('Cfg.view.validation.RuleSetPreview', {
     items: [
         {
             name: 'name',
-            fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name')
+            fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name')
         },
         {
             name: 'description',
-            fieldLabel: Uni.I18n.translate('validation.description', 'CFG', 'Description')
+            fieldLabel: Uni.I18n.translate('general.description', 'CFG', 'Description')
         },
         {
             name: 'numberOfRules',

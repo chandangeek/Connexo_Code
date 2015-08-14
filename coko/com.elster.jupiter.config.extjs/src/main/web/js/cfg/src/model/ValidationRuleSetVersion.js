@@ -18,7 +18,7 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
 				} else if (data.endDate) {
 					result = Ext.String.format(Uni.I18n.translate('validation.version.display.until', 'CFG', "Until {0}"), Uni.DateTime.formatDateTimeLong(new Date(endDate)));												
 				} else {
-					result = Uni.I18n.translate('validation.version.display.always', 'CFG', 'Always')
+					result = Uni.I18n.translate('general.always', 'CFG', 'Always')
 				}               
 
                 return '<a href="#/administration/validation/rulesets/' + data.ruleSet.id + '/versions/' + data.id + '">' + result + '</a>';
@@ -39,7 +39,7 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
 				} else if (data.endDate) {
 					result = Ext.String.format(Uni.I18n.translate('validation.version.display.until', 'CFG', "Until {0}"), Uni.DateTime.formatDateTimeLong(new Date(endDate)));												
 				}else {
-					result = Uni.I18n.translate('validation.version.always', 'CFG', 'Always')
+					result = Uni.I18n.translate('general.always', 'CFG', 'Always')
 				}
                 return result;
             }
@@ -66,7 +66,7 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
                     result = moment(data.startDate).format('ddd, DD MMM YYYY HH:mm:ss');
                     result = Uni.DateTime.formatDateTimeLong(new Date(data.startDate));
                 } else {
-                    result = Uni.I18n.translate('validation.version.none', 'CFG', '-')
+                    result = '-';
                 }
                 return result;
             }

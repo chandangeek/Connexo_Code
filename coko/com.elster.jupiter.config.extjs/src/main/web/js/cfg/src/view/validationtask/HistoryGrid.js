@@ -33,7 +33,7 @@ Ext.define('Cfg.view.validationtask.HistoryGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('validationTasks.general.status', 'CFG', 'Status'),
+                header: Uni.I18n.translate('general.status', 'CFG', 'Status'),
                 dataIndex: 'status',
                 textAlign: 'center',
                 flex: 1

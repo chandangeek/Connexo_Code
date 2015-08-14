@@ -27,7 +27,7 @@ Ext.define('Cfg.view.validation.VersionPreview', {
         },
         {
             name: 'description',
-            fieldLabel: Uni.I18n.translate('validation.versionDescription', 'CFG', 'Description')
+            fieldLabel: Uni.I18n.translate('general.description', 'CFG', 'Description')
         },		
 		{
             name: 'numberOfActiveRules',

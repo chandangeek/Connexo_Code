@@ -7,14 +7,13 @@ Ext.define('Cfg.view.validation.RuleSetBrowse', {
         'Cfg.view.validation.RuleSetPreview',
         'Cfg.view.validation.RuleSetActionMenu',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel',
-
+        'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
     content: [
         {
             ui: 'large',
-            title: Uni.I18n.translate('validation.validationRuleSets', 'CFG', 'Validation rule sets'),
+            title: Uni.I18n.translate('general.validationRuleSets', 'CFG', 'Validation rule sets'),
             items: [
                 {
                     xtype: 'preview-container',

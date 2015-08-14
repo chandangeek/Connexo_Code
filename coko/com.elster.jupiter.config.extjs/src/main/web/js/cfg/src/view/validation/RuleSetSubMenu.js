@@ -16,7 +16,7 @@ Ext.define('Cfg.view.validation.RuleSetSubMenu', {
                 href: '#/administration/validation/rulesets/' + me.ruleSetId
             },           
             {
-                text: Uni.I18n.translate('validation.validationRules', 'CFG', 'Validation rules'),
+                text: Uni.I18n.translate('general.validationRules', 'CFG', 'Validation rules'),
                 itemId: 'versionsLink',
                 href: '#/administration/validation/rulesets/' + me.ruleSetId + '/versions'
             }

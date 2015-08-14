@@ -8,7 +8,7 @@ Ext.define('Cfg.controller.history.ValidationTask', {
 
     routeConfig: {
         administration: {
-            title: Uni.I18n.translate('validationTasks.general.administration', 'CFG', 'Administration'),
+            title: Uni.I18n.translate('general.administration', 'CFG', 'Administration'),
             route: 'administration',
             disabled: true,
             items: {
@@ -40,7 +40,7 @@ Ext.define('Cfg.controller.history.ValidationTask', {
                             },
                             items: {
                                 edit: {
-                                    title: Uni.I18n.translate('validationTasks.general.edit', 'CFG', 'Edit'),
+                                    title: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
                                     route: 'edit',
                                     controller: 'Cfg.controller.Tasks',
                                     privileges: Cfg.privileges.Validation.admin,

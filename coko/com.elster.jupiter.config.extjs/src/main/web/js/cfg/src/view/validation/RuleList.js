@@ -31,7 +31,7 @@ Ext.define('Cfg.view.validation.RuleList', {
                 }
             },
             {
-                header: Uni.I18n.translate('validation.status', 'CFG', 'Status'),
+                header: Uni.I18n.translate('general.status', 'CFG', 'Status'),
                 dataIndex: 'active',
                 flex: 5,
                 sortable: false,

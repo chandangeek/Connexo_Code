@@ -15,7 +15,7 @@ Ext.define('Cfg.view.log.Preview', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('validationTasks.general.name', 'CFG', 'Name'),
+                    fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name'),
                     name: 'name',
                     renderer: function (value) {
                         var url = me.router.getRoute('administration/validationtasks/validationtask').buildUrl();
@@ -27,7 +27,7 @@ Ext.define('Cfg.view.log.Preview', {
                     itemId: 'run-started-on'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('validationTasks.general.status', 'CFG', 'Status'),
+                    fieldLabel: Uni.I18n.translate('general.status', 'CFG', 'Status'),
                     name: 'status'
                 }
             ]

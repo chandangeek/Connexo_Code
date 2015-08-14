@@ -58,7 +58,7 @@ Ext.define('Cfg.view.validation.AddVersion', {
                             width: 600,
                             height: 150,
 							labelWidth: 260,
-                            fieldLabel: Uni.I18n.translate('validation.description', 'CFG', 'Description'),
+                            fieldLabel: Uni.I18n.translate('general.description', 'CFG', 'Description'),
                             enforceMaxLength: true
                         },						
                         {
@@ -80,7 +80,7 @@ Ext.define('Cfg.view.validation.AddVersion', {
 									items: [
                                         {
                                             itemId: 'startPeriodNone',
-                                            boxLabel: Uni.I18n.translate('validation.version.none', 'CFG', 'None'),
+                                            boxLabel: Uni.I18n.translate('general.none', 'CFG', 'None'),
                                             inputValue: false,
                                             checked: true
                                         },

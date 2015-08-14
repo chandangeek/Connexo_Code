@@ -62,7 +62,7 @@ Ext.define('Cfg.view.validation.AddReadingTypesToRuleSetup', {
                         {
                             name: 'cancel',
                             itemId: 'lnk-cancel-add-reading-types',
-                            text: Uni.I18n.translate('general.add', 'CFG', 'Cancel'),
+                            text: Uni.I18n.translate('general.cancel', 'CFG', 'Cancel'),
                             ui: 'link'
                         }
                     ]

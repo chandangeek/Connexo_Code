@@ -8,7 +8,7 @@ Ext.define('Cfg.view.validation.VersionActionMenu', {
     items: [
         {
             itemId: 'editVersion',
-            text: Uni.I18n.translate('validation.edit', 'CFG', 'Edit'),
+            text: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
             privileges: Cfg.privileges.Validation.admin,
             action: 'editVersion'
         },     

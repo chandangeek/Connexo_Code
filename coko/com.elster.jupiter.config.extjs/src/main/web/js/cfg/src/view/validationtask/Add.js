@@ -11,11 +11,11 @@ Ext.define('Cfg.view.validationtask.Add', {
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
-            this.down('#add-button').setText(Uni.I18n.translate('validationTasks.general.save', 'CFG', 'Save'));
+            this.down('#add-button').setText(Uni.I18n.translate('general.save', 'CFG', 'Save'));
             this.down('#add-button').action = 'editTask';
         } else {
             this.edit = edit;
-            this.down('#add-button').setText(Uni.I18n.translate('validationTasks.general.add', 'CFG', 'Add'));
+            this.down('#add-button').setText(Uni.I18n.translate('general.add', 'CFG', 'Add'));
             this.down('#add-button').action = 'addTask';
         }
         if (this.returnLink) {
@@ -50,7 +50,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                         width: 500,
                         required: true,
                         //maskRe: /[^:\\/*?"<>|]/,
-                        fieldLabel: Uni.I18n.translate('validationTasks.general.name', 'CFG', 'Name'),
+                        fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name'),
                         //allowBlank: false,
                         enforceMaxLength: true,
                         maxLength: 80
@@ -112,7 +112,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                 items: [
                                     {
                                         itemId: 'rbtn-none-recurrence',
-                                        boxLabel: Uni.I18n.translate('validationTasks.general.none', 'CFG', 'None'),
+                                        boxLabel: Uni.I18n.translate('general.none', 'CFG', 'None'),
                                         inputValue: false,
                                         checked: true
                                     },
@@ -210,13 +210,13 @@ Ext.define('Cfg.view.validationtask.Add', {
                             {
                                 xtype: 'button',
                                 itemId: 'add-button',
-                                text: Uni.I18n.translate('validationTasks.general.add', 'CFG', 'Add'),
+                                text: Uni.I18n.translate('general.add', 'CFG', 'Add'),
                                 ui: 'action'
                             },
                             {
                                 xtype: 'button',
                                 itemId: 'cancel-link',
-                                text: Uni.I18n.translate('validationTasks.general.cancel', 'CFG', 'Cancel'),
+                                text: Uni.I18n.translate('general.cancel', 'CFG', 'Cancel'),
                                 ui: 'link',
                                 href: '#/administration/validationtasks/'
                             }

@@ -91,7 +91,7 @@ Ext.define('Cfg.controller.history.Validation', {
                                             },
                                             items: {
                                                 edit: {
-                                                    title: Uni.I18n.translate('validation.editVersion', 'CFG', 'Edit'),
+                                                    title: Uni.I18n.translate('general.edit', 'CFG', 'Edit'),
                                                     route: 'edit',
                                                     controller: 'Cfg.controller.Validation',
                                                     privileges: Cfg.privileges.Validation.admin,
@@ -105,7 +105,7 @@ Ext.define('Cfg.controller.history.Validation', {
                                                     action: 'cloneVersion'
                                                 },
                                                 rules: {
-                                                    title: Uni.I18n.translate('validation.validationRules', 'CFG', 'Validation rules'),
+                                                    title: Uni.I18n.translate('general.validationRules', 'CFG', 'Validation rules'),
                                                     route: 'rules',
                                                     controller: 'Cfg.controller.Validation',
                                                     privileges: Cfg.privileges.Validation.view,

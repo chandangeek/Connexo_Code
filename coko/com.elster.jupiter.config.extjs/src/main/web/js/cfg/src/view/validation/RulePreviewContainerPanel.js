@@ -2,7 +2,7 @@ Ext.define('Cfg.view.validation.RulePreviewContainerPanel', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.rule-preview-container-panel',
     itemId: 'rulePreviewContainerPanel',
-    title: Uni.I18n.translate('validation.validationRules', 'CFG', 'Validation rules'),
+    title: Uni.I18n.translate('general.validationRules', 'CFG', 'Validation rules'),
     ui: 'medium',
     padding: 0,
     ruleSetId: null,

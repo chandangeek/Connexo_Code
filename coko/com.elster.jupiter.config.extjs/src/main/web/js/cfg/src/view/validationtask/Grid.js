@@ -12,7 +12,7 @@ Ext.define('Cfg.view.validationtask.Grid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('validationTasks.general.name', 'CFG', 'Name'),
+                header: Uni.I18n.translate('general.name', 'CFG', 'Name'),
                 dataIndex: 'name',
                 renderer: function (value, metaData, record) {				
                     var url = me.router.getRoute('administration/validationtasks/validationtask').buildUrl({taskId: record.get('id')});
@@ -21,7 +21,7 @@ Ext.define('Cfg.view.validationtask.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('validationTasks.general.status', 'CFG', 'Status'),
+                header: Uni.I18n.translate('general.status', 'CFG', 'Status'),
                 dataIndex: 'lastValidationOccurence',
                 renderer: function (value) {
                     var result;

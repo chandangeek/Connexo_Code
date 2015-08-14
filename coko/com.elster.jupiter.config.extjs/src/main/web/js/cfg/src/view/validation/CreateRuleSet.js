@@ -55,7 +55,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                             maxLength: 80,
                             width: 600,
                             msgTarget: 'under',
-                            fieldLabel: Uni.I18n.translate('validation.name', 'CFG', 'Name'),
+                            fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name'),
                             enforceMaxLength: true
                         },
                         {
@@ -64,7 +64,7 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                             itemId: 'addRuleSetDescription',
                             width: 600,
                             height: 150,
-                            fieldLabel: Uni.I18n.translate('validation.description', 'CFG', 'Description'),
+                            fieldLabel: Uni.I18n.translate('general.description', 'CFG', 'Description'),
                             enforceMaxLength: true
                         },
                         {

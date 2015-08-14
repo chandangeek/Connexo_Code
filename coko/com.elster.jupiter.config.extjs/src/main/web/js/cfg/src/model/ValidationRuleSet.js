@@ -12,7 +12,7 @@ Ext.define('Cfg.model.ValidationRuleSet', {
                 var result, startDate, endDate;
 				
 				if (data.numberOfVersions === 0){
-					result = Uni.I18n.translate('validation.version.noVersion', 'CFG', '-')
+					result = '-';
 				}
 				else {
 					startDate = data.startDate;
@@ -24,7 +24,7 @@ Ext.define('Cfg.model.ValidationRuleSet', {
 					} else if (data.endDate) {
 						result = Ext.String.format(Uni.I18n.translate('validation.version.display.until', 'CFG', "Until {0}"), Uni.DateTime.formatDateTimeLong(new Date(endDate)));												
 					}else {
-						result = Uni.I18n.translate('validation.version.display.always', 'CFG', 'Always')
+						result = Uni.I18n.translate('general.always', 'CFG', 'Always')
 					}
 				}
 

@@ -15,7 +15,7 @@ Ext.define('Cfg.view.validationtask.HistoryPreviewForm', {
         me.items = [
             {
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('validationTasks.general.name', 'CFG', 'Name'),
+                fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name'),
                 name: 'name',
                 labelWidth: 250
             },
@@ -55,7 +55,7 @@ Ext.define('Cfg.view.validationtask.HistoryPreviewForm', {
                         name: 'trigger'
                     },						
                     {
-                        fieldLabel: Uni.I18n.translate('validationTasks.general.status', 'CFG', 'Status'),
+                        fieldLabel: Uni.I18n.translate('general.status', 'CFG', 'Status'),
                         name: 'status'
                     },
                     {

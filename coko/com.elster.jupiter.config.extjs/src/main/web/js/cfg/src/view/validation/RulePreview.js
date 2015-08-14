@@ -44,7 +44,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
         },
         {
             name: 'active',
-            fieldLabel: Uni.I18n.translate('validation.status', 'CFG', 'Status'),
+            fieldLabel: Uni.I18n.translate('general.status', 'CFG', 'Status'),
             renderer: function (value) {
                 if (value) {
                     return Uni.I18n.translate('validation.active', 'CFG', 'Active')
@@ -69,7 +69,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
                 } if (value == "WARN_ONLY") {
                     return Uni.I18n.translate('validation.dataQualityLevelWarnOnly', 'CFG', 'Informative')
                 }else {
-                    return Uni.I18n.translate('validation.none', 'CFG', 'None')
+                    return Uni.I18n.translate('general.none', 'CFG', 'None')
                 }
             }
         },

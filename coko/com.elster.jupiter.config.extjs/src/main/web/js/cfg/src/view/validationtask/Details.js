@@ -16,7 +16,7 @@ Ext.define('Cfg.view.validationtask.Details', {
         items: [
             {
                 ui: 'large',
-                title: Uni.I18n.translate('validationTasks.general.overview', 'CFG', 'Overview'),
+                title: Uni.I18n.translate('general.overview', 'CFG', 'Overview'),
                 flex: 1,
                 items: {
                     xtype: 'cfg-tasks-preview-form',
@@ -26,7 +26,7 @@ Ext.define('Cfg.view.validationtask.Details', {
             },
             {
                 xtype: 'button',
-                text: Uni.I18n.translate('validationTasks.general.actions', 'CFG', 'Actions'),
+                text: Uni.I18n.translate('general.actions', 'CFG', 'Actions'),
                 iconCls: 'x-uni-action-iconD',
                 margin: '20 0 0 0',
                 menu: {
