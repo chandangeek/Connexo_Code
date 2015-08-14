@@ -8,6 +8,7 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 
+import java.time.Clock;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.TimeZone;
@@ -15,23 +16,22 @@ import java.util.concurrent.TimeUnit;
 
 public class TimeZonePropertySpec extends BasicPropertySpec {
 
-    public static final String DEFAULT;
-    static {
-        TimeZone timeZone = TimeZone.getDefault();
-        int rawOffset = timeZone.getRawOffset();
-        long hours = TimeUnit.MILLISECONDS.toHours(rawOffset);
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(rawOffset) - TimeUnit.HOURS.toMinutes(hours);
-        DEFAULT = String.format("GMT%s%02d:%02d", rawOffset > 0 ? "+" : "-", hours, minutes);
-    }
-
     public static DateTimeFormatter format = DateTimeFormatter.ofPattern("O");
 
     private Thesaurus thesaurus;
 
-    public TimeZonePropertySpec(String name, Thesaurus thesaurus) {
+    public TimeZonePropertySpec(String name, Thesaurus thesaurus, Clock clock) {
         super(name, true, new StringFactory());
-        setPossibleValues(new PropertySpecPossibleValuesImpl(DEFAULT, false));
+        setPossibleValues(new PropertySpecPossibleValuesImpl(getDefaultTimeZone(clock), false));
         this.thesaurus = thesaurus;
+    }
+
+    public String getDefaultTimeZone(Clock clock) {
+        TimeZone timeZone = TimeZone.getTimeZone(clock.getZone());
+        int rawOffset = timeZone.getOffset(clock.millis());
+        long hours = TimeUnit.MILLISECONDS.toHours(rawOffset);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(rawOffset) - TimeUnit.HOURS.toMinutes(hours);
+        return String.format("GMT%s%02d:%02d", rawOffset >= 0 ? "+" : "-", hours, minutes);
     }
 
     @Override

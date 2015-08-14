@@ -128,7 +128,8 @@ public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegratio
 
         List<LoadProfileReading> channelData = device.getChannels().get(0).getChannelData(Range.openClosed(Instant.EPOCH, Instant.MAX));
         assertThat(channelData).hasSize(2);
-        ArrayList<IntervalReadingRecord> channelReadings = new ArrayList<>(channelData.get(0).getChannelValues().values());
+
+        List<IntervalReadingRecord> channelReadings = new ArrayList<>(channelData.get(0).getChannelValues().values());
         assertThat(channelReadings).hasSize(1);
         assertThat(channelReadings.get(0).getTimeStamp()).isEqualTo(ZonedDateTime.of(2015, 8, 3, 0, 0, 0, 0, ZoneOffset.UTC).toInstant());
         assertThat(channelReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(810));

@@ -8,6 +8,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
+import java.time.ZoneOffset;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Matchers.anyString;
@@ -24,13 +27,13 @@ public class TimeZonePropertySpecTest {
     @Before
     public void beforeTest() {
         when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
-        propertySpec = new TimeZonePropertySpec("name", thesaurus);
+        propertySpec = new TimeZonePropertySpec("name", thesaurus, Clock.system(ZoneOffset.UTC));
     }
 
     @Test
     public void testDefaultValue() throws Exception {
         assertThat(propertySpec.validateValue("GMT+03:00")).isTrue();
-        assertThat(propertySpec.getPossibleValues().getDefault()).isEqualTo(TimeZonePropertySpec.DEFAULT);
+        assertThat(propertySpec.getPossibleValues().getDefault()).isEqualTo("GMT+00:00");
     }
 
     @Test

@@ -88,12 +88,12 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
         List<MeterActivation> meterActivations = device.getMeterActivationsMostRecentFirst();
         if (!hasMeterActivationEffectiveAt(meterActivations, readingDate.toInstant())) {
             MeterActivation firstMeterActivation = meterActivations.get(meterActivations.size() - 1);
-            if (firstMeterActivation.getRange().hasLowerBound() && readingDate.toInstant().isBefore(firstMeterActivation.getRange().lowerEndpoint())) {
+            if (firstMeterActivation.getRange().hasLowerBound() && readingDate.toInstant().compareTo(firstMeterActivation.getStart()) <= 0 ) {
                 throw new ProcessorException(MessageSeeds.READING_DATE_BEFORE_METER_ACTIVATION, lineNumber,
                         DefaultDateTimeFormatters.shortDate().withShortTime().build().format(readingDate));
             }
             MeterActivation lastMeterActivation = meterActivations.get(0);
-            if (lastMeterActivation.getRange().hasUpperBound() && readingDate.toInstant().isAfter(lastMeterActivation.getRange().upperEndpoint())) {
+            if (lastMeterActivation.getRange().hasUpperBound() && readingDate.toInstant().isAfter(lastMeterActivation.getEnd())) {
                 throw new ProcessorException(MessageSeeds.READING_DATE_AFTER_METER_ACTIVATION, lineNumber,
                         DefaultDateTimeFormatters.shortDate().withShortTime().build().format(readingDate));
             }
@@ -101,7 +101,7 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
     }
 
     private boolean hasMeterActivationEffectiveAt(List<MeterActivation> meterActivations, Instant timeStamp) {
-        return meterActivations.isEmpty() || meterActivations.stream().filter(ma -> ma.isEffectiveAt(timeStamp)).findFirst().isPresent();
+        return meterActivations.isEmpty() || meterActivations.stream().filter(ma -> ma.getInterval().toOpenClosedRange().contains(timeStamp)).findFirst().isPresent();
     }
 
     private void validateReadingType(ReadingType readingType, DeviceReadingsImportRecord data) {

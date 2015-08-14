@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -22,6 +23,7 @@ import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
@@ -36,19 +38,21 @@ import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.*;
-import com.energyict.mdc.device.data.importers.impl.properties.TimeZonePropertySpec;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.google.common.collect.Range;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -114,6 +118,7 @@ public class DeviceReadingsImporterFactoryTest {
         context.setPropertySpecService(new PropertySpecServiceImpl());
         context.setThreadPrincipalService(threadPrincipalService);
         context.setUserService(userService);
+        context.setClock(Clock.system(ZoneOffset.UTC));
         when(context.getThesaurus()).thenReturn(thesaurus);
         when(userService.getUserPreferencesService()).thenReturn(userPreferencesService);
     }
@@ -159,7 +164,7 @@ public class DeviceReadingsImporterFactoryTest {
         //time zone
         Optional<PropertySpec> timeZone = propertySpecs.stream().filter(propertySpec -> propertySpec.getName().equals(TIME_ZONE.getPropertyKey())).findFirst();
         assertThat(timeZone).isPresent();
-        assertThat(timeZone.get().getPossibleValues().getDefault()).isEqualTo(TimeZonePropertySpec.DEFAULT);
+        assertThat(timeZone.get().getPossibleValues().getDefault()).isEqualTo("GMT+00:00");
 
         //number format
         Optional<PropertySpec> numberFormat = propertySpecs.stream().filter(propertySpec -> propertySpec.getName().equals(NUMBER_FORMAT.getPropertyKey())).findFirst();
@@ -272,9 +277,8 @@ public class DeviceReadingsImporterFactoryTest {
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
 
-        verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.NO_DEVICE.getTranslated(thesaurus, 2, "VPB0001"));
-        verify(logger, never()).severe(Matchers.anyString());
+        verifyNoMoreInteractions(logger);
         verify(importOccurrence).markSuccessWithFailures(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 0, 3, 1));
     }
 
@@ -284,16 +288,15 @@ public class DeviceReadingsImporterFactoryTest {
                 "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100502;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;1005003";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
 
-        Device device = mockDeviceInState("VPB0001", DefaultState.DECOMMISSIONED);
+        mockDeviceInState("VPB0001", DefaultState.DECOMMISSIONED);
         User user = mockUser("batch executor");
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
 
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
 
-        verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE.getTranslated(thesaurus, 2, "VPB0001"));
-        verify(logger, never()).severe(Matchers.anyString());
+        verifyNoMoreInteractions(logger);
         verify(importOccurrence).markSuccessWithFailures(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 0, 3, 1));
     }
 
@@ -309,18 +312,68 @@ public class DeviceReadingsImporterFactoryTest {
                 "VPB0001;04/08/2015 00:00;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100500";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         Device device = mockDevice("VPB0001");
-        MeterActivation meterActivation = mock(MeterActivation.class);
+        MeterActivation meterActivation = mockMeterActivation(Range.closedOpen(meterActivationStartDate.toInstant(), meterActivationEndDate.toInstant()));
         when(device.getMeterActivationsMostRecentFirst()).thenReturn(Arrays.asList(meterActivation));
-        when(meterActivation.getRange()).thenReturn(Range.closed(meterActivationStartDate.toInstant(), meterActivationEndDate.toInstant()));
 
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
 
-        verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.READING_DATE_BEFORE_METER_ACTIVATION.getTranslated(thesaurus, 2, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(firstReadingDate)));
         verify(logger).warning(MessageSeeds.READING_DATE_AFTER_METER_ACTIVATION.getTranslated(thesaurus, 3, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(lastReadingDate)));
-        verify(logger, never()).severe(Matchers.anyString());
+        verifyNoMoreInteractions(logger);
         verify(importOccurrence).markSuccessWithFailures(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 0, 2, 1));
+    }
+
+    @Test
+    public void testReadingDateIsEqualsToMeterActivationDate() {
+        ZonedDateTime readingDate = ZonedDateTime.of(2015, 8, 2, 0, 0, 0, 0, ZoneOffset.UTC);
+        ZonedDateTime meterActivationStartDate = ZonedDateTime.of(2015, 8, 2, 0, 0, 0, 0, ZoneOffset.UTC);
+
+        String csv = "Device MRID;Reading date;Reading type MRID;Reading Value\n" +
+                "VPB0001;02/08/2015 00:00;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDevice("VPB0001");
+        MeterActivation meterActivation = mockMeterActivation(Range.atLeast(meterActivationStartDate.toInstant()));
+        when(device.getMeterActivationsMostRecentFirst()).thenReturn(Arrays.asList(meterActivation));
+
+        FileImporter importer = createDeviceReadingsImporter();
+        importer.process(importOccurrence);
+
+        verify(logger).warning(MessageSeeds.READING_DATE_BEFORE_METER_ACTIVATION.getTranslated(thesaurus, 2, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(readingDate)));
+        verifyNoMoreInteractions(logger);
+        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 0, 1, 1));
+    }
+
+    @Test
+    public void testReadingDatesAreOnEdgesOfMeterActivation() {
+        ZonedDateTime firstReadingDate = ZonedDateTime.of(2015, 8, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+        ZonedDateTime meterActivationStartDate = ZonedDateTime.of(2015, 8, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+        ZonedDateTime meterActivationEndDate = ZonedDateTime.of(2015, 8, 2, 0, 0, 0, 0, ZoneOffset.UTC);
+        ZonedDateTime lastReadingDate = ZonedDateTime.of(2015, 8, 2, 0, 0, 0, 0, ZoneOffset.UTC);
+
+        String csv = "Device MRID;Reading date;Reading type MRID;Reading Value\n" +
+                "VPB0001;01/08/2015 00:00;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100\n" +
+                "VPB0001;02/08/2015 00:00;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;101";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device = mockDevice("VPB0001");
+        mockChannel(device, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+        MeterActivation meterActivation = mockMeterActivation(Range.closedOpen(meterActivationStartDate.toInstant(), meterActivationEndDate.toInstant()));
+        when(device.getMeterActivationsMostRecentFirst()).thenReturn(Arrays.asList(meterActivation));
+
+        FileImporter importer = createDeviceReadingsImporter();
+        importer.process(importOccurrence);
+
+        verify(logger).warning(MessageSeeds.READING_DATE_BEFORE_METER_ACTIVATION.getTranslated(thesaurus, 2, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(firstReadingDate)));
+        verifyNoMoreInteractions(logger);
+        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 1, 1, 1, 1));
+
+        ArgumentCaptor<MeterReading> readingArgumentCaptor = ArgumentCaptor.forClass(MeterReading.class);
+        verify(device).store(readingArgumentCaptor.capture());
+        List<Reading> readings = readingArgumentCaptor.getValue().getReadings();
+        assertThat(readings).hasSize(1);
+        assertThat(readings.get(0).getReadingTypeCode()).isEqualTo("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+        assertThat(readings.get(0).getTimeStamp()).isEqualTo(lastReadingDate.toInstant());
+        assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(101L));
     }
 
     @Test
@@ -349,7 +402,6 @@ public class DeviceReadingsImporterFactoryTest {
         ReadingType readingType = mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
         when(readingType.isRegular()).thenReturn(true);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
-        when(meteringService.getReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0")).thenReturn(Optional.of(readingType));
 
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
@@ -366,8 +418,7 @@ public class DeviceReadingsImporterFactoryTest {
                 "VPB0001;01/08/2015 00:30;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100501;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100502";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         mockDevice("VPB0001");
-        ReadingType readingType = mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
-        when(meteringService.getReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0")).thenReturn(Optional.of(readingType));
+        mockReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
 
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
@@ -457,29 +508,32 @@ public class DeviceReadingsImporterFactoryTest {
         ZonedDateTime readingDate = ZonedDateTime.of(2015, 8, 1, 0, 0, 0, 0, ZoneOffset.UTC);
 
         String csv = "Device MRID;Reading date;Reading type MRID;Reading Value;;\n" +
-                "VPB0001;01/08/2015 00:00;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100";
+                "VPB0001;01/08/2015 00:00;0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0;100;0.0.4.0.0.0.0.0.0.0.0.0.0.0.0.0.0;107";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         Device device = mockDevice("VPB0001");
-        mockChannel(device, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
-
-        doAnswer(invocationOnMock -> {
-            MeterReading reading = (MeterReading) invocationOnMock.getArguments()[0];
-            assertThat(reading.getReadings()).hasSize(1);
-            assertThat(reading.getIntervalBlocks()).isEmpty();
-            assertThat(reading.getReadings().get(0).getTimeStamp()).isEqualTo(readingDate.toInstant());
-            assertThat(reading.getReadings().get(0).getReadingTypeCode()).isEqualTo("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
-            assertThat(reading.getReadings().get(0).getValue()).isEqualTo(BigDecimal.valueOf(100));
-            return null;
-        }).when(device).store(Matchers.any());
+        List<Channel> channels = Arrays.asList(mockChannel(device, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0"), mockChannel(device, "0.0.4.0.0.0.0.0.0.0.0.0.0.0.0.0.0"));
+        when(device.getChannels()).thenReturn(channels);
 
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
 
-        verify(logger, never()).info(Matchers.anyString());
-        verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, never()).severe(Matchers.anyString());
+        verifyNoMoreInteractions(logger);
         verify(importOccurrence).markSuccess(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 2, 1));
-        verify(device, times(2)).store(Matchers.any());
+
+        ArgumentCaptor<MeterReading> readingArgumentCaptor = ArgumentCaptor.forClass(MeterReading.class);
+        verify(device, times(2)).store(readingArgumentCaptor.capture());
+
+        List<Reading> readings = readingArgumentCaptor.getAllValues().get(0).getReadings();
+        assertThat(readings).hasSize(1);
+        assertThat(readings.get(0).getReadingTypeCode()).isEqualTo("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+        assertThat(readings.get(0).getTimeStamp()).isEqualTo(readingDate.toInstant());
+        assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(100L));
+
+        readings = readingArgumentCaptor.getAllValues().get(1).getReadings();
+        assertThat(readings).hasSize(1);
+        assertThat(readings.get(0).getReadingTypeCode()).isEqualTo("0.0.4.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
+        assertThat(readings.get(0).getTimeStamp()).isEqualTo(readingDate.toInstant());
+        assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(107L));
     }
 
     @Test
@@ -496,9 +550,7 @@ public class DeviceReadingsImporterFactoryTest {
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
 
-        verify(logger, never()).info(Matchers.anyString());
-        verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, never()).severe(Matchers.anyString());
+        verifyNoMoreInteractions(logger);
         verify(importOccurrence).markSuccess(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 1, 1));
         verify(device).store(Matchers.any());
     }
@@ -516,9 +568,8 @@ public class DeviceReadingsImporterFactoryTest {
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
 
-        verify(logger, never()).info(Matchers.anyString());
-        verify(logger, never()).warning(Matchers.anyString());
         verify(logger).severe(MessageSeeds.LINE_MISSING_VALUE_ERROR.getTranslated(thesaurus, 4, "#5"));
+        verifyNoMoreInteractions(logger);
         verify(importOccurrence).markFailure(TranslationKeys.READINGS_IMPORT_RESULT_FAIL.getTranslated(thesaurus, 3, 1));
         verify(device, times(3)).store(Matchers.any());
     }
@@ -541,9 +592,9 @@ public class DeviceReadingsImporterFactoryTest {
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
 
-        verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.NO_SUCH_READING_TYPE.getTranslated(thesaurus, 3, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.+"));
         verify(logger).severe(MessageSeeds.LINE_FORMAT_ERROR.getTranslated(thesaurus, 4, "Reading date", "dd/MM/yyyy HH:mm"));
+        verifyNoMoreInteractions(logger);
         verify(importOccurrence).markFailure(TranslationKeys.READINGS_IMPORT_RESULT_FAIL_WITH_ERRORS.getTranslated(thesaurus, 1, 1, 1, 1));
         verify(device1).store(Matchers.any());
         verify(device2, never()).store(Matchers.any());
@@ -596,8 +647,8 @@ public class DeviceReadingsImporterFactoryTest {
         importer.process(importOccurrence);
 
         verify(logger).info(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG.getTranslated(thesaurus, 2, "100.15"));
-        verify(logger, never()).warning(Matchers.anyString());
         verify(logger).severe(MessageSeeds.LINE_FORMAT_ERROR.getTranslated(thesaurus, 4, "Reading date", "dd/MM/yyyy HH:mm"));
+        verifyNoMoreInteractions(logger);
         verify(importOccurrence).markFailure(TranslationKeys.READINGS_IMPORT_RESULT_FAIL_WITH_WARN.getTranslated(thesaurus, 2, 2, 1));
         verify(device1).store(Matchers.any());
         verify(device2).store(Matchers.any());
@@ -616,9 +667,8 @@ public class DeviceReadingsImporterFactoryTest {
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
 
-        verify(logger, never()).info(Matchers.anyString());
-        verify(logger, never()).warning(Matchers.anyString());
         verify(logger).severe(MessageSeeds.LINE_FORMAT_ERROR.getTranslated(thesaurus, 2, "Reading date", "dd/MM/yyyy HH:mm"));
+        verifyNoMoreInteractions(logger);
         verify(importOccurrence).markFailure(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED.getTranslated(thesaurus, 2, 2, 1));
         verify(device1, never()).store(Matchers.any());
         verify(device2, never()).store(Matchers.any());
@@ -632,9 +682,7 @@ public class DeviceReadingsImporterFactoryTest {
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
 
-        verify(logger, never()).info(Matchers.anyString());
-        verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, never()).severe(Matchers.anyString());
+        verifyNoMoreInteractions(logger);
         verify(importOccurrence).markFailure(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED.getTranslated(thesaurus, 2, 2, 1));
     }
 
@@ -652,8 +700,7 @@ public class DeviceReadingsImporterFactoryTest {
 
         verify(logger).info(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG.getTranslated(thesaurus, 2, "100.13"));
         verify(logger).info(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG.getTranslated(thesaurus, 3, "100.24"));
-        verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, never()).severe(Matchers.anyString());
+        verifyNoMoreInteractions(logger);
         verify(importOccurrence).markSuccess(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN.getTranslated(thesaurus, 2, 1, 2));
         verify(device1, times(2)).store(Matchers.any());
     }
@@ -694,5 +741,18 @@ public class DeviceReadingsImporterFactoryTest {
         when(readingType.getMRID()).thenReturn(mRID);
         when(meteringService.getReadingType(mRID)).thenReturn(Optional.of(readingType));
         return readingType;
+    }
+
+    private MeterActivation mockMeterActivation(Range<Instant> range) {
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        when(meterActivation.getInterval()).thenReturn(Interval.of(range));
+        if(range.hasLowerBound()) {
+            when(meterActivation.getStart()).thenReturn(range.lowerEndpoint());
+        }
+        if (range.hasUpperBound()) {
+            when(meterActivation.getEnd()).thenReturn(range.upperEndpoint());
+        }
+        when(meterActivation.getRange()).thenReturn(range);
+        return meterActivation;
     }
 }
