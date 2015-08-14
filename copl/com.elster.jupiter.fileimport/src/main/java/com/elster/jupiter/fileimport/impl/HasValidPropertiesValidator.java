@@ -1,14 +1,13 @@
 package com.elster.jupiter.fileimport.impl;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-
 import com.elster.jupiter.fileimport.MessageSeeds;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import java.util.List;
+import java.util.Map;
 
 public class HasValidPropertiesValidator implements ConstraintValidator<HasValidProperties, ImportScheduleImpl> {
 
@@ -77,7 +76,7 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
             propertySpec = getPropertySpec(propertySpecs, propertyName);
             propertySpec.validateValue(propertyValue);
         } catch (InvalidValueException e) {
-            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.IMPORT_SCHEDULE_PROPERTY_INVALID_VALUE_KEY + "}")
+            context.buildConstraintViolationWithTemplate("{" + e.getMessageId() + "}")
                     .addPropertyNode("properties")
                    .addPropertyNode(propertySpec.getName())
                    .addConstraintViolation()
