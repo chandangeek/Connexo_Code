@@ -957,11 +957,11 @@ Ext.define('Dxp.controller.Tasks', {
                         fileName: formValues['fileName'],
                         fileExtension: formValues['fileExtension'],
                         fileLocation: formValues['fileLocation'],
-                        method: Uni.I18n.translate('dataExportdestinations.saveFile', 'DES', 'Save file'),
+                        method: Uni.I18n.translate('general.saveFile', 'DES', 'Save file'),
                         destination: formValues['fileLocation'] + '/' + formValues['fileName'] + '.' + formValues['fileExtension'],
-                        tooltiptext: Uni.I18n.translate('dataExportdestinations.fileLocation', 'DES', 'File location') + ': ' + formValues['fileLocation'] + '&lt;br/&gt;' +
-                        Uni.I18n.translate('dataExportdestinations.fileName', 'DES', 'File name') + ': ' + formValues['fileName'] + '&lt;br/&gt;' +
-                        Uni.I18n.translate('dataExportdestinations.fileExtension', 'DES', 'File extension') + ': ' + formValues['fileExtension']
+                        tooltiptext: Uni.I18n.translate('general.fileLocation', 'DES', 'File location') + ': ' + formValues['fileLocation'] + '&lt;br/&gt;' +
+                        Uni.I18n.translate('general.fileName', 'DES', 'File name') + ': ' + formValues['fileName'] + '&lt;br/&gt;' +
+                        Uni.I18n.translate('general.fileExtension', 'DES', 'File extension') + ': ' + formValues['fileExtension']
                     })
                 } else if (formValues['method'] === 'EMAIL') {
                     destinationModel = Ext.create('Dxp.model.Destination', {
@@ -973,9 +973,9 @@ Ext.define('Dxp.controller.Tasks', {
                         method: Uni.I18n.translate('dataExportdestinations.email', 'DES', 'Email'),
                         destination: formValues['recipients'],
                         tooltiptext: Uni.I18n.translate('dataExportdestinations.recipients', 'DES', 'Recipients') + ': ' + formValues['recipients'] + '&lt;br/&gt;' +
-                        Uni.I18n.translate('dataExportdestinations.subject', 'DES', 'Subject') + ': ' + formValues['subject'] + '&lt;br/&gt;' +
-                        Uni.I18n.translate('dataExportdestinations.fileName', 'DES', 'File name') + ': ' + formValues['attachmentName'] + '&lt;br/&gt;' +
-                        Uni.I18n.translate('dataExportdestinations.fileExtension', 'DES', 'File extension') + ': ' + formValues['attachmentExtension']
+                        Uni.I18n.translate('general.subject', 'DES', 'Subject') + ': ' + formValues['subject'] + '&lt;br/&gt;' +
+                        Uni.I18n.translate('general.fileName', 'DES', 'File name') + ': ' + formValues['attachmentName'] + '&lt;br/&gt;' +
+                        Uni.I18n.translate('general.fileExtension', 'DES', 'File extension') + ': ' + formValues['attachmentExtension']
                     })
                 }
                 me.destinationsArray.push(destinationModel);

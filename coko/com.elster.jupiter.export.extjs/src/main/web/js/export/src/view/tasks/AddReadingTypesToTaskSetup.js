@@ -17,7 +17,7 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('validation.addReadingTypes', 'DES', 'Add reading types'),
+            title: Uni.I18n.translate('general.addReadngTypes', 'DES', 'Add reading types'),
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -62,7 +62,7 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskSetup', {
                         {
                             name: 'cancel',
                             itemId: 'lnk-cancel-add-reading-types',
-                            text: Uni.I18n.translate('general.add', 'DES', 'Cancel'),
+                            text: Uni.I18n.translate('general.cancel', 'DES', 'Cancel'),
                             ui: 'link'
                         }
                     ]

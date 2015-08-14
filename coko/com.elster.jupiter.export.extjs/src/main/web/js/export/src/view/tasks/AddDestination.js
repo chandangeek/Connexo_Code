@@ -48,7 +48,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                             ],
 
                             data: [
-                                //{label: Uni.I18n.translate('dataExport.saveFile', 'DES', 'Save file'), value: 'FILE'},
+                                //{label: Uni.I18n.translate('general.saveFile', 'DES', 'Save file'), value: 'FILE'},
                                 //{label: Uni.I18n.translate('dataExport.mail', 'DES', 'Mail'), value: 'MAIL'}
                                 //translation does not work?
                                 {displayValue: 'Save file', value: 'FILE'},
@@ -59,7 +59,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         itemId: 'destination-methods-combo',
                         width: 500,
                         required: true,
-                        fieldLabel: Uni.I18n.translate('dataExport.method', 'DES', 'Method'),
+                        fieldLabel: Uni.I18n.translate('general.method', 'DES', 'Method'),
                         queryMode: 'local',
                         displayField: 'displayValue',
                         valueField: 'value',
@@ -71,7 +71,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         itemId: 'destination-file-name',
                         width: 500,
                         required: true,
-                        fieldLabel: Uni.I18n.translate('dataExport.fileName', 'DES', 'File name'),
+                        fieldLabel: Uni.I18n.translate('general.fileName', 'DES', 'File name'),
                         allowBlank: false,
                         enforceMaxLength: true,
                         maxLength: 80
@@ -83,7 +83,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         itemId: 'destination-file-extension',
                         width: 500,
                         required: true,
-                        fieldLabel: Uni.I18n.translate('dataExport.fileExtension', 'DES', 'File extension'),
+                        fieldLabel: Uni.I18n.translate('general.fileExtension', 'DES', 'File extension'),
                         allowBlank: false,
                         enforceMaxLength: true,
                         maxLength: 80
@@ -95,7 +95,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         itemId: 'destination-file-location',
                         width: 500,
                         required: true,
-                        fieldLabel: Uni.I18n.translate('dataExport.fileLocation', 'DES', 'File location'),
+                        fieldLabel: Uni.I18n.translate('general.fileLocation', 'DES', 'File location'),
                         allowBlank: false,
                         enforceMaxLength: true,
                         maxLength: 80
@@ -120,7 +120,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         itemId: 'destination-subject',
                         width: 500,
                         required: true,
-                        fieldLabel: Uni.I18n.translate('dataExport.subject', 'DES', 'Subject'),
+                        fieldLabel: Uni.I18n.translate('general.subject', 'DES', 'Subject'),
                         allowBlank: false,
                         enforceMaxLength: true,
                         maxLength: 80

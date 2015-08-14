@@ -15,7 +15,7 @@ Ext.define('Dxp.view.log.Preview', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('deviceloadprofiles.name', 'DES', 'Name'),
+                    fieldLabel: Uni.I18n.translate('general.name', 'DES', 'Name'),
                     name: 'name',
                     renderer: function (value) {
                         var url = me.router.getRoute('administration/dataexporttasks/dataexporttask').buildUrl();
