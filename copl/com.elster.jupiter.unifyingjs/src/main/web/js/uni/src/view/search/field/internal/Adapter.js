@@ -3,7 +3,7 @@
  */
 Ext.define('Uni.view.search.field.internal.Adapter', {
     extend: 'Ext.container.Container',
-    xtype: 'uni-view-search-adapter',
+    xtype: 'uni-search-internal-adapter',
 
     mixins: [
         'Uni.grid.filtertop.Base'

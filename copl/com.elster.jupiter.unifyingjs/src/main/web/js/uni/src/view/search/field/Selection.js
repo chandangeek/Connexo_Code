@@ -1,5 +1,43 @@
 /**
  * @class Uni.view.search.field.Selection
+ *
+//{
+//    xtype: 'search-combo',
+//    itemId: 'domain',
+//    store: Ext.create('Ext.data.Store', {
+//        fields: ['name', 'value'],
+//        data: [
+//            {'name': 'SPE010000010079', 'value': '1'},
+//            {'name': 'SPE010000010080', 'value': '2'},
+//            {'name': 'SPE010000010081', 'value': '1'},
+//            {'name': 'SPE010000010082', 'value': '2'},
+//            {'name': 'SPE010000010083', 'value': '1'},
+//            {'name': 'SPE010000010084', 'value': '2'},
+//            {'name': 'SPE010000010085', 'value': '1'},
+//            {'name': 'SPE010000010086', 'value': '2'},
+//            {'name': 'SPE010000010087', 'value': '1'},
+//            {'name': 'DME010000010088', 'value': '2'},
+//            {'name': 'DME010000010079', 'value': '1'},
+//            {'name': 'DME010000010080', 'value': '2'},
+//            {'name': 'DME010000010081', 'value': '1'},
+//            {'name': 'DME010000010082', 'value': '2'},
+//            {'name': 'DME010000010083', 'value': '1'},
+//            {'name': 'DME010000010084', 'value': '2'},
+//            {'name': 'DME010000010085', 'value': '1'},
+//            {'name': 'DME010000010086', 'value': '2'},
+//            {'name': 'DME010000010087', 'value': '1'},
+//            {'name': 'DME010000010088', 'value': '2'}
+//        ],
+//        limit: 10
+//    }),
+//    text: 'mRID',
+//    displayField: 'name',
+//    valueField: 'id',
+//    margin: '0 20 10 0',
+//    forceSelection: true,
+//    multiSelect: true
+//},
+ *
  */
 Ext.define('Uni.view.search.field.Selection', {
     extend: 'Uni.view.search.field.internal.CriteriaButton',
@@ -12,7 +50,7 @@ Ext.define('Uni.view.search.field.Selection', {
         'Ext.util.Bindable'
     ],
 
-    xtype: 'search-combo',
+    xtype: 'uni-search-criteria-selection',
 
     updateButtonText: function () {
         return this.selection.length
@@ -36,7 +74,7 @@ Ext.define('Uni.view.search.field.Selection', {
 
     reset: function() {
         this.selection.clear();
-        this.down('search-criteria-input').reset();
+        this.down('#filter-input').reset();
         this.getStore().clearFilter(true);
         this.grid.getSelectionModel().deselectAll();
         this.callParent(arguments);
@@ -95,7 +133,8 @@ Ext.define('Uni.view.search.field.Selection', {
                                 disabled: true
                             },
                             {
-                                xtype: 'search-criteria-input',
+                                xtype: 'uni-search-internal-input',
+                                itemId: 'filter-input',
                                 tooltip: 'Specify filter to narrow down selection list. Maximum 100 records are displayed.',
                                 emptyText: 'Start typing to find devices...',
                                 listeners: {

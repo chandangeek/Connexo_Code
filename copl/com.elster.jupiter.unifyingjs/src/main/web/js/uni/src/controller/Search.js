@@ -66,10 +66,11 @@ Ext.define('Uni.controller.Search', {
     }),
 
     criteriaMap: {
-        'Boolean': 'uni-view-search-field-yesno',
-        'Instant': 'uni-view-search-field-date-field',
-        'TimeDuration': 'uni-view-search-field-date-field',
-        'BigDecimal': 'uni-view-search-field-number-field'
+        'Boolean':      'uni-search-criteria-boolean',
+        'Instant':      'uni-search-criteria-datetime',
+        'TimeDuration': 'uni-search-criteria-datetime',
+        'BigDecimal':   'uni-search-criteria-numeric',
+        'Selection':    'uni-search-criteria-selection'
     },
 
     fieldMap: {
@@ -483,7 +484,6 @@ Ext.define('Uni.controller.Search', {
             config = {
                 xtype: me.criteriaMap[type],
                 text: displayValue,
-                emptyText: displayValue,
                 dataIndex: property.get('name'),
                 property: property,
                 listeners: {
@@ -513,7 +513,7 @@ Ext.define('Uni.controller.Search', {
             store.load();
 
             Ext.apply(config, {
-                xtype: 'search-combo',
+                xtype: 'uni-search-criteria-selection',
                 emptyText: displayValue,
                 store: store,
                 valueField: 'id',
@@ -530,7 +530,7 @@ Ext.define('Uni.controller.Search', {
 
         if (Ext.isEmpty(config.xtype)){
             Ext.apply(config, {
-                xtype: 'search-criteria-simple'
+                xtype: 'uni-search-criteria-simple'
             });
         }
 

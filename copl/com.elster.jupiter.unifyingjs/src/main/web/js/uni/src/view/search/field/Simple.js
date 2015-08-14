@@ -1,14 +1,15 @@
 Ext.define('Uni.view.search.field.Simple', {
     extend: 'Uni.view.search.field.internal.CriteriaButton',
-    xtype: 'search-criteria-simple',
+    xtype: 'uni-search-criteria-simple',
     requires: [
         'Uni.view.search.field.internal.Input'
     ],
 
     reset: function() {
-        this.down('search-criteria-input').reset();
+        this.down('#filter-input').reset();
         this.callParent(arguments);
     },
+
     //updateButtonText: function () {
     //    Ext.isEmpty(this.value)
     //        ? this.setText(this.emptyText)
@@ -32,7 +33,8 @@ Ext.define('Uni.view.search.field.Simple', {
                     disabled: true
                 },
                 {
-                    xtype: 'search-criteria-input',
+                    xtype: 'uni-search-internal-input',
+                    itemId: 'filter-input',
                     emptyText: me.emptyText,
                     listeners: {
                         change: {

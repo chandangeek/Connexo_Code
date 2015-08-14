@@ -3,8 +3,7 @@
  */
 Ext.define('Uni.view.search.field.internal.NumberRange', {
     extend: 'Ext.container.Container',
-    alias: 'widget.uni-view-search-field-number-range',
-    xtype: 'uni-view-search-field-number-range',
+    xtype: 'uni-search-internal-numberrange',
     requires: [
         'Uni.view.search.field.internal.NumberLine'
     ],
@@ -46,14 +45,14 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
 
         me.items = [
             {
-                xtype: 'uni-view-search-field-number-line',
+                xtype: 'uni-search-internal-numberline',
                 itemId: 'from',
                 default: true,
                 operator: '>',
                 listeners: listeners
             },
             {
-                xtype: 'uni-view-search-field-number-line',
+                xtype: 'uni-search-internal-numberline',
                 itemId: 'to',
                 default: true,
                 operator: '<',

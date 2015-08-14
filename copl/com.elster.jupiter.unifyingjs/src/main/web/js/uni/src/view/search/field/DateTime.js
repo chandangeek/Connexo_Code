@@ -1,13 +1,11 @@
-Ext.define('Uni.view.search.field.Interval', {
+Ext.define('Uni.view.search.field.DateTime', {
     extend: 'Uni.view.search.field.internal.CriteriaButton',
-    xtype: 'uni-view-search-field-number-field',
-
-    text: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Interval'),
-    emptyText: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Interval'),
-
+    xtype: 'uni-search-criteria-datetime',
     requires: [
-        'Uni.view.search.field.internal.NumberLine'
+        'Uni.view.search.field.internal.DateLine'
     ],
+    text: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Last reading date'),
+    emptyText: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Last reading date'),
 
     getValue: function() {
         var value = [];
@@ -31,17 +29,8 @@ Ext.define('Uni.view.search.field.Interval', {
         this.onChange(this, value);
     },
 
-    cleanup: function(menu) {
-        menu.items.each(function (item) {
-            if (item && item.removable && Ext.isEmpty(item.getValue())) {
-                menu.remove(item);
-            }
-        });
-    },
-
     reset: function () {
         var me = this;
-
         me.menu.items.filterBy(function(item){
             return Ext.isFunction(item.reset);
         }).each(function(item){
@@ -52,10 +41,10 @@ Ext.define('Uni.view.search.field.Interval', {
         this.callParent(arguments);
     },
 
-    addCriteria: function () {
+    addRangeHandler: function () {
         var me = this;
         me.down('menu').add({
-            xtype: 'uni-view-search-field-number-line',
+            xtype: 'uni-search-internal-dateline',
             operator: '=',
             removable: true,
             onRemove: function() {
@@ -71,21 +60,31 @@ Ext.define('Uni.view.search.field.Interval', {
         });
     },
 
+    cleanup: function (menu) {
+        menu.items.each(function (item) {
+            if (item && item.removable && Ext.isEmpty(item.getValue())) {
+                menu.remove(item);
+            }
+        });
+    },
+
     initComponent: function () {
-        var me = this;
+        var me = this,
+            listeners = {
+                change: {
+                    fn: me.onInputChange,
+                    scope: me
+                }
+            };
 
         me.items = [
-            {
-                xtype: 'uni-view-search-field-number-line',
-                operator: '=',
-                listeners: {
-                    change: {
-                        fn: me.onInputChange,
-                        scope: me
-                    }
+                {
+                    xtype: 'uni-search-internal-dateline',
+                    operator: '=',
+                    listeners: listeners
                 }
-            }
-        ];
+            ]
+        ;
 
         me.menuConfig = {
             minWidth: 150,
@@ -125,8 +124,8 @@ Ext.define('Uni.view.search.field.Interval', {
                             xtype: 'button',
                             ui: 'action',
                             text: Uni.I18n.translate('general.addCriterion', 'UNI', 'Add criterion'),
-                            action: 'addcriteria',
-                            handler: me.addCriteria,
+                            action: 'addrange',
+                            handler: me.addRangeHandler,
                             scope : me
                         }
                     ]
@@ -134,6 +133,6 @@ Ext.define('Uni.view.search.field.Interval', {
             ]
         };
 
-        me.callParent(arguments);
+        this.callParent(arguments);
     }
 });

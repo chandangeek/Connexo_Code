@@ -1,6 +1,6 @@
 Ext.define('Uni.view.search.field.internal.CriteriaButton', {
     extend: 'Ext.button.Button',
-    xtype: 'search-criteria-button',
+    xtype: 'uni-search-internal-criteria',
     requires: [
         'Ext.util.Filter'
     ],

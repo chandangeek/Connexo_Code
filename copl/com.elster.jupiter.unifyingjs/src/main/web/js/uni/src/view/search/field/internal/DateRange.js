@@ -3,8 +3,7 @@
  */
 Ext.define('Uni.view.search.field.internal.DateRange', {
     extend: 'Ext.container.Container',
-    alias: 'widget.uni-view-search-field-date-range',
-    xtype: 'uni-view-search-field-date-range',
+    xtype: 'uni-search-internal-daterange',
     requires: [
         'Uni.view.search.field.internal.DateLine'
     ],
@@ -36,7 +35,7 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
 
         me.items = [
             {
-                xtype: 'uni-view-search-field-date-line',
+                xtype: 'uni-search-internal-dateline',
                 itemId: 'from',
                 default: true,
                 operator: '>',
@@ -51,7 +50,7 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
                 }
             },
             {
-                xtype: 'uni-view-search-field-date-line',
+                xtype: 'uni-search-internal-dateline',
                 itemId: 'to',
                 default: true,
                 operator: '<',

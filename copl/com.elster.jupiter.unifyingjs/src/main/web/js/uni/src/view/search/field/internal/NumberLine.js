@@ -1,6 +1,6 @@
 Ext.define('Uni.view.search.field.internal.NumberLine', {
     extend: 'Ext.panel.Panel',
-    xtype: 'uni-view-search-field-number-line',
+    xtype: 'uni-search-internal-numberline',
     width: '455',
     layout: 'hbox',
 

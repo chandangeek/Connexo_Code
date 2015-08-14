@@ -1,11 +1,13 @@
-Ext.define('Uni.view.search.field.DateInterval', {
+Ext.define('Uni.view.search.field.Numeric', {
     extend: 'Uni.view.search.field.internal.CriteriaButton',
-    xtype: 'uni-view-search-field-date-field',
+    xtype: 'uni-search-criteria-numeric',
+
+    text: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Interval'),
+    emptyText: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Interval'),
+
     requires: [
-        'Uni.view.search.field.internal.DateLine'
+        'Uni.view.search.field.internal.NumberLine'
     ],
-    text: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Last reading date'),
-    emptyText: Uni.I18n.translate('search.overview.lastReadingDate.emptyText', 'UNI', 'Last reading date'),
 
     getValue: function() {
         var value = [];
@@ -29,8 +31,17 @@ Ext.define('Uni.view.search.field.DateInterval', {
         this.onChange(this, value);
     },
 
+    cleanup: function(menu) {
+        menu.items.each(function (item) {
+            if (item && item.removable && Ext.isEmpty(item.getValue())) {
+                menu.remove(item);
+            }
+        });
+    },
+
     reset: function () {
         var me = this;
+
         me.menu.items.filterBy(function(item){
             return Ext.isFunction(item.reset);
         }).each(function(item){
@@ -41,10 +52,10 @@ Ext.define('Uni.view.search.field.DateInterval', {
         this.callParent(arguments);
     },
 
-    addRangeHandler: function () {
+    addCriteria: function () {
         var me = this;
         me.down('menu').add({
-            xtype: 'uni-view-search-field-date-line',
+            xtype: 'uni-search-internal-numberline',
             operator: '=',
             removable: true,
             onRemove: function() {
@@ -60,31 +71,21 @@ Ext.define('Uni.view.search.field.DateInterval', {
         });
     },
 
-    cleanup: function (menu) {
-        menu.items.each(function (item) {
-            if (item && item.removable && Ext.isEmpty(item.getValue())) {
-                menu.remove(item);
-            }
-        });
-    },
-
     initComponent: function () {
-        var me = this,
-            listeners = {
-                change: {
-                    fn: me.onInputChange,
-                    scope: me
-                }
-            };
+        var me = this;
 
         me.items = [
-                {
-                    xtype: 'uni-view-search-field-date-line',
-                    operator: '=',
-                    listeners: listeners
+            {
+                xtype: 'uni-search-internal-numberline',
+                operator: '=',
+                listeners: {
+                    change: {
+                        fn: me.onInputChange,
+                        scope: me
+                    }
                 }
-            ]
-        ;
+            }
+        ];
 
         me.menuConfig = {
             minWidth: 150,
@@ -124,8 +125,8 @@ Ext.define('Uni.view.search.field.DateInterval', {
                             xtype: 'button',
                             ui: 'action',
                             text: Uni.I18n.translate('general.addCriterion', 'UNI', 'Add criterion'),
-                            action: 'addrange',
-                            handler: me.addRangeHandler,
+                            action: 'addcriteria',
+                            handler: me.addCriteria,
                             scope : me
                         }
                     ]
@@ -133,6 +134,6 @@ Ext.define('Uni.view.search.field.DateInterval', {
             ]
         };
 
-        this.callParent(arguments);
+        me.callParent(arguments);
     }
 });

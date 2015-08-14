@@ -1,6 +1,6 @@
 Ext.define('Uni.view.search.field.internal.DateLine', {
     extend: 'Ext.panel.Panel',
-    xtype: 'uni-view-search-field-date-line',
+    xtype: 'uni-search-internal-dateline',
     layout: 'hbox',
     defaults: {
         margin: '0 10 0 0'
