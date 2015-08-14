@@ -32,6 +32,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>install</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>unifyingjs</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
