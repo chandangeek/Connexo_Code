@@ -2,6 +2,8 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -133,12 +135,14 @@ public class DeviceValidationResource {
                     .filter(loadProfile -> lpPeriod.id.equals(loadProfile.getId()))
                     .flatMap(l -> l.getChannels().stream())
                     .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), intervalLP).stream())
+                    .filter(s -> (s.getReadingQualities().stream().anyMatch(q -> q.getType().qualityIndex().orElse(QualityCodeIndex.DATAVALID).equals(QualityCodeIndex.SUSPECT))))
                     .collect(Collectors.toList()));
         });
         Range<Instant> intervalReg = Range.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
 
         List<DataValidationStatus> rgStatuses = device.getRegisters().stream()
                 .flatMap(r -> device.forValidation().getValidationStatus(r, Collections.emptyList(), intervalReg).stream())
+                .filter(s -> (s.getReadingQualities().stream().anyMatch(q -> q.getType().qualityIndex().orElse(QualityCodeIndex.DATAVALID).equals(QualityCodeIndex.SUSPECT))))
                 .collect(Collectors.toList());
 
         validationStatusInfo.allDataValidated = isAllDataValidated(lpStatuses, rgStatuses, device);
@@ -184,6 +188,7 @@ public class DeviceValidationResource {
                             lp ->
                                     lp.getChannels().stream()
                                             .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), intervalLP).stream())
+                                            .filter(s -> (s.getReadingQualities().stream().anyMatch(q -> q.getType().qualityIndex().orElse(QualityCodeIndex.DATAVALID).equals(QualityCodeIndex.SUSPECT))))
                                             .collect(Collectors.toList())
                     )).entrySet().stream().filter(m -> (((List<DataValidationStatus>) m.getValue()).size()) > 0L)
                     .collect(Collectors.toMap(m -> (LoadProfile) (m.getKey()), m -> (List<DataValidationStatus>) (m.getValue()))));
@@ -195,10 +200,10 @@ public class DeviceValidationResource {
                 .collect(Collectors.toMap(
                         r -> r,
                         reg -> (device.forValidation().getValidationStatus(reg, Collections.emptyList(), intervalReg).stream())
+                                .filter(s -> (s.getReadingQualities().stream().anyMatch(q -> q.getType().qualityIndex().orElse(QualityCodeIndex.DATAVALID).equals(QualityCodeIndex.SUSPECT))))
                                 .collect(Collectors.toList())
-                )).entrySet().stream().filter(m -> (((List<DataValidationStatus>)m.getValue()).size()) > 0L)
+                )).entrySet().stream().filter(m -> (((List<DataValidationStatus>) m.getValue()).size()) > 0L)
                 .collect(Collectors.toMap(m -> (NumericalRegister) (m.getKey()), m -> (List<DataValidationStatus>) (m.getValue())));
-
 
         List<DataValidationStatus> lpsList = loadProfileStatus.entrySet().stream().flatMap(lps -> lps.getValue().stream()).collect(Collectors.toList());
         List<DataValidationStatus> rsList = registerStatus.entrySet().stream().flatMap(rs -> rs.getValue().stream()).collect(Collectors.toList());

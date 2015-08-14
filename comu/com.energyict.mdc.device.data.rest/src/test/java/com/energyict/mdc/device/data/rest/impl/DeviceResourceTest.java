@@ -1105,7 +1105,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device gateway = mockDeviceForTopologyTest("gateway");
         when(deviceService.findAndLockDeviceByIdAndVersion(1L, 13L)).thenReturn(Optional.of(device));
         when(deviceService.findByUniqueMrid("gateway")).thenReturn(Optional.of(gateway));
-        when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
+        when(batchService.findBatch(device)).thenReturn(Optional.empty());
         Device oldGateway = mockDeviceForTopologyTest("oldGateway");
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldGateway));
 
@@ -1146,7 +1146,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
         when(deviceService.findByUniqueMrid("device")).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceByIdAndVersion(1L, 13L)).thenReturn(Optional.of(device));
-        when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
+        when(batchService.findBatch(device)).thenReturn(Optional.empty());
         Device oldMaster = mock(Device.class);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldMaster));
 
@@ -1167,7 +1167,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findAndLockDeviceByIdAndVersion(1L, 13L)).thenReturn(Optional.of(device));
         when(deviceService.findByUniqueMrid("device")).thenReturn(Optional.of(device));
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
-        when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
+        when(batchService.findBatch(device)).thenReturn(Optional.empty());
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
 
         DeviceInfo info = new DeviceInfo();
@@ -1188,7 +1188,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findAndLockDeviceByIdAndVersion(1L, 13L)).thenReturn(Optional.of(device));
         when(deviceService.findByUniqueMrid("device")).thenReturn(Optional.of(device));
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
-        when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
+        when(batchService.findBatch(device)).thenReturn(Optional.empty());
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
 
         DeviceInfo info = new DeviceInfo();

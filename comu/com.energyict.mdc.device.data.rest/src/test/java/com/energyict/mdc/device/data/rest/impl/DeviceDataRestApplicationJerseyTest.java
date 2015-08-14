@@ -19,10 +19,10 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -74,7 +74,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     TopologyService topologyService;
     @Mock
-    DeviceImportService deviceImportService;
+    BatchService batchService;
     @Mock
     DeviceConfigurationService deviceConfigurationService;
     @Mock
@@ -166,7 +166,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setConnectionTaskService(connectionTaskService);
         application.setDeviceService(deviceService);
         application.setTopologyService(topologyService);
-        application.setDeviceImportService(deviceImportService);
+        application.setBatchService(batchService);
         application.setEngineConfigurationService(engineConfigurationService);
         application.setIssueService(issueService);
         application.setIssueDataValidationService(issueDataValidationService);
