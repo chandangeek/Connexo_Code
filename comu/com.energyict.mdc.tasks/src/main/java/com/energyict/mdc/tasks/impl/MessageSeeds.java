@@ -1,5 +1,6 @@
 package com.energyict.mdc.tasks.impl;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.tasks.TaskService;
 import java.util.logging.Level;
@@ -10,7 +11,7 @@ import java.util.logging.Level;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-23 (11:00)
  */
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
     SET_CLOCK(1, Keys.CLOCK_TASK_TYPE_SET_CLOCK, "Set the clock", Level.SEVERE),
     FORCE_CLOCK(2, Keys.CLOCK_TASK_TYPE_FORCE_CLOCK, "Force the clock", Level.SEVERE),
     SYNC_CLOCK(3, Keys.CLOCK_TASK_TYPE_SYNCHRONIZE_CLOCK, "Synchronize the clock", Level.SEVERE),
