@@ -9,7 +9,7 @@ Ext.define('Dlc.devicelifecyclestates.view.AddProcessesToState', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('transitionBusinessProcess.addToState', 'DLC', 'Add processes'),
+            title: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'DLC', 'Add processes'),
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -52,7 +52,7 @@ Ext.define('Dlc.devicelifecyclestates.view.AddProcessesToState', {
                         {
                             name: 'cancel',
                             itemId: 'lnk-cancel-process',
-                            text: Uni.I18n.translate('general.add', 'DLC', 'Cancel'),
+                            text: Uni.I18n.translate('general.cancel', 'DLC', 'Cancel'),
                             ui: 'link'
                         }
                     ]

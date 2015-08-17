@@ -14,7 +14,7 @@ Ext.define('Dlc.devicelifecycles.view.ActionMenu', {
             action: 'edit'
         },
         {
-            text: Uni.I18n.translate('general.Remove', 'DLC', 'Remove'),
+            text: Uni.I18n.translate('general.remove', 'DLC', 'Remove'),
             action: 'remove'
         }
     ]
