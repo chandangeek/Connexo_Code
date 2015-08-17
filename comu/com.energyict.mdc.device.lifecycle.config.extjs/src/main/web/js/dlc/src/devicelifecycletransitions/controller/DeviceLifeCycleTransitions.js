@@ -191,7 +191,7 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
 
                                 me.transition = transition;
                                 me.getApplication().fireEvent('deviceLifeCycleTransitionEdit', transition);
-                                form.setTitle(Uni.I18n.translatePlural('deviceLifeCycleTransitions.edit.title', transition.get('name'), 'DLC', 'Edit \'{0}\''));
+                                form.setTitle(Uni.I18n.translatePlural('deviceLifeCycles.edit.title', transition.get('name'), 'DLC', 'Edit \'{0}\''));
                                 if (me.getStore('Dlc.main.store.Clipboard').get('addTransitionValues')) {
                                     me.setFormValues();
                                 } else {
