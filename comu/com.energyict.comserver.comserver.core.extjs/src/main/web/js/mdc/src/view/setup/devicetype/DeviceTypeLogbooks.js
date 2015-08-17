@@ -84,8 +84,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                         xtype: 'no-items-found-panel',
                         title: Uni.I18n.translate('logbooktype.empty.title', 'MDC', 'No logbook types found'),
                         reasons: [
-                            Uni.I18n.translate('logbooktype.empty.list.item1', 'MDC', 'No logbook types have been defined yet.'),
-                            Uni.I18n.translate('logbooktype.empty.list.item2', 'MDC', 'No logbook types comply to the filter.')
+                            Uni.I18n.translate('logbooktype.empty.list.item1', 'MDC', 'No logbook types have been defined yet.')
                         ],
                         stepItems: [
                             {

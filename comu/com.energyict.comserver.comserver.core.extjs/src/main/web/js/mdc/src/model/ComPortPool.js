@@ -2,7 +2,7 @@ Ext.define('Mdc.model.ComPortPool', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'id', type: 'int', useNull: true},
-        'name',
+        {name: 'name', type: 'string', useNull: true},
         'description',
         'active',
         'obsoleteFlag',
