@@ -199,13 +199,10 @@ public class ChannelResource {
         List<BaseReading> editedReadings = new ArrayList<>();
         List<BaseReading> editedBulkReadings = new ArrayList<>();
         List<BaseReading> confirmedReadings = new ArrayList<>();
-        List<Range<Instant>> removeCandidates = new ArrayList<>();
+        List<Instant> removeCandidates = new ArrayList<>();
         channelDataInfos.forEach((channelDataInfo) -> {
             if (!(isToBeConfirmed(channelDataInfo)) && channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
-                removeCandidates.add(
-                        Range.openClosed(
-                                Instant.ofEpochMilli(channelDataInfo.interval.start),
-                                Instant.ofEpochMilli(channelDataInfo.interval.end)));
+                removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
             }
             else {
                 if (channelDataInfo.value != null) {
@@ -219,7 +216,12 @@ public class ChannelResource {
                 }
             }
         });
-        channel.startEditingData().removeChannelData(removeCandidates).editChannelData(editedReadings).editBulkChannelData(editedBulkReadings).confirmChannelData(confirmedReadings).complete();
+        channel.startEditingData()
+                .removeChannelData(removeCandidates)
+                .editChannelData(editedReadings)
+                .editBulkChannelData(editedBulkReadings)
+                .confirmChannelData(confirmedReadings)
+                .complete();
 
         return Response.status(Response.Status.OK).build();
     }
