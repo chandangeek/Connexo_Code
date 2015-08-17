@@ -6,7 +6,12 @@ Ext.define('Ldr.model.Translation', {
     fields: [
         'cmp',
         'key',
-        'value'
-    ],
-    idProperty: 'key'
+        'value',
+        {
+            name: 'id',
+            mapping: function (data) {
+                return data.key + ':' + data.cmp
+            }
+        }
+    ]
 });

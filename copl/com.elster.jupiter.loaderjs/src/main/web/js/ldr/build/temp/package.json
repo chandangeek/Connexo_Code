@@ -5,6 +5,5 @@
   "creator": "Elster Jupiter Project",
   "summary": "Short summary",
   "detailedDescription": "Long description of package",
-  "type": "code",
-  "local": true
+  "type": "code"
 }
