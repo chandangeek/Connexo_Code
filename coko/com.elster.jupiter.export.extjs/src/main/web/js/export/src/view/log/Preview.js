@@ -29,6 +29,12 @@ Ext.define('Dxp.view.log.Preview', {
                 {
                     fieldLabel: Uni.I18n.translate('general.status', 'DES', 'Status'),
                     name: 'status'
+                },
+                {
+                    fieldLabel: Uni.I18n.translate('general.reason', 'DES', 'Reason'),
+                    itemId: 'reason-field',
+                    name: 'reason',
+                    hidden: true
                 }
             ]
         };

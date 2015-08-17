@@ -51,6 +51,7 @@ Ext.define('Dxp.controller.Log', {
                     me.getApplication().fireEvent('dataexporttaskload', record);
                     sideMenu.setTitle(record.get('name'));
                     view.down('#log-preview-form').loadRecord(occurrenceTask);
+                    view.down('#reason-field').setVisible(occurrenceTask.get('status')==='Failed');
                     view.down('#run-started-on').setValue(runStartedOnFormatted);
                     me.getApplication().fireEvent('changecontentevent', view);
                 });
