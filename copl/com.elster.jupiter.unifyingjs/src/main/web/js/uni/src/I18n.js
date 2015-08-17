@@ -156,20 +156,10 @@ Ext.define('Uni.I18n', {
      * @returns {String} Translation
      */
     lookupTranslation: function (key, component) {
-        var translation,
-            index;
+        var translation = Ldr.store.Translations.getById(key + ':' + component);
 
-        if (typeof component !== 'undefined' && component) {
-            index = Ldr.store.Translations.findBy(function (record) {
-                return record.data.key === key && record.data.cmp === component;
-            });
-            translation = Ldr.store.Translations.getAt(index);
-        } else {
-            translation = Ldr.store.Translations.getById(key);
-        }
-
-        if (typeof translation !== 'undefined' && translation !== null) {
-            translation = translation.data.value;
+        if (translation !== null) {
+            translation = translation.get('value');
         } else {
             //<debug>
             if (!this.blacklist[key + component]) {
@@ -239,11 +229,7 @@ Ext.define('Uni.I18n', {
      */
     translatePlural: function (key, amount, component, fallback) {
         var lookup = key + '[' + amount + ']',
-            translation = this.lookupTranslation(lookup, component);
-
-        if (typeof translation === 'undefined') {
-            translation = this.lookupTranslation(key, component) || fallback;
-        }
+            translation = this.lookupTranslation(lookup, component) || fallback;
 
         if (typeof amount !== 'undefined') {
             translation = Uni.util.String.replaceAll(translation, 0, amount);
