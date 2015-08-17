@@ -23,6 +23,8 @@ import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+import com.energyict.mdc.masterdata.exceptions.RegisterTypesNotMappableToLoadProfileTypeIntervalException;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -160,7 +162,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         ObisCode badObisCode = ObisCode.fromString("1.1.1.1.1.1");
         String myBadReadingTypeAlias = "myBadReadingTypeAlias";
         ReadingType badReadingType = mock(ReadingType.class);
-        when(badReadingType.getCommodity()).thenReturn(Commodity.NOTAPPLICABLE);
+        when(badReadingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
         when(badReadingType.getAccumulation()).thenReturn(Accumulation.NOTAPPLICABLE);
         when(badReadingType.getAggregate()).thenReturn(Aggregate.NOTAPPLICABLE);
         when(badReadingType.getArgument()).thenReturn(RationalNumber.NOTAPPLICABLE);
@@ -175,7 +177,7 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         when(badReadingType.getConsumptionTier()).thenReturn(0);
         when(badReadingType.getTou()).thenReturn(0);
         when(badReadingType.getAliasName()).thenReturn(myBadReadingTypeAlias);
-        String intervalAppliedBadReadingTypeMRID = "0.0.2.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0";
+        String expectedReadingType_mRID = "0.0.2.0.0.2.0.0.0.0.0.0.0.0.0.0.0.0";
         RegisterType badRegisterType = mock(RegisterType.class);
         /* Mock bad register type (with bad reading type and obis code) for which:
          * MasterDataService#findChannelTypeByTemplateRegisterAndInterval(RegisterType, TimeDuration) returns empty Optional
@@ -192,8 +194,64 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         // Business method
         masterDataService.newLoadProfileType("Test", OBIS_CODE, interval, Arrays.asList(goodRegisterType, badRegisterType));
 
-        Optional<ReadingType> newReadingType = PersistenceTest.inMemoryPersistence.getMeteringService().getReadingType(intervalAppliedBadReadingTypeMRID);
+        Optional<ReadingType> newReadingType = PersistenceTest.inMemoryPersistence.getMeteringService().getReadingType(expectedReadingType_mRID);
         assertThat(newReadingType.isPresent()).isTrue();
+    }
+
+    @Test(expected = RegisterTypesNotMappableToLoadProfileTypeIntervalException.class)
+    @Transactional
+    public void testCreateWithNonApplicableCommodityReadingType() {
+        this.createWithInCompatibleCommodityReadingType(Commodity.NOTAPPLICABLE);
+    }
+
+    @Test(expected = RegisterTypesNotMappableToLoadProfileTypeIntervalException.class)
+    @Transactional
+    public void testCreateWithDeviceCommodityReadingType() {
+        this.createWithInCompatibleCommodityReadingType(Commodity.DEVICE);
+    }
+
+    @Test(expected = RegisterTypesNotMappableToLoadProfileTypeIntervalException.class)
+    @Transactional
+    public void testCreateWithCommunicationCommodityReadingType() {
+        this.createWithInCompatibleCommodityReadingType(Commodity.COMMUNICATION);
+    }
+
+    private void createWithInCompatibleCommodityReadingType(Commodity commodity) {
+        MasterDataServiceImpl masterDataService = PersistenceTest.inMemoryPersistence.getMasterDataService();
+        TimeDuration interval = INTERVAL_15_MINUTES;
+        Currency currency = Currency.getInstance("XXX");    // No currency
+        ObisCode badObisCode = ObisCode.fromString("1.1.1.1.1.1");
+        String myBadReadingTypeAlias = "NOTAPPLICABLE_ReadingTypeAlias";
+        ReadingType badReadingType = mock(ReadingType.class);
+        when(badReadingType.getCommodity()).thenReturn(commodity);
+        when(badReadingType.getAccumulation()).thenReturn(Accumulation.NOTAPPLICABLE);
+        when(badReadingType.getAggregate()).thenReturn(Aggregate.NOTAPPLICABLE);
+        when(badReadingType.getArgument()).thenReturn(RationalNumber.NOTAPPLICABLE);
+        when(badReadingType.getCpp()).thenReturn(0);
+        when(badReadingType.getCurrency()).thenReturn(currency);
+        when(badReadingType.getFlowDirection()).thenReturn(FlowDirection.NOTAPPLICABLE);
+        when(badReadingType.getInterharmonic()).thenReturn(RationalNumber.NOTAPPLICABLE);
+        when(badReadingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
+        when(badReadingType.getUnit()).thenReturn(ReadingTypeUnit.NOTAPPLICABLE);
+        when(badReadingType.getMeasurementKind()).thenReturn(MeasurementKind.NOTAPPLICABLE);
+        when(badReadingType.getPhases()).thenReturn(Phase.NOTAPPLICABLE);
+        when(badReadingType.getConsumptionTier()).thenReturn(0);
+        when(badReadingType.getTou()).thenReturn(0);
+        when(badReadingType.getAliasName()).thenReturn(myBadReadingTypeAlias);
+        RegisterType badRegisterType = mock(RegisterType.class);
+        /* Mock bad register type (with bad reading type and obis code) for which:
+         * MasterDataService#findChannelTypeByTemplateRegisterAndInterval(RegisterType, TimeDuration) returns empty Optional
+         * MdcReadingTypeUtilService#getIntervalAppliedReadingType(ReadingType, TimeDuration, ObisCode) returns empty Optional
+         *    because the RegisterType's obiscode cannot be mapped to the LoadProfile's interval.
+         */
+        when(badRegisterType.getId()).thenReturn(-1L); // Make sure that MasterDataService#findChannelTypeByTemplateRegisterAndInterval(RegisterType, TimeDuration) returns empty Optional
+        when(badRegisterType.getReadingType()).thenReturn(badReadingType);
+        when(badRegisterType.getObisCode()).thenReturn(badObisCode);
+
+        // Business method
+        masterDataService.newLoadProfileType("Test", OBIS_CODE, interval, Arrays.asList(badRegisterType));
+
+        // Asserts: see expected exception rule on calling methods
     }
 
     @Test

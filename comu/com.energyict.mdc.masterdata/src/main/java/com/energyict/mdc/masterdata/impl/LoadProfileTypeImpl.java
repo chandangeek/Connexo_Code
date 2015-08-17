@@ -1,5 +1,6 @@
 package com.energyict.mdc.masterdata.impl;
 
+import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
@@ -18,6 +19,7 @@ import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.exceptions.RegisterTypeAlreadyInLoadProfileTypeException;
 import com.energyict.mdc.masterdata.exceptions.RegisterTypesNotMappableToLoadProfileTypeIntervalException;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
@@ -25,11 +27,16 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
+ * Provides an implementation for the {@link LoadProfileType} interface.
+ *
  * Copyrights EnergyICT
  * Date: 11-jan-2011
  * Time: 16:05:54
@@ -97,12 +104,25 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         this.setInterval(interval);
         Collection<RegisterType> failedRegisterTypes = new ArrayList<>();
         for (RegisterType registerType : registerTypes) {
-            Optional<ChannelType> channelType = this.createChannelTypeForRegisterType(registerType);
-            if (!channelType.isPresent()) {
+            if (this.commodityIsCompatible(registerType)) {
+                Optional<ChannelType> channelType = this.createChannelTypeForRegisterType(registerType);
+                if (!channelType.isPresent()) {
+                    failedRegisterTypes.add(registerType);
+                }
+            }
+            else {
                 failedRegisterTypes.add(registerType);
             }
         }
         return failedRegisterTypes;
+    }
+
+    private boolean commodityIsCompatible(RegisterType registerType) {
+        return loadProfileCompatibleCommodities().contains(registerType.getReadingType().getCommodity());
+    }
+
+    private Set<Commodity> loadProfileCompatibleCommodities() {
+        return EnumSet.complementOf(EnumSet.of(Commodity.NOTAPPLICABLE, Commodity.COMMUNICATION, Commodity.DEVICE));
     }
 
     static LoadProfileTypeImpl from(DataModel dataModel, String name, ObisCode obisCode, TimeDuration interval, Collection<RegisterType> registerTypes) {
@@ -182,6 +202,7 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     }
 
     // Used by EventType
+    @SuppressWarnings("unused")
     public String getOldObisCode() {
         return oldObisCode;
     }
@@ -198,17 +219,18 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     }
 
     private void updateChannelTypeUsagesAccordingToNewInterval() {
-        List<RegisterType> templateRegisters = new ArrayList<>(registerTypes.size());
-        for (LoadProfileTypeChannelTypeUsageImpl channelTypeUsage : registerTypes) {
-            templateRegisters.add(channelTypeUsage.getChannelType().getTemplateRegister());
-        }
+        List<RegisterType> templateRegisters =
+                this.registerTypes
+                        .stream()
+                        .map(LoadProfileTypeChannelTypeUsage::getChannelType)
+                        .map(ChannelType::getTemplateRegister)
+                        .collect(Collectors.toList());
         registerTypes.clear();
-        for (RegisterType templateRegister : templateRegisters) {
-            createChannelTypeForRegisterType(templateRegister);
-        }
+        templateRegisters.forEach(this::createChannelTypeForRegisterType);
     }
 
     // Used by EventType
+    @SuppressWarnings("unused")
     public long getOldIntervalSeconds() {
         return oldIntervalSeconds;
     }
@@ -224,11 +246,10 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     }
 
     public List<ChannelType> getChannelTypes() {
-        List<ChannelType> channelTypes = new ArrayList<>(this.registerTypes.size());
-        for (LoadProfileTypeChannelTypeUsage channelTypeUsage : this.registerTypes) {
-            channelTypes.add(channelTypeUsage.getChannelType());
-        }
-        return channelTypes;
+        return this.registerTypes
+                .stream()
+                .map(LoadProfileTypeChannelTypeUsage::getChannelType)
+                .collect(Collectors.toList());
     }
 
     @Override
