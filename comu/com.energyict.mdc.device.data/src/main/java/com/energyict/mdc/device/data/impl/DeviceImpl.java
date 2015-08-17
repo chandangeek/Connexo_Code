@@ -85,6 +85,8 @@ import com.energyict.mdc.device.data.exceptions.CannotDeleteComTaskExecutionWhic
 import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
+import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
@@ -883,8 +885,8 @@ public class DeviceImpl implements Device, CanLock {
         return () -> new RuntimeException("The MDC AMR system does not exist");
     }
 
-    private Supplier<IllegalStateException> noMeterActivationAt(Instant timestamp) {
-        return () -> new IllegalStateException("No meter activation found on " + timestamp);
+    private Supplier<NoMeterActivationAt> noMeterActivationAt(Instant timestamp) {
+        return () -> new NoMeterActivationAt(thesaurus, timestamp);
     }
 
     Meter createKoreMeter(AmrSystem amrSystem) {
