@@ -75,13 +75,13 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                             action: 'showDeviceLifeCycleStateEdit',
                                             items: {
                                                 addEntryProcesses: {
-                                                    title: Uni.I18n.translate('transitionBusinessProcess.addToState', 'DLC', 'Add processes'),
+                                                    title: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'DLC', 'Add processes'),
                                                     route: 'entryprocesses',
                                                     controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
                                                     action: 'showAvailableEntryTransitionProcesses'
                                                 },
                                                 addExitProcesses: {
-                                                    title: Uni.I18n.translate('transitionBusinessProcess.addToState', 'DLC', 'Add processes'),
+                                                    title: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'DLC', 'Add processes'),
                                                     route: 'exitprocesses',
                                                     controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
                                                     action: 'showAvailableExitTransitionProcesses'
@@ -102,13 +102,13 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                             },
                                             items: {
                                                 addEntryProcesses: {
-                                                    title: Uni.I18n.translate('transitionBusinessProcess.addToState', 'DLC', 'Add processes'),
+                                                    title: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'DLC', 'Add processes'),
                                                     route: 'entryprocesses',
                                                     controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
                                                     action: 'showAvailableEntryTransitionProcesses'
                                                 },
                                                 addExitProcesses: {
-                                                    title: Uni.I18n.translate('transitionBusinessProcess.addToState', 'DLC', 'Add processes'),
+                                                    title: Uni.I18n.translate('transitionBusinessProcess.addProcesses', 'DLC', 'Add processes'),
                                                     route: 'exitprocesses',
                                                     controller: 'Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates',
                                                     action: 'showAvailableExitTransitionProcesses'
