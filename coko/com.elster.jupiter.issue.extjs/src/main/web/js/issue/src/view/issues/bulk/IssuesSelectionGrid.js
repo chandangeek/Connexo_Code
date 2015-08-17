@@ -6,7 +6,7 @@ Ext.define('Isu.view.issues.bulk.IssuesSelectionGrid', {
         return Uni.I18n.translatePlural(
             'workspace.issues.bulk.IssuesSelectionGrid.counterText',
             count,
-            'MDC',
+            'ISU',
             '{0} issues selected'
         );
     },
