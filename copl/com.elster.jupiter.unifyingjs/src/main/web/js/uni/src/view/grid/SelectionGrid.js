@@ -37,7 +37,7 @@ Ext.define('Uni.view.grid.SelectionGrid', {
      */
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
-            'grid.BulkSelection.counterText',
+            'multiselect.selected',
             count,
             'UNI',
             '{0} items selected'
