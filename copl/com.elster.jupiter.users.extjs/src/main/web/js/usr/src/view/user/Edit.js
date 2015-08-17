@@ -44,11 +44,11 @@ Ext.define('Usr.view.user.Edit', {
                             },
                             {
                                 name: 'authenticationName',
-                                fieldLabel: Uni.I18n.translate('user.name', 'USR', 'Name')
+                                fieldLabel: Uni.I18n.translate('general.name', 'USR', 'Name')
                             },
                             {
                                 name: 'description',
-                                fieldLabel: Uni.I18n.translate('user.description', 'USR', 'Description'),
+                                fieldLabel: Uni.I18n.translate('general.description', 'USR', 'Description'),
                                 maxLength: 256,
                                 enforceMaxLength: true
                             },
@@ -78,7 +78,7 @@ Ext.define('Usr.view.user.Edit', {
                             {
                                 xtype: 'checkboxstore',
                                 itemId: 'selectRoles',
-                                fieldLabel: Uni.I18n.translate('user.roles', 'USR', 'Roles'),
+                                fieldLabel: Uni.I18n.translate('general.roles', 'USR', 'Roles'),
                                 store: 'Usr.store.UserGroups',
                                 hydratable:false,
                                 autoScroll: true,

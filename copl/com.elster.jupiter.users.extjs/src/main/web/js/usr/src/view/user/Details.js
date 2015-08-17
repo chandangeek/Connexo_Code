@@ -55,12 +55,12 @@ Ext.define('Usr.view.user.Details', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'authenticationName',
-                                    fieldLabel: Uni.I18n.translate('user.name', 'USR', 'Name')
+                                    fieldLabel: Uni.I18n.translate('general.name', 'USR', 'Name')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'description',
-                                    fieldLabel: Uni.I18n.translate('user.description', 'USR', 'Description')
+                                    fieldLabel: Uni.I18n.translate('general.description', 'USR', 'Description')
                                 },
                                 {
                                     xtype: 'displayfield',
@@ -70,7 +70,7 @@ Ext.define('Usr.view.user.Details', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'roles',
-                                    fieldLabel: Uni.I18n.translate('user.roles', 'USR', 'Roles'),
+                                    fieldLabel: Uni.I18n.translate('general.roles', 'USR', 'Roles'),
                                     htmlEncode: false
                                 },
                                 {
@@ -102,7 +102,7 @@ Ext.define('Usr.view.user.Details', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'createdOn',
-                                    fieldLabel: Uni.I18n.translate('user.created', 'USR', 'Created on'),
+                                    fieldLabel: Uni.I18n.translate('general.createdOn', 'USR', 'Created on'),
                                     renderer: function (value) {
                                         if (value) {
                                             var createdOnDate = moment(value).toDate();
@@ -117,7 +117,7 @@ Ext.define('Usr.view.user.Details', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'modifiedOn',
-                                    fieldLabel: Uni.I18n.translate('user.modified', 'USR', 'Modified on'),
+                                    fieldLabel: Uni.I18n.translate('general.modifiedOn', 'USR', 'Modified on'),
                                     renderer: function (value) {
                                         if (value) {
                                             var modifiedOnDate = moment(value).toDate();

@@ -39,7 +39,7 @@ Ext.define('Usr.view.group.privilege.FeatureList', {
                     }
                 },
                 {
-                    header: Uni.I18n.translate('privilege.description', 'USR', 'Description'),
+                    header: Uni.I18n.translate('general.description', 'USR', 'Description'),
                     flex: 3,
                     renderer: function (value, metadata, record) {
                         return Uni.I18n.translate(record.get('description'), 'USR', record.get('description'));

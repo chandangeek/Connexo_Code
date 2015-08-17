@@ -60,7 +60,7 @@ Ext.define('Usr.view.group.Edit', {
                             {
                                 xtype: 'textfield',
                                 name: 'name',
-                                fieldLabel: Uni.I18n.translate('group.name', 'USR', 'Name'),
+                                fieldLabel: Uni.I18n.translate('general.name', 'USR', 'Name'),
                                 maxWidth: 650,
                                 width: 750,
                                 required: true,
@@ -72,7 +72,7 @@ Ext.define('Usr.view.group.Edit', {
                             {
                                 xtype: 'textfield',
                                 name: 'description',
-                                fieldLabel: Uni.I18n.translate('group.description', 'USR', 'Description'),
+                                fieldLabel: Uni.I18n.translate('general.description', 'USR', 'Description'),
                                 maxWidth: 650,
                                 width: 750
                             },
@@ -110,7 +110,7 @@ Ext.define('Usr.view.group.Edit', {
                                 items: [
                                     {
                                         itemId: 'roleAddButton',
-                                        text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                        text: Uni.I18n.translate('general.add', 'USR', 'Add'),
                                         xtype: 'button',
                                         ui: 'action',
                                         action: 'save'

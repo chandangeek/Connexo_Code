@@ -17,7 +17,7 @@ Ext.define('Usr.view.user.Browse', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('user.title', 'USR', 'Users'),
+            title: Uni.I18n.translate('general.users', 'USR', 'Users'),
             layout: {
                 type: 'vbox',
                 align: 'stretch'
