@@ -42,7 +42,7 @@ Ext.define('Sam.view.licensing.Details', {
                     },
                     items: [
                         {
-                            fieldLabel: Uni.I18n.translate('licensing.status', 'SAM', 'Status'),
+                            fieldLabel: Uni.I18n.translate('general.status', 'SAM', 'Status'),
                             name: 'status'
                         },
                         {
