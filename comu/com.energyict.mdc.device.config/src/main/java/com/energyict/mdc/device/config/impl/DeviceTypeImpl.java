@@ -46,11 +46,11 @@ import java.util.stream.Collectors;
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements ServerDeviceType {
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private String name;
     @Size(max = 4000, groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
-    @IsPresent(message = "{" + MessageSeeds.Keys.DEVICE_LIFE_CYCLE_REQUIRED + "}", groups = {Save.Create.class, Save.Update.class})
+    @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", groups = {Save.Create.class, Save.Update.class})
     private TemporalReference<DeviceLifeCycleInDeviceType> deviceLifeCycle = Temporals.absent();
     private int deviceUsageTypeId;
     private DeviceUsageType deviceUsageType;
@@ -60,7 +60,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
     private List<DeviceTypeRegisterTypeUsage> registerTypeUsages = new ArrayList<>();
     private long deviceProtocolPluggableClassId;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_PROTOCOL_IS_REQUIRED + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private boolean deviceProtocolPluggableClassChanged = false;
     @SuppressWarnings("unused")
@@ -218,10 +218,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     private void setDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle, Instant effective) {
         Interval effectivityInterval = Interval.of(Range.atLeast(effective));
-        this.deviceLifeCycle.add(
-                this.getDataModel()
-                        .getInstance(DeviceLifeCycleInDeviceTypeImpl.class)
-                        .initialize(effectivityInterval, this, deviceLifeCycle));
+        if(deviceLifeCycle != null) {
+            this.deviceLifeCycle.add(
+                    this.getDataModel()
+                            .getInstance(DeviceLifeCycleInDeviceTypeImpl.class)
+                            .initialize(effectivityInterval, this, deviceLifeCycle));
+        }
     }
 
     @Override
