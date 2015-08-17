@@ -391,6 +391,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED+"}", property = "numberOfDigits")
     public void testDecreaseNumberOfDigits() throws Exception {
         NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
+        this.getReloadedDeviceConfiguration().activate();
         registerSpec.setNumberOfDigits(8); // decreased!!
         registerSpec.save();
     }
@@ -399,6 +400,23 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED+"}", property = "numberOfFractionDigits")
     public void testDecreaseNumberOfFractionDigits() throws Exception {
+        NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
+        this.getReloadedDeviceConfiguration().activate();
+        registerSpec.setNumberOfFractionDigits(1); // decreased!!
+        registerSpec.save();
+    }
+
+    @Test
+    @Transactional
+    public void testDecreaseNumberOfDigitsInactiveConfig() throws Exception {
+        NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
+        registerSpec.setNumberOfDigits(8); // decreased!!
+        registerSpec.save();
+    }
+
+    @Test
+    @Transactional
+    public void testDecreaseNumberOfFractionDigitsInactiveConfig() throws Exception {
         NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
         registerSpec.setNumberOfFractionDigits(1); // decreased!!
         registerSpec.save();
