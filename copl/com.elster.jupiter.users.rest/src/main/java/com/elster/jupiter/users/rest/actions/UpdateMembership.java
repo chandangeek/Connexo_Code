@@ -7,6 +7,7 @@ import com.elster.jupiter.users.rest.GroupInfo;
 import com.elster.jupiter.users.rest.PrivilegeInfo;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -29,14 +30,27 @@ public class UpdateMembership {
         return group;
     }
 
-    Group doUpdateEmpty(Group group){
-        Map<String,List<Privilege>> current = group.getPrivileges();
-        for (Map.Entry<String, List<Privilege>> entry : current.entrySet())
-        {
-            for(Privilege privilege: entry.getValue()) {
+    Group doUpdateEmpty(Group group) {
+        Map<String, List<Privilege>> current = group.getPrivileges();
+        for (Map.Entry<String, List<Privilege>> entry : current.entrySet()) {
+            for (Privilege privilege : entry.getValue()) {
                 group.revoke(entry.getKey(), privilege);
             }
         }
+
+        return group;
+    }
+
+    Group doUpdateEmpty(Group group, List<PrivilegeInfo> privileges) {
+        Map<String, List<Privilege>> current = group.getPrivileges();
+        current.entrySet().stream().
+                filter(p -> !privileges.stream().
+                        map(PrivilegeInfo::getApplicationName)
+                        .filter(p.getKey()::equals)
+                        .findFirst()
+                        .isPresent())
+                .forEach(p -> p.getValue()
+                        .forEach(pp -> group.revoke(p.getKey(), pp)));
 
         return group;
     }
@@ -71,7 +85,7 @@ public class UpdateMembership {
     private Set<Privilege> targetGrants(String applicationName) {
         Set<Privilege> target = new LinkedHashSet<>();
         for (PrivilegeInfo privilegeInfo : info.privileges) {
-            if(applicationName.equalsIgnoreCase(privilegeInfo.applicationName)) {
+            if (applicationName.equalsIgnoreCase(privilegeInfo.applicationName)) {
                 Optional<Privilege> privilege = userService.getPrivilege(privilegeInfo.name);
                 if (privilege.isPresent()) {
                     target.add(privilege.get());

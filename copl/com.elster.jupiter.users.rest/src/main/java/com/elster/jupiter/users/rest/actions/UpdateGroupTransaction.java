@@ -27,12 +27,13 @@ public class UpdateGroupTransaction extends UpdateMembership implements Transact
             groupNoRights = doUpdateEmpty(group);
             return groupNoRights;
         }else {
+            final Group removedGroup = doUpdateEmpty(group, info.privileges);
             info.privileges.stream().collect(Collectors.groupingBy(pi -> pi.applicationName))
                     .entrySet()
                     .stream()
-                    .forEach(p -> doUpdate(p.getKey(), group));
+                    .forEach(p -> doUpdate(p.getKey(), removedGroup));
+            return removedGroup;
         }
-        return group;
     }
 
     private void validateUpdate(Group group) {

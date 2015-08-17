@@ -25,4 +25,22 @@ public class PrivilegeInfo {
 
     public PrivilegeInfo() {
     }
+
+    public String getApplicationName(){
+        return applicationName;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PrivilegeInfo)) {
+            return false;
+        }
+
+        PrivilegeInfo privilegeInfo = (PrivilegeInfo) o;
+
+        return (name.equals(privilegeInfo.name)) && (applicationName.equals(privilegeInfo.applicationName)) ;
+
+    }
 }
