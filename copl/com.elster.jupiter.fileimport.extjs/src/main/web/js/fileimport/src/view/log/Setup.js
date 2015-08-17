@@ -33,7 +33,7 @@ Ext.define('Fim.view.log.Setup', {
         me.content = {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('importService.log', 'FIM', 'Log'),
+            title: Uni.I18n.translate('general.log', 'FIM', 'Log'),
             items: [
                 {
                     xtype: 'fim-history-log-preview',

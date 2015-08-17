@@ -22,7 +22,7 @@ Ext.define('Fim.view.log.Preview', {
                     itemId: 'run-started-on'
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('importService.history.status', 'FIM', 'Status'),
+                    fieldLabel: Uni.I18n.translate('general.status', 'FIM', 'Status'),
                     name: 'status'
                 },
                 {

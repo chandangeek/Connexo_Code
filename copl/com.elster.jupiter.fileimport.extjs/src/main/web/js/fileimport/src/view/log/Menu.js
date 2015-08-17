@@ -9,7 +9,7 @@ Ext.define('Fim.view.log.Menu', {
         me.callParent(me);
         me.add(
             {
-                text: Uni.I18n.translate('importService.log', 'FIM', 'Log'),
+                text: Uni.I18n.translate('general.log', 'FIM', 'Log'),
                 itemId: 'history-log-link'
             }
         );

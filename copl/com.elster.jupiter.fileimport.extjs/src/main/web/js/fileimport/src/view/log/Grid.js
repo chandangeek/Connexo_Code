@@ -10,7 +10,7 @@ Ext.define('Fim.view.log.Grid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('importService.log.timestamp', 'FIM', 'Timestamp'),
+                header: Uni.I18n.translate('general.timestamp', 'FIM', 'Timestamp'),
                 dataIndex: 'timestamp',
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '';

@@ -16,7 +16,7 @@ Ext.define('Fim.view.importservices.Details', {
         items: [
             {
                 ui: 'large',
-                title: Uni.I18n.translate('importService.general.overview', 'FIM', 'Overview'),
+                title: Uni.I18n.translate('general.overview', 'FIM', 'Overview'),
                 flex: 1,
                 items: {
                     xtype: 'fim-import-service-preview-form',
@@ -27,7 +27,7 @@ Ext.define('Fim.view.importservices.Details', {
             {
                 xtype: 'button',
                 itemId: 'btn-action',
-                text: Uni.I18n.translate('importService.general.actions', 'FIM', 'Actions'),
+                text: Uni.I18n.translate('general.actions', 'FIM', 'Actions'),
                 iconCls: 'x-uni-action-iconD',
                 margin: '20 0 0 0',                
                 menu: {

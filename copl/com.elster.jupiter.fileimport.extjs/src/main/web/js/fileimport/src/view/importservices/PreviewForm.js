@@ -19,7 +19,7 @@ Ext.define('Fim.view.importservices.PreviewForm', {
         me.items = [
             {
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('importService.name', 'FIM', 'Name'),
+                fieldLabel: Uni.I18n.translate('general.name', 'FIM', 'Name'),
                 name: 'name'
             },
             {
@@ -29,20 +29,20 @@ Ext.define('Fim.view.importservices.PreviewForm', {
             },
             {
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('importService.status', 'FIM', 'Status'),
+                fieldLabel: Uni.I18n.translate('general.status', 'FIM', 'Status'),
                 name: 'statusDisplay',
                 itemId: 'dsf-status-display'
                 //inputAttrTpl: " data-qtip=" +
             },
             {
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('importService.application', 'FIM', 'Application'),
+                fieldLabel: Uni.I18n.translate('general.application', 'FIM', 'Application'),
                 name: 'applicationDisplay',
                 hidden: !Fim.privileges.DataImport.getAdmin()
             },
             {
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('importService.importFolder', 'FIM', 'Import folder'),
+                fieldLabel: Uni.I18n.translate('general.importFolder', 'FIM', 'Import folder'),
                 name: 'importDirectory'
             },
             {

@@ -10,7 +10,7 @@ Ext.define('Fim.view.log.SortMenu', {
             name: 'level'
         },
         {
-            text: Uni.I18n.translate('importService.history.timestamp', 'FIM', 'Timestamp'),
+            text: Uni.I18n.translate('general.timestamp', 'FIM', 'Timestamp'),
             name: 'timestamp'
         }
     ]

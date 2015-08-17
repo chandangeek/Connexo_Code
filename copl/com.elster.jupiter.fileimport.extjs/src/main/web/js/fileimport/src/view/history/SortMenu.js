@@ -10,7 +10,7 @@ Ext.define('Fim.view.history.SortMenu', {
             name: 'startDate'
         },
         {
-            text: Uni.I18n.translate('importService.history.status', 'FIM', 'Status'),
+            text: Uni.I18n.translate('general.status', 'FIM', 'Status'),
             name: 'status'
         }
     ]

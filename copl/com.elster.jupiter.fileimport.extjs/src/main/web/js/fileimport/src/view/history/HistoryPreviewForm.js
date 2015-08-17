@@ -23,7 +23,7 @@ Ext.define('Fim.view.history.HistoryPreviewForm', {
             },
             {
                 xtype: 'displayfield',
-                fieldLabel: Uni.I18n.translate('importService.history.status', 'FIM', 'Status'),
+                fieldLabel: Uni.I18n.translate('general.status', 'FIM', 'Status'),
                 name: 'status'
             },
             {

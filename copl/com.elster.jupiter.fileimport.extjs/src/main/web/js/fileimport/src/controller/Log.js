@@ -71,7 +71,7 @@ Ext.define('Fim.controller.Log', {
                         });
                         view.down('#mnu-histoty-log').setTitle(record.get('name'));
                         me.getApplication().fireEvent('changecontentevent', view);
-                        me.getHistoryLogViewMenu().setTitle(showImportService ? Uni.I18n.translate('general.importHistory', 'FIM', 'Import history') : Uni.I18n.translate('general.importService', 'FIM', 'Import services'));
+                        me.getHistoryLogViewMenu().setTitle(showImportService ? Uni.I18n.translate('general.importHistory', 'FIM', 'Import history') : Uni.I18n.translate('general.importServices', 'FIM', 'Import services'));
 
                         view.down('#frm-history-log-preview').loadRecord(occurrenceTask);
                         view.down('#run-started-on').setValue(occurrenceTask.get('startedOnDisplay'));

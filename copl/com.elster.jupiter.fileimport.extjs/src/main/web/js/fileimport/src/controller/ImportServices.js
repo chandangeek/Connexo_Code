@@ -177,8 +177,8 @@ Ext.define('Fim.controller.ImportServices', {
             isActive = record.get('active');
 
         confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
-            confirmText: isActive ? Uni.I18n.translate('importService.deactivate.button', 'FIM', 'Deactivate') :
-                Uni.I18n.translate('importService.activate.button', 'FIM', 'Activate')
+            confirmText: isActive ? Uni.I18n.translate('general.deactivate', 'FIM', 'Deactivate') :
+                Uni.I18n.translate('general.activate', 'FIM', 'Activate')
         }).show({
             title: isActive ? Ext.String.format(Uni.I18n.translate('importService.deactivate.title', 'FIM', 'Deactivate \'{0}\'?'), record.get('name')) :
                 Ext.String.format(Uni.I18n.translate('importService.activate.title', 'FIM', 'Activate \'{0}\'?'), record.get('name')),
@@ -249,7 +249,7 @@ Ext.define('Fim.controller.ImportServices', {
         var me = this;
 
         confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
-            confirmText: Uni.I18n.translate('importService.remove.button', 'FIM', 'Remove')
+            confirmText: Uni.I18n.translate('general.remove', 'FIM', 'Remove')
         }).show({
             title: Ext.String.format(Uni.I18n.translate('importService.remove.title', 'FIM', 'Remove \'{0}\'?'), record.get('name')),
             msg: Uni.I18n.translate('importService.remove.message', 'FIM', 'This importer service will no longer be available.'),
@@ -448,7 +448,7 @@ Ext.define('Fim.controller.ImportServices', {
 
                 addImportServiceForm = addImportServiceView.down('#frm-add-import-service');
                 addImportServiceForm.down('#num-folder-scan-frequency').setValue(1);
-                addImportServiceForm.setTitle(Uni.I18n.translate('importService.add', 'FIM', 'Add import service'));
+                addImportServiceForm.setTitle(Uni.I18n.translate('general.addImportService', 'FIM', 'Add import service'));
 
                 me.getApplication().fireEvent('changecontentevent', addImportServiceView);
             }

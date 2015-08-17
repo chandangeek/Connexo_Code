@@ -93,7 +93,7 @@ Ext.define('Fim.view.importservices.AddImportService', {
                         required: true,
                         allowBlank: false,
                         width: 600,
-                        fieldLabel: Uni.I18n.translate('importService.importFolder', 'FIM', 'Import folder'),
+                        fieldLabel: Uni.I18n.translate('general.importFolder', 'FIM', 'Import folder'),
                         enforceMaxLength: true
                     },
                     {

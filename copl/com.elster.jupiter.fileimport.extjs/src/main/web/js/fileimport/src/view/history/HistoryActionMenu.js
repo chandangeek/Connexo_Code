@@ -7,7 +7,7 @@ Ext.define('Fim.view.history.HistoryActionMenu', {
     items: [
         {
             itemId: 'menu-view-log',
-            text: Uni.I18n.translate('importService.history.viewLog', 'Fim', 'View log'),
+            text: Uni.I18n.translate('importService.history.viewLog', 'FIM', 'View log'),
             action: 'viewLog'
         }
     ]

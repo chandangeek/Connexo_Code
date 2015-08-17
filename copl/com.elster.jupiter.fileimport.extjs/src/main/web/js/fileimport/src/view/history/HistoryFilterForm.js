@@ -122,7 +122,7 @@ Ext.define('Fim.view.history.HistoryFilterForm', {
                         labelAlign: 'top',
                         itemId: 'cbo-status',
                         name: 'status',
-                        fieldLabel: Uni.I18n.translate('importService.history.status', 'FIM', 'Status'),
+                        fieldLabel: Uni.I18n.translate('general.status', 'FIM', 'Status'),
                         displayField: 'display',
                         valueField: 'value',
                         store: 'Fim.store.Status'

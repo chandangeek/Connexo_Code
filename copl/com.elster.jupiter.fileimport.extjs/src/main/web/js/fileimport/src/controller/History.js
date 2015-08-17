@@ -74,7 +74,7 @@ Ext.define('Fim.controller.History', {
 
         me.getApplication().fireEvent('changecontentevent', view);
         if (!noSpecificImportService) {
-            me.getHistoryViewMenu().setTitle(Uni.I18n.translate('general.importService', 'FIM', 'Import services'));
+            me.getHistoryViewMenu().setTitle(Uni.I18n.translate('general.importServices', 'FIM', 'Import services'));
         }
 
         me.updateSortingToolbar();
