@@ -1411,10 +1411,18 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     com.elster.jupiter.metering.Channel findOrCreateKoreChannel(Instant when, Register<?> register) {
+        return findOrCreateKoreChannel(when, register.getReadingType());
+    }
+
+    com.elster.jupiter.metering.Channel findOrCreateKoreChannel(Instant when, Channel channel) {
+        return findOrCreateKoreChannel(when, channel.getReadingType());
+    }
+
+    private com.elster.jupiter.metering.Channel findOrCreateKoreChannel(Instant when, ReadingType readingType) {
         Optional<MeterActivation> meterActivation = this.getMeterActivation(when);
         if (meterActivation.isPresent()) {
-            return this.getChannel(meterActivation.get(), register.getReadingType())
-                  .orElse(meterActivation.get().createChannel(register.getReadingType()));
+            return this.getChannel(meterActivation.get(), readingType)
+                    .orElseGet(() -> meterActivation.get().createChannel(readingType));
         }
         else {
             throw this.noMeterActivationAt(when).get();

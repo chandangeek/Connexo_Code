@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
@@ -18,20 +17,18 @@ import java.util.List;
 @ProviderType
 public interface ChannelDataUpdater {
 
-    public ChannelDataUpdater removeChannelData(Range<Instant> interval);
+    ChannelDataUpdater removeChannelData(List<Instant> intervals);
 
-    public ChannelDataUpdater removeChannelData(List<Range<Instant>> intervals);
+    ChannelDataUpdater editChannelData(List<BaseReading> modifiedChannelData);
 
-    public ChannelDataUpdater editChannelData(List<BaseReading> modifiedChannelData);
+    ChannelDataUpdater editBulkChannelData(List<BaseReading> modifiedChannelData);
 
-    public ChannelDataUpdater editBulkChannelData(List<BaseReading> modifiedChannelData);
-
-    public ChannelDataUpdater confirmChannelData(List<BaseReading> modifiedChannelData);
+    ChannelDataUpdater confirmChannelData(List<BaseReading> modifiedChannelData);
 
     /**
      * Completes the transaction, effectively applying all the changes
      * from previous method calls.
      */
-    public void complete();
+    void complete();
 
 }

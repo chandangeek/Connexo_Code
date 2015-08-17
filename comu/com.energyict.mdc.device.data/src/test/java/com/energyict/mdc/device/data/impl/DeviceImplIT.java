@@ -1,7 +1,34 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
+import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
+import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -23,49 +50,28 @@ import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
-import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
-import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.Ranges;
-import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationStatus;
+import com.google.common.collect.Range;
 import org.joda.time.DateTimeConstants;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
-
-import org.junit.*;
-import org.junit.rules.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -995,6 +1001,74 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
+    public void testEditLoadProfileDataWithSeveralMeterActivations() {
+        //COMU-1763
+        Instant dayStart = ZonedDateTime.of(2015, 8, 14, 0, 15, 0, 0, ZoneOffset.UTC).toInstant();
+        DeviceConfiguration deviceConfiguration = createDeviceConfigurationWithTwoChannelSpecs(interval);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+
+        device.activate(dayStart);
+        device.deactivate(dayStart.plus(10, ChronoUnit.MINUTES));
+        device.activate(dayStart.plus(10, ChronoUnit.MINUTES));
+        device.save();
+
+        String bulkReadingTypeCode = getForwardEnergyReadingTypeCodeBuilder().period(TimeAttribute.MINUTE15).accumulate(Accumulation.BULKQUANTITY).code();
+        String deltaReadingTypeCode = getForwardEnergyReadingTypeCodeBuilder().period(TimeAttribute.MINUTE15).accumulate(Accumulation.DELTADELTA).code();
+        IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingTypeCode);
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(dayStart.plus(30, ChronoUnit.MINUTES), BigDecimal.valueOf(100)));
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(dayStart.plus(45, ChronoUnit.MINUTES), BigDecimal.valueOf(200)));
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(dayStart.plus(60, ChronoUnit.MINUTES), BigDecimal.valueOf(300)));
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        meterReading.addIntervalBlock(intervalBlock);
+        device.store(meterReading);
+
+        Device reloadedDevice = getReloadedDevice(device);
+        List<LoadProfileReading> readings = reloadedDevice.getChannels().get(0).getChannelData(Range.openClosed(dayStart, dayStart.plus(60, ChronoUnit.MINUTES)));
+        assertThat(readings).hasSize(4);
+        assertThat(getRecordFromLoadProfileReading(readings, 0).getValue()).isEqualTo(BigDecimal.valueOf(300));
+        assertThat(getRecordFromLoadProfileReading(readings, 1).getValue()).isEqualTo(BigDecimal.valueOf(200));
+        assertThat(getRecordFromLoadProfileReading(readings, 2).getValue()).isEqualTo(BigDecimal.valueOf(100));
+        assertThat(readings.get(3).getChannelValues()).isEmpty();
+
+        reloadedDevice.getChannels().get(0)
+                .startEditingData()
+                .editChannelData(Collections.singletonList(IntervalReadingImpl.of(dayStart.plus(60, ChronoUnit.MINUTES), BigDecimal.valueOf(50))))
+                .editBulkChannelData(Arrays.asList(
+                        IntervalReadingImpl.of(dayStart.plus(15, ChronoUnit.MINUTES), BigDecimal.valueOf(50)),
+                        IntervalReadingImpl.of(dayStart.plus(30, ChronoUnit.MINUTES), BigDecimal.valueOf(150))
+                ))
+                .removeChannelData(Collections.singletonList(dayStart.plus(45, ChronoUnit.MINUTES)))
+                .complete();
+
+        readings = reloadedDevice.getChannels().get(0).getChannelData(Range.openClosed(dayStart, dayStart.plus(60, ChronoUnit.MINUTES)));
+        assertThat(readings).hasSize(4);
+
+        ReadingType bulkReadingType = inMemoryPersistence.getMeteringService().getReadingType(bulkReadingTypeCode).get();
+        ReadingType deltaReadingType = inMemoryPersistence.getMeteringService().getReadingType(deltaReadingTypeCode).get();
+
+        IntervalReadingRecord updatedReading = null;
+        updatedReading = getRecordFromLoadProfileReading(readings, 0);//60
+        assertThat(updatedReading.getQuantity(bulkReadingType).getValue()).isEqualTo(BigDecimal.valueOf(300));
+        assertThat(updatedReading.getQuantity(deltaReadingType).getValue()).isEqualTo(BigDecimal.valueOf(50));
+
+        assertThat(readings.get(1).getChannelValues()).isEmpty();//45
+
+        updatedReading = getRecordFromLoadProfileReading(readings, 2);//30
+        assertThat(updatedReading.getQuantity(bulkReadingType).getValue()).isEqualTo(BigDecimal.valueOf(150));
+        assertThat(updatedReading.getQuantity(deltaReadingType).getValue()).isEqualTo(BigDecimal.valueOf(100));
+
+        updatedReading = getRecordFromLoadProfileReading(readings, 3);//15
+        assertThat(updatedReading.getQuantity(bulkReadingType).getValue()).isEqualTo(BigDecimal.valueOf(50));
+        assertThat(updatedReading.getQuantity(deltaReadingType)).isNull();
+    }
+
+    private IntervalReadingRecord getRecordFromLoadProfileReading(List<LoadProfileReading> readings, int index) {
+        return readings.get(index).getChannelValues().values().iterator().next();
+    }
+
+    @Test
+    @Transactional
     public void testGetEmptyLoadProfileData() {
         Instant dayStart = Instant.ofEpochMilli(1406851200000L); // Fri, 01 Aug 2014 00:00:00 GMT
         Instant dayEnd = Instant.ofEpochMilli(1406937600000L); // Sat, 02 Aug 2014 00:00:00 GMT
@@ -1191,6 +1265,4 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                 .measure(MeasurementKind.ENERGY)
                 .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
     }
-
-
 }
