@@ -1190,7 +1190,7 @@ Ext.define('Cfg.controller.Validation', {
         var self = this;
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('validation.removeVersion.msg', 'CFG', 'This validation rule version will no longer be available on the validation rule set.'),
-            title: Ext.String.format(Uni.I18n.translate('validation.removeVersion.title', 'CFG', "Remove '{0}'?"), version.get('name')),
+            title: Ext.String.format(Uni.I18n.translate('validation.removeRule.title', 'CFG', "Remove '{0}'?"), version.get('name')),
             config: {
                 version: version
             },
