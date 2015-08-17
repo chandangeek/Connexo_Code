@@ -12,7 +12,7 @@ import java.util.Date;
  * Models the exceptional situation that occurs when
  * an {@link com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction}
  * is executed by the user and the effective timestamp
- * is before the last state change on that same {@link Device}.
+ * is not after the last state change on that same {@link Device}.
  * Say the expected states of a device are A, B and C and the device
  * is in state B since e.g. May 2nd 2015. When the effective date would
  * be allowed to be before May 2nd 2015, then the state history would
@@ -21,7 +21,7 @@ import java.util.Date;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-20 (16:41)
  */
-public class EffectiveTimestampBeforeLastStateChangeException extends DeviceLifeCycleActionViolationException {
+public class EffectiveTimestampNotAfterLastStateChangeException extends DeviceLifeCycleActionViolationException {
 
     private final Thesaurus thesaurus;
     private final MessageSeed messageSeed;
@@ -29,7 +29,7 @@ public class EffectiveTimestampBeforeLastStateChangeException extends DeviceLife
     private final Instant effectiveTimestamp;
     private final Instant lastStateChange;
 
-    public EffectiveTimestampBeforeLastStateChangeException(Thesaurus thesaurus, MessageSeed messageSeed, Device device, Instant effectiveTimestamp, Instant lastStateChange) {
+    public EffectiveTimestampNotAfterLastStateChangeException(Thesaurus thesaurus, MessageSeed messageSeed, Device device, Instant effectiveTimestamp, Instant lastStateChange) {
         super();
         this.thesaurus = thesaurus;
         this.messageSeed = messageSeed;

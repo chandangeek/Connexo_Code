@@ -4,7 +4,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
-import com.energyict.mdc.device.lifecycle.EffectiveTimestampBeforeLastStateChangeException;
+import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotAfterLastStateChangeException;
 import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotInRangeException;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
@@ -52,13 +52,11 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.*;
 import org.junit.runner.*;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -504,7 +502,7 @@ public class DeviceLifeCycleServiceImplTest {
         // Asserts: see expected exception rule
     }
 
-    @Test(expected = EffectiveTimestampBeforeLastStateChangeException.class)
+    @Test(expected = EffectiveTimestampNotAfterLastStateChangeException.class)
     public void executeWithEffectiveTimestampBeforeLastStateChange() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.SET_LAST_READING)));
@@ -517,12 +515,37 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
         StateTimeline stateTimeline = mock(StateTimeline.class);
         StateTimeSlice timeSlice = mock(StateTimeSlice.class);
-        when(timeSlice.getPeriod()).thenReturn(Range.atLeast(Instant.ofEpochMilli(60000L)));
+        Instant timeSliceStart = Instant.ofEpochMilli(60000L);
+        when(timeSlice.getPeriod()).thenReturn(Range.atLeast(timeSliceStart));
         when(stateTimeline.getSlices()).thenReturn(Arrays.asList(timeSlice));
         when(this.device.getStateTimeline()).thenReturn(stateTimeline);
 
         // Business method
-        service.execute(this.action, this.device, Instant.ofEpochMilli(50000L), Collections.emptyList());
+        service.execute(this.action, this.device, timeSliceStart.minusMillis(1000L), Collections.emptyList());
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test(expected = EffectiveTimestampNotAfterLastStateChangeException.class)
+    public void executeWithEffectiveTimestampExactlyOnLastStateChange() {
+        DeviceLifeCycleServiceImpl service = this.getTestInstance();
+        when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.SET_LAST_READING)));
+        when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
+        when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
+        ServerMicroAction setLastReading = mock(ServerMicroAction.class);
+        when(this.microActionFactory.from(MicroAction.SET_LAST_READING)).thenReturn(setLastReading);
+        when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.ofEpochMilli(100000L));
+        when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.ofEpochMilli(10000L));
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
+        StateTimeline stateTimeline = mock(StateTimeline.class);
+        StateTimeSlice timeSlice = mock(StateTimeSlice.class);
+        Instant timeSliceStart = Instant.ofEpochMilli(60000L);
+        when(timeSlice.getPeriod()).thenReturn(Range.atLeast(timeSliceStart));
+        when(stateTimeline.getSlices()).thenReturn(Arrays.asList(timeSlice));
+        when(this.device.getStateTimeline()).thenReturn(stateTimeline);
+
+        // Business method
+        service.execute(this.action, this.device, timeSliceStart, Collections.emptyList());
 
         // Asserts: see expected exception rule
     }

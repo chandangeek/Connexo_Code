@@ -40,7 +40,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     // MicroActions
     MISSING_REQUIRED_PROPERTY_VALUES(20001, Keys.MISSING_REQUIRED_PROPERTY_VALUES, "No value was specified for the following property spec of the configured actions: {0}"),
     EFFECTIVE_TIMESTAMP_NOT_IN_RANGE(20002, Keys.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE, "The transition date should be between {0,date} and {1,date}"),
-    EFFECTIVE_TIMESTAMP_NOT_BEFORE_LAST_STATE_CHANGE(20003, Keys.EFFECTIVE_TIMESTAMP_NOT_BEFORE_LAST_STATE_CHANGE, "The transition {1,date} date should not be before the last state change {2,date} of device (mRID={0})"),
+    EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE(20003, Keys.EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE, "The transition {1,date} date should be after the last state change {2,date} of device (mRID={0})"),
     NOT_ALL_DATA_VALID_FOR_DEVICE(20004,"microAction.exception.notAllDataValidForDeviceX","Device {0} has still suspect values: Action is undone.");
 
     private final int number;
@@ -95,7 +95,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String MULTIPLE_MICRO_CHECKS_FAILED = "authorizedAction.multiple.microChecksFailed";
         public static final String MISSING_REQUIRED_PROPERTY_VALUES = "authorizedAction.microAction.required.properties.multipleMissing";
         public static final String EFFECTIVE_TIMESTAMP_NOT_IN_RANGE = "authorizedAction.microAction.effectiveTimstamp.notInRange";
-        public static final String EFFECTIVE_TIMESTAMP_NOT_BEFORE_LAST_STATE_CHANGE = "authorizedAction.microAction.effectiveTimstamp.before.lastStateChange";
+        public static final String EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE = "authorizedAction.microAction.effectiveTimstamp.before.lastStateChange";
     }
 
 }

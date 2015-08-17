@@ -5,7 +5,7 @@ import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateExcept
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.EffectiveTimestampBeforeLastStateChangeException;
+import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotAfterLastStateChangeException;
 import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotInRangeException;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
@@ -238,7 +238,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         this.validateTriggerExecution(action, device);
         this.valueAvailableForAllRequiredProperties(action, properties);
         this.effectiveTimestampIsInRange(effectiveTimestamp, action.getDeviceLifeCycle());
-        this.effectiveTimestampNotBeforeLastStateChange(effectiveTimestamp, device);
+        this.effectiveTimestampAfterLastStateChange(effectiveTimestamp, device);
     }
 
     private void valueAvailableForAllRequiredProperties(AuthorizedTransitionAction action, List<ExecutableActionProperty> properties) {
@@ -268,9 +268,9 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         }
     }
 
-    private void effectiveTimestampNotBeforeLastStateChange(Instant effectiveTimestamp, Device device) {
+    private void effectiveTimestampAfterLastStateChange(Instant effectiveTimestamp, Device device) {
         List<StateTimeSlice> stateTimeSlices = device.getStateTimeline().getSlices();
-        this.lastSlice(stateTimeSlices).ifPresent(lastSlice -> this.effectiveTimestampNotBeforeLastStateChange(effectiveTimestamp, device, lastSlice));
+        this.lastSlice(stateTimeSlices).ifPresent(lastSlice -> this.effectiveTimestampAfterLastStateChange(effectiveTimestamp, device, lastSlice));
     }
 
     private Optional<StateTimeSlice> lastSlice(List<StateTimeSlice> stateTimeSlices) {
@@ -283,9 +283,9 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         }
     }
 
-    private void effectiveTimestampNotBeforeLastStateChange(Instant effectiveTimestamp, Device device, StateTimeSlice lastStateTimeSlice) {
-        if (effectiveTimestamp.isBefore(lastStateTimeSlice.getPeriod().lowerEndpoint())) {
-            throw new EffectiveTimestampBeforeLastStateChangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_BEFORE_LAST_STATE_CHANGE, device, effectiveTimestamp,  lastStateTimeSlice.getPeriod().lowerEndpoint());
+    private void effectiveTimestampAfterLastStateChange(Instant effectiveTimestamp, Device device, StateTimeSlice lastStateTimeSlice) {
+        if (!effectiveTimestamp.isAfter(lastStateTimeSlice.getPeriod().lowerEndpoint())) {
+            throw new EffectiveTimestampNotAfterLastStateChangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE, device, effectiveTimestamp,  lastStateTimeSlice.getPeriod().lowerEndpoint());
         }
     }
 
