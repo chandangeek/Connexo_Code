@@ -1,7 +1,6 @@
 package com.energyict.mdc.masterdata.rest.impl;
 
 import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.TranslatableApplicationException;
@@ -36,6 +35,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,14 +52,12 @@ public class LoadProfileTypeResource {
     private final MasterDataService masterDataService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final Thesaurus thesaurus;
-    private final MeteringService meteringService;
 
     @Inject
-    public LoadProfileTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, MeteringService meteringService) {
+    public LoadProfileTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus) {
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.thesaurus = thesaurus;
-        this.meteringService = meteringService;
     }
 
     @GET
@@ -104,7 +102,14 @@ public class LoadProfileTypeResource {
         boolean all = getBoolean(uriInfo, "all");
         List<RegisterType> registerTypes = Collections.emptyList();
         if (all) {
-            registerTypes = masterDataService.findAllRegisterTypes().find();
+            registerTypes =
+                    masterDataService
+                            .findAllRegisterTypes()
+                            .find()
+                            .stream()
+                            .filter(readingTypesWithInterval())
+                            .filter(filterOnCommodity())
+                            .collect(Collectors.toList());
         } else {
             if (request.registerTypes != null) {
                 registerTypes = request.registerTypes.stream().map(info -> masterDataService.findRegisterType(info.id)).flatMap(Functions.asStream()).collect(toList());
@@ -154,7 +159,7 @@ public class LoadProfileTypeResource {
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     public PagedInfoList getAvailableRegisterTypesForLoadProfileType(@BeanParam JsonQueryParameters queryParameters) {
         Stream<RegisterType> registerTypeStream = this.masterDataService.findAllRegisterTypes().stream()
-                .filter(filterOutReadingTypesWithInterval())
+                .filter(readingTypesWithInterval())
                 .filter(filterOnCommodity())
                 .skip(queryParameters.getStart().get())
                 .limit(queryParameters.getLimit().get() + 1);
@@ -172,7 +177,7 @@ public class LoadProfileTypeResource {
     public PagedInfoList getAvailableRegisterTypesForLoadProfileTypeById(@BeanParam JsonQueryParameters queryParameters, @PathParam("id") long loadProfileId) {
         LoadProfileType loadProfileType = this.findLoadProfileTypeByIdOrThrowException(loadProfileId);
         Stream<RegisterType> registerTypeStream = this.masterDataService.findAllRegisterTypes().stream()
-                .filter(filterOutReadingTypesWithInterval())
+                .filter(readingTypesWithInterval())
                 .filter(filterOnCommodity())
                 .filter(filterExistingRegisterTypesOnLoadProfileType(loadProfileType))
                 .skip(queryParameters.getStart().get())
@@ -189,15 +194,17 @@ public class LoadProfileTypeResource {
                 .filter(channelType -> channelType.getTemplateRegister().getId() == registerType.getId()).count() == 0;
     }
 
-    private Predicate<? super RegisterType> filterOutReadingTypesWithInterval() {
+    private Predicate<? super RegisterType> readingTypesWithInterval() {
         return registerType -> !(registerType.getReadingType().getMacroPeriod().isApplicable()
                 || registerType.getReadingType().getMeasuringPeriod().isApplicable());
     }
 
     private Predicate<? super RegisterType> filterOnCommodity() {
-        return registerType -> !(registerType.getReadingType().getCommodity().equals(Commodity.NOTAPPLICABLE)
-                || (registerType.getReadingType().getCommodity().equals(Commodity.COMMUNICATION))
-                || (registerType.getReadingType().getCommodity().equals(Commodity.DEVICE)));
+        return registerType -> (loadProfileCompatibleCommodities().contains(registerType.getReadingType().getCommodity()));
+    }
+
+    private Set<Commodity> loadProfileCompatibleCommodities() {
+        return EnumSet.complementOf(EnumSet.of(Commodity.NOTAPPLICABLE, Commodity.COMMUNICATION, Commodity.DEVICE));
     }
 
     private LoadProfileType findLoadProfileTypeByIdOrThrowException(long loadProfileId) {
