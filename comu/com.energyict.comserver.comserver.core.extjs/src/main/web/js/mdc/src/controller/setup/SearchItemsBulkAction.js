@@ -129,10 +129,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             me.schedules = null;
             me.operation = null;
             me.shedulesUnchecked = false;
-
             me.getStore('Mdc.store.DevicesBuffered').data.clear();
             var filter = Ext.Object.fromQueryString(document.location.href.split('?')[1]);
-            me.getStore('Mdc.store.DevicesBuffered').getProxy().extraParams = Ext.JSON.decode(filter.params);
+            me.getStore('Mdc.store.DevicesBuffered').getProxy().extraParams = filter;
             me.getStore('Mdc.store.DevicesBuffered').load({
                 callback: function () {
                     me.getApplication().fireEvent('changecontentevent', widget);
@@ -186,18 +185,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             url = '/api/ddr/devices/schedules',
             request = {},
             jsonData,
-            method,
             params;
 
         finishBtn.disable();
-        switch (me.operation) {
-            case 'add':
-                method = 'PUT';
-                break;
-            case 'remove':
-                method = 'DELETE';
-                break;
-        }
 
         Ext.each(me.schedules, function (item) {
             scheduleIds.push(item.getId());
@@ -207,16 +197,23 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             deviceMRID.push(item.get('mRID'));
         });
 
-        request.deviceMRIDs = deviceMRID;
+        request.action = me.operation;
         request.scheduleIds = scheduleIds;
+        if(me.allDevices){
+            var queryParams = Ext.Object.fromQueryString(document.location.href.split('?')[1]);
+            delete queryParams.sort;
+            request.filter = queryParams;
+        } else {
+            request.deviceMRIDs = deviceMRID;
+        }
         jsonData = Ext.encode(request);
 
-        params = me.getStore('Mdc.store.Devices').getProxy().extraParams;
-        params.all = me.allDevices;
+    //    params = me.getStore('Mdc.store.Devices').getProxy().extraParams;
+    //    params.all = me.allDevices;
         Ext.Ajax.request({
             url: url,
-            method: method,
-            params: params,
+            method: 'PUT',
+     //       params: params,
             jsonData: jsonData,
             timeout: 180000,
             success: function (response) {

@@ -72,10 +72,10 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         me.saveState();
         var searchCriteria = {};
         var store = me.getStore('Mdc.store.Devices');
-        Ext.apply(searchCriteria,store.getProxy().extraParams);
-        router.getRoute('search/bulkAction').forward(null, {
-            params: searchCriteria
-        });
+        Ext.Object.merge(searchCriteria,store.getProxy().extraParams);
+        router.getRoute('search/bulkAction').forward(null,
+            searchCriteria
+        );
     },
 
     showSearchItems: function () {

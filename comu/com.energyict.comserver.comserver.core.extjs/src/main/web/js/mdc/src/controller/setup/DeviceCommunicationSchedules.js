@@ -256,11 +256,10 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             Ext.each(communicationSchedules, function (communicationSchedule) {
                 scheduleIds.push(communicationSchedule.get('id'));
             });
-            request.deviceMRIDs = [this.mrid];
             request.scheduleIds = scheduleIds;
             jsonData = Ext.encode(request);
             Ext.Ajax.request({
-                url: '/api/ddr/devices/schedules',
+                url: '/api/ddr/devices/'+ this.mrid +'/sharedschedules',
                 method: 'PUT',
                 params: '',
                 jsonData: jsonData,
@@ -272,6 +271,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             });
         }
     },
+
 
     checkValidSelection: function (communicationSchedules) {
         var me = this;
