@@ -16,7 +16,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.EffectiveTimestampBeforeLastStateChangeException;
+import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotAfterLastStateChangeException;
 import com.energyict.mdc.device.lifecycle.EffectiveTimestampNotInRangeException;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
@@ -113,7 +113,7 @@ public class DeviceLifeCycleActionResource {
                 List<ExecutableActionProperty> executableProperties = getExecutableActionPropertiesFromInfo(info, allPropertySpecsForAction);
                 try {
                     requestedAction.execute(info.effectiveTimestamp, executableProperties);
-                } catch (SecurityException | ActionDoesNotRelateToDeviceStateException | EffectiveTimestampNotInRangeException | EffectiveTimestampBeforeLastStateChangeException ex){
+                } catch (SecurityException | ActionDoesNotRelateToDeviceStateException | EffectiveTimestampNotInRangeException | EffectiveTimestampNotAfterLastStateChangeException ex){
                     wizardResult.result = false;
                     wizardResult.message = ex.getLocalizedMessage();
                 } catch (RequiredMicroActionPropertiesException violationEx){
