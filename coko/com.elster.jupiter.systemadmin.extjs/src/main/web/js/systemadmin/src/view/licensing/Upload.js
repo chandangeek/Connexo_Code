@@ -74,12 +74,12 @@ Ext.define('Sam.view.licensing.Upload', {
                 ui: 'medium',
                 items: {
                     xtype: 'uni-view-menu-side',
-                    title: Uni.I18n.translate('licensing.sidemenu.title', 'SAM', 'Licensing'),
+                    title: Uni.I18n.translate('general.licensing', 'SAM', 'Licensing'),
                     itemId: 'sideMenu',
                     menuItems: [
                         {
                             itemId: 'navEl',
-                            text: Uni.I18n.translate('licensing.sidemenu.uploadLic', 'SAM', 'Upload licenses'),
+                            text: Uni.I18n.translate('licensing.uploadLicenses', 'SAM', 'Upload licenses'),
                             href: '#/administration/licenses/upload'
                         }
                     ]

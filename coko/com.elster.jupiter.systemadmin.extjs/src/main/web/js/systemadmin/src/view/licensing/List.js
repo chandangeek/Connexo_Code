@@ -19,7 +19,7 @@ Ext.define('Sam.view.licensing.List', {
             },
             {
                 itemId: 'Status',
-                header: Uni.I18n.translate('licensing.status', 'SAM', 'Status'),
+                header: Uni.I18n.translate('general.status', 'SAM', 'Status'),
                 dataIndex: 'status',
                 width: 150
             },
