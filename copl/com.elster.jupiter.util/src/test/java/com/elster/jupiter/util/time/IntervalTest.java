@@ -1,6 +1,7 @@
 package com.elster.jupiter.util.time;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.google.common.collect.BoundType;
 import com.google.common.collect.ImmutableList;
 
 import org.assertj.core.api.BooleanAssert;
@@ -458,6 +459,12 @@ public class IntervalTest extends EqualsContractTest {
     @Test
     public void testEndsAfterForEternityComparedToNullIsFalse() {
         assertThat(Interval.startAt(date5).endsAfter(null)).isFalse();
+    }
+
+    @Test
+    public void testIntervalToOpenClosedRangeDoesNotIncludeStart() {
+        assertThat(Interval.startAt(date1).toOpenClosedRange().lowerBoundType()).isEqualTo(BoundType.OPEN);
+        assertThat(Interval.startAt(date1).toOpenClosedRange().contains(date1)).isFalse();
     }
 
     @Override
