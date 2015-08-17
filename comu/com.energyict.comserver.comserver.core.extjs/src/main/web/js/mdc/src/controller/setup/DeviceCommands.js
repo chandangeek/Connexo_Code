@@ -140,17 +140,17 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             confirmText: Uni.I18n.translate('deviceCommand.overview.trigger', 'MDC', 'Trigger'),
             confirmBtnUi: 'action'
         }).show({
-            closable: false,
-            icon: '',
-            fn: function (btnId) {
-                if (btnId == 'confirm') {
-                    var store = me.getStore('Mdc.store.DeviceCommands');
-                    me.triggerCommand(mRID, comTaskId)
-                }
-            },
-            msg: Uni.I18n.translate('deviceCommand.overview.triggerMsg', 'MDC', 'Would you like to trigger command now?'),
-            title: Uni.I18n.translate('deviceCommand.action.trigger', 'MDC', 'Trigger command')
-        });
+                closable: false,
+                icon: '',
+                fn: function (btnId) {
+                    if (btnId == 'confirm') {
+                        var store = me.getStore('Mdc.store.DeviceCommands');
+                        me.triggerCommand(mRID, comTaskId)
+                    }
+                },
+                msg: Uni.I18n.translate('deviceCommand.overview.triggerMsg', 'MDC', 'Would you like to trigger command now?'),
+                title: Uni.I18n.translate('deviceCommand.action.trigger', 'MDC', 'Trigger command')
+            });
     },
 
     triggerCommand: function (mRID, comTaskId) {
@@ -172,21 +172,21 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('deviceCommand.overview.revoke', 'MDC', 'Revoke')
         }).show({
-            msg: Uni.I18n.translate('deviceCommand.overview.revokeMsg', 'MDC', 'This command will no longer be able to send'),
-            title: title,
-            fn: function (btnId) {
-                if (btnId == 'confirm') {
-                    record.set('status', {value: 'CommandRevoked'});
-                    record.save({
-                        url: '/api/ddr/devices/' + encodeURIComponent(mRID) + '/devicemessages/',
-                        success: function () {
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.revokeSuccess', 'MDC', 'Command revoked'));
-                            me.getDeviceCommandsGrid().getStore().load()
-                        }
-                    });
+                msg: Uni.I18n.translate('deviceCommand.overview.revokeMsg', 'MDC', 'This command will no longer be able to send'),
+                title: title,
+                fn: function (btnId) {
+                    if (btnId == 'confirm') {
+                        record.set('status', {value: 'CommandRevoked'});
+                        record.save({
+                            url: '/api/ddr/devices/' + encodeURIComponent(mRID) + '/devicemessages/',
+                            success: function () {
+                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.revokeSuccess', 'MDC', 'Command revoked'));
+                                me.getDeviceCommandsGrid().getStore().load()
+                            }
+                        });
+                    }
                 }
-            }
-        });
+            });
     },
 
 
@@ -220,36 +220,18 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     },
 
     showOverview: function (mrid) {
-        var me = this;
+        var me = this,
+            store = me.getStore('Mdc.store.DeviceCommands');
+
+        store.getProxy().setUrl(mrid);
+
         Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
             success: function (device) {
-                var store = me.getStore('Mdc.store.DeviceCommands');
-                store.setMrid(device.get('mRID'));
-                store.load({
-                        callback: function () {
-                            widget = Ext.widget('deviceCommandsSetup', {
-                                device: device
-                            });
-                            me.getApplication().fireEvent('loadDevice', device);
-                            me.getApplication().fireEvent('changecontentevent', widget);
-                            if (store.proxy.reader.rawData.hasCommandsWithPrivileges) {
-                                if (store.count() === 0) {
-                                    !!widget.down('#empty_grid_deviceAddCommandButton') && widget.down('#empty_grid_deviceAddCommandButton').show();
-                                } else {
-                                    !!widget.down('#empty_grid_deviceAddCommandButton') && widget.down('#deviceAddCommandButton').show();
-                                }
-                            } else {
-                                if (store.count() === 0) {
-                                    !!widget.down('#empty_grid_deviceAddCommandButton') && widget.down('#empty_grid_deviceAddCommandButton').hide();
-                                } else {
-                                    !!widget.down('#deviceAddCommandButton') && widget.down('#deviceAddCommandButton').hide();
-                                }
-                            }
-
-                        }
-                    }
-                );
-
+                var widget = Ext.widget('deviceCommandsSetup', {
+                    device: device
+                });
+                me.getApplication().fireEvent('loadDevice', device);
+                me.getApplication().fireEvent('changecontentevent', widget);
             }
         });
     },
@@ -257,9 +239,10 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     showAddOverview: function (mrid) {
         var me = this,
             catStore = me.getStore('Mdc.store.DeviceMessageCategories');
+
         Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
             success: function (device) {
-                me.getStore('Mdc.store.DeviceCommands').setMrid(device.get('mRID'));
+                me.getStore('Mdc.store.DeviceCommands').getProxy().setUrl(device.get('mRID'));
                 widget = Ext.widget('device-command-add', {
                     device: device
                 });
@@ -296,6 +279,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             var status = record.get('status').value,
                 title = record.get('command').name,
                 actionClmn = me.getDeviceCommandsGrid().down('uni-actioncolumn');
+
             previewPanel.setTitle(title);
             previewForm.loadRecord(record);
             previewPropertiesForm.loadRecord(record);
@@ -303,8 +287,10 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 actionsButton.show();
                 actionsButton.menu.device = device;
                 actionsButton.menu.record = record;
-                actionClmn.menu.device = device;
-                actionClmn.menu.mRID = device.get('mRID');
+                if (!!actionClmn) {
+                    actionClmn.menu.device = device;
+                    actionClmn.menu.mRID = device.get('mRID');
+                }
             } else {
                 actionsButton.hide()
             }
@@ -317,9 +303,9 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         }
     },
 
-    configureMenu: function(menu){
+    configureMenu: function (menu) {
         menu.down('#triggerNow').show();
-        if(!menu.record.get('willBePickedUpByComTask')){
+        if (!menu.record.get('willBePickedUpByComTask')) {
             menu.down('#triggerNow').hide();
         }
     },
@@ -380,7 +366,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                         var router = me.getController('Uni.controller.history.Router'),
                             response = Ext.JSON.decode(operation.response.responseText);
                         router.getRoute('devices/device/commands').forward();
-                        me.showTriggerConfirmation(btn.mRID, response['preferredComTask'].id)
+                        response['preferredComTask'] && me.showTriggerConfirmation(btn.mRID, response['preferredComTask'].id);
                     }
                 }
             });

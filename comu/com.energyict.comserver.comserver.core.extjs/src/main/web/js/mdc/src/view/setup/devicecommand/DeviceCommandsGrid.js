@@ -66,18 +66,16 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
 
             {
                 xtype: 'uni-actioncolumn',
-                hidden: Mdc.privileges.DeviceCommands.executeCommands,
+                privileges: Mdc.privileges.DeviceCommands.executeCommands,
                 itemId: 'commands-action-column',
                 menu: {
                     xtype: 'device-command-action-menu'
                 },
-                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceCommandActions,
-                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges,
+                isDisabled: function (view, rowIndex, colIndex, item, record) {
                     var status = record.get('status').value;
-                    var hasCommandsWithPrivileges = view.getStore().proxy.reader.rawData.hasCommandsWithPrivileges;
-                    if ((status !== 'CommandWaiting' && status !== 'CommandPending') || !hasCommandsWithPrivileges) {
-                        return true
-                    }
+
+                    return (status !== 'CommandWaiting' && status !== 'CommandPending');
                 }
             }
         ];
@@ -92,11 +90,11 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 items: [
                     {
                         xtype: 'button',
-                        hidden: Mdc.privileges.DeviceCommands.executeCommands,
+                        privileges: Mdc.privileges.DeviceCommands.executeCommands,
                         text: 'Add command',
                         itemId: 'deviceAddCommandButton',
                         mRID: me.mRID,
-                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceCommandActions
+                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges
                     }
                 ]
             },

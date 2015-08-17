@@ -1,4 +1,4 @@
-Ext.define('Mdc.store.DeviceStatePrivileges', {
+Ext.define('Mdc.store.DeviceCommandPrivileges', {
     extend: 'Ext.data.Store',
 
     fields: [
@@ -9,7 +9,7 @@ Ext.define('Mdc.store.DeviceStatePrivileges', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ddr/devices/{mRID}/privileges',
+        urlTpl: '/api/ddr/devices/{mRID}/devicemessages/privileges',
 
         reader: {
             type: 'json',

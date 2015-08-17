@@ -6,9 +6,9 @@ Ext.define('Mdc.dynamicprivileges.DeviceState', {
     ],
 
     issuesWidget: 'devices.widget.issues',
-    validationWidget:'devices.widget.validation',
+    validationWidget: 'devices.widget.validation',
     topologyWidget: 'devices.widget.communication.topology',
-    connectionWidget:'devices.widget.connection',
+    connectionWidget: 'devices.widget.connection',
     communicationTasksWidget: 'devices.widget.communication.tasks',
     validationActions: 'devices.actions.validation',
     estimationActions: 'devices.actions.estimation',
@@ -25,8 +25,12 @@ Ext.define('Mdc.dynamicprivileges.DeviceState', {
     firmwareManagementActions: 'devices.actions.firmware.management',
     deviceDataEditActions: 'devices.actions.data.edit',
     communicationPlanningPages: 'devices.pages.communication.planning',
+    deviceCommandWithPrivileges: 'privilege.command.has.privileges',
 
-    canEditData: function() {
+    allDeviceCommandPrivileges: [ 'privilege.command.has.privileges', 'devices.actions.device.commands' ],
+
+
+    canEditData: function () {
         return Uni.DynamicPrivileges.checkDynamicPrivileges(Mdc.dynamicprivileges.DeviceState.deviceDataEditActions);
     }
 
