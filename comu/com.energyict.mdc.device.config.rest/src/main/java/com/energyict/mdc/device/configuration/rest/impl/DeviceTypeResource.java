@@ -1,13 +1,11 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TranslatableApplicationException;
@@ -111,20 +109,10 @@ public class DeviceTypeResource {
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public DeviceTypeInfo createDeviceType(DeviceTypeInfo deviceTypeInfo) {
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceTypeInfo.deviceProtocolPluggableClassName);
-        if (Checks.is(deviceTypeInfo.deviceProtocolPluggableClassName).emptyOrOnlyWhiteSpace()) {
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME, deviceTypeInfo.deviceProtocolPluggableClassName);
-        }
-        if (!deviceProtocolPluggableClass.isPresent()) {
-            throw new LocalizedFieldValidationException(MessageSeeds.PROTOCOL_INVALID_NAME, DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME, deviceTypeInfo.deviceProtocolPluggableClassName);
-        }
         Optional<DeviceLifeCycle> deviceLifeCycleRef = deviceTypeInfo.deviceLifeCycleId != null ? resourceHelper.findDeviceLifeCycleById(deviceTypeInfo.deviceLifeCycleId) : Optional.empty();
-        DeviceType deviceType = null;
-        if (deviceLifeCycleRef.isPresent()) {
-            deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name, deviceProtocolPluggableClass.get(), deviceLifeCycleRef.get());
-        } else {
-            // fallback case
-            deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name, deviceProtocolPluggableClass.get());
-        }
+        DeviceType deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name,
+                deviceProtocolPluggableClass.isPresent() ? deviceProtocolPluggableClass.get() : null,
+                deviceLifeCycleRef.isPresent() ? deviceLifeCycleRef.get() : null);
         deviceType.save();
         return DeviceTypeInfo.from(deviceType);
     }

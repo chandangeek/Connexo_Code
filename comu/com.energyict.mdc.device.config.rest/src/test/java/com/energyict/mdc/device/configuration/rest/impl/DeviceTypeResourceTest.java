@@ -65,10 +65,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.LongStream;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-import org.glassfish.jersey.client.ClientResponse;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
@@ -153,13 +151,15 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         deviceTypeInfo.name = "newName";
         deviceTypeInfo.deviceProtocolPluggableClassName = "theProtocol";
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
+        DeviceType deviceType = mock(DeviceType.class);
 
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = Optional.empty();
         when(protocolPluggableService.findDeviceProtocolPluggableClassByName("theProtocol")).thenReturn(deviceProtocolPluggableClass);
+        when(deviceConfigurationService.newDeviceType("newName", null, null)).thenReturn(deviceType);
         NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
         when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
         Response response = target("/devicetypes/").request().post(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        verify(deviceType).save();
     }
 
     @Test
@@ -183,32 +183,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         Response response = target("/devicetypes/").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-    }
-
-    @Test(expected = BadRequestException.class)
-    public void testCreateDeviceTypeEmptyProtocolName() throws Exception {
-        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
-        deviceTypeInfo.name = "newName";
-        Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
-
-        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
-        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
-
-        ClientResponse response = target("/devicetypes/").request().post(json, ClientResponse.class);
-    }
-
-    @Test(expected = BadRequestException.class)
-    public void testCreateDeviceTypeInvalidProtocolName() throws Exception {
-        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
-        deviceTypeInfo.name = "newName";
-        deviceTypeInfo.deviceProtocolPluggableClassName = "x";
-        Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
-
-        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
-        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
-        when(protocolPluggableService.findDeviceProtocolPluggableClassByName(anyString())).thenReturn(Optional.empty());
-
-        ClientResponse response = target("/devicetypes/").request().post(json, ClientResponse.class);
     }
 
     @Test
