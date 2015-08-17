@@ -183,7 +183,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
     @Override
     public void removeChannelSpec(ChannelSpec channelSpec) {
-        this.channelSpecs.remove(channelSpec);
+        removeFromHasIdList(channelSpecs, channelSpec);
     }
 
     @Override
