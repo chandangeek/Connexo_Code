@@ -32,6 +32,7 @@ public class DeviceMessageConstants {
     public static final String activityCalendarCodeTableAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.codetable";
     public static final String contractsXmlUserFileAttributeName = "ActivityCalendarDeviceMessage.contractsxmluserfile";
     public static final String specialDaysCodeTableAttributeName = "ActivityCalendarDeviceMessage.specialdays.codetable";
+    public static final String XmlUserFileAttributeName = "ActivityCalendarDeviceMessage.xml.userfile";
     public static final String activityCalendarActivationDateAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.activationdate";
     public static final String encryptionLevelAttributeName = "SecurityMessage.dlmsencryption.encryptionlevel";
     public static final String authenticationLevelAttributeName = "SecurityMessage.dlmsauthentication.authenticationlevel";
@@ -39,6 +40,8 @@ public class DeviceMessageConstants {
     public static final String newWrappedEncryptionKeyAttributeName = "SecurityMessage.new.wrapped.encryptionkey";
     public static final String newAuthenticationKeyAttributeName = "SecurityMessage.new.authenticationkey";
     public static final String newWrappedAuthenticationKeyAttributeName = "SecurityMessage.new.wrapped.authenticationkey";
+    public static final String clientMacAddress = "ClientMacAddress";
+    public static final String masterKey = "SecurityMessage.masterkey";
     public static final String pskAttributeName = "SecurityMessage.psk";
     public static final String newPasswordAttributeName = "SecurityMessage.new.password";
     public static final String newHexPasswordAttributeName = "SecurityMessage.newhexpassword";
@@ -101,6 +104,7 @@ public class DeviceMessageConstants {
     public static final String portNumberAttributeName = "NetworkConnectivityMessage.portnumber";
     public static final String wakeupPeriodAttributeName = "NetworkConnectivityMessage.wakeup.period";
     public static final String inactivityTimeoutAttributeName = "NetworkConnectivityMessage.inactivity.timeout";
+    public static final String sessionTimeoutAttributeName = "NetworkConnectivityMessage.session.timeout";
     public static final String p1InformationAttributeName = "DisplayDeviceMessage.consumer.p1";
     public static final String DisplayMessageAttributeName = "DisplayDeviceMessage.displaymessage";
     public static final String DisplayMessageTimeDurationAttributeName = "DisplayMessage.timeduration";
@@ -186,8 +190,11 @@ public class DeviceMessageConstants {
     public static final String enableModemWatchdog = "NetworkConnectivityMessage.enableModemWatchdog";
     public static final String modemWatchdogInterval = "NetworkConnectivityMessage.modemWatchdogInterval";
     public static final String modemResetThreshold = "NetworkConnectivityMessage.modemResetThreshold";
+    public static final String Destination1IPAddressAttributeName = "NetworkConnectivityMessage.destination.1";
+    public static final String Destination2IPAddressAttributeName = "NetworkConnectivityMessage.destination.2";
 
     public static final String enableDSTAttributeName = "ClockDeviceMessage.enabledst";
+    public static final String DSTDeviationAttributeName= "ClockDeviceMessage.dst.deviation";
     public static final String SetDSTAttributeName = "ClockDeviceMessage.setdst";
     public static final String StartOfDSTAttributeName = "ClockDeviceMessage.startofdst";
     public static final String EndOfDSTAttributeName = "ClockDeviceMessage.endofdst";
@@ -316,6 +323,13 @@ public class DeviceMessageConstants {
     public static final String carbonDioxidePercentageAttributeName = "ConfigurationChangeDeviceMessage.carbondioxide.percentage";
     public static final String molecularHydrogenPercentageAttributeName = "ConfigurationChangeDeviceMessage.molecularhydrogen.percentage";
     public static final String higherCalorificValueAttributeName = "ConfigurationChangeDeviceMessage.highercalorificvalue";
+    public static final String billingPeriodLengthAttributeName = "ConfigurationChangeDeviceMessage.billingperiod.length";
+    public static final String setOnDemandBillingDateAttributeName= "ConfigurationChangeDeviceMessage.ondemand.billing.date";
+    public static final String OnDemandBillingReasonAttributeName = "ConfigurationChangeDeviceMessage.ondemand.billing.reason";
+    public static final String UnitStatusAttributeName = "ConfigurationChangeDeviceMessage.unit.status";
+    public static final String IgnoreDSTAttributeName = "ConfigurationChangeDeviceMessage.ignore.dst";
+    public static final String StartOfGasDayAttributeName = "ConfigurationChangeDeviceMessage.start.of.gasday";
+    public static final String enableRSSIMultipleSampling = "ConfigurationChangeDeviceMessage.enable.rssi.multiple.sampling";
     public static final String month = "month";
     public static final String year = "year";
     public static final String dayOfMonth = "dayOfMonth";

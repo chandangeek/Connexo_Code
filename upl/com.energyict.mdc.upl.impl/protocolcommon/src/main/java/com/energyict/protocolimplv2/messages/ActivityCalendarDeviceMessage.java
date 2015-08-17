@@ -52,7 +52,12 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.codeTableReferencePropertySpec(specialDaysCodeTableAttributeName),
             PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
     CLEAR_AND_DISABLE_PASSIVE_TARIFF(10),
-    ACTIVATE_PASSIVE_CALENDAR(11, PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName));
+    ACTIVATE_PASSIVE_CALENDAR(11, PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
+    SPECIAL_DAY_CALENDAR_SEND_FROM_XML_USER_FILE(12, PropertySpecFactory.userFileReferencePropertySpec(XmlUserFileAttributeName)),
+    ACTIVITY_CALENDAR_SEND_WITH_DATETIME_FROM_XML_USER_FILE(13,
+            PropertySpecFactory.userFileReferencePropertySpec(XmlUserFileAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
+    ;
 
     private static final DeviceMessageCategory activityCalendarCategory = DeviceMessageCategories.ACTIVITY_CALENDAR;
 

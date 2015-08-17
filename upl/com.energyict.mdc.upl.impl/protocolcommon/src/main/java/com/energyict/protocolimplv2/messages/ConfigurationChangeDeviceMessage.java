@@ -117,6 +117,21 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     ),
     UpgradeSetOption(46, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName)),
     UpgradeClrOption(47, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName)),
+    ConfigureBillingPeriodStartDate(48,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.year, BigDecimal.ZERO),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month, BigDecimal.ZERO),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.day),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.dayOfWeek, "--", "MO", "TU", "WE", "TH", "FR", "SA", "SU")    ),
+    ConfigureBillingPeriodLength(49, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.billingPeriodLengthAttributeName)),
+    SetOnDemandBillingDate(50,
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.setOnDemandBillingDateAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.OnDemandBillingReasonAttributeName,
+                    BigDecimal.valueOf(0), BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3), BigDecimal.valueOf(4),
+                    BigDecimal.valueOf(5), BigDecimal.valueOf(6), BigDecimal.valueOf(7))),
+    ChangeUnitStatus(51, PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.UnitStatusAttributeName, "Normal", "Maintenance")),
+    ConfigureStartOfGasDaySettings(52, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.IgnoreDSTAttributeName, false)),
+    ConfigureStartOfGasDay(53, PropertySpecFactory.timeOfDayPropertySpec(DeviceMessageConstants.StartOfGasDayAttributeName)),
+    ConfigureRSSIMultipleSampling(54, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableRSSIMultipleSampling, true));
     ;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;

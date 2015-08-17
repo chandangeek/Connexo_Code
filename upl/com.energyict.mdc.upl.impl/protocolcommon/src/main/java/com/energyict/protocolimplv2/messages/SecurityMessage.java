@@ -124,7 +124,14 @@ public enum SecurityMessage implements DeviceMessageSpec {
     ),
     CHANGE_WEBPORTAL_PASSWORD1(29, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),  //ASCII password
     CHANGE_WEBPORTAL_PASSWORD2(30, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),
-    CHANGE_HLS_SECRET_PASSWORD(31, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)); //Password field
+    CHANGE_HLS_SECRET_PASSWORD(31, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)), //Password field
+    CHANGE_SECURITY_KEYS(32,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.clientMacAddress),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.masterKey),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newAuthenticationKeyAttributeName),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName)
+    ),
+    ;
 
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;
 

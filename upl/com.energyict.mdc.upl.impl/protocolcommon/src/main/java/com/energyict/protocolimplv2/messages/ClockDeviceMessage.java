@@ -11,9 +11,6 @@ import com.energyict.protocolimplv2.messages.enums.DSTAlgorithm;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.TimeZoneOffsetInHoursAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterTimeAttributeName;
-
 /**
  * Provides a summary of all <i>Clock</i> related messages
  * <p/>
@@ -23,8 +20,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meter
  */
 public enum ClockDeviceMessage implements DeviceMessageSpec {
 
-    SET_TIME(0, PropertySpecFactory.dateTimePropertySpec(meterTimeAttributeName)),
-    SET_TIMEZONE(1, PropertySpecFactory.bigDecimalPropertySpec(TimeZoneOffsetInHoursAttributeName)),     //In hours
+    SET_TIME(0, PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.meterTimeAttributeName)),
+    SET_TIMEZONE(1, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.TimeZoneOffsetInHoursAttributeName)),     //In hours
 
     EnableOrDisableDST(2, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableDSTAttributeName)),
     SetEndOfDST(3,
@@ -72,7 +69,12 @@ public enum ClockDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.datePropertySpec(DeviceMessageConstants.EndOfDSTAttributeName)
     ),
     NTPSetOption(19, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName)),
-    NTPClrOption(20, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName));
+    NTPClrOption(20, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.singleOptionAttributeName)),
+    ConfigureClock(21,
+            PropertySpecFactory.timeZoneInUseReferencePropertySpec(DeviceMessageConstants.TimeZoneOffsetInHoursAttributeName),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableDSTAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DSTDeviationAttributeName)),
+    ;
 
     private static final DeviceMessageCategory clockCategory = DeviceMessageCategories.CLOCK;
 

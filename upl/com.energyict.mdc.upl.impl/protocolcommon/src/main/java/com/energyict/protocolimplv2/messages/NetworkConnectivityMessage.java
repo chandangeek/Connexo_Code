@@ -7,6 +7,7 @@ import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -83,7 +84,25 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
     SetUseDHCPFlag(36, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.SetDHCPAttributeName)),
     SetPrimaryDNSAddress(37, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.primaryDNSAddressAttributeName)),
     SetSecondaryDNSAddress(38, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.secondaryDNSAddressAttributeName)),
-    SetAutoConnectMode(39, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.gprsModeAttributeName));
+    SetAutoConnectMode(39, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.gprsModeAttributeName)),
+    ChangeSessionTimeout(40, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.sessionTimeoutAttributeName)),
+    SetCyclicMode(41,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.day, BigDecimal.ZERO),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.hour),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.minute),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.second)
+    ),
+    SetPreferredDateMode(42,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.day, BigDecimal.ZERO),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.hour),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.minute),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.second)
+    ),
+    SetWANConfiguration(43,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.Destination1IPAddressAttributeName),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.Destination2IPAddressAttributeName)
+    ),
+    ;
 
     private static final DeviceMessageCategory networkAndConnectivityCategory = DeviceMessageCategories.NETWORK_AND_CONNECTIVITY;
 
