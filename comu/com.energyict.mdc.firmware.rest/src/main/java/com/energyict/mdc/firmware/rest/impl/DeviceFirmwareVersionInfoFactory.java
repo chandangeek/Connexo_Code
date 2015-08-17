@@ -51,9 +51,11 @@ public class DeviceFirmwareVersionInfoFactory {
         activateOnDate.add(new WrongVersionVerificationFirmwareState());
         activateOnDate.add(new FailedVersionVerificationFirmwareState());
         activateOnDate.add(new OngoingVersionVerificationFirmwareState());
+
         activateOnDate.add(new FirmwareUploadedButNotVerifiedYetState());
         activateOnDate.add(new FailedFirmwareUploadState());
         activateOnDate.add(new FirmwareUploadedScheduledActivationState());
+
         activateOnDate.add(new OngoingFirmwareUploadWithActivationDateState());
         activateOnDate.add(new PendingFirmwareUploadWithActivationDateState());
         states.put(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE, activateOnDate);
@@ -65,6 +67,7 @@ public class DeviceFirmwareVersionInfoFactory {
         activate.add(new WrongVersionVerificationFirmwareState());
         activate.add(new FailedVersionVerificationFirmwareState());
         activate.add(new OngoingVersionVerificationFirmwareState());
+
         activate.add(new FirmwareUploadedButNotVerifiedYetState());
         activate.add(new FailedFirmwareUploadState());
         activate.add(new OngoingFirmwareUploadProcessState());
@@ -78,9 +81,11 @@ public class DeviceFirmwareVersionInfoFactory {
         install.add(new WrongVersionVerificationFirmwareState());
         install.add(new FailedVersionVerificationFirmwareState());
         install.add(new OngoingVersionVerificationFirmwareState());
+
         install.add(new FirmwareUploadedButNotVerifiedYetState());
         install.add(new FailedFirmwareActivationState());
         install.add(new OngoingFirmwareActivationProcessState());
+
         install.add(new FirmwareUploadedButNotActivatedYetState());
         install.add(new FailedFirmwareUploadState());
         install.add(new OngoingFirmwareUploadProcessState());
@@ -128,6 +133,13 @@ public class DeviceFirmwareVersionInfoFactory {
                 });
             }
         }
+    }
+
+    static boolean releaseDateInPast(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper){
+        return !helper.getCurrentInstant().isBefore(message.getReleaseDate())
+                && helper.getFirmwareExecution().isPresent()
+                && helper.getFirmwareExecution().get().getLastExecutionStartTimestamp() != null
+                && !helper.getFirmwareExecution().get().getLastExecutionStartTimestamp().isBefore(message.getReleaseDate());
     }
 
     public interface FirmwareUpgradeState {
@@ -251,6 +263,7 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public boolean validateMessage(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
             return super.validateMessage(message, helper)
+                    && releaseDateInPast(message, helper)
                     && (helper.taskIsFailed() && (DeviceMessageStatus.PENDING.equals(message.getStatus()) || DeviceMessageStatus.FAILED.equals(message.getStatus()))
                     || !helper.taskIsFailed() && DeviceMessageStatus.FAILED.equals(message.getStatus()));
         }

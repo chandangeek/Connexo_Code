@@ -252,6 +252,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareMessage.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
         when(firmwareExecution.isLastExecutionFailed()).thenReturn(true);
         when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME);
+        when(firmwareExecution.getLastExecutionStartTimestamp()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
@@ -272,6 +273,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareMessage.getStatus()).thenReturn(DeviceMessageStatus.FAILED);
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
         when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME);
+        when(firmwareExecution.getLastExecutionStartTimestamp()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
@@ -512,6 +514,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareMessage.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
         when(firmwareExecution.isLastExecutionFailed()).thenReturn(true);
         when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME);
+        when(firmwareExecution.getLastExecutionStartTimestamp()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
@@ -532,6 +535,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareMessage.getStatus()).thenReturn(DeviceMessageStatus.FAILED);
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
         when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME);
+        when(firmwareExecution.getLastExecutionStartTimestamp()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
@@ -647,6 +651,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
 
         when(firmwareMessage.getStatus()).thenReturn(DeviceMessageStatus.FAILED);
         when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Waiting);
+        when(firmwareExecution.getLastExecutionStartTimestamp()).thenReturn(TIME);
         messages.add(firmwareMessage);
 
         JsonModel model = JsonModel.model(target("/device/upgrade/firmwares").request().get(String.class));
