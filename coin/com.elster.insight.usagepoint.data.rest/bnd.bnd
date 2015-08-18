@@ -1,0 +1,6 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package:  \
+	com.elster.jupiter.usagepoint.data.rest.impl
+Export-Package:  \
+	com.elster.jupiter.usagepoint.data.rest
