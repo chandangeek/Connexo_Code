@@ -3,15 +3,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.elster.jupiter</groupId>
-        <artifactId>kore</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <groupId>com.elster</groupId>
+        <artifactId>insight.parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>insight.app</artifactId>
     <packaging>bundle</packaging>
     <version>1.1.0-SNAPSHOT</version>
-    <name>[Jupiter] com.elster.jupiter.insight.app</name>
+    <name>[Insight] insight.app [init INSAPP]</name>
     <description>
         Contains ExtJS code for the insight app
     </description>
@@ -49,6 +49,12 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
             <version>2.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.extjs</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
