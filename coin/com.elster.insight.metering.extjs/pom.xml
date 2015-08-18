@@ -11,7 +11,7 @@
     <artifactId>metering.extjs</artifactId>
     <packaging>bundle</packaging>
     <version>1.0.0-SNAPSHOT</version>
-    <name>[Insight] com.elster.insight.metering.extjs</name>
+    <name>[Insight] insight.metering.extjs</name>
     <description>
         Contains ExtJS code for metering
     </description>

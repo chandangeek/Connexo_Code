@@ -20,7 +20,7 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 
-@Component(name = "com.elster.jupiter.metering.extjs", service = TranslationKeyProvider.class,
+@Component(name = "com.elster.metering.extjs", service = TranslationKeyProvider.class,
         property = "name=" + ImtUiInstaller.COMPONENT_NAME + "-UI", immediate = true)
 public class ImtUiInstaller implements TranslationKeyProvider {
     public static final String APP_KEY = "IMT";

@@ -1,5 +1,5 @@
 -classpath: target/classes
 -dsannotations: *
-Private-Package: com.elster.jupiter.metering.extjs
-Export-Package: !com.elster.jupiter.metering.extjs
+Private-Package: com.elster.metering.extjs
+Export-Package: !com.elster.metering.extjs
 -include: -../development.bnd
