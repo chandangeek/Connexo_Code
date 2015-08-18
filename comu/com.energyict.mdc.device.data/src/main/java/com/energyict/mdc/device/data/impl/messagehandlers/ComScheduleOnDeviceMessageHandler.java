@@ -43,7 +43,7 @@ public class ComScheduleOnDeviceMessageHandler implements MessageHandler {
         }
 
         switch (queueMessage.action) {
-            case Add: device.get().newScheduledComTaskExecution(comSchedule.get());
+            case Add: device.get().newScheduledComTaskExecution(comSchedule.get()).add();
                 LOGGER.info(thesaurus.getSimpleFormat(DefaultTranslationKey.COM_SCHEDULE_ADDED).format(queueMessage.comScheduleId, queueMessage.mRID));
                 break;
             case Remove: device.get().removeComSchedule(comSchedule.get());
