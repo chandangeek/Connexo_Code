@@ -12,7 +12,7 @@ Ext.define('Usr.controller.history.UserManagement', {
             disabled: true,
             items: {
                 roles: {
-                    title: Uni.I18n.translate('group.title', 'USR', 'Roles'),
+                    title: Uni.I18n.translate('general.roles', 'USR', 'Roles'),
                     route: 'roles',
                     controller: 'Usr.controller.Group',
                     privileges: Usr.privileges.Users.view,
@@ -42,7 +42,7 @@ Ext.define('Usr.controller.history.UserManagement', {
                     }
                 },
                 users: {
-                    title: Uni.I18n.translate('user.title', 'USR', 'Users'),
+                    title: Uni.I18n.translate('general.users', 'USR', 'Users'),
                     route: 'users',
                     controller: 'Usr.controller.User',
                     privileges: Usr.privileges.Users.view,

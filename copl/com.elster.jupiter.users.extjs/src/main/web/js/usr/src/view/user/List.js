@@ -23,12 +23,12 @@ Ext.define('Usr.view.user.List', {
             },
             items: [
                 {
-                    header: Uni.I18n.translate('user.name', 'USR', 'Name'),
+                    header: Uni.I18n.translate('general.name', 'USR', 'Name'),
                     dataIndex: 'authenticationName',
                     flex: 3
                 },
                 {
-                    header: Uni.I18n.translate('user.description', 'USR', 'Description'),
+                    header: Uni.I18n.translate('general.description', 'USR', 'Description'),
                     dataIndex: 'description',
                     flex: 5
                 },

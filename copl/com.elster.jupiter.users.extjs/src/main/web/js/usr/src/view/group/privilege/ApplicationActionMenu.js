@@ -7,13 +7,13 @@ Ext.define('Usr.view.group.privilege.ApplicationActionMenu', {
     shadow: false,
     items: [
         {
-            text: Uni.I18n.translate('privilege.no.access', 'USR', 'No access'),
+            text: Uni.I18n.translate('privilege.noAccess', 'USR', 'No access'),
             icon: '../sky/build/resources/images/grid/drop-no.png',
             itemId: 'privilegeNoAccess',
             action: 'privilegeNoAccess'
         },
         {
-            text: Uni.I18n.translate('privilege.full.control', 'USR', 'Full control'),
+            text: Uni.I18n.translate('privilege.fullControl', 'USR', 'Full control'),
             icon: '../sky/build/resources/images/grid/drop-yes.png',
             itemId: 'privilegeFullControl',
             action: 'privilegeFullControl'

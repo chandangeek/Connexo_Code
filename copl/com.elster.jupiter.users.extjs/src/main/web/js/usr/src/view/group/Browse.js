@@ -17,7 +17,7 @@ Ext.define('Usr.view.group.Browse', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('group.title', 'USR', 'Roles'),
+            title: Uni.I18n.translate('general.roles', 'USR', 'Roles'),
             layout: {
                 type: 'vbox',
                 align: 'stretch'

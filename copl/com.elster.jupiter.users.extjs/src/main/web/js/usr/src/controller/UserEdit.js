@@ -61,7 +61,7 @@ Ext.define('Usr.controller.UserEdit', {
 
         Ext.ModelManager.getModel('Usr.model.User').load(userId, {
             success: function (user) {
-                var title = Uni.I18n.translate('user.edit', 'USR', 'Edit'),
+                var title = Uni.I18n.translate('general.edit', 'USR', 'Edit'),
                     language = user.get('language');
                 panel.setTitle(title + ' \'' + user.get('authenticationName') + '\'');
                 if (user.get('authenticationName') == "admin") {

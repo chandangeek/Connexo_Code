@@ -41,7 +41,7 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
                     }
                 },
                 {
-                    header: Uni.I18n.translate('privilege.description', 'USR', 'Description'),
+                    header: Uni.I18n.translate('general.description', 'USR', 'Description'),
                     dataIndex: 'description',
                     flex: 10
                 },
@@ -60,13 +60,13 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
                 displayMsg: Uni.I18n.translate('privilege.application.top', 'USR', 'Applications'),
                 items: [
                     {
-                        text: Uni.I18n.translate('privilege.no.access', 'USR', 'No access'),
+                        text: Uni.I18n.translate('privilege.noAccess', 'USR', 'No access'),
                         icon: '../sky/build/resources/images/grid/drop-no.png',
                         itemId: 'privilegesNoAccess',
                         action: 'privilegesNoAccess'
                     },
                     {
-                        text: Uni.I18n.translate('privilege.full.control', 'USR', 'Full control'),
+                        text: Uni.I18n.translate('privilege.fullControl', 'USR', 'Full control'),
                         icon: '../sky/build/resources/images/grid/drop-yes.png',
                         itemId: 'privilegesFullControl',
                         action: 'privilegesFullControl'
