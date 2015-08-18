@@ -139,7 +139,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     PARTIAL_CONNECTION_TASK_ID_DOES_NOT_EXIST(15002, "partialConnectionTask.doesNotExistId", "There is no Partial Connection Task with id {0}", SEVERE),
     PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC(15003, Keys.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC, "There is no spec for connection type property with name {0}", SEVERE),
     PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE(15004, Keys.PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE, "The value for property {0} is of the wrong type.", SEVERE),
-    CONNECTION_STRATEGY_REQUIRED(15005, Keys.CONNECTION_STRATEGY_REQUIRED, "Connection Strategy is required", SEVERE),
+    CONNECTION_STRATEGY_REQUIRED(15005, Keys.CONNECTION_STRATEGY_REQUIRED, "Connection strategy is required", SEVERE),
     NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS(15006, Keys.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS, "Next Execution Spec is required for OutboundConnectionTasks that minimize connections.", SEVERE),
     NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY(15007, Keys.NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW, "Next Execution Spec is invalid for Communication Window.", SEVERE),
     NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY(15008, Keys.NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY, "Next Execution Spec's offset is greater than its frequency.", SEVERE),
