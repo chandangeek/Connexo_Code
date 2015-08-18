@@ -1,36 +1,13 @@
 package com.elster.jupiter.issue.rest;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
-import org.junit.Test;
-import org.mockito.Matchers;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.response.IssueReasonInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionPhaseInfo;
-import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleInfo.DueInInfo;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleTemplateInfo;
+import com.elster.jupiter.issue.rest.response.cep.IssueActionTypeInfo;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.entity.CreationRule;
@@ -49,7 +26,27 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+import org.mockito.Matchers;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
 
@@ -85,7 +82,7 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         @SuppressWarnings(value = { "unchecked" })
         Query<CreationRule> query = mock(Query.class);
         List<CreationRule> rules = Arrays.asList(mockCreationRule(1, "rule 1"), mockCreationRule(2, "rule 2"));
-        when(query.select(Matchers.any(Condition.class), Matchers.anyInt(), Matchers.anyInt())).thenReturn(rules);
+        when(query.select(Matchers.any(Condition.class), Matchers.anyInt(), Matchers.anyInt(), Matchers.any(Order.class))).thenReturn(rules);
         when(issueCreationService.getCreationRuleQuery(IssueReason.class, IssueType.class)).thenReturn(query);
 
         String response = target("/creationrules").queryParam(START, 0).queryParam(LIMIT, 10).request().get(String.class);
@@ -127,7 +124,7 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         when(rule.getReason()).thenReturn(reason);
         when(rule.getDueInType()).thenReturn(DueInType.DAY);
         when(rule.getDueInValue()).thenReturn(5L);
-        when(rule.getActions()).thenReturn(Arrays.asList(action));
+        when(rule.getActions()).thenReturn(Collections.singletonList(action));
         when(rule.getPropertySpecs()).thenReturn(propertySpecs);
         Map<String, Object> ruleProps = new HashMap<>();
         ruleProps.put("property", "value_for_rule");
@@ -204,17 +201,17 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         info.template.name = "Template";
         PropertyInfo rulePropertyInfo = new PropertyInfo();
         rulePropertyInfo.key = "property1";
-        rulePropertyInfo.propertyValueInfo = new PropertyValueInfo<String>("value", null);
-        info.properties = Arrays.asList(rulePropertyInfo);
+        rulePropertyInfo.propertyValueInfo = new PropertyValueInfo<>("value", null);
+        info.properties = Collections.singletonList(rulePropertyInfo);
         CreationRuleActionInfo actionInfo = new CreationRuleActionInfo();
         actionInfo.phase = new CreationRuleActionPhaseInfo(CreationRuleActionPhase.CREATE, thesaurus);
         actionInfo.type = new IssueActionTypeInfo();
         actionInfo.type.id = 5L;
         PropertyInfo actionPropertyInfo = new PropertyInfo();
         actionPropertyInfo.key = "property2";
-        actionPropertyInfo.propertyValueInfo = new PropertyValueInfo<String>("value", null);
-        actionInfo.properties = Arrays.asList(actionPropertyInfo);
-        info.actions = Arrays.asList(actionInfo);
+        actionPropertyInfo.propertyValueInfo = new PropertyValueInfo<>("value", null);
+        actionInfo.properties = Collections.singletonList(actionPropertyInfo);
+        info.actions = Collections.singletonList(actionInfo);
 
         Response response = target("/creationrules").request().post(Entity.json(info));
 
@@ -267,17 +264,17 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         info.template.name = "Template";
         PropertyInfo rulePropertyInfo = new PropertyInfo();
         rulePropertyInfo.key = "property1";
-        rulePropertyInfo.propertyValueInfo = new PropertyValueInfo<String>("value", null);
-        info.properties = Arrays.asList(rulePropertyInfo);
+        rulePropertyInfo.propertyValueInfo = new PropertyValueInfo<>("value", null);
+        info.properties = Collections.singletonList(rulePropertyInfo);
         CreationRuleActionInfo actionInfo = new CreationRuleActionInfo();
         actionInfo.phase = new CreationRuleActionPhaseInfo(CreationRuleActionPhase.CREATE, thesaurus);
         actionInfo.type = new IssueActionTypeInfo();
         actionInfo.type.id = 5L;
         PropertyInfo actionPropertyInfo = new PropertyInfo();
         actionPropertyInfo.key = "property2";
-        actionPropertyInfo.propertyValueInfo = new PropertyValueInfo<String>("value", null);
-        actionInfo.properties = Arrays.asList(actionPropertyInfo);
-        info.actions = Arrays.asList(actionInfo);
+        actionPropertyInfo.propertyValueInfo = new PropertyValueInfo<>("value", null);
+        actionInfo.properties = Collections.singletonList(actionPropertyInfo);
+        info.actions = Collections.singletonList(actionInfo);
         info.version = 5L;
         info.id = 13L;
 

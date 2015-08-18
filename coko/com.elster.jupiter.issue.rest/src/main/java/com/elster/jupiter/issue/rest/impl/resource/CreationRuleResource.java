@@ -16,6 +16,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -51,9 +52,9 @@ public class CreationRuleResource extends BaseResource {
         if (queryParams.getStart().isPresent()) {
             int from = queryParams.getStart().get() + 1;
             int to = from + queryParams.getLimit().orElse(0);
-            rules = query.select(Condition.TRUE, from, to);
+            rules = query.select(Condition.TRUE, from, to, Order.ascending("name"));
         } else {
-            rules = query.select(Condition.TRUE);
+            rules = query.select(Condition.TRUE, Order.ascending("name"));
         }
         List<CreationRuleInfo> infos = rules.stream().map(ruleInfoFactory::asInfo).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("creationRules", infos, queryParams);
