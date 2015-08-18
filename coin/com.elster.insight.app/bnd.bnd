@@ -1,5 +1,5 @@
 -classpath: target/classes
 -dsannotations: *
-Private-Package: com.elster.jupiter.insight.app.impl
-Export-Package: com.elster.jupiter.insight.app
+Private-Package: com.elster.insight.app.impl
+Export-Package: com.elster.insight.app
 -include: -../development.bnd

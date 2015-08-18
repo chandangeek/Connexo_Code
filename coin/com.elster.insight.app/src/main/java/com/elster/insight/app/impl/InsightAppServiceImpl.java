@@ -33,7 +33,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.HasName;
 
 @Component(
-        name = "com.elster.jupiter.insight.app",
+        name = "com.elster.insight.app",
         service = {InsightAppService.class, InstallService.class, TranslationKeyProvider.class},
         property = "name=" + InsightAppService.COMPONENTNAME,
         immediate = true)
