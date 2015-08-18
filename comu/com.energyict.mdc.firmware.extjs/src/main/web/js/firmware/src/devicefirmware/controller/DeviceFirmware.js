@@ -120,15 +120,26 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                 if (response.status == 400) {
                     var responseText = Ext.decode(response.responseText, true);
                     if (responseText && responseText.errors) {
-                        errorMsg.show();
                         var errorsArr = [];
                         Ext.each(responseText.errors, function (error) {
                             var errorKeyArr = error.id.split('.');
                             errorKeyArr.shift(); // remove first item, as it is not presented in property
                             errorsArr.push({id: errorKeyArr.join('.'), msg: error.msg});
                         });
-
-                        propertyForm.markInvalid(errorsArr);
+                        var errorsWithoutId = '';
+                        var foundMessagesWithoutId = false;
+                        Ext.each(errorsArr, function (error) {
+                            if (Ext.isEmpty(error['id']) && !Ext.isEmpty(error['msg'])) {
+                                foundMessagesWithoutId = true;
+                                errorsWithoutId = errorsWithoutId +  error['msg'] ;
+                            }
+                        });
+                        if (foundMessagesWithoutId) {
+                            me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('deviceFirmware.upgrade.errors', 'FWC', 'Firmware upload failed!'), errorsWithoutId);
+                        } else {
+                            errorMsg.show();
+                            propertyForm.markInvalid(errorsArr);
+                        }
                         uploadPage.setLoading(false);
                     }
                     container.setLoading(false);
