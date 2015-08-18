@@ -34,10 +34,10 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsSetup', {
                             stepItems: [
                                 {
                                     text: Uni.I18n.translate('deviceCommand.overview.emptyStep', 'MDC', 'Add command'),
-                                    privileges: ['execute.device.message.level1','execute.device.message.level2','execute.device.message.level3','execute.device.message.level4'],
+                                    privileges: Mdc.privileges.DeviceCommands.executeCommands,
                                     itemId: 'empty_grid_deviceAddCommandButton',
                                     mRID: me.mRID,
-                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceCommandActions
+                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges
                                 }
                             ]
                         },
@@ -57,8 +57,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsSetup', {
                         xtype: 'deviceMenu',
                         itemId: 'stepsMenu',
                         toggleId:'deviceCommands',
-                        device: me.device,
-                        title: me.mRID
+                        device: me.device
                     }
                 ]
             }

@@ -15,7 +15,6 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
         var me = this;
 
         me.items = [
-            '->',
             {
                 xtype: 'button',
                 text: Uni.I18n.translate('loadprofileconfiguration.loadprofilechaneelconfiguationsadd', 'MDC', 'Add channel configuration'),

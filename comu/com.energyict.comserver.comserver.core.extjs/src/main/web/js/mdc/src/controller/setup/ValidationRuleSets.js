@@ -5,28 +5,28 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         'Mdc.store.DeviceConfigValidationRuleSets',
         'Cfg.store.ValidationRuleSets',
         'Mdc.store.ValidationRuleSetsForDeviceConfig',
-		'Cfg.store.ValidationRuleSetVersions',
-		'Cfg.view.validation.RulePreview'
+        'Cfg.store.ValidationRuleSetVersions',
+        'Cfg.view.validation.RulePreview'
     ],
 
     views: [
         'setup.validation.RulesOverview',
         'setup.validation.AddRuleSets',
-		'Cfg.view.validation.RulePreview'
-		
+        'Cfg.view.validation.RulePreview'
+
     ],
 
     stores: [
         'DeviceConfigValidationRuleSets',
         'Mdc.store.ValidationRuleSetsForDeviceConfig',
-		'Cfg.store.ValidationRuleSets',
-		'Cfg.store.ValidationRuleSetVersions'
+        'Cfg.store.ValidationRuleSets',
+        'Cfg.store.ValidationRuleSetVersions'
     ],
 
     refs: [
         {ref: 'validationRuleSetsOverview', selector: 'validation-rules-overview'},
         {ref: 'validationRuleSetsGrid', selector: 'validation-rules-overview validation-rulesets-grid'},
-		{ref: 'validationVersionsGrid', selector: 'validation-rules-overview validation-versions-grid'},
+        {ref: 'validationVersionsGrid', selector: 'validation-rules-overview validation-versions-grid'},
         {ref: 'validationRulesGrid', selector: 'validation-rules-overview validation-rules-grid'},
         {ref: 'addValidationRuleSets', selector: 'validation-add-rulesets'},
         {ref: 'addValidationRuleSetsGrid', selector: 'validation-add-rulesets validation-add-rulesets-grid'},
@@ -34,7 +34,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         {ref: 'addValidationRulesPreview', selector: 'validation-add-rulesets validation-rule-preview'},
         {ref: 'addValidationVersionsPreview', selector: 'validation-ruleset-view validation-versions-grid'},
         {ref: 'validationRulesPreview', selector: 'validation-rules-overview validation-rule-preview'},
-		{ref: 'validationVersionsPreview', selector: 'validation-rules-overview validation-versions-view'}
+        {ref: 'validationVersionsPreview', selector: 'validation-rules-overview validation-versions-view'}
     ],
 
     deviceTypeId: null,
@@ -70,11 +70,14 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             'validation-rules-overview validation-rules-grid': {
                 selectionchange: this.onValidationRuleSelectionChange
             },
-			'validation-rules-overview validation-versions-grid': {
+            'validation-rules-overview validation-versions-grid': {
                 selectionchange: this.onValidationVersionsChange
             },
             'validation-ruleset-view validation-versions-grid': {
                 selectionchange: this.onAddValidationVersionsChange
+            },
+            'validation-add-rulesets-grid': {
+                selectionchange: this.onAddRuleSetsChange
             }
         });
     },
@@ -83,9 +86,15 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         var me = this;
 
         me.deviceTypeId = deviceTypeId;
-        me.deviceConfigId = deviceConfigId;		
-        me.getDeviceConfigValidationRuleSetsStore().getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
-        var widget = Ext.widget('validation-rules-overview', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigId});
+        me.deviceConfigId = deviceConfigId;
+        me.getDeviceConfigValidationRuleSetsStore().getProxy().extraParams = ({
+            deviceType: deviceTypeId,
+            deviceConfig: deviceConfigId
+        });
+        var widget = Ext.widget('validation-rules-overview', {
+            deviceTypeId: deviceTypeId,
+            deviceConfigId: deviceConfigId
+        });
 
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
@@ -115,7 +124,10 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         me.deviceConfigId = deviceConfigId;
 
         deviceConfigRuleSetsStore.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigId});
-        var widget = Ext.widget('validation-add-rulesets', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigId});
+        var widget = Ext.widget('validation-add-rulesets', {
+            deviceTypeId: deviceTypeId,
+            deviceConfigId: deviceConfigId
+        });
         if (me.getAddValidationRuleSetsGrid()) {
             me.getAddValidationRuleSetsGrid().getStore().removeAll();
         }
@@ -157,6 +169,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         var view = this.getValidationRuleSetsOverview(),
             selection = grid.view.getSelectionModel().getSelection();
 
+        this.onAddRuleSetsChange(grid);
         if (selection.length > 0) {
             view.updateValidationRuleSet(selection[0]);
         }
@@ -205,8 +218,8 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             },
             success: function () {
                 location.href = '#/administration/devicetypes/'
-                    + me.deviceTypeId + '/deviceconfigurations/'
-                    + me.deviceConfigId + '/validationrulesets';
+                + me.deviceTypeId + '/deviceconfigurations/'
+                + me.deviceConfigId + '/validationrulesets';
 
                 var message = Uni.I18n.translatePlural(
                     'validation.ruleSetAdded',
@@ -256,12 +269,12 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
         var me = this,
             action = item.action,
             record = menu.record;
-		
+
         switch (action) {
             case 'viewRule':
                 window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.get('ruleSetVersionId') + '/rules/' + record.getId();
                 break;
-			case 'viewVersion':
+            case 'viewVersion':
                 window.location.href = '#/administration/validation/rulesets/' + record.get('ruleSetId') + '/versions/' + record.getId();
                 break;
             case 'viewRuleSet':
@@ -269,10 +282,10 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                 break;
             case 'removeRuleSet':
                 me.removeValidationRuleSet(record);
-                break;	
-			default: 
-				window.location.href = '#/administration/validation/rulesets/' + record.getId();			
-				break;
+                break;
+            default:
+                window.location.href = '#/administration/validation/rulesets/' + record.getId();
+                break;
         }
     },
 
@@ -329,8 +342,8 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
 
             Ext.Ajax.request({
                 url: '/api/dtc/devicetypes/' + scope.deviceTypeId
-                    + '/deviceconfigurations/' + scope.deviceConfigId
-                    + '/validationrulesets/' + cfg.config.record.getId(),
+                + '/deviceconfigurations/' + scope.deviceConfigId
+                + '/validationrulesets/' + cfg.config.record.getId(),
                 method: 'DELETE',
                 success: function () {
                     scope.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.remove.success', 'MDC', 'Successfully removed.'));
@@ -396,7 +409,37 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
             view.versionId = selection[0].get('id');
             view.updateValidationVersionSet(selection[0]);
         }
+    },
+
+    onAddRuleSetsChange: function (grid) {
+        var me = this,
+            versionsGrid;
+
+        if (grid.getSelection().length === 1) {
+            versionsGrid = me.getAddValidationVersionsPreview();
+            versionsGrid.getStore().on('load', function (store, records, success) {
+                var rec = store.find('status', 'CURRENT');
+                if (rec == -1) {
+                    if (store.getCount() > 0) {
+                        if (versionsGrid.getStore().getCount() > 0) {
+                            rec = 0;
+                        }
+                    }
+                }
+
+                if (rec >= 0) {
+                    if (versionsGrid.headerCt && versionsGrid.getView()) {
+                        Ext.Function.defer(function () {
+                            versionsGrid.getView().select(rec);
+                        }, 10);
+                    }
+                }
+
+            }, versionsGrid, {
+                single: true
+            });
+        }
     }
-	
-	
+
+
 });

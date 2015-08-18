@@ -59,8 +59,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandAdd', {
                         xtype: 'deviceMenu',
                         itemId: 'stepsMenu',
                         toggleId:'deviceCommands',
-                        device: me.device,
-                        title: me.device.get('mRID')
+                        device: me.device
                     }
                 ]
             }

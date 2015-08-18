@@ -127,6 +127,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             this.record = Ext.create(Mdc.model.CommunicationSchedule);
             widget.down('#communicationScheduleEditForm').setTitle(Uni.I18n.translate('communicationSchedule.add', 'MDC', 'Add shared communication schedule'));
             me.initComTaskStore(widget);
+            widget.down('#startDate').setValue(new Date().setHours(0, 0, 0, 0));
         } else {
             me.mode = 'edit';
             Ext.ModelManager.getModel('Mdc.model.CommunicationSchedule').load(id, {
@@ -148,7 +149,6 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     communicationSchedule.comTaskUsages().each(function (record) {
                         me.alreadyAddedComTasks.push(record);
                     });
-                    widget.down('#startDate').setValue(new Date().setHours(0, 0, 0, 0));
                 }
             });
         }

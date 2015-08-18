@@ -6,7 +6,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
     ],
 
     requires: [
-       'Mdc.store.DeviceDiscoveryProtocols'
+        'Mdc.store.DeviceDiscoveryProtocols'
     ],
 
     views: [
@@ -134,28 +134,23 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
             formErrorsPanel = form.down('uni-form-error-message'),
             record;
 
-        if (form.getForm().isValid()) {
-            form.updateRecord();
-            record = form.getRecord();
+        form.updateRecord();
+        record = form.getRecord();
+        button.setDisabled(true);
+        page.setLoading(Uni.I18n.translate('general.saving', 'MDC', 'Saving...'));
 
-            button.setDisabled(true);
-            page.setLoading(Uni.I18n.translate('general.saving', 'MDC', 'Saving...'));
+        record.save({
+            callback: function (model, operation, success) {
+                page.setLoading(false);
+                button.setDisabled(false);
 
-            record.save({
-                callback: function (model, operation, success) {
-                    page.setLoading(false);
-                    button.setDisabled(false);
-
-                    if (success) {
-                        me.onSuccessSaving(operation.action, model.get('direction'));
-                    } else {
-                        me.onFailureSaving(operation.response);
-                    }
+                if (success) {
+                    me.onSuccessSaving(operation.action, model.get('direction'));
+                } else {
+                    me.onFailureSaving(operation.response);
                 }
-            });
-        } else {
-            formErrorsPanel.show();
-        }
+            }
+        });
     },
 
     onSuccessSaving: function (action, direction) {

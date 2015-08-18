@@ -1049,7 +1049,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             controller: 'Mdc.controller.setup.DeviceCommands',
                             privileges: Ext.Array.merge(Mdc.privileges.Device.deviceOperator, Mdc.privileges.DeviceCommands.executeCommands),
                             action: 'showOverview',
-                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.all,
                             items: {
                                 add: {
                                     title: 'Add command',
@@ -1057,8 +1057,8 @@ Ext.define('Mdc.controller.history.Setup', {
                                     controller: 'Mdc.controller.setup.DeviceCommands',
                                     privileges: Mdc.privileges.DeviceCommands.executeCommands,
                                     action: 'showAddOverview',
-                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
-                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceCommandActions
+                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.all,
+                                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges
                                 }
                             }
                         },

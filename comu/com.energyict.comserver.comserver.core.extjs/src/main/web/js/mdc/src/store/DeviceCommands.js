@@ -4,11 +4,18 @@ Ext.define('Mdc.store.DeviceCommands', {
         'Mdc.model.DeviceCommand'
     ],
     model: 'Mdc.model.DeviceCommand',
-    url: '/api/ddr/devices/',
-    commandsPostfix: '/devicemessages',
-    setMrid: function (mrid) {
-        var me = this;
-        me.getProxy().url = me.url + encodeURIComponent(mrid) + me.commandsPostfix;
-        return me
+    autoLoad: false,
+
+    proxy: {
+        type: 'rest',
+        urlTpl: '/api/ddr/devices/{mRID}/devicemessages',
+        reader: {
+            type: 'json',
+            root: 'deviceMessages'
+        },
+
+        setUrl: function (mRID) {
+            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
+        }
     }
 });

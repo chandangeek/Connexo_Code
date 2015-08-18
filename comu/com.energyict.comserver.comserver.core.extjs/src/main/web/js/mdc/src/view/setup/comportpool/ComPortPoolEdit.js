@@ -37,8 +37,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                     itemId: 'txt-comportpool-name',
                     fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                     width: 600,
-                    required: true,
-                    allowBlank: false
+                    required: true
                 },
                 {
                     xtype: 'displayfield',
