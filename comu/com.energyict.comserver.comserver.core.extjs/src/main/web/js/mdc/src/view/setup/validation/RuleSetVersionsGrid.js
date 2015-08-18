@@ -62,17 +62,7 @@ Ext.define('Mdc.view.setup.validation.RuleSetVersionsGrid', {
                 displayMsg: Uni.I18n.translate('validation.version.display.msg', 'MDC', '{0} - {1} of {2} versions'),
                 displayMoreMsg: Uni.I18n.translate('validation.version.display.more.msg', 'MDC', '{0} - {1} of more than {2} versions'),
                 emptyMsg: Uni.I18n.translate('validation.version.pagingtoolbartop.emptyMsg', 'MDC', 'There are no versions to display'),
-                dock: 'top'/*,
-                items: [
-                    {
-                        text: Uni.I18n.translate('validation.addVersion', 'MDC', 'Add version'),
-                        privileges: Cfg.privileges.Validation.admin,
-                        itemId: 'newVersion',
-                        xtype: 'button',
-                        href: '#/administration/validation/rulesets/' + me.ruleSetId + '/versions/add',
-                        hrefTarget: '_self'
-                    }
-                ]*/
+                dock: 'top'
             },
             {
                 xtype: 'pagingtoolbarbottom',
@@ -85,23 +75,6 @@ Ext.define('Mdc.view.setup.validation.RuleSetVersionsGrid', {
 
             }
         ];
-	    me.listeners = {
-            'afterrender': function (grid) {
-                grid.getStore().on('load', function(store, records, success) {
-                    var rec = store.find('status', 'CURRENT');
-                    if ((rec>=0)|| (grid.getView())) {
-                        Ext.Function.defer(function(){
-
-                            grid.getView().select(rec);
-                        }, 10);
-                    }
-
-                }, grid, {
-                    single: true
-                });
-            }
-        };
-
 
         me.callParent(arguments);
     },
