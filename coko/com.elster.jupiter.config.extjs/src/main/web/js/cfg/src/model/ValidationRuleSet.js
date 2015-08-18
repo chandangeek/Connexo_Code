@@ -5,13 +5,14 @@ Ext.define('Cfg.model.ValidationRuleSet', {
         'name',
         'description',
 		'numberOfVersions',
+		'hasCurrent',
 		{			
 			name: 'activeVersion',
             persist: false,
             mapping: function (data) {
                 var result, startDate, endDate;
-				
-				if (data.numberOfVersions === 0){
+
+				if ((data.numberOfVersions === 0) || (data.hasCurrent === false)){
 					result = '-';
 				}
 				else {
