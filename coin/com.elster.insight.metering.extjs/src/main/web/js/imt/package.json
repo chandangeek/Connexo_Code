@@ -1,0 +1,15 @@
+{
+    "name": "com.elster.insight.metering.extjs",
+    "type": "code",
+    "creator": "Elster Insight Project",
+    "summary": "Metering EXTJS package",
+    "detailedDescription": "Screens for CRUD operations on metering objects",
+    "version": "1.0.0",
+    "compatVersion": "1.0.0",
+    "format": "1",
+    "local": true,
+    "requires": [
+        "com.elster.jupiter.unifyingjs",
+        "com.elster.jupiter.config.extjs"
+    ]
+}
