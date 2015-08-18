@@ -188,6 +188,44 @@ public class SecurityPropertyServiceImplTest {
     }
 
     @Test
+    public void securityPropertiesAreValidForUserThatIsNotAllowedToView () {
+        Relation relation = mock(Relation.class);
+        Instant relationFrom = Instant.now().minusSeconds(1L);
+        Instant relationTo = relationFrom.plusSeconds(86400L);  // Add another day
+        when(relation.getPeriod()).thenReturn(Range.closedOpen(relationFrom, relationTo));
+        when(relation.get(USERNAME_SECURITY_PROPERTY_NAME)).thenReturn("user");
+        when(relation.get(PASSWORD_SECURITY_PROPERTY_NAME)).thenReturn("password");
+        when(relation.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME)).thenReturn(true);
+        when(this.securityPropertyRelationType.findByFilter(any(RelationSearchFilter.class))).thenReturn(Arrays.asList(relation));
+        when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(false);
+
+        // Business method
+        boolean propertiesAreValid = this.testService().securityPropertiesAreValid(this.device, this.securityPropertySet1);
+
+        // Asserts
+        assertThat(propertiesAreValid).isTrue();
+    }
+
+    @Test
+    public void securityPropertiesAreValidForUserThatIsAllowedToView () {
+        Relation relation = mock(Relation.class);
+        Instant relationFrom = Instant.now().minusSeconds(1L);
+        Instant relationTo = relationFrom.plusSeconds(86400L);  // Add another day
+        when(relation.getPeriod()).thenReturn(Range.closedOpen(relationFrom, relationTo));
+        when(relation.get(USERNAME_SECURITY_PROPERTY_NAME)).thenReturn("user");
+        when(relation.get(PASSWORD_SECURITY_PROPERTY_NAME)).thenReturn("password");
+        when(relation.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME)).thenReturn(true);
+        when(this.securityPropertyRelationType.findByFilter(any(RelationSearchFilter.class))).thenReturn(Arrays.asList(relation));
+        when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
+
+        // Business method
+        boolean propertiesAreValid = this.testService().securityPropertiesAreValid(this.device, this.securityPropertySet1);
+
+        // Asserts
+        assertThat(propertiesAreValid).isTrue();
+    }
+
+    @Test
     public void hasSecurityPropertiesForRelationsInThePast() {
         Instant relation1From = Instant.ofEpochSecond(97L);
         Instant relation1To = relation1From.plusSeconds(10);

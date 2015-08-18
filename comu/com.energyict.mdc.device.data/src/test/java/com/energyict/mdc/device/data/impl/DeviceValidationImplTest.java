@@ -25,10 +25,9 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.IChannelValidation;
+
 import com.energyict.mdc.device.data.Channel;
 import com.google.common.collect.Range;
 
@@ -68,7 +67,7 @@ public class DeviceValidationImplTest {
 
     @Before
     public void setUp() {
-        deviceValidation = new DeviceValidationImpl(amrSystem, validationService, clock, device);
+        deviceValidation = new DeviceValidationImpl(amrSystem, validationService, clock, thesaurus, device);
 
         when(device.findKoreMeter(amrSystem)).thenReturn(Optional.of(meter));
         when(device.findKoreChannel(channel, NOW.toInstant())).thenReturn(Optional.of(koreChannel));
@@ -77,7 +76,7 @@ public class DeviceValidationImplTest {
         doReturn(asList(meterActivation)).when(meter).getMeterActivations();
         when(meterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
         when(meterActivation.getChannels()).thenReturn(asList(koreChannel));
-        when(clock.instant()).thenReturn(NOW.toInstant());        
+        when(clock.instant()).thenReturn(NOW.toInstant());
         when(channel.getReadingType()).thenReturn(readingType);
         when(device.findOrCreateKoreMeter(amrSystem)).thenReturn(meter);
         when(validationService.getEvaluator(eq(meter), any(Range.class))).thenReturn(validationEvaluator);

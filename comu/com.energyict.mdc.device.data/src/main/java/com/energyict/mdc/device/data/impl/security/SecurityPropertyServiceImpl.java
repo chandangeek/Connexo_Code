@@ -150,7 +150,15 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
         Boolean status = (Boolean) relation.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME);
         Object propertyValue = relation.get(propertySpec.getName());
         if (propertyValue != null) {
-            return Optional.of(new SecurityPropertyImpl(device, securityPropertySet, propertySpec, propertyValue, relation.getPeriod(), status));
+            return Optional.of(
+                    new SecurityPropertyImpl(
+                            device,
+                            securityPropertySet,
+                            propertySpec,
+                            propertyValue,
+                            relation.getPeriod(),
+                            // Status is a required attribute on the relation should it cannot be null
+                            status));
         }
         else {
             return Optional.empty();
@@ -163,16 +171,36 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
     }
 
     @Override
+    public boolean securityPropertiesAreValid(Device device, SecurityPropertySet securityPropertySet) {
+        if (this.hasRequiredProperties(securityPropertySet)) {
+            return !this.isMissingOrIncomplete(device, securityPropertySet);
+        }
+        else {
+            return true;
+        }
+    }
+
+    private boolean hasRequiredProperties(SecurityPropertySet securityPropertySet) {
+        return securityPropertySet
+                .getPropertySpecs()
+                .stream()
+                .anyMatch(PropertySpec::isRequired);
+    }
+
+    @Override
     public boolean securityPropertiesAreValid(Device device) {
-        return device.getDeviceConfiguration().getComTaskEnablements().stream().noneMatch(comTaskEnablement -> isMissingOrIncomplete(device, comTaskEnablement.getSecurityPropertySet()));
+        return device.getDeviceConfiguration()
+                .getComTaskEnablements()
+                .stream()
+                .noneMatch(comTaskEnablement -> isMissingOrIncomplete(device, comTaskEnablement.getSecurityPropertySet()));
     }
 
     private boolean isMissingOrIncomplete(Device device, SecurityPropertySet securityPropertySet) {
         List<SecurityProperty> securityProperties = this.getSecurityPropertiesIgnoringPrivileges(device, this.clock.instant(), securityPropertySet);
         return securityProperties.isEmpty()
-                || securityProperties
-                .stream()
-                .anyMatch(Predicates.not(SecurityProperty::isComplete));
+            || securityProperties
+                    .stream()
+                    .anyMatch(Predicates.not(SecurityProperty::isComplete));
     }
 
     @Override

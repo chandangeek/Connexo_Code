@@ -26,9 +26,9 @@ public class SecurityPropertyImpl implements SecurityProperty {
     private PropertySpec specification;
     private Object value;
     private Interval activePeriod;
-    private Boolean isComplete;
+    private boolean isComplete;
 
-    public SecurityPropertyImpl (Device device, SecurityPropertySet securityPropertySet, PropertySpec specification, Object value, Range<Instant> activePeriod, Boolean isComplete) {
+    public SecurityPropertyImpl (Device device, SecurityPropertySet securityPropertySet, PropertySpec specification, Object value, Range<Instant> activePeriod, boolean isComplete) {
         super();
         this.device = device;
         this.securityPropertySet = securityPropertySet;
@@ -71,7 +71,7 @@ public class SecurityPropertyImpl implements SecurityProperty {
         return this.activePeriod;
     }
 
-    public Boolean isComplete () {
+    public boolean isComplete () {
         return this.isComplete;
     }
 
