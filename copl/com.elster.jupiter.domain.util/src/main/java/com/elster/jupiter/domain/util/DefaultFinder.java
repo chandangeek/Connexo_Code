@@ -10,7 +10,10 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Builder for paged, sortable queries using the datamapper's Query
@@ -115,7 +118,51 @@ public final class DefaultFinder<T> implements Finder<T> {
         return query.asFragment(condition, fieldNames);
     }
 
+    @Override
+    public Stream<T> stream() {
+        Iterable<T> iterable = PagingIterator::new;
+        return StreamSupport.stream(iterable.spliterator(), false);
+    }
+
+    /**
+     * This class iterates over an QueryExcuter's results, allowing a Stream to be build from it
+     * @param <E>
+     */
+    private class PagingIterator<E> implements Iterator<E> {
+        private final int pageSize=maxPageSize==null?100:Math.min(100, maxPageSize);
+        private int currentPage=0;
+        private int currentItemInPage =0;
+        private List<E> items = null;
+
+        @Override
+        public boolean hasNext() {
+            if (needsToLoadNewPage()) {
+                loadNextPage();
+            }
+            return currentItemInPage<items.size() || items.size()>pageSize;
+        }
+
+        @Override
+        public E next() {
+            if (needsToLoadNewPage()) {
+                loadNextPage();
+            }
+            return items.get(currentItemInPage++);
+        }
+
+        private boolean needsToLoadNewPage() {
+            return items==null || ( this.currentItemInPage==pageSize && items.size() == pageSize + 1 );
+        }
+
+        private void loadNextPage() {
+            items = (List<E>) query.select(condition, sortingColumns.toArray(new Order[sortingColumns.size()]), true, new String[0], currentPage + 1, currentPage + pageSize + 1);
+            currentPage += pageSize;
+            currentItemInPage = 0;
+        }
+    }
+
 }
+
 
 class MaxPageSizeExceeded extends LocalizedException {
 
