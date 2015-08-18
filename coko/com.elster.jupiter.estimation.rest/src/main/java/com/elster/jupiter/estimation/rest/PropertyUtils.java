@@ -167,7 +167,8 @@ public class PropertyUtils {
             if ((bulkProperty != null) && ((Boolean) bulkProperty)) {
                 advanceSettings = BulkAdvanceReadingsSettings.BULK_ADVANCE_READINGS_SETTINGS;
             } else if (map.get("readingType") != null) {
-                advanceSettings = (String) ((Map) map.get("readingType")).get("mRID");
+                advanceSettings = ((Map) map.get("readingType")).containsKey("mRID") ?
+                        (String)((Map) map.get("readingType")).get("mRID") : (String)((Map) map.get("readingType")).get("mrid");
             }
             return  propertySpec.getValueFactory().fromStringValue(advanceSettings);
         }

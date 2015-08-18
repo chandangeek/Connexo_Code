@@ -369,13 +369,21 @@ public class EstimationResourceTest extends BaseEstimationRestTest {
         EstimationRuleSet ruleSet = mockEstimationRuleSet(13, true);
         EstimationRule rule = ruleSet.getRules().get(0);
         when(rule.getName()).thenReturn("MyRuleUpdated");
+
+        Map<String, Object> props = new HashMap<>();
+        props.put("number", null);
+        props.put("nullableboolean", null);
+        props.put("boolean", null);
+        props.put("text", null);
+        props.put("listvalue", null);
+
         when(ruleSet.updateRule(
                 Matchers.eq(1L),
                 Matchers.eq("MyRuleUpdated"),
                 Matchers.eq(false),
                 Matchers.eq(new ArrayList<>()),
-                Matchers.eq(new HashMap<>()))).
-                thenReturn(rule);
+                Matchers.eq(props))).
+        thenReturn(rule);
 
         Entity<EstimationRuleInfo> entity = Entity.json(info);
         Response response = target("/estimation/13/rules/1").request().put(entity);

@@ -308,16 +308,13 @@ public class EstimationResource {
             List<String> mRIDs = info.readingTypes.stream().map(readingTypeInfo -> readingTypeInfo.mRID).collect(Collectors.toList());
             Map<String, Object> propertyMap = new HashMap<>();
             try {
-            for (PropertySpec propertySpec : rule.getPropertySpecs()) {
-                Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
-                //if (value != null) {
+                for (PropertySpec propertySpec : rule.getPropertySpecs()) {
+                    Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
                     propertyMap.put(propertySpec.getName(), value);
-                //}
-            }
+                }
             } catch (EstimatorNotFoundException ex) {
             } finally {
-                //rule = ruleSet.updateRule(ruleId, info.name, info.active, mRIDs, propertyMap);
-                ruleSet.save();
+                rule = ruleSet.updateRule(ruleId, info.name, info.active, mRIDs, propertyMap);
             }
 
             return rule;
