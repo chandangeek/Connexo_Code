@@ -1,4 +1,4 @@
-package com.elster.jupiter.insight.app.impl;
+package com.elster.insight.app.impl;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -15,12 +15,12 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import com.elster.insight.app.InsightAppService;
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.DefaultStartPage;
 import com.elster.jupiter.http.whiteboard.FileResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
-import com.elster.jupiter.insight.app.InsightAppService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;

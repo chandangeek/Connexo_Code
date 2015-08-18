@@ -7,7 +7,7 @@ Ext.define('InsightApp.controller.Main', {
     requires: [
         'Cfg.controller.Main',
         'Uni.controller.Navigation',
-        'Mtr.controller.Main',
+        'Imt.controller.Main',
         'InsightApp.controller.History'
     ],
 
@@ -21,7 +21,7 @@ Ext.define('InsightApp.controller.Main', {
 
     controllers: [
         'Cfg.controller.Main',
-        'Mtr.controller.Main',
+        'Imt.controller.Main',
         'InsightApp.controller.History'
     ],
     init: function () {
@@ -49,11 +49,11 @@ Ext.define('InsightApp.controller.Main', {
         Uni.store.MenuItems.add(menuItem);
 
         var portalItem1 = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('general.UsagePoints', 'MTR', 'Usage Points'),
+            title: Uni.I18n.translate('general.UsagePoints', 'IMT', 'Usage Points'),
             portal: 'administration',
             items: [
                 {
-                    text: Uni.I18n.translate('general.usagePointAdd', 'MTR', 'Add Usage Point'),
+                    text: Uni.I18n.translate('general.usagePointAdd', 'IMT', 'Add Usage Point'),
                     href: '#/administration/usagepoints/add',
                     itemId: 'add-usagepoints'
                 }

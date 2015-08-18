@@ -11,8 +11,8 @@ Ext.onReady(function () {
             path: '../../apps/cfg/src'
         },
         {
-            name: 'Mtr',
-            path: '../../apps/mtr/src'
+            name: 'Imt',
+            path: '../../apps/imt/src'
         }
     ];
 

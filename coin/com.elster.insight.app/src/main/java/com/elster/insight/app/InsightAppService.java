@@ -1,4 +1,4 @@
-package com.elster.jupiter.insight.app;
+package com.elster.insight.app;
 
 public interface InsightAppService {
     String COMPONENTNAME = "INSAPP";
