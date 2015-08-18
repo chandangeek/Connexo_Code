@@ -57,6 +57,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /** TODO replace by /devices*/
@@ -180,21 +181,20 @@ public class DeviceFirmwareMessagesResource {
     }
 
     private void prepareCommunicationTask(Device device, Map<String, Object> convertedProperties) {
-        Optional<ComTaskExecution> fuComTaskExecutionRef = findFirmwareComTaskExecution(device);
+        FirmwareManagementDeviceUtils helper = utilProvider.get().onDevice(device);
+        Optional<ComTaskExecution> fuComTaskExecutionRef = helper.getFirmwareCheckExecution();
         if (!fuComTaskExecutionRef.isPresent()){
             createFirmwareComTaskExecution(device);
         } else {
-            cancelOldFirmwareUpdates(device, convertedProperties);
+            cancelOldFirmwareUpdates(helper, convertedProperties);
         }
     }
 
-    private void cancelOldFirmwareUpdates(Device device, Map<String, Object> convertedProperties) {
+    private void cancelOldFirmwareUpdates(FirmwareManagementDeviceUtils helper, Map<String, Object> convertedProperties) {
         String firmwareVersionPropertyName = DeviceMessageConstants.firmwareUpdateFileAttributeName;
         FirmwareVersion requestedFirmwareVersion = (FirmwareVersion) convertedProperties.get(firmwareVersionPropertyName);
         if (requestedFirmwareVersion != null) {
-            utilProvider.get()
-                    .onDevice(device)
-                    .cancelPendingFirmwareUpdates(requestedFirmwareVersion.getFirmwareType());
+            helper.cancelPendingFirmwareUpdates(requestedFirmwareVersion.getFirmwareType());
         }
      }
 
@@ -318,8 +318,11 @@ public class DeviceFirmwareMessagesResource {
     }
 
     private Optional<ComTaskExecution> findFirmwareComTaskExecution(Device device) {
+        Optional<ComTask> firmwareComTask = taskService.findFirmwareComTask();
+        Predicate<ComTask> comTaskIsFirmwareComTask = comTask -> comTask.getId() == (firmwareComTask.isPresent() ? firmwareComTask.get().getId() : 0);
+        Predicate<ComTaskExecution> executionContainsFirmwareComTask = exec -> exec.getComTasks().stream().filter(comTaskIsFirmwareComTask).count() > 0;
         return device.getComTaskExecutions().stream()
-                .filter(comTaskExecution -> comTaskExecution instanceof FirmwareComTaskExecution)
+                .filter(executionContainsFirmwareComTask)
                 .findFirst();
     }
 
@@ -335,17 +338,17 @@ public class DeviceFirmwareMessagesResource {
     }
 
     private void rescheduleFirmwareUpgradeTask(Device device) {
-        FirmwareManagementDeviceUtils versionUtils = utilProvider.get().onDevice(device);
-        Optional<Instant> earliestReleaseDate = versionUtils.getFirmwareMessages().stream()
+        FirmwareManagementDeviceUtils helper = utilProvider.get().onDevice(device);
+        Optional<Instant> earliestReleaseDate = helper.getFirmwareMessages().stream()
                 .filter(message -> FirmwareManagementDeviceUtils.PENDING_STATUSES.contains(message.getStatus()))
                 .map(DeviceMessage::getReleaseDate)
                 .sorted(Instant::compareTo)
                 .findFirst();
-        rescheduleFirmwareUpgradeTask(device, earliestReleaseDate.orElse(null));
+        rescheduleFirmwareUpgradeTask(helper, earliestReleaseDate.orElse(null));
     }
 
-    private void rescheduleFirmwareUpgradeTask(Device device, Instant earliestReleaseDate){
-        Optional<ComTaskExecution> firmwareComTaskExecution = findFirmwareComTaskExecution(device);
+    private void rescheduleFirmwareUpgradeTask(FirmwareManagementDeviceUtils helper, Instant earliestReleaseDate){
+        Optional<ComTaskExecution> firmwareComTaskExecution = helper.getFirmwareExecution();
         firmwareComTaskExecution.ifPresent(comTaskExecution -> {
             if (earliestReleaseDate != null) {
                 if (comTaskExecution.getNextExecutionTimestamp() == null ||
