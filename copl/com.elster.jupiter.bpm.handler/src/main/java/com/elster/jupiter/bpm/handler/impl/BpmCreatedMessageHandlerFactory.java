@@ -19,6 +19,9 @@ public class BpmCreatedMessageHandlerFactory implements MessageHandlerFactory {
     private volatile BpmService bpmService;
     private volatile Clock clock;
 
+    public BpmCreatedMessageHandlerFactory(){
+    }
+
     @Override
     public MessageHandler newMessageHandler() {
         return new BpmCreatedMessageHandler(jsonService, bpmService.getBpmServer());

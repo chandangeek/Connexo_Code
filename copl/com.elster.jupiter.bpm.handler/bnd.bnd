@@ -1,4 +1,4 @@
 -classpath: target/classes
 -dsannotations: * 
-Private-Package: com.elster.jupiter.bpm.handler
-Export-Package: !com.elster.jupiter.bpm.handler
+Private-Package: com.elster.jupiter.bpm.handler.impl
+Export-Package: !com.elster.jupiter.bpm.handler.impl
