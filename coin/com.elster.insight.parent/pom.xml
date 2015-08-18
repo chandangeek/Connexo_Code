@@ -101,8 +101,8 @@
             <id>insight</id>
             <modules>
                 <module>../com.elster.insight.app</module>
+                <module>../com.elster.insight.metering.extjs</module>
                 <module>../com.elster.insight.usagepoint.data.rest</module>
-
             </modules>
         </profile>
     </profiles>
