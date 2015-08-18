@@ -280,9 +280,17 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                 store: 'MasterDeviceCandidates',
                 displayField: 'name',
                 valueField: 'id',
-                queryMode: 'local',
+                queryMode: 'remote',
+                queryParam: 'search',
+                queryCaching: false,
+                minChars: 0,
                 forceSelection: true,
-                width: 165
+                width: 180,
+                listeners: {
+                    expand: {
+                        fn: me.comboLimitNotification
+                    }
+                }
             }
         );
 
@@ -361,5 +369,26 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                 });
             }
         });
+    },
+
+    comboLimitNotification: function (combo) {
+        var picker = combo.getPicker(),
+            fn = function (view) {
+                var store = view.getStore(),
+                    el = view.getEl().down('.' + Ext.baseCSSPrefix + 'list-plain');
+
+                if (store.getTotalCount() > store.getCount()) {
+                    el.appendChild({
+                        tag: 'li',
+                        html: Uni.I18n.translate('general.combo.limitNotification', 'MDC', 'Keep typing to narrow down'),
+                        cls: Ext.baseCSSPrefix + 'boundlist-item combo-limit-notification'
+                    });
+                }
+            };
+
+        picker.on('refresh', fn);
+        picker.on('beforehide', function () {
+            picker.un('refresh', fn);
+        }, combo, {single: true});
     }
 });
