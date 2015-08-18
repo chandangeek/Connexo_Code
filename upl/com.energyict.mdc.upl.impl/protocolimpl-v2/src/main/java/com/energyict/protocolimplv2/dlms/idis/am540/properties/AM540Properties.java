@@ -11,6 +11,8 @@ import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.math.BigDecimal;
 
+import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS;
+
 /**
  * @author sva
  * @since 11/08/2015 - 15:04
@@ -23,6 +25,11 @@ public class AM540Properties extends IDISProperties {
             securityProvider = new IDISSecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel());
         }
         return securityProvider;
+    }
+
+    @Override
+    public int getServerLowerMacAddress() {
+        return parseBigDecimalProperty(SERVER_LOWER_MAC_ADDRESS, AM540ConfigurationSupport.DEFAULT_SERVER_LOWER_MAC_ADDRESS);
     }
 
     @Override
@@ -46,6 +53,10 @@ public class AM540Properties extends IDISProperties {
 
     public int getNodeAddress() {
         return parseBigDecimalProperty(MeterProtocol.NODEID);
+    }
+
+    public boolean useEquipmentIdentifierAsSerialNumber() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, AM540ConfigurationSupport.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE);
     }
 
     @Override

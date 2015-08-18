@@ -113,6 +113,7 @@ public class AM500 extends AbstractDlmsProtocol {
             ComServerExecutionException exception;
             try {
                 if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
+                    dlmsSession.getDlmsV2Connection().connectMAC();
                     dlmsSession.createAssociation();
                 }
                 return;

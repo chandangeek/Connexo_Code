@@ -25,7 +25,6 @@ import java.util.List;
  */
 public class AM540MessageExecutor extends AbstractMessageExecutor {
 
-    private static final ObisCode PLC_G3_TIMEOUT_OBISCODE = ObisCode.fromString("0.0.94.33.10.255");
     public static final ObisCode RELAY_CONTROL_DEFAULT_OBISCODE = ObisCode.fromString("0.0.96.3.10.255");
 
     private AbstractMessageExecutor dsmr50MessageExecutor;

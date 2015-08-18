@@ -1,20 +1,22 @@
 package com.energyict.protocolimplv2.dlms.idis.am540;
 
 import com.energyict.cbo.ConfigurationSupport;
+import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
+import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
-import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
 import com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540Messaging;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
 import com.energyict.protocolimplv2.dlms.idis.am540.registers.AM540RegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -37,13 +39,22 @@ public class AM540 extends AM130 {
     }
 
     @Override
+    public String getSerialNumber() {
+        if (getDlmsSessionProperties().useEquipmentIdentifierAsSerialNumber()) {
+            return getMeterInfo().getEquipmentIdentifier();
+        } else {
+            return getMeterInfo().getSerialNr();
+        }
+    }
+
+    @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.emptyList(); //This protocol does not manage the connections, so no dialects are needed
+        return Arrays.asList((DeviceProtocolDialect) new SerialDeviceProtocolDialect());
     }
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Collections.emptyList(); //This protocol does not manage the connections, it's a physical slave for a G3 gateway / DC
+        return Arrays.asList((ConnectionType) new SioOpticalConnectionType(), new RxTxOpticalConnectionType());
     }
 
     protected ConfigurationSupport getNewInstanceOfConfigurationSupport() {
@@ -51,7 +62,15 @@ public class AM540 extends AM130 {
     }
 
     @Override
-    protected IDISProperties getNewInstanceOfProperties() {
+    public AM540Properties getDlmsSessionProperties() {
+        if (dlmsProperties == null) {
+            dlmsProperties = getNewInstanceOfProperties();
+        }
+        return (AM540Properties) dlmsProperties;
+    }
+
+    @Override
+    protected AM540Properties getNewInstanceOfProperties() {
         return new AM540Properties();
     }
 
