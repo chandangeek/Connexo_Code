@@ -17,8 +17,6 @@ import java.util.Optional;
  * Provides an implementation for the {@link ServerMicroCheck} interface
  * that checks that there is a {@link ScheduledComTaskExecution} on the device.
  *
- * check bits: 4
- *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-13 (09:00)
  */

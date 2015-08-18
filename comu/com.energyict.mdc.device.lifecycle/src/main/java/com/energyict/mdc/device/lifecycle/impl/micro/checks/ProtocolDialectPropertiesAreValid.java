@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
  */
 public class ProtocolDialectPropertiesAreValid extends ConsolidatedServerMicroCheck {
 
-
     public ProtocolDialectPropertiesAreValid(Thesaurus thesaurus) {
         super(thesaurus);
     }

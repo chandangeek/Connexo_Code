@@ -23,9 +23,6 @@ import java.util.Optional;
  * A missing last reading on a load profile
  * equals to a mismatch with the effective timestamp
  * and will therefore fail this check.
- * <p>
- * <p>
- * check bits: 8
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-15 (09:48)

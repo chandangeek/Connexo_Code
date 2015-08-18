@@ -19,9 +19,6 @@ import java.util.stream.Stream;
  * Provides an implementation for the {@link ServerMicroCheck} interface
  * that checks that there is a {@link ManuallyScheduledComTaskExecution} on the device.
  *
- * check bits: 2
- *
- *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-04-15 (09:28)
  */
@@ -51,16 +48,17 @@ public class ScheduledCommunicationTaskAvailable extends TranslatableServerMicro
     }
 
     private Optional<ComTaskExecution> anyManuallyScheduledCommunicationTask(Device device) {
-        return Stream.<ComTaskExecution>concat(device
-                            .getComTaskExecutions()
-                            .stream()
-                            .filter(ComTaskExecution::isScheduledManually)
-                            .filter(Predicates.not(ComTaskExecution::isAdHoc))
-                            ,device
-                            .getComTaskExecutions()
-                            .stream()
-                            .filter(ComTaskExecution::usesSharedSchedule)
-                ).findAny();
+        return Stream.concat(
+                device
+                    .getComTaskExecutions()
+                    .stream()
+                    .filter(ComTaskExecution::isScheduledManually)
+                    .filter(Predicates.not(ComTaskExecution::isAdHoc)),
+                device
+                    .getComTaskExecutions()
+                    .stream()
+                    .filter(ComTaskExecution::usesSharedSchedule))
+                .findAny();
     }
 
 }
