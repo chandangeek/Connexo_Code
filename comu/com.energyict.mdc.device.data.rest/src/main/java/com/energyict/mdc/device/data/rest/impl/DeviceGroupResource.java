@@ -54,6 +54,7 @@ import javax.ws.rs.core.UriInfo;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Functions.asStream;
+import static java.util.stream.Collectors.toList;
 
 @Path("/devicegroups")
 public class DeviceGroupResource {
@@ -98,8 +99,8 @@ public class DeviceGroupResource {
         }
         List<Device> devices = Collections.emptyList();
         if (!endDevices.isEmpty()) {
-            Condition mdcMembers = where("id").in(endDevices.stream().map(EndDevice::getAmrId).collect(Collectors.toList()));
-            devices = deviceService.findAllDevices(mdcMembers).sorted("mRID", true).find();
+            Condition mdcMembers = where("id").in(endDevices.stream().map(EndDevice::getAmrId).collect(toList()));
+            devices = deviceService.findAllDevices(mdcMembers).sorted("mRID", true).stream().collect(toList());
         }
         return PagedInfoList.fromPagedList("devices", DeviceGroupMemberInfo.from(devices), queryParameters);
     }
@@ -195,7 +196,6 @@ public class DeviceGroupResource {
         if (deviceGroupInfo.devices == null) {
             deviceIds = deviceService
                     .findAllDevices(getCondition(deviceGroupInfo))
-                    .find()
                     .stream()
                     .map(HasId::getId);
         }
@@ -205,7 +205,7 @@ public class DeviceGroupResource {
         AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         List<EndDevice> endDevices = deviceIds.map(number -> amrSystem.findMeter(number.toString()))
                 .flatMap(asStream())
-                .collect(Collectors.toList());
+                .collect(toList());
 
         Map<Long, EnumeratedEndDeviceGroup.Entry> currentEntries = enumeratedEndDeviceGroup.getEntries().stream()
                 .collect(toMap());
