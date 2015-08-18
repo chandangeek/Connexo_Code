@@ -12,6 +12,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Registration;
+import com.google.common.collect.ImmutableMap;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -19,9 +20,11 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -53,8 +56,11 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
 
     private ThreadGroup threadGroup;
 
-    private final Map<MessageHandlerFactory, CancellableTaskExecutorService> executors = new ConcurrentHashMap<>();
-    private final Map<CancellableTaskExecutorService, List<Future<?>>> futures = new ConcurrentHashMap<>();
+    private final Object configureLock = new Object();
+    @GuardedBy("configureLock")
+    private final Map<MessageHandlerFactory, CancellableTaskExecutorService> executors = new HashMap<>();
+    @GuardedBy("configureLock")
+    private final Map<CancellableTaskExecutorService, List<Future<?>>> futures = new HashMap<>();
     private final Queue<SubscriberKey> toBeLaunched = new LinkedList<>();
     private final Map<SubscriberKey, MessageHandlerFactory> handlerFactories = new ConcurrentHashMap<>();
 
@@ -100,7 +106,9 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     @Activate
     public void activate() {
         threadGroup = new ThreadGroup(MessageHandlerLauncherService.class.getSimpleName());
-        toBeLaunched.forEach(launch());
+        synchronized (configureLock) {
+            toBeLaunched.forEach(launch());
+        }
         while (reconfigureNeeded) {
             reconfigureNeeded = false;
             reconfigure();
@@ -113,14 +121,19 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     }
 
     void appServerStarted() {
-        if (!executors.isEmpty()) {
-            throw new IllegalStateException();
+        synchronized (configureLock) {
+            if (!executors.isEmpty()) {
+                throw new IllegalStateException();
+            }
+            Thread.currentThread().setName("handlers size : " + handlerFactories.keySet().size());
+            handlerFactories.keySet().forEach(launch());
         }
-        handlerFactories.keySet().forEach(launch());
     }
 
     void appServerStopped() {
-        stopLaunched();
+        synchronized (configureLock) {
+            stopLaunched();
+        }
     }
 
     private Thesaurus getThesaurus() {
@@ -130,7 +143,9 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     @Deactivate
     public void deactivate() {
         commandRegistration.unregister();
-        stopLaunched();
+        synchronized (configureLock) {
+            stopLaunched();
+        }
         final ThreadGroup toClean = threadGroup;
         threadGroup = null;
         Thread groupCleaner = new Thread(() -> destroyThreadGroup(toClean));
@@ -178,7 +193,9 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
 
     public void removeResource(MessageHandlerFactory factory) {
         handlerFactories.entrySet().removeIf(entry -> entry.getValue().equals(factory));
-        stopServing(factory);
+        synchronized (configureLock) {
+            stopServing(factory);
+        }
     }
 
     private void stopServing(MessageHandlerFactory factory) {
@@ -191,17 +208,30 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     }
 
     Map<SubscriberKey, Integer> futureReport() {
+        Map<MessageHandlerFactory, CancellableTaskExecutorService> executorsSnapshot = null;
+        Map<CancellableTaskExecutorService, List<Future<?>>> futuresSnapshot = null;
+        synchronized (configureLock) {
+            executorsSnapshot = ImmutableMap.copyOf(this.executors);
+            futuresSnapshot = ImmutableMap.copyOf(this.futures);
+        }
+        Map<MessageHandlerFactory, CancellableTaskExecutorService> executorsCopy = executorsSnapshot;
+        Map<CancellableTaskExecutorService, List<Future<?>>> futuresCopy = futuresSnapshot;
         return handlerFactories.entrySet().stream()
-                .map(entry -> Pair.of(entry.getKey(), entry.getValue() == null ? null : executors.get(entry.getValue())))
+                .map(entry -> Pair.of(entry.getKey(), entry.getValue() == null ? null : executorsCopy.get(entry.getValue())))
                 .filter(pair -> pair.getLast() != null)
-                .map(pair -> Pair.of(pair.getFirst(), pair.getLast() == null ? 0 : futures.get(pair.getLast()).size()))
+                .map(pair -> Pair.of(pair.getFirst(), pair.getLast() == null ? 0 : futuresCopy.get(pair.getLast()).size()))
                 .filter(pair -> pair.getLast() != null)
                 .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
     }
 
     Map<SubscriberKey, Integer> threadReport() {
+        Map<MessageHandlerFactory, CancellableTaskExecutorService> executorsSnapshot = null;
+        synchronized (configureLock) {
+            executorsSnapshot = ImmutableMap.copyOf(this.executors);
+        }
+        Map<MessageHandlerFactory, CancellableTaskExecutorService> executorsCopy = executorsSnapshot;
         return handlerFactories.entrySet().stream()
-                .map(entry -> Pair.of(entry.getKey(), executors.get(entry.getValue())))
+                .map(entry -> Pair.of(entry.getKey(), executorsCopy.get(entry.getValue())))
                 .filter(pair -> pair.getLast() != null)
                 .map(pair -> Pair.of(pair.getFirst(), pair.getLast() == null ? 0 : ((CancellableTaskExecutorService) pair.getLast()).getCorePoolSize()))
                 .filter(pair -> pair.getLast() != 0)
@@ -211,7 +241,11 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     private void addMessageHandlerFactory(SubscriberKey key, MessageHandlerFactory factory) {
         if (appService.getAppServer().map(AppServer::isActive).orElse(false)) {
             Optional<SubscriberExecutionSpec> subscriberExecutionSpec = findSubscriberExecutionSpec(key);
-            subscriberExecutionSpec.ifPresent(executionSpec -> launch(factory, executionSpec.getThreadCount(), executionSpec.getSubscriberSpec()));
+            subscriberExecutionSpec.ifPresent(executionSpec -> {
+                synchronized (configureLock) {
+                    launch(factory, executionSpec.getThreadCount(), executionSpec.getSubscriberSpec());
+                }
+            });
         }
     }
 
@@ -284,26 +318,28 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
 
     @Override
     public void notify(AppServerCommand command) {
-            switch (command.getCommand()) {
-                case CONFIG_CHANGED:
-                    if (active) {
-                        reconfigure();
-                    } else {
-                        reconfigureNeeded = true;
-                    }
-                    return;
-                default:
-            }
+        switch (command.getCommand()) {
+            case CONFIG_CHANGED:
+                if (active) {
+                    reconfigure();
+                } else {
+                    reconfigureNeeded = true;
+                }
+                return;
+            default:
+        }
     }
 
     private void reconfigure() {
-        appService.getAppServer().map(appServer -> (Runnable) () -> {
-            if (!appServer.isActive()) {
-                stopLaunched();
-                return;
-            }
-            doReconfigure(appServer.getSubscriberExecutionSpecs());
-        }).orElse(this::appServerStopped).run();
+        synchronized (configureLock) {
+            appService.getAppServer().map(appServer -> (Runnable) () -> {
+                if (!appServer.isActive()) {
+                    stopLaunched();
+                    return;
+                }
+                doReconfigure(appServer.getSubscriberExecutionSpecs());
+            }).orElse(this::appServerStopped).run();
+        }
     }
 
     private void doReconfigure(List<? extends SubscriberExecutionSpec> subscriberExecutionSpec) {
