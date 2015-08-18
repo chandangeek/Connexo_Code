@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.conditions.Condition;
@@ -55,13 +56,15 @@ public class DeviceServiceImpl implements ServerDeviceService {
     private final DeviceDataModelService deviceDataModelService;
     private final ProtocolPluggableService protocolPluggableService;
     private final QueryService queryService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, ProtocolPluggableService protocolPluggableService, QueryService queryService) {
+    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, ProtocolPluggableService protocolPluggableService, QueryService queryService, Thesaurus thesaurus) {
         super();
         this.deviceDataModelService = deviceDataModelService;
         this.protocolPluggableService = protocolPluggableService;
         this.queryService = queryService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -193,7 +196,8 @@ public class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public Finder<Device> findAllDevices(Condition condition) {
         return DefaultFinder.of(Device.class, condition, this.deviceDataModelService.dataModel(), DeviceConfiguration.class, DeviceType.class).
-                defaultSortColumn("name");
+                defaultSortColumn("name").
+                maxPageSize(thesaurus, 1000);
     }
 
     @Override
