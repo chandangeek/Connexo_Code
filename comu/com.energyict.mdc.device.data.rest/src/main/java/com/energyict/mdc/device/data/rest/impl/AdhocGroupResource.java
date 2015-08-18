@@ -5,6 +5,7 @@ import com.elster.jupiter.yellowfin.groups.AdHocDeviceGroup;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.domain.util.Finder;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
@@ -57,7 +58,7 @@ public class AdhocGroupResource {
             condition = resourceHelper.getQueryConditionForDevice(params);
         }
         Finder<Device> allDevicesFinder = deviceService.findAllDevices(condition);
-        List<Long> allDevices = allDevicesFinder.from(queryParameters).find().stream().map(d -> d.getId()).collect(Collectors.toList());
+        List<Long> allDevices = allDevicesFinder.from(queryParameters).stream().map(HasId::getId).collect(Collectors.toList());
 
         Optional<AdHocDeviceGroup>  adhocGroup = yellowfinGroupsService.cacheAdHocDeviceGroup(allDevices);
         if(adhocGroup.isPresent()){
