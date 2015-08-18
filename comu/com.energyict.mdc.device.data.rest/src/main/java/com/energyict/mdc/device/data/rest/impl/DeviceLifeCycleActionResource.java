@@ -13,6 +13,7 @@ import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -113,7 +114,7 @@ public class DeviceLifeCycleActionResource {
                 List<ExecutableActionProperty> executableProperties = getExecutableActionPropertiesFromInfo(info, allPropertySpecsForAction);
                 try {
                     requestedAction.execute(info.effectiveTimestamp, executableProperties);
-                } catch (SecurityException | ActionDoesNotRelateToDeviceStateException | EffectiveTimestampNotInRangeException | EffectiveTimestampNotAfterLastStateChangeException ex){
+                } catch (SecurityException | InvalidLastCheckedException | ActionDoesNotRelateToDeviceStateException | EffectiveTimestampNotInRangeException | EffectiveTimestampNotAfterLastStateChangeException ex){
                     wizardResult.result = false;
                     wizardResult.message = ex.getLocalizedMessage();
                 } catch (RequiredMicroActionPropertiesException violationEx){
