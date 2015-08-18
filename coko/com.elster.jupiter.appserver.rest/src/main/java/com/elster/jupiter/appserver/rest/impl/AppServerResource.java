@@ -22,8 +22,6 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.streams.Functions;
 
-import java.util.*;
-import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -39,6 +37,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/appserver")
 public class AppServerResource {
@@ -93,25 +96,27 @@ public class AppServerResource {
         AppServer appServer = null;
         try(TransactionContext context = transactionService.getContext()) {
             AppServer underConstruction = appService.createAppServer(info.name, cronExpressionParser.parse("0 0 * * * ? *").get());
-            if (info.executionSpecs != null) {
-                info.executionSpecs.stream()
-                        .forEach(spec -> {
-                            SubscriberSpec subscriberSpec = messageService.getSubscriberSpec(spec.subscriberSpec.destination, spec.subscriberSpec.subscriber).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-                            underConstruction.createSubscriberExecutionSpec(subscriberSpec, spec.numberOfThreads);
-                        });
-            }
-            if(info.importServices != null) {
-                info.importServices.stream()
-                        .map(ImportScheduleInfo::getId)
-                        .map(fileImportService::getImportSchedule)
-                        .flatMap(Functions.asStream())
-                        .forEach(underConstruction::addImportScheduleOnAppServer);
+            try (AppServer.BatchUpdate batchUpdate = underConstruction.forBatchUpdate()) {
+                if (info.executionSpecs != null) {
+                    info.executionSpecs.stream()
+                            .forEach(spec -> {
+                                SubscriberSpec subscriberSpec = messageService.getSubscriberSpec(spec.subscriberSpec.destination, spec.subscriberSpec.subscriber).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+                                batchUpdate.createSubscriberExecutionSpec(subscriberSpec, spec.numberOfThreads);
+                            });
+                }
+                if (info.importServices != null) {
+                    info.importServices.stream()
+                            .map(ImportScheduleInfo::getId)
+                            .map(fileImportService::getImportSchedule)
+                            .flatMap(Functions.asStream())
+                            .forEach(batchUpdate::addImportScheduleOnAppServer);
 
-            }
-            if (info.active) {
-                underConstruction.activate();
-            } else {
-                underConstruction.deactivate();
+                }
+                if (info.active) {
+                    batchUpdate.activate();
+                } else {
+                    batchUpdate.deactivate();
+                }
             }
             appServer = underConstruction;
             context.commit();
