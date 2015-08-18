@@ -47,9 +47,7 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
     }
 
     protected S writeTo(S target) {
-        if (this.notNull(this.name)) {
-            target.setName(this.name);
-        }
+        target.setName(this.name);
         if (this.notNull(this.description)) {
             target.setDescription(this.description);
         }
