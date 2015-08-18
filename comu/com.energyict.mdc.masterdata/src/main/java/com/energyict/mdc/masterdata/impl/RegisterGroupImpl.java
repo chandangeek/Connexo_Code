@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> implements RegisterGroup {
 
     private final Publisher publisher;
+    @Size(min= 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.AT_LEAST_ONE_REGISTER_TYPE_REQUIRED + "}")
     private List<RegisterTypeInGroup> registerTypeInGroups = new ArrayList<>();
     private ChangeNotifier changeNotifier = new NotNotifiedYet();
 
@@ -119,7 +120,6 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
     public void updateRegisterTypes(List<RegisterType> registerTypes) {
         this.removeObsoleteRegisterTypes(registerTypes);
         this.addNewRegisterTypes(registerTypes);
-        this.checkAtLeastOneRegisterType();
         this.changeNotifier.updated();
     }
 

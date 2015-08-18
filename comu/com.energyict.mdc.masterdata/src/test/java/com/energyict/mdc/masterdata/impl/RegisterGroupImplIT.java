@@ -20,10 +20,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.transaction.TransactionService;
 
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.junit.*;
@@ -74,21 +71,34 @@ public class RegisterGroupImplIT {
     @Transactional
     public void testCreateEmptyWithoutViolations() {
         // Business method
+        this.setupProductSpecsInExistingTransaction();
         String expectedName = "No violations";
+        MasterDataServiceImpl masterDataService = inMemoryPersistence.getMasterDataService();
+        RegisterType registerType1 = masterDataService.newRegisterType(this.readingType1, ObisCode.fromString("1.1.1.1.1.1"));
+        registerType1.save();
+        RegisterType registerType2 = masterDataService.newRegisterType(this.readingType2, ObisCode.fromString("2.2.2.2.2.2"));
+        registerType2.save();
         RegisterGroup registerGroup = inMemoryPersistence.getMasterDataService().newRegisterGroup(expectedName);
+        registerGroup.updateRegisterTypes(Arrays.asList(registerType1, registerType2));
         registerGroup.save();
 
         // Asserts
         assertThat(registerGroup.getId()).isGreaterThan(0);
         assertThat(registerGroup.getName()).isEqualTo(expectedName);
-        assertThat(registerGroup.getRegisterTypes()).isEmpty();
+        List<Long> registerTypeIds = registerGroup.getRegisterTypes().stream().map(RegisterType::getId).collect(Collectors.toList());
+        assertThat(registerTypeIds).containsOnly(registerType1.getId(), registerType2.getId());
     }
 
     @Test
     @Transactional
     public void testFindAfterCreation() {
         String expectedName = "No violations";
+        this.setupProductSpecsInExistingTransaction();
+        MasterDataServiceImpl masterDataService = inMemoryPersistence.getMasterDataService();
+        RegisterType registerType1 = masterDataService.newRegisterType(this.readingType1, ObisCode.fromString("1.1.1.1.1.1"));
+        registerType1.save();
         RegisterGroup registerGroup = inMemoryPersistence.getMasterDataService().newRegisterGroup(expectedName);
+        registerGroup.addRegisterType(registerType1);
         registerGroup.save();
 
         // Business method
@@ -133,7 +143,6 @@ public class RegisterGroupImplIT {
         RegisterType registerType2 = masterDataService.newRegisterType(this.readingType2, ObisCode.fromString("2.2.2.2.2.2"));
         registerType2.save();
         RegisterGroup registerGroup = masterDataService.newRegisterGroup("testAddRegisterType");
-        registerGroup.save();
 
         // Business method
         registerGroup.addRegisterType(registerType1);
@@ -188,26 +197,6 @@ public class RegisterGroupImplIT {
         // Asserts: see expected exception rule
     }
 
-    @Test(expected = RegisterTypesRequiredException.class)
-    @Transactional
-    public void testRemoveAllRegisterType() {
-        this.setupProductSpecsInExistingTransaction();
-        MasterDataServiceImpl masterDataService = inMemoryPersistence.getMasterDataService();
-        RegisterType registerType1 = masterDataService.newRegisterType(this.readingType1, ObisCode.fromString("1.1.1.1.1.1"));
-        registerType1.save();
-        RegisterType registerType2 = masterDataService.newRegisterType(this.readingType2, ObisCode.fromString("2.2.2.2.2.2"));
-        registerType2.save();
-        RegisterGroup registerGroup = masterDataService.newRegisterGroup("testRemoveAllRegisterType");
-        registerGroup.addRegisterType(registerType1);
-        registerGroup.addRegisterType(registerType2);
-        registerGroup.save();
-
-        // Business method
-        registerGroup.updateRegisterTypes(Collections.emptyList());
-
-        // Asserts: see expected exception rule
-    }
-
     @Test
     @Transactional
     public void testUpdateRegisterTypes() {
@@ -218,13 +207,18 @@ public class RegisterGroupImplIT {
         RegisterType registerType2 = masterDataService.newRegisterType(this.readingType2, ObisCode.fromString("2.2.2.2.2.2"));
         registerType2.save();
         RegisterGroup registerGroup = inMemoryPersistence.getMasterDataService().newRegisterGroup("testUpdateRegisterTypes");
-        registerGroup.save();
 
         // Business method
-        registerGroup.updateRegisterTypes(Arrays.asList(registerType1, registerType2));
-
+        registerGroup.updateRegisterTypes(Arrays.asList(registerType1));
+        registerGroup.save();
         // Asserts
         List<Long> registerTypeIds = registerGroup.getRegisterTypes().stream().map(RegisterType::getId).collect(Collectors.toList());
+        assertThat(registerTypeIds).containsOnly(registerType1.getId());
+
+        registerGroup.updateRegisterTypes(Arrays.asList(registerType1, registerType2));
+        registerGroup.save();
+
+        registerTypeIds = registerGroup.getRegisterTypes().stream().map(RegisterType::getId).collect(Collectors.toList());
         assertThat(registerTypeIds).containsOnly(registerType1.getId(), registerType2.getId());
     }
 
