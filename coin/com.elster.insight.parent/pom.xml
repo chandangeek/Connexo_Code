@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>parent</artifactId>
+        <version>1.1.0-SNAPSHOT</version>
+    </parent>
+    
+    <groupId>com.elster</groupId>
+    <artifactId>insight.parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>[Insight] insight.parent</name>
+
+
+    <organization>
+        <name>Elster</name>
+        <url>www.elster.com</url>
+    </organization>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <jetty-server.version>7.6.3.v20120416</jetty-server.version>
+        <json.version>20090211</json.version>
+        <!-- next line is the argLine for the maven-surefire-plugin
+             but it must be declared as a property because of the jacoco plugin (defined in jupiter parent)
+             see http://docs.codehaus.org/display/SONAR/JaCoCo+Plugin
+             -->
+        <argLine>-Xms512m -Xmx1024m</argLine>
+    </properties>
+
+    <issueManagement>
+        <system>Jira</system>
+        <url>http://jira.eict.vpdc</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>Bamboo</system>
+        <url>http://build.eict.vpdc</url>
+    </ciManagement>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.elster.jupiter.subsystem</groupId>
+                <artifactId>platform</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+           <!-- 
+                Once there is a bundle that contains test, it's forseen 
+                that we'll need at least some of these dependencies so
+                leave for now and clean up later
+
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>devtools</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>devtools.persistence</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>devtools.rest</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>bootstrap.h2</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>messaging.h2</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.jimfs</groupId>
+                <artifactId>jimfs</artifactId>
+                <version>1.0</version>
+                <scope>test</scope>
+            </dependency>
+-->
+        </dependencies>
+
+    </dependencyManagement>
+
+    <profiles>
+        <profile>
+            <id>insight</id>
+            <modules>
+                <module>../com.elster.insight.app</module>
+                <module>../com.elster.insight.usagepoint.data.rest</module>
+
+            </modules>
+        </profile>
+    </profiles>
+
+</project>
