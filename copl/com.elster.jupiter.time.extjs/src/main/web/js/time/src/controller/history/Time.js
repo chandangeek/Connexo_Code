@@ -10,7 +10,7 @@ Ext.define('Tme.controller.history.Time', {
             disabled: true,
             items: {
                 relativeperiods: {
-                    title: Uni.I18n.translate('general.relativeperiods', 'TME', 'Relative periods'),
+                    title: Uni.I18n.translate('general.relativePeriods', 'TME', 'Relative periods'),
                     route: 'relativeperiods',
                     controller: 'Tme.controller.RelativePeriods',
                     privileges: Tme.privileges.Period.view,
