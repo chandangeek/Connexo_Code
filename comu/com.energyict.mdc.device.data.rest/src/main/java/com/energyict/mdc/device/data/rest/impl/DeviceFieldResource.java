@@ -1,7 +1,19 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
+import com.energyict.mdc.common.rest.FieldResource;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.rest.LogLevelAdapter;
+import com.energyict.mdc.device.data.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -11,21 +23,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
-import com.energyict.mdc.common.rest.FieldResource;
-import com.energyict.mdc.common.rest.IdWithNameInfo;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.rest.LogLevelAdapter;
-import com.energyict.mdc.device.data.security.Privileges;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/field")
 public class DeviceFieldResource extends FieldResource {
@@ -77,7 +76,7 @@ public class DeviceFieldResource extends FieldResource {
     public PagedInfoList getGateways(@QueryParam("search") String search, @QueryParam("excludeDeviceMRID") String excludeDeviceMRID, @BeanParam JsonQueryParameters queryParameters) {
         Condition condition = Condition.TRUE;
         if (!Checks.is(search).emptyOrOnlyWhiteSpace()) {
-            condition = condition.and(Where.where("mRID").likeIgnoreCase('%' + search + '%'));
+            condition = condition.and(Where.where("mRID").likeIgnoreCase('*' + search + '*'));
         }
         if (!Checks.is(excludeDeviceMRID).emptyOrOnlyWhiteSpace()) {
             condition = condition.and(Where.where("mRID").isNotEqual(excludeDeviceMRID));
