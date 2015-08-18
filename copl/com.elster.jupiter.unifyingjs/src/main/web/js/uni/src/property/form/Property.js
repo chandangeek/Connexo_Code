@@ -141,15 +141,16 @@ Ext.define('Uni.property.form.Property', {
         var me = this;
         var raw = me.getFieldValues();
         var values = {};
-
-        me.getRecord().properties().each(function (property) {
-            var key = property.get('key');
-            var field = me.getPropertyField(key);
-            if (field !== undefined) {
-                values[key] = field.getValue(raw);
-            }
-        });
-        this.getForm().hydrator.hydrate(values, me.getRecord());
+        if(me.getRecord()){
+            me.getRecord().properties().each(function (property) {
+                var key = property.get('key');
+                var field = me.getPropertyField(key);
+                if (field !== undefined) {
+                    values[key] = field.getValue(raw);
+                }
+            });
+            this.getForm().hydrator.hydrate(values, me.getRecord());
+        }
     },
 
     unFlattenObj: function (object) {
