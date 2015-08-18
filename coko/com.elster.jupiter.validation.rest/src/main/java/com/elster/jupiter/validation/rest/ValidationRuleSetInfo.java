@@ -16,17 +16,20 @@ public class ValidationRuleSetInfo {
     public Long startDate;
     public Long endDate;
     public int numberOfVersions;
+    public Boolean hasCurrent;
 
 	public ValidationRuleSetInfo(ValidationRuleSet validationRuleSet) {
         id = validationRuleSet.getId();
         name = validationRuleSet.getName();
         description = validationRuleSet.getDescription();
+        hasCurrent = false;
         validationRuleSet.getRuleSetVersions().stream()
                 .filter(v -> ValidationVersionStatus.CURRENT.equals(v.getStatus()))
                 .findFirst()
                 .ifPresent(ver -> {
                     Optional.ofNullable(ver.getStartDate()).ifPresent(sd-> this.startDate = sd.toEpochMilli());
                     Optional.ofNullable(ver.getEndDate()).ifPresent(ed-> this.endDate = ed.toEpochMilli());
+                    this.hasCurrent = true;
                 });
         numberOfVersions = validationRuleSet.getRuleSetVersions().size();
     }
