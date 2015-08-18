@@ -17,7 +17,6 @@ import com.elster.jupiter.util.cron.CronExpression;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
-import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -87,8 +86,10 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     @Test
     public void testCreateAppServer() {
         AppServer newAppServer = mock(AppServer.class);
+        AppServer.BatchUpdate batchUpdate = mock (AppServer.BatchUpdate.class);
         when(newAppServer.getName()).thenReturn("NEW-APP-SERVER");
         when(newAppServer.isActive()).thenReturn(false);
+        when(newAppServer.forBatchUpdate()).thenReturn(batchUpdate);
         addServicesOnAppServer(newAppServer);
         CronExpression cronExpression = mock(CronExpression.class);
         when(cronExpressionParser.parse(any(String.class))).thenReturn(Optional.of(cronExpression));
