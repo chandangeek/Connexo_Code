@@ -50,8 +50,7 @@ Ext.define('Uni.property.view.property.Number', {
         return {
             xtype: 'displayfield',
             name: this.getName(),
-            itemId: this.key + 'displayfield',
-            cls: 'uni-property-displayfield'
+            itemId: this.key + 'displayfield'
         }
     },
 

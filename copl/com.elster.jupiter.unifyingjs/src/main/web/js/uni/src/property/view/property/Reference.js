@@ -36,7 +36,6 @@ Ext.define('Uni.property.view.property.Reference', {
             xtype: 'displayfield',
             name: me.getName(),
             itemId: me.key + 'displayfield',
-            cls: 'uni-property-displayfield',
             renderer: function (value) {
                 var result;
 
