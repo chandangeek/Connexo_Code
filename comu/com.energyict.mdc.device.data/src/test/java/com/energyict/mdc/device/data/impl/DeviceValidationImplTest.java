@@ -1,18 +1,14 @@
 package com.energyict.mdc.device.data.impl;
 
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Date;
-import java.util.Optional;
-
+import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.data.Channel;
+import com.google.common.collect.Range;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -21,15 +17,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.validation.ValidationEvaluator;
-import com.elster.jupiter.validation.ValidationService;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Optional;
 
-import com.energyict.mdc.device.data.Channel;
-import com.google.common.collect.Range;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceValidationImplTest {
@@ -64,6 +61,8 @@ public class DeviceValidationImplTest {
     private Clock clock;
     @Mock
     private ValidationEvaluator validationEvaluator;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
