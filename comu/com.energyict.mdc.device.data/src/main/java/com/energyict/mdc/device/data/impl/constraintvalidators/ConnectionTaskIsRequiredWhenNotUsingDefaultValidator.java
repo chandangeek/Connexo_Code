@@ -23,7 +23,7 @@ public class ConnectionTaskIsRequiredWhenNotUsingDefaultValidator implements Con
 
     @Override
     public boolean isValid(ComTaskExecutionImpl comTaskExecution, ConstraintValidatorContext context) {
-        if (comTaskExecution.getConnectionTask() == null && !comTaskExecution.usesDefaultConnectionTask()) {
+        if (!comTaskExecution.getConnectionTask().isPresent() && !comTaskExecution.usesDefaultConnectionTask()) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT + "}")
                     .addPropertyNode(ComTaskExecutionFields.CONNECTIONTASK.fieldName())

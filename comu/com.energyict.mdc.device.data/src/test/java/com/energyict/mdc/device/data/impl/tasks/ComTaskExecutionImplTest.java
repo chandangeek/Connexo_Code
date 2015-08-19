@@ -261,7 +261,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         device.save();
 
         // Asserts
-        assertThat(comTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
+        assertThat(comTaskExecution.getConnectionTask().get().getId()).isEqualTo(connectionTask.getId());
     }
 
     @Test
@@ -299,7 +299,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         device.save();
 
         ComTaskExecution reloadedComTaskExecution = reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
-        assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
+        assertThat(reloadedComTaskExecution.getConnectionTask().get().getId()).isEqualTo(connectionTask.getId());
     }
 
     @Test

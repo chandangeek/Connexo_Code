@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Optional;
 
+import com.elster.jupiter.nls.Thesaurus;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -62,6 +63,8 @@ public class DeviceValidationImplTest {
     private com.elster.jupiter.metering.Channel koreChannel1, koreChannel2, koreChannel3, koreChannel4;
     @Mock
     private Clock clock;
+    @Mock
+    private Thesaurus thesaurus;
     @Mock
     private ValidationEvaluator validationEvaluator;
 

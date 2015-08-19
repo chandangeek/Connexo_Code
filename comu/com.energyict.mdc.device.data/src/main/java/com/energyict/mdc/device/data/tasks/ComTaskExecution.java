@@ -70,8 +70,6 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      */
     public static final int DEFAULT_COMTASK_FAILURE_RESCHEDULE_DELAY_SECONDS = 300;
 
-    public static final int HIGHEST_PRIORITY = TaskPriorityConstants.HIGHEST_PRIORITY;
-    public static final int LOWEST_PRIORITY = TaskPriorityConstants.LOWEST_PRIORITY;
     public static final int DEFAULT_PRIORITY = TaskPriorityConstants.DEFAULT_PRIORITY;
 
     /**
@@ -227,11 +225,11 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     public Instant getObsoleteDate();
 
     /**
-     * Gets the {@link ConnectionTask} which will be used to perform this ComTaskExecution
+     * Gets the {@link ConnectionTask} which will be used to perform this ComTaskExecution.
      *
-     * @return the used ConnectionTask
+     * @return the ConnectionTask
      */
-    public ConnectionTask<?, ?> getConnectionTask();
+    public Optional<ConnectionTask<?, ?>> getConnectionTask();
 
     public boolean usesSameConnectionTaskAs(ComTaskExecution anotherTask);
 
@@ -363,7 +361,6 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      */
     public boolean executesComTask(ComTask comTask);
 
-
     /**
      * Tests if the last execution of this ComTaskExecution failed.
      * Note that each time the ComTaskExecution executes,
@@ -372,4 +369,5 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      * @return <code>true</code> iff the last execution of this ComTaskExecution failed.
      */
     boolean isLastExecutionFailed();
+
 }

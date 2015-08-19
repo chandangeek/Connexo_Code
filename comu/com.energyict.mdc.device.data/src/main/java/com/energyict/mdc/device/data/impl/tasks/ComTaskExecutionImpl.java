@@ -91,13 +91,17 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     private Instant lastSuccessfulCompletionTimestamp;
     private Instant plannedNextExecutionTimestamp;
     private Instant obsoleteDate;
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
 
     /**
-     * ExecutionPriority can be overruled by the Minimize ConnectionTask
+     * ExecutionPriority can be overruled by the Minimize ConnectionTask.
      */
     @Range(min = TaskPriorityConstants.HIGHEST_PRIORITY, max = TaskPriorityConstants.LOWEST_PRIORITY, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PRIORITY_NOT_IN_RANGE + "}")
     private int executionPriority;
@@ -106,7 +110,9 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     private int currentRetryCount;
     private boolean lastExecutionFailed;
     private Reference<ComTaskExecutionSession> lastSession = ValueReference.absent();
+    @SuppressWarnings("unused")
     private CompletionCode lastSessionHighestPriorityCompletionCode;
+    @SuppressWarnings("unused")
     private ComTaskExecutionSession.SuccessIndicator lastSessionSuccessIndicator;
     private boolean useDefaultConnectionTask;
     private boolean ignoreNextExecutionSpecsForInbound;
@@ -243,7 +249,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         updatedVersionOfMyself.ifPresent(cte -> {
             this.comPort.set(cte.getExecutingComPort());
             this.obsoleteDate = cte.getObsoleteDate();
-            this.setConnectionTask(cte.getConnectionTask());
+            this.setConnectionTask(cte.getConnectionTask().orElse(null));
         });
     }
 
@@ -271,8 +277,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     @Override
-    public ConnectionTask<?, ?> getConnectionTask() {
-        return this.connectionTask.orNull();
+    public Optional<ConnectionTask<?, ?>> getConnectionTask() {
+        return this.connectionTask.getOptional();
     }
 
     void setConnectionTask(ConnectionTask<?, ?> connectionTask) {
@@ -290,7 +296,12 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
             ComTaskExecutionImpl comTaskExecution = (ComTaskExecutionImpl) anotherTask;
             return this.connectionTaskId == comTaskExecution.connectionTaskId;
         } else {
-            return this.connectionTaskId == anotherTask.getConnectionTask().getId();
+            if (anotherTask.getConnectionTask().isPresent()) {
+                return this.connectionTaskId == anotherTask.getConnectionTask().get().getId();
+            }
+            else {
+                return false;
+            }
         }
     }
 
@@ -424,10 +435,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
         /* ConnectionTask can be null when the default is used but
          * no default has been set or created yet. */
-        ConnectionTask<?, ?> connectionTask = this.getConnectionTask();
-        if (connectionTask != null) {
-            connectionTask.scheduledComTaskRescheduled(this);
-        }
+        this.getConnectionTask().ifPresent(ct -> ct.scheduledComTaskRescheduled(this));
     }
 
     private void setExecutingComPort(ComPort comPort) {
@@ -459,7 +467,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
      * @return the adjusted nextExecutionTimestamp
      */
     private Instant defineNextExecutionTimeStamp(Instant nextExecutionTimestamp) {
-        if (!this.isScheduledConnectionTask(getConnectionTask()) || ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(getScheduledConnectionTask().getConnectionStrategy())) {
+        if (!this.connectionTaskIsScheduled() || ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(getScheduledConnectionTask().getConnectionStrategy())) {
             return this.applyComWindowIfOutboundAndAny(nextExecutionTimestamp);
         } else { // in case of outbound MINIMIZE
             Instant nextActualConnectionTime = getScheduledConnectionTask().getNextExecutionTimestamp();
@@ -476,15 +484,16 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     private Instant applyComWindowIfOutboundAndAny(Instant preliminaryNextExecutionTimestamp) {
-        if (isScheduledConnectionTask(getConnectionTask())) {
+        if (this.connectionTaskIsScheduled()) {
             return getScheduledConnectionTask().applyComWindowIfAny(preliminaryNextExecutionTimestamp);
         } else {
             return preliminaryNextExecutionTimestamp;
         }
     }
 
-    private boolean isScheduledConnectionTask(ConnectionTask<?, ?> connectionTask) {
-        return connectionTask instanceof ScheduledConnectionTask;
+    private boolean connectionTaskIsScheduled() {
+        return this.getConnectionTask().isPresent()
+            && this.getConnectionTask().get() instanceof ScheduledConnectionTask;
     }
 
     private ScheduledConnectionTaskImpl getScheduledConnectionTask() {
@@ -511,9 +520,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         this.setPlannedNextExecutionTimestamp(currentDate);
         this.nextExecutionTimestamp = currentDate;
 
-        ConnectionTask<?, ?> connectionTask = this.getConnectionTask();
-        if (connectionTask instanceof ScheduledConnectionTask) {
-            ((ScheduledConnectionTaskImpl) connectionTask).scheduleConnectionNow();
+        if (this.connectionTaskIsScheduled()) {
+            ((ScheduledConnectionTaskImpl) this.getConnectionTask().get()).scheduleConnectionNow();
         }
         this.update();
     }
@@ -608,7 +616,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     private TimeDuration comTaskRescheduleDelay() {
         TimeDuration comTaskDefinedRescheduleDelay;
-        if (this.isScheduledConnectionTask(getConnectionTask())) {
+        if (this.connectionTaskIsScheduled()) {
             ScheduledConnectionTask outboundConnectionTask = getScheduledConnectionTask();
             comTaskDefinedRescheduleDelay = outboundConnectionTask.getRescheduleDelay();
         } else {
@@ -806,9 +814,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
             this.comTaskExecution.prepareForSaving();
             this.comTaskExecution.save();
             if (this.connectionTaskSchedulingMayHaveChanged) {
-                if (this.comTaskExecution.getConnectionTask() != null) {
-                    this.comTaskExecution.getConnectionTask().scheduledComTaskRescheduled(this.comTaskExecution);
-                }
+                this.comTaskExecution.getConnectionTask().ifPresent(ct -> ct.scheduledComTaskRescheduled(this.comTaskExecution));
             }
             return (C) this.comTaskExecution;
         }
