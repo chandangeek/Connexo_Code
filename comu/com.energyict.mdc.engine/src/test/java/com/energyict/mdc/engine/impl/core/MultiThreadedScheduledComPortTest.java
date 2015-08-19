@@ -833,7 +833,7 @@ public class MultiThreadedScheduledComPortTest {
     private ComTaskExecution mockComTask(long id, OutboundConnectionTask connectionTask) {
         ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ComTaskExecution.class));
         when(comTaskExecution.getId()).thenReturn(id);
-        when(comTaskExecution.getConnectionTask()).thenReturn(connectionTask);
+        when(comTaskExecution.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(comTaskExecution.getDevice()).thenReturn(this.device);
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(this.comTask));
         when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties);
@@ -845,7 +845,7 @@ public class MultiThreadedScheduledComPortTest {
     }
 
     private List<ComJob> toComJob(List<ComTaskExecution> serialComTasks) {
-        ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) serialComTasks.get(0).getConnectionTask();
+        ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) serialComTasks.get(0).getConnectionTask().get();
         ComTaskExecutionGroup group = new ComTaskExecutionGroup(connectionTask);
         for (ComTaskExecution comTask : serialComTasks) {
             group.add(comTask);

@@ -567,7 +567,7 @@ public class InboundCommunicationHandler {
             return false;
         } else {
             // There is at most one InboundConnectionTask for every device
-            this.connectionTask = (InboundConnectionTask) this.deviceComTaskExecutions.get(0).getConnectionTask();
+            this.connectionTask = (InboundConnectionTask) this.deviceComTaskExecutions.get(0).getConnectionTask().orElse(null);
             return true;
         }
     }

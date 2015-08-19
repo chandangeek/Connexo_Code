@@ -78,7 +78,8 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
     }
 
     protected void add(ComTaskExecution comTaskExecution) {
-        ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) comTaskExecution.getConnectionTask();
+        // ComTaskExecution was returned by task query that joins it with the ConnectionTask so it cannot be <code>null</code>
+        ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) comTaskExecution.getConnectionTask().get();
         if (this.supportsSimultaneousConnections(connectionTask)) {
             this.addComTaskJob(comTaskExecution);
         } else {
@@ -109,7 +110,8 @@ public abstract class GroupingComJobFactory implements ComJobFactory {
     }
 
     private ComTaskExecutionGroup getComTaskGroup(ComTaskExecution comTaskExecution) {
-        ConnectionTask<?, ?> connectionTask = comTaskExecution.getConnectionTask();
+        // ComTaskExecution was returned by task query that joins it with the ConnectionTask so it cannot be <code>null</code>
+        ConnectionTask<?, ?> connectionTask = comTaskExecution.getConnectionTask().get();
         ComTaskExecutionGroup group = this.groups.get(connectionTask.getId());
         if (group == null) {
             group = new ComTaskExecutionGroup((OutboundConnectionTask<?>) connectionTask);
