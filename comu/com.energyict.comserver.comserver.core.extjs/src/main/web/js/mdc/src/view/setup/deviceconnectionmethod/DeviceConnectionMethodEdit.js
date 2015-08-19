@@ -46,7 +46,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                         xtype: 'form',
                         border: false,
                         itemId: 'deviceConnectionMethodEditForm',
-                        width: 700,
+                        width: 800,
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
@@ -155,12 +155,14 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                         items: [
                                             {
                                                 name: 'enableConnWindow',
+                                                boxLabel: Uni.I18n.translate('connectionmethod.norestriction', 'MDC', 'No restrictions'),
                                                 inputValue: false,
                                                 checked: true,
                                                 margin: '0 10 5 0'
                                             },
                                             {
                                                 name: 'enableConnWindow',
+                                                boxLabel: Uni.I18n.translate('connectionmethod.between', 'MDC', 'Between'),
                                                 inputValue: true,
                                                 margin: '0 10 5 0'
                                             }
@@ -175,7 +177,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                         items: [
                                             {
                                                 xtype: 'displayfield',
-                                                value: Uni.I18n.translate('connectionmethod.norestriction', 'MDC', 'No restrictions')
+                                                value: ''
                                             },
                                             {
                                                 xtype: 'container',
@@ -183,13 +185,8 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                                     type: 'hbox',
                                                     align: 'stretch'
                                                 },
-                                                margin: '-2 0 0 0',
+                                                margin: '-9 0 0 0',
                                                 items: [
-                                                    {
-                                                        xtype: 'displayfield',
-                                                        value: Uni.I18n.translate('connectionmethod.between', 'MDC', 'Between'),
-                                                        margin: '0 10 0 0'
-                                                    },
                                                     {
                                                         xtype: 'timeInSecondsField',
                                                         name: 'comWindowStart',
@@ -242,7 +239,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
 //                                    },
                             {
                                 xtype: 'radiogroup',
-                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.allowSimultaneousConnections', 'MDC', 'Allow simultaneous connection'),
+                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.allowSimultaneousConnections', 'MDC', 'Allow simultaneous connections'),
                                 itemId: 'allowSimultaneousConnections',
                                 allowBlank: false,
                                 vertical: true,
@@ -257,7 +254,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                         margin: '0 10 5 0'
                                     },
                                     {
-                                        boxLabel:  Uni.I18n.translate('general.yes', 'MDC', 'No'),
+                                        boxLabel:  Uni.I18n.translate('general.no', 'MDC', 'No'),
                                         name: 'allowSimultaneousConnections',
                                         checked: true,
                                         inputValue: false,
@@ -283,7 +280,7 @@ Ext.define('Mdc.view.setup.deviceconnectionmethod.DeviceConnectionMethodEdit', {
                                         margin: '0 10 5 0'
                                     },
                                     {
-                                        boxLabel:  Uni.I18n.translate('general.yes', 'MDC', 'No'),
+                                        boxLabel:  Uni.I18n.translate('general.no', 'MDC', 'No'),
                                         name: 'status',
                                         inputValue: 'connectionTaskStatusInActive',
                                         margin: '0 10 5 0'

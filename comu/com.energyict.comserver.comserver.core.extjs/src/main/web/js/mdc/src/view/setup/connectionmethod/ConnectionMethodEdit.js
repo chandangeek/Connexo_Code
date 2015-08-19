@@ -184,12 +184,14 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                         items: [
                                             {
                                                 name: 'enableConnWindow',
+                                                boxLabel: Uni.I18n.translate('connectionmethod.norestriction', 'MDC', 'No restrictions'),
                                                 inputValue: false,
                                                 checked: true,
                                                 margin: '0 10 5 0'
                                             },
                                             {
                                                 name: 'enableConnWindow',
+                                                boxLabel: Uni.I18n.translate('connectionmethod.between', 'MDC', 'Between'),
                                                 inputValue: true,
                                                 margin: '0 10 5 0'
                                             }
@@ -204,7 +206,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                         items: [
                                             {
                                                 xtype: 'displayfield',
-                                                value: Uni.I18n.translate('connectionmethod.norestriction', 'MDC', 'No restrictions')
+                                                value: ''
                                             },
                                             {
                                                 xtype: 'container',
@@ -212,13 +214,8 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                                     type: 'hbox',
                                                     align: 'stretch'
                                                 },
-                                                margin: '-2 0 0 0',
+                                                margin: '-9 0 0 0',
                                                 items: [
-                                                    {
-                                                        xtype: 'displayfield',
-                                                        value: Uni.I18n.translate('connectionmethod.between', 'MDC', 'Between'),
-                                                        margin: '0 10 0 0'
-                                                    },
                                                     {
                                                         xtype: 'timeInSecondsField',
                                                         name: 'comWindowStart',
@@ -271,7 +268,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
 //                                    },
                             {
                                 xtype: 'radiogroup',
-                                fieldLabel: Uni.I18n.translate('connectionmethod.allowSimultaneousConnections', 'MDC', 'Allow simultaneous connection'),
+                                fieldLabel: Uni.I18n.translate('connectionmethod.allowSimultaneousConnections', 'MDC', 'Allow simultaneous connections'),
                                 itemId: 'allowSimultaneousConnections',
                                 allowBlank: false,
                                 vertical: true,
@@ -279,13 +276,13 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 columns: 1,
                                 items: [
                                     {
-                                        boxLabel: 'Yes',
+                                        boxLabel: Uni.I18n.translate('general.yes', 'MDC', 'Yes'),
                                         name: 'allowSimultaneousConnections',
                                         inputValue: true,
                                         margin: '0 10 5 0'
                                     },
                                     {
-                                        boxLabel: 'No',
+                                        boxLabel: Uni.I18n.translate('general.no', 'MDC', 'No'),
                                         name: 'allowSimultaneousConnections',
                                         checked: true,
                                         inputValue: false,
