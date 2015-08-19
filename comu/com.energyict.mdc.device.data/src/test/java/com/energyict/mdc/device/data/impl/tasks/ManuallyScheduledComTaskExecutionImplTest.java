@@ -165,7 +165,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
 
         // Asserts
         assertThat(comTaskExecution.usesDefaultConnectionTask()).isTrue();
-        assertThat(comTaskExecution.getConnectionTask()).isNull();
+        assertThat(comTaskExecution.getConnectionTask()).isEmpty();
     }
 
     @Test
