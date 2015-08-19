@@ -116,7 +116,7 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.IOError);
         when(comTaskExecution.getLastSession()).thenReturn(Optional.of(comTaskExecutionSession));
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
-        doReturn(connectionTask).when(comTaskExecution).getConnectionTask();
+        doReturn(Optional.of(connectionTask)).when(comTaskExecution).getConnectionTask();
         List<ComTask> comTasks = Arrays.asList(mockComTask(1L, "Read all"));
         when(comTaskExecution.getComTasks()).thenReturn(comTasks);
         NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
