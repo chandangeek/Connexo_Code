@@ -34,7 +34,7 @@ public class DefaultFinderTest {
         final List<Integer> integers = intList(240);
         mockQuery(integers);
 
-        DefaultFinder<Integer> finder = DefaultFinder.of(Integer.class, dataModel);
+        Finder<Integer> finder = DefaultFinder.of(Integer.class, dataModel).maxPageSize(null, 100);
         List<Integer> results = finder.stream().collect(toList());
         assertList(results, 240);
     }
@@ -44,7 +44,7 @@ public class DefaultFinderTest {
         final List<Integer> integers = intList(200);
         mockQuery(integers);
 
-        DefaultFinder<Integer> finder = DefaultFinder.of(Integer.class, dataModel);
+        Finder<Integer> finder = DefaultFinder.of(Integer.class, dataModel).maxPageSize(null, 100);
         List<Integer> results = finder.stream().collect(toList());
         assertList(results, 200);
     }
@@ -54,7 +54,7 @@ public class DefaultFinderTest {
         final List<Integer> integers = intList(100);
         mockQuery(integers);
 
-        DefaultFinder<Integer> finder = DefaultFinder.of(Integer.class, dataModel);
+        Finder<Integer> finder = DefaultFinder.of(Integer.class, dataModel).maxPageSize(null, 100);
         List<Integer> results = finder.stream().collect(toList());
         assertList(results, 100);
     }
@@ -64,7 +64,7 @@ public class DefaultFinderTest {
         final List<Integer> integers = intList(99);
         mockQuery(integers);
 
-        DefaultFinder<Integer> finder = DefaultFinder.of(Integer.class, dataModel);
+        Finder<Integer> finder = DefaultFinder.of(Integer.class, dataModel).maxPageSize(null, 100);
         List<Integer> results = finder.stream().collect(toList());
         assertList(results, 99);
     }
@@ -74,9 +74,19 @@ public class DefaultFinderTest {
         final List<Integer> integers = Collections.emptyList();
         mockQuery(integers);
 
-        DefaultFinder<Integer> finder = DefaultFinder.of(Integer.class, dataModel);
+        Finder<Integer> finder = DefaultFinder.of(Integer.class, dataModel).maxPageSize(null, 100);
         List<Integer> results = finder.stream().collect(toList());
         assertThat(results).isEmpty();
+    }
+
+    @Test
+    public void testStreamOverPagedFinder() throws Exception {
+        final List<Integer> integers = intList(1000);
+        mockQuery(integers);
+
+        Finder<Integer> finder = DefaultFinder.of(Integer.class, dataModel).maxPageSize(null, 100).paged(0,10);
+        List<Integer> results = finder.stream().collect(toList());
+        assertList(results, 11);
     }
 
     private void mockQuery(List<Integer> integers) {

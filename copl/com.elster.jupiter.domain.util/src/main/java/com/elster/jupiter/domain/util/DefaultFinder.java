@@ -120,16 +120,19 @@ public final class DefaultFinder<T> implements Finder<T> {
 
     @Override
     public Stream<T> stream() {
+        if (start!=null && pageSize!=null) {
+            return Finder.super.stream();
+        }
         Iterable<T> iterable = PagingIterator::new;
         return StreamSupport.stream(iterable.spliterator(), false);
     }
 
     /**
      * This class iterates over an QueryExcuter's results, allowing a Stream to be build from it
-     * @param <E>
+     * The iterator will use paging to avoid loading all results in a list
      */
     private class PagingIterator<E> implements Iterator<E> {
-        private final int pageSize=maxPageSize==null?100:Math.min(100, maxPageSize);
+        private final int pageSize=maxPageSize==null?100:maxPageSize;
         private int currentPage=0;
         private int currentItemInPage =0;
         private List<E> items = null;
