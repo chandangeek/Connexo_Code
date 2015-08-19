@@ -484,9 +484,11 @@ public class ProtocolTaskImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void testCreateRegistersTaskWithRegisterGroup() throws Exception {
+        this.setupReadingTypeInExistingTransaction();
         ComTask comTask = createSimpleComTask();
 
         RegisterGroup registerGroup = getMasterDataService().newRegisterGroup("group1");
+        registerGroup.addRegisterType(this.registerType);
         registerGroup.save();
         comTask.createRegistersTask().registerGroups(Arrays.asList(registerGroup)).add();
         comTask.save();
@@ -500,9 +502,11 @@ public class ProtocolTaskImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void testCreateRegistersTaskAdd1RegisterGroup() throws Exception {
+        this.setupReadingTypeInExistingTransaction();
         ComTask comTask = createSimpleComTask();
 
         RegisterGroup registerGroup = getMasterDataService().newRegisterGroup("group1");
+        registerGroup.addRegisterType(this.registerType);
         registerGroup.save();
         comTask.createRegistersTask().registerGroups(Arrays.asList(registerGroup)).add();
         comTask.save();
@@ -510,6 +514,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         RegistersTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), RegistersTask.class);
         RegisterGroup registerGroup2 = getMasterDataService().newRegisterGroup("group2");
+        registerGroup2.addRegisterType(this.registerType);
         registerGroup2.save();
         taskByType.setRegisterGroups(Arrays.asList(registerGroup, registerGroup2));
         taskByType.save();
@@ -524,11 +529,14 @@ public class ProtocolTaskImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void testCreateRegistersTaskRemove1RegisterGroup() throws Exception {
+        this.setupReadingTypeInExistingTransaction();
         ComTask comTask = createSimpleComTask();
 
         RegisterGroup registerGroup = getMasterDataService().newRegisterGroup("group1");
+        registerGroup.addRegisterType(this.registerType);
         registerGroup.save();
         RegisterGroup registerGroup2 = getMasterDataService().newRegisterGroup("group2");
+        registerGroup2.addRegisterType(this.registerType);
         registerGroup2.save();
         comTask.createRegistersTask().registerGroups(Arrays.asList(registerGroup, registerGroup2)).add();
         comTask.save();
@@ -548,11 +556,14 @@ public class ProtocolTaskImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void testCreateRegistersTaskAdd1Remove1RegisterGroup() throws Exception {
+        this.setupReadingTypeInExistingTransaction();
         ComTask comTask = createSimpleComTask();
 
         RegisterGroup registerGroup = getMasterDataService().newRegisterGroup("group1");
+        registerGroup.addRegisterType(this.registerType);
         registerGroup.save();
         RegisterGroup registerGroup2 = getMasterDataService().newRegisterGroup("group2");
+        registerGroup2.addRegisterType(this.registerType);
         registerGroup2.save();
         comTask.createRegistersTask().registerGroups(Arrays.asList(registerGroup, registerGroup2)).add();
         comTask.save();
@@ -560,6 +571,7 @@ public class ProtocolTaskImplTest extends PersistenceTest {
         ComTask reloadedComTask = getTaskService().findComTask(comTask.getId()).get();
         RegistersTask taskByType = getTaskByType(reloadedComTask.getProtocolTasks(), RegistersTask.class);
         RegisterGroup registerGroup3 = getMasterDataService().newRegisterGroup("group3");
+        registerGroup3.addRegisterType(this.registerType);
         registerGroup3.save();
         taskByType.setRegisterGroups(Arrays.asList(registerGroup2, registerGroup3));
         taskByType.save();
