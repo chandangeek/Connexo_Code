@@ -42,9 +42,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED(6002, Keys.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED, "The number of digits can not be decreased", SEVERE),
     REGISTER_SPEC_REGISTER_TYPE_IS_REQUIRED(6003, Keys.REGISTER_SPEC_REGISTER_TYPE_IS_REQUIRED,"The register type of a register configuration is required", SEVERE),
     REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED(6004, Keys.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED, "The number of fraction digits can not be decreased", SEVERE),
-    REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS(6005, "registerSpec.overflow.exceed","The provided overflow value \"{0}\" may not exceed \"{1}\" (according to the provided number of digits \"{2}\")", SEVERE),
+    REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS(6005, Keys.REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS,"The provided overflow value \"{0}\" may not exceed \"{1}\" (according to the provided number of digits \"{2}\")", SEVERE),
     REGISTER_SPEC_OVERFLOW_LARGER_THAN_ZERO(6006, "registerSpec.overflow.invalidValue","The provided overflow value must be larger then zero (0))", SEVERE),
-    REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS(6007, "registerSpec.overflow.fractionDigits","The provided overflow value \"{0}\" more fraction digits \"{1}\" than provided \"{2}\")", SEVERE),
+    REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS(6007, Keys.REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS, "The provided overflow value \"{0}\" more fraction digits \"{1}\" than provided \"{2}\"", SEVERE),
     REGISTER_SPEC_CANNOT_DELETE_FOR_ACTIVE_CONFIG(6009, "registerSpec.delete.active.config","It is not allowed to remove a register configuration from an active device configuration", SEVERE),
     REGISTER_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIG(6010, "registerSpec.add.active.config","You can not add a register configuration to an active device configuration", SEVERE),
     REGISTER_SPEC_REGISTER_TYPE_IS_NOT_ON_DEVICE_TYPE(6011, "registerSpec.not.deviceType","The register configuration contains a register type {0} which is not configured on the device type", SEVERE),
@@ -241,6 +241,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD = "incorrect.direction.connection.method";
         public static final String INCORRECT_GATEWAY_TYPE = "incorrect.gateway.type";
         public static final String DEVICE_LIFE_CYCLE_REQUIRED = "deviceType.device.life.cycle.required";
+        public static final String REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS = "registerSpec.overflow.exceed";
+        public static final String REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS = "registerSpec.overflow.fractionDigits";
     }
 
 }

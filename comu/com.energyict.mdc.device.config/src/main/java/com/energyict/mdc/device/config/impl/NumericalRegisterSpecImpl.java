@@ -21,6 +21,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
+@ValidOverFlowAndNumberOfDigits(groups = {Save.Create.class, Save.Update.class})
 @ValidNumericalRegisterSpec(groups = {Save.Update.class})
 public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegisterSpec> implements NumericalRegisterSpec {
 
@@ -61,6 +62,10 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         return numberOfFractionDigits;
     }
 
+    protected boolean hasNumberOfFractionDigits() {
+        return numberOfFractionDigits != null;
+    }
+
     @Override
     public void setNumberOfFractionDigits(int numberOfFractionDigits) {
         this.numberOfFractionDigits = numberOfFractionDigits;
@@ -76,33 +81,7 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
     }
 
     protected void validate() {
-        this.validateOverFlowAndNumberOfDigits();
-        this.validateNumberOfFractionDigitsOfOverFlowValue();
         super.validate();
-    }
-
-    private void validateNumberOfFractionDigitsOfOverFlowValue() {
-        if (this.overflow != null) {
-            int scale = this.overflow.scale();
-            if (scale > this.numberOfFractionDigits) {
-                throw new OverFlowValueHasIncorrectFractionDigitsException(this.getThesaurus(), this.overflow, scale, this.numberOfFractionDigits);
-            }
-        }
-    }
-
-    /**
-     * We need to validate the OverFlow value and the NumberOfDigits together.
-     */
-    private void validateOverFlowAndNumberOfDigits() {
-        if (this.overflow != null && this.numberOfDigits > 0) {
-            if (this.overflow.compareTo(BigDecimal.valueOf(10).pow(numberOfDigits)) == 1) {
-                throw new OverFlowValueCanNotExceedNumberOfDigitsException(this.getThesaurus(), this.overflow, Math.pow(10, this.numberOfDigits), this.numberOfDigits);
-            }
-            // should be covered by field validation
-            //else if (this.overflowValue.compareTo(BigDecimal.ZERO) <= 0) {
-            //   throw InvalidValueException.registerSpecOverFlowValueShouldBeLargerThanZero(this.thesaurus, this.overflowValue);
-            //}
-        }
     }
 
     abstract static class AbstractBuilder implements Builder {
