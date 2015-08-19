@@ -22,7 +22,6 @@ class FolderScanningJob implements Runnable {
 
     @Override
     public void run() {
-
         try {
             scanner.getFiles().forEach(file -> handler.handle(file));
         } catch (Exception e) {

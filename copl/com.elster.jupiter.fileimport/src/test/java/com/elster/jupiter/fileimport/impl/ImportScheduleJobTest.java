@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -23,13 +24,12 @@ import org.mockito.stubbing.Answer;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.time.Clock;
-import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ImportScheduleJobTest {
@@ -107,8 +107,12 @@ public class ImportScheduleJobTest {
     }
 
     @Test
-    public void testRun() {
-        when(directoryStream.spliterator()).thenReturn(Arrays.asList(path).spliterator());
+    public void testRun() throws Exception {
+        doAnswer(invocationOnMock -> {
+            Consumer consumer = (Consumer) invocationOnMock.getArguments()[0];
+            consumer.accept(path);
+            return Void.TYPE;
+        }).when(directoryStream).forEach(Matchers.any());
         when(importSchedule.createFileImportOccurrence(path, clock)).thenReturn(fileImportOccurrence);
         when(importSchedule.isActive()).thenReturn(true);
         when(jsonService.serialize(any())).thenReturn(SERIALIZED);
@@ -117,7 +121,6 @@ public class ImportScheduleJobTest {
         importScheduleJob.run();
 
         verify(destination).message(SERIALIZED);
-
+        verify(directoryStream).close();//COMU-1864
     }
-
 }

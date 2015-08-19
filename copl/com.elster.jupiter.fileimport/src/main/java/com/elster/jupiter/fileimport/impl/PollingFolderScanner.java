@@ -2,13 +2,13 @@ package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.fileimport.FileIOException;
 import com.elster.jupiter.nls.Thesaurus;
-import javax.inject.Inject;
 
+import javax.inject.Inject;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * FolderScanner that simply lists the files in the Folder.
@@ -40,7 +40,10 @@ class PollingFolderScanner implements FolderScanner {
     }
 
     private Stream<Path> directoryContent() throws IOException {
-        return StreamSupport.stream(fileSystem.newDirectoryStream(directory, pathMatcher).spliterator(),false);
+        try(DirectoryStream<Path> stream = fileSystem.newDirectoryStream(directory, pathMatcher)) {
+            Stream.Builder<Path> streamBuilder = Stream.builder();
+            stream.forEach(streamBuilder::add);
+            return streamBuilder.build();
+        }
     }
-
 }
