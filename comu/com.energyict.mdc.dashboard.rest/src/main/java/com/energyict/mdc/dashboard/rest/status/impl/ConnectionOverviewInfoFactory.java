@@ -15,13 +15,14 @@ import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
 import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Range;
+
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.inject.Inject;
 
 /**
  * Created by bvn on 9/18/14.
@@ -62,6 +63,23 @@ public class ConnectionOverviewInfoFactory {
         DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getConnectionTasksDeviceTypeBreakdown(endDeviceGroup);
         SummaryData summaryData = new SummaryData(taskStatusOverview, comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount());
         ConnectionOverviewInfo info = getConnectionOverviewInfo(taskStatusOverview, comSessionSuccessIndicatorOverview, comPortPoolBreakdown, connectionTypeBreakdown, deviceTypeBreakdown, summaryData);
+        addKpiInfo(endDeviceGroup, info);
+        info.deviceGroup = new DeviceGroupFilterInfo(endDeviceGroup.getId(), endDeviceGroup.getName());
+        return info;
+    }
+
+    public ConnectionOverviewInfo asWidgetInfo(EndDeviceGroup endDeviceGroup){
+        TaskStatusOverview taskStatusOverview = dashboardService.getConnectionTaskStatusOverview(endDeviceGroup);
+        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview(endDeviceGroup);
+        SummaryData summaryData = new SummaryData(taskStatusOverview, comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount());
+        ConnectionOverviewInfo info = new ConnectionOverviewInfo();
+        info.connectionSummary = summaryInfoFactory.from(summaryData);
+        addKpiInfo(endDeviceGroup, info);
+        info.deviceGroup = new DeviceGroupFilterInfo(endDeviceGroup.getId(), endDeviceGroup.getName());
+        return info;
+    }
+
+    private void addKpiInfo(EndDeviceGroup endDeviceGroup, ConnectionOverviewInfo info) {
         Optional<DataCollectionKpi> dataCollectionKpiOptional = dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup);
         if (dataCollectionKpiOptional.isPresent() && dataCollectionKpiOptional.get().calculatesConnectionSetupKpi()) {
             TemporalAmount frequency = dataCollectionKpiOptional.get().connectionSetupKpiCalculationIntervalLength().get();
@@ -75,18 +93,6 @@ public class ConnectionOverviewInfoFactory {
             }
             info.kpi = kpiScoreFactory.getKpiAsInfo(frequency, kpiScores, rangeByDisplayRange);
         }
-        info.deviceGroup = new DeviceGroupFilterInfo(endDeviceGroup.getId(), endDeviceGroup.getName());
-        return info;
-    }
-
-    public ConnectionOverviewInfo asWidgetInfo(EndDeviceGroup endDeviceGroup){
-        ConnectionOverviewInfo info = new ConnectionOverviewInfo();
-        TaskStatusOverview taskStatusOverview = dashboardService.getConnectionTaskStatusOverview(endDeviceGroup);
-        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = dashboardService.getComSessionSuccessIndicatorOverview(endDeviceGroup);
-        SummaryData summaryData = new SummaryData(taskStatusOverview, comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount());
-        info.connectionSummary = summaryInfoFactory.from(summaryData);
-        info.deviceGroup = new DeviceGroupFilterInfo(endDeviceGroup.getId(), endDeviceGroup.getName());
-        return info;
     }
 
     public ConnectionOverviewInfo asWidgetInfo(){

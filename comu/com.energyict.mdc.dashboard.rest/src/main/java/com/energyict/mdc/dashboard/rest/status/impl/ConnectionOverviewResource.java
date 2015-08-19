@@ -1,6 +1,5 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.energyict.mdc.common.rest.ExceptionFactory;
@@ -14,7 +13,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.function.Function;
 
 /**
  * Created by bvn on 7/29/14.
@@ -38,7 +36,6 @@ public class ConnectionOverviewResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public ConnectionOverviewInfo getConnectionOverview(@BeanParam JsonQueryFilter filter) throws Exception {
-
         if (filter.hasProperty("deviceGroup")) {
             return meteringGroupService
                     .findEndDeviceGroup(filter.getLong("deviceGroup"))
