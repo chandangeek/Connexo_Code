@@ -500,7 +500,7 @@ public class ScheduledJobImplTest {
         ManuallyScheduledComTaskExecution scheduledComTask = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ComTaskExecution.class));
         when(scheduledComTask.getId()).thenReturn(COM_TASK_EXECUTION_ID);
         when(scheduledComTask.getDevice()).thenReturn(device);
-        when(scheduledComTask.getConnectionTask()).thenReturn(connectionTask);
+        when(scheduledComTask.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
         List<ProtocolTask> protocolTasks = comTask.getProtocolTasks();
         when(scheduledComTask.getProtocolTasks()).thenReturn(protocolTasks);

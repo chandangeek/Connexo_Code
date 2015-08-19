@@ -722,7 +722,7 @@ public class SingleThreadedScheduledComPortTest {
     private ComTaskExecution mockComTaskExecution(long id, OutboundConnectionTask connectionTask) {
         ManuallyScheduledComTaskExecution comTask = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ComTaskExecution.class));
         when(comTask.getId()).thenReturn(id);
-        when(comTask.getConnectionTask()).thenReturn(connectionTask);
+        when(comTask.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(comTask.getDevice()).thenReturn(this.device);
         when(comTask.getComTasks()).thenReturn(Arrays.asList(this.comTask));
         when(comTask.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties);
@@ -734,7 +734,7 @@ public class SingleThreadedScheduledComPortTest {
     }
 
     private List<ComJob> toComJob(List<ComTaskExecution> serialComTasks) {
-        ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) serialComTasks.get(0).getConnectionTask();
+        ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) serialComTasks.get(0).getConnectionTask().get();
         ComTaskExecutionGroup group = new ComTaskExecutionGroup(connectionTask);
         serialComTasks.forEach(group::add);
         return Arrays.asList(group);
@@ -807,10 +807,6 @@ public class SingleThreadedScheduledComPortTest {
 
         public void verifyNoExecuteComTaskGroupCalls() {
             assertEquals("Was NOT expecting calls to ComTaskExecutionGroup#execute()", 0, this.numberOfGroupExecuteCalls);
-        }
-
-        public void verifyNoExecuteComTaskJobCalls() {
-            assertEquals("Was NOT expecting calls to ComTaskExecutionJob#execute()", 0, this.numberOfJobExecuteCalls);
         }
 
         @Override

@@ -35,6 +35,7 @@ import org.hamcrest.Description;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Optional;
 
 import org.junit.*;
 import org.junit.runner.*;
@@ -104,7 +105,7 @@ public class InboundCommunicationHandlerStatisticsTest {
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
         when(connectionTask.connect(eq(comPort), anyList())).thenReturn(new SystemOutComChannel());
         ComTaskExecution comTask = mock(ComTaskExecution.class);
-        when(comTask.getConnectionTask()).thenReturn(connectionTask);
+        when(comTask.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
@@ -138,7 +139,7 @@ public class InboundCommunicationHandlerStatisticsTest {
         comChannel.whenReadFromBuffer(replyBytes);
         when(connectionTask.connect(eq(comPort), anyList())).thenReturn(comChannel);
         ComTaskExecution comTask = mock(ComTaskExecution.class);
-        when(comTask.getConnectionTask()).thenReturn(connectionTask);
+        when(comTask.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         ComServer comServer = mock(OnlineComServer.class);
         when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);

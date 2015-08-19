@@ -210,7 +210,7 @@ public class JobExecutionTest {
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(this.deviceService.findDeviceById(DEVICE_ID)).thenReturn(Optional.of(this.device));
         ConnectionTask ct = connectionTask;
-        when(comTaskExecution.getConnectionTask()).thenReturn(ct);
+        when(comTaskExecution.getConnectionTask()).thenReturn(Optional.of(ct));
         when(comTaskExecution.getDevice()).thenReturn(device);
         when(comTaskExecution.getComTask()).thenReturn(this.comTask);
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(this.comTask));
