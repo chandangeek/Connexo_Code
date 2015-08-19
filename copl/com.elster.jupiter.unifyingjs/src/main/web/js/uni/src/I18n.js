@@ -136,6 +136,8 @@ Ext.define('Uni.I18n', {
     blacklist: [],
     //</debug>
 
+    cache: {},
+
     /**
      * Initializes the internationalization components that should be used during loading.
      *
@@ -156,10 +158,17 @@ Ext.define('Uni.I18n', {
      * @returns {String} Translation
      */
     lookupTranslation: function (key, component) {
-        var translation = Ldr.store.Translations.getById(key + ':' + component);
+        var id = key + ':' + component;
+        var translation = this.cache[id];
+        if (!translation) {
+            var translationModel = Ldr.store.Translations.getById(id);
+            if (translationModel) {
+                translation = translationModel.get('value');
+            }
+        }
 
         if (translation !== null) {
-            translation = translation.get('value');
+            this.cache[id] = translation;
         } else {
             //<debug>
             if (!this.blacklist[key + component]) {
