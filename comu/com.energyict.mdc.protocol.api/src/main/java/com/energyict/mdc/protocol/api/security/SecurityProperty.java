@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.security;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -42,8 +43,7 @@ public interface SecurityProperty {
     public EncryptionDeviceAccessLevel getEncryptionDeviceAccessLevel();
 
     /**
-     * Gets the name of this property as defined by its
-     * {@link com.energyict.mdc.dynamic.PropertySpec}.
+     * Gets the name of this property as defined by its {@link PropertySpec}.
      *
      * @return The name of this property
      */
@@ -65,11 +65,15 @@ public interface SecurityProperty {
 
 
     /**
-     * returns true if all required properties are filled in
-     * returns false if one of more required properties are not filled in
+     * Tests if this SecurityProperty is complete.
+     * A SecurityProperty is complete in the following cases:
+     * <ul>
+     * <li>this property relates to a required {@link PropertySpec} and the value is not <code>null</code></li>
+     * <li>this property relates to a non-required {@link PropertySpec}</li>
+     * </ul>
      *
      * @return the completion status
      */
-    public Boolean isComplete ();
+    public boolean isComplete ();
 
 }
