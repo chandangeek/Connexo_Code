@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.config;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.energyict.mdc.engine.config.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.ComPortType;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -228,4 +230,41 @@ public class ComServerCrudTest extends PersistenceTest {
         assertThat(reloaded.getComPorts()).hasSize(1);
     }
 
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY + "}", property = "name")
+    public void testCreateOnlineComServerWithEmptyName() throws Exception {
+        OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
+        onlineComServer.setName("");
+        onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.INFO);
+        onlineComServer.setChangesInterPollDelay(TWO_MINUTES);
+        onlineComServer.setSchedulingInterPollDelay(FIVE_MINUTES);
+        onlineComServer.setActive(false);
+        onlineComServer.setUsesDefaultQueryAPIPostUri(true);
+        onlineComServer.setStoreTaskQueueSize(10);
+        onlineComServer.setStoreTaskThreadPriority(3);
+        onlineComServer.setNumberOfStoreTaskThreads(6);
+        onlineComServer.setUsesDefaultEventRegistrationUri(true);
+        onlineComServer.save();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.COMSERVER_NAME_INVALID_CHARS + "}", property = "name")
+    public void testCreateOnlineComServerWithWrongName() throws Exception {
+        OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
+        onlineComServer.setName("%^&)(");
+        onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.INFO);
+        onlineComServer.setChangesInterPollDelay(TWO_MINUTES);
+        onlineComServer.setSchedulingInterPollDelay(FIVE_MINUTES);
+        onlineComServer.setActive(false);
+        onlineComServer.setUsesDefaultQueryAPIPostUri(true);
+        onlineComServer.setStoreTaskQueueSize(10);
+        onlineComServer.setStoreTaskThreadPriority(3);
+        onlineComServer.setNumberOfStoreTaskThreads(6);
+        onlineComServer.setUsesDefaultEventRegistrationUri(true);
+        onlineComServer.save();
+    }
 }
