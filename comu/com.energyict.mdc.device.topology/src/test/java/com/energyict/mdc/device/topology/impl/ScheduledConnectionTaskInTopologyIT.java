@@ -261,7 +261,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
 
         // Prologue asserts
         assertThat(comTaskExecution.usesDefaultConnectionTask()).isTrue();
-        assertThat(comTaskExecution.getConnectionTask()).isNull();
+        assertThat(comTaskExecution.getConnectionTask()).isEmpty();
 
         // Business method
         ScheduledConnectionTaskImpl myDefaultConnectionTask = this.createAsapWithNoPropertiesWithoutViolations("MyDefaultConnectionTask", this.partialScheduledConnectionTask);
@@ -269,7 +269,7 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         // Asserts
         ComTaskExecution reloadedComTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
         assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isTrue();
-        assertThat(reloadedComTaskExecution.getConnectionTask()).isNotNull();
+        assertThat(reloadedComTaskExecution.getConnectionTask()).isPresent();
         assertThat(reloadedComTaskExecution.getConnectionTask().get().getId()).isEqualTo(myDefaultConnectionTask.getId());
     }
 
