@@ -458,7 +458,7 @@ public enum TableSpecs {
             table.map(DeviceMessageEnablementImpl.class);
             Column id = table.addAutoIdColumn();
             Column deviceConfig = table.column("DEVICECONFIG").conversion(NUMBER2LONG).number().notNull().add();
-            table.column("DEVICEMESSAGEID").number().conversion(NUMBER2ENUM).map("deviceMessageId").add();
+            table.column("DEVICEMESSAGEID").number().conversion(NUMBER2LONG).map("deviceMessageIdDbValue").notNull().add();
             table.addAuditColumns();
             table.foreignKey("FK_DTC_DME_DEVCONFIG").
                     on(deviceConfig).
