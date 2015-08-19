@@ -5371,14 +5371,20 @@ div.x-form-spinner-down {
   margin-top: 3px;
 }
 
-/* line 6, ../../sass/src/form/field/Base.scss */
+/* line 1, ../../sass/src/form/field/Combobox.scss */
+.combo-limit-notification {
+  color: #828282;
+  font-size: 11px;
+}
+
+/* line 7, ../../sass/src/form/field/Base.scss */
 .x-form-field {
   border-radius: 3px;
   height: 28px;
   background-color: #ffffff;
 }
 
-/* line 13, ../../sass/src/form/field/Base.scss */
+/* line 14, ../../sass/src/form/field/Base.scss */
 .x-form-invalid-under {
   background: none;
   color: #eb5642;
@@ -5387,12 +5393,12 @@ div.x-form-spinner-down {
   white-space: nowrap;
 }
 
-/* line 21, ../../sass/src/form/field/Base.scss */
+/* line 22, ../../sass/src/form/field/Base.scss */
 .x-form-invalid-field {
   border-color: #eb5642 !important;
 }
 
-/* line 25, ../../sass/src/form/field/Base.scss */
+/* line 26, ../../sass/src/form/field/Base.scss */
 .x-form-display-field {
   height: auto;
   min-height: 28px;
@@ -12890,6 +12896,12 @@ div.x-form-spinner-down {
 /* line 1, ../../sass/src/view/BoundList.scss */
 .x-boundlist-selected .x-combo-list-item .x-form-checkbox {
   background-position: 0px -15px;
+}
+
+/* line 1, ../../sass/src/form/field/Combobox.scss */
+.combo-limit-notification {
+  color: #828282;
+  font-size: 11px;
 }
 
 /* line 1, ../../sass/src/picker/Date.scss */
