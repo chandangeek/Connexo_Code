@@ -1718,7 +1718,7 @@ public class DeviceImpl implements Device, CanLock {
     @Override
     public DeviceValidation forValidation() {
         if (deviceValidation == null) {
-            deviceValidation = new DeviceValidationImpl(getMdcAmrSystem().get(), validationService, clock, this);
+            deviceValidation = new DeviceValidationImpl(getMdcAmrSystem().get(), this.validationService, this.clock, this.thesaurus, this);
         }
         return deviceValidation;
     }
