@@ -550,4 +550,13 @@ public enum DeviceMessageId {
         return this.dbId;
     }
 
+    public static DeviceMessageId havingId(long dbId){
+        for(DeviceMessageId messageId : DeviceMessageId.values()) {
+            if (messageId.dbValue() == dbId) {
+                return messageId;
+            }
+        }
+        throw new IllegalArgumentException(String.format("No DeviceMessageId found having id %d", dbId));
+    }
+
 }
