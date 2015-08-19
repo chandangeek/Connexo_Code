@@ -10,7 +10,7 @@ import java.text.MessageFormat;
 import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed, TranslationKey {
 
-    NO_SUCH_DEVICE(14, "noSuchDevice", "No device with mrId {0}"),
+    NO_SUCH_DEVICE(14, "noSuchDevice", "No device with MRID {0}"),
     DEVICE_DOES_NOT_MATCH_CONFIG(15, "deviceDoesNotMatchConfig", "Device does not match device configuration"),
     NO_SUCH_PARTIAL_CONNECTION_TASK(16, "NoSuchPartialConnectionTask", "No such connection method on device config"),
     NO_SUCH_CONNECTION_METHOD(17, "NoSuchConnectionTask" , "Device {0} has no connection method {1}"),
