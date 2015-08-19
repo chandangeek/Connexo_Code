@@ -87,15 +87,15 @@ public class InboundCommunicationHandler {
 
     public interface ServiceProvider extends JobExecution.ServiceProvider {
 
-        public EmbeddedWebServerFactory embeddedWebServerFactory();
+        EmbeddedWebServerFactory embeddedWebServerFactory();
 
-        public ProtocolPluggableService protocolPluggableService();
+        ProtocolPluggableService protocolPluggableService();
 
-        public EventPublisher eventPublisher();
+        EventPublisher eventPublisher();
 
-        public UserService userService();
+        UserService userService();
 
-        public ThreadPrincipalService threadPrincipalService();
+        ThreadPrincipalService threadPrincipalService();
 
     }
 
@@ -249,7 +249,7 @@ public class InboundCommunicationHandler {
      * {@link ComSession.SuccessIndicator#SetupError} and a ComSessionJournalEntryShadow which
      * contains the detailed exception.
      *
-     * @param comSessionBuilder
+     * @param comSessionBuilder to use
      * @return the CreateInboundComSession
      */
     private CreateInboundComSession createFailedInboundComSessionDeviceCommand(ComSessionBuilder comSessionBuilder) {
@@ -401,11 +401,10 @@ public class InboundCommunicationHandler {
                 long discoverMillis = this.discovering.getElapsed() / NANOS_IN_MILLI;
                 comSessionBuilder.talkDuration(Duration.ofMillis(discoverMillis).plus(comChannel.talkTime()));
                 Counters sessionCounters = comChannel.getSessionCounters();
-                Counters taskSessionCounters = comChannel.getTaskSessionCounters();
-                comSessionBuilder.addReceivedBytes(sessionCounters.getBytesRead() + taskSessionCounters.getBytesRead());
-                comSessionBuilder.addSentBytes(sessionCounters.getBytesSent() + taskSessionCounters.getBytesSent());
-                comSessionBuilder.addReceivedPackets(sessionCounters.getPacketsRead() + taskSessionCounters.getPacketsRead());
-                comSessionBuilder.addSentPackets(sessionCounters.getPacketsSent() + taskSessionCounters.getPacketsSent());
+                comSessionBuilder.addReceivedBytes(sessionCounters.getBytesRead());
+                comSessionBuilder.addSentBytes(sessionCounters.getBytesSent());
+                comSessionBuilder.addReceivedPackets(sessionCounters.getPacketsRead());
+                comSessionBuilder.addSentPackets(sessionCounters.getPacketsSent());
             }
         } else {
             // Todo: deal with the unknown device situation
