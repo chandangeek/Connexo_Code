@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
@@ -17,6 +18,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -41,8 +43,8 @@ public class DeviceInfo {
     public String masterDevicemRID;
     public Long masterDeviceId;
     public List<DeviceTopologyInfo> slaveDevices;
-    public long nbrOfDataCollectionIssues;
-    public long nbrOfDataValidationIssues;
+    public int nbrOfDataCollectionIssues;
+    public Long openDataValidationIssue;
     @XmlJavaTypeAdapter(GatewayTypeAdapter.class)
     public GatewayType gatewayType;
     public Boolean hasRegisters;
@@ -81,7 +83,7 @@ public class DeviceInfo {
         deviceInfo.gatewayType = device.getConfigurationGatewayType();
         deviceInfo.slaveDevices = slaveDevices;
         deviceInfo.nbrOfDataCollectionIssues = issueService.countOpenDataCollectionIssues(device.getmRID());
-        deviceInfo.nbrOfDataValidationIssues = countOpenDataValidationIssues(device, meteringService, issueService, issueDataValidationService);
+        deviceInfo.openDataValidationIssue = getOpenDataValidationIssue(device, meteringService, issueService, issueDataValidationService).map(Issue::getId).orElse(null);
         deviceInfo.hasLoadProfiles = !device.getLoadProfiles().isEmpty();
         deviceInfo.hasLogBooks = !device.getLogBooks().isEmpty();
         deviceInfo.hasRegisters = !device.getRegisters().isEmpty();
@@ -103,14 +105,13 @@ public class DeviceInfo {
         return deviceInfo;
     }
 
-    private static long countOpenDataValidationIssues(Device device, MeteringService meteringService, IssueService issueService, IssueDataValidationService issueDataValidationService) {
+    private static Optional<? extends IssueDataValidation> getOpenDataValidationIssue(Device device, MeteringService meteringService, IssueService issueService, IssueDataValidationService issueDataValidationService) {
         Optional<AmrSystem> amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
         Optional<Meter> meter = amrSystem.get().findMeter(String.valueOf(device.getId()));
         DataValidationIssueFilter filter = new DataValidationIssueFilter();
         filter.setDevice(meter.get());
         filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
-        filter.addStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
-        return issueDataValidationService.findAllDataValidationIssues(filter).find().size();
+        return issueDataValidationService.findAllDataValidationIssues(filter).stream().findFirst();
     }
 
     public static DeviceInfo from(Device device) {
