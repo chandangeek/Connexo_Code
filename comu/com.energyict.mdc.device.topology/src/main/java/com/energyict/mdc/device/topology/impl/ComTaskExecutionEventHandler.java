@@ -60,13 +60,13 @@ public abstract class ComTaskExecutionEventHandler implements TopicHandler {
         }
     }
 
-    private boolean different(ConnectionTask ct1, ConnectionTask ct2) {
+    private boolean different(Optional<ConnectionTask<?, ?>> ct1, ConnectionTask ct2) {
         return !this.sameId(ct1, ct2);
     }
 
     @SuppressWarnings("ConditionalExpression")
-    private boolean sameId(ConnectionTask ct1, ConnectionTask ct2) {
-        return sameId(ct1 != null ? ct1.getId() : NO_ID, ct2 != null ? ct2.getId() : NO_ID);
+    private boolean sameId(Optional<ConnectionTask<?, ?>> ct1, ConnectionTask ct2) {
+        return sameId(ct1.isPresent() ? ct1.get().getId() : NO_ID, ct2 != null ? ct2.getId() : NO_ID);
     }
 
     private boolean sameId(long id1, long id2) {

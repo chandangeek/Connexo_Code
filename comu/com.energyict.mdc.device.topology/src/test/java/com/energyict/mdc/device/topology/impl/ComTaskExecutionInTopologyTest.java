@@ -106,7 +106,7 @@ public class ComTaskExecutionInTopologyTest extends AbstractComTaskExecutionInTo
 
         Device reloadedDevice = getReloadedDevice(device);
         ComTaskExecution reloadedComTaskExecution = reloadedDevice.getComTaskExecutions().get(0);
-        assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
+        assertThat(reloadedComTaskExecution.getConnectionTask().get().getId()).isEqualTo(connectionTask.getId());
 
         inMemoryPersistence.getConnectionTaskService().clearDefaultConnectionTask(device);
         Device finalReloadedDevice = getReloadedDevice(device);
