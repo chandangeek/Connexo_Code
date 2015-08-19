@@ -5,11 +5,9 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import java.util.Optional;
-
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.util.List;
+import java.util.Optional;
 
 @XmlRootElement
 @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="comServerType")
@@ -44,7 +42,7 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer> {
         this.storeTaskThreadPriority = onlineComServer.getStoreTaskThreadPriority();
     }
 
-    public OnlineComServer writeTo(OnlineComServer comServerSource,EngineConfigurationService engineConfigurationService) {
+    public OnlineComServer writeTo(OnlineComServer comServerSource, EngineConfigurationService engineConfigurationService) {
         super.writeTo(comServerSource, engineConfigurationService);
         Optional<String> queryAPIPostUri = Optional.ofNullable(this.queryAPIPostUri);
         if(queryAPIPostUri.isPresent()) {
@@ -62,19 +60,9 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer> {
         if(usesDefaultEventRegistrationUri.isPresent()) {
             comServerSource.setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri.get());
         }
-        Optional<Integer> storeTaskQueueSize = Optional.ofNullable(this.storeTaskQueueSize);
-        if(storeTaskQueueSize.isPresent()) {
-            comServerSource.setStoreTaskQueueSize(storeTaskQueueSize.get());
-        }
-        Optional<Integer> storeTaskThreadPriority = Optional.ofNullable(this.storeTaskThreadPriority);
-        if(storeTaskThreadPriority.isPresent()) {
-            comServerSource.setStoreTaskThreadPriority(storeTaskThreadPriority.get());
-        }
-        Optional<Integer> numberOfStoreTaskThreads = Optional.ofNullable(this.numberOfStoreTaskThreads);
-        if(numberOfStoreTaskThreads.isPresent()) {
-            comServerSource.setNumberOfStoreTaskThreads(numberOfStoreTaskThreads.get());
-        }
-
+        comServerSource.setStoreTaskQueueSize(this.storeTaskQueueSize != null ? this.storeTaskQueueSize : 0);
+        comServerSource.setStoreTaskThreadPriority(this.storeTaskThreadPriority != null ? this.storeTaskThreadPriority : 0);
+        comServerSource.setNumberOfStoreTaskThreads(this.numberOfStoreTaskThreads != null ? this.numberOfStoreTaskThreads : 0);
         return comServerSource;
     }
 
