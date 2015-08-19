@@ -1,9 +1,5 @@
 package com.energyict.mdc.device.data.impl.security;
 
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -30,12 +26,12 @@ import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames;
+
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.google.common.collect.Range;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -48,10 +44,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link SecurityPropertyServiceImpl} component.
@@ -182,44 +188,6 @@ public class SecurityPropertyServiceImplTest {
     }
 
     @Test
-    public void securityPropertiesAreValidForUserThatIsNotAllowedToView () {
-        Relation relation = mock(Relation.class);
-        Instant relationFrom = Instant.now().minusSeconds(1L);
-        Instant relationTo = relationFrom.plusSeconds(86400L);  // Add another day
-        when(relation.getPeriod()).thenReturn(Range.closedOpen(relationFrom, relationTo));
-        when(relation.get(USERNAME_SECURITY_PROPERTY_NAME)).thenReturn("user");
-        when(relation.get(PASSWORD_SECURITY_PROPERTY_NAME)).thenReturn("password");
-        when(relation.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME)).thenReturn(true);
-        when(this.securityPropertyRelationType.findByFilter(any(RelationSearchFilter.class))).thenReturn(Arrays.asList(relation));
-        when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(false);
-
-        // Business method
-        boolean propertiesAreValid = this.testService().securityPropertiesAreValid(this.device, this.securityPropertySet1);
-
-        // Asserts
-        assertThat(propertiesAreValid).isTrue();
-    }
-
-    @Test
-    public void securityPropertiesAreValidForUserThatIsAllowedToView () {
-        Relation relation = mock(Relation.class);
-        Instant relationFrom = Instant.now().minusSeconds(1L);
-        Instant relationTo = relationFrom.plusSeconds(86400L);  // Add another day
-        when(relation.getPeriod()).thenReturn(Range.closedOpen(relationFrom, relationTo));
-        when(relation.get(USERNAME_SECURITY_PROPERTY_NAME)).thenReturn("user");
-        when(relation.get(PASSWORD_SECURITY_PROPERTY_NAME)).thenReturn("password");
-        when(relation.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME)).thenReturn(true);
-        when(this.securityPropertyRelationType.findByFilter(any(RelationSearchFilter.class))).thenReturn(Arrays.asList(relation));
-        when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
-
-        // Business method
-        boolean propertiesAreValid = this.testService().securityPropertiesAreValid(this.device, this.securityPropertySet1);
-
-        // Asserts
-        assertThat(propertiesAreValid).isTrue();
-    }
-
-    @Test
     public void hasSecurityPropertiesForRelationsInThePast() {
         Instant relation1From = Instant.ofEpochSecond(97L);
         Instant relation1To = relation1From.plusSeconds(10);
@@ -283,7 +251,6 @@ public class SecurityPropertyServiceImplTest {
         String expectedPassword = "current password";
         when(currentRelation.get(USERNAME_SECURITY_PROPERTY_NAME)).thenReturn(expectedUser);
         when(currentRelation.get(PASSWORD_SECURITY_PROPERTY_NAME)).thenReturn(expectedPassword);
-        when(currentRelation.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME)).thenReturn(true);
         when(this.securityPropertyRelationType.findByFilter(any(RelationSearchFilter.class))).thenReturn(Arrays.asList(oldRelation, currentRelation));
         when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
         when(this.clock.instant()).thenReturn(currentRelationFrom.plusSeconds(10));

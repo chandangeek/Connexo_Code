@@ -179,7 +179,7 @@ abstract class ConnectionTaskBreakdownSqlBuilder implements PreparedStatementPro
 
         @Override
         public void appendGroupByClause(SqlBuilder sqlBuilder) {
-            sqlBuilder.append(" group by ");
+            sqlBuilder.append(" group by");
             sqlBuilder.append(this.aspectName);
         }
     }

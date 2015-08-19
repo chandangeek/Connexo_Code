@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
@@ -43,16 +42,14 @@ public class DeviceValidationImpl implements DeviceValidation {
     private final AmrSystem amrSystem;
     private final ValidationService validationService;
     private final Clock clock;
-    private final Thesaurus thesaurus;
     private final DeviceImpl device;
     private transient Meter meter;
     private transient ValidationEvaluator evaluator;
 
-    public DeviceValidationImpl(AmrSystem amrSystem, ValidationService validationService, Clock clock, Thesaurus thesaurus, DeviceImpl device) {
+    public DeviceValidationImpl(AmrSystem amrSystem, ValidationService validationService, Clock clock, DeviceImpl device) {
         this.amrSystem = amrSystem;
         this.validationService = validationService;
         this.clock = clock;
-        this.thesaurus = thesaurus;
         this.device = device;
     }
 
@@ -90,14 +87,14 @@ public class DeviceValidationImpl implements DeviceValidation {
         Meter koreMeter = this.fetchKoreMeter();
         if (koreMeter.hasData()) {
             if (lastChecked == null) {
-                throw InvalidLastCheckedException.lastCheckedCannotBeNull(this.thesaurus, this.device);
+                throw InvalidLastCheckedException.lastCheckedCannotBeNull(this.device);
             }
             this.getMeterActivationsMostRecentFirst(koreMeter)
                 .filter(each -> this.isEffectiveOrStartsAfterLastChecked(lastChecked, each))
                 .forEach(each -> this.applyLastChecked(lastChecked, each));
         }
         this.validationService.activateValidation(koreMeter);
-        if (onStorage) {
+        if(onStorage){
             this.validationService.enableValidationOnStorage(koreMeter);
         }
         else {
@@ -113,7 +110,7 @@ public class DeviceValidationImpl implements DeviceValidation {
         Optional<Instant> meterActivationLastChecked = validationService.getLastChecked(meterActivation);
         if (meterActivation.isCurrent()) {
             if (meterActivationLastChecked.isPresent() && lastChecked.isAfter(meterActivationLastChecked.get())) {
-                throw InvalidLastCheckedException.lastCheckedAfterCurrentLastChecked(this.thesaurus, this.device, meterActivationLastChecked.get(), lastChecked);
+                throw InvalidLastCheckedException.lastCheckedAfterCurrentLastChecked(this.device);
             }
             this.validationService.updateLastChecked(meterActivation, lastChecked);
         } else {

@@ -4,9 +4,9 @@ import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.time.Instant;
-import java.util.EnumSet;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * Calculates the scores of the communication task execution KPI for a {@link DataCollectionKpiImpl}.
@@ -30,7 +30,7 @@ public class CommunicationTaskExecutionKpiCalculator extends AbstractDataCollect
     public void calculateAndStore() {
         if (this.kpi.calculatesComTaskExecutionKpi()) {
             Map<TaskStatus, Long> statusCounters = this.communicationTaskService.getComTaskExecutionStatusCount();
-            long total = EnumSet.complementOf(EnumSet.of(TaskStatus.OnHold)).stream().mapToLong(statusCounters::get).sum();
+            long total = Stream.of(TaskStatus.values()).mapToLong(statusCounters::get).sum();
             if (total > 0) {
                 this.calculateAndStore(this.kpi.communicationKpi().get(), statusCounters, total);
             }
@@ -42,4 +42,5 @@ public class CommunicationTaskExecutionKpiCalculator extends AbstractDataCollect
             this.logger.severe(CommunicationTaskExecutionKpiCalculator.class.getSimpleName() + " was executed for DataCollectionKpi (id=" + this.kpi.getId() + ") but that is not configured for communication task execution");
         }
     }
+
 }
