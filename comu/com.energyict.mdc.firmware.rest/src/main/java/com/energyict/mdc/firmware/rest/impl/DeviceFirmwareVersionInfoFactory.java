@@ -135,13 +135,6 @@ public class DeviceFirmwareVersionInfoFactory {
         }
     }
 
-    static boolean releaseDateInPast(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper){
-        return !helper.getCurrentInstant().isBefore(message.getReleaseDate())
-                && helper.getFirmwareExecution().isPresent()
-                && helper.getFirmwareExecution().get().getLastExecutionStartTimestamp() != null
-                && !helper.getFirmwareExecution().get().getLastExecutionStartTimestamp().isBefore(message.getReleaseDate());
-    }
-
     public interface FirmwareUpgradeState {
         boolean validateMessage(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper);
 
@@ -266,6 +259,13 @@ public class DeviceFirmwareVersionInfoFactory {
                     && releaseDateInPast(message, helper)
                     && (helper.taskIsFailed() && (DeviceMessageStatus.PENDING.equals(message.getStatus()) || DeviceMessageStatus.FAILED.equals(message.getStatus()))
                     || !helper.taskIsFailed() && DeviceMessageStatus.FAILED.equals(message.getStatus()));
+        }
+
+        private boolean releaseDateInPast(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper){
+            return !helper.getCurrentInstant().isBefore(message.getReleaseDate())
+                    && helper.getFirmwareExecution().isPresent()
+                    && helper.getFirmwareExecution().get().getLastExecutionStartTimestamp() != null
+                    && !helper.getFirmwareExecution().get().getLastExecutionStartTimestamp().isBefore(message.getReleaseDate());
         }
 
         @Override

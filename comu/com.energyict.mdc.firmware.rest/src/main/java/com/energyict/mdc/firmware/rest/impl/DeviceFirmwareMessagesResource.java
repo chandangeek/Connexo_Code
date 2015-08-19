@@ -182,7 +182,7 @@ public class DeviceFirmwareMessagesResource {
 
     private void prepareCommunicationTask(Device device, Map<String, Object> convertedProperties) {
         FirmwareManagementDeviceUtils helper = utilProvider.get().onDevice(device);
-        Optional<ComTaskExecution> fuComTaskExecutionRef = helper.getFirmwareCheckExecution();
+        Optional<ComTaskExecution> fuComTaskExecutionRef = helper.getFirmwareExecution();
         if (!fuComTaskExecutionRef.isPresent()){
             createFirmwareComTaskExecution(device);
         } else {
@@ -315,15 +315,6 @@ public class DeviceFirmwareMessagesResource {
         if (!deviceTypeFUAllowedOptions.contains(requestedFUOption)){ // the requested firmware upgrade option is not allowed on device type
             throw exceptionFactory.newException(MessageSeeds.FIRMWARE_UPGRADE_OPTION_ARE_DISABLED_FOR_DEVICE_TYPE);
         }
-    }
-
-    private Optional<ComTaskExecution> findFirmwareComTaskExecution(Device device) {
-        Optional<ComTask> firmwareComTask = taskService.findFirmwareComTask();
-        Predicate<ComTask> comTaskIsFirmwareComTask = comTask -> comTask.getId() == (firmwareComTask.isPresent() ? firmwareComTask.get().getId() : 0);
-        Predicate<ComTaskExecution> executionContainsFirmwareComTask = exec -> exec.getComTasks().stream().filter(comTaskIsFirmwareComTask).count() > 0;
-        return device.getComTaskExecutions().stream()
-                .filter(executionContainsFirmwareComTask)
-                .findFirst();
     }
 
     private FirmwareComTaskExecution createFirmwareComTaskExecution(Device device) {
