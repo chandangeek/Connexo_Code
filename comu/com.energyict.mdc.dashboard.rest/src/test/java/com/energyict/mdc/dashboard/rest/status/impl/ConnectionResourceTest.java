@@ -563,7 +563,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
 
     private ScheduledComTaskExecution mockScheduledComTaskExecution(ComSchedule comSchedule, ConnectionTask connectionTask, Device device) {
         ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
-        when(comTaskExecution1.getConnectionTask()).thenReturn(connectionTask);
+        when(comTaskExecution1.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(comTaskExecution1.getCurrentTryCount()).thenReturn(999);
         when(comTaskExecution1.getDevice()).thenReturn(device);
         when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.NeverCompleted);
@@ -669,7 +669,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
     private ScheduledComTaskExecution mockScheduledComTaskExecution(Instant lastExecStart, Instant lastSuccess, Instant plannedNext, ConnectionTask connectionTask, ComSchedule comSchedule, List<ComTask> comTasks) {
         ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
         when(comTaskExecution1.getComTasks()).thenReturn(comTasks);
-        when(comTaskExecution1.getConnectionTask()).thenReturn(connectionTask);
+        when(comTaskExecution1.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(comTaskExecution1.getCurrentTryCount()).thenReturn(999);
         when(comTaskExecution1.getStatus()).thenReturn(TaskStatus.NeverCompleted);
         when(comTaskExecution1.getComSchedule()).thenReturn(comSchedule);
