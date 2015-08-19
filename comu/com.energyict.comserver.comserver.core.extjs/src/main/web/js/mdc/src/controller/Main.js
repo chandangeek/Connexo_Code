@@ -11,7 +11,8 @@ Ext.define('Mdc.controller.Main', {
     stores: [
         'Mdc.store.ChannelsOfLoadProfilesOfDevice',
         'Mdc.store.LoadProfilesOfDevice',
-        'Mdc.store.DeviceStatePrivileges'
+        'Mdc.store.DeviceStatePrivileges',
+        'Mdc.store.DeviceCommandPrivileges'
     ],
 
     controllers: [
