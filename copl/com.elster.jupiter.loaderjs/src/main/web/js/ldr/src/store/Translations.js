@@ -16,6 +16,14 @@ Ext.define('Ldr.store.Translations', {
         components: []
     },
 
+    /**
+     * improved performance regarding original getById
+     */
+    getById: function(id) {
+        var index = _.indexOf(this.data.keys, id);
+        return index >= 0 ? this.getAt(index) : null;
+    },
+
     proxy: {
         type: 'ajax',
         url: '/api/nls/thesaurus',
