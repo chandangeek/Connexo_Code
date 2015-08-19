@@ -87,12 +87,12 @@ public class ConnectionPropertiesAreValidTest {
         ConnectionTask ct1 = mock(ScheduledConnectionTask.class);
         when(ct1.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         ComTaskExecution cte1 = mock(ComTaskExecution.class);
-        when(cte1.getConnectionTask()).thenReturn(ct1);
+        when(cte1.getConnectionTask()).thenReturn(Optional.of(ct1));
 
         ConnectionTask ct2 = mock(ScheduledConnectionTask.class);
         when(ct2.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         ComTaskExecution cte2 = mock(ComTaskExecution.class);
-        when(cte1.getConnectionTask()).thenReturn(ct2);
+        when(cte1.getConnectionTask()).thenReturn(Optional.of(ct2));
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1, cte2));
 
         // Business method
@@ -110,15 +110,15 @@ public class ConnectionPropertiesAreValidTest {
         ConnectionTask ct1 = mock(ScheduledConnectionTask.class);
         when(ct1.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
         ComTaskExecution cte1 = mock(ComTaskExecution.class);
-        when(cte1.getConnectionTask()).thenReturn(ct1);
+        when(cte1.getConnectionTask()).thenReturn(Optional.of(ct1));
         ConnectionTask ct2 = mock(ScheduledConnectionTask.class);
         when(ct2.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE);
         ComTaskExecution cte2 = mock(ComTaskExecution.class);
-        when(cte2.getConnectionTask()).thenReturn(ct2);
+        when(cte2.getConnectionTask()).thenReturn(Optional.of(ct2));
         ConnectionTask ct3 = mock(ScheduledConnectionTask.class);
         when(ct3.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE);
         ComTaskExecution cte3 = mock(ComTaskExecution.class);
-        when(cte3.getConnectionTask()).thenReturn(ct2);
+        when(cte3.getConnectionTask()).thenReturn(Optional.of(ct2));
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(cte1, cte2, cte3));
 
         // Business method

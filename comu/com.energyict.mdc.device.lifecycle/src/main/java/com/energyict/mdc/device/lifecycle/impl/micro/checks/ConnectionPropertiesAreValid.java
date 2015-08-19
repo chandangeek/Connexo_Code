@@ -9,6 +9,7 @@ import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.streams.Functions;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -39,7 +40,11 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
     }
 
     private Optional<ConnectionTask<?, ?>> anyInCompleteConnectionTask(Device device) {
-        return device.getComTaskExecutions().stream().map(ComTaskExecution::getConnectionTask)
+        return device
+                .getComTaskExecutions()
+                .stream()
+                .map(ComTaskExecution::getConnectionTask)
+                .flatMap(Functions.asStream())
                 .filter(each -> each.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE))
                 .findAny();
     }
