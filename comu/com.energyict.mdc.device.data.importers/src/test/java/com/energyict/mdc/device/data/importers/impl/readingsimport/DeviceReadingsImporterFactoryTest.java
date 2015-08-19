@@ -115,7 +115,6 @@ public class DeviceReadingsImporterFactoryTest {
         context = spy(new DeviceDataImporterContext());
         context.setDeviceService(deviceService);
         context.setDeviceConfigurationService(deviceConfigurationService);
-        context.setBatchService(batchService);
         context.setMeteringService(meteringService);
         context.setPropertySpecService(new PropertySpecServiceImpl());
         context.setThreadPrincipalService(threadPrincipalService);

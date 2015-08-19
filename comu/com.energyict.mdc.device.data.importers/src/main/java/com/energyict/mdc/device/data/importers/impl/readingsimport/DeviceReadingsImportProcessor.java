@@ -70,7 +70,7 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
 
     @Override
     public void complete() {
-        if (channelReadingsToStore.isEmpty() && registerReadingsToStore.isEmpty()) {
+        if (device == null || channelReadingsToStore.isEmpty() && registerReadingsToStore.isEmpty()) {
             return;
         }
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();

@@ -73,7 +73,6 @@ public class DeviceShipmentImporterFactoryTest {
         context = spy(new DeviceDataImporterContext());
         context.setDeviceService(deviceService);
         context.setDeviceConfigurationService(deviceConfigurationService);
-        context.setBatchService(batchService);
         context.setPropertySpecService(propertySpecService);
         when(context.getThesaurus()).thenReturn(thesaurus);
     }
