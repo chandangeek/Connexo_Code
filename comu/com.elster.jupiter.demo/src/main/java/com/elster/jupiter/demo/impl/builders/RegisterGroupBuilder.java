@@ -34,10 +34,10 @@ public class RegisterGroupBuilder extends NamedBuilder<RegisterGroup, RegisterGr
     public RegisterGroup create(){
         Log.write(this);
         RegisterGroup registerGroup = masterDataService.newRegisterGroup(getName());
-        registerGroup.save();
         for (RegisterType registerType : registerTypes) {
             registerGroup.addRegisterType(registerType);
         }
+        registerGroup.save();
         return registerGroup;
     }
 }
