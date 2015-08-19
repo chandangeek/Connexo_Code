@@ -44,10 +44,8 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.TopologyTimeline;
@@ -60,7 +58,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
@@ -70,7 +67,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 
-import javax.validation.ConstraintViolationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
@@ -87,17 +83,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by bvn on 6/19/14.
@@ -1219,7 +1210,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(pluggableClass.getId()).thenReturn(10L);
         DeviceEstimation deviceEstimation = mock(DeviceEstimation.class);
         when(device.forEstimation()).thenReturn(deviceEstimation);
-        mockForCountDataValidationIssues();
+        mockGetOpenDataValidationIssue();
         State state = mockDeviceState("In stock");
         when(device.getState()).thenReturn(state);
         Instant now = Instant.now();
@@ -1302,7 +1293,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         return state;
     }
 
-    private void mockForCountDataValidationIssues() {
+    private void mockGetOpenDataValidationIssue() {
         AmrSystem amrSystem = mock(AmrSystem.class);
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
         Meter meter = mock(Meter.class);
@@ -1311,7 +1302,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(issueService.findStatus(Matchers.anyString())).thenReturn(Optional.of(status));
         Finder finder = mock(Finder.class);
         when(issueDataValidationService.findAllDataValidationIssues(Matchers.any())).thenReturn(finder);
-        when(finder.find()).thenReturn(Collections.emptyList());
+        when(finder.stream()).thenAnswer(invocationOnMock -> Stream.empty());
     }
 
     @Test
