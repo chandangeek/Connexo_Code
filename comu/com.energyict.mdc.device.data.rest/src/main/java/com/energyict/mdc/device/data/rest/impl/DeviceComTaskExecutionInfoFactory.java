@@ -14,7 +14,6 @@ import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.device.data.rest.BaseComTaskExecutionInfoFactory;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo.ConnectionStrategyInfo;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.tasks.ComTask;
@@ -39,8 +38,7 @@ public class DeviceComTaskExecutionInfoFactory extends BaseComTaskExecutionInfoF
         info.comTask = new IdWithNameInfo(getComTask(comTaskExecution));
         info.isOnHold = comTaskExecution.isOnHold();
         info.plannedDate = comTaskExecution.getNextExecutionTimestamp();
-        ConnectionTask<?, ?> connectionTask = comTaskExecution.getConnectionTask();
-        if (connectionTask != null) {
+        comTaskExecution.getConnectionTask().ifPresent(connectionTask -> {
             info.connectionMethod = connectionTask.getPartialConnectionTask().getName();
             if (connectionTask.isDefault()) {
                 info.connectionMethod += " (" + getThesaurus().getString(MessageSeeds.DEFAULT.getKey(), "default") + ")";
@@ -52,7 +50,7 @@ public class DeviceComTaskExecutionInfoFactory extends BaseComTaskExecutionInfoF
                 info.connectionStrategy.displayValue = getThesaurus().getString(CONNECTION_STRATEGY_ADAPTER.marshal(scheduledConnectionTask.getConnectionStrategy()),
                         scheduledConnectionTask.getConnectionStrategy().name());
             }
-        }
+        });
     }
 
     private ComTask getComTask(ComTaskExecution comTaskExecution) {
