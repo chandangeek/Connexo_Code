@@ -307,12 +307,9 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                      if (operation) {
                          if (operation.error.status == 400) {
                              var result = Ext.JSON.decode(operation.response.responseText, true);
-                             var errorText = Uni.I18n.translate(' general.unknown.error', 'MDC', 'Unknown error occurred');
                              if (result && result.errors) {
-                                 errorText = result.errors[0]["id"]+ ": " + result.errors[0]["msg"];
-                                 form.markInvalid(errorText)
+                                 form.markInvalid(result.errors)
                              }
-                             me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('general.saving.failed', 'MDC', 'Saving failed'), errorText);
                          }
                      }
                  },
