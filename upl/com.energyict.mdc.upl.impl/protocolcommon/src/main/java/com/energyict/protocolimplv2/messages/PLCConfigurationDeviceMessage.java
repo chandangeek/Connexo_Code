@@ -7,6 +7,7 @@ import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -180,7 +181,13 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpec {
     IDISCreditManagementConfiguration(70,
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.addCredit),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.minCredit)
-    );
+    ),
+    ConfigurePLcG3KeepAlive(71,
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.EnableKeepAlive),
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.keepAliveStartTime, BigDecimal.ZERO, BigDecimal.valueOf(0xFFFFl)),
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.keepAliveSendPeriod, BigDecimal.ONE, BigDecimal.valueOf(0xFFl))
+    ),
+    ;
 
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.PLC_CONFIGURATION;

@@ -18,9 +18,9 @@ import java.util.Date;
  * Date: 22/03/12
  * Time: 10:01
  */
-public class KeepAliveDataValueMapping extends G3Mapping {
+public class PLCG3KeepAliveDataValueMapping extends G3Mapping {
 
-    public KeepAliveDataValueMapping(ObisCode obisCode) {
+    public PLCG3KeepAliveDataValueMapping(ObisCode obisCode) {
         super(obisCode);
     }
 
@@ -41,10 +41,10 @@ public class KeepAliveDataValueMapping extends G3Mapping {
             builder.append("Status: ");
             builder.append(status ? "Enabled" : "Disabled");
             builder.append(" - ");
-            builder.append("Interval: ");
+            builder.append("Start time: ");
             builder.append(keepAliveTime);
             builder.append(" - ");
-            builder.append("Bucket size: ");
+            builder.append("Send period: ");
             builder.append(bucketSize);
             return new RegisterValue(getObisCode(), builder.toString());
         } else {

@@ -551,6 +551,8 @@ public class DeviceMessageConstants {
     public static final String SNRQuietTime = "PLCConfigurationDeviceMessage.snrQuietTime";
     public static final String SNRPayload = "PLCConfigurationDeviceMessage.snrPayload";
     public static final String EnableKeepAlive = "PLCConfigurationDeviceMessage.enableKeepAlive";
+    public static final String keepAliveStartTime = "PLCConfigurationDeviceMessage.keepAliveStartTime";
+    public static final String keepAliveSendPeriod = "PLCConfigurationDeviceMessage.keepAliveSendPeriod";
     public static final String KeepAliveScheduleInterval = "PLCConfigurationDeviceMessage.keepAliveScheduleInterval";
     public static final String KeepAliveBucketSize = "PLCConfigurationDeviceMessage.keepAliveBucketSize";
     public static final String minInactiveMeterTime = "PLCConfigurationDeviceMessage.minInactiveMeterTime";

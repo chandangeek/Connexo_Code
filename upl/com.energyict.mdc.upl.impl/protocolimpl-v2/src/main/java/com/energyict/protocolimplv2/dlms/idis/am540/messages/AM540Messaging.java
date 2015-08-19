@@ -81,5 +81,6 @@ public class AM540Messaging extends AM130Messaging {
         // PLC configuration - Miscellaneous
         supportedMessages.add(PLCConfigurationDeviceMessage.ResetPlcOfdmMacCounters);
         supportedMessages.add(PLCConfigurationDeviceMessage.WritePlcG3Timeout);
+        supportedMessages.add(PLCConfigurationDeviceMessage.ConfigurePLcG3KeepAlive);
     }
 }

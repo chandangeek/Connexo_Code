@@ -1,6 +1,9 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages;
 
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.G3NetworkManagement;
@@ -41,6 +44,7 @@ public class PLCConfigurationDeviceMessageExecutor {
 
     private static final int MAX_REGISTER_TEXT_SIZE = 3800;  //The register text field is 4000 chars maximum
     private static final ObisCode PLC_G3_TIMEOUT_OBISCODE = ObisCode.fromString("0.0.94.33.10.255");
+    private static final ObisCode PLC_G3_KEEP_ALIVE_OBISCODE = ObisCode.fromString("0.0.94.33.11.255");
 
     private final DlmsSession session;
     private final OfflineDevice offlineDevice;
@@ -119,7 +123,7 @@ public class PLCConfigurationDeviceMessageExecutor {
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetSNRPayload)) {
             setSNRPayload(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.EnableKeepAlive)) {
-            enableKeepAlive(pendingMessage);
+                enableKeepAlive(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetKeepAliveScheduleInterval)) {
             setKeepAliveScheduleInterval(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetKeepAliveBucketSize)) {
@@ -136,6 +140,8 @@ public class PLCConfigurationDeviceMessageExecutor {
             enableG3PLCInterface(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.WritePlcG3Timeout)) {
             writePlcG3Timeout(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.ConfigurePLcG3KeepAlive)) {
+            configurePlcG3KeepAlive(pendingMessage);
         } else {   //Unsupported message
             return false;
         }
@@ -516,6 +522,18 @@ public class PLCConfigurationDeviceMessageExecutor {
     private void writePlcG3Timeout(OfflineDeviceMessage pendingMessage) throws IOException {
         int timeoutInMinutes = getSingleIntegerAttribute(pendingMessage);
         this.session.getCosemObjectFactory().getData(PLC_G3_TIMEOUT_OBISCODE).setValueAttr(new Unsigned16(timeoutInMinutes));
+    }
+    
+    private void configurePlcG3KeepAlive(OfflineDeviceMessage pendingMessage) throws IOException {
+        boolean enable = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableKeepAlive).getDeviceMessageAttributeValue());
+        int startTime = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.keepAliveStartTime).getDeviceMessageAttributeValue());
+        int sendPeriod = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.keepAliveSendPeriod).getDeviceMessageAttributeValue());
+
+        Structure structure = new Structure();
+        structure.addDataType(new BooleanObject(enable));
+        structure.addDataType(new Unsigned16(startTime));
+        structure.addDataType(new Unsigned8(sendPeriod));
+        this.session.getCosemObjectFactory().getData(PLC_G3_KEEP_ALIVE_OBISCODE).setValueAttr(structure);
     }
 
     private int getSingleIntegerAttribute(OfflineDeviceMessage pendingMessage) {

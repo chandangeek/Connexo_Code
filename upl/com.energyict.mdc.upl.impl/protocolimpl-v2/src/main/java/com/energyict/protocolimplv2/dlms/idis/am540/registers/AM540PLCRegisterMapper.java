@@ -8,7 +8,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.g3.registers.DataValueMapping;
 import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
 import com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper;
-import com.energyict.protocolimpl.dlms.g3.registers.KeepAliveDataValueMapping;
+import com.energyict.protocolimpl.dlms.g3.registers.PLCG3KeepAliveDataValueMapping;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class AM540PLCRegisterMapper extends G3RegisterMapper {
     private final List<G3Mapping> getAdditionalPLCMappings() {
         final List<G3Mapping> mappings = new ArrayList<>();
         mappings.add(new DataValueMapping(PLC_G3_TIMEOUT, Unit.get(BaseUnit.MINUTE)));
-        mappings.add(new KeepAliveDataValueMapping(PLC_G3_KEEP_ALIVE));
+        mappings.add(new PLCG3KeepAliveDataValueMapping(PLC_G3_KEEP_ALIVE));
         return mappings;
     }
 
