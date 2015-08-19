@@ -108,7 +108,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     CAN_NOT_CHANGE_FREQUENCY(2074, Keys.CAN_NOT_CHANGE_FREQUENCY, "The frequency can not be changed", Level.SEVERE),
     USER_IS_NOT_ALLOWED_TO_EDIT_SECURITY_PROPERTIES(2075, Keys.USER_IS_NOT_ALLOWED_TO_EDIT_SECURITY_PROPERTIES, "You are not allowed to edit the security properties", Level.SEVERE),
     NO_SUCH_COM_SCHEDULE(2076, "NoSuchComSchedule" , "No communication schedule with id {0}", Level.SEVERE),
-    NO_SUCH_DEVICE(2077, "NoSuchDevice" , "No device with mRID {0}", Level.SEVERE),
+    NO_SUCH_DEVICE(2077, "NoSuchDevice" , "No device with MRID {0}", Level.SEVERE),
     NO_METER_ACTIVATION_AT(2078, Keys.NO_METER_ACTIVATION_AT, "There is no meter activation at {0}", Level.SEVERE),    ;
 
     private final int number;
