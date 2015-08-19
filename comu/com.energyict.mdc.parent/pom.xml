@@ -477,5 +477,12 @@
                 <!-- Can we please keep this list organized alphabetically -->
             </modules>
         </profile>
+        <profile>
+            <id>test-mdc-bundles</id>
+            <modules>
+                <module>../com.elster.jupiter.demo</module>
+            </modules>
+        </profile>
+
     </profiles>
 </project>
