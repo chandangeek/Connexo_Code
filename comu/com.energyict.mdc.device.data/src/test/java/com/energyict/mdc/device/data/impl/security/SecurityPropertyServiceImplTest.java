@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.impl.security;
 
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -26,12 +30,12 @@ import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames;
-
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.google.common.collect.Range;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -44,20 +48,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link SecurityPropertyServiceImpl} component.
@@ -289,6 +283,7 @@ public class SecurityPropertyServiceImplTest {
         String expectedPassword = "current password";
         when(currentRelation.get(USERNAME_SECURITY_PROPERTY_NAME)).thenReturn(expectedUser);
         when(currentRelation.get(PASSWORD_SECURITY_PROPERTY_NAME)).thenReturn(expectedPassword);
+        when(currentRelation.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME)).thenReturn(true);
         when(this.securityPropertyRelationType.findByFilter(any(RelationSearchFilter.class))).thenReturn(Arrays.asList(oldRelation, currentRelation));
         when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
         when(this.clock.instant()).thenReturn(currentRelationFrom.plusSeconds(10));
