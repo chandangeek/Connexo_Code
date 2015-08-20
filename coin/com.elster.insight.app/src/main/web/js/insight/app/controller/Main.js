@@ -25,7 +25,8 @@ Ext.define('InsightApp.controller.Main', {
         'InsightApp.controller.History'
     ],
     init: function () {
-        
+        // Init historians
+        var hist = this.getController('InsightApp.controller.History');
         var router = this.getController('Uni.controller.history.Router');
         this.initMenu();
         
