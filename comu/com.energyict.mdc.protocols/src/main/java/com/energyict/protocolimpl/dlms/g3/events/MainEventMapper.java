@@ -43,8 +43,8 @@ public class MainEventMapper extends G3EventMapper {
             new EventDescription(91, MeterEvent.CONFIGURATIONCHANGE, "Telereport configuration inactive"),
             new EventDescription(92, MeterEvent.CONFIGURATIONCHANGE, "Telereport configuration active, without security"),
             new EventDescription(93, MeterEvent.CONFIGURATIONCHANGE, "Telereport configuration active, with security"),
-            new EventDescription(94, MeterEvent.CONFIGURATIONCHANGE, "Succesfully changed CC_LAN key"),
-            new EventDescription(95, MeterEvent.CONFIGURATIONCHANGE, "Succesfully changed CC_LOCAL key")
+            new EventDescription(94, MeterEvent.CONFIGURATIONCHANGE, "Successfully changed CC_LAN key"),
+            new EventDescription(95, MeterEvent.CONFIGURATIONCHANGE, "Successfully changed CC_LOCAL key")
     };
 
     @Override
