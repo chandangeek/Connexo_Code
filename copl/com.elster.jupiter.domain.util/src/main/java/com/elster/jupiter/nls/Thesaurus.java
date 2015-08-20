@@ -1,5 +1,6 @@
 package com.elster.jupiter.nls;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import javax.validation.MessageInterpolator;
@@ -7,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
 
+@ProviderType
 public interface Thesaurus extends MessageInterpolator {
 	
 	//
