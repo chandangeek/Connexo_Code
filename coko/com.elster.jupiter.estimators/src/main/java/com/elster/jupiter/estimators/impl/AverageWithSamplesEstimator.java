@@ -1,6 +1,7 @@
 package com.elster.jupiter.estimators.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.AdvanceReadingsSettings;
 import com.elster.jupiter.estimation.AdvanceReadingsSettingsFactory;
 import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
@@ -17,6 +18,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -419,15 +421,15 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         }
 
         BaseReadingRecord readingBefore = readingsBefore.get(0);
-        Optional<CimChannel> cimChannel = getCimChannel(estimationBlock,registerReadingType);
-        if (!cimChannel.isPresent()) {
+        Optional<CimChannel> cimChannelFound = getCimChannel(estimationBlock, registerReadingType);
+        if (!cimChannelFound.isPresent()) {
             String message = "Failed estimation with {rule}: Block {block} since the meter does not have readings for the reading type {0}";
             LoggingContext.get().info(getLogger(), message, registerReadingType.getMRID());
             return false;
         }
 
-
-        if (!isValidReading(cimChannel.get(), readingBefore)) {
+        CimChannel cimChannel = cimChannelFound.get();
+        if (!isValidReading(cimChannel, readingBefore)) {
             String message = "Failed estimation with {rule}: Block {block} since the prior advance reading is suspect, estimated or overflow";
             LoggingContext.get().info(getLogger(), message);
             return false;
@@ -435,7 +437,7 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
 
         BaseReadingRecord readingAfter = readingsAfter.get(0);
 
-        if (!isValidReading(cimChannel.get(), readingAfter)) {
+        if (!isValidReading(cimChannel, readingAfter)) {
             String message = "Failed estimation with {rule}: Block {block} since the later advance reading is suspect, estimated or overflow";
             LoggingContext.get().info(getLogger(), message);
             return false;
@@ -444,7 +446,14 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         BigDecimal consumptionBetweenRegisterReadings =
                 readingAfter.getQuantity(registerReadingType).getValue().add(readingBefore.getQuantity(registerReadingType).getValue().negate());
 
+        CimChannel consumptionCimChannel = estimationBlock.getCimChannel();
+
         Range<Instant> preInterval = Range.openClosed(readingBefore.getTimeStamp(), estimationBlock.getChannel().getPreviousDateTime(startInterval));
+        if (hasSuspects(consumptionCimChannel, preInterval)) {
+            String message = "Failed estimation with {rule}: Block {block} since there are other suspects between the advance readings";
+            LoggingContext.get().info(getLogger(), message);
+            return false;
+        }
         List<Instant> instants = new ArrayList<>(estimationBlock.getChannel().toList(preInterval));
         Map<Instant, BigDecimal> percentages = percentages(instants, readingBefore.getTimeStamp(), estimationBlock.getChannel().getPreviousDateTime(startInterval), estimationBlock.getChannel().getZoneId(), estimationBlock.getChannel().getIntervalLength().get());
         BigDecimal consumptionBetweenPreviousRegisterReadingAndStartOfBlock = getTotalConsumption(
@@ -453,7 +462,14 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         Range<Instant> postInterval = Range.openClosed(endInterval, readingAfter.getTimeStamp());
         instants = new ArrayList<>(estimationBlock.getChannel().toList(postInterval));
         if (!lastOf(instants).equals(readingAfter.getTimeStamp())) {
-            instants.add(estimationBlock.getChannel().getNextDateTime(lastOf(instants)));
+            Instant addedInstant = estimationBlock.getChannel().getNextDateTime(lastOf(instants));
+            instants.add(addedInstant);
+            postInterval = Range.openClosed(endInterval, addedInstant);
+        }
+        if (hasSuspects(consumptionCimChannel, postInterval)) {
+            String message = "Failed estimation with {rule}: Block {block} since there are other suspects between the advance readings";
+            LoggingContext.get().info(getLogger(), message);
+            return false;
         }
         percentages = percentages(instants, endInterval, readingAfter.getTimeStamp(), estimationBlock.getChannel().getZoneId(), estimationBlock.getChannel().getIntervalLength().get());
         BigDecimal consumptionBetweenEndOfBlockAndNextRegisterReading = getTotalConsumption(
@@ -462,8 +478,18 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         BigDecimal totalConsumption = consumptionBetweenRegisterReadings.subtract(
                 consumptionBetweenPreviousRegisterReadingAndStartOfBlock).subtract(
                 consumptionBetweenEndOfBlockAndNextRegisterReading);
+        if (totalConsumption.compareTo(BigDecimal.ZERO) < 0) {
+            String message = "Failed estimation with {rule}: Block {block} since no negative values are allowed.";
+            LoggingContext.get().info(getLogger(), message);
+
+            return false;
+        }
         rescaleEstimation(estimationBlock, totalConsumption);
         return true;
+    }
+
+    private boolean hasSuspects(CimChannel cimChannel, Range<Instant> preInterval) {
+        return !cimChannel.findActualReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), preInterval).isEmpty();
     }
 
     private Instant lastOf(List<Instant> instants) {
