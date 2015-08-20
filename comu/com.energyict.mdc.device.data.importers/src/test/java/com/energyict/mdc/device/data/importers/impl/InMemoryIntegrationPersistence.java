@@ -76,7 +76,7 @@ public class InMemoryIntegrationPersistence {
                 bootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
-                new MeteringModule(),
+                new MeteringModule("0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0"),
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
