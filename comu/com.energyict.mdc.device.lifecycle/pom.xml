@@ -25,7 +25,35 @@
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
+      <artifactId>mdc.common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
       <artifactId>mdc.device.data</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.device.config</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.engine.config</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.protocols.api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.pluggable</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.protocol.pluggable</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.tasks</artifactId>
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
@@ -51,6 +79,15 @@
       <groupId>com.elster.jupiter</groupId>
       <artifactId>bpm</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>estimation</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>validation</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
@@ -110,7 +147,38 @@
       <artifactId>appserver</artifactId>
       <scope>test</scope>
     </dependency>
-<!--     <dependency> -->
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.dynamic</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.issues</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.masterdata</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.scheduling</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.metering</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.io</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!--     <dependency> -->
 <!--       <groupId>com.google.inject</groupId> -->
 <!--       <artifactId>guice</artifactId> -->
 <!--       <version>4.0-beta5</version> -->
