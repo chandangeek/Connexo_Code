@@ -4,7 +4,6 @@ Ext.define('Ldr.model.Privilege', {
     fields: [
         'name', 'applicationName'
     ],
-    idProperty: 'name',
 
     proxy: {
         type: 'rest',
