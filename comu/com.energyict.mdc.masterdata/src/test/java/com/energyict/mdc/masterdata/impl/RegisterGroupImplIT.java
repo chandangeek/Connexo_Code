@@ -55,7 +55,7 @@ public class RegisterGroupImplIT {
     @BeforeClass
     public static void initialize() {
         inMemoryPersistence = new InMemoryPersistence();
-        inMemoryPersistence.initializeDatabase("mdc.masterdata.registergroup", false, false);
+        inMemoryPersistence.initializeDatabase("mdc.masterdata.registergroup", false, false, "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0");
     }
 
     @AfterClass

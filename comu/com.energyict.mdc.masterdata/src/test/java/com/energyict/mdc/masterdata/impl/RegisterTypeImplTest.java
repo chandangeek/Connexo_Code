@@ -70,7 +70,7 @@ public class RegisterTypeImplTest {
     @BeforeClass
     public static void initialize() {
         inMemoryPersistence = new InMemoryPersistence();
-        inMemoryPersistence.initializeDatabase("mdc.masterdata.registertype", false, false);
+        inMemoryPersistence.initializeDatabase("mdc.masterdata.registertype", false, false, "0.0.2.0.0.2.0.0.0.0.0.0.0.0.0.0.0.0", "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "11.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
     }
 
     @AfterClass
