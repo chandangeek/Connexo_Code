@@ -115,12 +115,6 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public Optional<ReadingType> getReadingType(String mRid) {
-        try {
-            Files.write(Paths.get("/tmp/readingtypes"), ("\""+mRid+"\",\n").getBytes(), StandardOpenOption.APPEND);
-        }catch (IOException e) {
-            //exception handling left as an exercise for the reader
-        }
-        Thread.currentThread().getStackTrace();
         return dataModel.mapper(ReadingType.class).getOptional(mRid);
     }
 
