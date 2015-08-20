@@ -82,7 +82,7 @@ public class InMemoryPersistence {
                 new EventsModule(),
                 new OrmModule(),
                 new FiniteStateMachineModule(),
-                new MeteringModule(),
+                new MeteringModule(true), // this module currently really needs ALL reading types, explicetly tested
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule());
         this.transactionService = injector.getInstance(TransactionService.class);
