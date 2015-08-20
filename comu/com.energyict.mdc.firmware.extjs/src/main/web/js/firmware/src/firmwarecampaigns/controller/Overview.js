@@ -67,6 +67,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
                 confirmText: Uni.I18n.translate('firmware.campaigns.cancelCampaign', 'FWC', 'Cancel campaign'),
                 confirmation: function () {
                     me.doCancelCampaign(record);
+                    this.close();
                 }
             });
 
@@ -82,6 +83,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
         var me = this,
             form = this.getPreview().down('form'),
             store = this.getStore('Fwc.firmwarecampaigns.store.FirmwareCampaigns');
+
         store.getProxy().url = '/api/fwc/campaigns/' + record.id;
         record.set('status', {id: "CANCELLED", localizedValue: "Cancelled"});
         record.save({
