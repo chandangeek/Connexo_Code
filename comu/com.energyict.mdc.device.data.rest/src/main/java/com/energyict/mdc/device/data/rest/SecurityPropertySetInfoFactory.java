@@ -50,7 +50,10 @@ public class SecurityPropertySetInfoFactory {
     }
 
     public List<SecurityPropertySetInfo> asInfo(Device device, UriInfo uriInfo) {
-        return device.getDeviceConfiguration().getSecurityPropertySets().stream().map(s -> asInfo(device, uriInfo, s))
+        return device.getDeviceConfiguration()
+                .getSecurityPropertySets()
+                .stream()
+                .map(s -> asInfo(device, uriInfo, s))
                 .sorted((p1, p2) -> p1.name.compareToIgnoreCase(p2.name))
                 .collect(toList());
     }
