@@ -519,7 +519,8 @@ public class ImageTransfer extends AbstractCosemObject {
     }
 
     /**
-     * Verify the image. If the result is a temporary failure, then wait a few seconds and check the.
+     * Verify the image. If the result is a temporary failure, then inside this method a polling mechanism will be used
+     * to check the verification status again.
      * @throws java.io.IOException
      */
     public void verifyAndPollForSuccess() throws IOException {

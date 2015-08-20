@@ -5,6 +5,7 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130Messaging;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessageExecutor;
 import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 
 import java.util.ArrayList;
@@ -42,6 +43,11 @@ public class AM540Messaging extends AM130Messaging {
         addAlarmConfigurationMessages(supportedMessages);
         addContactorDeviceMessages(supportedMessages);
         addPLCConfigurationDeviceMessages(supportedMessages);
+        addAdditionalDeviceMessages(supportedMessages);
+    }
+
+    private void addAdditionalDeviceMessages(List<DeviceMessageSpec> supportedMessages) {
+        supportedMessages.add(FirmwareDeviceMessage.VerifyAndActivateFirmware);
     }
 
     @Override
