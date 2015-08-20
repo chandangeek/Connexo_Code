@@ -50,7 +50,7 @@ public class SecurityPropertySetBuilder extends NamedBuilder<SecurityPropertySet
     @Override
     public Optional<SecurityPropertySet> find() {
         check();
-        return this.deviceConfiguration.getSecurityPropertySets().stream().filter(sps -> sps.getName().equals(getName())).findFirst();
+        return deviceConfiguration.getSecurityPropertySets().stream().filter(sps -> sps.getName().equals(getName())).findFirst();
     }
 
     @Override
