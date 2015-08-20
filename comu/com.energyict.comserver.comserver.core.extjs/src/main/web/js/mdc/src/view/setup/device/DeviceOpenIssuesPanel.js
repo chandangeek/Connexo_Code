@@ -25,6 +25,7 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
     setDataCollectionIssues: function (device) {
         var me = this,
             mRID = me.router.arguments.mRID,
+            openDataValidationIssueId = device.get('openDataValidationIssue'),
             assignedFilter;
 
         assignedFilter = {
@@ -43,14 +44,17 @@ Ext.define('Mdc.view.setup.device.DeviceOpenIssuesPanel', {
                     ? me.router.getRoute('workspace/datacollectionissues').buildUrl(null, assignedFilter) : null
             });
 
-        me.down('#dataValidationIssuesContainer').add(
-            {
-                xtype: 'button',
-                text: Uni.I18n.translatePlural('deviceOpenIssues.dataValidationIssuesOnMeter', device.get('nbrOfDataValidationIssues'), 'MDC', '{0} data validation issues'),
-                ui: 'link',
-                href: typeof me.router.getRoute('workspace/datavalidationissues') !== 'undefined'
-                    ? me.router.getRoute('workspace/datavalidationissues').buildUrl(null, assignedFilter) : null
-            });
+        if (!Ext.isEmpty(openDataValidationIssueId)) {
+            me.down('#dataValidationIssuesContainer').add(
+                {
+                    xtype: 'button',
+                    text: Uni.I18n.translate('deviceOpenIssues.dataValidationIssuesOnMeter', 'MDC', 'open data validation issue'),
+                    ui: 'link',
+                    href: typeof me.router.getRoute('workspace/datavalidationissues/view') !== 'undefined'
+                        ? me.router.getRoute('workspace/datavalidationissues/view').buildUrl({issueId: openDataValidationIssueId})
+                        : null
+                });
+        }
     }
 })
 ;

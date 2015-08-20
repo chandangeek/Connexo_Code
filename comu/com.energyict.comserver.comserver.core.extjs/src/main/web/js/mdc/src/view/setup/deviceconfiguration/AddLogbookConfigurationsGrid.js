@@ -14,11 +14,12 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurationsGrid', {
             {
                 header: 'Name',
                 dataIndex: 'name',
-                flex: 5
+                flex: 4
             },
             {
                 xtype: 'obis-column',
-                dataIndex: 'obisCode'
+                dataIndex: 'obisCode',
+                flex: 1
             }
         ];
 

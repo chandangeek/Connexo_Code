@@ -69,7 +69,7 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                         if (Ext.isEmpty(value.displayValue)) {
                             return '-'
                         } else {
-                            return value.displayValue
+                            return Ext.String.htmlEncode(value.displayValue);
                         }
                     } else {
                         this.hide();

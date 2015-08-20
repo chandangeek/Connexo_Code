@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
                             {
                                 xtype: 'displayfield',
                                 itemId: 'dpl-configuration-view-data-validated',
-                                fieldLabel: Uni.I18n.translate('validationResults.dataValidated', 'MDC', 'Data validated'),
+                                fieldLabel: Uni.I18n.translate('validationResults.allDataValidated', 'MDC', 'All data validated'),
                                 name: 'dataValidatedDisplay',
                                 value: Uni.I18n.translate('validationResults.updatingStatus', 'MDC', 'Updating status...'),
                                 htmlEncode: false
