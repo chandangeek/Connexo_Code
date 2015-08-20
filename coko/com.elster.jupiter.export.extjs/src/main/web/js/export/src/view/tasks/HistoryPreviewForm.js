@@ -54,7 +54,7 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
                                     mouseover: function (e) {
                                         var str = '';
                                         Ext.Array.each(field.value, function (item) {
-                                            str += item.aliasName + '<br>';
+                                            str += item.fullAliasName + '<br>';
                                         });
                                         var tip = field.up('form').myTooltip;
                                         tip.update(str);
