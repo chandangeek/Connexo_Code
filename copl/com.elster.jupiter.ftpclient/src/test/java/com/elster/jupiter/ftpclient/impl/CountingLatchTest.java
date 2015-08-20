@@ -52,7 +52,7 @@ public class CountingLatchTest {
         }
     }
 
-    @Test(timeout = 1000)
+    @Test(timeout = 2000)
     public void testAwaitHundredThreads() throws InterruptedException, ExecutionException, TimeoutException {
         CountDownLatch marker = new CountDownLatch(100);
         CountingLatch latch = new CountingLatch();
