@@ -69,6 +69,8 @@ public class DeviceDataCsvImporter<T extends FileImportRecord> implements FileIm
             logger.importFinished();
         } catch (Exception e) {
             logger.importFailed(e);
+        } finally {
+            processor.complete();
         }
     }
 
