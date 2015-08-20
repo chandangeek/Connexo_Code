@@ -178,7 +178,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new UserModule(),
                 new IdsModule(),
                 new FiniteStateMachineModule(),
-                new MeteringModule(false),
+                new MeteringModule(),
                 new InMemoryMessagingModule(),
                 new EventsModule(),
                 new OrmModule(),

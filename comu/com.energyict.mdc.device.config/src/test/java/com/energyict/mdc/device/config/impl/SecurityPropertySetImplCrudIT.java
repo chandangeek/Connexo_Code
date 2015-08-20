@@ -152,7 +152,7 @@ public class SecurityPropertySetImplCrudIT {
                     new PartyModule(),
                     new UserModule(),
                     new IdsModule(),
-                    new MeteringModule(false),
+                    new MeteringModule(),
                     new InMemoryMessagingModule(),
                     new EventsModule(),
                     new OrmModule(),
