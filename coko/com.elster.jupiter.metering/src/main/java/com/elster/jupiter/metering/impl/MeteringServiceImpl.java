@@ -38,6 +38,10 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.validation.MessageInterpolator;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
@@ -111,6 +115,12 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public Optional<ReadingType> getReadingType(String mRid) {
+        try {
+            Files.write(Paths.get("/tmp/readingtypes"), ("\""+mRid+"\",\n").getBytes(), StandardOpenOption.APPEND);
+        }catch (IOException e) {
+            //exception handling left as an exercise for the reader
+        }
+        Thread.currentThread().getStackTrace();
         return dataModel.mapper(ReadingType.class).getOptional(mRid);
     }
 

@@ -78,7 +78,7 @@ public class NtaReadingTypeTest {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
-                new MeteringModule(false, "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                new MeteringModule("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "11.0.0.9.1.1.12.0.0.0.0.1.0.0.0.3.72.0",
                         "11.0.0.4.1.1.12.0.0.0.0.1.0.0.0.3.72.0",

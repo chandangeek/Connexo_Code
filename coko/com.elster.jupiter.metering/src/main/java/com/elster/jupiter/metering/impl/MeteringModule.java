@@ -22,8 +22,7 @@ public class MeteringModule extends AbstractModule {
     private final String readingTypes;
 
     public MeteringModule() {
-        this.createReadingTypes = true;
-        this.readingTypes = "";
+        this(false);
     }
 
     public MeteringModule(boolean createReadingTypes) {
@@ -33,12 +32,7 @@ public class MeteringModule extends AbstractModule {
 
     public MeteringModule(String readingType, String... requiredReadingTypes) {
         this.readingTypes = Stream.concat(Stream.of(readingType), Stream.of(requiredReadingTypes)).collect(Collectors.joining(";"));
-        this.createReadingTypes = this.readingTypes != null && this.readingTypes.length() > 0;
-    }
-
-    public MeteringModule(boolean createAll, String readingType, String... requiredReadingTypes) {
-        this.readingTypes = Stream.concat(Stream.of(readingType), Stream.of(requiredReadingTypes)).collect(Collectors.joining(";"));
-        this.createReadingTypes = createAll;
+        this.createReadingTypes = false;
     }
 
     @Override
