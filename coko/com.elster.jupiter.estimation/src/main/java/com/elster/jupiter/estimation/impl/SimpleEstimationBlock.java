@@ -3,6 +3,7 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.google.common.collect.ImmutableList;
@@ -29,6 +30,11 @@ class SimpleEstimationBlock implements EstimationBlock {
     @Override
     public Channel getChannel() {
         return channel;
+    }
+
+    @Override
+    public CimChannel getCimChannel() {
+        return getChannel().getCimChannel(getReadingType()).get();
     }
 
     @Override
