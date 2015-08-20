@@ -85,7 +85,7 @@ public class PersistenceTest {
                 new IdsModule(),
                 new DomainUtilModule(),
                 new FiniteStateMachineModule(),
-                new MeteringModule(),
+                new MeteringModule("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                 new MasterDataModule(),
                 new PluggableModule(),
                 new ProtocolApiModule(),
