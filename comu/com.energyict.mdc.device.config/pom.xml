@@ -46,6 +46,18 @@
     </dependency>
     <dependency>
       <groupId>com.energyict</groupId>
+      <artifactId>mdc.protocols.api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.dynamic</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.pluggable</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
       <artifactId>mdc.metering</artifactId>
     </dependency>
     <dependency>
@@ -98,6 +110,16 @@
     <dependency>
       <groupId>com.elster.jupiter</groupId>
       <artifactId>devtools.persistence</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.io</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.issues</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
