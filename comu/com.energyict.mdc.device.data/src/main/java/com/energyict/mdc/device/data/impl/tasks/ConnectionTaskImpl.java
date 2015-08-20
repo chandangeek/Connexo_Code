@@ -677,6 +677,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.lastSession.set(session);
         this.lastSessionSuccessIndicator = session.getSuccessIndicator();
         this.lastSessionStatus = session.wasSuccessful();
+        this.lastCommunicationStart = session.getStartDate();
     }
 
     @Override
