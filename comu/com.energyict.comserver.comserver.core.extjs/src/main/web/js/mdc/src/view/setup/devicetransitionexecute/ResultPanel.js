@@ -86,7 +86,11 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.ResultPanel', {
                     'background-color': '#71adc7'
                 },
                 handler: function () {
-                    me.router.getRoute('devices/device').forward();
+                    if(me.deviceRemoved === true){
+                        me.router.getRoute('search').forward();
+                    } else {
+                        me.router.getRoute('devices/device').forward();
+                    }
                 }
             }
         ];

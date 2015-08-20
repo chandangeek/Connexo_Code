@@ -52,12 +52,12 @@ Ext.define('Mdc.controller.setup.DeviceTransitionExecute', {
 
         propertyForm.updateRecord();
         record = propertyForm.getRecord();
-
         record.set('transitionNow', transitionFieldValue.transitionNow);
         record.set('effectiveTimestamp', transitionFieldValue.time);
+        var deviceRemoved = record.get('name')==='Remove';
         record.save({
             success: function (record, operation) {
-                step2Page.handleSuccessRequest(Ext.decode(operation.response.responseText), router);
+                step2Page.handleSuccessRequest(Ext.decode(operation.response.responseText), router, deviceRemoved);
             },
             failure: function () {
                 Ext.suspendLayouts();
