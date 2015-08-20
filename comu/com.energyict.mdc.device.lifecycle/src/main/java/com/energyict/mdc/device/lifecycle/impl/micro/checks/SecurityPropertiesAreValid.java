@@ -32,7 +32,7 @@ public class SecurityPropertiesAreValid extends ConsolidatedServerMicroCheck {
 
     @Override
     public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
-        if (!device.securityPropertiesAreValid("")) {
+        if (!device.securityPropertiesAreValid()) {
             return Optional.of(newViolation());
         }
         else {
