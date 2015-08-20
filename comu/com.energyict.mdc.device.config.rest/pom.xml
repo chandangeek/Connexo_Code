@@ -179,7 +179,11 @@
             <artifactId>devtools.rest</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.io</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
