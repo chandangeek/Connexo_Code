@@ -6,6 +6,8 @@ Ext.define('Mdc.model.DeviceDataValidationRulesSet', {
         {name: 'isActive', type: 'boolean'},
         {name: 'numberOfInactiveRules', type: 'int'},
         {name: 'numberOfRules', type: 'int'},
+        {name: 'numberOfVersions', type: 'int'},
+        {name: 'hasCurrent', type: 'boolean'},
         {
             name: 'numberOfActiveRules',
             persist: false,
@@ -17,11 +19,15 @@ Ext.define('Mdc.model.DeviceDataValidationRulesSet', {
             name: 'activeVersion',            
             convert: function (value, record) {
 				
-                var result, startDate, endDate;
+                var result, startDate, endDate, numberOfVersions, hasCurrent;
 
+                numberOfVersions = record.get('numberOfVersions');
+                hasCurrent = record.get('hasCurrent');
                 startDate = record.get('startDate');
                 endDate = record.get('endDate');
-                if (startDate && endDate) {
+                if (numberOfVersions === 0 || hasCurrent === false){
+                    result = '-';
+                } else if (startDate && endDate) {
                     result = Uni.I18n.translate('validationResults.version.from', 'MDC', 'From') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(startDate)) + ' - ' +
                     Uni.I18n.translate('validationResults.version.until', 'MDC', 'Until') + ' '+ Uni.DateTime.formatDateTimeLong(new Date(endDate));
                 } else if (startDate) {

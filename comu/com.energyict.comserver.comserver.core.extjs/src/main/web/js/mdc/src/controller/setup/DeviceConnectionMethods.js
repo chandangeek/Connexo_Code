@@ -245,15 +245,6 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     showProperties: function (connectionMethod) {
-        if (connectionMethod.propertiesStore.data.items.length > 0) {
-            this.getDeviceConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(true);
-        } else {
-            this.getDeviceConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(false);
-        }
-        this.getDeviceConnectionMethodEditView().down('property-form').loadRecord(connectionMethod);
-    },
-
-    showPropertiesAsInherited: function (connectionMethod) {
         var propertiesArray = connectionMethod.propertiesStore.data.items;
         if (propertiesArray.length > 0) {
             this.getDeviceConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(true);
@@ -266,6 +257,10 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
             this.getDeviceConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(false);
         }
         this.getDeviceConnectionMethodEditView().down('property-form').loadRecord(connectionMethod);
+    },
+
+    showPropertiesAsInherited: function (connectionMethod) {
+        this.showProperties(connectionMethod);
         this.getDeviceConnectionMethodEditView().down('property-form').useInheritedValues();
     },
 
@@ -384,7 +379,9 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 if (propertiesArray.length > 0) {
                     Ext.Array.each(propertiesArray, function (property) {
                         if (property.get('key') == 'host' || property.get('key') == 'portNumber') {
-                            (property.getPropertyValue().get('value') == property.getPropertyValue().get('defaultValue')) && property.getPropertyValue().set('value', '');
+                            if (property.getPropertyValue().get('value') == property.getPropertyValue().get('defaultValue') || property.getPropertyValue().get('value') == property.getPropertyValue().get('inheritedValue')) {
+                                property.getPropertyValue().set('value', '');
+                            }
                         }
                     });
                 }

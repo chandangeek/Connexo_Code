@@ -40,8 +40,6 @@ Ext.define('Mdc.view.setup.devicegeneralattributes.Setup', {
                     isEdit: false,
 
                     defaults: {
-                        xtype: 'container',
-                        layout: 'form',
                         resetButtonHidden: true,
                         labelWidth: 250
                     }

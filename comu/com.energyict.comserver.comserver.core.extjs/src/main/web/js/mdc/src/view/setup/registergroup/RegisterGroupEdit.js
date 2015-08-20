@@ -68,7 +68,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                     },
                                     {
                                         xtype: 'displayfield',
-                                        name: 'selectedRegisterTypes',
+                                        name: 'registerTypeInGroups',
                                         msgTarget: 'under',
                                         itemId: 'editRegisterGroupSelectedField',
                                         fieldLabel: Uni.I18n.translate('general.registerTypes', 'MDC', 'Register types'),
