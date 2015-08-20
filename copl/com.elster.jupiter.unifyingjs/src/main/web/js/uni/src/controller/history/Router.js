@@ -110,6 +110,8 @@ Ext.define('Uni.controller.history.Router', {
      */
     filter: null,
 
+    state: {returnLink: location.href.split('#/')[1]?location.href.split('#/')[1].split('/')[0]:''},
+
     /**
      * Add router configuration
      * @param config
@@ -313,9 +315,11 @@ Ext.define('Uni.controller.history.Router', {
      * @param path
      * @returns Route
      */
-    getRoute: function (path) {
+    getRoute: function (path, state) {
         var me = this;
-
+        if(state){
+            this.state = state;
+        }
         if (!Ext.isDefined(path)) {
             path = me.currentRoute;
         }
@@ -334,5 +338,13 @@ Ext.define('Uni.controller.history.Router', {
         } while (path.length);
 
         return route;
+    },
+
+    setState: function(state){
+        this.state = state;
+    },
+
+    getState: function(state){
+        return this.state;
     }
 });
