@@ -90,6 +90,94 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>com.energyict</groupId>
+			<artifactId>mdc.common</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.energyict</groupId>
+			<artifactId>mdc.device.config</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.energyict</groupId>
+			<artifactId>mdc.device.lifecycle.config</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.energyict</groupId>
+			<artifactId>mdc.dynamic</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.energyict</groupId>
+			<artifactId>mdc.engine.config</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.energyict</groupId>
+			<artifactId>mdc.io</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.energyict</groupId>
+			<artifactId>mdc.issues</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.energyict</groupId>
+			<artifactId>mdc.masterdata</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.energyict</groupId>
+			<artifactId>mdc.metering</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.energyict</groupId>
+			<artifactId>mdc.pluggable</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.energyict</groupId>
+			<artifactId>mdc.protocols.api</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.energyict</groupId>
+			<artifactId>mdc.scheduling</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.energyict</groupId>
+			<artifactId>mdc.tasks</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.energyict</groupId>
+			<artifactId>mdc.protocol.pluggable</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.elster.jupiter</groupId>
+			<artifactId>estimation</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.elster.jupiter</groupId>
+			<artifactId>validation</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.elster.jupiter</groupId>
+			<artifactId>systemadmin</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+
+		<dependency>
 		  <groupId>org.json</groupId>
 		  <artifactId>json</artifactId>
 		  <scope>test</scope>
