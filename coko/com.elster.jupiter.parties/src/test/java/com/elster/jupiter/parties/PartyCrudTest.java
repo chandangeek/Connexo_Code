@@ -50,28 +50,28 @@ public class PartyCrudTest {
 
     private static class MockModule extends AbstractModule {
         @Override
-        protected void configure() {       
+        protected void configure() {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
         }
     }
-    
+
     private static final boolean printSql = false;
 
     @BeforeClass
-    public static void setUp() throws SQLException {
+    public static void setUp() {
         injector = Guice.createInjector(
-        			new MockModule(), 
-        			inMemoryBootstrapModule,  
-        			new PartyModule(), 
+        			new MockModule(),
+        			inMemoryBootstrapModule,
+        			new PartyModule(),
         			new UserModule(),
         			new EventsModule(),
         			new InMemoryMessagingModule(),
-        			new DomainUtilModule(), 
+        			new DomainUtilModule(),
         			new OrmModule(),
-        			new UtilModule(), 
-        			new ThreadSecurityModule(), 
-        			new PubSubModule(), 
+        			new UtilModule(),
+        			new ThreadSecurityModule(),
+        			new PubSubModule(),
         			new TransactionModule(printSql),
                     new NlsModule()
                 );
@@ -154,7 +154,7 @@ public class PartyCrudTest {
         	context.commit();
         }
     }
-    
+
     @Test(expected=IllegalArgumentException.class)
     public void testDuplicateRepresentation() {
     	try (TransactionContext context = getTransactionService().getContext()) {
@@ -174,7 +174,7 @@ public class PartyCrudTest {
         	context.commit();
         }
     }
-    
+
     @Test(expected=IllegalArgumentException.class)
     public void testDuplicateRole() {
     	try (TransactionContext context = getTransactionService().getContext()) {
@@ -187,7 +187,7 @@ public class PartyCrudTest {
     		context.commit();
     	}
     }
-    
+
     @Test
     public void testPartyRoleCache() {
     	try (TransactionContext context = getTransactionService().getContext()) {
@@ -207,7 +207,7 @@ public class PartyCrudTest {
     	}
 
     }
-    
+
     @Test(expected=ConstraintViolationException.class)
     public void testValidation() {
     	try (TransactionContext context = getTransactionService().getContext()) {
@@ -218,7 +218,7 @@ public class PartyCrudTest {
            	context.commit();
     	}
     }
-    
+
     @Test(expected=ConstraintViolationException.class)
     public void testDuplicate() {
     	try (TransactionContext context = getTransactionService().getContext()) {
