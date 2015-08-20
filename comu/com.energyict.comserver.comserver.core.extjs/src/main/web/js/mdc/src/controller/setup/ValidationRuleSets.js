@@ -225,7 +225,7 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                     'validation.ruleSetAdded',
                     selection.length,
                     'MDC',
-                    'Succesfully added validation rule sets.'
+                    'Successfully added validation rule sets.'
                 );
 
                 me.getApplication().fireEvent('acknowledge', message);
