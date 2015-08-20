@@ -445,10 +445,10 @@ Ext.define('Dxp.controller.Tasks', {
 
 
         dataSelectorCombo.store.load(function () {
+            recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.findRecord('name','months'));
             if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
                 me.setFormValues(view);
             }
-            recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
         });
 
     },
@@ -1325,12 +1325,15 @@ Ext.define('Dxp.controller.Tasks', {
         view.down('#recurrence-trigger').setValue({recurrence: formModel.get('recurrence')});
 
 
+
         Ext.suspendLayouts();
         Ext.Array.each(view.down('grouped-property-form').query('[isFormField=true]'), function (formItem) {
             if (formItem.name in obj) {
                 formItem.setValue(obj[formItem.name]);
             }
         });
+        //view.down('#recurrence-values numberfield').setValue({recurrence: formModel.get('recurrence-number')});
+        //view.down('#recurrence-values combobox').setValue({recurrence: formModel.get('recurrence-type')});
         Ext.resumeLayouts(true);
     },
 
