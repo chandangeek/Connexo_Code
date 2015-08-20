@@ -60,7 +60,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         assertThat(comTaskExecution).isNotNull();
         assertThat(comTaskExecution.getNextExecutionSpecs().isPresent()).isFalse();
         assertThat(comTaskExecution.getDevice().getId()).isEqualTo(device.getId());
-        assertThat(comTaskExecution.getConnectionTask()).isNull();
+        assertThat(comTaskExecution.getConnectionTask()).isEmpty();
         assertThat(comTaskExecution.usesDefaultConnectionTask()).isTrue();
         assertThat(comTaskExecution.getExecutingComPort()).isNull();
         assertThat(comTaskExecution.getCurrentTryCount()).isEqualTo(1);
@@ -261,7 +261,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         device.save();
 
         // Asserts
-        assertThat(comTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
+        assertThat(comTaskExecution.getConnectionTask().get().getId()).isEqualTo(connectionTask.getId());
     }
 
     @Test
@@ -299,7 +299,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         device.save();
 
         ComTaskExecution reloadedComTaskExecution = reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
-        assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
+        assertThat(reloadedComTaskExecution.getConnectionTask().get().getId()).isEqualTo(connectionTask.getId());
     }
 
     @Test
@@ -697,7 +697,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
 
         // Asserts
         ComTaskExecution reloadedComTaskExecution = reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
-        assertThat(reloadedComTaskExecution.getConnectionTask()).isNull();
+        assertThat(reloadedComTaskExecution.getConnectionTask()).isEmpty();
         assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isTrue();
     }
 

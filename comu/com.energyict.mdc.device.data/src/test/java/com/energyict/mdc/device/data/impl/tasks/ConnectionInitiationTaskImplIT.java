@@ -309,7 +309,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
 
         // Asserts
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
-        assertThat(reloadedComTaskExecution.getConnectionTask()).isNull();
+        assertThat(reloadedComTaskExecution.getConnectionTask()).isEmpty();
         assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(id).isPresent()).isFalse();
     }
 
@@ -338,7 +338,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         assertThat(allComTaskExecutionsIncludingObsoleteForDevice).are(new Condition<ComTaskExecution>() {
             @Override
             public boolean matches(ComTaskExecution comTaskExecution) {
-                return comTaskExecution.getConnectionTask() == null;
+                return !comTaskExecution.getConnectionTask().isPresent();
             }
         });
         assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(id).isPresent()).isFalse();
@@ -388,7 +388,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
 
         // Asserts
-        assertThat(reloadedComTaskExecution.getConnectionTask()).isNull();
+        assertThat(reloadedComTaskExecution.getConnectionTask()).isEmpty();
     }
 
     @Test(expected = CannotUpdateObsoleteConnectionTaskException.class)

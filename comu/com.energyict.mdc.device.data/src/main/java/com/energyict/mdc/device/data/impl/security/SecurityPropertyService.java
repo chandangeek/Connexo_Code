@@ -54,6 +54,21 @@ public interface SecurityPropertyService {
     public boolean securityPropertiesAreValid(Device device);
 
     /**
+     * Tests if the properties of the specified {@link SecurityPropertySet}
+     * are complete for the specified {@link Device}.
+     * Security properties for a SecurityPropertySet can be invalid for the following reasons:
+     * <ul>
+     * <li>No properties have been defined</li>
+     * <li>Some or all of the required properties have not been specified yet</li>
+     * </ul>
+     *
+     * @param device The Device
+     * @param securityPropertySet The SecurityPropertySet
+     * @return A flag that indicates if all security properties are valid for the Device
+     */
+    public boolean securityPropertiesAreValid(Device device, SecurityPropertySet securityPropertySet);
+
+    /**
      * Sets the {@link SecurityProperty SecurityProperties}
      * for the specified {@link SecurityPropertySet}
      * on the {@link Device}.

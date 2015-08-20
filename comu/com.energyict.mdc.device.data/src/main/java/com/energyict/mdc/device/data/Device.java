@@ -165,6 +165,22 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      */
     boolean securityPropertiesAreValid(Object FIXME);
 
+    /**
+     * Tests if the properties of the specified {@link SecurityPropertySet}
+     * are complete for this Device.
+     * Security properties for a SecurityPropertySet can be invalid for the following reasons:
+     * <ul>
+     * <li>No properties have been defined</li>
+     * <li>Some or all of the required properties have not been specified yet</li>
+     * </ul>
+     *
+     * @param securityPropertySet The SecurityPropertySet
+     * @return A flag that indicates if all security properties are valid for this Device
+     * @see DeviceConfiguration#getSecurityPropertySets()
+     * @see SecurityProperty#isComplete()
+     */
+    boolean securityPropertiesAreValid(SecurityPropertySet securityPropertySet);
+
     List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
 
     void setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties properties);

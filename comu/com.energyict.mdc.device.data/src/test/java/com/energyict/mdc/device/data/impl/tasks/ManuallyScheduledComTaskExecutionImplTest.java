@@ -165,7 +165,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
 
         // Asserts
         assertThat(comTaskExecution.usesDefaultConnectionTask()).isTrue();
-        assertThat(comTaskExecution.getConnectionTask()).isNull();
+        assertThat(comTaskExecution.getConnectionTask()).isEmpty();
     }
 
     @Test
@@ -212,7 +212,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
 
         // Asserts
         assertThat(comTaskExecution.usesDefaultConnectionTask()).isFalse();
-        assertThat(comTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
+        assertThat(comTaskExecution.getConnectionTask().get().getId()).isEqualTo(connectionTask.getId());
         assertThat(connectionTask.getNextExecutionTimestamp()).isEqualTo(comTaskExecution.getNextExecutionTimestamp());
     }
 
@@ -235,7 +235,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
 
         ComTaskExecution reloadedComTaskExecution = this.reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
         assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isFalse();
-        assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
+        assertThat(reloadedComTaskExecution.getConnectionTask().get().getId()).isEqualTo(connectionTask.getId());
     }
 
     @Test
