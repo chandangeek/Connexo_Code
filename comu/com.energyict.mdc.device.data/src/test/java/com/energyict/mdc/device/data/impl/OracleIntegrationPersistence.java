@@ -181,7 +181,7 @@ public class OracleIntegrationPersistence {
                 new PartyModule(),
                 new UserModule(),
                 new IdsModule(),
-                new MeteringModule(false),
+                new MeteringModule(),
                 new MeteringGroupsModule(),
                 new InMemoryMessagingModule(),
                 new OrmModule(),

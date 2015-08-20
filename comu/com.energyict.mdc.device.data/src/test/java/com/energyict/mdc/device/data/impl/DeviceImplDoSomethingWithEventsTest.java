@@ -279,7 +279,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new UserModule(),
                     new IdsModule(),
                     new FiniteStateMachineModule(),
-                    new MeteringModule(false),
+                    new MeteringModule(),
                     new InMemoryMessagingModule(),
                     new OrmModule(),
                     new DataVaultModule(),
