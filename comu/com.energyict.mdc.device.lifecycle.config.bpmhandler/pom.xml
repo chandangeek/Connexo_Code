@@ -50,6 +50,10 @@
       <artifactId>mdc.device.lifecycle.config</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.common</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.elster.jupiter</groupId>
       <artifactId>bpm</artifactId>
     </dependency>
