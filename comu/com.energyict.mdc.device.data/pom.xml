@@ -46,6 +46,30 @@
       <artifactId>mdc.masterdata</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.io</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.protocols.api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.dynamic</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.pluggable</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.protocol.pluggable</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.device.lifecycle.config</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.elster.jupiter</groupId>
       <artifactId>orm</artifactId>
     </dependency>
@@ -118,6 +142,16 @@
     <dependency>
       <groupId>com.elster.jupiter</groupId>
       <artifactId>messaging.h2</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.issues</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.metering</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
