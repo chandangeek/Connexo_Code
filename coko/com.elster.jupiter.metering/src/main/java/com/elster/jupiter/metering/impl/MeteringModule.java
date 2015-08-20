@@ -25,6 +25,7 @@ public class MeteringModule extends AbstractModule {
         this(false);
     }
 
+    @Deprecated
     public MeteringModule(boolean createReadingTypes) {
         this.createReadingTypes = createReadingTypes;
         this.readingTypes = "";
