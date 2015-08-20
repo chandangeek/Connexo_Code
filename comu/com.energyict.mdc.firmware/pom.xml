@@ -39,6 +39,26 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.engine.config</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.tasks</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.dynamic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.lifecycle.config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.pluggable</artifactId>
+        </dependency>
          <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
@@ -89,6 +109,31 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools.persistence</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.protocol.pluggable</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.metering</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.scheduling</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.issues</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.masterdata</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
