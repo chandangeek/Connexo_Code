@@ -184,7 +184,6 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
-        this.initializePrivileges();
     }
 
     private void initializePrivileges() {
@@ -300,6 +299,9 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     @Override
     public Optional<Privilege> findInitiateActionPrivilege(String privilegeName) {
+        if(this.privileges.isEmpty()){
+            this.initializePrivileges();
+        }
         return this.privileges
                 .stream()
                 .filter(p -> p.getName().equals(privilegeName))
