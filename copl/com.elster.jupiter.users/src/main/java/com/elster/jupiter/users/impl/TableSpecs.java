@@ -41,8 +41,8 @@ public enum TableSpecs {
 			Table<Group> table = dataModel.addTable(name(), Group.class);
 			table.map(GroupImpl.class);
 			Column idColumn = table.addAutoIdColumn();
-			Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
-            table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
+			Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
+            table.column("DESCRIPTION").varChar().map("description").add();
 			table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addModTimeColumn("MODTIME", "modTime");
@@ -130,5 +130,5 @@ public enum TableSpecs {
 	;
 
 	abstract void addTo(DataModel dataModel);
-	
+
 }

@@ -13,7 +13,6 @@ import com.elster.jupiter.users.*;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
-import com.elster.jupiter.util.conditions.Where;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.*;
@@ -52,10 +51,12 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     private volatile List<ApplicationPrivilegesProvider> applicationPrivilegesProviders = new CopyOnWriteArrayList<>();
 
     public UserServiceImpl() {
+        super();
     }
 
     @Inject
     public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService) {
+        this();
         setTransactionService(transactionService);
         setQueryService(queryService);
         setOrmService(ormService);
@@ -69,17 +70,19 @@ public class UserServiceImpl implements UserService, InstallService, Translation
 
     @Activate
     public void activate(BundleContext context) {
-        if(context != null) {
+        if (context != null) {
             setTrustStore(context);
         }
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
                 bind(TransactionService.class).toInstance(transactionService);
-                bind(UserService.class).toInstance(UserServiceImpl.this);
+                bind(QueryService.class).toInstance(queryService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(Thesaurus.class).toInstance(thesaurus);
+
+                bind(UserService.class).toInstance(UserServiceImpl.this);
             }
         });
         userPreferencesService = new UserPreferencesServiceImpl(dataModel);
@@ -260,7 +263,9 @@ public class UserServiceImpl implements UserService, InstallService, Translation
 
     @Override
     public List<Group> getGroups() {
-        return dataModel.mapper(Group.class).find();
+        return dataModel
+                .query(Group.class, PrivilegeInGroup.class)
+                .select(Condition.TRUE);
     }
 
     @Override
@@ -357,17 +362,17 @@ public class UserServiceImpl implements UserService, InstallService, Translation
         installPrivileges();
         installer.addDefaults();
     }
-    
+
     @Override
     public List<TranslationKey> getKeys() {
         return Arrays.asList(MessageSeeds.values());
     }
-    
+
     @Override
     public String getComponentName() {
         return COMPONENTNAME;
     }
-    
+
     @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
@@ -402,7 +407,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     public Optional<UserDirectory> findUserDirectory(String domain) {
         return dataModel.mapper(UserDirectory.class).getOptional(domain);
     }
-    
+
     @Reference
     public void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(COMPONENTNAME, "User Management");
@@ -425,7 +430,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     public void setNlsService(NlsService nlsService) {
         thesaurus = nlsService.getThesaurus(UserService.COMPONENTNAME, Layer.DOMAIN);
     }
-    
+
     @Override
     public UserPreferencesService getUserPreferencesService() {
         return userPreferencesService;
@@ -449,8 +454,8 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     }
 
     @Reference(name = "ModulePrivilegesProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @SuppressWarnings("unused")
     public void addModulePrivileges(PrivilegesProvider privilegesProvider) {
-
         if (dataModel.isInstalled()) {
             try {
                 setPrincipal();
@@ -470,22 +475,19 @@ public class UserServiceImpl implements UserService, InstallService, Translation
         privilegesProviders.add(privilegesProvider);
     }
 
-
-
+    @SuppressWarnings("unused")
     public void removeModulePrivileges(PrivilegesProvider privilegesProvider) {
         privilegesProviders.remove(privilegesProvider);
-
     }
 
-
     @Reference(name = "ApplicationPrivilegesProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @SuppressWarnings("unused")
     public void addApplicationPrivileges(ApplicationPrivilegesProvider applicationPrivilegesProvider) {
-
         applicationPrivilegesProviders.add(applicationPrivilegesProvider);
     }
 
+    @SuppressWarnings("unused")
     public void removeApplicationPrivileges(ApplicationPrivilegesProvider applicationPrivilegesProvider) {
-
         applicationPrivilegesProviders.remove(applicationPrivilegesProvider);
     }
 
@@ -517,9 +519,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
         }
     }
 
-
     public List<Resource> getApplicationResources(String applicationName){
-
         List<String> applicationPrivileges = applicationPrivilegesProviders
             .stream()
             .filter(app -> app.getApplicationName().equals(applicationName))
@@ -542,7 +542,6 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     }
 
     public List<Resource> getApplicationResources(){
-
         return applicationPrivilegesProviders.stream()
                 .flatMap(a -> getApplicationResources(a.getApplicationName()).stream()).collect(Collectors.toList());
     }
@@ -551,8 +550,6 @@ public class UserServiceImpl implements UserService, InstallService, Translation
     public ResourceDefinition createModuleResourceWithPrivileges(String moduleName, String resourceName, String resourceDescription, List<String> privileges) {
         return ResourceDefinitionImpl.createResourceDefinition(moduleName, resourceName, resourceDescription, privileges);
     }
-
-
 
     private DataMapper<User> userFactory() {
         return dataModel.mapper(User.class);
