@@ -128,7 +128,7 @@ public class DirectoryForAppServerlIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new FiniteStateMachineModule(),
-                    new MeteringModule(false),
+                    new MeteringModule(),
                     new PartyModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
