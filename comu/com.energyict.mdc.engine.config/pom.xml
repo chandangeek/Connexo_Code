@@ -44,6 +44,14 @@
             <artifactId>mdc.protocols.api</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.pluggable</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.energyict.dataconcentrator.external</groupId>
             <artifactId>serialio</artifactId>
         </dependency>
