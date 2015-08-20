@@ -506,7 +506,6 @@
                 <module>../com.energyict.mdc.protocol.pluggable</module>
                 <module>../com.energyict.mdc.protocols</module>
                 <module>../com.energyict.mdc.scheduling</module>
-                <module>../com.energyict.mdc.scheduling.extjs</module>
                 <module>../com.energyict.mdc.scheduling.rest</module>
                 <module>../com.energyict.mdc.tasks</module>
                 <module>../com.energyict.mdc.tasks.rest</module>
