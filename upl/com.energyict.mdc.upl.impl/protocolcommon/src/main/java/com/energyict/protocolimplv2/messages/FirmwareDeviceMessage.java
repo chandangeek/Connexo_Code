@@ -54,7 +54,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
     FTIONUpgradeRFMeshFirmware(11),
     RFMeshUpgradeURL(12, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetUpgradeUrlAttributeName)),
     UpgradeBootloader(13, PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.PricingInformationUserFileAttributeName)),
-    VerifyAndActivateFirmware(14),
+    VerifyAndActivateFirmware(16),
     ;
 
     private static final DeviceMessageCategory firmwareCategory = DeviceMessageCategories.FIRMWARE;
