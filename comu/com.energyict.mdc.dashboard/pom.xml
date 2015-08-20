@@ -31,6 +31,22 @@
       <groupId>com.energyict</groupId>
       <artifactId>mdc.engine.config</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.tasks</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.protocol.pluggable</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.scheduling</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.common</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.osgi</groupId>
@@ -41,6 +57,23 @@
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.compendium</artifactId>
       <scope>provided</scope>
+    </dependency>
+
+    <!-- test deps -->
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.protocols.api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.dynamic</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.energyict</groupId>
+      <artifactId>mdc.pluggable</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
         <groupId>org.json</groupId>
