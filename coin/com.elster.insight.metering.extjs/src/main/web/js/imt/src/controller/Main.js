@@ -8,7 +8,9 @@ Ext.define('Imt.controller.Main', {
         'Uni.controller.Navigation',
         'Imt.usagepointmanagement.controller.View',
         'Imt.usagepointmanagement.controller.Edit',
-        'Imt.devicemanagement.controller.Device'
+        'Imt.devicemanagement.controller.Device',
+        'Imt.usagepointmanagement.model.UsagePoint',
+        'Imt.devicemanagement.model.Device'
     ],
 
     privileges: [],

@@ -2,6 +2,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
     extend: 'Ext.app.Controller',
 
     requires: [
+       'Uni.controller.history.Router',
        'Imt.usagepointmanagement.view.UsagePointEdit'
     ],
     models: [

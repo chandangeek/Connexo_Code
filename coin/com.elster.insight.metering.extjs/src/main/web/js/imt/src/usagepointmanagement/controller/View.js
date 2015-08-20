@@ -1,6 +1,7 @@
 Ext.define('Imt.usagepointmanagement.controller.View', {
     extend: 'Ext.app.Controller',
     requires: [
+        'Uni.controller.history.Router',
         'Imt.usagepointmanagement.model.UsagePoint',
         'Ext.container.Container'
     ],
