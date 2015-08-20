@@ -439,7 +439,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         model.getProxy().setExtraParam('deviceType', this.deviceTypeId);
 
 
-        if (!previousPath) {
+        if (!previousPath || previousPath.indexOf(deviceConfigurationId.toString())==-1) {
             returnLink = router.getRoute('administration/devicetypes/view/deviceconfigurations').buildUrl({deviceTypeId: deviceTypeId});
         } else {
             returnLink = '#' + previousPath;
