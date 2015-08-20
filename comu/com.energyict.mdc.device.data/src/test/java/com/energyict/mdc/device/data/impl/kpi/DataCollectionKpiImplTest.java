@@ -197,7 +197,7 @@ public class DataCollectionKpiImplTest {
                 new UserModule(),
                 new IdsModule(),
                 new FiniteStateMachineModule(),
-                new MeteringModule(false),
+                new MeteringModule(),
                 new EventsModule(),
                 new ValidationModule(),
                 new EstimationModule(),
