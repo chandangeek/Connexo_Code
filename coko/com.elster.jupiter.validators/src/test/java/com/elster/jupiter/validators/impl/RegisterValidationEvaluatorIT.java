@@ -110,7 +110,7 @@ public class RegisterValidationEvaluatorIT {
                 new InMemoryMessagingModule(),
                 new IdsModule(),
                 new FiniteStateMachineModule(),
-                new MeteringModule(false, "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
+                new MeteringModule("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                 new MeteringGroupsModule(),
                 new TaskModule(),
                 new PartyModule(),
