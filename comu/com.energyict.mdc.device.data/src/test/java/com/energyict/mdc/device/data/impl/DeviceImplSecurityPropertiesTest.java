@@ -141,7 +141,7 @@ public class DeviceImplSecurityPropertiesTest {
         DeviceImpl device = this.getTestInstance();
 
         // Business method
-        device.securityPropertiesAreValid("");
+        device.securityPropertiesAreValid();
 
         // Asserts
         verify(this.securityPropertyService).securityPropertiesAreValid(device);
