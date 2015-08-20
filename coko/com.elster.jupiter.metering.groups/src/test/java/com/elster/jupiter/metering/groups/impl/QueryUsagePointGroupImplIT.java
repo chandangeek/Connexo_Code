@@ -82,7 +82,7 @@ public class QueryUsagePointGroupImplIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new FiniteStateMachineModule(),
-                    new MeteringModule(false),
+                    new MeteringModule(),
                     new MeteringGroupsModule(),
                     new PartyModule(),
                     new EventsModule(),
