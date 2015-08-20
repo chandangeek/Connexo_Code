@@ -14,6 +14,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Registration;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
@@ -238,6 +239,7 @@ public class MessageHandlerLauncherServiceTest {
 
 
     @Test
+    @Ignore // fails intermittently -> destabilizes build -> COPL-1020
     public void testCorruptMessageHandlerFactory() throws InterruptedException {
         doThrow(RuntimeException.class).when(factory).newMessageHandler();
 
