@@ -8,7 +8,7 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>metering.extjs</artifactId>
+    <artifactId>insight.metering.extjs</artifactId>
     <packaging>bundle</packaging>
     <version>1.0.0-SNAPSHOT</version>
     <name>[Insight] insight.metering.extjs</name>

@@ -20,7 +20,7 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 
-@Component(name = "com.elster.metering.extjs", service = TranslationKeyProvider.class,
+@Component(name = "com.elster.insight.metering.extjs", service = TranslationKeyProvider.class,
         property = "name=" + ImtUiInstaller.COMPONENT_NAME + "-UI", immediate = true)
 public class ImtUiInstaller implements TranslationKeyProvider {
     public static final String APP_KEY = "IMT";
@@ -37,9 +37,9 @@ public class ImtUiInstaller implements TranslationKeyProvider {
 
     @Activate
     public void activate(BundleContext context) {
-//        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
+        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
         // EXAMPLE: Below is how to enable local development mode.
-        HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "/home/kurtk/Projects/git/Insight/com.elster.insight.metering.extjs/src/main/web/js/imt", new FileResolver());
+        //HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "/home/kurtk/Projects/git/Insight/com.elster.insight.metering.extjs/src/main/web/js/imt", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 
