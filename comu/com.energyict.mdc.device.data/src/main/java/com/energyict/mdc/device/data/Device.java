@@ -163,7 +163,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * @see DeviceConfiguration#getSecurityPropertySets()
      * @see SecurityProperty#isComplete()
      */
-    boolean securityPropertiesAreValid();
+    boolean securityPropertiesAreValid(Object FIXME);
 
     List<SecurityProperty> getSecurityProperties(SecurityPropertySet securityPropertySet);
 

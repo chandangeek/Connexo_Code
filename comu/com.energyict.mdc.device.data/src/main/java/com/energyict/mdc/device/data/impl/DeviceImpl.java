@@ -1711,7 +1711,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
-    public boolean securityPropertiesAreValid() {
+    public boolean securityPropertiesAreValid(Object FIXME) {
         return this.securityPropertyService.securityPropertiesAreValid(this);
     }
 
