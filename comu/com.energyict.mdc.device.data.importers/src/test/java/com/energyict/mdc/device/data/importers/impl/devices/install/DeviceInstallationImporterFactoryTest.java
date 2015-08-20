@@ -581,7 +581,7 @@ public class DeviceInstallationImporterFactoryTest {
         importer.process(importOccurrence);
         verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, times(1)).warning(Matchers.startsWith("Error in line 2: Pre-transition check(s) failed: "));
+        verify(logger, times(1)).warning(Matchers.startsWith("Can't process line 2: Pre-transition check(s) failed: "));
         verify(logger, never()).severe(Matchers.anyString());
     }
 
