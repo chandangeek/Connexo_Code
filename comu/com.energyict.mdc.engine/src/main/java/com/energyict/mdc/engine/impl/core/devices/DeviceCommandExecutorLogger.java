@@ -37,7 +37,7 @@ public interface DeviceCommandExecutorLogger {
      * @param deviceCommandExecutor The DeviceCommandExecutor
      * @param numberOfCommands The number of device commands that were prepared
      */
-    @Configuration(format = "{0} succesfully prepared the execution of {1} device command(s)", logLevel = LogLevel.DEBUG)
+    @Configuration(format = "{0} successfully prepared the execution of {1} device command(s)", logLevel = LogLevel.DEBUG)
     public void preparationCompleted (DeviceCommandExecutor deviceCommandExecutor, int numberOfCommands);
 
     /**
