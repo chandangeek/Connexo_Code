@@ -125,10 +125,10 @@
 			<artifactId>mdc.masterdata</artifactId>
 			<scope>test</scope>
 		</dependency>
- 		<!--<dependency>-->
- 			<!--<groupId>com.google.inject</groupId>-->
- 			<!--<artifactId>guice</artifactId>-->
- 			<!--<version>4.0-beta5</version>-->
- 		<!--</dependency>-->
+		<dependency>
+			<groupId>com.energyict</groupId>
+			<artifactId>mdc.io</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>
