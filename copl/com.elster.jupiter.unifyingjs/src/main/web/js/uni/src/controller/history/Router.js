@@ -215,6 +215,7 @@ Ext.define('Uni.controller.history.Router', {
         // register route with crossroads if not disabled
         if (!config.disabled) {
             me.routes[key].crossroad = crossroads.addRoute(route, function () {
+                me.fireEvent('routeChangeStart', this);
                 me.currentRoute = key;
                 // todo: this will not work with optional params
                 me.queryParams = Ext.Object.fromQueryString(me.getQueryString());
