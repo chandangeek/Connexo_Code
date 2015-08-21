@@ -2,7 +2,10 @@ package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.common.ObisCode;
@@ -14,6 +17,8 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -21,7 +26,22 @@ import javax.validation.constraints.Size;
  * Time: 10:35
  */
 
-public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implements LogBookType {
+public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implements LogBookType, TranslationKeyProvider {
+
+    @Override
+    public String getComponentName() {
+        return null;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return null;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
+    }
 
     enum Fields {
         OBIS_CODE("obisCode");
