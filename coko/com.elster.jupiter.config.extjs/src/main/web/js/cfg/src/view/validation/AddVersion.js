@@ -120,7 +120,7 @@ Ext.define('Cfg.view.validation.AddVersion', {
                                                 fieldLabel: Uni.I18n.translate('validationTasks.general.at', 'CFG', 'at'),
                                                 labelWidth: 10,
                                                 margin: '0 0 0 10',
-                                                value: new Date().getHours(),
+                                                value: 0,
                                                 listeners: {
                                                     focus: {
                                                         fn: function () {
@@ -132,7 +132,7 @@ Ext.define('Cfg.view.validation.AddVersion', {
                                             },
                                             minutesConfig: {
                                                 width: 55,
-                                                value: new Date().getMinutes(),
+                                                value: 0,
                                                 listeners: {
                                                     focus: {
                                                         fn: function () {
