@@ -3,6 +3,7 @@ package com.elster.jupiter.cbo;
 import javax.xml.bind.annotation.XmlTransient;
 
 import java.time.Instant;
+import java.util.Objects;
 
 public final class Status implements Cloneable {
 	private Instant dateTime;
@@ -106,4 +107,20 @@ public final class Status implements Cloneable {
             return constructing;
         }
     }
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Status status = (Status) o;
+		return Objects.equals(dateTime, status.dateTime) &&
+				Objects.equals(reason, status.reason) &&
+				Objects.equals(remark, status.remark) &&
+				Objects.equals(value, status.value);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(dateTime, reason, remark, value);
+	}
 }
