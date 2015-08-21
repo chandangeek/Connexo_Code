@@ -18,17 +18,19 @@ import java.util.stream.Stream;
 
 public class MeteringModule extends AbstractModule {
 
-    private final boolean createReadingTypes;
+    private boolean createReadingTypes;
     private final String readingTypes;
 
     public MeteringModule() {
-        this(false);
+        this.createReadingTypes = false;
+        this.readingTypes = "";
     }
 
     @Deprecated
-    public MeteringModule(boolean createReadingTypes) {
-        this.createReadingTypes = createReadingTypes;
-        this.readingTypes = "";
+    public static MeteringModule withAllReadingTypes_AVOID_AVOID() {
+        MeteringModule meteringModule = new MeteringModule();
+        meteringModule.createReadingTypes=true;
+        return meteringModule;
     }
 
     public MeteringModule(String readingType, String... requiredReadingTypes) {
