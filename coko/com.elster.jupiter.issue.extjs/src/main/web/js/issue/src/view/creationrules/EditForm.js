@@ -179,6 +179,8 @@ Ext.define('Isu.view.creationrules.EditForm', {
                                         fn: function (field, newValue) {
                                             if (newValue < 0) {
                                                 field.setValue(Math.abs(newValue));
+                                            } else if (newValue > Math.pow(10,12)) {
+                                                field.setValue(Math.pow(10,12));
                                             }
                                         }
                                     }
