@@ -157,6 +157,14 @@ public class MeterReadingStorer {
                     EndDeviceEventRecordImpl eventRecord = deviceEventFactory.get().init(meter, found.get(), sourceEvent.getCreatedDateTime());
                     eventRecord.updateProperties(sourceEvent.getEventData());
                     eventRecord.setLogBookId(sourceEvent.getLogBookId());
+                    eventRecord.setReason(sourceEvent.getReason());
+                    eventRecord.setSeverity(sourceEvent.getSeverity());
+                    eventRecord.setStatus(sourceEvent.getStatus());
+                    eventRecord.setIssuerID(sourceEvent.getIssuerID());
+                    eventRecord.setIssuerTrackingID(sourceEvent.getIssuerTrackingID());
+                    eventRecord.setName(sourceEvent.getName());
+                    eventRecord.setDescription(sourceEvent.getDescription());
+                    eventRecord.setAliasName(sourceEvent.getAliasName());
                     toCreate.add(eventRecord);
                 }
             } else {
