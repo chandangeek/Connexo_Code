@@ -7,7 +7,7 @@ import com.energyict.mdc.issue.datavalidation.impl.event.DataValidationEventHand
 public enum TranslationKeys implements TranslationKey {
 
     DATA_VALIDATION_ISSUE_TYPE("DataValidationIssueType", "Data Validation"),
-    DATA_VALIDATION_ISSUE_REASON("DataValidationIssueReason", "Can't estimate data on"),
+    DATA_VALIDATION_ISSUE_REASON("DataValidationIssueReason", "Cannot estimate data on"),
     DATA_VALIDATION_ISSUE_RULE_TEMPLATE_NAME("DataValidationIssueRuleTemplateName", "Create issue when suspects can't be estimated"),
     DATA_VALIDATION_ISSUE_RULE_TEMPLATE_DESCRIPTION("DataValidationIssueRuleTemplateDescription", "Create issue when suspects can't be estimated"),
     DEVICE_CONFIGURATIONS_PROPERTY(DataValidationIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS, "Device configurations"),
