@@ -51,7 +51,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 xtype: 'edited-column',
                 dataIndex: 'modificationState',
                 header: '',
-                width: 30
+                width: 30,
+                emptyText: ' '
             },
             {
                 xtype: 'validation-flag-column',
