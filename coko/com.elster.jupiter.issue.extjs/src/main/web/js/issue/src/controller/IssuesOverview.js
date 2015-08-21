@@ -36,7 +36,9 @@ Ext.define('Isu.controller.IssuesOverview', {
                 groupingType: queryString.groupingType
             }));
 
-            me.setGrouping(true);
+            if (me.getGroupGrid()) {
+                me.setGrouping(true);
+            }
             callback ? callback() : null;
         }
     },

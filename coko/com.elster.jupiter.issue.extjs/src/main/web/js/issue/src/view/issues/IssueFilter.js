@@ -20,7 +20,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
             {
                 type: 'combobox',
                 dataIndex: 'assignee',
-                emptyText: Uni.I18n.translate('view.issues.issueFilter.assignee', 'ISU', 'Type for assignees'),
+                emptyText: Uni.I18n.translate('general.assignee', 'ISU', 'Assignee'),
                 store: 'Isu.store.IssueAssignees',
                 displayField: 'name',
                 valueField: 'idx',
@@ -53,7 +53,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
             {
                 type: 'combobox',
                 dataIndex: 'meter',
-                emptyText: Uni.I18n.translate('view.issues.issueFilter.meter', 'ISU', 'Type to search by MRID'),
+                emptyText: Uni.I18n.translate('general.title.device', 'ISU', 'Device'),
                 displayField: 'name',
                 valueField: 'name',
                 store: 'Isu.store.Devices',
