@@ -2,9 +2,6 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
     extend: 'Ext.app.Controller',
     deviceTypeId: null,
     deviceConfigurationId: null,
-    requires: [
-        'Mdc.store.SecuritySettingsOfDevice'
-    ],
 
     views: [
         'setup.devicesecuritysettings.DeviceSecuritySettingSetup',
@@ -14,7 +11,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
     ],
 
     stores: [
-        'SecuritySettingsOfDevice'
+        'Mdc.store.SecuritySettingsOfDevice'
     ],
 
     refs: [
@@ -82,21 +79,15 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
 
         viewport.setLoading();
 
-        var securitySettingsOfDeviceStore = Ext.StoreManager.get('SecuritySettingsOfDevice');
-        securitySettingsOfDeviceStore.getProxy().setExtraParam('mrid', encodeURIComponent(mrid));
         Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
             success: function (device) {
-                var widget = Ext.widget('deviceSecuritySettingSetup', {device: device, mrid: mrid});
-                me.getApplication().fireEvent('changecontentevent', widget);
+                me.getStore('Mdc.store.SecuritySettingsOfDevice').getProxy().setUrl(mrid);
+                me.getApplication().fireEvent('changecontentevent', Ext.widget('deviceSecuritySettingSetup', {
+                    device: device,
+                    mrid: mrid
+                }));
                 me.getApplication().fireEvent('loadDevice', device);
                 viewport.setLoading(false);
-                securitySettingsOfDeviceStore.load({
-                    callback: function () {
-                        me.getDeviceSecuritySettingGrid().getSelectionModel().doSelect(0);
-
-                    }
-                });
-
             }
         });
 

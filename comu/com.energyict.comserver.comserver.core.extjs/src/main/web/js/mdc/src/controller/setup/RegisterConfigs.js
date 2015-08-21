@@ -274,7 +274,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('registerConfig.removeUsedRegisterConfig', 'MDC', 'The register configuration will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + registerConfigurationToDelete.get('name') + '?',
+            title: Uni.I18n.translate('general.removeConfirmation', 'MDC', 'Remove \'{0}\'?', [registerConfigurationToDelete.get('name')]),
             config: {
                 registerConfigurationToDelete: registerConfigurationToDelete,
                 me: me
