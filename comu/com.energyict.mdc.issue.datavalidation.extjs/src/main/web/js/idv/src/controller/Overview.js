@@ -35,24 +35,12 @@ Ext.define('Idv.controller.Overview', {
             selector: 'data-validation-issues-overview isu-view-issues-issuefilter'
         },
         {
-            ref: 'groupingToolbar',
-            selector: 'data-validation-issues-overview #data-validation-issues-grouping-toolbar'
-        },
-        {
             ref: 'groupGrid',
             selector: 'data-validation-issues-overview #data-validation-issues-group-grid'
         },
         {
             ref: 'previewContainer',
             selector: 'data-validation-issues-overview #data-validation-issues-preview-container'
-        },
-        {
-            ref: 'groupingTitle',
-            selector: 'data-validation-issues-overview issues-grouping-title'
-        },
-        {
-            ref: 'noGroupSelectedPanel',
-            selector: 'data-validation-issues-overview no-issues-group-selected-panel'
         },
         {
             ref: 'issuesGrid',
@@ -70,15 +58,6 @@ Ext.define('Idv.controller.Overview', {
             },
             'data-validation-issues-overview #data-validation-issues-grid': {
                 select: this.showPreview
-            },
-            'data-validation-issues-overview issues-grouping-toolbar #issues-grouping-toolbar-combo': {
-                change: this.setGroupingType
-            },
-            'data-validation-issues-overview issues-group-grid': {
-                select: this.setGroupingValue
-            },
-            'data-validation-issues-overview isu-view-issues-issuefilter': {
-                change: this.setGrouping
             },
             'data-validation-issues-overview #data-validation-issues-preview #filter-display-button': {
                 click: this.setFilterItem

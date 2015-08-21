@@ -31,35 +31,10 @@ Ext.define('Idv.view.Overview', {
                         xtype: 'menuseparator'
                     },
                     {
-                        xtype: 'issues-grouping-toolbar',
-                        itemId: 'data-validation-issues-grouping-toolbar',
-                        groupingType: me.groupingType
-                    },
-                    {
-                        xtype: 'issues-group-grid',
-                        itemId: 'data-validation-issues-group-grid',
-                        store: 'Idv.store.Groups',
-                        groupingType: me.groupingType,
-                        hidden: true
-                    },
-                    {
-                        xtype: 'menuseparator'
-                    },
-                    {
-                        xtype: 'issues-grouping-title',
-                        itemId: 'data-validation-issues-grouping-title',
-                        hidden: true
-                    },
-                    {
                         xtype: 'issues-sorting-toolbar',
                         itemId: 'data-validation-issues-sorting-toolbar',
                         hideEmpty: false,
                         store: 'Idv.store.Issues'
-                    },
-                    {
-                        xtype: 'no-issues-group-selected-panel',
-                        itemId: 'no-data-validation-issues-group-selected-panel',
-                        hidden: true
                     },
                     {
                         xtype: 'preview-container',
