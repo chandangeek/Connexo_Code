@@ -1,5 +1,8 @@
 package com.energyict.mdc.issue.datacollection;
 
+import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -10,6 +13,7 @@ import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
+import com.energyict.mdc.issue.datacollection.impl.DataCollectionActionsFactory;
 import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionModule;
 import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionServiceImpl;
 import com.energyict.mdc.issues.impl.IssuesModule;
@@ -226,6 +230,14 @@ public abstract class BaseTest {
         return injector.getInstance(IssueDataCollectionService.class);
     }
 
+    protected UserService getUserService() {
+        return injector.getInstance(UserService.class);
+    }
+
+    protected ThreadPrincipalService getThreadPrincipalService() {
+        return injector.getInstance(ThreadPrincipalService.class);
+    }
+
     protected Injector getInjector() {
         return injector;
     }
@@ -298,6 +310,10 @@ public abstract class BaseTest {
         KnowledgeBase base = mock(KnowledgeBase.class);
         when(base.newStatefulKnowledgeSession()).thenReturn(ksession);
         return base;
+    }
+
+    protected DataCollectionActionsFactory getDefaultActionsFactory() {
+        return injector.getInstance(DataCollectionActionsFactory.class);
     }
 
     protected static class DispatchCreationEventException extends RuntimeException {

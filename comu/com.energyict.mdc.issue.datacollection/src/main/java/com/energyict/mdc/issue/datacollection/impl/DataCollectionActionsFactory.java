@@ -8,6 +8,9 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.MessageInterpolator;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.issue.datacollection.impl.actions.CloseIssueAction;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -45,6 +48,7 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
     private volatile IssueService issueService;
     private volatile PropertySpecService propertySpecService;
     private volatile DataModel dataModel;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     private Injector injector;
     private Map<String, Provider<? extends IssueAction>> actionProviders = new HashMap<>();
@@ -56,13 +60,21 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
 
     // For unit testing purposes
     @Inject
-    public DataCollectionActionsFactory(NlsService nlsService, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService) {
+    public DataCollectionActionsFactory(OrmService ormService,
+                                        NlsService nlsService,
+                                        ConnectionTaskService connectionTaskService,
+                                        CommunicationTaskService communicationTaskService,
+                                        IssueService issueService,
+                                        PropertySpecService propertySpecService,
+                                        ThreadPrincipalService threadPrincipalService) {
         this();
+        setOrmService(ormService);
         setThesaurus(nlsService);
         setConnectionTaskService(connectionTaskService);
         setCommunicationTaskService(communicationTaskService);
         setIssueService(issueService);
         setPropertySpecService(propertySpecService);
+        setThreadPrincipalService(threadPrincipalService);
 
         activate();
     }
@@ -80,6 +92,7 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
                 bind(IssueService.class).toInstance(issueService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
             }
         });
 
@@ -130,8 +143,14 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
         this.dataModel = ormService.getDataModel(IssueService.COMPONENT_NAME).orElse(null);
     }
 
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
     private void addDefaultActions() {
         try {
+            actionProviders.put(CloseIssueAction.class.getName(), injector.getProvider(CloseIssueAction.class));
             actionProviders.put(RetryConnectionTaskAction.class.getName(), injector.getProvider(RetryConnectionTaskAction.class));
             actionProviders.put(RetryCommunicationTaskAction.class.getName(), injector.getProvider(RetryCommunicationTaskAction.class));
             actionProviders.put(RetryCommunicationTaskNowAction.class.getName(), injector.getProvider(RetryCommunicationTaskNowAction.class));

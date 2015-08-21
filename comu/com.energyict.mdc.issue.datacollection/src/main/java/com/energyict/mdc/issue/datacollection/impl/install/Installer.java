@@ -2,6 +2,7 @@ package com.energyict.mdc.issue.datacollection.impl.install;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
@@ -19,6 +20,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.DataCollectionActionsFactory;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
+import com.energyict.mdc.issue.datacollection.impl.actions.CloseIssueAction;
 import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskAction;
 import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskNowAction;
 import com.energyict.mdc.issue.datacollection.impl.actions.RetryConnectionTaskAction;
@@ -126,6 +128,7 @@ public class Installer {
 
         issueService.createReason(ModuleConstants.REASON_POWER_OUTAGE, issueType, MessageSeeds.ISSUE_REASON_POWER_OUTAGE);
         issueService.createReason(ModuleConstants.REASON_TYME_SYNC_FAILED, issueType, MessageSeeds.ISSUE_REASON_TIME_SYNC_FAILED);
+        issueActionService.createActionType(DataCollectionActionsFactory.ID, CloseIssueAction.class.getName(), issueType, CreationRuleActionPhase.OVERDUE);
     }
 
     private static void run(Runnable runnable, String explanation) {

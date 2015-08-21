@@ -4,6 +4,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.issue.datacollection.impl.actions.CloseIssueAction;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 import com.energyict.mdc.issue.datacollection.impl.templates.EventAggregationRuleTemplate;
 
@@ -52,7 +53,12 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     ACTION_RETRY(1502, "ActionRetry", "Retry", Level.INFO),
     ACTION_RETRY_CONNECTION_SUCCESS(1503, "ActionRetryConnectionSuccess", "Connection has been retriggered", Level.INFO),
     ACTION_RETRY_COM_TASK_SUCCESS(1503, "ActionRetryCommunicationSuccess", "Communication task has been retriggered", Level.INFO),
-
+    CLOSE_ACTION_PROPERTY_CLOSE_STATUS(1504, CloseIssueAction.CLOSE_STATUS, "Close status", Level.INFO),
+    CLOSE_ACTION_PROPERTY_COMMENT(1505, CloseIssueAction.COMMENT, "Comment", Level.INFO),
+    CLOSE_ACTION_WRONG_STATUS(1506, "action.wrong.status", "You are trying to apply the incorrect status" , Level.INFO),
+    CLOSE_ACTION_ISSUE_WAS_CLOSED(1507, "action.issue.was.closed", "Issue was closed" , Level.INFO),
+    CLOSE_ACTION_ISSUE_ALREADY_CLOSED(1508, "action.issue.already.closed", "Issue already closed" , Level.INFO),
+    CLOSE_ACTION_CLOSE_ISSUE(1509, "issue.action.closeIssue", "Close issue", Level.INFO),
     ;
 
     private final int number;
