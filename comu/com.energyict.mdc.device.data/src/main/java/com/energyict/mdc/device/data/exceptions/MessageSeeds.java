@@ -65,7 +65,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE(2031, Keys.COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it has already been made obsolete on {2}"),
     COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE(2032, Keys.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it is currently executing on comserver {2}"),
     COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2033, Keys.COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not remove comtaskexecution {0} because it is not owned by device {1}"),
-    VETO_COM_TASK_ENABLEMENT_DELETION(2034, Keys.VETO_COM_TASK_ENABLEMENT_DELETION, "The communication task {0} is still used by devices of the following configuration {1}"),
+    VETO_COM_TASK_ENABLEMENT_DELETION(2034, Keys.VETO_COM_TASK_ENABLEMENT_DELETION, "The communication task '{0}' is still used by devices having the configuration '{1}'"),
     VETO_DEVICE_CONFIGURATION_DEACTIVATION(2035, Keys.VETO_DEVICE_CONFIGURATION_IN_USE_BY_DEVICES, "The device configuration {0} is still used by at least one device"),
     VETO_PROTOCOL_DIALECT_CONFIGURATION_DELETION(2036, Keys.VETO_PROTOCOL_DIALECT_CONFIGURATION_DELETION, "The properties of protocol dialect {0} cannot be deleted because they are still used by at least one device"),
     VETO_PROTOCOL_DIALECT_CONFIGURATION_VALUE_DELETION(2037, Keys.VETO_PROTOCOL_DIALECT_CONFIGURATION_VALUE_DELETION, "The property ''{0}'' of protocol dialect ''{1}'' cannot be deleted because at least one device does not specify a value for it and therefore relies on the configuration level value"),
