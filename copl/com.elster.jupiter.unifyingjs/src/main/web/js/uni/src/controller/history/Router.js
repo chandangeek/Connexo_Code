@@ -84,6 +84,7 @@
  */
 Ext.define('Uni.controller.history.Router', {
     extend: 'Ext.app.Controller',
+    requires: ['Ext.util.Observable'],
 
     config: {},
 
@@ -159,6 +160,7 @@ Ext.define('Uni.controller.history.Router', {
         // register route within controller
         // todo: move route class to external entity.
         me.routes[key] = _.extend(config, {
+            key: key,
             path: route,
 
             /**

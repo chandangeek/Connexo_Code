@@ -75,7 +75,7 @@ Ext.define('Uni.controller.Navigation', {
         me.getApplication().on('ononlinehelpenabled', me.onOnlineHelpEnabled, me);
 
         me.getController('Uni.controller.history.Router').on('routematch', me.initBreadcrumbs, me);
-        me.getController('Uni.controller.history.Router').on('routechange', me.initBreadcrumbs, me);
+        me.getController('Uni.controller.history.Router').on('routechange', me.updateBreadcrumb, me);
     },
 
     initApps: function () {
@@ -121,10 +121,12 @@ Ext.define('Uni.controller.Navigation', {
         var breadcrumbs = me.getBreadcrumbs();
         var child, breadcrumb;
 
+        Ext.suspendLayouts();
         _.map(router.buildBreadcrumbs(), function (route) {
             var title = route.getTitle();
 
             breadcrumb = Ext.create('Uni.model.BreadcrumbItem', {
+                key: route.key.replace('/','.'),
                 text: Ext.isString(title) ? title : '',
                 href: route.buildUrl(),
                 relative: false
@@ -138,6 +140,16 @@ Ext.define('Uni.controller.Navigation', {
 
         me.initTitle(breadcrumb);
         breadcrumbs.setBreadcrumbItem(breadcrumb);
+        Ext.resumeLayouts(true);
+    },
+
+    updateBreadcrumb: function(route) {
+        var me = this,
+            breadcrumbs = me.getBreadcrumbs(),
+            breadcrumb = breadcrumbs.down('breadcrumbLink[key='+ route.key.replace('/','.') +']');
+        if (breadcrumb) {
+            breadcrumb.setText(route.getTitle());
+        }
     },
 
     initSearch: function () {
