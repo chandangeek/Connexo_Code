@@ -267,6 +267,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         if (!Ext.isEmpty(id)) {
             stateModel.load(id, {
                 success: function (record) {
+                    me.getApplication().fireEvent('loadlifecyclestate', record);
                     form.loadRecord(record);
                 }
             });
