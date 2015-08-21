@@ -1,7 +1,6 @@
 package com.elster.jupiter.issue.impl.module;
 
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
-import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
 import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -35,25 +34,19 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     ISSUE_STATUS_IN_PROGRESS(2004, "issue.status.in.progress", "In progress", Level.INFO),
 
 // 4001 - 4999 Issue actions
-    ACTION_CLOSE_ISSUE(4001, "issue.action.closeIssue", "Close issue", Level.INFO),
     ACTION_ASSIGN_ISSUE(4002, "issue.action.assignIssue", "Assign issue", Level.INFO),
     ACTION_COMMENT_ISSUE(4003, "issue.action.commentIssue", "Comment issue", Level.INFO),
 
     ACTION_INCORRECT_PARAMETERS(4501, "action.incorrect.parameters", "Incorrect parameters for action" , Level.INFO),
-    ACTION_WRONG_STATUS(4502, "action.wrong.status", "You are trying to apply the incorrect status" , Level.INFO),
-    ACTION_ISSUE_ALREADY_CLOSED(4503, "action.issue.already.closed", "Issue already closed" , Level.INFO),
     ACTION_WRONG_COMMENT(4504, "action.issue.comment", "Please provide a correct comment" , Level.INFO),
     ACTION_WRONG_ASSIGNEE(4505, "action.issue.wrong.assignee", "Wrong assignee" , Level.INFO),
     ACTION_ISSUE_WAS_ASSIGNED(4506, "action.issue.was.assigned", "Issue was assigned to {0}" , Level.INFO),
-    ACTION_ISSUE_WAS_CLOSED(4507, "action.issue.was.closed", "Issue was closed" , Level.INFO),
     ACTION_ISSUE_WAS_COMMENTED(4508, "action.issue.was.commented", "Issue was commented" , Level.INFO),
 
 // 5001 - 5999 Issue action properties
 
     ASSIGNACTION_PROPERTY_ASSIGNEE(5001, AssignIssueAction.ASSIGNEE, "Assignee", Level.INFO),
     ASSIGNEACTION_PROPERTY_COMMENT(5002, AssignIssueAction.COMMENT, "Comment", Level.INFO),
-    CLOSEACTION_PROPERTY_CLOSESTATUS(5003, CloseIssueAction.CLOSE_STATUS, "Close status", Level.INFO),
-    CLOSEACTION_PROPERTY_COMMENT(5004, CloseIssueAction.COMMENT, "Comment", Level.INFO),
     COMMENTACTION_PROPERTY_COMMENT(5005, CommentIssueAction.ISSUE_COMMENT, "Comment", Level.INFO),
 
 // 9001 - ... All messages

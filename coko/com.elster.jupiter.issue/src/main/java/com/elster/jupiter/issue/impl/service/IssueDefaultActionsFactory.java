@@ -1,7 +1,6 @@
 package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
-import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
 import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
@@ -15,8 +14,11 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
-import com.google.inject.*;
-
+import com.google.inject.AbstractModule;
+import com.google.inject.ConfigurationException;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.ProvisionException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -24,7 +26,6 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.MessageInterpolator;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -125,7 +126,6 @@ public class IssueDefaultActionsFactory implements IssueActionFactory {
 
     private void addDefaultActions() {
         try {
-            actionProviders.put(CloseIssueAction.class.getName(), injector.getProvider(CloseIssueAction.class));
             actionProviders.put(CommentIssueAction.class.getName(), injector.getProvider(CommentIssueAction.class));
             actionProviders.put(AssignIssueAction.class.getName(), injector.getProvider(AssignIssueAction.class));
         } catch (ConfigurationException | ProvisionException e) {

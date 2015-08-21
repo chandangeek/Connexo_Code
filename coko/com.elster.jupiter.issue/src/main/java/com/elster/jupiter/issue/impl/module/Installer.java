@@ -1,16 +1,9 @@
 package com.elster.jupiter.issue.impl.module;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.logging.Logger;
-
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
-import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
 import com.elster.jupiter.issue.impl.database.CreateIssueViewOperation;
 import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
-import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueActionService;
@@ -28,6 +21,11 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.users.UserService;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.logging.Logger;
 
 public class Installer {
     private static final Logger LOG = Logger.getLogger("IssueInstaller");
@@ -100,7 +98,6 @@ public class Installer {
 
     private void createActionTypes() {
         IssueType type = null;
-        issueActionService.createActionType(IssueDefaultActionsFactory.ID, CloseIssueAction.class.getName(), type, CreationRuleActionPhase.OVERDUE);
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, AssignIssueAction.class.getName(), type);
     }
 
