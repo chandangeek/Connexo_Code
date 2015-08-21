@@ -37,13 +37,13 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     // Reasons & issue types 1000 - 1099
     ISSUE_TYPE_DATA_COLELCTION(1000, "IssueTypeDataCollection", "Data Collection", Level.INFO),
-    ISSUE_REASON_UNKNOWN_INBOUND_DEVICE(1001, "IssueReasonUnknownInboundDevice", "Unknown inbound device", Level.INFO),
+    ISSUE_REASON_UNKNOWN_INBOUND_DEVICE(1001, "IssueReasonUnknownInbounDevice", "Unknown inbound device", Level.INFO),
     ISSUE_REASON_UNKNOWN_OUTBOUND_DEVICE(1002, "IssueReasonUnknownOutboundDevice", "Unknown outbound device", Level.INFO),
-    ISSUE_REASON_FAILED_TO_COMMUNICATE(1003, "IssueReasonFailedToCommunicate", "Failed to communicate with", Level.INFO),
-    ISSUE_REASON_CONNECTION_SETUP_FAILED(1004, "IssueReasonConnectionSetupFailed", "Connection setup failed to", Level.INFO),
-    ISSUE_REASON_CONNECTION_FAILED(1005, "IssueReasonConnectionFailed", "Connection failed to", Level.INFO),
-    ISSUE_REASON_POWER_OUTAGE(1006, "IssueReasonPowerOutage", "Power outage on", Level.INFO),
-    ISSUE_REASON_TIME_SYNC_FAILED(1007, "IssueReasonSyncFailed", "Time sync failed on", Level.INFO),
+    ISSUE_REASON_FAILED_TO_COMMUNICATE(1003, "IssueReasonFailedToCommunicate", "Failed to communicate", Level.INFO),
+    ISSUE_REASON_CONNECTION_SETUP_FAILED(1004, "IssueReasonConnectionSetupFailed", "Connection setup failed", Level.INFO),
+    ISSUE_REASON_CONNECTION_FAILED(1005, "IssueReasonConnectionFailed", "Connection failed", Level.INFO),
+    ISSUE_REASON_POWER_OUTAGE(1006, "IssueReasonPowerOutage", "Power outage", Level.INFO),
+    ISSUE_REASON_TIME_SYNC_FAILED(1007, "IssueReasonSyncFailed", "Time sync failed", Level.INFO),
 
     // Validation 1101 - 1499
     FIELD_CAN_NOT_BE_EMPTY (1101, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
