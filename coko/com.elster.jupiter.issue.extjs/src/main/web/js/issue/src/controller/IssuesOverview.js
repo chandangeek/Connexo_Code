@@ -117,6 +117,7 @@ Ext.define('Isu.controller.IssuesOverview', {
     setGroupingType: function (combo, newValue) {
         var me = this,
             groupGrid = me.getGroupGrid(),
+            groupEmptyPanel = me.getGroupEmptyPanel(),
             queryString = Uni.util.QueryString.getQueryStringValues(false);
 
         queryString.groupingType = newValue;
@@ -126,11 +127,18 @@ Ext.define('Isu.controller.IssuesOverview', {
             groupGrid.getStore().load({
                 params: me.getGroupProxyParams(newValue),
                 callback: function (records) {
-                    queryString.groupingValue = records.length ? records[0].getId() : undefined;
-                    me.applyGrouping(queryString);
+                    if (!Ext.isEmpty(records)) {
+                        groupEmptyPanel.hide();
+                        queryString.groupingValue = records.length ? records[0].getId() : undefined;
+                        me.applyGrouping(queryString);
+                    } else {
+                        groupGrid.hide();
+                        groupEmptyPanel.show();
+                    }
                 }
             });
         } else {
+            groupEmptyPanel.hide();
             queryString.groupingValue = undefined;
             me.applyGrouping(queryString);
         }
@@ -181,21 +189,29 @@ Ext.define('Isu.controller.IssuesOverview', {
         var me = this,
             queryString = Uni.util.QueryString.getQueryStringValues(false),
             groupGrid = me.getGroupGrid(),
+            groupEmptyPanel = me.getGroupEmptyPanel(),
             groupingTitle = me.getGroupingTitle(),
             groupStore = groupGrid.getStore(),
             previewContainer = me.getPreviewContainer(),
             afterLoad = function () {
-                var groupingRecord = groupStore.getById(queryString.groupingValue);
+                if (!Ext.isEmpty(groupGrid.getStore().getRange())) {
+                    groupEmptyPanel.hide();
+                    var groupingRecord = groupStore.getById(queryString.groupingValue);
 
-                Ext.suspendLayouts();
-                if (queryString.groupingValue && groupingRecord) {
-                    groupGrid.getSelectionModel().select(groupingRecord);
-                    groupingTitle.setTitle(Uni.I18n.translate('general.issuesFor', 'ISU', 'Issues for {0}: {1}', [queryString.groupingType, groupingRecord.get('reason')]));
-                    groupingTitle.show();
+                    Ext.suspendLayouts();
+                    if (queryString.groupingValue && groupingRecord) {
+                        groupGrid.getSelectionModel().select(groupingRecord);
+                        groupingTitle.setTitle(Uni.I18n.translate('general.issuesFor', 'ISU', 'Issues for {0}: {1}', [queryString.groupingType, groupingRecord.get('reason')]));
+                        groupingTitle.show();
+                    } else {
+                        groupingTitle.hide();
+                    }
+                    Ext.resumeLayouts(true);
                 } else {
+                    groupGrid.hide();
                     groupingTitle.hide();
+                    groupEmptyPanel.show();
                 }
-                Ext.resumeLayouts(true);
             };
 
         Ext.suspendLayouts();
