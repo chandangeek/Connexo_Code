@@ -36,7 +36,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                 },
                 {
                     xtype: 'displayfield',
-                    name: 'name',
+                    name: 'sorted_name',
                     itemId: 'lifeCycleStateNameDisplayField',
                     fieldLabel: Uni.I18n.translate('general.name', 'DLC', 'Name'),
                     required: true,
