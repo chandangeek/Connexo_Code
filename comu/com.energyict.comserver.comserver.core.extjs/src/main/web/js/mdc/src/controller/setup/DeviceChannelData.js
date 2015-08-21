@@ -254,9 +254,12 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     showPreview: function (selectionModel, record) {
         var me = this,
-            previewPanel = me.getDeviceLoadProfileChannelDataPreview();
+            previewPanel;
 
-        previewPanel.updateForm(record);
+        if(selectionModel.getSelection().length === 1){
+            previewPanel = me.getDeviceLoadProfileChannelDataPreview();
+            previewPanel.updateForm(record);
+        }
     },
 
     onGraphResize: function (graphView, width, height) {
