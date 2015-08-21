@@ -32,6 +32,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 loadStore: false,
                 setFilterValue: me.comboSetFilterValue,
                 getParamValue: me.comboGetParamValue,
+                forceSelection: false,
                 listeners: {
                     expand: {
                         fn: me.comboLimitNotification
@@ -48,7 +49,8 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 queryMode: 'remote',
                 queryParam: 'like',
                 queryCaching: false,
-                minChars: 0
+                minChars: 0,
+                forceSelection: false
             },
             {
                 type: 'combobox',
@@ -64,6 +66,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 loadStore: false,
                 setFilterValue: me.comboSetFilterValue,
                 getParamValue: me.comboGetParamValue,
+                forceSelection: false,
                 listeners: {
                     expand: {
                         fn: me.comboLimitNotification
