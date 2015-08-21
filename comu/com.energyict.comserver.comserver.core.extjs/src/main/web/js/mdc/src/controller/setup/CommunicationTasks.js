@@ -356,7 +356,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
 
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('communicationtasks.deleteCommunicationTask.message', 'MDC', 'On this device configuration it wont be possible anymore to execute this communication task'),
+            msg: Uni.I18n.translate('communicationtasks.deleteCommunicationTask.message', 'MDC', "For this device configuration it won't be possible anymore to execute the corresponding communication task"),
             title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' \'' + lastSelected.get('comTask').name + '\'?',
             config: {
                 communicationTaskToDelete: lastSelected,
@@ -380,7 +380,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 method: 'PUT',
                 success: function () {
                     var messageKey = ((suspended == true) ? 'communicationtasks.activated' : 'communicationtasks.deactivated');
-                    var messageText = ((suspended == true) ? 'Communication task activated' : 'Communication task deactivated');
+                    var messageText = ((suspended == true) ? 'Communication task configuration activated' : 'Communication task configuration deactivated');
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate(messageKey, 'MDC', messageText));
                     me.loadCommunicationTasksStore();
                 },
@@ -424,7 +424,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this,
             record = me.getCommunicationTaskEditForm().getRecord();
         me.updateRecord(record, values, Ext.apply({
-            successMessage: Uni.I18n.translate('comtask.saved', 'MDC', 'Communication task saved')
+            successMessage: Uni.I18n.translate('comtask.saved', 'MDC', 'Communication task configuration saved')
         }, cfg));
     },
 
@@ -432,7 +432,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this,
             record = Ext.create(Mdc.model.CommunicationTaskConfig);
         me.updateRecord(record, values, Ext.apply({
-            successMessage: Uni.I18n.translate('communicationtasks.created', 'MDC', 'Communication task added')
+            successMessage: Uni.I18n.translate('communicationtasks.created', 'MDC', 'Communication task configuration added')
         }, cfg));
     },
 
@@ -448,7 +448,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 callback: function (record, operation) {
                     if (operation.wasSuccessful()) {
                         location.href = '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/comtaskenablements';
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task successfully removed'));
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task configuration successfully removed'));
                         me.loadCommunicationTasksStore();
                     }
                 }
