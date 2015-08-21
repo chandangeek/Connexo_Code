@@ -28,9 +28,6 @@ Ext.define('Idv.view.Overview', {
                         store: 'Idv.store.Issues'
                     },
                     {
-                        xtype: 'menuseparator'
-                    },
-                    {
                         xtype: 'issues-sorting-toolbar',
                         itemId: 'data-validation-issues-sorting-toolbar',
                         hideEmpty: false,
