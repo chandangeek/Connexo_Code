@@ -23,7 +23,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
                         fieldLabel: me.boxLabel ? me.boxLabel : '',
                         items: [
                             {boxLabel: Uni.I18n.translate('advanceReadingProperty.None','UNI','None'), name: 'advanceRb', inputValue: '1'},
-                            {boxLabel:  Uni.I18n.translate('advanceReadingProperty.bulkReading','UNI','Bulk Reading'), name: 'advanceRb', inputValue: '2'},
+                            {boxLabel:  Uni.I18n.translate('advanceReadingProperty.bulkReading','UNI','Bulk reading'), name: 'advanceRb', inputValue: '2'},
                             {boxLabel: Uni.I18n.translate('general.readingType','UNI','Reading type'), name: 'advanceRb', inputValue: '3'}
                         ]
                     },
@@ -140,8 +140,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
             name: this.getName(),
             itemId: me.key + 'displayfield',
             width: me.width,
-            msgTarget: 'under',
-            cls: 'uni-property-displayfield'
+            msgTarget: 'under'
         }
     },
 
@@ -174,7 +173,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
             if(value.none){
                 return Uni.I18n.translate('general.none', this.translationKey, 'None');
             } else if (value.bulk){
-                return Uni.I18n.translate('advanceReadingProperty.bulkReading', this.translationKey, 'Bulk Reading');
+                return Uni.I18n.translate('advanceReadingProperty.bulkReading', this.translationKey, 'Bulk reading');
             } else {
                 return value.readingType.aliasName;
             }

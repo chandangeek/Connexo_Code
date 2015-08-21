@@ -24,8 +24,7 @@ Ext.define('Uni.property.view.property.Reference', {
             valueField: 'key',
             width: me.width,
             forceSelection: me.getProperty().getExhaustive(),
-            readOnly: me.isReadOnly,
-            allowBlank: me.allowBlank
+            readOnly: me.isReadOnly
         }
     },
 
@@ -36,7 +35,6 @@ Ext.define('Uni.property.view.property.Reference', {
             xtype: 'displayfield',
             name: me.getName(),
             itemId: me.key + 'displayfield',
-            cls: 'uni-property-displayfield',
             renderer: function (value) {
                 var result;
 

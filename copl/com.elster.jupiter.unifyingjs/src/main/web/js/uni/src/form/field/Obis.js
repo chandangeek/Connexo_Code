@@ -18,7 +18,7 @@ Ext.define('Uni.form.field.Obis', {
         Uni.I18n.translate('obis.info', 'UNI', 'Provide the values for the 6 attributes of the Obis code, separated by a "."') +
         '</i></div>'
     ,
-    maskRe: /[\d.]+/,
+    maskRe: /[\dx.]+/,
     vtype: 'obisCode',
     required: true,
     listeners: {
@@ -33,7 +33,7 @@ Ext.define('Uni.form.field.Obis', {
     initComponent: function () {
         Ext.apply(Ext.form.VTypes, {
             obisCode: function (val, field) {
-                var obis = /^(0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$/;
+                var obis = /^(0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]|[x])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$/;
                 return obis.test(val);
             },
             obisCodeText: Uni.I18n.translate('obis.error', 'UNI', 'OBIS code is wrong')
