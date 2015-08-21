@@ -43,6 +43,10 @@ Ext.define('Idc.controller.Overview', {
             selector: 'data-collection-issues-overview #data-collection-issues-group-grid'
         },
         {
+            ref: 'groupEmptyPanel',
+            selector: 'data-collection-issues-overview #no-data-collection-issues-group-panel'
+        },
+        {
             ref: 'previewContainer',
             selector: 'data-collection-issues-overview #data-collection-issues-preview-container'
         },
