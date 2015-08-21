@@ -34,7 +34,7 @@ public class CannotDeleteFromActiveDeviceConfigurationException extends Localize
      * @return the newly created exception
      */
     public static CannotDeleteFromActiveDeviceConfigurationException forLoadProfileSpec(Thesaurus thesaurus, LoadProfileSpec loadProfileSpec, DeviceConfiguration deviceConfiguration) {
-        CannotDeleteFromActiveDeviceConfigurationException cannotDeleteFromActiveDeviceConfigurationException = new CannotDeleteFromActiveDeviceConfigurationException(thesaurus, MessageSeeds.LOAD_PROFILE_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG, loadProfileSpec, deviceConfiguration);
+        CannotDeleteFromActiveDeviceConfigurationException cannotDeleteFromActiveDeviceConfigurationException = new CannotDeleteFromActiveDeviceConfigurationException(thesaurus, MessageSeeds.LOAD_PROFILE_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG);
         cannotDeleteFromActiveDeviceConfigurationException.set("loadProfileSpec", loadProfileSpec);
         cannotDeleteFromActiveDeviceConfigurationException.set("deviceConfiguration", deviceConfiguration);
         return cannotDeleteFromActiveDeviceConfigurationException;
@@ -51,7 +51,7 @@ public class CannotDeleteFromActiveDeviceConfigurationException extends Localize
      * @return the newly created exception
      */
     public static CannotDeleteFromActiveDeviceConfigurationException forLogbookSpec(Thesaurus thesaurus, LogBookSpec logBookSpec, DeviceConfiguration deviceConfiguration) {
-        CannotDeleteFromActiveDeviceConfigurationException cannotDeleteFromActiveDeviceConfigurationException = new CannotDeleteFromActiveDeviceConfigurationException(thesaurus, MessageSeeds.LOGBOOK_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG, logBookSpec, deviceConfiguration.getName());
+        CannotDeleteFromActiveDeviceConfigurationException cannotDeleteFromActiveDeviceConfigurationException = new CannotDeleteFromActiveDeviceConfigurationException(thesaurus, MessageSeeds.LOGBOOK_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG);
         cannotDeleteFromActiveDeviceConfigurationException.set("logBookSpec", logBookSpec);
         cannotDeleteFromActiveDeviceConfigurationException.set("deviceConfiguration", deviceConfiguration);
         return cannotDeleteFromActiveDeviceConfigurationException;
@@ -68,7 +68,7 @@ public class CannotDeleteFromActiveDeviceConfigurationException extends Localize
      * @return the newly created exception
      */
     public static CannotDeleteFromActiveDeviceConfigurationException forChannelSpec(Thesaurus thesaurus, ChannelSpec channelSpec, DeviceConfiguration deviceConfiguration) {
-        CannotDeleteFromActiveDeviceConfigurationException cannotDeleteFromActiveDeviceConfigurationException = new CannotDeleteFromActiveDeviceConfigurationException(thesaurus, MessageSeeds.CHANNEL_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG, channelSpec, deviceConfiguration);
+        CannotDeleteFromActiveDeviceConfigurationException cannotDeleteFromActiveDeviceConfigurationException = new CannotDeleteFromActiveDeviceConfigurationException(thesaurus, MessageSeeds.CHANNEL_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG);
         cannotDeleteFromActiveDeviceConfigurationException.set("channelSpec", channelSpec);
         cannotDeleteFromActiveDeviceConfigurationException.set("deviceConfiguration", deviceConfiguration);
         return cannotDeleteFromActiveDeviceConfigurationException;
