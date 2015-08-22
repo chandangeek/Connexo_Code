@@ -136,6 +136,8 @@ Ext.define('Isu.controller.IssuesOverview', {
                     } else {
                         groupGrid.hide();
                         groupEmptyPanel.show();
+                        queryString.groupingValue = undefined;
+                        me.applyGrouping(queryString);
                     }
                 }
             });
