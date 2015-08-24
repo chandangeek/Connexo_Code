@@ -1,11 +1,11 @@
 package com.energyict.mdc.issues.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.issues.Issue;
+
+import com.elster.jupiter.nls.Thesaurus;
 
 import java.text.MessageFormat;
 import java.time.Instant;
-import java.util.regex.Matcher;
 
 /**
  * Provides a default implementation for the {@link Issue} interface.
@@ -15,11 +15,9 @@ import java.util.regex.Matcher;
  */
 public abstract class IssueDefaultImplementation implements Issue {
 
-    private final Thesaurus thesaurus;
-
-    private String description;
-    private Object source;
-    private Instant timestamp;
+    private final String description;
+    private final Object source;
+    private final Instant timestamp;
 
     public IssueDefaultImplementation(Thesaurus thesaurus, Instant timestamp, String description) {
         this(thesaurus, timestamp, null, description);
@@ -27,7 +25,6 @@ public abstract class IssueDefaultImplementation implements Issue {
 
     public IssueDefaultImplementation(Thesaurus thesaurus, Instant timestamp, Object source, String description, Object... arguments) {
         super();
-        this.thesaurus = thesaurus;
         this.timestamp = timestamp;
         this.source = source;
         this.description = MessageFormat.format(convertSingleQuoteArgumentsToDoubleQuoteArguments(thesaurus.getStringBeyondComponent(description, description)), arguments);
