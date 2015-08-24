@@ -22,7 +22,7 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                             action: 'showAddDeviceLifeCycle'
                         },
                         clone: {
-                            title: Uni.I18n.translate('general.addDeviceLifeCycle', 'DLC', 'Clone device life cycle'),
+                            title: Uni.I18n.translate('general.cloneDeviceLifeCycle', 'DLC', 'Clone device life cycle'),
                             route: '{deviceLifeCycleId}/clone',
                             controller: 'Dlc.devicelifecycles.controller.DeviceLifeCycles',
                             privileges: Dlc.privileges.DeviceLifeCycle.configure,
