@@ -6,33 +6,9 @@ Ext.define('Imt.channeldata.view.Setup', {
         'Imt.channeldata.view.ChannelList'
     ],
     router: null,
-    content: [
-        {
-            xtype: 'panel',
-            ui: 'large',
-            itemId: 'channelListSetupPanel',
-            layout: {
-                type: 'fit',
-                align: 'stretch'
-            },
-            defaults: {
-                style: {
-                    marginRight: '20px',
-                    padding: '20px'
-                }
-            },
-            items: [
-                {
-                    xtype: 'channel-list'
-                }
-            ]
-        }
-    ],
-
     initComponent: function () {
-        var me = this,
-            panel = me.content[0];
-//        panel.title = me.router.getRoute().getTitle();
+        var me = this;
+
         me.side = [
             {
                 xtype: 'panel',
@@ -47,6 +23,30 @@ Ext.define('Imt.channeldata.view.Setup', {
                 ]
             }
         ];
-        this.callParent(arguments);
+        
+        me.content = [
+            {
+                xtype: 'panel',
+                ui: 'large',
+                itemId: 'channelListSetupPanel',
+                layout: {
+                    type: 'fit',
+                    align: 'stretch'
+                },
+                defaults: {
+                    style: {
+                        marginRight: '20px',
+                        padding: '20px'
+                    }
+                },
+                items: [
+                    {
+                        xtype: 'channel-list'
+                    }
+                ]
+            }
+        ];
+        me.callParent(arguments);
+        me.down('#channelList').setTitle(me.mRID);
     }
 });

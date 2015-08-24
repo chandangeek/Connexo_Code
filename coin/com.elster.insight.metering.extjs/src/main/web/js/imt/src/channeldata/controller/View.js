@@ -22,7 +22,7 @@ Ext.define('Imt.channeldata.controller.View', {
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
        
         pageMainContent.setLoading(true);
-        var widget = Ext.widget('channel-list-setup', {router: router});
+        var widget = Ext.widget('channel-list-setup', {router: router, mRID: mRID});
         me.getApplication().fireEvent('changecontentevent', widget);
         me.getOverviewLink().setText(mRID);
         pageMainContent.setLoading(false);

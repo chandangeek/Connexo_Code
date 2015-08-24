@@ -7,9 +7,7 @@ Ext.define('Imt.channeldata.view.ChannelList', {
     store: 'Imt.channeldata.store.Channel',
     overflowY: 'auto',
     itemId: 'channelList',
-    title: Uni.I18n.translate('channels.channelList', 'IMT', 'ChannelList'),
-//    router: null,
-//    ui: 'tile',
+    title: Uni.I18n.translate('channels.channelList', 'IMT', 'Channel List'),
     
     columns: [
         {
