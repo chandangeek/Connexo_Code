@@ -11,6 +11,11 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
                 text: Uni.I18n.translate('usagePointManagement.overview', 'IMT', 'Overview'),
                 itemId: 'usage-point-overview-link',
                 href: me.router.getRoute('administration/usagepoint').buildUrl({mRID: me.mRID})
+            },
+            {
+                text: Uni.I18n.translate('usagePointManagement.channelList', 'IMT', 'Channel List'),
+                itemId: 'usage-point-channels-link',
+                href: me.router.getRoute('administration/usagepoint/channels').buildUrl({mRID: me.mRID})                
             }
         ];
         me.callParent(arguments);

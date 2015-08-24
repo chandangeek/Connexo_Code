@@ -17,7 +17,7 @@ Ext.define('Imt.devicemanagement.model.Device', {
         {name: 'usagePointName', type: 'string'},
         {name: 'installedDate', type: 'number'},
         {name: 'removedDate', type: 'number'},
-        {name: 'retiredDate', type: 'number'},
+        {name: 'retiredDate', type: 'number'}
     ],
     proxy: {
         type: 'rest',

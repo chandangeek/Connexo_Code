@@ -10,18 +10,21 @@ Ext.define('Imt.controller.Main', {
         'Imt.usagepointmanagement.controller.Edit',
         'Imt.devicemanagement.controller.Device',
         'Imt.usagepointmanagement.model.UsagePoint',
-        'Imt.devicemanagement.model.Device'
+        'Imt.devicemanagement.model.Device',
+        'Imt.channeldata.controller.View'
     ],
 
     privileges: [],
     models: [
         'Imt.usagepointmanagement.model.UsagePoint',
-        'Imt.devicemanagement.model.Device'
+        'Imt.devicemanagement.model.Device',
+        'Imt.channeldata.model.Channel'
     ],
     controllers: [
 		'Imt.usagepointmanagement.controller.View',
 		'Imt.usagepointmanagement.controller.Edit',
-		'Imt.devicemanagement.controller.Device'
+		'Imt.devicemanagement.controller.Device',
+        'Imt.channeldata.controller.View'
     ],
 
     refs: [
