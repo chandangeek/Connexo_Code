@@ -57,7 +57,7 @@ class MissingValuesValidator extends AbstractValidator {
     @Override
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
         this.readingType = readingType;
-    	Instant start = channel.getFirstDateTime();    	
+    	Instant start = channel.getMeterActivation().getStart();
     	if (start == null) {
     		instants = new HashSet<>();
     	} else {
