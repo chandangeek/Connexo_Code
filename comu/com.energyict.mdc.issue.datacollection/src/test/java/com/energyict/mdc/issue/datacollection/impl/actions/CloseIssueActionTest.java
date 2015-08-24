@@ -83,7 +83,7 @@ public class CloseIssueActionTest extends BaseTest {
     protected OpenIssueDataCollection createIssueMinInfo() {
         IssueServiceImpl issueService = (IssueServiceImpl) getIssueService();
         IssueType type = issueService.findIssueType(ISSUE_DEFAULT_TYPE_UUID).get();
-        issueService.createReason(ISSUE_DEFAULT_REASON, type, MESSAGE_SEED_DEFAULT_TRANSLATION);
+        issueService.createReason(ISSUE_DEFAULT_REASON, type, MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION);
         OpenIssue issue = issueService.getDataModel().getInstance(OpenIssueImpl.class);
         issue.setReason(issueService.findReason(ISSUE_DEFAULT_REASON).orElse(null));
         issue.setStatus(issueService.findStatus(IssueStatus.OPEN).orElse(null));

@@ -113,21 +113,28 @@ public class Installer {
     }
 
     private void setDataCollectionReasons(IssueType issueType) {
-        issueService.createReason(ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE, issueType, MessageSeeds.ISSUE_REASON_UNKNOWN_INBOUND_DEVICE);
-        issueService.createReason(ModuleConstants.REASON_UNKNOWN_OUTBOUND_DEVICE, issueType, MessageSeeds.ISSUE_REASON_UNKNOWN_OUTBOUND_DEVICE);
+        issueService.createReason(ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE, issueType,
+                MessageSeeds.ISSUE_REASON_UNKNOWN_INBOUND_DEVICE, MessageSeeds.ISSUE_REASON_DESCRIPTION_UNKNOWN_INBOUND_DEVICE);
+        issueService.createReason(ModuleConstants.REASON_UNKNOWN_OUTBOUND_DEVICE, issueType,
+                MessageSeeds.ISSUE_REASON_UNKNOWN_OUTBOUND_DEVICE, MessageSeeds.ISSUE_REASON_DESCRIPTION_UNKNOWN_OUTBOUND_DEVICE);
 
-        IssueReason failedToCommunicateReason = issueService.createReason(ModuleConstants.REASON_FAILED_TO_COMMUNICATE, issueType, MessageSeeds.ISSUE_REASON_FAILED_TO_COMMUNICATE);
+        IssueReason failedToCommunicateReason = issueService.createReason(ModuleConstants.REASON_FAILED_TO_COMMUNICATE, issueType,
+                MessageSeeds.ISSUE_REASON_FAILED_TO_COMMUNICATE, MessageSeeds.ISSUE_REASON_DESCRIPTION_FAILED_TO_COMMUNICATE);
         issueActionService.createActionType(DataCollectionActionsFactory.ID, RetryCommunicationTaskAction.class.getName(), failedToCommunicateReason);
 
-        IssueReason connectionSetupFailedReason = issueService.createReason(ModuleConstants.REASON_CONNECTION_SETUP_FAILED, issueType, MessageSeeds.ISSUE_REASON_CONNECTION_SETUP_FAILED);
+        IssueReason connectionSetupFailedReason = issueService.createReason(ModuleConstants.REASON_CONNECTION_SETUP_FAILED, issueType,
+                MessageSeeds.ISSUE_REASON_CONNECTION_SETUP_FAILED, MessageSeeds.ISSUE_REASON_DESCRIPTION_CONNECTION_SETUP_FAILED);
         issueActionService.createActionType(DataCollectionActionsFactory.ID, RetryCommunicationTaskNowAction.class.getName(), failedToCommunicateReason);
 
-        IssueReason connectionFailedReason = issueService.createReason(ModuleConstants.REASON_CONNECTION_FAILED, issueType, MessageSeeds.ISSUE_REASON_CONNECTION_FAILED);
+        IssueReason connectionFailedReason = issueService.createReason(ModuleConstants.REASON_CONNECTION_FAILED, issueType,
+                MessageSeeds.ISSUE_REASON_CONNECTION_FAILED, MessageSeeds.ISSUE_REASON_DESCRIPTION_CONNECTION_FAILED);
         issueActionService.createActionType(DataCollectionActionsFactory.ID, RetryConnectionTaskAction.class.getName(), connectionSetupFailedReason);
         issueActionService.createActionType(DataCollectionActionsFactory.ID, RetryConnectionTaskAction.class.getName(), connectionFailedReason);
 
-        issueService.createReason(ModuleConstants.REASON_POWER_OUTAGE, issueType, MessageSeeds.ISSUE_REASON_POWER_OUTAGE);
-        issueService.createReason(ModuleConstants.REASON_TYME_SYNC_FAILED, issueType, MessageSeeds.ISSUE_REASON_TIME_SYNC_FAILED);
+        issueService.createReason(ModuleConstants.REASON_POWER_OUTAGE, issueType,
+                MessageSeeds.ISSUE_REASON_POWER_OUTAGE, MessageSeeds.ISSUE_REASON_DESCRIPTION_POWER_OUTAGE);
+        issueService.createReason(ModuleConstants.REASON_TYME_SYNC_FAILED, issueType,
+                MessageSeeds.ISSUE_REASON_TIME_SYNC_FAILED, MessageSeeds.ISSUE_REASON_DESCRIPTION_TIME_SYNC_FAILED);
         issueActionService.createActionType(DataCollectionActionsFactory.ID, CloseIssueAction.class.getName(), issueType, CreationRuleActionPhase.OVERDUE);
     }
 

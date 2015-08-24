@@ -37,7 +37,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     // Reasons & issue types 1000 - 1099
     ISSUE_TYPE_DATA_COLELCTION(1000, "IssueTypeDataCollection", "Data Collection", Level.INFO),
-    ISSUE_REASON_UNKNOWN_INBOUND_DEVICE(1001, "IssueReasonUnknownInbounDevice", "Unknown inbound device", Level.INFO),
+    ISSUE_REASON_UNKNOWN_INBOUND_DEVICE(1001, "IssueReasonUnknownInboundDevice", "Unknown inbound device", Level.INFO),
     ISSUE_REASON_UNKNOWN_OUTBOUND_DEVICE(1002, "IssueReasonUnknownOutboundDevice", "Unknown outbound device", Level.INFO),
     ISSUE_REASON_FAILED_TO_COMMUNICATE(1003, "IssueReasonFailedToCommunicate", "Failed to communicate", Level.INFO),
     ISSUE_REASON_CONNECTION_SETUP_FAILED(1004, "IssueReasonConnectionSetupFailed", "Connection setup failed", Level.INFO),
@@ -45,6 +45,13 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     ISSUE_REASON_POWER_OUTAGE(1006, "IssueReasonPowerOutage", "Power outage", Level.INFO),
     ISSUE_REASON_TIME_SYNC_FAILED(1007, "IssueReasonSyncFailed", "Time sync failed", Level.INFO),
 
+    ISSUE_REASON_DESCRIPTION_UNKNOWN_INBOUND_DEVICE(1051, "IssueReasonUnknownInboundDeviceDescription", "Unknown inbound device {0}", Level.INFO),
+    ISSUE_REASON_DESCRIPTION_UNKNOWN_OUTBOUND_DEVICE(1052, "IssueReasonUnknownOutboundDeviceDescription", "Unknown outbound device {0}", Level.INFO),
+    ISSUE_REASON_DESCRIPTION_FAILED_TO_COMMUNICATE(1053, "IssueReasonFailedToCommunicateDescription", "Failed to communicate with {0}", Level.INFO),
+    ISSUE_REASON_DESCRIPTION_CONNECTION_SETUP_FAILED(1054, "IssueReasonConnectionSetupFailedDescription", "Connection setup failed to {0}", Level.INFO),
+    ISSUE_REASON_DESCRIPTION_CONNECTION_FAILED(1055, "IssueReasonConnectionFailedDescription", "Connection failed to {0}", Level.INFO),
+    ISSUE_REASON_DESCRIPTION_POWER_OUTAGE(1056, "IssueReasonPowerOutageDescription", "Power outage on {0}", Level.INFO),
+    ISSUE_REASON_DESCRIPTION_TIME_SYNC_FAILED(1057, "IssueReasonSyncFailedDescription", "Time sync failed {0}", Level.INFO),
     // Validation 1101 - 1499
     FIELD_CAN_NOT_BE_EMPTY (1101, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
 
