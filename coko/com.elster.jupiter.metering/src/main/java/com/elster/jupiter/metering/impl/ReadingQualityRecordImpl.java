@@ -246,5 +246,8 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
             return readingQuality.typeCode;
         }
 
+        public String getReadingType() {
+            return readingQuality.readingType.get().getMRID();
+        }
     }
 }
