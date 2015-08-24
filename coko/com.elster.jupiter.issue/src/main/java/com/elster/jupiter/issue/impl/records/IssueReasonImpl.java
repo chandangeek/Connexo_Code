@@ -13,8 +13,11 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.text.MessageFormat;
 
 public class IssueReasonImpl extends EntityImpl implements IssueReason{
+    public static final String ISSUE_REASON_DESCRIPTION_TRANSLATION_SUFFIX = "Description";
+
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String key;
@@ -38,12 +41,12 @@ public class IssueReasonImpl extends EntityImpl implements IssueReason{
         this.thesaurus = thesaurus;
     }
 
-    public IssueReasonImpl init(String key, IssueType issueType, TranslationKey translationKey){
+    public IssueReasonImpl init(String key, IssueType issueType, TranslationKey name, TranslationKey description){
         this.key = key;
         this.issueType.set(issueType);
-        if (translationKey != null) {
-            this.translationKey = translationKey.getKey();
-            this.defaultName = translationKey.getDefaultFormat();
+        if (name != null) {
+            this.translationKey = name.getKey();
+            this.defaultName = name.getDefaultFormat();
         }
         return this;
     }
@@ -61,6 +64,11 @@ public class IssueReasonImpl extends EntityImpl implements IssueReason{
     @Override
     public String getName() {
         return this.thesaurus.getStringBeyondComponent(this.translationKey, this.defaultName);
+    }
+
+    public String getDescriptionFor(String deviceMrid) {
+        String description = this.thesaurus.getStringBeyondComponent(this.translationKey + ISSUE_REASON_DESCRIPTION_TRANSLATION_SUFFIX, this.defaultName);
+        return new MessageFormat(description).format(new Object[]{deviceMrid}, new StringBuffer(), null).toString();
     }
 
     @Override

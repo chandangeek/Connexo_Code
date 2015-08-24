@@ -53,10 +53,7 @@ public class IssueImpl extends EntityImpl implements Issue {
         String title = getReason().getName();
         EndDevice endDevice = getDevice();
         if (endDevice != null) {
-            StringBuilder titleWithDevice = new StringBuilder(title);
-            titleWithDevice.append(" ");
-            titleWithDevice.append(endDevice.getMRID());
-            title = titleWithDevice.toString();
+            title = ((IssueReasonImpl) getReason()).getDescriptionFor(endDevice.getMRID());
         }
         return title;
     }

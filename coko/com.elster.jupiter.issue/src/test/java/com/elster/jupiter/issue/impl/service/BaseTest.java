@@ -152,7 +152,7 @@ public class BaseTest {
             injector.getInstance(DummyIssueProvider.class);
             // In OSGI container issue types will be set by separate bundle
             IssueType type = issueService.createIssueType(ISSUE_DEFAULT_TYPE_UUID, MESSAGE_SEED_DEFAULT_TRANSLATION);
-            issueService.createReason(ISSUE_DEFAULT_REASON, type, MESSAGE_SEED_DEFAULT_TRANSLATION);
+            issueService.createReason(ISSUE_DEFAULT_REASON, type, MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION);
             ctx.commit();
         }
     }

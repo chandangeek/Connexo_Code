@@ -53,7 +53,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
@@ -375,13 +374,15 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     }
 
     @Override
-    public IssueReason createReason(String key, IssueType type, TranslationKey translationKey) {
+    public IssueReason createReason(String key, IssueType type, TranslationKey name, TranslationKey description) {
         if(findReason(key).isPresent()){
             throw new NotUniqueKeyException(thesaurus, key);
         }
-        installEntityTranslation(translationKey);
+        installEntityTranslation(name);
+        installEntityTranslation(name.getKey() + IssueReasonImpl.ISSUE_REASON_DESCRIPTION_TRANSLATION_SUFFIX,
+                description != null ? description.getDefaultFormat() : name.getDefaultFormat() + " to {0}");
         IssueReasonImpl reason = dataModel.getInstance(IssueReasonImpl.class);
-        reason.init(key, type, translationKey).save();
+        reason.init(key, type, name, description).save();
         return reason;
     }
 
@@ -397,15 +398,19 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     }
 
     private void installEntityTranslation(TranslationKey translationKey) {
-        if (translationKey == null){
+        if (translationKey == null) {
             throw new IllegalArgumentException("Translation for the new entity can't be null");
         }
-        if (thesaurus.getTranslations().get(translationKey.getKey()) == null) {
+        installEntityTranslation(translationKey.getKey(), translationKey.getDefaultFormat());
+    }
+
+    private void installEntityTranslation(String key, String defaultFormat) {
+        if (thesaurus.getTranslations().get(key) == null) {
             try {
-                SimpleNlsKey nlsKey = SimpleNlsKey.key(IssueService.COMPONENT_NAME, Layer.DOMAIN, translationKey.getKey()).defaultMessage(translationKey.getDefaultFormat());
-                thesaurus.addTranslations(Collections.singletonList(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, translationKey.getDefaultFormat())));
+                SimpleNlsKey nlsKey = SimpleNlsKey.key(IssueService.COMPONENT_NAME, Layer.DOMAIN, key).defaultMessage(defaultFormat);
+                thesaurus.addTranslations(Collections.singletonList(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, defaultFormat)));
             } catch (Exception ex) {
-                LOG.warning("Unable to setup translation for: key = " + translationKey.getKey() + ", value = " + translationKey.getDefaultFormat());
+                LOG.warning("Unable to setup translation for: key = " + key + ", value = " + defaultFormat);
             }
         }
     }

@@ -59,10 +59,11 @@ public interface IssueService {
      * Creates new reason
      * @param key unique string id
      * @param type for which issue types this reason can be applied (data collection, data validation and so on)
-     * @param translationKey TranslationKey which contains translation for this reason. It will be saved automatically as a part of the {@value IssueService#COMPONENT_NAME} component
+     * @param name TranslationKey which contains name for this reason. It will be saved automatically as a part of the {@value IssueService#COMPONENT_NAME} component
+     * @param description TranslationKey which contains description for this reason. It will be saved automatically as a part of the {@value IssueService#COMPONENT_NAME} component
      * @return instance of issue reason (it is already saved into database)
      */
-    IssueReason createReason(String key, IssueType type, TranslationKey translationKey);
+    IssueReason createReason(String key, IssueType type, TranslationKey name, TranslationKey description);
 
     /**
      * Creates new issue type (For example: data collection or data validation)

@@ -3,7 +3,6 @@ package com.elster.jupiter.issue.impl.records;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.impl.records.IssueReasonImpl;
 import com.elster.jupiter.issue.impl.service.BaseTest;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
@@ -28,22 +27,22 @@ public class IssueReasonTest extends BaseTest{
     @Test
     @Transactional
     public void checkCreationWithTheSameTranslation(){
-        getIssueService().createReason("some.reason.key", getDefaultIssueType(), MESSAGE_SEED_DEFAULT_TRANSLATION);
-        getIssueService().createReason("another.reason.key", getDefaultIssueType(), MESSAGE_SEED_DEFAULT_TRANSLATION);
+        getIssueService().createReason("some.reason.key", getDefaultIssueType(), MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION);
+        getIssueService().createReason("another.reason.key", getDefaultIssueType(), MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION);
     }
 
     @Test(expected = NotUniqueKeyException.class)
     @Transactional
     public void checkCreationWithTheSameKey(){
-        getIssueService().createReason("reason.key.one", getDefaultIssueType(), MESSAGE_SEED_DEFAULT_TRANSLATION);
-        getIssueService().createReason("reason.key.one", getDefaultIssueType(), MESSAGE_SEED_DEFAULT_TRANSLATION);
+        getIssueService().createReason("reason.key.one", getDefaultIssueType(), MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION);
+        getIssueService().createReason("reason.key.one", getDefaultIssueType(), MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION);
     }
 
     @Test
     public void checkReasonDeletion(){
         String key = "reason.key.for.deletion";
         try (TransactionContext context = getContext()) {
-            getIssueService().createReason(key, getDefaultIssueType(), MESSAGE_SEED_DEFAULT_TRANSLATION);
+            getIssueService().createReason(key, getDefaultIssueType(), MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION);
             context.commit();
         }
         try (TransactionContext context = getContext()) {
@@ -57,14 +56,14 @@ public class IssueReasonTest extends BaseTest{
     @Test(expected = IllegalArgumentException.class)
     @Transactional
     public void checkCreationWithNullTranslation(){
-        getIssueService().createReason("reason.with.null.translation", getDefaultIssueType(), null);
+        getIssueService().createReason("reason.with.null.translation", getDefaultIssueType(), null, null);
     }
 
     @Test
     public void checkCreation(){
         String key = "reason.key.normal";
         try (TransactionContext context = getContext()) {
-            getIssueService().createReason(key, getDefaultIssueType(), MESSAGE_SEED_DEFAULT_TRANSLATION);
+            getIssueService().createReason(key, getDefaultIssueType(), MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION);
             context.commit();
         }
         Optional<IssueReason> reasonRef = getIssueService().findReason(key);
@@ -75,7 +74,7 @@ public class IssueReasonTest extends BaseTest{
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     public void checkKeyValidation(){
-        getDataModel().getInstance(IssueReasonImpl.class).init(null, getDefaultIssueType(), MESSAGE_SEED_DEFAULT_TRANSLATION).save();
+        getDataModel().getInstance(IssueReasonImpl.class).init(null, getDefaultIssueType(), MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION).save();
     }
 
 
@@ -87,7 +86,7 @@ public class IssueReasonTest extends BaseTest{
         for (int i=0; i < 90; i++){
             key.append("q");
         }
-        getDataModel().getInstance(IssueReasonImpl.class).init(key.toString(), getDefaultIssueType(), MESSAGE_SEED_DEFAULT_TRANSLATION).save();
+        getDataModel().getInstance(IssueReasonImpl.class).init(key.toString(), getDefaultIssueType(), MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION).save();
     }
 
 
@@ -95,20 +94,20 @@ public class IssueReasonTest extends BaseTest{
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "translationKey", strict = false)
     public void checkTranslationValidation(){
-        getDataModel().getInstance(IssueReasonImpl.class).init("reason.validation", getDefaultIssueType(), null).save();
+        getDataModel().getInstance(IssueReasonImpl.class).init("reason.validation", getDefaultIssueType(), null, null).save();
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_200 + "}", property = "defaultName", strict = false)
     public void checkDefaultNameValidation(){
-        getDataModel().getInstance(IssueReasonImpl.class).init("reason.validation", getDefaultIssueType(), null).save();
+        getDataModel().getInstance(IssueReasonImpl.class).init("reason.validation", getDefaultIssueType(), null, null).save();
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "issueType", strict = true)
     public void checkIssueTypeValidation(){
-        getDataModel().getInstance(IssueReasonImpl.class).init("reason.validation", null, MESSAGE_SEED_DEFAULT_TRANSLATION).save();
+        getDataModel().getInstance(IssueReasonImpl.class).init("reason.validation", null, MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION).save();
     }
 }
