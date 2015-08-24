@@ -410,6 +410,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             if (!event.record.get('value')) {
                 point.update({ y: NaN });
             } else {
+                if (event.record.get('plotBand')) {
+                    chart.xAxis[0].removePlotBand(event.record.get('interval').start);
+                    event.record.set('plotBand', false);
+                }
                 updatedObj = {
                     y: value,
                     collectedValue: collectedValue,
@@ -499,7 +503,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             record = me.getReadingEstimationWindow().record,
             intervalsArray = [];
 
+        !me.getReadingEstimationWindow().down('#form-errors').isHidden() && me.getReadingEstimationWindow().down('#form-errors').hide();
         !me.getReadingEstimationWindow().down('#error-label').isHidden() && me.getReadingEstimationWindow().down('#error-label').hide();
+        propertyForm.clearInvalid();
 
         if (propertyForm.getRecord()) {
             propertyForm.updateRecord();
@@ -564,10 +570,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     me.getPage().down('#save-changes-button').isHidden() && me.showButtons();
                 } else {
                     me.getReadingEstimationWindow().setLoading(false);
-                    me.getReadingEstimationWindow().down('#error-label').show();
                     if (responseText.message) {
+                        me.getReadingEstimationWindow().down('#error-label').show();
                         me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #FF0000">' + responseText.message + '</div>', false);
-                    } else {
+                    } else if (responseText.readings) {
+                        me.getReadingEstimationWindow().down('#error-label').show();
                         var listOfFailedReadings = [];
                         Ext.Array.each(responseText.readings, function (readingTimestamp) {
                             listOfFailedReadings.push(Uni.DateTime.formatDateShort(new Date(readingTimestamp)) + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' ' +
@@ -576,6 +583,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #FF0000">' +
                             Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0} with {1}',
                                 [listOfFailedReadings.join(', '), me.getReadingEstimationWindow().down('#estimator-field').getRawValue().toLowerCase()]) + '</div>', false);
+                    } else if (responseText.errors) {
+                        me.getReadingEstimationWindow().down('#form-errors').show();
+                        me.getReadingEstimationWindow().down('#property-form').markInvalid(responseText.errors);
                     }
                 }
             }
