@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl.identifiers;
 
-import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
@@ -15,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Implementation of a LoadProfileIdentifier that uniquely identifies a LoadProfile based on the database ID of the loadprofile
+ * Implementation of a LoadProfileIdentifier that uniquely identifies a LoadProfile with its database ID.
  *
  * Copyrights EnergyICT
  * Date: 13/05/13
@@ -30,12 +29,14 @@ public class LoadProfileIdentifierById implements LoadProfileIdentifier {
     private LoadProfile loadProfile;
 
     /**
-     * Constructor only to be used by JSON (de)marshalling
+     * Constructor only to be used by JSON (de)marshalling.
      */
     public LoadProfileIdentifierById() {
+        super();
     }
 
     public LoadProfileIdentifierById(Long id, LoadProfileService loadProfileService) {
+        this();
         this.id = id;
         this.loadProfileService = loadProfileService;
     }
