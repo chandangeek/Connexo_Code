@@ -58,11 +58,6 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
         return new CollectedLoadProfileDeviceCommand(this, meterDataStoreCommand, serviceProvider);
     }
 
-    /**
-     * Default constructor
-     *
-     * @param loadProfileIdentifier the identifier for this collected data
-     */
     public DeviceLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
         super();
         this.loadProfileIdentifier = loadProfileIdentifier;

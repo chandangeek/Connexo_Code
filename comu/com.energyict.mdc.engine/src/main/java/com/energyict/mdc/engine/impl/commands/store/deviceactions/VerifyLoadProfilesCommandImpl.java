@@ -11,15 +11,22 @@ import com.energyict.mdc.engine.impl.commands.collect.VerifyLoadProfilesCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.issues.Issue;
+import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.impl.ProblemImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * A Command that will read the Configuration of the LoadProfiles of the device and verify them against the Configuration
@@ -33,23 +40,23 @@ import java.util.List;
 public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements VerifyLoadProfilesCommand {
 
     /**
-     * The initial {@link LoadProfileCommandImpl Command} which needs verification before reading all data
+     * The initial {@link LoadProfileCommandImpl Command} which needs verification before reading all data.
      */
     private final LoadProfileCommand loadProfileCommand;
 
     /**
-     * Boolean indicating whether or not data should be fetched when the profile configuration is invalid
+     * Boolean indicating whether or not data should be fetched when the profile configuration is invalid.
      */
     private final boolean failIfConfigurationMisMatch;
 
     /**
-     * The list of configurations which are read from the device(s)
+     * The list of configurations which are read from the device(s).
      */
     private List<CollectedLoadProfileConfiguration> loadProfileConfigurations = new ArrayList<>(0);
 
     /**
      * The list of {@link LoadProfileReader loadProfileReaders} to remove from the
-     * {@link LoadProfileCommandImpl#getLoadProfileReaders()} List
+     * {@link LoadProfileCommandImpl#getLoadProfileReaders()} List.
      */
     private List<LoadProfileReader> readersToRemove;
 
@@ -96,7 +103,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
      */
     private void verifyConfigurations() {
         this.readersToRemove = new ArrayList<>();
-        if(getLoadProfileConfigurations() != null && !getLoadProfileConfigurations().isEmpty()){
+        if (getLoadProfileConfigurations() != null && !getLoadProfileConfigurations().isEmpty()) {
             for (CollectedLoadProfileConfiguration loadProfileConfiguration : getLoadProfileConfigurations()) {
                 LoadProfileReader loadProfileReader = getLoadProfileReaderForGivenLoadProfileConfiguration(loadProfileConfiguration);
                 if (loadProfileReader != null) {
@@ -110,22 +117,55 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
                             addIssue(
                                     getIssueService().newProblem(
                                             loadProfileConfiguration.getObisCode(),
-// Todo: Add to MessageSeeds
-                                            "Loadprofile {0} is not supported by the device.",
+                                            this.getThesaurus(),
+                                            MessageSeeds.UNSUPPORTED_LOAD_PROFILE,
                                             loadProfileConfiguration.getObisCode()),
                                     CompletionCode.ConfigurationWarning);
                         }
                     } else {
-                        verifyNumberOfChannels(loadProfileReader, loadProfileConfiguration);
-                        verifyProfileInterval(loadProfileReader, loadProfileConfiguration);
-                        verifyChannelConfiguration(loadProfileReader, loadProfileConfiguration);
+                        List<Issue> issues = new ArrayList<>();
+                        issues.addAll(verifyNumberOfChannels(loadProfileReader, loadProfileConfiguration));
+                        issues.addAll(verifyProfileInterval(loadProfileReader, loadProfileConfiguration));
+                        issues.addAll(verifyChannelConfiguration(loadProfileReader, loadProfileConfiguration));
+                        if (!issues.isEmpty()) {
+                            createAndAddFailedCollectedLoadProfile(loadProfileReader, ResultType.ConfigurationError, issues);
+                        }
                     }
                 }
             }
         } else {
             this.readersToRemove.addAll(loadProfileCommand.getLoadProfileReaders());
+            for (LoadProfileReader loadProfileReader : loadProfileCommand.getLoadProfileReaders()) {
+                createAndAddFailedCollectedLoadProfile(loadProfileReader, ResultType.NotSupported, loadProfileNotSupportedIssue(loadProfileReader.getProfileObisCode()));
+            }
         }
         this.loadProfileCommand.removeIncorrectLoadProfileReaders(readersToRemove);
+    }
+
+    private Issue loadProfileNotSupportedIssue(ObisCode profileObisCode) {
+        return getIssueService().newProblem(profileObisCode, "loadProfileXnotsupported", profileObisCode, CompletionCode.ConfigurationWarning);
+    }
+
+    private void createAndAddFailedCollectedLoadProfile(LoadProfileReader loadProfileReader, ResultType resultType, Issue issue) {
+        this.createAndAddFailedCollectedLoadProfile(loadProfileReader, resultType, Arrays.asList(issue));
+    }
+
+    private void createAndAddFailedCollectedLoadProfile(LoadProfileReader loadProfileReader, ResultType resultType, List<Issue> issues) {
+        DeviceLoadProfile collectedLoadProfile = createFailedCollectedLoadProfile(
+                loadProfileReader,
+                issues,
+                resultType);
+        this.addCollectedDataItem(collectedLoadProfile);
+    }
+
+    private DeviceLoadProfile createFailedCollectedLoadProfile(LoadProfileReader loadProfileReader, List<Issue> issues, ResultType resultType) {
+        LoadProfileIdentifier loadProfileIdentifier = this.getCommandRoot()
+                .getServiceProvider()
+                .identificationService()
+                .createLoadProfileIdentifierByDatabaseId(loadProfileReader.getLoadProfileId());
+        DeviceLoadProfile collectedLoadProfile = new DeviceLoadProfile(loadProfileIdentifier);
+        collectedLoadProfile.setFailureInformation(resultType, issues);
+        return collectedLoadProfile;
     }
 
     /**
@@ -134,31 +174,49 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
      * @param loadProfileReader        the given reader
      * @param loadProfileConfiguration the given configuration
      */
-    protected void verifyChannelConfiguration(final LoadProfileReader loadProfileReader, final CollectedLoadProfileConfiguration loadProfileConfiguration) {
+    protected List<Issue> verifyChannelConfiguration(final LoadProfileReader loadProfileReader, final CollectedLoadProfileConfiguration loadProfileConfiguration) {
+        List<Issue> issues = new ArrayList<>();
         for (ChannelInfo channelInfo : loadProfileReader.getChannelInfos()) {
-            verifyLocalChannelConfiguration(loadProfileReader, loadProfileConfiguration, channelInfo);
+            issues.addAll(verifyLocalChannelConfiguration(loadProfileConfiguration, channelInfo));
         }
+        if (!issues.isEmpty()) {
+            addLoadProfileReaderToTheListOfReadersToRemove(loadProfileReader);
+        }
+        return issues;
     }
 
-    private void verifyLocalChannelConfiguration(LoadProfileReader loadProfileReader, CollectedLoadProfileConfiguration loadProfileConfiguration, ChannelInfo localChannelInfo) {
+    private List<Issue> verifyLocalChannelConfiguration(CollectedLoadProfileConfiguration loadProfileConfiguration, ChannelInfo localChannelInfo) {
+        List<Issue> issues = new ArrayList<>();
         ObisCode loadProfileConfigurationObisCode = loadProfileConfiguration.getObisCode();
+        Optional<Problem> incorrectChannelUnitProblem = Optional.empty();
         for (ChannelInfo meterChannelInfo : loadProfileConfiguration.getChannelInfos()) {
             if (match(localChannelInfo, meterChannelInfo)) {
-                if (shouldRemove(localChannelInfo, meterChannelInfo)) {
-                    readersToRemove.add(loadProfileReader);
-                    addIssue(
+                if (unitMismatch(localChannelInfo, meterChannelInfo)) {
+                    /* Do not add problem right away, because we can may have multiple channels with the same obiscode but with different units.
+                     * Instead we should continue the loop and check if one of the other channels has a perfect match (for both obis and unit);
+                     * If a perfect match is found later on, then validation should not fail. */
+                    incorrectChannelUnitProblem = Optional.of(
                             getIssueService().newProblem(
                                     loadProfileConfigurationObisCode,
-// Todo: Add to MessageSeeds
-                                    "Channel unit mismatch: load profile in the meter with OBIS code '{0}' has a channel ({1}) with the unit '{2}', whilst the configured unit for that channel is '{3}'",
+                                    this.getThesaurus(),
+                                    MessageSeeds.CHANNEL_UNIT_MISMATCH,
                                     loadProfileConfigurationObisCode,
                                     meterChannelInfo.getChannelObisCode(),
                                     meterChannelInfo.getUnit(),
-                                    localChannelInfo.getUnit()),
-                            CompletionCode.ConfigurationError);
+                                    localChannelInfo.getUnit()));
+                }
+                else {
+                    return issues; // Configuration of the channel match, so return
                 }
             }
         }
+        if (incorrectChannelUnitProblem.isPresent()) { // When configuration of the channel doesn't match
+            issues.add(incorrectChannelUnitProblem.get());
+        }
+        else { // When the channel is missing (load profile in the meter doesn't have the channel, whilst it is configured in eiMaster)
+            issues.add(createLoadProfileMissingChannelIssue(loadProfileConfiguration, localChannelInfo, loadProfileConfigurationObisCode));
+        }
+        return issues;
     }
 
     private boolean match(ChannelInfo localChannelInfo, ChannelInfo meterChannelInfo) {
@@ -166,9 +224,52 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
                 && meterChannelInfo.getMeterIdentifier().equalsIgnoreCase(localChannelInfo.getMeterIdentifier());
     }
 
-    private boolean shouldRemove(ChannelInfo localChannelInfo, ChannelInfo meterChannelInfo) {
+    private boolean unitMismatch(ChannelInfo localChannelInfo, ChannelInfo meterChannelInfo) {
         return !(meterChannelInfo.getUnit().isUndefined() || localChannelInfo.getUnit().isUndefined())
                 && !meterChannelInfo.getUnit().getBaseUnit().equals(localChannelInfo.getUnit().getBaseUnit());
+    }
+
+    private Issue createLoadProfileMissingChannelIssue(CollectedLoadProfileConfiguration loadProfileConfiguration, ChannelInfo localChannelInfo, ObisCode loadProfileConfigurationObisCode) {
+        String allDevicesMatchingChannel = composeStringOfAllDevicesMatchingChannelObis(localChannelInfo, loadProfileConfiguration);
+        if (allDevicesMatchingChannel.isEmpty()) {
+            return getIssueService().newProblem(
+                    loadProfileConfigurationObisCode,
+                    "loadprofileobiscodeXmissingchannel",
+                    loadProfileConfigurationObisCode,
+                    localChannelInfo.getName(),
+                    localChannelInfo.getMeterIdentifier()
+            );
+        } else {
+            return getIssueService().newProblem(
+                    loadProfileConfigurationObisCode,
+                    "loadprofileobiscodeXmissingchannelOtherMatch",
+                    loadProfileConfigurationObisCode,
+                    localChannelInfo.getName(),
+                    localChannelInfo.getMeterIdentifier(),
+                    allDevicesMatchingChannel
+            );
+        }
+    }
+
+    /**
+     * Compose a String containing the serial numbers of all devices
+     * that have a channel whose obisCode and unit do match the given localChannelInfo.
+     */
+    private String composeStringOfAllDevicesMatchingChannelObis(ChannelInfo localChannelInfo, CollectedLoadProfileConfiguration loadProfileConfiguration) {
+        return loadProfileConfiguration
+                .getChannelInfos()
+                .stream()
+                .filter(meterChannelInfo -> meterChannelInfo.getChannelObisCode().equalsIgnoreBChannel(localChannelInfo.getChannelObisCode()))
+                .filter(meterChannelInfo -> !unitMismatch(meterChannelInfo, localChannelInfo))
+                .map(ChannelInfo::getMeterIdentifier)
+                .distinct()
+                .collect(Collectors.joining(", "));
+    }
+
+    private void addLoadProfileReaderToTheListOfReadersToRemove(LoadProfileReader reader) {
+        if (!readersToRemove.contains(reader)) { // Only add, if not already in the list or readers to remove
+            readersToRemove.add(reader);
+        }
     }
 
     /**
@@ -178,48 +279,51 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
      * @param loadProfileReader        the given reader
      * @param loadProfileConfiguration the given configuration
      */
-    protected void verifyProfileInterval(final LoadProfileReader loadProfileReader, final CollectedLoadProfileConfiguration loadProfileConfiguration) {
+    protected List<Issue> verifyProfileInterval(final LoadProfileReader loadProfileReader, final CollectedLoadProfileConfiguration loadProfileConfiguration) {
+        List<Issue> issues = new ArrayList<>();
         int loadProfileInterval = this.loadProfileCommand.findLoadProfileIntervalForLoadProfileReader(loadProfileReader);
         if (loadProfileConfiguration.getProfileInterval() != 0 && loadProfileConfiguration.getProfileInterval() != loadProfileInterval) {
-            readersToRemove.add(loadProfileReader);
-            addIssue(
+            addLoadProfileReaderToTheListOfReadersToRemove(loadProfileReader);
+            issues.add(
                     getIssueService().newProblem(
                             loadProfileConfiguration.getObisCode(),
-// Todo: Add to MessageSeeds
-                            "Load profile interval mismatch; load profile with OBIS code '{0}' has a {1} second(s) interval on the device, while {2} second(s) is configured in eiMaster",
+                            this.getThesaurus(),
+                            MessageSeeds.LOAD_PROFILE_INTERVAL_MISMATCH,
                             loadProfileConfiguration.getObisCode(),
                             loadProfileConfiguration.getProfileInterval(),
-                            loadProfileInterval),
-                    CompletionCode.ConfigurationError);
+                            loadProfileInterval));
         }
+        return issues;
     }
 
     /**
-     * Verify if the number of channels from the {@link LoadProfileReader} are equal to the number of channels from the DeviceLoadProfileConfiguration
+     * Verify that the number of channels from the {@link LoadProfileReader}
+     * are equal to the number of channels from the DeviceLoadProfileConfiguration.
      *
-     * @param loadProfileReader        the given reader
-     * @param loadProfileConfiguration the given configuration
+     * @param loadProfileReader the LoadProfileReader
+     * @param loadProfileConfiguration The CollectedLoadProfileConfiguration
      */
-    protected void verifyNumberOfChannels(final LoadProfileReader loadProfileReader, final CollectedLoadProfileConfiguration loadProfileConfiguration) {
+    protected List<Issue> verifyNumberOfChannels(final LoadProfileReader loadProfileReader, final CollectedLoadProfileConfiguration loadProfileConfiguration) {
+        List<Issue> issues = new ArrayList<>();
         if (failIfLoadProfileConfigurationMisMatch()) {
             if (loadProfileReader.getChannelInfos().size() != loadProfileConfiguration.getNumberOfChannels()) {
-                readersToRemove.add(loadProfileReader);
-                addIssue(
+                addLoadProfileReaderToTheListOfReadersToRemove(loadProfileReader);
+                issues.add(
                         getIssueService().newProblem(
                                 loadProfileConfiguration.getObisCode(),
-// Todo: Add to MessageSeeds
-                                "Number of channels mismatch; load profile with OBIS code '{0}' has {1} channel(s) on the device, while there are {2} channel(s) in eiMaster",
+                                this.getThesaurus(),
+                                MessageSeeds.LOAD_PROFILE_NUMBER_OF_CHANNELS_MISMATCH,
                                 loadProfileConfiguration.getObisCode(),
                                 loadProfileReader.getChannelInfos().size(),
-                                loadProfileConfiguration.getNumberOfChannels()),
-                        CompletionCode.ConfigurationError);
+                                loadProfileConfiguration.getNumberOfChannels()));
             }
         }
+        return issues;
     }
 
     /**
-     * Get the {@link LoadProfileReader} from the {@link LoadProfileCommandImpl LoadProfileCommand} which was created for the given
-     * DeviceLoadProfileConfiguration
+     * Get the {@link LoadProfileReader} from the {@link LoadProfileCommand}
+     * which was created for the given DeviceLoadProfileConfiguration.
      *
      * @param loadProfileConfiguration the given DeviceLoadProfileConfiguration
      * @return the requested LoadProfileReader or null if the reader was not found
@@ -260,4 +364,5 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
     public boolean failIfLoadProfileConfigurationMisMatch() {
         return failIfConfigurationMisMatch;
     }
+
 }

@@ -25,6 +25,8 @@ import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
+import com.elster.jupiter.nls.Thesaurus;
+
 import java.io.IOException;
 import java.time.Clock;
 import java.time.format.DateTimeFormatter;
@@ -129,6 +131,10 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     @Override
     public CommandRoot getCommandRoot() {
         return this.commandRoot;
+    }
+
+    protected Thesaurus getThesaurus() {
+        return this.getCommandRoot().getServiceProvider().thesaurus();
     }
 
     @Override

@@ -9,14 +9,11 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.SingleComTaskComTaskExecution;
@@ -58,6 +55,7 @@ import com.energyict.mdc.tasks.ProtocolTask;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 
@@ -93,7 +91,7 @@ public abstract class JobExecution implements ScheduledJob {
 
         public ConnectionTaskService connectionTaskService();
 
-        public LogBookService logBookService();
+        public Thesaurus thesaurus();
 
         public DeviceService deviceService();
 
@@ -592,8 +590,8 @@ public abstract class JobExecution implements ScheduledJob {
         }
 
         @Override
-        public LogBookService logBookService() {
-            return JobExecution.this.serviceProvider.logBookService();
+        public Thesaurus thesaurus() {
+            return JobExecution.this.serviceProvider.thesaurus();
         }
 
         @Override

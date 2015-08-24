@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.ComServer;
@@ -45,7 +44,9 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
@@ -75,8 +76,6 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     public interface ServiceProvider extends ComServerDAOImpl.ServiceProvider {
 
         DeviceConfigurationService deviceConfigurationService();
-
-        LogBookService logBookService();
 
         MdcReadingTypeUtilService mdcReadingTypeUtilService();
 
@@ -123,6 +122,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     private static final long SHUTDOWN_WAIT_TIME = 100;
 
     private final ServiceProvider serviceProvider;
+    private final Thesaurus thesaurus;
     private volatile ServerProcessStatus status = ServerProcessStatus.SHUTDOWN;
 
     private AtomicBoolean continueRunning;
@@ -144,6 +144,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     protected RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
         super();
         this.serviceProvider = serviceProvider;
+        this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
         this.comServer = comServer;
         EventPublisher eventPublisher = new EventPublisherImpl(this);
         WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
@@ -162,9 +163,14 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         this.addInboundComPorts(comServer.getInboundComPorts());
     }
 
+    private Thesaurus getThesaurus(NlsService nlsService) {
+        return nlsService.getThesaurus(EngineService.COMPONENTNAME, Layer.DOMAIN);
+    }
+
     protected RunningComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, EmbeddedWebServerFactory embeddedWebServerFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
         super();
         this.serviceProvider = serviceProvider;
+        this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
         this.comServer = comServer;
         this.eventMechanism = new EventMechanism(embeddedWebServerFactory);
         this.initialize(comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup);
@@ -177,6 +183,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     protected RunningComServerImpl(RemoteComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
         super();
         this.serviceProvider = serviceProvider;
+        this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
         this.comServer = comServer;
         EventPublisher eventPublisher = new EventPublisherImpl(this);
         WebSocketEventPublisherFactoryImpl webSocketEventPublisherFactory =
@@ -198,6 +205,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     protected RunningComServerImpl(RemoteComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, EmbeddedWebServerFactory embeddedWebServerFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
         super();
         this.serviceProvider = serviceProvider;
+        this.thesaurus = this.getThesaurus(serviceProvider.nlsService());
         this.comServer = comServer;
         this.eventMechanism = new EventMechanism(embeddedWebServerFactory);
         this.initialize(comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup);
@@ -1061,8 +1069,8 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         }
 
         @Override
-        public LogBookService logBookService() {
-            return serviceProvider.logBookService();
+        public Thesaurus thesaurus() {
+            return RunningComServerImpl.this.thesaurus;
         }
 
         @Override
@@ -1173,8 +1181,8 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         }
 
         @Override
-        public LogBookService logBookService() {
-            return serviceProvider.logBookService();
+        public Thesaurus thesaurus() {
+            return RunningComServerImpl.this.thesaurus;
         }
 
         @Override

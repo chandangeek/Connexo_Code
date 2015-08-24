@@ -12,11 +12,14 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 
 import java.sql.Date;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 /**
  * Simple command that just reads the requested {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile loadProfiles} from the device
@@ -25,6 +28,7 @@ public class ReadLoadProfileDataCommandImpl extends SimpleComCommand implements 
 
     private LoadProfileCommand loadProfileCommand;
     private List<LoadProfileReader> loadProfileReaders = new ArrayList<>(0);
+    private List<CollectedLoadProfile> collectedLoadProfileList;
 
     public ReadLoadProfileDataCommandImpl(final LoadProfileCommand loadProfileCommand, final CommandRoot commandRoot) {
         super(commandRoot);
@@ -34,7 +38,8 @@ public class ReadLoadProfileDataCommandImpl extends SimpleComCommand implements 
     @Override
     public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         this.loadProfileReaders = loadProfileCommand.getLoadProfileReaders();
-        this.loadProfileCommand.addListOfCollectedDataItems(deviceProtocol.getLoadProfileData(this.loadProfileReaders));
+        this.collectedLoadProfileList = deviceProtocol.getLoadProfileData(this.loadProfileReaders);
+        this.loadProfileCommand.addListOfCollectedDataItems(this.collectedLoadProfileList);
     }
 
     @Override
@@ -45,16 +50,10 @@ public class ReadLoadProfileDataCommandImpl extends SimpleComCommand implements 
     @Override
     protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
-        if (!loadProfileCommand.getLoadProfilesTask().getLoadProfileTypes().isEmpty()) {
-            PropertyDescriptionBuilder loadProfileObisCodesBuilder = builder.addListProperty("loadProfileObisCodes");
-            for (LoadProfileType loadProfileType : loadProfileCommand.getLoadProfilesTask().getLoadProfileTypes()) {
-                loadProfileObisCodesBuilder = loadProfileObisCodesBuilder.append(loadProfileType.getObisCode()).next();
-            }
+        if (isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {
             this.appendLoadProfileReaders(builder);
         }
-        else {
-            this.appendLoadProfileReaders(builder);
-        }
+        this.appendLoadProfileCollectedDataSummary(builder);
     }
 
     private void appendLoadProfileReaders (DescriptionBuilder builder) {
@@ -71,6 +70,45 @@ public class ReadLoadProfileDataCommandImpl extends SimpleComCommand implements 
                                 Date.from(loadProfileReader.getStartReadingTime()),
                                 Date.from(loadProfileReader.getEndReadingTime())));
                 loadProfilesToReadBuilder = loadProfilesToReadBuilder.next();
+            }
+        }
+    }
+
+    private void appendLoadProfileCollectedDataSummary(DescriptionBuilder builder) {
+        if (this.collectedLoadProfileList != null) {
+            PropertyDescriptionBuilder descriptionBuilder = builder.addListProperty("collectedProfiles");
+            for (CollectedLoadProfile collectedLoadProfile : this.collectedLoadProfileList) {
+                descriptionBuilder.append("(");
+                descriptionBuilder.append(collectedLoadProfile.getLoadProfileIdentifier());
+                descriptionBuilder.append(" - ");
+                descriptionBuilder.append(collectedLoadProfile.getResultType());
+                if (!collectedLoadProfile.getChannelInfo().isEmpty()) {
+                    descriptionBuilder.append(" - ");
+                    appendLoadProfileCollectedDataChannelInfo(descriptionBuilder, collectedLoadProfile);
+                }
+                if (!collectedLoadProfile.getCollectedIntervalData().isEmpty()) {
+                    descriptionBuilder.append(" - ");
+                    descriptionBuilder.append(
+                            MessageFormat.format(
+                                    "dataPeriod: [{0,date,yyyy-MM-dd HH:mm:ss} - {1,date,yyy-MM-dd HH:mm:ss}]",
+                                    Date.from(collectedLoadProfile.getCollectedIntervalDataRange().lowerEndpoint()),
+                                    Date.from(collectedLoadProfile.getCollectedIntervalDataRange().upperEndpoint())));
+                }
+                descriptionBuilder.append(")");
+                descriptionBuilder.next();
+            }
+        }
+    }
+
+    private void appendLoadProfileCollectedDataChannelInfo(PropertyDescriptionBuilder descriptionBuilder, CollectedLoadProfile collectedLoadProfile) {
+        descriptionBuilder.append("channels: ");
+        ListIterator<ChannelInfo> channelInfoIterator = collectedLoadProfile.getChannelInfo().listIterator();
+
+        while (channelInfoIterator.hasNext()) {
+            ChannelInfo channelInfo = channelInfoIterator.next();
+            descriptionBuilder.append(channelInfo.getName());
+            if (channelInfoIterator.hasNext()) {
+                descriptionBuilder.append(", ");
             }
         }
     }
