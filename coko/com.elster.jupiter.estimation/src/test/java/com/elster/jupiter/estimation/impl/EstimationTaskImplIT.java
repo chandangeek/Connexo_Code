@@ -154,7 +154,7 @@ public class EstimationTaskImplIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new FiniteStateMachineModule(),
-                    new MeteringModule(false,
+                    new MeteringModule(
                             "0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
                             "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"
                     ),
