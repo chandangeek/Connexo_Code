@@ -7,7 +7,6 @@ import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
-import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
 import com.elster.jupiter.estimators.AbstractEstimator;
@@ -152,16 +151,19 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
         return "Average with samples";
     }
 
-    public void validateProperties(List<EstimationRuleProperties> estimatorProperties) {
+    public void validateProperties(Map<String, Object> estimatorProperties) {
         Long maxSamples = null;
         Long minSamples = null;
-        for (EstimationRuleProperties property : estimatorProperties) {
-            if (property.getName().equals(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS)) {
+        if (estimatorProperties == null) {
+            throw new IllegalArgumentException("Estimator properties should be provided");
+        }
+        for (Map.Entry<String, Object> property : estimatorProperties.entrySet()) {
+            if (property.getKey().equals(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS)) {
                 Long value = (Long) property.getValue();
                 if (value.intValue() < 1) {
                     throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS_SHOULD_BE_INTEGER_VALUE, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
                 }
-            } else if (property.getName().equals(ADVANCE_READINGS_SETTINGS)) {
+            } else if (property.getKey().equals(ADVANCE_READINGS_SETTINGS)) {
                 Object settings = property.getValue();
                 if (settings instanceof ReadingTypeAdvanceReadingsSettings) {
                     ReadingType readingType = ((ReadingTypeAdvanceReadingsSettings) settings).getReadingType();
@@ -172,9 +174,9 @@ public class AverageWithSamplesEstimator extends AbstractEstimator {
                         throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ADVANCE_READINGTYPE, ADVANCE_READINGS_SETTINGS);
                     }
                 }
-            } else if (property.getName().equals(MAX_NUMBER_OF_SAMPLES)) {
+            } else if (property.getKey().equals(MAX_NUMBER_OF_SAMPLES)) {
                 maxSamples = (Long) property.getValue();
-            } else if (property.getName().equals(MIN_NUMBER_OF_SAMPLES)) {
+            } else if (property.getKey().equals(MIN_NUMBER_OF_SAMPLES)) {
                 minSamples = (Long) property.getValue();
             }
         }

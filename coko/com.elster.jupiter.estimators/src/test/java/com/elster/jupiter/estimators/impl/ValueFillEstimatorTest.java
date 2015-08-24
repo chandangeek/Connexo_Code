@@ -139,7 +139,7 @@ public class ValueFillEstimatorTest {
 
         Estimator estimator = new ValueFillEstimator(thesaurus, propertySpecService);
 
-        estimator.validateProperties(Collections.singletonList(property));
+        estimator.validateProperties(Collections.singletonMap(property.getName(), property.getValue()));
     }
 
     @Test(expected = LocalizedFieldValidationException.class)
@@ -148,7 +148,7 @@ public class ValueFillEstimatorTest {
 
         Estimator estimator = new ValueFillEstimator(thesaurus, propertySpecService);
 
-        estimator.validateProperties(Collections.singletonList(property));
+        estimator.validateProperties(Collections.singletonMap(property.getName(), property.getValue()));
     }
 
     private EstimationRuleProperties estimationRuleProperty(final String name, final Object value) {

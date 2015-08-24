@@ -3,7 +3,6 @@ package com.elster.jupiter.estimators.impl;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
-import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimators.AbstractEstimator;
 import com.elster.jupiter.estimators.MessageSeeds;
@@ -280,8 +279,8 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
     }
 
     @Override
-    public void validateProperties(List<EstimationRuleProperties> estimatorProperties) {
-        ImmutableMap.Builder<String, Consumer<EstimationRuleProperties>> builder = ImmutableMap.builder();
+    public void validateProperties(Map<String, Object> estimatorProperties) {
+        ImmutableMap.Builder<String, Consumer<Map.Entry<String, Object>>> builder = ImmutableMap.builder();
         builder.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, property -> {
             Long value = (Long) property.getValue();
             if (value.intValue() < 1) {
@@ -289,10 +288,10 @@ public class PowerGapFill extends AbstractEstimator implements Estimator {
             }
         });
 
-        ImmutableMap<String, Consumer<EstimationRuleProperties>> propertyValidations = builder.build();
+        ImmutableMap<String, Consumer<Map.Entry<String, Object>>> propertyValidations = builder.build();
 
-        estimatorProperties.forEach(property -> {
-            Optional.ofNullable(propertyValidations.get(property.getName()))
+        estimatorProperties.entrySet().forEach(property -> {
+            Optional.ofNullable(propertyValidations.get(property.getKey()))
                     .ifPresent(validator -> validator.accept(property));
         });
     }

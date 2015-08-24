@@ -233,7 +233,7 @@ public class LinearInterpolationTest {
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService);
 
-        estimator.validateProperties(Collections.singletonList(property));
+        estimator.validateProperties(Collections.singletonMap(property.getName(), property.getValue()));
     }
 
     @Test(expected = LocalizedFieldValidationException.class)
@@ -242,7 +242,7 @@ public class LinearInterpolationTest {
 
         Estimator estimator = new LinearInterpolation(thesaurus, propertySpecService);
 
-        estimator.validateProperties(Collections.singletonList(property));
+        estimator.validateProperties(Collections.singletonMap(property.getName(), property.getValue()));
     }
 
     private EstimationRuleProperties estimationRuleProperty(final String name, final Object value) {

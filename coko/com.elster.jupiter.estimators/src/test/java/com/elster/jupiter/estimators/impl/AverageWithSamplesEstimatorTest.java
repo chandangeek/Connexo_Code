@@ -668,7 +668,7 @@ public class AverageWithSamplesEstimatorTest {
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService);
 
-        estimator.validateProperties(Collections.singletonList(property));
+        estimator.validateProperties(Collections.singletonMap(property.getName(), property.getValue()));
     }
 
     @Test(expected = LocalizedFieldValidationException.class)
@@ -677,7 +677,7 @@ public class AverageWithSamplesEstimatorTest {
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService);
 
-        estimator.validateProperties(Collections.singletonList(property));
+        estimator.validateProperties(Collections.singletonMap(property.getName(), property.getValue()));
     }
 
     @Test(expected = LocalizedFieldValidationException.class)
@@ -686,7 +686,7 @@ public class AverageWithSamplesEstimatorTest {
 
         Estimator estimator = new EqualDistribution(thesaurus, propertySpecService, meteringService);
 
-        estimator.validateProperties(Collections.singletonList(property));
+        estimator.validateProperties(Collections.singletonMap(property.getName(), property.getValue()));
     }
 
     @Test

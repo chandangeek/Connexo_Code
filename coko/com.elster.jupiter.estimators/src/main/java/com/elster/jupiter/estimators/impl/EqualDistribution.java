@@ -7,7 +7,6 @@ import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
-import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
@@ -365,31 +364,31 @@ public class EqualDistribution extends AbstractEstimator implements Estimator {
     }
 
     @Override
-    public void validateProperties(List<EstimationRuleProperties> estimatorProperties) {
-        ImmutableMap.Builder<String, Consumer<EstimationRuleProperties>> builder = ImmutableMap.builder();
+    public void validateProperties(Map<String, Object> estimatorProperties) {
+        ImmutableMap.Builder<String, Consumer<Map.Entry<String, Object>>> builder = ImmutableMap.builder();
         builder.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, property -> {
             Long value = (Long) property.getValue();
             if (value.intValue() < 1) {
-                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS, "properties." + MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_NUMBER_OF_CONSECUTIVE_SUSPECTS, MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS);
             }
         });
         builder.put(ADVANCE_READINGS_SETTINGS, property -> {
             if (NoneAdvanceReadingsSettings.INSTANCE.equals(property.getValue())) {
-                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ADVANCE_READINGTYPE_NONE_NOT_ALLOWED, "properties." + ADVANCE_READINGS_SETTINGS);
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ADVANCE_READINGTYPE_NONE_NOT_ALLOWED, ADVANCE_READINGS_SETTINGS);
             }
             if (BulkAdvanceReadingsSettings.INSTANCE.equals(property.getValue())) {
                 return;
             }
             ReadingType readingType = ((ReadingTypeAdvanceReadingsSettings) property.getValue()).getReadingType();
             if (!readingType.isCumulative()) {
-                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ADVANCE_READINGTYPE, "properties." + ADVANCE_READINGS_SETTINGS);
+                throw new LocalizedFieldValidationException(MessageSeeds.INVALID_ADVANCE_READINGTYPE, ADVANCE_READINGS_SETTINGS);
             }
         });
 
-        ImmutableMap<String, Consumer<EstimationRuleProperties>> propertyValidations = builder.build();
+        ImmutableMap<String, Consumer<Map.Entry<String, Object>>> propertyValidations = builder.build();
 
-        estimatorProperties.forEach(property -> {
-            Optional.ofNullable(propertyValidations.get(property.getName()))
+        estimatorProperties.entrySet().forEach(property -> {
+            Optional.ofNullable(propertyValidations.get(property.getKey()))
                     .ifPresent(validator -> validator.accept(property));
         });
     }
