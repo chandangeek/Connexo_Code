@@ -28,6 +28,17 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                 },
                 items: [
                     {
+                        name: 'errors',
+                        ui: 'form-error-framed',
+                        itemId: 'deviceTypeEditFormErrors',
+                        layout: 'hbox',
+                        margin: '0 0 10 0',
+                        hidden: true,
+                        defaults: {
+                            xtype: 'container'
+                        }
+                    },
+                    {
                         xtype: 'uni-form-info-message',
                         itemId: 'info-panel',
                         hidden: true,
