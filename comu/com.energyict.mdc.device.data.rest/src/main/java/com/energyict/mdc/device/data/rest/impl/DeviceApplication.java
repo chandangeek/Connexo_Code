@@ -144,7 +144,9 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 DeviceEstimationResource.class,
                 DeviceHistoryResource.class,
                 DeviceLifeCycleActionResource.class,
-                DeviceStateAccessFeature.class
+                DeviceStateAccessFeature.class,
+                EstimationErrorExceptionMapper.class,
+                EstimatorPropertiesExceptionMapper.class
         );
     }
 
