@@ -63,7 +63,6 @@ import com.elster.jupiter.transaction.TransactionService;
 
 import java.time.Clock;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -89,29 +88,29 @@ public abstract class JobExecution implements ScheduledJob {
 
     public interface ServiceProvider extends ExecutionContext.ServiceProvider {
 
-        public DeviceConfigurationService deviceConfigurationService();
+        DeviceConfigurationService deviceConfigurationService();
 
-        public ConnectionTaskService connectionTaskService();
+        ConnectionTaskService connectionTaskService();
 
-        public LogBookService logBookService();
+        LogBookService logBookService();
 
-        public DeviceService deviceService();
+        DeviceService deviceService();
 
-        public TopologyService topologyService();
+        TopologyService topologyService();
 
-        public EngineService engineService();
+        EngineService engineService();
 
-        public MdcReadingTypeUtilService mdcReadingTypeUtilService();
+        MdcReadingTypeUtilService mdcReadingTypeUtilService();
 
-        public HexService hexService();
+        HexService hexService();
 
-        public TransactionService transactionService();
+        TransactionService transactionService();
 
-        public EventService eventService();
+        EventService eventService();
 
-        public IdentificationService identificationService();
+        IdentificationService identificationService();
 
-        public MeteringService meteringService();
+        MeteringService meteringService();
 
     }
 
@@ -483,6 +482,7 @@ public abstract class JobExecution implements ScheduledJob {
     private static Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties(Device device, ComTask comTask) {
         for (ComTaskEnablement comTaskEnablement : device.getDeviceConfiguration().getComTaskEnablements()) {
             if (comTaskEnablement.getComTask().getId() == comTask.getId()) {
+
                 return Optional.of(comTaskEnablement.getProtocolDialectConfigurationProperties());
             }
         }
@@ -740,7 +740,7 @@ public abstract class JobExecution implements ScheduledJob {
         @Override
         public PreparedComTaskExecution perform() {
             ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.topologyService());
-            final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = organizer.defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
+            final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = organizer.defineComTaskExecutionOrders(Collections.singletonList(comTaskExecution));
             final DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution = deviceOrganizedComTaskExecutions.get(0);
             if (deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().size() == 1) {
                 final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps comTaskWithSecurityAndConnectionSteps = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().get(0);
