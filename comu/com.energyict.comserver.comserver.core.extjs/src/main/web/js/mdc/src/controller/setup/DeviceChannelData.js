@@ -465,12 +465,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var me = this,
             bothSuspected = false,
             mainValueSuspect = false,
-            bulkValueSuspect = false,
-            validationInfo = record.get('validationInfo');
+            bulkValueSuspect = false;
 
         if (!Ext.isArray(record)) {
-            bothSuspected = validationInfo.mainValidationInfo.validationResult.split('.')[1] == 'suspect' &&
-                            validationInfo.bulkValidationInfo.validationResult.split('.')[1] == 'suspect';
+            bothSuspected = record.get('validationInfo').mainValidationInfo.validationResult.split('.')[1] == 'suspect' &&
+                record.get('validationInfo').bulkValidationInfo.validationResult.split('.')[1] == 'suspect';
         } else {
             Ext.Array.findBy(record, function (item) {
                 mainValueSuspect = item.get('validationInfo').mainValidationInfo.validationResult.split('.')[1] == 'suspect';
@@ -566,7 +565,18 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 } else {
                     me.getReadingEstimationWindow().setLoading(false);
                     me.getReadingEstimationWindow().down('#error-label').show();
-                    me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #FF0000">' + (responseText.message ? responseText.message : '') + '</div>', false);
+                    if (responseText.message) {
+                        me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #FF0000">' + responseText.message + '</div>', false);
+                    } else {
+                        var listOfFailedReadings = [];
+                        Ext.Array.each(responseText.readings, function (readingTimestamp) {
+                            listOfFailedReadings.push(Uni.DateTime.formatDateShort(new Date(readingTimestamp)) + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' ' +
+                                Uni.DateTime.formatTimeShort(new Date(readingTimestamp)));
+                        });
+                        me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #FF0000">' +
+                            Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0} with {1}',
+                                [listOfFailedReadings.join(', '), me.getReadingEstimationWindow().down('#estimator-field').getRawValue().toLowerCase()]) + '</div>', false);
+                    }
                 }
             }
         });
