@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
                                 Uni.I18n.translate('deviceCommunicationSchedule.empty.list.item3.1', 'MDC', 'There are shared communication schedules defined in administration but a mismatch between device configuration and the communication schedule')
                                 + ' ' + Uni.I18n.translate('deviceCommunicationSchedule.empty.list.item3.2', 'MDC', '(one or more communication tasks defined in the shared communication schedule is not available on the device configuration of the device)'),
                                 Uni.I18n.translate('deviceCommunicationSchedule.empty.list.item4', 'MDC', 'There are shared communication schedules defined in administration but one or more communication tasks in the communication schedule are already scheduled on the device with a shared communication schedule (a communication task on device level can only be scheduled in maximum one communication schedule)'),
-                                Uni.I18n.translate('deviceCommunicationSchedule.empty.list.item4', 'MDC', 'There are shared communication schedules defined in administration but the communication tasks in the communication schedule doesn\'t have the same connection method, security set, protocol dialect and/or urgency')
+                                Uni.I18n.translate('deviceCommunicationSchedule.empty.list.item5', 'MDC', 'There are shared communication schedules defined in administration but the communication tasks in the communication schedule doesn\'t have the same connection method, security set, protocol dialect and/or urgency')
                             ],
                             stepsText: '',
                             stepItems: [
