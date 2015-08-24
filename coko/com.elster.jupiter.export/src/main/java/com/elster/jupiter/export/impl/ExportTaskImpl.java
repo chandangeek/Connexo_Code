@@ -44,6 +44,7 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_EXPORT_TASK + "}")
 class ExportTaskImpl implements IExportTask {
     private final TaskService taskService;
     private final DataModel dataModel;

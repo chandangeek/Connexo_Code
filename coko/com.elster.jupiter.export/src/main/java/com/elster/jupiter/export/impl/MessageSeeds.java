@@ -26,7 +26,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_SELECTOR(1014, Keys.NO_SUCH_SELECTOR, "Selector {0} does not exist", Level.SEVERE),
     FILE_IO(1015, "file.io.writing.failure", "Failure while doing IO on file {0} : {1}", Level.SEVERE),
     PARENT_BREAKING_PATH_NOT_ALLOWED(1016, Keys.PARENT_BREAKING_PATH, "Paths that navigate above parent are not allowed here", Level.SEVERE),
-    INVALIDCHARS_EXCEPTION(1017, Keys.INVALIDCHARS_EXCEPTION, "Characters {0} are not allowed.", Level.SEVERE);
+    INVALIDCHARS_EXCEPTION(1017, Keys.INVALIDCHARS_EXCEPTION, "Characters {0} are not allowed.", Level.SEVERE),
+    DUPLICATE_IMPORT_SCHEDULE(1018, Keys.DUPLICATE_EXPORT_TASK, "Duplicate name", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -86,6 +87,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_SUCH_SELECTOR = "NoSuchSelector";
         public static final String PARENT_BREAKING_PATH = "path.parent.breaking.disallowed";
         public static final String INVALIDCHARS_EXCEPTION = "InvalidChars";
+        public static final String DUPLICATE_EXPORT_TASK = "exporttask.duplicate.name";
     }
 
 
