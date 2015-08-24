@@ -32,7 +32,9 @@ import java.util.stream.Collectors;
 
 /**
  * This is stateful utilities class. You MUST create a new instance for every device.
+ * @deprecated see https://jira.eict.vpdc/browse/COMU-1940
  */
+@Deprecated
 public class FirmwareManagementDeviceUtils {
     public static final Set<DeviceMessageStatus> PENDING_STATUSES = EnumSet.of(DeviceMessageStatus.WAITING, DeviceMessageStatus.PENDING, DeviceMessageStatus.SENT);
     public static final Set<TaskStatus> BUSY_TASK_STATUSES = EnumSet.of(TaskStatus.Busy, TaskStatus.Retrying);
