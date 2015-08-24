@@ -1315,7 +1315,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
-        assertThat(model.<Number>get("$.total")).isEqualTo(16);
+        assertThat(model.<Number>get("$.total")).isEqualTo(17);
         List<String> privileges = model.<List<String>>get("$.privileges[*].name");
         assertThat(privileges).contains(
                 DevicePrivileges.DEVICES_WIDGET_COMMUNICATION_TOPOLOGY,
@@ -1332,6 +1332,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_TASKS,
                 DevicePrivileges.DEVICES_ACTIONS_CONNECTION_METHODS,
                 DevicePrivileges.DEVICES_ACTIONS_DATA_EDIT,
+                DevicePrivileges.DEVICES_ACTIONS_CHANGE_DEVICE_CONFIGURATION,
                 DevicePrivileges.DEVICES_ACTIONS_FIRMWARE_MANAGEMENT,
                 DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
         );
@@ -1362,7 +1363,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
-        assertThat(model.<Number>get("$.total")).isEqualTo(20);
+        assertThat(model.<Number>get("$.total")).isEqualTo(21);
         List<String> privileges = model.<List<String>>get("$.privileges[*].name");
         assertThat(privileges).contains(
                 DevicePrivileges.DEVICES_WIDGET_ISSUES,
@@ -1383,6 +1384,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_TASKS,
                 DevicePrivileges.DEVICES_ACTIONS_CONNECTION_METHODS,
                 DevicePrivileges.DEVICES_ACTIONS_DATA_EDIT,
+                DevicePrivileges.DEVICES_ACTIONS_CHANGE_DEVICE_CONFIGURATION,
                 DevicePrivileges.DEVICES_ACTIONS_FIRMWARE_MANAGEMENT,
                 DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
         );
