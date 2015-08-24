@@ -137,7 +137,7 @@ Ext.define('Uni.property.view.property.deviceconfigurations.DeviceConfigurations
         Ext.suspendLayouts();
         me.currentPageView.hide();
         Ext.ComponentQuery.query('viewport > #contentPanel')[0].add(me.addDeviceConfigurationsView);
-        store.loadData(me.getProperty().getPossibleValues());
+        store.loadData(me.getProperty().getPossibleValues() || []);
         store.filterBy(function (record, id) {
             return !Ext.Array.contains(addedConfigurations, id);
         });

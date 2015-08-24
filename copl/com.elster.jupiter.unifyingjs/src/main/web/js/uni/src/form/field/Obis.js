@@ -21,6 +21,14 @@ Ext.define('Uni.form.field.Obis', {
     maskRe: /[\dx.]+/,
     vtype: 'obisCode',
     required: true,
+    listeners: {
+        blur: function( field, e, eOpts  ){
+            var str=field.value;
+            var regex = /^(0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$/;
+                return (regex.test(str)) ? (regex.test(str)) : field.reset();
+            }
+    }
+    ,
 
     initComponent: function () {
         Ext.apply(Ext.form.VTypes, {
