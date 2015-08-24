@@ -46,7 +46,8 @@ public class Installer {
 
     private void createIssueTypeAndReasons() {
         IssueType type = issueService.createIssueType(IssueDataValidationService.ISSUE_TYPE_NAME, TranslationKeys.DATA_VALIDATION_ISSUE_TYPE);
-        issueService.createReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON, type, TranslationKeys.DATA_VALIDATION_ISSUE_REASON);
+        issueService.createReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON, type,
+                TranslationKeys.DATA_VALIDATION_ISSUE_REASON, TranslationKeys.DATA_VALIDATION_ISSUE_REASON_DESCRIPTION);
     }
 
     private void publishEvents() {

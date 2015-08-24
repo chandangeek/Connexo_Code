@@ -192,7 +192,8 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
         
         filter = new DataValidationIssueFilter();
-        IssueReason reason = issueService.createReason("somereason", issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get(), TranslationKeys.DATA_VALIDATION_ISSUE_REASON);
+        IssueReason reason = issueService.createReason("somereason", issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get(),
+                TranslationKeys.DATA_VALIDATION_ISSUE_REASON, TranslationKeys.DATA_VALIDATION_ISSUE_REASON_DESCRIPTION);
         reason.save();
         filter.setIssueReason(reason);
         issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
