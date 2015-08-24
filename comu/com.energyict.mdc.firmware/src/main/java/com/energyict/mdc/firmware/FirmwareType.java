@@ -6,15 +6,15 @@ public enum FirmwareType {
 
     private String type;
 
-    private FirmwareType(String type) {
+    FirmwareType(String type) {
         this.type = type;
     }
 
     public String getType() {
         return type;
     }
-    
-    public static FirmwareType get(String type) {
+
+    public static FirmwareType from(String type) {
         for(FirmwareType t : values()) {
             if (t.getType().equals(type)) {
                 return t;
@@ -22,4 +22,5 @@ public enum FirmwareType {
         }
         throw new IllegalArgumentException("Firmware type " + type + " doesn't exist");
     }
+
 }

@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Provides Firmware related services
+ * Provides Firmware related services.
  */
 public interface FirmwareService extends ReferencePropertySpecFinderProvider {
     String COMPONENTNAME = "FWC";

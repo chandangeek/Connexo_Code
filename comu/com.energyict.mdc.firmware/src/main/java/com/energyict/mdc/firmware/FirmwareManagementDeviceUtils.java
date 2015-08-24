@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -62,11 +61,17 @@ public class FirmwareManagementDeviceUtils {
             this.taskService = taskService;
         }
 
-        public FirmwareManagementDeviceUtils onDevice(Device device){
-            return new FirmwareManagementDeviceUtils(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, device);
+        public FirmwareManagementDeviceUtils onDevice(Device device) {
+            FirmwareManagementDeviceUtils utils = new FirmwareManagementDeviceUtils(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, device);
+            utils.firmwareExecution =
+                    this.taskService
+                            .findFirmwareComTask()
+                            .map(ct -> device.getComTaskExecutions().stream().filter(cte -> cte.executesComTask(ct)).findFirst())
+                            .orElse(Optional.<ComTaskExecution>empty());
+            return utils;
         }
 
-        public FirmwareManagementDeviceUtils onDevice(Device device, FirmwareComTaskExecution comTaskExecution){
+        public FirmwareManagementDeviceUtils onDevice(Device device, FirmwareComTaskExecution comTaskExecution) {
             FirmwareManagementDeviceUtils utils = this.onDevice(device);
             utils.firmwareExecution = Optional.ofNullable(comTaskExecution);
             return utils;
@@ -85,11 +90,9 @@ public class FirmwareManagementDeviceUtils {
         Map<String , DeviceMessage<Device>> activationMessages = new HashMap<>();
         for (DeviceMessage<Device> candidate : device.getMessages()) {
             // only firmware upgrade, no revoked messages and only one message for each firmware type
-            if (candidate.getSpecification() != null
-                    && candidate.getSpecification().getCategory() != null
-                    && candidate.getSpecification().getCategory().getId() == deviceMessageSpecificationService.getFirmwareCategory().getId()
-                    && !DeviceMessageStatus.REVOKED.equals(candidate.getStatus())){
-                if (!DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(candidate.getDeviceMessageId())){
+            if (   candidate.getSpecification().getCategory().getId() == deviceMessageSpecificationService.getFirmwareCategory().getId()
+                && !DeviceMessageStatus.REVOKED.equals(candidate.getStatus())) {
+                if (!DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(candidate.getDeviceMessageId())) {
                     compareAndSwapUploadMessage(uploadMessages, candidate);
                 } else {
                     activationMessages.put(candidate.getTrackingId(), candidate);
@@ -175,12 +178,30 @@ public class FirmwareManagementDeviceUtils {
         return false;
     }
 
-    public boolean taskIsBusy(){
-        return getFirmwareExecution().isPresent() && BUSY_TASK_STATUSES.contains(getFirmwareExecution().get().getStatus());
+    public boolean taskIsBusy() {
+        return this.firmwareExecution
+                .map(ComTaskExecution::getStatus)
+                .map(BUSY_TASK_STATUSES::contains)
+                .orElse(false);
+    }
+
+    public boolean checkTaskIsBusy() {
+        return this.getFirmwareCheckExecution()
+                .map(ComTaskExecution::getStatus)
+                .map(BUSY_TASK_STATUSES::contains)
+                .orElse(false);
     }
 
     public boolean taskIsFailed(){
-        return getFirmwareExecution().isPresent() && getFirmwareExecution().get().isLastExecutionFailed();
+        return this.firmwareExecution
+                .map(ComTaskExecution::isLastExecutionFailed)
+                .orElse(false);
+    }
+
+    public boolean checkTaskIsFailed(){
+        return this.getFirmwareCheckExecution()
+                .map(ComTaskExecution::isLastExecutionFailed)
+                .orElse(false);
     }
 
     public String translate(String key){
@@ -188,14 +209,6 @@ public class FirmwareManagementDeviceUtils {
     }
 
     public Optional<ComTaskExecution> getFirmwareExecution() {
-        if (this.firmwareExecution == null){
-            Optional<ComTask> firmwareComTask = taskService.findFirmwareComTask();
-            Predicate<ComTask> comTaskIsFirmwareComTask = comTask -> comTask.getId() == (firmwareComTask.isPresent() ? firmwareComTask.get().getId() : 0);
-            Predicate<ComTaskExecution> executionContainsFirmwareComTask = exec -> exec.getComTasks().stream().filter(comTaskIsFirmwareComTask).count() > 0;
-            this.firmwareExecution = this.device.getComTaskExecutions().stream()
-                    .filter(executionContainsFirmwareComTask)
-                    .findFirst();
-        }
         return this.firmwareExecution;
     }
 
