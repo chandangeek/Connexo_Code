@@ -60,8 +60,8 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
     }
 
     @Override
-    public void addNotEstimatedBlock(Channel channel, ReadingType readingType, Instant startTime, Instant endTime) {
-        Range<Instant> interval = computeNonEstimatedBlockInterval(channel, startTime, endTime);
+    public void addNotEstimatedBlock(Channel channel, ReadingType readingType, Instant timeStamp) {
+        Range<Instant> interval = computeNotEstimatedBlockInterval(channel, timeStamp);
 
         List<Pair<Range<Instant>, OpenIssueNotEstimatedBlockImpl>> connectedBlocks = notEstimatedBlocks.stream()
                 .filter(block -> block.getChannel().getId() == channel.getId())
@@ -83,7 +83,7 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
 
     @Override
     public void removeNotEstimatedBlock(Channel channel, ReadingType readingType, Instant timeStamp) {
-        Range<Instant> interval = computeNonEstimatedBlockInterval(channel, timeStamp, timeStamp);
+        Range<Instant> interval = computeNotEstimatedBlockInterval(channel, timeStamp);
 
         Optional<OpenIssueNotEstimatedBlockImpl> enclosingBlock = notEstimatedBlocks.stream()
                 .filter(block -> block.getChannel().getId() == channel.getId())
@@ -110,16 +110,16 @@ public class OpenIssueDataValidationImpl extends IssueDataValidationImpl impleme
         return Collections.unmodifiableList(notEstimatedBlocks);
     }
 
-    private Range<Instant> computeNonEstimatedBlockInterval(Channel channel, Instant startTime, Instant endTime) {
+    private Range<Instant> computeNotEstimatedBlockInterval(Channel channel, Instant timeStamp) {
         Range<Instant> interval;
         if (channel.isRegular()) {
-            interval = Range.openClosed(startTime.minus(channel.getIntervalLength().get()), endTime);
+            interval = Range.openClosed(timeStamp.minus(channel.getIntervalLength().get()), timeStamp);
         } else {
-            List<BaseReadingRecord> readingsBefore = channel.getReadingsBefore(startTime, 1);
+            List<BaseReadingRecord> readingsBefore = channel.getReadingsBefore(timeStamp, 1);
             if (readingsBefore.isEmpty()) {
-                interval = Range.openClosed(Instant.EPOCH, endTime);
+                interval = Range.openClosed(Instant.EPOCH, timeStamp);
             } else {
-                interval = Range.openClosed(readingsBefore.get(0).getTimeStamp(), endTime);
+                interval = Range.openClosed(readingsBefore.get(0).getTimeStamp(), timeStamp);
             }
         }
         return interval;

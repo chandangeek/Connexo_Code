@@ -125,6 +125,7 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
     @Transactional
     public void testCreateIssue() {
         Instant now = Instant.now();
+        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now).save();
         Message message = mockCanntEstimateDataMessage(now, now, channel, readingType);
         messageHandler.process(message);
         
@@ -165,6 +166,7 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
     @Transactional
     public void testNotDuplicateIssueButUpdate() {
         Instant now = Instant.now();
+        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now).save();
         Message message = mockCanntEstimateDataMessage(now, now, channel, readingType);
         messageHandler.process(message);
         
@@ -172,7 +174,8 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
         assertThat(issues).hasSize(1);
         IssueDataValidation issueDataValidation = issues.get(0);
         assertThat(issueDataValidation.getNotEstimatedBlocks()).hasSize(1);
-        
+
+        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now.plus(2, ChronoUnit.MINUTES)).save();
         message = mockCanntEstimateDataMessage(now.plus(2, ChronoUnit.MINUTES), now.plus(2, ChronoUnit.MINUTES), channel, readingType);
         messageHandler.process(message);
         
@@ -186,6 +189,7 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
     @Transactional
     public void testCreateNewIssueWhileHistoricalExists() {
         Instant now = Instant.now();
+        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, now).save();
         Message message = mockCanntEstimateDataMessage(now, now, channel, readingType);
         messageHandler.process(message);
         
@@ -214,6 +218,9 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
         
         Message message;
         //create issue
+        ReadingQualityRecord readingQuality = channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, fixedTime);
+        readingQuality.save();
+        channel.createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, fixedTime.plus(1, ChronoUnit.MINUTES)).save();
         message = mockCanntEstimateDataMessage(fixedTime, fixedTime.plus(1, ChronoUnit.MINUTES), channel, readingType);
         messageHandler.process(message);
         List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
@@ -221,7 +228,8 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
         assertThat(issues.get(0).getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
         
         //update issue by removing one suspect interval of two
-        message = mockSuspectDeletedMessage(fixedTime, channel, "3.5.258");
+        readingQuality.delete();
+        message = mockSuspectDeletedMessage(fixedTime, channel, "3.5.258", readingType);
         messageHandler.process(message);
         issues = issueDataValidationService.findAllDataValidationIssues(new DataValidationIssueFilter()).find();
         assertThat(issues).hasSize(1);
@@ -231,7 +239,7 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
         assertThat(issues.get(0).getNotEstimatedBlocks().get(0).getEndTime()).isEqualTo(fixedTime.plus(1, ChronoUnit.MINUTES));
 
         //resolve issue completely
-        message = mockSuspectDeletedMessage(fixedTime.plus(1, ChronoUnit.MINUTES), channel, "3.5.258");
+        message = mockSuspectDeletedMessage(fixedTime.plus(1, ChronoUnit.MINUTES), channel, "3.5.258", readingType);
         messageHandler.process(message);
         DataValidationIssueFilter filter = new DataValidationIssueFilter();
         issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
@@ -253,13 +261,14 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
         return message;
     }
     
-    private Message mockSuspectDeletedMessage(Instant timeStamp, Channel channel, String readingQuality) {
+    private Message mockSuspectDeletedMessage(Instant timeStamp, Channel channel, String readingQuality, ReadingType readingType) {
         Message message = mock(Message.class);
         Map<String, Object> map = new HashMap<>();
         map.put("event.topics", "com/elster/jupiter/metering/readingquality/DELETED");
         map.put("readingTimestamp", timeStamp.toEpochMilli());
         map.put("channelId", channel.getId());
         map.put("readingQualityTypeCode", readingQuality);
+        map.put("readingType", readingType.getMRID());
         String payload = inMemoryPersistence.getService(JsonService.class).serialize(map);
         when(message.getPayload()).thenReturn(payload.getBytes());
         return message;

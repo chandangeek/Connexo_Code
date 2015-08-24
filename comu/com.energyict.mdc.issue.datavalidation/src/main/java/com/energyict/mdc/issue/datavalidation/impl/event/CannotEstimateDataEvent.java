@@ -1,27 +1,31 @@
 package com.energyict.mdc.issue.datavalidation.impl.event;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.issue.share.UnableToCreateEventException;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.impl.MessageSeeds;
+import com.google.common.collect.Range;
 import com.google.inject.Inject;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public class CannotEstimateDataEvent extends DataValidationEvent {
     
     private Instant startTime;
     private Instant endTime;
-    private String readingType;
     
     @Inject
     public CannotEstimateDataEvent(Thesaurus thesaurus, MeteringService meteringService, DeviceService deviceService, IssueDataValidationService issueDataValidationService, IssueService issueService) {
@@ -44,13 +48,11 @@ public class CannotEstimateDataEvent extends DataValidationEvent {
     public void apply(Issue issue) {
         if (issue instanceof OpenIssueDataValidation) {
             OpenIssueDataValidation dataValidationIssue = (OpenIssueDataValidation) issue;
-            Optional<Channel> channel = findChannel();
-            Optional<ReadingType> readingType = findReadingType();
-            dataValidationIssue.addNotEstimatedBlock(channel.get(), readingType.get(), startTime, endTime);
+            Channel channel = findChannel().get();
+            ReadingType readingType = findReadingType().get();
+            List<ReadingQualityRecord> actualReadingQuality = channel.getCimChannel(readingType).get()
+                    .findActualReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), Range.closed(startTime, endTime));
+            actualReadingQuality.forEach(rq -> dataValidationIssue.addNotEstimatedBlock(channel, readingType, rq.getReadingTimestamp()));
         }
-    }
-    
-    private Optional<ReadingType> findReadingType() {
-        return getMeteringService().getReadingType(readingType);
     }
 }
