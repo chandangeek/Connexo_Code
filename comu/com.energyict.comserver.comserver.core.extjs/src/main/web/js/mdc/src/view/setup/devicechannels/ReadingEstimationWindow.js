@@ -19,6 +19,11 @@ Ext.define('Mdc.view.setup.devicechannels.ReadingEstimationWindow', {
             },
             items: [
                 {
+                    xtype: 'uni-form-error-message',
+                    itemId: 'form-errors',
+                    hidden: true
+                },
+                {
                     xtype: 'label',
                     itemId: 'error-label',
                     hidden: true,
