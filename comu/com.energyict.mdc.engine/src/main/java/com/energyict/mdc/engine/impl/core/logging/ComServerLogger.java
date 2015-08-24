@@ -43,12 +43,20 @@ public interface ComServerLogger {
     public void timeOutCleanupFailure (ComServer comServer, DataAccessException cause);
 
     /**
-     * Logs that the specified {@link ComServer} has started the shutdown proces.
+     * Logs that the specified {@link ComServer} has started the shutdown process.
      *
      * @param comServer The ComServer
      */
     @Configuration(format = "Shutting down ComServer {0} ...", logLevel = LogLevel.INFO)
     public void shuttingDown (ComServer comServer);
+
+    /**
+     * Logs that the specified {@link ComServer} completed the shutdown process.
+     *
+     * @param comServer The ComServer
+     */
+    @Configuration(format = "ComServer {0} was shutdown completely", logLevel = LogLevel.INFO)
+    public void shutDownComplete (ComServer comServer);
 
     /**
      * Logs that the specified {@link ComServer} is now monitoring for changes

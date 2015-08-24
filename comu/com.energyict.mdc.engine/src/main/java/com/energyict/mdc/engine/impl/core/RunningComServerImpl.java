@@ -420,7 +420,6 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
 
     @Override
     public final void shutdown() {
-        this.getLogger().shuttingDown(this.getComServer());
         this.shutdown(false);
     }
 
@@ -430,12 +429,14 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     }
 
     private void shutdown(boolean immediate) {
+        this.getLogger().shuttingDown(this.getComServer());
         this.doShutdown();
         this.shutdownNestedServerProcesses(immediate);
         if (!immediate) {
             this.awaitNestedServerProcessesAreShutDown();
         }
         this.unregisterAsMBean();
+        this.getLogger().shutDownComplete(this.getComServer());
     }
 
     protected void shutdownNestedServerProcesses(boolean immediate) {
