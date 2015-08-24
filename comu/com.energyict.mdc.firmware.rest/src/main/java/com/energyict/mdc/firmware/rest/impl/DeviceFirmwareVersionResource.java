@@ -1,8 +1,6 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -16,15 +14,11 @@ import javax.ws.rs.core.Response;
 @Path("/device/{mRID}/firmwares")
 public class DeviceFirmwareVersionResource {
     private final DeviceFirmwareVersionInfoFactory versionInfoFactory;
-    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
-    private final FirmwareService firmwareService;
     private final ResourceHelper resourceHelper;
 
     @Inject
-    public DeviceFirmwareVersionResource(DeviceFirmwareVersionInfoFactory versionInfoFactory, DeviceMessageSpecificationService deviceMessageSpecificationService, FirmwareService firmwareService, ResourceHelper resourceHelper) {
+    public DeviceFirmwareVersionResource(DeviceFirmwareVersionInfoFactory versionInfoFactory, ResourceHelper resourceHelper) {
         this.versionInfoFactory = versionInfoFactory;
-        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
-        this.firmwareService = firmwareService;
         this.resourceHelper = resourceHelper;
     }
 
@@ -35,4 +29,5 @@ public class DeviceFirmwareVersionResource {
         Device device = resourceHelper.findDeviceByMridOrThrowException(mRID);
         return Response.ok(versionInfoFactory.from(device)).build();
     }
+
 }

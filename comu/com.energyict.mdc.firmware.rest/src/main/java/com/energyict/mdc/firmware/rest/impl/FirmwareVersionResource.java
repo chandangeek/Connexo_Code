@@ -148,15 +148,15 @@ public class FirmwareVersionResource {
                 @FormDataParam("firmwareStatus") FormDataContentDisposition statusContentDispositionHeader)
     {
         FirmwareVersion firmwareVersion = resourceHelper.findFirmwareVersionByIdOrThrowException(id);
-        
+
         firmwareVersion.setFirmwareVersion(getStringValueFromStream(versionInputStream));
         parseFirmwareStatusField(statusInputStream).ifPresent(firmwareVersion::setFirmwareStatus);
         setFirmwareFile(firmwareVersion, fileInputStream);
         firmwareVersion.save();
-        
+
         return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
     }
-    
+
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -184,16 +184,16 @@ public class FirmwareVersionResource {
         if (filter.hasFilters()) {
             if (filter.hasProperty(FILTER_STATUS_PARAMETER)) {
                 List<String> stringFirmwareStatuses = filter.getStringList(FILTER_STATUS_PARAMETER);
-                List<FirmwareStatus> firmwareStatuses = stringFirmwareStatuses.stream().map(FirmwareStatus::get).collect(Collectors.toList());
+                List<FirmwareStatus> firmwareStatuses = stringFirmwareStatuses.stream().map(FirmwareStatus::from).collect(Collectors.toList());
                 if (!firmwareStatuses.isEmpty()) {
-                    firmwareVersionFilter.setFirmwareStatuses(firmwareStatuses);
+                    firmwareVersionFilter.addFirmwareStatuses(firmwareStatuses);
                 }
             }
             if (filter.hasProperty(FILTER_TYPE_PARAMETER)) {
                 List<String> stringFirmwareTypes = filter.getStringList(FILTER_TYPE_PARAMETER);
-                List<FirmwareType> firmwareTypes = stringFirmwareTypes.stream().map(FirmwareType::get).collect(Collectors.toList());
+                List<FirmwareType> firmwareTypes = stringFirmwareTypes.stream().map(FirmwareType::from).collect(Collectors.toList());
                 if (!firmwareTypes.isEmpty()) {
-                    firmwareVersionFilter.setFirmwareTypes(firmwareTypes);
+                    firmwareVersionFilter.addFirmwareTypes(firmwareTypes);
                 }
             }
         }
@@ -228,7 +228,7 @@ public class FirmwareVersionResource {
             throw exceptionFactory.newException(MessageSeeds.FILE_IO);
         }
     }
-    
+
     private Optional<FirmwareStatus> parseFirmwareStatusField(InputStream is) {
         String firmwareStatus = getStringValueFromStream(is);
         if(firmwareStatus == null || firmwareStatus.isEmpty()) {
@@ -236,7 +236,7 @@ public class FirmwareVersionResource {
         }
         return Optional.of(FirmwareStatusInfo.FIRMWARE_STATUS_ADAPTER.unmarshal(firmwareStatus));
     }
-    
+
     private Optional<FirmwareType> parseFirmwareTypeField(InputStream is) {
         String firmwareType = getStringValueFromStream(is);
         if(firmwareType == null || firmwareType.isEmpty()) {
@@ -244,7 +244,7 @@ public class FirmwareVersionResource {
         }
         return Optional.of(FirmwareTypeInfo.FIRMWARE_TYPE_ADAPTER.unmarshal(firmwareType));
     }
-    
+
     private String getStringValueFromStream(InputStream is) {
         if (is != null) {
             try (Scanner s = new Scanner(is)) {

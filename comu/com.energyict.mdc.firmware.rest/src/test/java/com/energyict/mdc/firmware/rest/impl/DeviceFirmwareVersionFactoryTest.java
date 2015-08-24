@@ -83,6 +83,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareCheckComTask.getId()).thenReturn(201L);
         when(firmwareCheckComTask.getProtocolTasks()).thenReturn(Collections.singletonList(statusCheckTask));
         when(firmwareCheckExecution.getComTasks()).thenReturn(Collections.singletonList(firmwareCheckComTask));
+        when(firmwareCheckExecution.executesComTask(firmwareCheckComTask)).thenReturn(true);
         when(firmwareCheckExecution.getNextExecutionTimestamp()).thenReturn(TIME.plus(1, ChronoUnit.DAYS));
         when(firmwareCheckExecution.getLastSession()).thenReturn(Optional.of(session));
         when(firmwareCheckExecution.isConfiguredToReadStatusInformation()).thenReturn(true);
@@ -90,6 +91,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareComTask.getId()).thenReturn(101L);
         when(taskService.findFirmwareComTask()).thenReturn(Optional.of(firmwareComTask));
         when(firmwareExecution.getComTasks()).thenReturn(Collections.singletonList(firmwareComTask));
+        when(firmwareExecution.executesComTask(firmwareComTask)).thenReturn(true);
         when(firmwareExecution.getLastSession()).thenReturn(Optional.of(session));
         when(deviceService.findByUniqueMrid("upgrade")).thenReturn(Optional.of(device));
         ComTaskEnablement firmwareCheckEnablement = mock(ComTaskEnablement.class);
@@ -512,6 +514,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         DeviceMessage<Device> firmwareMessage = mockUploadWithActivationDateFirmwareMessage();
 
         when(firmwareMessage.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
+        when(firmwareExecution.getStatus()).thenReturn(TaskStatus.Failed);
         when(firmwareExecution.isLastExecutionFailed()).thenReturn(true);
         when(firmwareExecution.getExecutionStartedTimestamp()).thenReturn(TIME);
         when(firmwareExecution.getLastExecutionStartTimestamp()).thenReturn(TIME);
