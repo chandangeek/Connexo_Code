@@ -34,6 +34,17 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                         },
                         items: [
                             {
+                                name: 'errors',
+                                ui: 'form-error-framed',
+                                itemId: 'communicationScheduleEditFormErrors',
+                                layout: 'hbox',
+                                margin: '0 0 10 0',
+                                hidden: true,
+                                defaults: {
+                                    xtype: 'container'
+                                }
+                            },
+                            {
                                 xtype: 'uni-form-info-message',
                                 name: 'warning',
                                 title: Uni.I18n.translate('communicationschedule.inUseWarningTitle', 'MDC', 'This shared communication schedule has been added to one or more devices.'),
