@@ -279,6 +279,19 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
 
             Ext.merge(point, properties);
             data.unshift(point);
+
+            !point.y && (point.y = null);
+            if (!point.y) {
+                if (properties.delta.suspect) {
+                    missedValues.push({
+                        id: record.get('interval').start,
+                        from: record.get('interval').start,
+                        to: record.get('interval').end,
+                        color: 'rgba(235, 86, 66, 0.3)'
+                    });
+                    record.set('plotBand', true);
+                }
+            }
         });
         return {data: data, missedValues: missedValues};
     }

@@ -11,6 +11,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'validationStatus', type: 'auto'},
         {name: 'validationInfo', type: 'auto'},
         {name: 'confirmed', type: 'auto'},
+        'plotband',
         {
             name: 'interval_end',
             persist: false,

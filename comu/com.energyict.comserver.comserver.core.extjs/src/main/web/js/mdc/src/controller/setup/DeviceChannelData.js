@@ -410,6 +410,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             if (!event.record.get('value')) {
                 point.update({ y: NaN });
             } else {
+                if (event.record.get('plotBand')) {
+                    chart.xAxis[0].removePlotBand(event.record.get('interval').start);
+                    event.record.set('plotBand', false);
+                }
                 updatedObj = {
                     y: value,
                     collectedValue: collectedValue,
