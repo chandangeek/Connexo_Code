@@ -1,10 +1,5 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -21,8 +16,17 @@ import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
-import com.energyict.mdc.engine.impl.commands.store.*;
-import com.energyict.mdc.engine.impl.core.*;
+import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.Counters;
+import com.energyict.mdc.engine.impl.core.InboundJobExecutionDataProcessor;
+import com.energyict.mdc.engine.impl.core.InboundJobExecutionGroup;
+import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.UnknownInboundDeviceEvent;
@@ -54,6 +58,11 @@ import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.time.StopWatch;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -230,7 +239,7 @@ public class InboundCommunicationHandler {
     }
 
     private Thesaurus getThesaurus() {
-        return serviceProvider.nlsService().getThesaurus("MDC", Layer.DOMAIN);
+        return serviceProvider.thesaurus();
     }
 
     private List<? extends BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister>> getAllPossiblyRelatedDevices(InboundDeviceProtocol inboundDeviceProtocol) {

@@ -1,7 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.config.ComPort;
@@ -30,6 +29,7 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.*;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.streams.Functions;
 
@@ -226,8 +226,8 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
         }
 
         @Override
-        public LogBookService logBookService() {
-            return serviceProvider.logBookService();
+        public Thesaurus thesaurus() {
+            return serviceProvider.thesaurus();
         }
 
         @Override

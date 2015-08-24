@@ -48,10 +48,12 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TopologyTask;
 
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
 import com.google.common.base.Strings;
+import com.elster.jupiter.util.exception.MessageSeed;
 import org.joda.time.DateTime;
 
 import java.time.Clock;
@@ -71,6 +73,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -174,6 +177,9 @@ public class JobExecutionTest {
     public void setupServiceProviders() {
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
         when(this.thesaurus.getString(anyString(), anyString())).thenReturn("Translation not supported in unit testing");
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit testing");
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         when(this.serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
         when(this.serviceProvider.issueService()).thenReturn(this.issueService);
         when(this.serviceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);

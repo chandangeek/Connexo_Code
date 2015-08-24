@@ -22,7 +22,7 @@ public abstract class CollectedDeviceData implements ServerCollectedData {
     private List<Issue> issueList = new ArrayList<>();
 
     /**
-     * Indication of the <i>type</i> of the result
+     * Indication of the <i>type</i> of the result.
      */
     private ResultType resultType = ResultType.Supported;
 
@@ -31,13 +31,13 @@ public abstract class CollectedDeviceData implements ServerCollectedData {
     }
 
     /**
-     * Set all failure information
+     * Set all failure information.
      *
      * @param resultType indication of what the result is
-     * @param issue      indication of what the issue is
+     * @param issue The Issue
      */
     public void setFailureInformation(final ResultType resultType, final Issue issue) {
-        if(resultType == null){
+        if (resultType == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "setFailureInformation", "resultType");
         } else if (issue == null){
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "setFailureInformation", "issue");
@@ -48,6 +48,20 @@ public abstract class CollectedDeviceData implements ServerCollectedData {
 
     private void addIssue(Issue issue) {
         this.issueList.add(issue);
+    }
+
+    public void setFailureInformation(final ResultType resultType, final List<Issue> issues) {
+        if (resultType == null) {
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setFailureInformation", "resultType");
+        } else if (issues == null || issues.isEmpty()){
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setFailureInformation", "issues");
+        }
+        this.resultType = resultType;
+        addAllIssues(issues);
+    }
+
+    private void addAllIssues(List<Issue> issues) {
+        this.issueList.addAll(issues);
     }
 
     @Override

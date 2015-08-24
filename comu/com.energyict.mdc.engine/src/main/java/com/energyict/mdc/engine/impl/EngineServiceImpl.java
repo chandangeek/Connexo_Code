@@ -275,6 +275,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         List<TranslationKey> keys = new ArrayList<>();
         Stream.of(MessageSeeds.values()).forEach(keys::add);
         Stream.of(com.energyict.mdc.engine.impl.monitor.MessageSeeds.values()).forEach(keys::add);
+        Stream.of(com.energyict.mdc.engine.impl.commands.store.deviceactions.MessageSeeds.values()).forEach(keys::add);
         return keys;
     }
 
@@ -405,7 +406,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.eventService, this.thesaurus).install(true);
+        new Installer(this.dataModel, this.eventService).install(true);
     }
 
     @Override
@@ -607,11 +608,6 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         @Override
         public DeviceConfigurationService deviceConfigurationService() {
             return deviceConfigurationService;
-        }
-
-        @Override
-        public LogBookService logBookService() {
-            return logBookService;
         }
 
         @Override

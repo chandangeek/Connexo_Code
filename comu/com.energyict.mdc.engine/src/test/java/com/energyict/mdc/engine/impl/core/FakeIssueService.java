@@ -5,6 +5,9 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
+
 import java.time.Instant;
 
 import org.mockito.ArgumentCaptor;
@@ -50,6 +53,11 @@ public class FakeIssueService implements IssueService {
     }
 
     @Override
+    public Problem newProblem(Object source, Thesaurus thesaurus, MessageSeed description, Object... arguments) {
+        return this.newProblem(source, description.getKey(), arguments);
+    }
+
+    @Override
     public Warning newWarning(Object source, String description, Object... arguments) {
         Warning warning = mock(Warning.class);
         when(warning.getTimestamp()).thenReturn(Instant.now());
@@ -57,6 +65,11 @@ public class FakeIssueService implements IssueService {
         when(warning.isWarning()).thenReturn(false);
         when(warning.getDescription()).thenReturn(description);
         return warning;
+    }
+
+    @Override
+    public Warning newWarning(Object source, Thesaurus thesaurus, MessageSeed description, Object... arguments) {
+        return this.newWarning(source, description.getKey(), arguments);
     }
 
 }
