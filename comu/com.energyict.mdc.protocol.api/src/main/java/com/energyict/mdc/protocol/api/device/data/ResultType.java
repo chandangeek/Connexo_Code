@@ -22,6 +22,11 @@ public enum ResultType {
     ConfigurationMisMatch,
 
     /**
+     * Similar to {@link #ConfigurationMisMatch}, but with CompletionCode ConfigurationError instead of ConfigurationWarning.
+     */
+    ConfigurationError,
+
+    /**
      * Identifies that the object is supported by the device, but the requested information could not be fully fetched.
      * No data is returned, what data could not be fetched should be informed by the Issue object.
      */
