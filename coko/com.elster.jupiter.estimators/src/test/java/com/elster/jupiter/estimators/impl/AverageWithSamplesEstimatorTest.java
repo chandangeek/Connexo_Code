@@ -416,6 +416,7 @@ public class AverageWithSamplesEstimatorTest {
         doReturn(ESTIMATABLE_TIME.plusMinutes(45).toInstant()).when(channel).getNextDateTime(ESTIMATABLE_TIME.plusMinutes(30).toInstant());
         doReturn(asList(ESTIMATABLE_TIME.minusMinutes(30).toInstant(), ESTIMATABLE_TIME.minusMinutes(15).toInstant())).when(channel).toList(Range.openClosed(ESTIMATABLE_TIME.minusMinutes(35).toInstant(), ESTIMATABLE_TIME.minusMinutes(15).toInstant()));
         doReturn(Optional.of(Duration.ofMinutes(15))).when(channel).getIntervalLength();
+        doReturn(deltaCimChannel).when(block).getCimChannel();
 
         doReturn(asList(estimatable, estimatable2)).when(block).estimatables();
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
