@@ -1,13 +1,7 @@
 package com.elster.jupiter.estimation.impl;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -38,6 +32,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
+import com.google.common.collect.ImmutableMap;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_ESTIMATION_RULE + "}")
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
@@ -275,12 +270,12 @@ class EstimationRuleImpl implements IEstimationRule {
 
     public void save() {
         if (getId() == 0) {
-            this.getEstimator().validateProperties(this.properties);
+            this.getEstimator().validateProperties(getPropertiesAsMap(this.properties));
             doPersist();
             return;
         }
         Save.UPDATE.validate(dataModel, this);
-        this.getEstimator().validateProperties(this.properties);
+        this.getEstimator().validateProperties(getPropertiesAsMap(this.properties));
         doUpdate();
     }
 
@@ -385,6 +380,12 @@ class EstimationRuleImpl implements IEstimationRule {
     @Override
     public boolean appliesTo(Channel channel) {
         return isActive() && getReadingTypes().stream().anyMatch(channel::hasReadingType);
+    }
+
+    private Map<String, Object> getPropertiesAsMap(List<EstimationRuleProperties> properties) {
+        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+        properties.stream().forEach(property -> builder.put(property.getName(), property.getValue()));
+        return builder.build();
     }
 
 }

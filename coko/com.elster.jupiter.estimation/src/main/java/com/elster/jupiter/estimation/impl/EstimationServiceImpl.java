@@ -40,7 +40,6 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.util.UpdatableHolder;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -317,7 +316,9 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     @Override
     public EstimationResult previewEstimate(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType, Estimator estimator) {
-        return estimator.estimate(getBlocksToEstimate(meterActivation, period, readingType));
+        try (LoggingContext loggingContext = LoggingContext.get().with("rule", estimator.getDisplayName())) {
+            return estimator.estimate(getBlocksToEstimate(meterActivation, period, readingType));
+        }
     }
 
     @Override
