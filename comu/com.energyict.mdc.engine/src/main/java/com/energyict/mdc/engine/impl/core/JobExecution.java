@@ -6,10 +6,7 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
@@ -61,7 +58,6 @@ import com.elster.jupiter.transaction.TransactionService;
 
 import java.time.Clock;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -87,29 +83,29 @@ public abstract class JobExecution implements ScheduledJob {
 
     public interface ServiceProvider extends ExecutionContext.ServiceProvider {
 
-        public DeviceConfigurationService deviceConfigurationService();
+        DeviceConfigurationService deviceConfigurationService();
 
-        public ConnectionTaskService connectionTaskService();
+        ConnectionTaskService connectionTaskService();
 
-        public Thesaurus thesaurus();
+        Thesaurus thesaurus();
 
-        public DeviceService deviceService();
+        DeviceService deviceService();
 
-        public TopologyService topologyService();
+        TopologyService topologyService();
 
-        public EngineService engineService();
+        EngineService engineService();
 
-        public MdcReadingTypeUtilService mdcReadingTypeUtilService();
+        MdcReadingTypeUtilService mdcReadingTypeUtilService();
 
-        public HexService hexService();
+        HexService hexService();
 
-        public TransactionService transactionService();
+        TransactionService transactionService();
 
-        public EventService eventService();
+        EventService eventService();
 
-        public IdentificationService identificationService();
+        IdentificationService identificationService();
 
-        public MeteringService meteringService();
+        MeteringService meteringService();
 
     }
 
@@ -738,7 +734,7 @@ public abstract class JobExecution implements ScheduledJob {
         @Override
         public PreparedComTaskExecution perform() {
             ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.topologyService());
-            final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = organizer.defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
+            final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = organizer.defineComTaskExecutionOrders(Collections.singletonList(comTaskExecution));
             final DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution = deviceOrganizedComTaskExecutions.get(0);
             if (deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().size() == 1) {
                 final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps comTaskWithSecurityAndConnectionSteps = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().get(0);

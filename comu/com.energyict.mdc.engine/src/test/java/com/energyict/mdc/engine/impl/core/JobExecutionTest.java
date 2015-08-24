@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -11,10 +13,7 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
@@ -35,9 +34,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.DeviceProtocolCommandCr
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.*;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -55,6 +52,7 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
+import com.google.common.base.Strings;
 import com.elster.jupiter.util.exception.MessageSeed;
 import org.joda.time.DateTime;
 
@@ -100,6 +98,11 @@ public class JobExecutionTest {
     private static final long COMPORT_ID = COMPORT_POOL_ID + 1;
     private static final long CONNECTION_TASK_ID = COMPORT_ID + 1;
     private static final long DEVICE_ID = CONNECTION_TASK_ID + 1;
+    private static final String MY_PROPERTY = "myProperty";
+    private static final String MY_PROPERTY_VALUE = "myPropertyValue";
+    public static final String PROTOCOL_DIALECT = "protocolDialect";
+    public static final String VERY_LARGE_STRING = Strings.repeat("0123456789", 10000); // String containing 100_000 characters which >> 4K
+
 
     @Mock
     private DeviceCommandExecutor deviceCommandExecutor;
@@ -161,6 +164,12 @@ public class JobExecutionTest {
     private JobExecution.ServiceProvider jobExecutionServiceProvider;
     @Mock
     private CommandRoot.ServiceProvider commandRootServiceProvider;
+    private PropertySpec propertySpec;
+    private DeviceProtocolDialect protocolDialect;
+    private TypedProperties typedProperties;
+    @Mock
+    private ValueFactory<String> valueFactory;
+    private ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties;
 
     private IssueService issueService = new FakeIssueService();
     private CommandRootImpl root;
@@ -470,6 +479,17 @@ public class JobExecutionTest {
         assertThat(scheduledComTaskExecutionGroup.getExecutionContext().basickCheckHasFailed()).isTrue();
     }
 
+    @Test
+    public void testGetProtocolDialectProperties(){
+        prepareMocksForProtocolDialectProperties();
+        when(comTaskExecution.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
+        // make sur no protocoldialect properties set on device
+        when(device.getProtocolDialectProperties(anyString())).thenReturn(Optional.<ProtocolDialectProperties>empty());
+
+        TypedProperties typedProperties = JobExecution.getProtocolDialectTypedProperties(comTaskExecution);
+        assertThat(typedProperties.getProperty(MY_PROPERTY)).isEqualTo(MY_PROPERTY_VALUE);
+    }
+
     private void createMockedComTaskWithGivenProtocolTasks(ProtocolTask... protocolTasks) {
         ComTask comTask = mock(ComTask.class);
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
@@ -503,6 +523,36 @@ public class JobExecutionTest {
         executionContext.setLogger(logger);
         return executionContext;
     }
+
+
+
+    private void prepareMocksForProtocolDialectProperties(){
+        typedProperties =  TypedProperties.empty();
+        typedProperties.setProperty(MY_PROPERTY, MY_PROPERTY_VALUE);
+
+        protocolDialect = mock(DeviceProtocolDialect.class);
+        propertySpec = mock(PropertySpec.class);
+
+        when(protocolDialect.getDisplayName()).thenReturn(PROTOCOL_DIALECT);
+        when(protocolDialect.getDeviceProtocolDialectName()).thenReturn(PROTOCOL_DIALECT);
+        when(protocolDialect.getPropertySpec(MY_PROPERTY)).thenReturn(propertySpec);
+
+        when(propertySpec.getValueFactory()).thenReturn(valueFactory);
+
+        when(valueFactory.fromStringValue(MY_PROPERTY_VALUE)).thenReturn(MY_PROPERTY_VALUE);
+        when(valueFactory.toStringValue(MY_PROPERTY_VALUE)).thenReturn(MY_PROPERTY_VALUE);
+        when(valueFactory.fromStringValue(VERY_LARGE_STRING)).thenReturn(VERY_LARGE_STRING);
+        when(valueFactory.toStringValue(VERY_LARGE_STRING)).thenReturn(VERY_LARGE_STRING);
+
+        protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
+        when(protocolDialectConfigurationProperties.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(protocolDialectConfigurationProperties.getDeviceProtocolDialect()).thenReturn(protocolDialect);
+        when(protocolDialectConfigurationProperties.getTypedProperties()).thenReturn(typedProperties);
+
+        when(deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(protocolDialect)).thenReturn(protocolDialectConfigurationProperties);
+
+    }
+
 
     /**
      * Extending class, used to skip the prepare method
