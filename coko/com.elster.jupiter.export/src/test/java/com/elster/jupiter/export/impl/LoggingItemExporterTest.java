@@ -137,7 +137,7 @@ public class LoggingItemExporterTest {
         LogRecord logRecord = logRecorder.getRecords().get(0);
 
         assertThat(logRecord.getLevel()).isEqualTo(Level.INFO);
-        assertThat(logRecord.getMessage()).isEqualTo("Item MRID4711:The Speed Of Pain exported succesfully for period Thu, 18 Apr 2013 13:02:19 NZST - Thu, 18 Apr 2013 18:02:19 NZST");
+        assertThat(logRecord.getMessage()).isEqualTo("Item MRID4711:The Speed Of Pain exported successfully for period Thu, 18 Apr 2013 13:02:19 NZST - Thu, 18 Apr 2013 18:02:19 NZST");
     }
 
     @Test

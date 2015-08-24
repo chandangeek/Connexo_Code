@@ -18,7 +18,7 @@ public enum MessageSeeds implements MessageSeed {
     NAME_MUST_BE_UNIQUE(1005, Keys.NAME_MUST_BE_UNIQUE, "Data export task with such name already exists", Level.SEVERE),
     ITEM_FAILED(1006, "dataexport.item.failed", "Item {0}:{1} failed to export", Level.WARNING),
     ITEM_FATALLY_FAILED(1007, "dataexport.item.fatally.failed", "Item {0}:{1} fatally failed to export", Level.SEVERE),
-    ITEM_EXPORTED_SUCCESFULLY(1008, "dataexport.item.success", "Item {0}:{1} exported succesfully for period {2} - {3}", Level.INFO),
+    ITEM_EXPORTED_SUCCESFULLY(1008, "dataexport.item.success", "Item {0}:{1} exported successfully for period {2} - {3}", Level.INFO),
     CANNOT_DELETE_WHILE_RUNNING(1009, "dataexport.cannot.delete", "Cannot delete a data export task (id = {0}) while it is running.", Level.SEVERE),
     RELATIVE_PERIOD_USED(1010, "dataexport.using.relativeperiod", "Relative period is still in use by the following data export tasks: {0}", Level.SEVERE),
     VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUseByTask", "Device group {0} is still in use by an export task", Level.SEVERE),
