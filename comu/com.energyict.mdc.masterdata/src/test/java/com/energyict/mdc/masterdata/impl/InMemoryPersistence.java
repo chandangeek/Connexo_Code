@@ -37,8 +37,6 @@ import org.osgi.service.event.EventAdmin;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

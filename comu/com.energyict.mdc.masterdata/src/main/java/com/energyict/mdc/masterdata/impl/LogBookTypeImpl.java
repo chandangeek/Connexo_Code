@@ -1,47 +1,30 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.util.Arrays;
-import java.util.List;
 
 /**
+ * Provides an implementation for the {@link LogBookType} interface.
+ *
  * Copyrights EnergyICT
  * Date: 24/10/12
  * Time: 10:35
  */
 
-public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implements LogBookType, TranslationKeyProvider {
-
-    @Override
-    public String getComponentName() {
-        return null;
-    }
-
-    @Override
-    public Layer getLayer() {
-        return null;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
-    }
+public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implements LogBookType {
 
     enum Fields {
         OBIS_CODE("obisCode");
@@ -56,7 +39,6 @@ public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implemen
         }
     }
 
-    @Pattern(regexp = "^[a-zA-Z0-9\\-_]+$", groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_CONTAINS_INVALID_CHARS + "}")
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")

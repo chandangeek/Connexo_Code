@@ -18,7 +18,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required", SEVERE),
     NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "The name must be unique", SEVERE),
-    FIELD_CONTAINS_INVALID_CHARS(1002, Keys.FIELD_CONTAINS_INVALID_CHARS, "Field contains invalid chars", SEVERE),
 
     LOG_BOOK_TYPE_NAME_IS_REQUIRED(1102, "logBookType.name.required", "The name of a logbook type is required", SEVERE),
     LOG_BOOK_TYPE_ALREADY_EXISTS(1103, "logBookType.duplicateNameX", "A logbook type with name \"{0}\" already exists", SEVERE),
@@ -107,7 +106,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String LOAD_PROFILE_TYPE_INTERVAL_IS_REQUIRED = "loadProfileType.interval.required";
         public static final String INTERVAL_IN_YEARS_MUST_BE_ONE = "loadProfileType.interval.notsupported.multipleyears";
         public static final String REGISTER_TYPE_SHOULD_NOT_HAVE_INTERVAL_READINGTYPE = "registertype.readingtype.should.not.have.interval";
-        public static final String FIELD_CONTAINS_INVALID_CHARS = "field.contains.invalid.chars";
     }
 
 }

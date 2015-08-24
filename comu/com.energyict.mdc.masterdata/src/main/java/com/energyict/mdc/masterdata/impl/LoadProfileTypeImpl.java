@@ -1,17 +1,5 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -23,13 +11,27 @@ import com.energyict.mdc.masterdata.exceptions.RegisterTypeAlreadyInLoadProfileT
 import com.energyict.mdc.masterdata.exceptions.RegisterTypesNotMappableToLoadProfileTypeIntervalException;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.time.TimeDuration;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -39,22 +41,7 @@ import java.util.stream.Collectors;
  * Date: 11-jan-2011
  * Time: 16:05:54
  */
-public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> implements LoadProfileType, PersistenceAware, TranslationKeyProvider {
-
-    @Override
-    public String getComponentName() {
-        return null;
-    }
-
-    @Override
-    public Layer getLayer() {
-        return null;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
-    }
+public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> implements LoadProfileType, PersistenceAware {
 
     enum Fields {
         OBIS_CODE("obisCode"),
@@ -70,7 +57,6 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         }
     }
 
-    @Pattern(regexp = "^[a-zA-Z0-9\\-_]+$", groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_CONTAINS_INVALID_CHARS + "}")
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
