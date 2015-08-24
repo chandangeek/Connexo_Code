@@ -17,7 +17,23 @@ Ext.define('InsightApp.controller.History', {
            			title: Uni.I18n.translate('general.usagePointView', 'INS', 'View Usage Point'),
            			route: 'usagepoints/{mRID}',
            			controller: 'Imt.usagepointmanagement.controller.View',
-           			action: 'showUsagePoint'
+           			action: 'showUsagePoint',
+           			callback: function (route) {
+                        this.getApplication().on('usagePointLoaded', function (record) {
+                            route.setTitle(record.get('mRID'));
+                            return true;
+                        }, {single: true});
+
+                        return this;
+                    },
+           			items: {
+           			    channels: {
+                            title: Uni.I18n.translate('general.usagePointChannels', 'INS', 'Channels'),
+                            route: 'channels',
+                            controller: 'Imt.channeldata.controller.View',
+                            action: 'showUsagePointChannels',
+           			    }
+           			}
            		},
    				usagepointedit: {
                 	title: Uni.I18n.translate('general.usagePointEdit', 'INS', 'Edit Usage Point'),
