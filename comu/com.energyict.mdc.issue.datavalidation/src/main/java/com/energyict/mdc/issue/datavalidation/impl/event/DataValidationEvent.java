@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -23,6 +24,7 @@ import java.util.Optional;
 public abstract class DataValidationEvent implements IssueEvent {
 
     protected Long channelId;
+    protected String readingType;
     protected Long deviceConfigurationId;
 
     private final Thesaurus thesaurus;
@@ -72,21 +74,19 @@ public abstract class DataValidationEvent implements IssueEvent {
         return meteringService.findChannel(channelId);
     }
 
+    protected Optional<ReadingType> findReadingType() {
+        return meteringService.getReadingType(readingType);
+    }
+
     private Optional<Meter> findMeter() {
         return findChannel().map(channel -> channel.getMeterActivation().getMeter()).orElse(Optional.empty());
     }
 
     private Device getDevice() {
-        return findMeter().map(meter -> {
-            return deviceService.findDeviceById(Long.valueOf(meter.getAmrId())).orElse(null);
-        }).orElse(null);
+        return findMeter().map(Meter::getAmrId).map(Long::valueOf).flatMap(deviceService::findDeviceById).orElse(null);
     }
 
     protected Thesaurus getThesaurus() {
         return thesaurus;
-    }
-
-    protected MeteringService getMeteringService() {
-        return meteringService;
     }
 }
