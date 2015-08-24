@@ -85,7 +85,7 @@ public class InMemoryPersistence {
                 new EventsModule(),
                 new OrmModule(),
                 new FiniteStateMachineModule(),
-                readingTypes.length==0?new MeteringModule():new MeteringModule(readingTypes[0], Arrays.copyOfRange(readingTypes, 1, readingTypes.length)),
+                readingTypes.length==0?MeteringModule.withAllReadingTypes_AVOID_AVOID():new MeteringModule(readingTypes[0], Arrays.copyOfRange(readingTypes, 1, readingTypes.length)),
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule());
         this.transactionService = injector.getInstance(TransactionService.class);
