@@ -24,7 +24,7 @@ public enum DefaultLifeCycleTranslationKey implements TranslationKey {
     TRANSITION_FROM_COMMISSIONING_TO_INACTIVE(DefaultState.COMMISSIONING.getKey()+DefaultCustomStateTransitionEventType.DEACTIVATED.getSymbol(), "Install inactive"),
     TRANSITION_FROM_COMMISSIONING_TO_ACTIVE(DefaultState.COMMISSIONING.getKey()+DefaultCustomStateTransitionEventType.ACTIVATED.getSymbol(), "Install active"),
     TRANSITION_FROM_ACTIVE_TO_INACTIVE(DefaultState.ACTIVE.getKey()+DefaultCustomStateTransitionEventType.DEACTIVATED.getSymbol(), "Deactivate"),
-    TRANSITION_FROM_ACTIVE_TO_DECOMMISSIONED(DefaultState.ACTIVE.getKey()+DefaultCustomStateTransitionEventType.DECOMMISSIONED.getSymbol(), "Deactivate and decommission"),
+    TRANSITION_FROM_ACTIVE_TO_DECOMMISSIONED(DefaultState.ACTIVE.getKey()+DefaultCustomStateTransitionEventType.DECOMMISSIONED.getSymbol(), "Decommission"),
     TRANSITION_FROM_INACTIVE_TO_DECOMMISSIONED(DefaultState.INACTIVE.getKey()+DefaultCustomStateTransitionEventType.DECOMMISSIONED.getSymbol(), "Decommission"),
     TRANSITION_FROM_DECOMMISSIONED_TO_REMOVED(DefaultState.DECOMMISSIONED.getKey()+DefaultCustomStateTransitionEventType.REMOVED.getSymbol(), "Remove"),
     TRANSITION_FROM_IN_STOCK_TO_REMOVED(DefaultState.IN_STOCK.getKey()+DefaultCustomStateTransitionEventType.REMOVED.getSymbol(), "Remove");
