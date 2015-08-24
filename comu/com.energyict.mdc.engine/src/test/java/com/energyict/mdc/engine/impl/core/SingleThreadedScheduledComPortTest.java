@@ -355,17 +355,6 @@ public class SingleThreadedScheduledComPortTest {
         }
     }
 
-    @Test
-    public void testExecuteTasksWithNoWork_1000() throws InterruptedException, BusinessException, SQLException {
-        for (int i = 0; i < 1000; i++) {
-            System.out.print(i);
-            long time = System.nanoTime();
-            testExecuteTasksWithNoWork();
-            System.out.println(" : " + (System.nanoTime() - time));
-        }
-    }
-
-
     @Test(timeout = 7000)
     public void testExecuteTasksInParallel() throws InterruptedException, BusinessException, SQLException, ConnectionException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);

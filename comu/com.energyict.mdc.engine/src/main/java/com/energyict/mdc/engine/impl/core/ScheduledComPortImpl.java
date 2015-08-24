@@ -25,6 +25,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -66,6 +67,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     private TimeDuration schedulingInterpollDelay;
     private ScheduledComPortMonitor operationalMonitor;
     private LoggerHolder loggerHolder;
+    private ExceptionLogger exceptionLogger = new ExceptionLogger();
     private Instant lastActivityTimestamp;
 
     public ScheduledComPortImpl(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
@@ -202,7 +204,9 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
             try {
                 this.doRun();
             } catch (Throwable t) {
-                getLogger().unexpectedError(getThreadName(), t);
+                this.exceptionLogger.unexpectedError(t);
+                // Give the infrastructure some time to recover from e.g. unexpected SQL errors
+                this.reschedule();
             }
         }
         this.status = ServerProcessStatus.SHUTDOWN;
@@ -244,10 +248,6 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
 
     protected abstract JobScheduler getJobScheduler ();
 
-    protected interface JobScheduler {
-        public void scheduleAll(List<ComJob> jobs);
-    }
-
     protected ScheduledComTaskExecutionJob newComTaskJob (ComTaskExecution comTaskExecution) {
         return new ScheduledComTaskExecutionJob(this.getComPort(), this.getComServerDAO(), this.deviceCommandExecutor, comTaskExecution, this.serviceProvider);
     }
@@ -259,15 +259,49 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     protected ScheduledComTaskExecutionGroup newComTaskGroup (ComJob groupComJob) {
         ScheduledConnectionTask connectionTask = groupComJob.getConnectionTask();
         ScheduledComTaskExecutionGroup group = newComTaskGroup(connectionTask);
-        for (ComTaskExecution scheduledComTask : groupComJob.getComTaskExecutions()) {
-            group.add(scheduledComTask);
-        }
+        groupComJob.getComTaskExecutions().forEach(group::add);
         return group;
-
     }
 
     ServiceProvider getServiceProvider() {
         return serviceProvider;
+    }
+
+    protected interface JobScheduler {
+        public void scheduleAll(List<ComJob> jobs);
+    }
+
+    private class ExceptionLogger {
+        private Optional<Throwable> previous = Optional.empty();
+
+        public void unexpectedError(Throwable current) {
+            if (this.sameAsPrevious(current)) {
+                getLogger().unexpectedError(getThreadName(), current.toString());
+            }
+            else {
+                getLogger().unexpectedError(getThreadName(), current);
+            }
+            this.previous = Optional.of(current);
+        }
+
+        private boolean sameAsPrevious(Throwable current) {
+            return this.sameMessageAsPrevious(current) && this.sameStackTraceAsPrevious(current);
+        }
+
+        private boolean sameMessageAsPrevious(Throwable current) {
+            return this.previous
+                    .map(Object::toString)
+                    .map(ts -> ts.equals(current.toString()))
+                    .orElse(false);
+        }
+
+        private boolean sameStackTraceAsPrevious(Throwable current) {
+            return this.previous
+                    .map(Throwable::getStackTrace)
+                    .map(stackTraceElements -> Arrays.deepEquals(stackTraceElements, current.getStackTrace()))
+                    .orElse(false);
+        }
+
     }
 
     private class LoggerHolder {
@@ -362,6 +396,11 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         @Override
         public void unexpectedError(String comPortThreadName, Throwable unexpected) {
             this.loggers.forEach(each -> each.unexpectedError(comPortThreadName, unexpected));
+        }
+
+        @Override
+        public void unexpectedError(String comPortThreadName, String message) {
+            this.loggers.forEach(each -> each.unexpectedError(comPortThreadName, message));
         }
 
     }
