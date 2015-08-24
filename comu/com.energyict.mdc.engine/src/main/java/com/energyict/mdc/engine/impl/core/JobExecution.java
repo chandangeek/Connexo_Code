@@ -6,10 +6,7 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
@@ -90,8 +87,7 @@ public abstract class JobExecution implements ScheduledJob {
 
         ConnectionTaskService connectionTaskService();
 
-        LogBookService logBookService();
-        public Thesaurus thesaurus();
+        Thesaurus thesaurus();
 
         DeviceService deviceService();
 
