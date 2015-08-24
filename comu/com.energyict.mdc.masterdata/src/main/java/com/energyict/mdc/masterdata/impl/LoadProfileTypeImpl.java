@@ -70,10 +70,10 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
         }
     }
 
-    @Pattern(regexp = "^[a-zA-Z0-9\\-_]+$", groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_CONTAINS_INVALID_CHARS + "}")
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Pattern(regexp = "^[a-zA-Z0-9\\-_]+$", groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_CONTAINS_INVALID_CHARS + "}")
     private String name;
 
     public String getName() {
