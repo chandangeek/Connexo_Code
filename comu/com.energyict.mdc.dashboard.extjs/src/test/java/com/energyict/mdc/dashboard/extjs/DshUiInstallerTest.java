@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.extjs;
 
+import com.elster.jupiter.orm.Table;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -21,7 +22,7 @@ public class DshUiInstallerTest {
         properties.load(DshUiInstallerTest.class.getClassLoader().getResourceAsStream("i18n.properties"));
         List<String> list = properties.stringPropertyNames()
                 .stream()
-                .filter(p -> properties.getProperty(p).length() > 256)
+                .filter(p -> properties.getProperty(p).length() > Table.SHORT_DESCRIPTION_LENGTH)
                 .collect(toList());
         assertThat(list).describedAs("Some properties are too long: "+list).isEmpty();
     }
