@@ -90,16 +90,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 success: function () {
                     widget.setLoading(false);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type removed'));
-                },
-                failure: function (response) {
-                    var json;
-                    json = Ext.decode(response.responseText, true);
-                    if (json && json.message) {
-                        me.getApplication().getController(
-                                'Uni.controller.Error').showError(Uni.I18n.translate('loadProfileTypes.removeErrorMsg', 'MDC', 'Error during removing of load profile'),
-                                json.message
-                            );
-                    }
                 }
             });
         }
