@@ -64,8 +64,13 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
     @Override
     public void logExecutionWith(ExecutionLogger logger) {
         super.logExecutionWith(logger);
-        for (DeviceCommand deviceCommand : getCollectedDeviceInfoCommands()) {
-            deviceCommand.logExecutionWith(logger);
+        if (deviceTopology != null) {
+            deviceTopology.getAdditionalCollectedDeviceInfo()
+                    .stream()
+                    .filter(x -> x instanceof CollectedDeviceData)
+                    .map(CollectedDeviceData.class::cast)
+                    .map(y -> y.toDeviceCommand(this.meterDataStoreCommand, this.getServiceProvider()))
+                    .forEach(x -> x.logExecutionWith(logger));
         }
     }
 
@@ -85,7 +90,6 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
                         getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), e.getMessageArguments()),
                         comTaskExecution);
             }
-
         } else {
             getExecutionLogger().addIssue(
                     CompletionCode.ConfigurationWarning,
@@ -130,9 +134,12 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
     }
 
     private void doExecuteCollectedDeviceInfoCommands(ComServerDAO comServerDAO) {
-        for (DeviceCommand deviceCommand : getCollectedDeviceInfoCommands()) {
-            deviceCommand.execute(comServerDAO);
-        }
+        deviceTopology.getAdditionalCollectedDeviceInfo()
+                .stream()
+                .filter(x -> x instanceof CollectedDeviceData)
+                .map(CollectedDeviceData.class::cast)
+                .map(y -> y.toDeviceCommand(this.meterDataStoreCommand, this.getServiceProvider()))
+                .forEach(x -> x.execute(comServerDAO));
     }
 
     private void updateLogging() {
