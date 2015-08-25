@@ -11,7 +11,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
             {
                 type: 'combobox',
                 dataIndex: 'status',
-                emptyText: Uni.I18n.translate('view.issues.issueFilter.status', 'ISU', 'Status'),
+                emptyText: Uni.I18n.translate('general.status', 'ISU', 'Status'),
                 multiSelect: true,
                 displayField: 'name',
                 valueField: 'id',
@@ -20,7 +20,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
             {
                 type: 'combobox',
                 dataIndex: 'assignee',
-                emptyText: Uni.I18n.translate('view.issues.issueFilter.assignee', 'ISU', 'Type for assignees'),
+                emptyText: Uni.I18n.translate('general.assignee', 'ISU', 'Assignee'),
                 store: 'Isu.store.IssueAssignees',
                 displayField: 'name',
                 valueField: 'idx',
@@ -32,6 +32,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 loadStore: false,
                 setFilterValue: me.comboSetFilterValue,
                 getParamValue: me.comboGetParamValue,
+                forceSelection: false,
                 listeners: {
                     expand: {
                         fn: me.comboLimitNotification
@@ -41,19 +42,20 @@ Ext.define('Isu.view.issues.IssueFilter', {
             {
                 type: 'combobox',
                 dataIndex: 'reason',
-                emptyText: Uni.I18n.translate('view.issues.issueFilter.reason', 'ISU', 'Reason'),
+                emptyText: Uni.I18n.translate('general.reason', 'ISU', 'Reason'),
                 displayField: 'name',
                 valueField: 'id',
                 store: 'Isu.store.IssueReasons',
                 queryMode: 'remote',
                 queryParam: 'like',
                 queryCaching: false,
-                minChars: 0
+                minChars: 0,
+                forceSelection: false
             },
             {
                 type: 'combobox',
                 dataIndex: 'meter',
-                emptyText: Uni.I18n.translate('view.issues.issueFilter.meter', 'ISU', 'Type to search by MRID'),
+                emptyText: Uni.I18n.translate('general.title.device', 'ISU', 'Device'),
                 displayField: 'name',
                 valueField: 'name',
                 store: 'Isu.store.Devices',
@@ -64,6 +66,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 loadStore: false,
                 setFilterValue: me.comboSetFilterValue,
                 getParamValue: me.comboGetParamValue,
+                forceSelection: false,
                 listeners: {
                     expand: {
                         fn: me.comboLimitNotification
@@ -143,7 +146,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 el.appendChild({
                     tag: 'li',
                     html: Uni.I18n.translate('issues.limitNotification', 'ISU', 'Keep typing to narrow down'),
-                    cls: Ext.baseCSSPrefix + 'boundlist-item isu-combo-limit-notification'
+                    cls: Ext.baseCSSPrefix + 'boundlist-item combo-limit-notification'
                 });
             }
         };

@@ -18,7 +18,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
     initComponent: function () {
         var me = this;
 
-        me.title = me.isEdit ? ' ' : Uni.I18n.translate('administration.issueCreationRules.title.addIssueCreationRule', 'ISU', 'Add issue creation rule');
+        me.title = me.isEdit ? ' ' : Uni.I18n.translate('general.issueCreationRules.add', 'ISU', 'Add issue creation rule');
         me.items = [
             {
                 itemId: 'form-errors',
@@ -179,6 +179,8 @@ Ext.define('Isu.view.creationrules.EditForm', {
                                         fn: function (field, newValue) {
                                             if (newValue < 0) {
                                                 field.setValue(Math.abs(newValue));
+                                            } else if (newValue > Math.pow(10,12)) {
+                                                field.setValue(Math.pow(10,12));
                                             }
                                         }
                                     }
@@ -236,7 +238,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
                     {
                         xtype: 'button',
                         itemId: 'addAction',
-                        text: Uni.I18n.translate('issueCreationRules.addAction', 'ISU', 'Add action'),
+                        text: Uni.I18n.translate('general.addAction', 'ISU', 'Add action'),
                         action: 'addAction',
                         margin: '0 0 0 10'
                     }

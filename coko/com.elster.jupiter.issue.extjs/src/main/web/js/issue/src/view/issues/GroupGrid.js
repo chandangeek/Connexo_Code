@@ -8,7 +8,7 @@ Ext.define('Isu.view.issues.GroupGrid', {
     columns: [
         {
             itemId: 'reason',
-            text: Uni.I18n.translate('general.title.reason', 'ISU', 'Reason'),
+            text: Uni.I18n.translate('general.reason', 'ISU', 'Reason'),
             dataIndex: 'reason',
             flex: 1
         },
