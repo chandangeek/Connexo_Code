@@ -8,7 +8,7 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed, TranslationKey {
     SHOULD_BE_AT_LEAST(1, Keys.MDC_VALUE_TOO_SMALL, "Minimal acceptable value is {value} seconds.", Level.SEVERE),
     CAN_NOT_BE_EMPTY(2, Keys.MDC_CAN_NOT_BE_EMPTY, "This field is required", Level.SEVERE),
-    VALUE_NOT_IN_RANGE(3, Keys.MDC_VALUE_NOT_IN_RANGE, "Field not in range {min} to {max}", Level.SEVERE),
+    VALUE_NOT_IN_RANGE(3, Keys.MDC_VALUE_NOT_IN_RANGE, "Value not in range {min} to {max}", Level.SEVERE),
     INVALID_URL(4, Keys.MDC_INVALID_URL, "This is not a valid URL", Level.SEVERE),
     COMSERVER_NAME_INVALID_CHARS(5, Keys.COMSERVER_NAME_INVALID_CHARS, "The name of a communication server should comply with the domain name system (rfc 1035) and can therefore only contain a-z, A-Z, 0-9, . and - characters", Level.SEVERE),
     REQUIRED_FOR_HTTPS(6, Keys.MDC_CAN_NOT_BE_EMPTY_IF_HTTPS, "This field is mandatory in case https is chosen", Level.SEVERE),
@@ -36,6 +36,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     private final String key;
     private final String defaultFormat;
     private final Level level;
+    private final String string = "Expected to find at most one object that matches the SQL condition(s) but found multiple";
+    private final String string1 = "Expected to find at most one object that matches the SQL condition(s) but found multiple";
 
     MessageSeeds(int number, String key, String defaultFormat, Level level) {
         this.number = number;
