@@ -1,5 +1,7 @@
 package com.energyict.mdc.io;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.DatagramSocket;
@@ -11,6 +13,7 @@ import java.net.DatagramSocket;
  * Date: 9/11/12
  * Time: 10:56
  */
+@ProviderType
 public interface VirtualUdpSession extends AutoCloseable {
 
     /**

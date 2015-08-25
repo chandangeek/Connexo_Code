@@ -1,5 +1,7 @@
 package com.energyict.mdc.io;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
@@ -7,11 +9,12 @@ import java.net.Socket;
 import java.net.SocketException;
 
 /**
- * Provices services to create sockets.
+ * Provides services to create sockets.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-13 (11:55)
  */
+@ProviderType
 public interface SocketService {
 
     /**

@@ -1,5 +1,7 @@
 package com.energyict.mdc.io;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -10,6 +12,7 @@ import java.io.OutputStream;
  * Date: 14/08/12
  * Time: 10:37
  */
+@ProviderType
 public interface ServerSerialPort {
 
     /**
