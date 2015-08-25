@@ -712,7 +712,7 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
                     if (channelMap != null) {
                         channelInfo.setCumulativeWrapValue((channelMap.getProtocolChannel(i) != null) ? channelMap.getProtocolChannel(i).getWrapAroundValue() : BigDecimal.valueOf(2 ^ 32));
                     } else {
-                        channelInfo.setCumulativeWrapValue(BigDecimal.valueOf(2 ^ 32));
+                        channelInfo.setCumulativeWrapValue(BigDecimal.valueOf(0xFFFFFFFFl));
                         if (DEBUG >= 1) {
                             System.out.println("KV_DEBUG> channel " + i + " is cumulative 32 bit");
                         }

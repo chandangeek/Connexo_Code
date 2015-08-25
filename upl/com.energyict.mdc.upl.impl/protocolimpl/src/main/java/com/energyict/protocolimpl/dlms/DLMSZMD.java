@@ -62,6 +62,7 @@ import com.energyict.protocolimpl.dlms.siemenszmd.ZmdMessages;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -233,37 +234,14 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
                     intervalData.addStatus(IntervalData.CORRUPTED);
                 }
 
-                // In case the EV_NORMAL_END_OF_INTERVAL bit is not set, save the interval and add it to the
-                // next or save as separate!
+                // In case the EV_NORMAL_END_OF_INTERVAL bit is not set, save the interval and add it to the next or save as separate!
+                // Changed 19082015: all intervalData obj will be added 1-on-1 to the profileData - double intervals will be merged afterwards (see #mergeDuplicateIntervalsIncludingIntervalStatus below)
                 if ((intervalList[i].getField(IL_EVENT) & EV_NORMAL_END_OF_INTERVAL) != 0) {
-                    if (savedIntervalData != null) {
-                        if (savedIntervalData.getEndTime().equals(intervalData.getEndTime())) {
-                            profileData.addInterval(addIntervalData(savedIntervalData, intervalData));
-                        } else {
-                            profileData.addInterval(savedIntervalData);
                             profileData.addInterval(intervalData);
-                        }
-                        savedIntervalData = null;
                     } else {
+                    roundUp2nearestInterval(intervalData);
                         profileData.addInterval(intervalData);
                     }
-                } else {
-                    // KV 15122003 cumulate multiple powerfails during an interval
-                    if (savedIntervalData == null) {
-                        savedIntervalData = intervalData;
-                    } else {
-                        // if new event crosses intervalboundary, save the cumulated data to nearest interval
-                        // and save new data for next interval...
-                        if (getNrOfIntervals(savedIntervalData) < getNrOfIntervals(intervalData)) {
-                            roundUp2nearestInterval(savedIntervalData);
-                            profileData.addInterval(savedIntervalData);
-                            savedIntervalData = intervalData;
-                        } else {
-                            savedIntervalData = addIntervalData(savedIntervalData, intervalData);
-                        }
-                    }
-                }
-
             } // if ((intervalList[i].getField(IL_EVENT) & EV_START_OF_INTERVAL) == 0)
 
             if (DEBUG >= 1) {
@@ -273,8 +251,51 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
         } // for (i=0;i<intervalList.length;i++) {
 
         // In case of double intervals (which can occur if a time shift has been done) then merge them together
-        profileData.setIntervalDatas(ProtocolTools.mergeDuplicateIntervalsIncludingIntervalStatus(profileData.getIntervalDatas()));
+        profileData.setIntervalDatas(mergeDuplicateIntervalsIncludingIntervalStatus(profileData.getIntervalDatas()));
     } // ProfileData buildProfileData(...)
+
+    /**
+     * Merge the duplicate intervals from the given list of IntervalData elements.
+     * When merging multiple IntervalData elements, the Eis/protocol statuses are merged as well. The merging
+     * process will take into account whether the channel contains a cumulative value or simple consumption.
+     *
+     * @param intervals the list of IntervalData elements which should be checked for doubles
+     * @return the merged list of IntervalData elements (which now should no longer contain duplicate intervals)
+     */
+    private List<IntervalData> mergeDuplicateIntervalsIncludingIntervalStatus(List<IntervalData> intervals) throws IOException {
+        List<IntervalData> mergedIntervals = new ArrayList<IntervalData>();
+        for (IntervalData id2compare : intervals) {
+            boolean alreadyProcessed = false;
+            for (IntervalData merged : mergedIntervals) {
+                if (merged.getEndTime().compareTo(id2compare.getEndTime()) == 0) {
+                    alreadyProcessed = true;
+                    break;
+                }
+            }
+
+            if (!alreadyProcessed) {
+                List<IntervalData> toAdd = new ArrayList<IntervalData>();
+                for (IntervalData id : intervals) {
+                    if (id.getEndTime().compareTo(id2compare.getEndTime()) == 0) {
+                        toAdd.add(id);
+                    }
+                }
+                IntervalData md = new IntervalData(id2compare.getEndTime());
+
+                for (IntervalData intervalData : toAdd) {
+                    if (md.getIntervalValues().isEmpty()) {
+                        md.setIntervalValues(intervalData.getIntervalValues());
+                    } else {
+                        md.setIntervalValues(addIntervalData(md, intervalData).getIntervalValues());
+                    }
+                    md.addEiStatus(intervalData.getEiStatus());
+                    md.addProtocolStatus(intervalData.getProtocolStatus());
+                }
+                mergedIntervals.add(md);
+            }
+        }
+        return mergedIntervals;
+    }
 
     // KV 15122003
     private void roundDown2nearestInterval(IntervalData intervalData) throws IOException {

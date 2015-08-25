@@ -758,6 +758,8 @@ public final class ProtocolTools {
     /**
      * Merge the duplicate intervals from the given list of IntervalData elements.
      * When merging multiple IntervalData elements, the Eis/protocol statuses are merged as well.
+     *  @deprecated this method can only be used if the channels contain simple consumption; if the channels contain cumulative
+     * values, then the merging will be wrong!
      *
      * @param intervals the list of IntervalData elements which should be checked for doubles
      * @return the merged list of IntervalData elements (which now should no longer contain duplicate intervals)
