@@ -6,6 +6,7 @@ import com.elster.jupiter.issue.share.UnableToCreateEventException;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -35,7 +36,6 @@ import java.util.logging.Logger;
 
 public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     protected static final Logger LOG = Logger.getLogger(DataCollectionEvent.class.getName());
-    private static final int MDC_AMR_ID = 1;
 
     private final IssueDataCollectionService issueDataCollectionService;
     private final MeteringService meteringService;
@@ -112,7 +112,7 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     }
 
     private EndDevice findEndDeviceByMdcDevice() {
-        Optional<AmrSystem> amrSystemRef = getMeteringService().findAmrSystem(MDC_AMR_ID);
+        Optional<AmrSystem> amrSystemRef = getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId());
         if (amrSystemRef.isPresent()){
             Optional<Meter> meterRef = amrSystemRef.get().findMeter(String.valueOf(device.getId()));
             if (meterRef.isPresent()){
