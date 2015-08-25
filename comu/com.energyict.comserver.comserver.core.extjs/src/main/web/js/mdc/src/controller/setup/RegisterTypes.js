@@ -221,6 +221,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             values = this.getRegisterTypeEditForm().getValues(),
             record;
 
+        if (Ext.isEmpty(values.readingType)) values.readingType = null;
+
         if (btn.action === 'editRegisterType') {
             me.mode = 'edit';
             record = this.getRegisterTypeEditForm().getRecord();
@@ -229,7 +231,10 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             record = Ext.create(Mdc.model.RegisterType);
         }
 
+        this.getRegisterTypeEditForm().getForm().clearInvalid();
+        me.hideErrorPanel();
         if (record) {
+            me.getRegisterTypeEditForm().getForm().clearInvalid();
             editView.setLoading();
             record.set(values);
             if (me.getReadingTypeCombo().valueModels && me.getReadingTypeCombo().valueModels[0]) {
@@ -250,6 +255,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                     if (json && json.errors) {
                         me.getRegisterTypeEditForm().getForm().markInvalid(json.errors);
                     }
+                    me.showErrorPanel();
                     editView.setLoading(false);
                 }
 
@@ -260,5 +266,26 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     editRegisterTypeFromDetails: function () {
         var record = this.getRegisterTypeDetailForm().getRecord();
         location.href = '#/administration/registertypes/' + record.get('id') + '/edit';
+    },
+
+    showErrorPanel: function () {
+        var me = this,
+            formErrorsPlaceHolder = me.getRegisterTypeEditForm().down('#registerTypeEditFormErrors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
+        formErrorsPlaceHolder.add({
+            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.')
+        });
+        formErrorsPlaceHolder.show();
+    },
+
+    hideErrorPanel: function () {
+        var me = this,
+            formErrorsPlaceHolder = me.getRegisterTypeEditForm().down('#registerTypeEditFormErrors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
     }
+
 });

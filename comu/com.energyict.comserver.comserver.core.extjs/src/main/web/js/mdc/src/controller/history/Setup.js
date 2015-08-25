@@ -151,7 +151,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                             action: 'showDeviceConfigurationCreateView'
                                         },
                                         view: {
-                                            title: 'Device configuration',
+                                            title: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
                                             route: '{deviceConfigurationId}',
                                             privileges: Mdc.privileges.DeviceType.view,
                                             controller: 'Mdc.controller.setup.DeviceConfigurations',
@@ -316,28 +316,28 @@ Ext.define('Mdc.controller.history.Setup', {
                                                 },
                                                 //Security settings routes
                                                 securitysettings: {
-                                                    title: 'Security settings',
+                                                    title: Uni.I18n.translate('securitySetting.title', 'MDC', 'Security settings'),
                                                     route: 'securitysettings',
                                                     privileges: Mdc.privileges.DeviceType.view,
                                                     controller: 'Mdc.controller.setup.SecuritySettings',
                                                     action: 'showSecuritySettings',
                                                     items: {
                                                         create: {
-                                                            title: 'Add security setting',
+                                                            title: Uni.I18n.translate('securitySetting.addSecuritySetting', 'MDC', 'Add security setting'),
                                                             route: 'add',
                                                             privileges: Mdc.privileges.DeviceType.admin,
                                                             controller: 'Mdc.controller.setup.SecuritySettings',
                                                             action: 'showSecuritySettingsCreateView'
                                                         },
                                                         edit: {
-                                                            title: 'Edit security setting',
+                                                            title: Uni.I18n.translate('securitySetting.edit', 'MDC', 'Edit security setting'),
                                                             route: '{securitySettingId}/edit',
                                                             privileges: Mdc.privileges.DeviceType.admin,
                                                             controller: 'Mdc.controller.setup.SecuritySettings',
                                                             action: 'showSecuritySettingsEditView'
                                                         },
                                                         executionLevels: {
-                                                            title: 'Add privileges',
+                                                            title: Uni.I18n.translate('executionlevels.addExecutionLevels', 'MDC', 'Add privileges'),
                                                             route: '{securitySettingId}/privileges/add',
                                                             privileges: Mdc.privileges.DeviceType.admin,
                                                             controller: 'Mdc.controller.setup.SecuritySettings',
@@ -1503,6 +1503,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     route: '{channelId}/validationblocks/{issueId}',
                                     controller: 'Mdc.controller.setup.DeviceChannelData',
                                     privileges: Mdc.privileges.Device.viewDeviceCommunication,
+                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                                     action: 'showValidationBlocks',
                                     callback: function (route) {
                                         this.getApplication().on('channelOfLoadProfileOfDeviceLoad', function (record) {
@@ -1587,7 +1588,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             filter: 'Mdc.model.LogbookOfDeviceDataFilter'
                         },
                         securitysettings: {
-                            title: 'Security settings',
+                            title: Uni.I18n.translate('securitySetting.title', 'MDC', 'Security settings'),
                             route: 'securitysettings',
                             controller: 'Mdc.controller.setup.DeviceSecuritySettings',
                             privileges: Ext.Array.merge(Mdc.privileges.Device.deviceOperator, Mdc.privileges.DeviceSecurity.viewOrEditLevels),
@@ -1595,7 +1596,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                             items: {
                                 edit: {
-                                    title: 'Edit security setting',
+                                    title: Uni.I18n.translate('securitySetting.edit', 'MDC', 'Edit security setting'),
                                     route: '{securitySettingId}/edit',
                                     controller: 'Mdc.controller.setup.DeviceSecuritySettings',
                                     privileges: Mdc.privileges.DeviceSecurity.viewOrEditLevels,

@@ -50,6 +50,17 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                 },
                                 items: [
                                     {
+                                        name: 'errors',
+                                        ui: 'form-error-framed',
+                                        itemId: 'registerGroupEditFormErrors',
+                                        layout: 'hbox',
+                                        margin: '0 0 10 0',
+                                        hidden: true,
+                                        defaults: {
+                                            xtype: 'container'
+                                        }
+                                    },
+                                    {
                                         xtype: 'textfield',
                                         name: 'name',
                                         msgTarget: 'under',

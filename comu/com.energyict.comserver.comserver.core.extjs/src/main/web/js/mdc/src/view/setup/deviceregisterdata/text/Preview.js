@@ -34,9 +34,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Preview', {
                         name: 'reportedDateTime',
                         renderer: function (value) {
                             if (!Ext.isEmpty(value)) {
-                                return Uni.DateTime.formatDateLong(value)
+                                return Uni.DateTime.formatDateLong(new Date(value))
                                     + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
-                                    + Uni.DateTime.formatTimeLong(value);
+                                    + Uni.DateTime.formatTimeLong(new Date(value));
                             }
                         }
                     },

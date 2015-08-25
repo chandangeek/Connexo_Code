@@ -213,6 +213,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         record.registerTypes().add(selected);
 
         baseForm.clearInvalid();
+        me.hideErrorPanel();
         record.save({
             success: function (record) {
                 var message;
@@ -232,6 +233,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 if (json && json.errors) {
                     baseForm.markInvalid(json.errors);
                 }
+                me.showErrorPanel();
             }
         });
     },
@@ -269,5 +271,26 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 }
             });
         }
+    },
+
+    showErrorPanel: function () {
+        var me = this,
+            formErrorsPlaceHolder = me.getRegisterGroupEditForm().down('#registerGroupEditFormErrors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
+        formErrorsPlaceHolder.add({
+            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.')
+        });
+        formErrorsPlaceHolder.show();
+    },
+
+    hideErrorPanel: function () {
+        var me = this,
+            formErrorsPlaceHolder = me.getRegisterGroupEditForm().down('#registerGroupEditFormErrors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
     }
+
 });
