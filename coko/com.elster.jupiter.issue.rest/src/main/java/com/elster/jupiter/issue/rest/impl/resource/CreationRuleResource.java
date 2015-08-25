@@ -80,7 +80,6 @@ public class CreationRuleResource extends BaseResource {
             CreationRule rule = getIssueCreationService().findAndLockCreationRuleByIdAndVersion(id, ruleInfo.version)
                     .orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
             rule.delete();
-            getIssueCreationService().reReadRules();
             context.commit();
         }
         return Response.status(Response.Status.NO_CONTENT).build();
@@ -97,9 +96,6 @@ public class CreationRuleResource extends BaseResource {
             setActions(rule, builder);
             setTemplate(rule, builder);
             builder.complete().save();
-            
-            getIssueCreationService().reReadRules();
-            
             context.commit();
         }
         return Response.status(Response.Status.CREATED).build();
@@ -120,9 +116,6 @@ public class CreationRuleResource extends BaseResource {
             setActions(rule, updater);
             setTemplate(rule, updater);
             updater.complete().save();
-            
-            getIssueCreationService().reReadRules();
-            
             context.commit();
         }
         return Response.ok().build();

@@ -218,7 +218,6 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(actionBuilder).complete();
         verify(rule).save();
-        verify(issueCreationService).reReadRules();
         verify(context).commit();
     }
 
@@ -284,7 +283,6 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         verify(actionBuilder).complete();
         verify(updater).removeActions();
         verify(rule).save();
-        verify(issueCreationService).reReadRules();
         verify(context).commit();
     }
 
@@ -304,7 +302,6 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
 
         verify(rule).delete();
-        verify(issueCreationService).reReadRules();
         verify(context).commit();
     }
     
