@@ -15,9 +15,10 @@ Ext.define('Imt.channeldata.view.ChannelList', {
             flex: 1,
             dataIndex: 'name',
             renderer: function (value, b, record) {
-                var me = this;
-                //TODO: Fix to use router
-                return '<a href="#/administration/usagepoints/' + me.mRID + '/channeldata/' + record.get('id').toString() + '">' + Ext.String.htmlEncode(value) + '</a>';
+                var me = this,
+                    url = me.router.getRoute('administration/usagepoint/channel').buildUrl({mRID: me.mRID, channel: record.get('id')});
+
+                return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
             }
         }
     ]

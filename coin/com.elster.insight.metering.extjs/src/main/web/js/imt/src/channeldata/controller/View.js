@@ -36,6 +36,9 @@ Ext.define('Imt.channeldata.controller.View', {
         me.getApplication().fireEvent('changecontentevent', widget);
         me.getOverviewLink().setText(mRID);
         pageMainContent.setLoading(false);
+    },
+    showUsagePointChannel: function(mRID, id) {
+        
     }
 });
 

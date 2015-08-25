@@ -42,7 +42,8 @@ Ext.define('Imt.channeldata.view.Setup', {
                 items: [
                     {
                         xtype: 'channel-list',
-                        mRID: me.mRID
+                        mRID: me.mRID,
+                        router: me.router
                     }
                 ]
             }
