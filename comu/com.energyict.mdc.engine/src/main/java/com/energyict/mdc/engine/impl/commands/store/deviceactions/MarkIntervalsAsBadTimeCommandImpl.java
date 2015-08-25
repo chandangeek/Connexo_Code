@@ -4,6 +4,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.common.interval.IntervalStateBits;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
@@ -41,30 +42,18 @@ public class MarkIntervalsAsBadTimeCommandImpl extends SimpleComCommand implemen
     }
 
     @Override
-    protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
-        super.toJournalMessageDescription(builder, serverLogLevel);
-        builder.addProperty("minimumClockDifference").append(loadProfileCommand.getLoadProfilesTask().getMinClockDiffBeforeBadTime().map(TimeDuration::toString).orElse(""));
-        if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {
-            this.appendBadTimeLoadProfiles(builder);
-        }
-    }
-
-    private void appendBadTimeLoadProfiles (DescriptionBuilder descriptionBuilder) {
-        if (this.badTimeLoadProfiles.isEmpty()) {
-            descriptionBuilder.addLabel("No intervals exceeded the maximum allowed time difference.");
-        }
-        else {
-            PropertyDescriptionBuilder builder = descriptionBuilder.addListProperty("badTimeLoadProfiles");
-            for (DeviceLoadProfile deviceLoadProfile : badTimeLoadProfiles) {
-                builder = builder.append(deviceLoadProfile.getLoadProfileIdentifier()).next();
-            }
-            descriptionBuilder.addProperty("actualTimeDifference").append(this.loadProfileCommand.getTimeDifferenceCommand().getTimeDifference().map(TimeDuration::toString).orElse(""));
-        }
-    }
-
-    @Override
     public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         if (this.hasLargerOrEqualDuration()) {
+            TimeDuration diffInSeconds = loadProfileCommand.getTimeDifferenceCommand().getTimeDifference()
+                    .map(TimeDuration::getSeconds)
+                    .map(TimeDuration::seconds)
+                    .orElse(TimeDuration.seconds(0));
+            TimeDuration maxDiffInSeconds = loadProfileCommand.getLoadProfilesTask().getMinClockDiffBeforeBadTime()
+                    .map(TimeDuration::getSeconds)
+                    .map(TimeDuration::seconds)
+                    .orElse(TimeDuration.seconds(0));
+            addIssue(getIssueService().newWarning(getCommandType(), "intervalsMarkedAsBadTime", diffInSeconds, maxDiffInSeconds), CompletionCode.ConfigurationWarning);
+
             for (CollectedData collectedData : loadProfileCommand.getCollectedData()) {
                 if (collectedData instanceof DeviceLoadProfile) {
                     DeviceLoadProfile deviceLoadProfile = (DeviceLoadProfile) collectedData;
@@ -81,6 +70,26 @@ public class MarkIntervalsAsBadTimeCommandImpl extends SimpleComCommand implemen
         return TimeDurations.hasLargerOrEqualDurationThen(
                 loadProfileCommand.getTimeDifferenceCommand().getTimeDifference().orElse(TimeDuration.seconds(0)).abs(),
                 loadProfileCommand.getLoadProfilesTask().getMinClockDiffBeforeBadTime().orElse(TimeDuration.seconds(0)), true);
+    }
+
+    @Override
+    protected void toJournalMessageDescription(DescriptionBuilder builder, LogLevel serverLogLevel) {
+        super.toJournalMessageDescription(builder, serverLogLevel);
+        if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {
+            builder.addProperty("minimumClockDifference").append(loadProfileCommand.getLoadProfilesTask().getMinClockDiffBeforeBadTime().orElse(TimeDuration.seconds(0)));
+        }
+        this.appendBadTimeLoadProfiles(builder);
+    }
+
+    private void appendBadTimeLoadProfiles(DescriptionBuilder descriptionBuilder) {
+        PropertyDescriptionBuilder propertyDescriptionBuilder = descriptionBuilder.addListProperty("badTimeLoadProfiles");
+        if (this.badTimeLoadProfiles.isEmpty()) {
+            propertyDescriptionBuilder.append("None");
+        } else {
+            for (DeviceLoadProfile deviceLoadProfile : badTimeLoadProfiles) {
+                propertyDescriptionBuilder.append(deviceLoadProfile.getLoadProfileIdentifier()).next();
+            }
+        }
     }
 
     @Override
