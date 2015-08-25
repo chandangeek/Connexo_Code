@@ -2,12 +2,10 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.meterdata.CollectedDeviceData;
-import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageList;
+import com.energyict.mdc.engine.impl.meterdata.*;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 
@@ -35,26 +33,28 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl {
     }
 
     @Override
+    public void logExecutionWith(ExecutionLogger logger) {
+        super.logExecutionWith(logger);
+        if (deviceProtocolMessageList != null){
+            deviceProtocolMessageList.getCollectedMessages().stream()
+                .filter(x -> x instanceof CollectedDeviceData)
+                .map(CollectedDeviceData.class::cast)
+                .map(y -> y.toDeviceCommand(this.meterDataStoreCommand, this.getServiceProvider()))
+                .forEach(x -> x.logExecutionWith(logger));
+        }
+    }
+
+    @Override
     public void doExecute(ComServerDAO comServerDAO) {
         for (OfflineDeviceMessage offlineDeviceMessage : allDeviceMessages) {
-            boolean notFound = true;
-            final MessageIdentifier offlineDeviceMessageIdentifier = offlineDeviceMessage.getIdentifier();
-            for (CollectedMessage collectedMessage : this.deviceProtocolMessageList.getCollectedMessages()) {
-                if(collectedMessage.getMessageIdentifier().equals(offlineDeviceMessageIdentifier)){
-                    comServerDAO.updateDeviceMessageInformation(collectedMessage.getMessageIdentifier(), collectedMessage.getNewDeviceMessageStatus(), collectedMessage.getDeviceProtocolInformation());
-                    notFound = false;
-                }
-
-                if (CollectedDeviceData.class.isAssignableFrom(collectedMessage.getClass())) {
-                    DeviceCommand deviceCommand = ((CollectedDeviceData) collectedMessage).toDeviceCommand(meterDataStoreCommand, meterDataStoreCommand.getServiceProvider());
-                    deviceCommand.execute(comServerDAO);
-                }
-            }
-            // messages that are not processed need to inform the user why they are not processed during a comTaskExecution
-            if (notFound) {
-                comServerDAO.updateDeviceMessageInformation(offlineDeviceMessageIdentifier, offlineDeviceMessage.getDeviceMessageStatus(), CollectedMessageList.REASON_FOR_PENDING_STATE);
+            List<CollectedMessage> messagesToExecute = this.deviceProtocolMessageList.getCollectedMessages(offlineDeviceMessage.getIdentifier());
+            if (messagesToExecute.isEmpty()){
+                comServerDAO.updateDeviceMessageInformation(offlineDeviceMessage.getIdentifier(), offlineDeviceMessage.getDeviceMessageStatus(), CollectedMessageList.REASON_FOR_PENDING_STATE);
+                continue;
             }
 
+            // execute the 'executable' ones
+            messagesToExecute.stream().filter(x -> x instanceof ServerCollectedData).forEach(y -> executeMessage(comServerDAO, y));
         }
     }
 
@@ -82,6 +82,14 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl {
     @Override
     public String getDescriptionTitle() {
         return "Collected message data";
+    }
+
+    private void executeMessage(ComServerDAO comServerDAO, CollectedMessage collectedMessage){
+        comServerDAO.updateDeviceMessageInformation(collectedMessage.getMessageIdentifier(),
+                                                    collectedMessage.getNewDeviceMessageStatus(),
+                                                    collectedMessage.getDeviceProtocolInformation());
+        ((CollectedDeviceData)collectedMessage).toDeviceCommand(this.meterDataStoreCommand, this.getServiceProvider()).execute(comServerDAO);
+
     }
 
 }

@@ -6,9 +6,11 @@ import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -41,6 +43,10 @@ public class DeviceProtocolMessageList extends CompositeCollectedData<CollectedM
     @Override
     public List<CollectedMessage> getCollectedMessages() {
         return this.getElements();
+    }
+
+    public List<CollectedMessage> getCollectedMessages(MessageIdentifier messageIdentifier){
+        return this.getCollectedMessages().stream().filter(x -> x.getMessageIdentifier().equals(messageIdentifier)).collect(Collectors.toList());
     }
 
 }
