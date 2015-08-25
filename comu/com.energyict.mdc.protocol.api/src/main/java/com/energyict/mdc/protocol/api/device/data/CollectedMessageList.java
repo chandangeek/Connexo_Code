@@ -1,9 +1,11 @@
 package com.energyict.mdc.protocol.api.device.data;
 
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
+
 import java.util.List;
 
 /**
- * A collectedMessages identifies a list of DeviceMessages
+ * A <Code>CollectedMessageList</Code> identifies a list of DeviceMessages
  * executed by the device and the result from the execution.
  * <p/>
  * Copyrights EnergyICT
@@ -23,5 +25,7 @@ public interface CollectedMessageList extends CollectedData {
     public void addCollectedMessages(CollectedMessage collectedMessage);
 
     public List<CollectedMessage> getCollectedMessages();
+
+    public List<CollectedMessage> getCollectedMessages(MessageIdentifier messageIdentifier);
 
 }
