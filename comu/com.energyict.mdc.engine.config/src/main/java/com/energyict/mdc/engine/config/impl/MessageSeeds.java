@@ -36,8 +36,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     private final String key;
     private final String defaultFormat;
     private final Level level;
-    private final String string = "Expected to find at most one object that matches the SQL condition(s) but found multiple";
-    private final String string1 = "Expected to find at most one object that matches the SQL condition(s) but found multiple";
 
     MessageSeeds(int number, String key, String defaultFormat, Level level) {
         this.number = number;
