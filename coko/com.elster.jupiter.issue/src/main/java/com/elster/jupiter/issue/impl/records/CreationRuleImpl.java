@@ -239,6 +239,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
         updateContent();
         Save.UPDATE.save(getDataModel(), this);
         persistentActions.addAll(actions);
+        issueService.getIssueCreationService().reReadRules();
     }
     
     @Override
@@ -251,6 +252,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
             this.setObsoleteTime(Instant.now()); // mark obsolete
             this.save();
         }
+        issueService.getIssueCreationService().reReadRules();
     }
 
     @SuppressWarnings("unchecked")

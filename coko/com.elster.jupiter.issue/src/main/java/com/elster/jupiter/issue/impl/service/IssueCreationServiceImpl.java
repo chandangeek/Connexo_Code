@@ -145,7 +145,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
                 ksession.setGlobal(LOGGER, LOG);
             } catch (RuntimeException ex){
                 LOG.warning("Unable to set the issue creation service as a global for all rules. This means that no " +
-                        "issues will be created! Check that at least one rule contais string 'global com.elster.jupiter." +
+                        "issues will be created! Check that at least one rule contains string 'global com.elster.jupiter." +
                         "issue.share.service.IssueCreationService issueCreationService;' and this rule calls " +
                         "'issueCreationService.createIssue(@{ruleId}, event);' or something like that.");
             }
