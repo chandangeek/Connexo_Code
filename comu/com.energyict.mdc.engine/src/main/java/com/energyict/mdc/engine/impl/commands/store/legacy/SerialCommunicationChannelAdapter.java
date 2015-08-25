@@ -9,8 +9,6 @@ import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.io.ServerSerialPort;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.dialer.serialserviceprovider.SerialPort;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.ComChannelInputStreamAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.ComChannelOutputStreamAdapter;
 
 import java.io.IOException;
 import java.io.InputStream;
