@@ -17,7 +17,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
                 xtype: 'menu',
                 items: [
                     {
-                        text: Uni.I18n.translate('usagePointManagement.channelList', 'IMT', 'Channel List'),
+                        text: Uni.I18n.translate('usagePointManagement.channelList', 'IMT', 'Channels'),
                         itemId: 'usage-point-channels-link',
                         href: me.router.getRoute('administration/usagepoint/channels').buildUrl({mRID: me.mRID})
                     }
