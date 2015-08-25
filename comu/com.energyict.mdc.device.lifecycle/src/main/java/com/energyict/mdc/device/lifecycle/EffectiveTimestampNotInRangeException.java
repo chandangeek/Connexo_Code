@@ -4,9 +4,11 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 
 import java.sql.Date;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Models the exceptional situation that occurs when
@@ -34,7 +36,12 @@ public class EffectiveTimestampNotInRangeException extends DeviceLifeCycleAction
 
     @Override
     public String getLocalizedMessage() {
-        return this.thesaurus.getFormat(this.messageSeed).format(Date.from(this.lowerBound), Date.from(this.upperBound));
+        DateTimeFormatter formatter = DefaultDateTimeFormatters.mediumDate().withLongTime().build();
+        return this.thesaurus
+                .getFormat(this.messageSeed)
+                .format(
+                    formatter.format(this.lowerBound),
+                    formatter.format(this.upperBound));
     }
 
 }

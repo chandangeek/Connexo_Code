@@ -4,8 +4,10 @@ import com.energyict.mdc.device.data.Device;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
@@ -40,7 +42,13 @@ public class EffectiveTimestampNotAfterLastStateChangeException extends DeviceLi
 
     @Override
     public String getLocalizedMessage() {
-        return this.thesaurus.getFormat(this.messageSeed).format(this.mRID, Date.from(this.effectiveTimestamp)  , Date.from(this.lastStateChange));
+        DateTimeFormatter formatter = DefaultDateTimeFormatters.mediumDate().withLongTime().build();
+        return this.thesaurus
+                .getFormat(this.messageSeed)
+                .format(
+                    this.mRID,
+                    formatter.format(this.effectiveTimestamp),
+                    formatter.format(this.lastStateChange));
     }
 
 }
