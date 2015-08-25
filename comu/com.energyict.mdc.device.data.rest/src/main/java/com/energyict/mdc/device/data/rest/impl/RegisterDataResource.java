@@ -32,6 +32,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
+import java.sql.Date;
+import java.text.DateFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -161,8 +163,7 @@ public class RegisterDataResource {
             register.startEditingData().editReading(readingInfo.createNew(register)).complete();
         } catch (NoMeterActivationAt e) {
             Instant time = (Instant) e.get("time");
-            String formattedTime = DefaultDateTimeFormatters.mediumDate().withLongTime().build().format(ZonedDateTime.ofInstant(time, ZoneId.systemDefault()));
-            throw this.exceptionFactory.newExceptionSupplier(MessageSeeds.CANT_ADD_READINGS_FOR_STATE, formattedTime).get();
+            throw this.exceptionFactory.newExceptionSupplier(MessageSeeds.CANT_ADD_READINGS_FOR_STATE, Date.from(time)).get();
         }
         return Response.status(Response.Status.OK).build();
     }
