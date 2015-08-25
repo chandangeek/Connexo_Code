@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -61,12 +62,12 @@ import java.util.logging.Logger;
 public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implements DeviceProtocol, MeterProtocolAdapter {
 
     /**
-     * The used <code>MeterProtocol</code> for which the adapter is working
+     * The used <code>MeterProtocol</code> for which the adapter is working.
      */
     private final MeterProtocol meterProtocol;
 
     /**
-     * The use <code>IssueService</code> which can be used for this adapter
+     * The use <code>IssueService</code> which can be used for this adapter.
      */
     private final IssueService issueService;
     private final MessageAdapterMappingFactory messageAdapterMappingFactory;
@@ -75,22 +76,22 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     private final MeteringService meteringService;
 
     /**
-     * The used <code>RegisterProtocol</code> for which the adapter is working
+     * The used <code>RegisterProtocol</code> for which the adapter is working.
      */
     private final RegisterProtocol registerProtocol;
 
     /**
-     * The DeviceSecuritySupport component that <i>can</i> be used during communication
+     * The DeviceSecuritySupport component that <i>can</i> be used during communication.
      */
     private DeviceSecuritySupport deviceSecuritySupport;
 
     /**
-     * The DeviceMessageSupport component that <i>can</i> be used during communication
+     * The DeviceMessageSupport component that <i>can</i> be used during communication.
      */
     private DeviceMessageSupport deviceMessageSupport;
 
     /**
-     * The offline device for which this adapter is working
+     * The offline device for which this adapter is working.
      */
     private OfflineDevice offlineDevice;
 
@@ -110,7 +111,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     private MeterProtocolLoadProfileAdapter meterProtocolLoadProfileAdapter;
 
     /**
-     * The adapter used for the {@link DeviceMessageSupport} functionality
+     * The adapter used for the {@link DeviceMessageSupport} functionality.
      */
     private MeterProtocolMessageAdapter meterProtocolMessageAdapter;
 
@@ -120,22 +121,22 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     private DeviceProtocolTopologyAdapter deviceProtocolTopologyAdapter;
 
     /**
-     * The adapter used for the {@link DeviceSecuritySupport} functionality
+     * The adapter used for the {@link DeviceSecuritySupport} functionality.
      */
     private MeterProtocolSecuritySupportAdapter meterProtocolSecuritySupportAdapter;
 
     /**
-     * The adapter used for the property handling
+     * The adapter used for the property handling.
      */
     private PropertiesAdapter propertiesAdapter;
 
     /**
-     * The logger used by the protocol
+     * The logger used by the protocol.
      */
     private Logger protocolLogger;
 
     /**
-     * The used HHUEnabler
+     * The used HHUEnabler.
      */
     private HHUEnabler hhuEnabler;
 
@@ -158,7 +159,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     }
 
     /**
-     * Initializes the inheritance classes
+     * Initializes the inheritance classes.
      */
     private void initInheritors() {
         if (this.meterProtocol instanceof HHUEnabler) {
@@ -167,7 +168,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     }
 
     /**
-     * Initializes the adapters so they can be used in the {@link DeviceProtocol} calls
+     * Initializes the adapters so they can be used in the {@link DeviceProtocol} calls.
      */
     protected void initializeAdapters() {
         this.propertiesAdapter = new PropertiesAdapter();
@@ -274,11 +275,6 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     }
 
     @Override
-    public void setTime(final Date timeToSet) {
-        this.meterProtocolClockAdapter.setTime(timeToSet);
-    }
-
-    @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(final List<LoadProfileReader> loadProfilesToRead) {
         return this.meterProtocolLoadProfileAdapter.fetchLoadProfileConfiguration(loadProfilesToRead);
     }
@@ -295,6 +291,11 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
     @Override
     public Date getTime() {
         return this.meterProtocolClockAdapter.getTime();
+    }
+
+    @Override
+    public void setTime(final Date timeToSet) {
+        this.meterProtocolClockAdapter.setTime(timeToSet);
     }
 
     @Override
@@ -404,7 +405,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
             this.meterProtocol.connect();
         }
         catch (IOException e) {
-            throw new CommunicationException(MessageSeeds.PROTOCOL_CONNECT, e);
+            throw new ConnectionCommunicationException(MessageSeeds.PROTOCOL_CONNECT, e);
         }
     }
 
