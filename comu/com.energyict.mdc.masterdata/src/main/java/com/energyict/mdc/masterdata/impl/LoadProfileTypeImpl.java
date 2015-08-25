@@ -39,22 +39,7 @@ import java.util.stream.Collectors;
  * Date: 11-jan-2011
  * Time: 16:05:54
  */
-public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> implements LoadProfileType, PersistenceAware, TranslationKeyProvider {
-
-    @Override
-    public String getComponentName() {
-        return null;
-    }
-
-    @Override
-    public Layer getLayer() {
-        return null;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
-    }
+public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> implements LoadProfileType, PersistenceAware {
 
     enum Fields {
         OBIS_CODE("obisCode"),
@@ -73,7 +58,6 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @Pattern(regexp = "^[a-zA-Z0-9\\-_]+$", groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_CONTAINS_INVALID_CHARS + "}")
     private String name;
 
     public String getName() {
