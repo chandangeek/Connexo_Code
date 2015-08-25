@@ -26,9 +26,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     LOG_BOOK_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(1106, "logBookType.XstillInUseByDeviceTypesY", "The logbook type {0} cannot be removed because it is still in use by the following device type(s): {1}", SEVERE),
 
     REGISTER_MAPPING_NAME_IS_REQUIRED(1400, "registerType.name.required", "The name of a register type is required", SEVERE),
-    REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED(1402, Keys.REGISTER_TYPE_OBIS_CODE_IS_REQUIRED, "The obis code of a register type is required", SEVERE),
+    REGISTER_MAPPING_OBIS_CODE_IS_REQUIRED(1402, Keys.REGISTER_TYPE_OBIS_CODE_IS_REQUIRED, "This field is required", SEVERE),
     REGISTER_MAPPING_OBIS_CODE_CANNOT_BE_UPDATED(1404, "registerType.cannotUpdateObisCode", "The obis code of the register mapping \"{0}\" cannot be updated because it is in use", SEVERE),
-    REGISTER_MAPPING_READING_TYPE_IS_REQUIRED(1406, Keys.REGISTER_TYPE_READING_TYPE_IS_REQUIRED, "The reading type of a register mapping is required", SEVERE),
+    REGISTER_MAPPING_READING_TYPE_IS_REQUIRED(1406, Keys.REGISTER_TYPE_READING_TYPE_IS_REQUIRED, "This field is required", SEVERE),
     REGISTER_MAPPING_READING_TYPE_ALREADY_USED(1407, Keys.REGISTER_TYPE_DUPLICATE_READING_TYPE, "Reading type is already used by a register type", SEVERE),
     REGISTER_MAPPING_STILL_USED_BY_LOAD_PROFILE_TYPE(1409, Keys.REGISTER_MAPPING_STILL_USED_BY_LOADPROFILE, "The register mapping {0} cannot be removed because it is still in use by the following load profile type(s): {1}", SEVERE),
     REGISTER_GROUP_REQUIRES_REGISTER_TYPES(1411, "registerGroup.items.noRegisterType" , "The register group requires at least a register type", SEVERE),
