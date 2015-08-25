@@ -16,12 +16,12 @@ import java.net.DatagramSocket;
  * Date: 5/11/12
  * Time: 15:26
  */
-public class DatagramComChannel extends SynchroneousComChannel {
+public class DatagramComChannel extends SynchronousComChannel {
 
     private final DatagramSocket datagramSocket;
 
     /**
-     * Creates a new SynchroneousComChannel that uses the specified
+     * Creates a new SynchronousComChannel that uses the specified
      * InputStream and OutputStream as underlying communication mechanisms.
      *
      * @param udpSession the used virtual UDP session

@@ -2,20 +2,19 @@ package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.ComChannelType;
-import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.io.ConnectionCommunicationException;
 
 import java.io.IOException;
 import java.net.Socket;
 
 /**
- * Creates a simple {@link ComChannel}
- * wrapped around a {@link Socket}
+ * Creates a simple {@link ComChannel} wrapped around a {@link Socket}.
  * <p>
  * Copyrights EnergyICT
  * Date: 17/08/12
  * Time: 16:33
  */
-public class SocketComChannel extends SynchroneousComChannel {
+public class SocketComChannel extends SynchronousComChannel {
 
     private final Socket socket;
 
@@ -42,7 +41,7 @@ public class SocketComChannel extends SynchroneousComChannel {
             }
         }
         catch (IOException e) {
-            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
+            throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 
@@ -50,4 +49,5 @@ public class SocketComChannel extends SynchroneousComChannel {
     public ComChannelType getComChannelType() {
         return ComChannelType.SOCKET_COM_CHANNEL;
     }
+
 }

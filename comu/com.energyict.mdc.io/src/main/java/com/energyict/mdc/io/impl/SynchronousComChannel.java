@@ -2,6 +2,7 @@ package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.io.ConnectionCommunicationException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,28 +11,28 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Provides an implementation of the {@link ComChannel} interface
- * that uses synchroneous communication, i.e. data is always written first
+ * that uses synchronous communication, i.e. data is always written first
  * and then data can be read. Reading and writing at the same time is not permitted.
- * The latter will throw a {@link AsynchroneousCommunicationIsNotSupportedException}.
+ * The latter will throw a {@link AsynchronousCommunicationIsNotSupportedException}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-06-15 (10:11)
  */
-public abstract class SynchroneousComChannel extends AbstractComChannel {
+public abstract class SynchronousComChannel extends AbstractComChannel {
 
     private AtomicBoolean reading;
     private InputStream in;
     private OutputStream out;
 
     /**
-     * Creates a new SynchroneousComChannel that uses the specified
+     * Creates a new SynchronousComChannel that uses the specified
      * InputStream and OutputStream as underlying communication mechanisms.
      * The ComChannel is open for writing.
      *
      * @param in The InputStream
      * @param out The OutputStream
      */
-    public SynchroneousComChannel (InputStream in, OutputStream out) {
+    public SynchronousComChannel(InputStream in, OutputStream out) {
         super();
         this.in = in;
         this.out = out;
@@ -45,14 +46,14 @@ public abstract class SynchroneousComChannel extends AbstractComChannel {
             this.out.flush();
         }
         catch (IOException e) {
-            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
+            throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
         return !previousValue;  // Status was changed if previousValue != true, i.e. if it false
     }
 
     private void checkNotWriting () {
         if (!this.reading.get()) {
-            throw new AsynchroneousCommunicationIsNotSupportedException();
+            throw new AsynchronousCommunicationIsNotSupportedException();
         }
     }
 
@@ -69,7 +70,7 @@ public abstract class SynchroneousComChannel extends AbstractComChannel {
             return operation.doRead();
         }
         catch (IOException e) {
-            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
+            throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 
@@ -100,7 +101,7 @@ public abstract class SynchroneousComChannel extends AbstractComChannel {
 
     private void checkNotReading () {
         if (this.reading.get()) {
-            throw new AsynchroneousCommunicationIsNotSupportedException();
+            throw new AsynchronousCommunicationIsNotSupportedException();
         }
     }
 
@@ -116,7 +117,7 @@ public abstract class SynchroneousComChannel extends AbstractComChannel {
             operation.doWrite();
         }
         catch (IOException e) {
-            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
+            throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 
@@ -139,7 +140,7 @@ public abstract class SynchroneousComChannel extends AbstractComChannel {
             this.out.close();
         }
         catch (IOException e) {
-            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
+            throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 

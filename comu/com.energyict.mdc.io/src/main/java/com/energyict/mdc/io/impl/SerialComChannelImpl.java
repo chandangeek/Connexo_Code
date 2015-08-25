@@ -12,7 +12,7 @@ import com.energyict.mdc.io.ServerSerialPort;
  * Date: 17/08/12
  * Time: 9:34
  */
-public class SerialComChannelImpl extends SynchroneousComChannel implements SerialComChannel {
+public class SerialComChannelImpl extends SynchronousComChannel implements SerialComChannel {
 
     private final ServerSerialPort serialPort;
 

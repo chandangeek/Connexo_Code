@@ -7,7 +7,7 @@ import java.io.Flushable;
 /**
  * Models a channel that supports communication with a physical device.
  * It allows reading and writing but does not specify if this is
- * synchroneous or asynchroneous. That is left as a responsibility of
+ * synchronous or asynchronous. That is left as a responsibility of
  * implementation classes. The client will call {@link #startReading()}
  * or {@link #startWriting()} to indicate the intentions.
  * Switching between writing and reading will flush the underlying

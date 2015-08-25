@@ -1,18 +1,19 @@
 package com.energyict.mdc.io.impl;
 
+import com.energyict.mdc.io.BaudrateValue;
+import com.energyict.mdc.io.ConnectionCommunicationException;
+import com.energyict.mdc.io.FlowControl;
+import com.energyict.mdc.io.Parities;
+import com.energyict.mdc.io.SerialPortConfiguration;
+import com.energyict.mdc.io.SerialPortException;
+import com.energyict.mdc.io.ServerSerialPort;
+import com.energyict.mdc.io.SignalController;
+
 import Serialio.SerInputStream;
 import Serialio.SerOutputStream;
 import Serialio.SerialConfig;
 import Serialio.SerialPort;
 import Serialio.SerialPortLocal;
-import com.energyict.mdc.io.BaudrateValue;
-import com.energyict.mdc.io.FlowControl;
-import com.energyict.mdc.io.Parities;
-import com.energyict.mdc.io.SerialPortConfiguration;
-import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.io.SerialPortException;
-import com.energyict.mdc.io.ServerSerialPort;
-import com.energyict.mdc.io.SignalController;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -178,7 +179,7 @@ public class SioSerialPort implements ServerSerialPort {
             try {
                 this.serialPort.close();
             } catch (IOException e) {
-                throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
+                throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
             }
         }
     }

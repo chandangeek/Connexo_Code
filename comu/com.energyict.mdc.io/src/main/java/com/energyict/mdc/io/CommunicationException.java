@@ -9,8 +9,9 @@ import java.io.IOException;
 /**
  * Models the exceptional situation that occurs when underlying
  * communication mechanisms report an IOException.
- * The design is that these will be caught by an AOP component
- * and dumped in a ComTaskExecutionJournalEntry.
+ * The design is that these will be caught by by the executing
+ * communication server thread and dumped as a ComTaskExecutionJournalEntry
+ * in the logging of the related ComTask.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-06-15 (10:21)

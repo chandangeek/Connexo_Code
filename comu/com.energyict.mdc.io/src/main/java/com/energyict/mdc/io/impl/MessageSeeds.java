@@ -20,7 +20,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     SERIAL_PORT_CONFIGURATION_MISMATCH(3, "serialPortConfigurationMismatch", "Value {1} is not expected for serial port configuration parameter {0}", Level.SEVERE),
     SERIAL_PORT_DOES_NOT_EXIST(4, "serialPortDoesNotExist", "The ComPort with name {0} does not exist", Level.SEVERE),
     SERIAL_PORT_IS_IN_USE(5, "serialPortInUse", "The ComPort with name {0} is used by another process {1}", Level.SEVERE),
-    ASYNCHRONEOUS_COMMUNICATION_IS_NOT_SUPPORTED(6, "asynchroneousCommunicationIsNotSupported", "Asynchroneous communication is not supported", Level.SEVERE),
+    ASYNCHRONOUS_COMMUNICATION_IS_NOT_SUPPORTED(6, "asynchronousCommunicationIsNotSupported", "Asynchronous communication is not supported", Level.SEVERE),
     MODEM_CONNECT_TIMEOUT(7, "modemConnectTimeout", "Could not connect with modem on COM port {0}, no response within timeout [{1} ms]", Level.SEVERE),
     MODEM_COULD_NOT_HANG_UP(8, "modemCouldNotHangup", "Could not hangup/close COM port with name {0}", Level.SEVERE),
     MODEM_READ_TIMEOUT(9, "modemReadTimeout", "Modem on COM port {0} did not answer to [{2}] within configured timeout ({1} ms)", Level.SEVERE),
@@ -34,6 +34,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     AT_MODEM_NO_DIALTONE(17, "atModemNoDialtone", "Could not dial with modem on COM port {0}, a NO_DIALTONE command was returned, last command send [{1}]", Level.SEVERE),
     MODEM_CALL_ABORTED(18, "modemCallAborted", "Most likely an invalid command has been sent, modem on COM port {0} returned CALL ABORTED command, last command send [{1}]", Level.SEVERE),
     UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION(19, "unexpectedInboundCommException", "Unexpected inbound communication exception, see stacktrace for more details", Level.SEVERE),
+    COMMUNICATION_INTERRUPTED(20, "communicationInterrupted", "Communication was interrupted: {0}", Level.SEVERE),
+    CONNECTION_TIMEOUT(21, "connectionTimeout", "Connection timeout", Level.SEVERE),
     ;
 
     private final int number;

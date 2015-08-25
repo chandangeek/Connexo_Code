@@ -1,7 +1,7 @@
 package com.energyict.mdc.io.impl;
 
 import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.io.ModemComponent;
 import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.io.ModemTimeoutException;
@@ -116,7 +116,7 @@ public class AtModemComponent implements ModemComponent {
     }
 
     /**
-     * Send all initialization strings to the modem
+     * Send all initialization strings to the modem.
      *
      * @param comChannel the comChannel to send the commands to
      * @return true if all commands succeeded, false otherwise
@@ -151,7 +151,7 @@ public class AtModemComponent implements ModemComponent {
     }
 
     /**
-     * Terminate all current sessions on the modem
+     * Terminate all current sessions on the modem.
      *
      * @param comChannel the serialComChannel
      */
@@ -161,7 +161,7 @@ public class AtModemComponent implements ModemComponent {
     }
 
     /**
-     * Hangs the current connection of the modem up
+     * Hangs the current connection of the modem up.
      *
      * @param comChannel the comChannel to send the commands to
      * @return true if the command succeeded, false otherwise
@@ -174,7 +174,7 @@ public class AtModemComponent implements ModemComponent {
     }
 
     /**
-     * Send a '+++' sequence to terminate all current sessions on the modem
+     * Send a '+++' sequence to terminate all current sessions on the modem.
      *
      * @param comChannel the comChannel to send the commands to
      */
@@ -187,7 +187,7 @@ public class AtModemComponent implements ModemComponent {
             comChannel.flush();
             flushInputStream(comChannel);
         } catch (IOException e) {
-            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
+            throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
         }
     }
 
@@ -231,7 +231,7 @@ public class AtModemComponent implements ModemComponent {
     }
 
     /**
-     * Toggle the DTR signal line, to ensure the current session is terminated
+     * Toggle the DTR signal line, to ensure the current session is terminated.
      *
      * @param comChannel          the serialComChannel
      * @param delayInMilliSeconds the delay to wait after each DTR signal switch
@@ -245,7 +245,7 @@ public class AtModemComponent implements ModemComponent {
     }
 
     /**
-     * Write the given data to the comChannel
+     * Write the given data to the comChannel.
      *
      * @param comChannel  the comChannel to write to
      * @param dataToWrite the data to write
@@ -258,7 +258,7 @@ public class AtModemComponent implements ModemComponent {
     }
 
     /**
-     * Write the given data to the comChannel, without addition of the confirm (\r\n) sequence
+     * Write the given data to the comChannel, without addition of the confirm (\r\n) sequence.
      *
      * @param comChannel  the comChannel to write to
      * @param dataToWrite the data to write
@@ -352,7 +352,6 @@ public class AtModemComponent implements ModemComponent {
         return response.contains(expectedAnswer);
     }
 
-
     /**
      * Some devices/modems can not keep up with the current <i>HighSpeed</i> communications,
      * so we can wait a little while until the catch up.
@@ -390,6 +389,7 @@ public class AtModemComponent implements ModemComponent {
             Thread.sleep(milliSecondsToSleep);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw new ConnectionCommunicationException(e);
         }
     }
 
