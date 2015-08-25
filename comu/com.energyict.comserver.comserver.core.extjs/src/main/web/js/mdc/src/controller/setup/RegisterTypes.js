@@ -221,6 +221,8 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             values = this.getRegisterTypeEditForm().getValues(),
             record;
 
+        if (Ext.isEmpty(values.readingType)) values.readingType = null;
+
         if (btn.action === 'editRegisterType') {
             me.mode = 'edit';
             record = this.getRegisterTypeEditForm().getRecord();
@@ -230,6 +232,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
         }
 
         if (record) {
+            me.getRegisterTypeEditForm().getForm().clearInvalid();
             editView.setLoading();
             record.set(values);
             if (me.getReadingTypeCombo().valueModels && me.getReadingTypeCombo().valueModels[0]) {
