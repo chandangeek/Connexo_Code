@@ -29,14 +29,6 @@ Ext.define('Mdc.view.setup.devicegroup.Edit', {
                         itemId: 'step1-adddevicegroup-errors',
                         xtype: 'uni-form-error-message',
                         hidden: true,
-                        text: Uni.I18n.translate('devicegroup.missingname', 'MDC', 'Please enter a name for the device group.'),
-                        width: 600
-                    },
-                    {
-                        itemId: 'step1-adddevicegroup-name-errors',
-                        xtype: 'uni-form-error-message',
-                        hidden: true,
-                        text: Uni.I18n.translate('devicegroup.duplicatename', 'MDC', 'A device group with this name already exists.'),
                         width: 600
                     },
                     {
