@@ -31,7 +31,13 @@ Ext.define('InsightApp.controller.History', {
                             title: Uni.I18n.translate('general.usagePointChannels', 'INS', 'Channels'),
                             route: 'channels',
                             controller: 'Imt.channeldata.controller.View',
-                            action: 'showUsagePointChannels',
+                            action: 'showUsagePointChannels'
+           			    },
+           			    channel: {
+           			        title: Uni.I18n.translate('general.usagePointChannel', 'INS', 'Channel'),
+           			        route: 'channels/{channel}',
+           			        controller: 'Imt.channeldata.controller.View',
+           			        action: 'showUsagePointChannel'
            			    }
            			}
            		},
