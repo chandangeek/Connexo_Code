@@ -10,9 +10,7 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -23,13 +21,10 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.validation.*;
 import com.elster.jupiter.validation.MessageSeeds.Constants;
-import com.google.common.collect.Range;
 
 @UniqueStartDate(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.OVERLAPPED_PERIOD + "}")
 public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVersion {
@@ -204,7 +199,7 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
 
     private void addNewRules() {
         rulesToSave.forEach( newRule -> {
-            Save.CREATE.validate(dataModel, newRule);
+            Save.CREATE.validate(dataModel, newRule, ValidationRuleConstraintsSequence.class);
             rules.add(newRule);
         });
         rulesToSave.clear();

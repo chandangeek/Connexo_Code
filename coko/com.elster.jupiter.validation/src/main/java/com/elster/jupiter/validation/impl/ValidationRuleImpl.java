@@ -24,7 +24,6 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -45,8 +44,8 @@ public final class ValidationRuleImpl implements IValidationRule {
     private String name;
     private boolean active;
     private ValidationAction action;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
-    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @NotNull(message = "{" + Constants.NAME_REQUIRED_KEY + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     @ExistingValidator(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NO_SUCH_VALIDATOR + "}")
     private String implementation; //validator classname
     private Instant obsoleteTime;
@@ -374,11 +373,11 @@ public final class ValidationRuleImpl implements IValidationRule {
     }
 
     private void doPersist() {
-        Save.CREATE.save(dataModel, this);
+        Save.CREATE.save(dataModel, this, ValidationRuleConstraintsSequence.class);
     }
 
     private void doUpdate() {
-        Save.UPDATE.save(dataModel, this);
+        Save.UPDATE.save(dataModel, this, ValidationRuleConstraintsSequence.class);
     }
 
     private DataMapper<ValidationRuleProperties> rulePropertiesFactory() {
