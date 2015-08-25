@@ -8,16 +8,16 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
 import com.energyict.mdc.protocol.api.OpticalDriver;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-import com.energyict.mdc.io.CommunicationException;
 
 import com.energyict.mdc.io.SerialComChannel;
 
 /**
- * Command to enable the HandHeldUnit controller for legacy protocols
+ * Command to enable the HandHeldUnit controller for legacy protocols.
  * <p/>
  * Copyrights EnergyICT
  * Date: 21/08/12
@@ -46,7 +46,7 @@ public class HandHeldUnitEnablerCommand extends SimpleComCommand {
                     throw ComCommandException.illegalCommand(this, deviceProtocol);
                 }
             } catch (ConnectionException e) {
-                throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
+                throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);
             }
         }
     }
