@@ -142,7 +142,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         if (layout.getNext().name === this.stepTwo && nameField.getValue() === '') {
             Ext.suspendLayouts();
             step1ErrorMsg.show();
-            nameField.markInvalid(Uni.I18n.translate('general.nameIsRequired', 'MDC', 'Name is required'));
+            nameField.markInvalid(Uni.I18n.translate('general.fieldIsRequired', 'MDC', 'This field is required'));
             Ext.resumeLayouts(true);
         } else if (layout.getNext().name === this.stepTwo && nameField.getValue() !== '' && this.nameExistsAlready()) {
             Ext.suspendLayouts();
@@ -477,7 +477,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         if (nameValue === '') {
             Ext.suspendLayouts();
             step1ErrorMsg.show();
-            nameField.markInvalid(Uni.I18n.translate('general.nameIsRequired', 'MDC', 'Name is required.'));
+            nameField.markInvalid(Uni.I18n.translate('general.fieldIsRequired', 'MDC', 'This field is required'));
             Ext.resumeLayouts(true);
         } else if (nameValue !== me.deviceGroupName && me.nameExistsAlready()) {
             Ext.suspendLayouts();
