@@ -17,7 +17,7 @@ import java.io.InputStream;
  * goes through the ComChannel methods and no calls are made to
  * the underlying InputStream directly.
  * Because the old-style communication protocols are not aware of the
- * synchroneous nature of a ComChannel, it will invoke
+ * synchronous nature of a ComChannel, it will invoke
  * startReading at the appropriate time.
  *
  * @author Rudi Vankeirsbilck (rvk)

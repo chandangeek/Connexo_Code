@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.dlms.JanzC280;
 
+import com.energyict.mdc.protocol.api.NotInObjectListException;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
@@ -266,17 +267,17 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
             try {
                 //1. Search exact obiscode
                 uo = getMeterConfig().findObject(obisCode);
-            } catch (NoSuchRegisterException e) {
+            } catch (NotInObjectListException e) {
                 //2. Search for obiscode A.B.C.D.0.F
                 try {
                     ObisCode baseObisCode = ProtocolTools.setObisCodeField(obisCode, 4, (byte) 1);
                     uo = getMeterConfig().findObject(baseObisCode);
-                } catch (NoSuchRegisterException e_inner) {
+                } catch (NotInObjectListException e_inner) {
                     //3. Search for obiscode A.B.C.D.1.F
                     try {
                         ObisCode baseObisCode = ProtocolTools.setObisCodeField(obisCode, 4, (byte) 0);
                         uo = getMeterConfig().findObject(baseObisCode);
-                    } catch (NoSuchRegisterException e_inner_inner) {
+                    } catch (NotInObjectListException e_inner_inner) {
                         //4. Search for obiscode A.B.1.D.E.F
                         ObisCode baseObisCode = ProtocolTools.setObisCodeField(obisCode, 2, (byte) 1);
                         uo = getMeterConfig().findObject(baseObisCode);

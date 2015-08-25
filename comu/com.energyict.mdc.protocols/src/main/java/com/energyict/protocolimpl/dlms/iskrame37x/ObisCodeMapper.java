@@ -1,9 +1,3 @@
-/*
- * ObisCodeMapper.java
- *
- * Created on 17 augustus 2004, 9:21
- */
-
 package com.energyict.protocolimpl.dlms.iskrame37x;
 
 import com.energyict.dlms.UniversalObject;
@@ -22,6 +16,7 @@ import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.protocol.api.NotInObjectListException;
 import com.energyict.mdc.protocol.api.device.data.RegisterInfo;
 import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.NoSuchRegisterException;
@@ -45,10 +40,6 @@ public class ObisCodeMapper {
     CosemObjectFactory cof;
     StoredValuesImpl[] storedValues;
 
-
-    /**
-     * Creates a new instance of ObisCodeMapper
-     */
     public ObisCodeMapper(IskraME37X meterProtocol) throws IOException {
         this.meterProtocol = meterProtocol;
         this.cof = meterProtocol.getCosemObjectFactory();
@@ -74,7 +65,7 @@ public class ObisCodeMapper {
                 int billingPoint = absBillingPoint > 11 ? absBillingPoint - 12 : absBillingPoint;
 
                 try {
-                    if ((obisCode.toString().indexOf("1.0.0.1.2.") != -1) || (obisCode.toString().indexOf("1.1.0.1.2.") != -1)) { // billing point timestamp
+                    if ((obisCode.toString().contains("1.0.0.1.2.")) || (obisCode.toString().contains("1.1.0.1.2."))) { // billing point timestamp
                         Date billingPointTimeDate = getStoredValues(obisCode).getBillingPointTimeDate(billingPoint);
                         registerValue = new RegisterValue(obisCode, billingPointTimeDate);
                         return registerValue;
@@ -92,7 +83,7 @@ public class ObisCodeMapper {
 
             // *********************************************************************************
             // General purpose ObisRegisters & abstract general service
-            if ((obisCode.toString().indexOf("1.1.0.1.0.255") != -1) || (obisCode.toString().indexOf("1.0.0.1.0.255") != -1)) { // billing counter
+            if ((obisCode.toString().contains("1.1.0.1.0.255")) || (obisCode.toString().contains("1.0.0.1.0.255"))) { // billing counter
                 Data data = cof.getData(new ObisCode(1, 0, 0, 1, 0, 255));
                 Unsigned16 counter = (Unsigned16) data.getValueAttr();
                 registerValue = new RegisterValue(obisCode, new Quantity(counter.toBigDecimal(), Unit.getUndefined()));
@@ -100,13 +91,13 @@ public class ObisCodeMapper {
             } // billing counter
 
             // *********************************************************************************
-            if (obisCode.toString().indexOf("1.0.0.1.1.255") != -1) { // nr of available monthly billing periods
+            if (obisCode.toString().contains("1.0.0.1.1.255")) { // nr of available monthly billing periods
                 int counter = storedValues[0].getBillingPointCounter();
                 registerValue = new RegisterValue(obisCode, new Quantity(counter, Unit.getUndefined()));
                 return registerValue;
             } // billing counter
 
-            if (obisCode.toString().indexOf("1.1.0.1.1.255") != -1) { // nr of available daily billing periods
+            if (obisCode.toString().contains("1.1.0.1.1.255")) { // nr of available daily billing periods
                 int counter = storedValues[1].getBillingPointCounter();
                 registerValue = new RegisterValue(obisCode, new Quantity(counter, Unit.getUndefined()));
                 return registerValue;
@@ -196,7 +187,7 @@ public class ObisCodeMapper {
     private UniversalObject findObjectInMeterConfig(ObisCode obisCode) throws IOException {
         try {
             return meterProtocol.getMeterConfig().findObject(obisCode);
-        } catch (NoSuchRegisterException e) {
+        } catch (NotInObjectListException e) {
             meterProtocol.getLogger().severe(obisCode.toString() + " not found in meter's instantiated object list!");
             throw e;
         }
@@ -206,17 +197,13 @@ public class ObisCodeMapper {
      * Check if the given capture date is valid.
      * Basically this checks if the date is not equal to 01 Jan 00:00:00:1970
      *
-     * @param captureTime
+     * @param captureTime The capture date
      * @return true, if the captureTime is valid
      *         false, if the captureTime is not valid
      */
     private boolean isValidCaptureTime(Date captureTime) {
         Calendar cleanCalendar = ProtocolUtils.getCleanCalendar(meterProtocol.getTimeZone());   // Thu Jan 01 00:00:00 1970, device time zone
-        if (captureTime.after(cleanCalendar.getTime())) {
-            return true;
-        } else {
-            return false;
-        }
+        return captureTime.after(cleanCalendar.getTime());
     }
 
     private StoredValuesImpl getStoredValues(ObisCode obisCode) {
@@ -226,5 +213,5 @@ public class ObisCodeMapper {
             return storedValues[1];
         }
     }
-} // public class ObisCodeMapper
 
+}

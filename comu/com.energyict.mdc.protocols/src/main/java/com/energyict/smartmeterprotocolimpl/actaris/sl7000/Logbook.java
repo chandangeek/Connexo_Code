@@ -150,7 +150,7 @@ public class Logbook {
                 break;
             case EVENT_ASYNCHRONOUS_EOB:
                 eiCode = MeterEvent.BILLING_ACTION;
-                message = "Asynchroneous end of billing";
+                message = "Asynchronous end of billing";
                 break;
             case EVENT_INDEX_DPM:
                 message = "Index DPM";

@@ -118,7 +118,7 @@ public class Logbook {
                 return null;
 
             case EVENT_ASYNCHRONOUS_EOI:
-                message = "Asynchroneous end of interval";
+                message = "Asynchronous end of interval";
                 break;
 
             case EVENT_PERIODICAL_EOB:
@@ -133,7 +133,7 @@ public class Logbook {
 
             case EVENT_ASYNCHRONOUS_EOB:
                 eiCode = MeterEvent.BILLING_ACTION;
-                message = "Asynchroneous end of billing";
+                message = "Asynchronous end of billing";
                 break;
 
             case EVENT_INDEX_DPM:
