@@ -4,6 +4,9 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.io.ComChannelInputStreamAdapter;
+import com.energyict.mdc.io.ComChannelOutputStreamAdapter;
+import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
@@ -30,8 +33,6 @@ import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AbstractDeviceProtocolSecuritySupportAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.AdapterDeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapterMappingFactory;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.ComChannelInputStreamAdapter;
-import com.energyict.mdc.protocol.pluggable.impl.adapters.common.ComChannelOutputStreamAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolAdapterImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.DeviceProtocolTopologyAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
@@ -65,12 +66,12 @@ import java.util.logging.Logger;
 public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl implements DeviceProtocol {
 
     /**
-     * The used <code>MeterProtocol</code> for which the adapter is working
+     * The used <code>MeterProtocol</code> for which the adapter is working.
      */
     private final SmartMeterProtocol meterProtocol;
 
     /**
-     * The use <code>IssueService</code> which can be used for this adapter
+     * The use <code>IssueService</code> which can be used for this adapter.
      */
     private final IssueService issueService;
     private final MessageAdapterMappingFactory messageAdapterMappingFactory;
@@ -79,17 +80,17 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     private final MeteringService meteringService;
 
     /**
-     * The DeviceSecuritySupport component that <i>can</i> be used during communication
+     * The DeviceSecuritySupport component that <i>can</i> be used during communication.
      */
     private DeviceSecuritySupport deviceSecuritySupport;
 
     /**
-     * The DeviceMessageSupport component that <i>can</i> be used during communication
+     * The DeviceMessageSupport component that <i>can</i> be used during communication.
      */
     private DeviceMessageSupport deviceMessageSupport;
 
     /**
-     * The offline device for which this adapter is working
+     * The offline device for which this adapter is working.
      */
     private OfflineDevice offlineDevice;
 
@@ -124,22 +125,22 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     private SmartMeterProtocolRegisterAdapter smartMeterProtocolRegisterAdapter;
 
     /**
-     * The adapter used for the {@link DeviceSecuritySupport} functionality
+     * The adapter used for the {@link DeviceSecuritySupport} functionality.
      */
     private SmartMeterProtocolSecuritySupportAdapter smartMeterProtocolSecuritySupportAdapter;
 
     /**
-     * The logger used by the protocol
+     * The logger used by the protocol.
      */
     private Logger protocolLogger;
 
     /**
-     * The used HHUEnabler
+     * The used HHUEnabler.
      */
     private HHUEnabler hhuEnabler;
 
     /**
-     * The adapter used for the property handling
+     * The adapter used for the property handling.
      */
     private PropertiesAdapter propertiesAdapter;
 
@@ -413,7 +414,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
             this.meterProtocol.connect();
         }
         catch (IOException e) {
-            throw new CommunicationException(MessageSeeds.PROTOCOL_CONNECT, e);
+            throw new ConnectionCommunicationException(MessageSeeds.PROTOCOL_CONNECT, e);
         }
     }
 
