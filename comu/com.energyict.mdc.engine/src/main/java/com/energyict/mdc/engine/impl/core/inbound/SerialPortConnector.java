@@ -8,6 +8,7 @@ import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.io.ModemComponent;
 import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.io.SerialComChannel;
@@ -142,9 +143,9 @@ public class SerialPortConnector implements InboundComPortConnector {
             serialPort.openAndInit();
             return serialComponentService.newSerialComChannel(serialPort);
         } catch (SerialPortException e) {
-            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, (IOException) e.getCause());
+            throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, (IOException) e.getCause());
         } catch (UnsatisfiedLinkError e) {
-            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, new NestedIOException(e));
+            throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, new NestedIOException(e));
         }
     }
 

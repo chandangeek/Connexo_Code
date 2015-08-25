@@ -34,7 +34,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     MAXIMUM_TIME_DIFFERENCE_EXCEEDED(118, "maxTimeDiffExceeded", "Time difference exceeds the configured maximum\\: The time difference ({0}) is larger than the configured allowed maximum ({1})", Level.SEVERE),
     INCORRECT_NUMBER_OF_COMTASKS(119, "incorrectNbrOfComTasks", "Incorrect number of PreparedComTaskExecutions. Expected {0} but got {1}", Level.SEVERE),
     SESSION_FOR_COMTASK_MISSING(120, "comTaskSessionMissing", "Expected session for ComTask {0} was not found in ComSessionShadow", Level.SEVERE),
-    CONNECTION_TIMEOUT(121, "connectionTimeout", "Connection timeout", Level.SEVERE),
     CONNECTION_FAILURE(122, "connectionFailure", "Failure to connect to device", Level.SEVERE),
     UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION(123, "unexpectedInboundCommException", "Unexpected inbound communication exception, see stacktrace for more details", Level.SEVERE),
     UNEXPECTED_IO_EXCEPTION(124, "unexpectedIOException", "Exception occurred while communication with a device", Level.SEVERE),
