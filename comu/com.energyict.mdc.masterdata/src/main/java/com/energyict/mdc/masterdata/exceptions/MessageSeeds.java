@@ -18,6 +18,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required", SEVERE),
     NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "The name must be unique", SEVERE),
+    FIELD_TOO_LONG(1003, Keys.FIELD_TOO_LONG, "Field must not exceed 80 characters", SEVERE),
 
     LOG_BOOK_TYPE_NAME_IS_REQUIRED(1102, "logBookType.name.required", "The name of a logbook type is required", SEVERE),
     LOG_BOOK_TYPE_ALREADY_EXISTS(1103, "logBookType.duplicateNameX", "A logbook type with name \"{0}\" already exists", SEVERE),
