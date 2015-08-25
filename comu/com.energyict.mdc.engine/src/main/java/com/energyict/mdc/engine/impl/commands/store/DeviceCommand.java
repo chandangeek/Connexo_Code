@@ -28,7 +28,7 @@ import java.time.Clock;
 public interface DeviceCommand {
 
     /**
-     * Provides Loging services for the execution of DeviceCommands.
+     * Provides Logging services for the execution of DeviceCommands.
      */
     public interface ExecutionLogger {
 
@@ -48,7 +48,7 @@ public interface DeviceCommand {
         public void logUnexpected (Throwable t, ComTaskExecution comTaskExecution);
 
         /**
-         * Adds an additional issue to the log of a ComTaskExecution
+         * Adds an additional issue to the log of a ComTaskExecution.
          *
          * @param completionCode the additional completionCode
          * @param issue the issue that should be logged

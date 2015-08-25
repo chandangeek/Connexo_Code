@@ -1,14 +1,16 @@
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
-import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.protocol.api.dialer.serialserviceprovider.SerialPort;
 import com.energyict.mdc.io.BaudrateValue;
+import com.energyict.mdc.io.ComChannelInputStreamAdapter;
+import com.energyict.mdc.io.ComChannelOutputStreamAdapter;
 import com.energyict.mdc.io.NrOfDataBits;
 import com.energyict.mdc.io.NrOfStopBits;
 import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.io.ServerSerialPort;
+import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.protocol.api.dialer.serialserviceprovider.SerialPort;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +18,7 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 
 /**
- * Serves as an Adapter between a {@link SerialCommunicationChannel} and a {@link ServerSerialPort}
+ * Serves as an Adapter between a {@link SerialCommunicationChannel} and a {@link ServerSerialPort}.
  *
  * Copyrights EnergyICT
  * Date: 21/08/12
@@ -26,13 +28,13 @@ public class SerialCommunicationChannelAdapter implements SerialCommunicationCha
 
     private final ServerSerialPort serialPort;
 
-    private InputStream inputStream;
-    private OutputStream outputStream;
+    private ComChannelInputStreamAdapter inputStream;
+    private ComChannelOutputStreamAdapter outputStream;
 
     public SerialCommunicationChannelAdapter(final SerialComChannel serialComChannel) {
         this.serialPort = serialComChannel.getSerialPort();
-        this.inputStream = serialComChannel.getSerialPort().getInputStream();
-        this.outputStream = serialComChannel.getSerialPort().getOutputStream();
+        this.inputStream = new ComChannelInputStreamAdapter(serialComChannel);
+        this.outputStream =  new ComChannelOutputStreamAdapter(serialComChannel);
     }
 
     protected String parityToNewFormat(int parity) {

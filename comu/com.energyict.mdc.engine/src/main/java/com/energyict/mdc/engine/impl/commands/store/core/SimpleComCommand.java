@@ -15,6 +15,7 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
@@ -52,35 +53,35 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     private CompletionCode completionCode = Ok;
 
     /**
-     * A List containing all the issue which occurred during the execution of this {@link ComCommand}
+     * All the issue that have occurred during the execution of this {@link ComCommand}.
      */
     private List<Issue> issueList = new ArrayList<>();
 
     /**
-     * A List containing all the {@link CollectedData} which is collected during the execution of this {@link ComCommand}
+     * All the {@link CollectedData} that have been collected during the execution of this {@link ComCommand}.
      */
     private List<CollectedData> collectedDataList = new ArrayList<>();
 
     /**
-     * The state of the command execution
+     * The state of the command execution.
      */
     public enum ExecutionState {
         /**
-         * command is not yet executed
+         * Command is not yet executed.
          */
         NOT_EXECUTED,
         /**
-         * command is successfully executed
+         * Command is successfully executed.
          */
         SUCCESSFULLY_EXECUTED,
         /**
-         * command is executed but failed
+         * Command is executed but failed.
          */
         FAILED
     }
 
     /**
-     * Keeps track of the executionState of this command
+     * Keeps track of the executionState of this command.
      */
     private ExecutionState executionState = ExecutionState.NOT_EXECUTED;
 
@@ -208,7 +209,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
             } catch (LegacyProtocolException e) {
                 if (isExceptionCausedByALegacyTimeout(e)) {
                     setCompletionCode(ConnectionError);
-                    throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, (IOException) e.getCause());
+                    throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, (IOException) e.getCause());
                 } else {
                     addIssue(getIssueService().newProblem(deviceProtocol, "deviceprotocol.legacy.issue", StackTracePrinter.print(e)), UnexpectedError);
                 }
