@@ -320,6 +320,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             me.getEditPage().setTitle(Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'));
             form.setEdit(false, returnLink, addRegisterTypesLink);
             form.loadRecord(Ext.create('Mdc.model.LoadProfileType'));
+            form.down('[name=timeDuration]').select(0);
         }
     },
 
@@ -456,6 +457,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                         Ext.Array.each(json.errors, function (item) {
                             if (item.id.indexOf("interval") !== -1) {
                                 me.getEditPage().down('#timeDuration').setActiveError(item.msg);
+                            }
+                            if (item.id.indexOf("readingType") !== -1) {
+                                me.getEditPage().down('#register-types-fieldcontainer').setActiveError(item.msg);
                             }
                         });
                         basicForm.markInvalid(json.errors);
