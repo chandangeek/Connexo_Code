@@ -7,11 +7,11 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingsActionMenu', {
     shadow: false,
     items: [
         {
-            text: 'Edit',
+            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
             action: 'editsecuritysetting'
         },
         {
-            text: 'Remove',
+            text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
             action: 'deletesecuritysetting'
         }
 

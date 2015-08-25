@@ -254,9 +254,12 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     showPreview: function (selectionModel, record) {
         var me = this,
-            previewPanel = me.getDeviceLoadProfileChannelDataPreview();
+            previewPanel;
 
-        previewPanel.updateForm(record);
+        if(selectionModel.getSelection().length === 1){
+            previewPanel = me.getDeviceLoadProfileChannelDataPreview();
+            previewPanel.updateForm(record);
+        }
     },
 
     onGraphResize: function (graphView, width, height) {
@@ -407,6 +410,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             if (!event.record.get('value')) {
                 point.update({ y: NaN });
             } else {
+                if (event.record.get('plotBand')) {
+                    chart.xAxis[0].removePlotBand(event.record.get('interval').start);
+                    event.record.set('plotBand', false);
+                }
                 updatedObj = {
                     y: value,
                     collectedValue: collectedValue,
@@ -462,12 +469,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var me = this,
             bothSuspected = false,
             mainValueSuspect = false,
-            bulkValueSuspect = false,
-            validationInfo = record.get('validationInfo');
+            bulkValueSuspect = false;
 
         if (!Ext.isArray(record)) {
-            bothSuspected = validationInfo.mainValidationInfo.validationResult.split('.')[1] == 'suspect' &&
-                            validationInfo.bulkValidationInfo.validationResult.split('.')[1] == 'suspect';
+            bothSuspected = record.get('validationInfo').mainValidationInfo.validationResult.split('.')[1] == 'suspect' &&
+                record.get('validationInfo').bulkValidationInfo.validationResult.split('.')[1] == 'suspect';
         } else {
             Ext.Array.findBy(record, function (item) {
                 mainValueSuspect = item.get('validationInfo').mainValidationInfo.validationResult.split('.')[1] == 'suspect';
@@ -497,7 +503,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             record = me.getReadingEstimationWindow().record,
             intervalsArray = [];
 
+        !me.getReadingEstimationWindow().down('#form-errors').isHidden() && me.getReadingEstimationWindow().down('#form-errors').hide();
         !me.getReadingEstimationWindow().down('#error-label').isHidden() && me.getReadingEstimationWindow().down('#error-label').hide();
+        propertyForm.clearInvalid();
 
         if (propertyForm.getRecord()) {
             propertyForm.updateRecord();
@@ -562,8 +570,23 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     me.getPage().down('#save-changes-button').isHidden() && me.showButtons();
                 } else {
                     me.getReadingEstimationWindow().setLoading(false);
-                    me.getReadingEstimationWindow().down('#error-label').show();
-                    me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #FF0000">' + (responseText.message ? responseText.message : '') + '</div>', false);
+                    if (responseText.message) {
+                        me.getReadingEstimationWindow().down('#error-label').show();
+                        me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #FF0000">' + responseText.message + '</div>', false);
+                    } else if (responseText.readings) {
+                        me.getReadingEstimationWindow().down('#error-label').show();
+                        var listOfFailedReadings = [];
+                        Ext.Array.each(responseText.readings, function (readingTimestamp) {
+                            listOfFailedReadings.push(Uni.DateTime.formatDateShort(new Date(readingTimestamp)) + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' ' +
+                                Uni.DateTime.formatTimeShort(new Date(readingTimestamp)));
+                        });
+                        me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #FF0000">' +
+                            Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0} with {1}',
+                                [listOfFailedReadings.join(', '), me.getReadingEstimationWindow().down('#estimator-field').getRawValue().toLowerCase()]) + '</div>', false);
+                    } else if (responseText.errors) {
+                        me.getReadingEstimationWindow().down('#form-errors').show();
+                        me.getReadingEstimationWindow().down('#property-form').markInvalid(responseText.errors);
+                    }
                 }
             }
         });

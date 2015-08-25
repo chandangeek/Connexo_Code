@@ -178,6 +178,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
         if (record.get("type") == 'billing') {
             record.set("interval", {start: values['interval.start'], end: values['interval.end']});
         }
+        if (record.get("type") == 'text') {
+            delete record.data.deltaValue;
+            delete record.data.isConfirmed;
+        }
     },
 
     editDeviceRegisterConfigurationDataHistory: function () {

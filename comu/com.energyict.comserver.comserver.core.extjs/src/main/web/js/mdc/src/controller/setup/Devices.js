@@ -122,14 +122,14 @@ Ext.define('Mdc.controller.setup.Devices', {
         if (status) {
             record.deactivate(function () {
                 me.getApplication().fireEvent('acknowledge',
-                Uni.I18n.translate('device.communication.toggle.deactivate', 'MDC', 'Communication task deactivated'));
+                Uni.I18n.translate('device.communication.toggle.deactivate', 'MDC', 'Communication task configuration deactivated'));
                 me.doRefresh();
 
             });
         } else {
             record.activate(function () {
                 me.getApplication().fireEvent('acknowledge',
-                Uni.I18n.translate('device.communication.toggle.activate', 'MDC', 'Communication task activated'));
+                Uni.I18n.translate('device.communication.toggle.activate', 'MDC', 'Communication task configuration activated'));
                 me.doRefresh();
             });
         }

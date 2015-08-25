@@ -12,7 +12,7 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
         'Uni.grid.column.Default'
     ],
 
-    store: 'SecuritySettingsOfDevice',
+    store: 'Mdc.store.SecuritySettingsOfDevice',
 
     initComponent: function () {
         var me = this;
@@ -72,9 +72,6 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingGrid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                params: [
-                    {mrid: me.mrid}
-                ],
                 itemsPerPageMsg: Uni.I18n.translate('deviceSecuritySetting.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Security settings per page'),
                 dock: 'bottom'
             }

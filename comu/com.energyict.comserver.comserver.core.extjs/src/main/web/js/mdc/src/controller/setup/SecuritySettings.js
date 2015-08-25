@@ -257,7 +257,13 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
 
     showSecuritySettingsCreateView: function (deviceTypeId, deviceConfigurationId) {
         var me = this;
-        var form = Ext.widget('securitySettingForm', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigurationId, securityHeader: 'Add security setting', actionButtonName: 'Add', securityAction: 'add'});
+        var form = Ext.widget('securitySettingForm', {
+            deviceTypeId: deviceTypeId,
+            deviceConfigurationId: deviceConfigurationId,
+            securityHeader: Uni.I18n.translate('securitySetting.addSecuritySetting', 'MDC', 'Add security setting'),
+            actionButtonName: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+            securityAction: 'add'
+        });
         var record  =  me.createSecuritySettingModel(deviceTypeId, deviceConfigurationId).create();
         form.down('form#myForm').loadRecord(record);
         me.getApplication().fireEvent('changecontentevent', form);
@@ -270,8 +276,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 var form = Ext.widget('securitySettingForm', {
                     deviceTypeId: deviceTypeId,
                     deviceConfigurationId: deviceConfigurationId,
-                    securityHeader: 'Edit \'' + securitySetting.get('name') + '\'',
-                    actionButtonName: 'Save',
+                    securityHeader: Ext.String.format(Uni.I18n.translate('securitySetting.editX', 'MDC', "Edit security setting '{0}'"), securitySetting.get('name')),
+                    actionButtonName: Uni.I18n.translate('general.save', 'MDC', 'Save'),
                     securityAction: 'save'
                 });
                 form.down('form#myForm').loadRecord(securitySetting);
@@ -290,7 +296,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         var me = this,
             formPanel = me.getFormPanel(),
             form = formPanel.down('form#myForm').getForm(),
-            formErrorsPanel = Ext.ComponentQuery.query('securitySettingForm panel[name=errors]')[0];
+            formErrorsPanel = formPanel.down('panel[name=errors]');
+
         if (form.isValid()) {
             formErrorsPanel.hide();
             var preloader = Ext.create('Ext.LoadMask', {
@@ -310,6 +317,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                              if (result && result.errors) {
                                  form.markInvalid(result.errors)
                              }
+                             me.showErrorPanel();
                          }
                      }
                  },

@@ -221,6 +221,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         if (this.record) {
             this.record.set(values);
             me.getCommunicationScheduleEditForm().getForm().clearInvalid();
+            me.hideErrorPanel();
             editView.setLoading(true);
             this.record.save({
                 success: function (record) {
@@ -246,6 +247,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                             }
                         });
                         me.getCommunicationScheduleEditForm().getForm().markInvalid(json.errors);
+                        me.showErrorPanel();
                         editView.setLoading(false);
                     }
                 }
@@ -431,5 +433,26 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         }
 
         store.loadData(storeData);
+    },
+
+    showErrorPanel: function () {
+        var me = this,
+            formErrorsPlaceHolder = me.getCommunicationScheduleEditForm().down('#communicationScheduleEditFormErrors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
+        formErrorsPlaceHolder.add({
+            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.')
+        });
+        formErrorsPlaceHolder.show();
+    },
+
+    hideErrorPanel: function () {
+        var me = this,
+            formErrorsPlaceHolder = me.getCommunicationScheduleEditForm().down('#communicationScheduleEditFormErrors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
     }
+
 });

@@ -328,10 +328,12 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     createDeviceType: function () {
-        var me = this;
-        var record = Ext.create(Mdc.model.DeviceType),
+        var me = this,
+            record = Ext.create(Mdc.model.DeviceType),
             values = this.getDeviceTypeEditForm().getValues();
+
         me.getDeviceTypeEditForm().getForm().clearInvalid();
+        me.hideErrorPanel();
         if (record) {
             record.set(values);
             record.save({
@@ -348,6 +350,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                                 me.getDeviceTypeEditForm().down('#device-life-cycle-combo').markInvalid(item.msg);
                             }
                         });
+                        me.showErrorPanel();
                     }
                 }
             });
@@ -361,6 +364,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             router = me.getController('Uni.controller.history.Router'),
             page = me.getDeviceTypeEditView();
 
+        me.hideErrorPanel();
         if (record) {
             page.setLoading(Uni.I18n.translate('general.saving', 'MDC', 'Saving...'));
             record.set(values);
@@ -374,6 +378,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     if (json && json.errors) {
                         me.getDeviceTypeEditForm().getForm().markInvalid(json.errors);
                     }
+                    me.showErrorPanel();
                 },
                 callback: function () {
                     page.setLoading(false);
@@ -499,5 +504,26 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
         route && (route = router.getRoute(route));
         route && route.forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
+    },
+
+    showErrorPanel: function () {
+        var me = this,
+            formErrorsPlaceHolder = me.getDeviceTypeEditForm().down('#deviceTypeEditFormErrors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
+        formErrorsPlaceHolder.add({
+            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.')
+        });
+        formErrorsPlaceHolder.show();
+    },
+
+    hideErrorPanel: function () {
+        var me = this,
+            formErrorsPlaceHolder = me.getDeviceTypeEditForm().down('#deviceTypeEditFormErrors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
     }
+
 });
