@@ -104,6 +104,7 @@ public class MissingValuesValidatorTest {
         when(channel.getMeterActivation()).thenReturn(meterActivation);
         when(meterActivation.getStart()).thenReturn(start);
         when(intervalReading.getQuantity(readingType)).thenReturn(Quantity.create(BigDecimal.ONE, "Wh"));
+        when(intervalReading.getValue()).thenReturn(BigDecimal.ONE);
         when(readingType.getBulkReadingType()).thenReturn(Optional.of(bulkReadingType));
         when(readingType.isCumulative()).thenReturn(false);
         doReturn(Arrays.asList(readingType, bulkReadingType)).when(channel).getReadingTypes();
