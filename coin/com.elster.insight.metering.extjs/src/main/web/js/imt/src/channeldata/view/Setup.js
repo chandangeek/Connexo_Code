@@ -30,7 +30,7 @@ Ext.define('Imt.channeldata.view.Setup', {
                 ui: 'large',
                 itemId: 'channelListSetupPanel',
                 layout: {
-                    type: 'fit',
+                    type: 'vbox',
                     align: 'stretch'
                 },
                 defaults: {
@@ -42,6 +42,11 @@ Ext.define('Imt.channeldata.view.Setup', {
                 items: [
                     {
                         xtype: 'channel-list',
+                        mRID: me.mRID,
+                        router: me.router
+                    },
+                    {
+                        xtype: 'channel-graph',
                         mRID: me.mRID,
                         router: me.router
                     }

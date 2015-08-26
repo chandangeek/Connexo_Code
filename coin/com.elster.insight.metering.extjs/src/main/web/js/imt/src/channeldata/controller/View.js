@@ -8,13 +8,17 @@ Ext.define('Imt.channeldata.controller.View', {
         'Imt.usagepointmanagement.model.UsagePoint'
     ],
     stores: [
-        'Imt.channeldata.store.Channel'
+             'Imt.channeldata.store.Channel',
+             'Imt.channeldata.store.ChannelData'        
     ],
     views: [
-        'Imt.channeldata.view.ChannelList'
+            'Imt.channeldata.view.ChannelList',
+            'Imt.channeldata.view.ChannelGraph'
     ],
     refs: [
-        {ref: 'overviewLink', selector: '#usage-point-overview-link'}
+        {ref: 'page', selector: 'channel-graph'},
+        {ref: 'overviewLink', selector: '#usage-point-overview-link'},
+        {ref: 'usagePointChannelGraphView', selector: '#usagePointChannelGraphView'}
     ],
     init: function () {
     },
@@ -38,7 +42,60 @@ Ext.define('Imt.channeldata.controller.View', {
         pageMainContent.setLoading(false);
     },
     showUsagePointChannel: function(mRID, id) {
-        
+        var me = this,
+        container = this.getUsagePointChannelGraphView(),
+        dataStore = me.getStore('Imt.channeldata.store.ChannelData'),
+        channelName = id,
+        unitOfMeasure = 'Wh',
+        seriesObject = { 
+            marker: { enabled: false },
+            name: channelName
+        },
+        yAxis = {
+            opposite: false,
+            gridLineDashStyle: 'Dot',
+            showEmpty: false,
+            title: {
+                rotation: 270,
+                text: unitOfMeasure
+            }
+        },
+        series = [];
+
+        seriesObject['data'] = [];
+
+//    switch (channelRecord.get('flowUnit')) {
+//        case 'flow':
+//            seriesObject['type'] = 'line';
+//            seriesObject['step'] = false;
+//            break;
+//        case 'volume':
+            seriesObject['type'] = 'column';
+            seriesObject['step'] = true;
+//            break;
+//    }
+
+        if (dataStore.getCount() > 0) {
+            dataStore.each(function (record) {
+                if (record.get('value')) {
+                    seriesObject['data'].unshift([record.get('interval').start, parseFloat(record.get('value'))]);
+                } else {
+                    seriesObject['data'].unshift([record.get('interval').start, null]);
+                }
+            });
+            series.push(seriesObject);
+            Ext.suspendLayouts();
+            container.down('#graphContainer').show();
+            container.down('#ctr-graph-no-data').hide();
+            container.drawGraph(yAxis, series, 900000, channelName, unitOfMeasure, null);
+            Ext.resumeLayouts(true);
+        } else {
+            Ext.suspendLayouts();
+            container.down('#graphContainer').hide();
+            container.down('#ctr-graph-no-data').show();
+            Ext.resumeLayouts(true);
+        }
+        me.getPage().doLayout();        
     }
 });
 
