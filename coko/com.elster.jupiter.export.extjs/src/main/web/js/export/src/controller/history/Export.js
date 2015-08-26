@@ -27,14 +27,14 @@ Ext.define('Dxp.controller.history.Export', {
                             action: 'showAddExportTask',
                             items: {
                                 readingtypes: {
-                                    title: 'Add reading types',
+                                    title: Uni.I18n.translate('general.addReadingTypes','DES','Add reading types'),
                                     route: 'readingtypes',
                                     controller: 'Dxp.controller.Tasks',
                                     privileges: Dxp.privileges.DataExport.admin,
                                     action: 'addReadingTypes'
                                 },
                                 destination: {
-                                    title: 'Add destination',
+                                    title: Uni.I18n.translate('general.addDestination','DES','Add destination'),
                                     route: 'destination',
                                     controller: 'Dxp.controller.Tasks',
                                     privileges: Dxp.privileges.DataExport.admin,
@@ -63,14 +63,14 @@ Ext.define('Dxp.controller.history.Export', {
                                     action: 'showEditExportTask',
                                     items: {
                                         readingtypes: {
-                                            title: 'Add reading types',
+                                            title: Uni.I18n.translate('general.addReadingTypes','DES','Add reading types'),
                                             route: 'readingtypes',
                                             controller: 'Dxp.controller.Tasks',
                                             privileges: Dxp.privileges.DataExport.update,
                                             action: 'addReadingTypes'
                                         },
                                         destination: {
-                                            title: 'Add destination',
+                                            title: Uni.I18n.translate('general.addDestination','DES','Add destination'),
                                             route: 'destination',
                                             controller: 'Dxp.controller.Tasks',
                                             privileges: Dxp.privileges.DataExport.update,
