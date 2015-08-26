@@ -158,17 +158,10 @@ Ext.define('Uni.I18n', {
      * @returns {String} Translation
      */
     lookupTranslation: function (key, component) {
-        var id = key + ':' + component;
-        var translation = this.cache[id];
-        if (!translation) {
-            var translationModel = Ldr.store.Translations.getById(id);
-            if (translationModel) {
-                translation = translationModel.get('value');
-            }
-        }
+        var translation = Ldr.store.Translations.getById(key + ':' + component);
 
-        if (translation !== null) {
-            this.cache[id] = translation;
+        if (translation) {
+            translation = translation.get('value');
         } else {
             //<debug>
             if (!this.blacklist[key + component]) {
