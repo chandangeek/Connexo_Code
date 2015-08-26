@@ -22,9 +22,11 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.validation.GroupSequence;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.validation.groups.Default;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,7 +38,10 @@ import java.util.Set;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_VALIDATION_RULE + "}")
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
+@GroupSequence({ValidationRuleImpl.class, ValidationRuleImpl.FirstValidationGroup.class, ValidationRuleImpl.SecondValidationGroup.class})
 public final class ValidationRuleImpl implements IValidationRule {
+    public static final class FirstValidationGroup{};
+    public static final class SecondValidationGroup{};
     private long id;
 
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
@@ -44,9 +49,9 @@ public final class ValidationRuleImpl implements IValidationRule {
     private String name;
     private boolean active;
     private ValidationAction action;
-    @NotNull(message = "{" + Constants.NAME_REQUIRED_KEY + "}")
-    @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
-    @ExistingValidator(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NO_SUCH_VALIDATOR + "}")
+    @NotNull(message = "{" + Constants.NAME_REQUIRED_KEY + "}", groups = Default.class)
+    @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}", groups = FirstValidationGroup.class)
+    @ExistingValidator(message = "{" + Constants.NO_SUCH_VALIDATOR + "}", groups = SecondValidationGroup.class)
     private String implementation; //validator classname
     private Instant obsoleteTime;
 
@@ -373,11 +378,11 @@ public final class ValidationRuleImpl implements IValidationRule {
     }
 
     private void doPersist() {
-        Save.CREATE.save(dataModel, this, ValidationRuleConstraintsSequence.class);
+        Save.CREATE.save(dataModel, this);
     }
 
     private void doUpdate() {
-        Save.UPDATE.save(dataModel, this, ValidationRuleConstraintsSequence.class);
+        Save.UPDATE.save(dataModel, this);
     }
 
     private DataMapper<ValidationRuleProperties> rulePropertiesFactory() {

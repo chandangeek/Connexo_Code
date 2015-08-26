@@ -199,7 +199,7 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
 
     private void addNewRules() {
         rulesToSave.forEach( newRule -> {
-            Save.CREATE.validate(dataModel, newRule, ValidationRuleConstraintsSequence.class);
+            Save.CREATE.validate(dataModel, newRule);
             rules.add(newRule);
         });
         rulesToSave.clear();
