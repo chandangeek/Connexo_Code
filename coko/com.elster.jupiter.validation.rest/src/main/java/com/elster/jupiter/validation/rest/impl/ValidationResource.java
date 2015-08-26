@@ -308,7 +308,9 @@ public class ValidationResource {
                     try {
                         for (PropertySpec propertySpec : rule.getPropertySpecs()) {
                             Object value = propertyUtils.findPropertyValue(propertySpec, info.properties);
-                            rule.addProperty(propertySpec.getName(), value);
+                            if (value != null) {
+                                rule.addProperty(propertySpec.getName(), value);
+                            }
                         }
                     } catch (ValidatorNotFoundException ex) {
                     } finally {
