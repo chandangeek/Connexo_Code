@@ -24,7 +24,7 @@ public class InHomeDisplay extends AM110R {
 
     @Override
     public String getVersion() {
-        return "$Date: 2013-09-20 15:21:01 +0200 (Fri, 20 Sep 2013) $";
+        return "$Date$";
     }
 
     @Override

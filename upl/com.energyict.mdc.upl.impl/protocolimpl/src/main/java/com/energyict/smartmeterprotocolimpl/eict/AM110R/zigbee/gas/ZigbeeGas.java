@@ -225,7 +225,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SmartMeterPr
      * The protocol version
      */
     public String getVersion() {
-        return "$Date: 2013-11-06 10:42:43 +0100 (Wed, 06 Nov 2013) $";
+        return "$Date$";
     }
 
     public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {

@@ -16,6 +16,6 @@ public class MbusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr23.
 
     @Override
     public String getVersion() {
-        return "$Date: 2014-03-25 16:05:35 +0100 (Tue, 25 Mar 2014) $";
+        return "$Date$";
     }
 }

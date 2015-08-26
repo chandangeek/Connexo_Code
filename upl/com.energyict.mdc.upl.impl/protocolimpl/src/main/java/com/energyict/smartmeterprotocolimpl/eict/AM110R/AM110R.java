@@ -233,7 +233,7 @@ public class AM110R extends AbstractSmartDlmsProtocol implements MessageProtocol
      * The protocol version
      */
     public String getVersion() {
-        return "$Date: 2013-12-10 11:05:50 +0100 (Tue, 10 Dec 2013) $";
+        return "$Date$";
     }
 
     public void disConnect() throws IOException {
