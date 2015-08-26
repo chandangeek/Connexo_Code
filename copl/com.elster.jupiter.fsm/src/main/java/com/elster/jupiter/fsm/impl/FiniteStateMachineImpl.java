@@ -14,6 +14,7 @@ import com.elster.jupiter.fsm.impl.constraints.Unique;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.streams.Predicates;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -88,7 +89,7 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
     }
 
     public FiniteStateMachineImpl initialize(String name) {
-        this.name = name;
+        setName(name);
         return this;
     }
 
@@ -128,7 +129,11 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
     }
 
     void setName(String newName) {
-        this.name = newName;
+        if (!Checks.is(newName).emptyOrOnlyWhiteSpace()){
+            this.name = newName.trim();
+        } else {
+            this.name = null;
+        }
     }
 
     @Override
