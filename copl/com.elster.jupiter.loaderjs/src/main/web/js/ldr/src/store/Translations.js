@@ -20,8 +20,7 @@ Ext.define('Ldr.store.Translations', {
      * improved performance regarding original getById
      */
     getById: function(id) {
-        var index = _.indexOf(this.data.keys, id);
-        return index >= 0 ? this.getAt(index) : null;
+        return (this.snapshot || this.data).getByKey(id);
     },
 
     proxy: {
