@@ -5,7 +5,7 @@ Ext.define('Sam.controller.history.Administration', {
 
     routeConfig: {
         administration: {
-            title: 'Administration',
+            title: Uni.I18n.translate('general.administration','SAM','Administration'),
             route: 'administration',
             disabled: true,
             items: {
