@@ -20,9 +20,9 @@ public class ZigbeeGasMessaging extends GenericMessaging {
 
     private static final String SET_PRICE_PER_UNIT = "SetPricePerUnit";
     private static final String READ_PRICE_PER_UNIT = "ReadPricePerUnit";
-    private static final String SET_STANDING_CHARGE = "SetStandingCharge";
-    private static final String SET_CALORIFIC_VALUE = "SetCalorificValue";
-    private static final String SET_CONVERSION_FACTOR = "SetConversionFactor";
+    private static final String SET_STANDING_CHARGE = "SetStandingChargeAndActivationDate";
+    private static final String SET_CALORIFIC_VALUE = "SetCalorificValueAndActivationDate";
+    private static final String SET_CONVERSION_FACTOR = "SetConversionFactorAndActivationDate";
     private static final String ID_OF_USER_FILE = "ID of user file containing the price information";
     private static final String TARIFF_LABEL_TAG = "TariffLabel";
     private static final String COMMA_SEPARATED_PRICES = "CommaSeparatedPrices";

@@ -59,8 +59,8 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
         registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new SimpleTagMessageEntry("RemoteDisconnect"));
 
         // CV & CF information
-        registry.put(ConfigurationChangeDeviceMessage.SetCalorificValue, new MultipleAttributeMessageEntry("SetCalorificValue", "Calorific value", ActivationDate));
-        registry.put(ConfigurationChangeDeviceMessage.SetConversionFactor, new MultipleAttributeMessageEntry("SetConversionFactor", "Conversion factor", ActivationDate));
+        registry.put(ConfigurationChangeDeviceMessage.SetCalorificValueAndActivationDate, new MultipleAttributeMessageEntry("SetCalorificValueAndActivationDate", "Calorific value", ActivationDate));
+        registry.put(ConfigurationChangeDeviceMessage.SetConversionFactorAndActivationDate, new MultipleAttributeMessageEntry("SetConversionFactorAndActivationDate", "Conversion factor", ActivationDate));
 
         // Display
         registry.put(DisplayDeviceMessage.SET_DISPLAY_MESSAGE_WITH_OPTIONS, new MultipleAttributeMessageEntry("TextToDisplay", "Message", "Duration of message", ActivationDate));
@@ -74,7 +74,7 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
         // Pricing Information
         registry.put(PricingInformationMessage.ReadPricingInformation, new SimpleTagMessageEntry("ReadPricePerUnit"));
         registry.put(PricingInformationMessage.SetPricingInformation, new ConfigWithUserFileAndActivationDateMessageEntry(DeviceMessageConstants.PricingInformationUserFileAttributeName, DeviceMessageConstants.PricingInformationActivationDateAttributeName ,"SetPricePerUnit"));
-        registry.put(PricingInformationMessage.SetStandingCharge, new MultipleAttributeMessageEntry("SetStandingCharge", "Standing charge", ActivationDate));
+        registry.put(PricingInformationMessage.SetStandingChargeAndActivationDate, new MultipleAttributeMessageEntry("SetStandingChargeAndActivationDate", "Standing charge", ActivationDate));
         registry.put(PricingInformationMessage.UpdatePricingInformation, new ConfigWithUserFileMessageEntry(DeviceMessageConstants.PricingInformationUserFileAttributeName, "Update_Pricing_Information"));
 
         // TestMessage

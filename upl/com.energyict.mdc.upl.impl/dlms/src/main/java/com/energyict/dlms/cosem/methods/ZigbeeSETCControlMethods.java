@@ -19,7 +19,13 @@ public enum ZigbeeSETCControlMethods implements DLMSClassMethods {
 
     REGISTER_DEVICE(1, 0x18),
     UNREGISTER_DEVICE(2, 0x20),
-    UNREGISTER_ALL_DEVICES(3, 0x28);
+    UNREGISTER_ALL_DEVICES(3, 0x28),
+    BACKUP_HAN(4, 0x40),
+    RESTORE_HAN(5, 0x48),
+    REMOVE_MIRROR(7, 0x58),
+    UPDATE_LINK_KEY(9, 0x68),
+    CREATE_HAN(10, 0x70),
+    REMOVE_HAN(11, 0x78);
 
     /**
      * The number of the method in chronological order

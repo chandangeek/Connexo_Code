@@ -74,7 +74,7 @@ public class AS300MessageConverter extends AbstractMessageConverter {
         // Pricing Information
         registry.put(PricingInformationMessage.ReadPricingInformation, new SimpleTagMessageEntry("ReadPricePerUnit"));
         registry.put(PricingInformationMessage.SetPricingInformation, new ConfigWithUserFileAndActivationDateMessageEntry(DeviceMessageConstants.PricingInformationUserFileAttributeName, DeviceMessageConstants.PricingInformationActivationDateAttributeName ,"SetPricePerUnit"));
-        registry.put(PricingInformationMessage.SetStandingCharge, new MultipleAttributeMessageEntry("SetStandingCharge", "Standing charge", ActivationDate));
+        registry.put(PricingInformationMessage.SetStandingChargeAndActivationDate, new MultipleAttributeMessageEntry("SetStandingCharge", "Standing charge", ActivationDate));
         registry.put(PricingInformationMessage.UpdatePricingInformation, new ConfigWithUserFileMessageEntry(DeviceMessageConstants.PricingInformationUserFileAttributeName, "Update_Pricing_Information"));
 
         // Time of Use

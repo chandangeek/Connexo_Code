@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.text.ParseException;
+import java.util.Date;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -28,18 +29,25 @@ import static junit.framework.Assert.assertEquals;
 @RunWith(MockitoJUnitRunner.class)
 public class Dsmr23MBusDeviceMessageConverterTest extends AbstractMessageConverterTest {
 
+    private Date activityCalendarActivationDate;
+
     @Test
     public void testMessageConversion() {
+
         MessageEntry messageEntry;
         OfflineDeviceMessage offlineDeviceMessage;
-
+        try {
+            activityCalendarActivationDate = europeanDateTimeFormat.parse("30/10/2013 10:00:00");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_CLOSE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<connectLoad> </connectLoad>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<connectLoad Activation_date=\"1383123600\"> </connectLoad>", messageEntry.getContent());
+        assertEquals("<connectLoad Activation_date=\""+activityCalendarActivationDate.getTime() / 1000+"\"> </connectLoad>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_OPEN);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
@@ -47,7 +55,7 @@ public class Dsmr23MBusDeviceMessageConverterTest extends AbstractMessageConvert
 
         offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<disconnectLoad Activation_date=\"1383123600\"> </disconnectLoad>", messageEntry.getContent());
+        assertEquals("<disconnectLoad Activation_date=\""+activityCalendarActivationDate.getTime() / 1000+"\"> </disconnectLoad>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
@@ -82,21 +90,17 @@ public class Dsmr23MBusDeviceMessageConverterTest extends AbstractMessageConvert
 
     @Override
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
-        try {
-            switch (propertySpec.getName()) {
-                case DeviceMessageConstants.contactorActivationDateAttributeName:
-                    return europeanDateTimeFormat.parse("30/10/2013 10:00:00");
-                case DeviceMessageConstants.contactorModeAttributeName:
-                    return 1;
-                case DeviceMessageConstants.openKeyAttributeName:
-                    return new Password("open");
-                case DeviceMessageConstants.transferKeyAttributeName:
-                    return new Password("transfer");
-                default:
-                    return "";
-            }
-        } catch (ParseException e) {
-            return "";
+        switch (propertySpec.getName()) {
+            case DeviceMessageConstants.contactorActivationDateAttributeName:
+                return activityCalendarActivationDate;
+            case DeviceMessageConstants.contactorModeAttributeName:
+                return 1;
+            case DeviceMessageConstants.openKeyAttributeName:
+                return new Password("open");
+            case DeviceMessageConstants.transferKeyAttributeName:
+                return new Password("transfer");
+            default:
+                return "";
         }
     }
 }

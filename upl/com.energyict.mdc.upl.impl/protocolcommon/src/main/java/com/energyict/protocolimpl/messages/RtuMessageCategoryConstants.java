@@ -42,6 +42,7 @@ public class RtuMessageCategoryConstants {
     public static final String REBOOT = "Reboot";
     public static final String LOGBOOK = "Logbooks";
     public static final String CONFIGURATION = "Configuration";
-
+    public static final String TIMEOFUSE = "TimeOfUse";
     public static final String CHANGE_ADMINISTRATIVE_STATUS = "Change administrative status";
+    public static final String SECURITY = "Security";
 }

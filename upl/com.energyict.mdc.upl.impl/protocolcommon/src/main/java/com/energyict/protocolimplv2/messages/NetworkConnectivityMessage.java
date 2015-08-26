@@ -102,6 +102,22 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.Destination1IPAddressAttributeName),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.Destination2IPAddressAttributeName)
     ),
+    WakeupParameters(44,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.wakeupPeriodAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.inactivityTimeoutAttributeName)
+    ),
+    PreferredNetworkOperatorList(45,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.networkOperator + "_" + 1),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.networkOperator + "_" + 2),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.networkOperator + "_" + 3),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.networkOperator + "_" + 4),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.networkOperator + "_" + 5),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.networkOperator + "_" + 6),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.networkOperator + "_" + 7),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.networkOperator + "_" + 8),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.networkOperator + "_" + 9),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.networkOperator + "_" + 10)
+    ),
     ;
 
     private static final DeviceMessageCategory networkAndConnectivityCategory = DeviceMessageCategories.NETWORK_AND_CONNECTIVITY;

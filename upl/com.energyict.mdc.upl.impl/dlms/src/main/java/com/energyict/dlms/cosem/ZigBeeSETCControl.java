@@ -67,4 +67,28 @@ public class ZigBeeSETCControl extends AbstractCosemObject {
         return methodInvoke(ZigbeeSETCControlMethods.UNREGISTER_ALL_DEVICES, new Unsigned8(0));
     }
 
+    public byte[] backupHAN() throws IOException {
+        return methodInvoke(ZigbeeSETCControlMethods.BACKUP_HAN, new Unsigned8(0));
+    }
+
+    public byte[] restoreHAN(Structure backUp) throws IOException {
+        return methodInvoke(ZigbeeSETCControlMethods.RESTORE_HAN, backUp);
+    }
+
+    public byte[] removeMirror(Structure mirrorDataStructure) throws IOException {
+        return methodInvoke(ZigbeeSETCControlMethods.REMOVE_MIRROR, mirrorDataStructure);
+    }
+
+    public byte[] updateLinkKey(OctetString ieeeAddress) throws IOException {
+        return methodInvoke(ZigbeeSETCControlMethods.UPDATE_LINK_KEY, ieeeAddress);
+    }
+
+    public byte[] createHAN() throws IOException {
+        return methodInvoke(ZigbeeSETCControlMethods.CREATE_HAN, new Unsigned8(0));
+    }
+
+    public byte[] removeHAN() throws IOException {
+        return methodInvoke(ZigbeeSETCControlMethods.REMOVE_HAN, new Unsigned8(0));
+    }
+
 }

@@ -24,13 +24,32 @@ public enum PricingInformationMessage implements DeviceMessageSpec {
             PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.PricingInformationUserFileAttributeName),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.PricingInformationActivationDateAttributeName)
     ),
-    SetStandingCharge(2,
+    SetStandingChargeAndActivationDate(2,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.StandingChargeAttributeName),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.PricingInformationActivationDateAttributeName)
     ),
-    UpdatePricingInformation(3,
+    SetStandingCharge(3,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.StandingChargeAttributeName)
+    ),
+    UpdatePricingInformation(4,
             PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.PricingInformationUserFileAttributeName)
+    ),
+    SEND_NEW_TARIFF(5,
+            PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.contractsXmlUserFileAttributeName)
+    ),
+    SEND_NEW_PRICE_MATRIX(6,
+            PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.contractsXmlUserFileAttributeName)
+    ),
+    SET_CURRENCY_AND_ACTIVATION_DATE(7,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.currency),
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.PricingInformationActivationDateAttributeName)
+    ),
+    SET_CURRENCY(8,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.currency)
     );
+
+
+
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.PRICING_INFORMATION;
 

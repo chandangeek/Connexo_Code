@@ -49,10 +49,10 @@ public class ZigbeeMessageExecutor extends MessageParser {
     private static final ObisCode ChangeOfSupplierNameObisCode = ObisCode.fromString("7.0.1.64.0.255");
     private static final ObisCode ChangeOfSupplierIdObisCode = ObisCode.fromString("7.0.1.64.1.255");
     private static final String STANDING_CHARGE = "Standing charge";
-    private static final String SET_STANDING_CHARGE = "SetStandingCharge";
-    private static final String SET_CALORIFIC_VALUE = "SetCalorificValue";
+    private static final String SET_STANDING_CHARGE = "SetStandingChargeAndActivationDate";
+    private static final String SET_CALORIFIC_VALUE = "SetCalorificValueAndActivationDate";
     private static final String READ_PRICE_PER_UNIT = "ReadPricePerUnit";
-    private static final String SET_CONVERSION_FACTOR = "SetConversionFactor";
+    private static final String SET_CONVERSION_FACTOR = "SetConversionFactorAndActivationDate";
     private static final String SET_PRICE_PER_UNIT = "SetPricePerUnit";
     private static final String ACTIVATION_DATE_TAG = "ActivationDate";
     private static final String TARIFF_LABEL = "TariffLabel";

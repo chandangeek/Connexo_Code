@@ -190,6 +190,7 @@ public class DeviceMessageConstants {
     public static final String enableModemWatchdog = "NetworkConnectivityMessage.enableModemWatchdog";
     public static final String modemWatchdogInterval = "NetworkConnectivityMessage.modemWatchdogInterval";
     public static final String modemResetThreshold = "NetworkConnectivityMessage.modemResetThreshold";
+    public static final String networkOperator = "NetworkConnectivityMessage.networkOperator";
     public static final String Destination1IPAddressAttributeName = "NetworkConnectivityMessage.destination.1";
     public static final String Destination2IPAddressAttributeName = "NetworkConnectivityMessage.destination.2";
 
@@ -254,10 +255,15 @@ public class DeviceMessageConstants {
     public static final String ConversionFactor = "ConfigurationChangeDeviceMessage.conversionfactor";
     public static final String ChangeOfSupplierName = "ConfigurationChangeDeviceMessage.changeofsuppliername";
     public static final String ChangeOfSupplierID = "ConfigurationChangeDeviceMessage.changeofsupplierid";
+    public static final String tenantReference = "ConfigurationChangeDeviceMessage.tenantreference";
+    public static final String supplierReference = "ConfigurationChangeDeviceMessage.supplierreference";
+    public static final String scriptExecuted = "ConfigurationChangeDeviceMessage.scriptexecuted";
     public static final String ConfigurationChangeActivationDate = "ConfigurationChangeDeviceMessage.activationdate";
     public static final String AlarmFilterAttributeName = "ConfigurationChangeDeviceMessage.alarmfilter";
     public static final String DefaultResetWindowAttributeName = "ConfigurationChangeDeviceMessage.defaultresetwindow";
     public static final String AdministrativeStatusAttributeName = "ConfigurationChangeDeviceMessage.administrativestatus";
+    public static final String engineerPin = "ConfigurationChangeDeviceMessage.engineerPin";
+    public static final String engineerPinTimeout = "ConfigurationChangeDeviceMessage.engineerPinTimeout";
 
     public static final String SetDialCommandAttributeName = "ModemConfigurationDeviceMessage.setdialcommand";
     public static final String SetModemInit1AttributeName = "ModemConfigurationDeviceMessage.setmodeminit1";
@@ -488,10 +494,12 @@ public class DeviceMessageConstants {
     public static final String ZigBeeConfigurationSASExtendedPanIdAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.extendedpanid";
     public static final String ZigBeeConfigurationSASPanChannelMaskAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.panchannelmask";
     public static final String ZigBeeConfigurationHANRestoreUserFileAttributeName = "ZigBeeConfigurationDeviceMessage.hanrestoreuserfile";
+    public static final String ZigBeeConfigurationDeviceType = "ZigBeeConfigurationDeviceMessage.devicetype";
 
     public static final String StandingChargeAttributeName = "PricingInformation.standingcharge";
     public static final String PricingInformationUserFileAttributeName = "PricingInformation.userfile";
     public static final String PricingInformationActivationDateAttributeName = "PricingInformation.activationdate";
+    public static final String currency = "currency";
 
     public static final String alarmRegisterAttributeName = "AlarmConfigurationMessage.alarmRegister";
     public static final String alarmBitMaskAttributeName = "AlarmConfigurationMessage.alarmBitMask";

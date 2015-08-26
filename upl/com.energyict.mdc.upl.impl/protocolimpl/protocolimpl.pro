@@ -638,11 +638,19 @@
 
 -keepnames class com.energyict.smartmeterprotocolimpl.elster.apollo.AS300
 
+-keepnames class com.energyict.smartmeterprotocolimpl.elster.AS300P.AS300P
+
 -keepnames class com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub
 
 -keepnames class com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas
 
 -keepnames class com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.InHomeDisplay
+
+-keepnames class com.energyict.smartmeterprotocolimpl.eict.AM110R.AM110R
+
+-keepnames class com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.gas.ZigbeeGas
+
+-keepnames class com.energyict.smartmeterprotocolimpl.eict.AM110R.zigbee.ihd.InHomeDisplay
 
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice
 
@@ -651,6 +659,10 @@
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.Mx382
 
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.MbusDevice
+
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.MbusDevice
+
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.xemex.WatchTalk
 
 -keepnames class com.energyict.protocolimpl.base.RtuDiscoveredEvent
 

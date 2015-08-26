@@ -22,6 +22,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static junit.framework.Assert.assertEquals;
@@ -38,6 +40,7 @@ public class A1MessageConverterTest extends AbstractMessageConverterTest {
     private static String USER_FILE_XML = "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?><Calendar></Calendar>";
     private static String TARIFF_CODE_EXPECTED_CONTENT = "<SetPassiveCalendar TARIFF_ACTIVATION_DATE=\"2015-08-01 00:00:00\" TARIFF_CALENDAR_FILE=\"<?xml version=''1.0'' encoding=''iso-8859-1''?><Calendar></Calendar>\"> </SetPassiveCalendar>";
     private static String SPECIAL_DAYS_EXPECTED_CONTENT = "<SetSpecialDaysTable SPECIAL_DAYS_TABLE_FILE=\"<?xml version=''1.0'' encoding=''iso-8859-1''?><Calendar></Calendar>\"> </SetSpecialDaysTable>";
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Test
     public void testMessageConversion_ChangeCredentials() {
@@ -189,71 +192,76 @@ public class A1MessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
-        switch (propertySpec.getName()) {
-            case DeviceMessageConstants.apnAttributeName:
-                return "MyTestAPN";
-            case DeviceMessageConstants.usernameAttributeName:
-                return "MyTestUserName";
-            case DeviceMessageConstants.passwordAttributeName:
-                return new Password("MyTestPassword");
-            case DeviceMessageConstants.clientMacAddress:
-                return BigDecimal.ONE;
-            case DeviceMessageConstants.masterKey:
-                return new Password("MASTER_Key");
-            case DeviceMessageConstants.newAuthenticationKeyAttributeName:
-                return new Password("AUTH_Key");
-            case DeviceMessageConstants.newEncryptionKeyAttributeName:
-                return new Password("ENCR_Key");
-            case DeviceMessageConstants.newPDRAttributeName:
-                return "PDR";
-            case DeviceMessageConstants.sessionTimeoutAttributeName:
-                return BigDecimal.TEN;
-            case DeviceMessageConstants.day:
-                return BigDecimal.ONE;
-            case DeviceMessageConstants.hour:
-                return BigDecimal.valueOf(2);
-            case DeviceMessageConstants.minute:
-                return BigDecimal.valueOf(30);
-            case DeviceMessageConstants.second:
-                return BigDecimal.ZERO;
-            case DeviceMessageConstants.Destination1IPAddressAttributeName:
-                return "10.0.1.50:4059";
-            case DeviceMessageConstants.Destination2IPAddressAttributeName:
-                return "11.1.2.20";
-            case DeviceMessageConstants.billingPeriodLengthAttributeName:
-                return BigDecimal.valueOf(30);
-            case DeviceMessageConstants.year:
-                return BigDecimal.valueOf(2015);
-            case DeviceMessageConstants.month:
-                return BigDecimal.valueOf(8);
-            case DeviceMessageConstants.dayOfWeek:
-                return "SU";
-            case DeviceMessageConstants.setOnDemandBillingDateAttributeName:
-                return new Date(1438380000000l); // 01/08/2015 00:00:00
-            case DeviceMessageConstants.OnDemandBillingReasonAttributeName:
-                return BigDecimal.ONE;
-            case DeviceMessageConstants.UnitStatusAttributeName:
-                return "Maintenance";
-            case DeviceMessageConstants.TimeZoneOffsetInHoursAttributeName:
-                return BigDecimal.valueOf(2);
-            case DeviceMessageConstants.enableDSTAttributeName:
-                return true;
-            case DeviceMessageConstants.DSTDeviationAttributeName:
-                return BigDecimal.valueOf(60);
-            case DeviceMessageConstants.IgnoreDSTAttributeName:
-                return false;
-            case DeviceMessageConstants.StartOfGasDayAttributeName:
-                return new TimeOfDay(23400);
-            case DeviceMessageConstants.enableRSSIMultipleSampling:
-                return true;
-            case DeviceMessageConstants.XmlUserFileAttributeName:
-                UserFile userFile = mock(UserFile.class);
-                when(userFile.loadFileInByteArray()).thenReturn(USER_FILE_XML.getBytes(Charset.forName("US-ASCII")));
-                return userFile;
-            case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
-                return new Date(1438380000000l); // 01/08/2015 00:00:00
-            default:
-                return "";
+        try {
+            switch (propertySpec.getName()) {
+                case DeviceMessageConstants.apnAttributeName:
+                    return "MyTestAPN";
+                case DeviceMessageConstants.usernameAttributeName:
+                    return "MyTestUserName";
+                case DeviceMessageConstants.passwordAttributeName:
+                    return new Password("MyTestPassword");
+                case DeviceMessageConstants.clientMacAddress:
+                    return BigDecimal.ONE;
+                case DeviceMessageConstants.masterKey:
+                    return new Password("MASTER_Key");
+                case DeviceMessageConstants.newAuthenticationKeyAttributeName:
+                    return new Password("AUTH_Key");
+                case DeviceMessageConstants.newEncryptionKeyAttributeName:
+                    return new Password("ENCR_Key");
+                case DeviceMessageConstants.newPDRAttributeName:
+                    return "PDR";
+                case DeviceMessageConstants.sessionTimeoutAttributeName:
+                    return BigDecimal.TEN;
+                case DeviceMessageConstants.day:
+                    return BigDecimal.ONE;
+                case DeviceMessageConstants.hour:
+                    return BigDecimal.valueOf(2);
+                case DeviceMessageConstants.minute:
+                    return BigDecimal.valueOf(30);
+                case DeviceMessageConstants.second:
+                    return BigDecimal.ZERO;
+                case DeviceMessageConstants.Destination1IPAddressAttributeName:
+                    return "10.0.1.50:4059";
+                case DeviceMessageConstants.Destination2IPAddressAttributeName:
+                    return "11.1.2.20";
+                case DeviceMessageConstants.billingPeriodLengthAttributeName:
+                    return BigDecimal.valueOf(30);
+                case DeviceMessageConstants.year:
+                    return BigDecimal.valueOf(2015);
+                case DeviceMessageConstants.month:
+                    return BigDecimal.valueOf(8);
+                case DeviceMessageConstants.dayOfWeek:
+                    return "SU";
+                case DeviceMessageConstants.setOnDemandBillingDateAttributeName:
+                    return dateFormat.parse("2015-08-01 00:00:00");
+                case DeviceMessageConstants.OnDemandBillingReasonAttributeName:
+                    return BigDecimal.ONE;
+                case DeviceMessageConstants.UnitStatusAttributeName:
+                    return "Maintenance";
+                case DeviceMessageConstants.TimeZoneOffsetInHoursAttributeName:
+                    return BigDecimal.valueOf(2);
+                case DeviceMessageConstants.enableDSTAttributeName:
+                    return true;
+                case DeviceMessageConstants.DSTDeviationAttributeName:
+                    return BigDecimal.valueOf(60);
+                case DeviceMessageConstants.IgnoreDSTAttributeName:
+                    return false;
+                case DeviceMessageConstants.StartOfGasDayAttributeName:
+                    return new TimeOfDay(23400);
+                case DeviceMessageConstants.enableRSSIMultipleSampling:
+                    return true;
+                case DeviceMessageConstants.XmlUserFileAttributeName:
+                    UserFile userFile = mock(UserFile.class);
+                    when(userFile.loadFileInByteArray()).thenReturn(USER_FILE_XML.getBytes(Charset.forName("US-ASCII")));
+                    return userFile;
+                case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
+                    return dateFormat.parse("2015-08-01 00:00:00");
+                default:
+                    return "";
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return "";
         }
     }
 }

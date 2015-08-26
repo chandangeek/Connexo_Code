@@ -14,6 +14,16 @@ public class DSMRProfileIntervalStatusBits implements ProfileIntervalStatusBits 
     static final int POWER_UP = 0x40;  // only used by IskraEmeko for power return
     static final int POWER_DOWN = 0x80;
 
+    private boolean ignoreDstStatusCode;
+
+    public DSMRProfileIntervalStatusBits() {
+        this.ignoreDstStatusCode = false;
+    }
+
+    public DSMRProfileIntervalStatusBits(boolean ignoreDstStatusCode) {
+        this.ignoreDstStatusCode = ignoreDstStatusCode;
+    }
+
     public int getEisStatusCode(final int statusCodeProfile) {
         int eiCode = 0;
 
@@ -26,7 +36,7 @@ public class DSMRProfileIntervalStatusBits implements ProfileIntervalStatusBits 
         if ((statusCodeProfile & DATA_NOT_VALID) == DATA_NOT_VALID) {
             eiCode |= IntervalStateBits.CORRUPTED;
         }
-        if ((statusCodeProfile & DAYLIGHT_SAVING) == DAYLIGHT_SAVING) {
+        if (!ignoreDstStatusCode && (statusCodeProfile & DAYLIGHT_SAVING) == DAYLIGHT_SAVING) {
             eiCode |= IntervalStateBits.OTHER;
         }
         if ((statusCodeProfile & BILLING_RESET) == BILLING_RESET) {

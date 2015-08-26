@@ -292,6 +292,15 @@ public class ImageTransfer extends AbstractCosemObject {
     }
 
     /**
+     * Method containing extra initialization steps, which should be executed before the start of sending of image blocks.
+     */
+    protected void initializationBeforeSendingOfBlocks() throws IOException {
+        if (delayBeforeSendingBlocks > 0) {
+            DLMSUtils.delay(delayBeforeSendingBlocks);  //Wait a bit before sending the blocks
+        }
+    }
+
+    /**
      * Indicates if this is a 'resume' session (sending the remaining blocks) or a normal session (send all blocks)
      * If it's a resume session, there's no need to set the enabled state and to do the initiate.
      */
@@ -510,11 +519,11 @@ public class ImageTransfer extends AbstractCosemObject {
         }
     }
 
-    private boolean isTemporaryFailure(DataAccessResultException e) {
+    protected boolean isTemporaryFailure(DataAccessResultException e) {
         return (e.getDataAccessResult() == DataAccessResultCode.TEMPORARY_FAILURE.getResultCode());
     }
 
-    private boolean isHardwareFailure(DataAccessResultException e) {
+    protected boolean isHardwareFailure(DataAccessResultException e) {
         return (e.getDataAccessResult() == DataAccessResultCode.HARDWARE_FAULT.getResultCode());
     }
 
@@ -539,7 +548,7 @@ public class ImageTransfer extends AbstractCosemObject {
     /**
      * Wait until the image verification was successfully by polling the meter
      */
-    private final void pollForImageVerificationStatus() throws IOException {
+    protected final void pollForImageVerificationStatus() throws IOException {
         int tries = pollingRetries;
         while (--tries > 0) {
             try {

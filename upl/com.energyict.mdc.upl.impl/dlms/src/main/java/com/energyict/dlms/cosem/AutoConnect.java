@@ -38,6 +38,8 @@ public class AutoConnect extends AbstractCosemObject {
 	private static final int ATTRB_REPETITION_DELAY = 4;
 	private static final int ATTRB_CALLING_WINDOW = 5;
 	private static final int ATTRB_DESTINATION_LIST = 6;
+    private static final int ATTRB_CALLING_WINDOW_LENGTH = -1;
+    private static final int ATTRB_IDLE_TIMEOUT = -2;
 
 	/** Methods */
 	//none
@@ -351,4 +353,30 @@ public class AutoConnect extends AbstractCosemObject {
 	public void updatePhoneList() throws IOException {
 		writeDestinationList(getDestinationList());
 	}
+
+    /**
+     * Write the given wakeup calling window length to the device
+     * @param callingWindowLength
+     * @throws IOException
+     */
+    public void writeWakeupCallingWindowLength(Unsigned32 callingWindowLength) throws IOException{
+        try{
+            write(ATTRB_CALLING_WINDOW_LENGTH, callingWindowLength.getBEREncodedByteArray());
+        } catch (IOException e){
+            throw new IOException("Could not write the given wakeup calling window length. " + e.getMessage());
+        }
+    }
+
+    /**
+     * Write the given wakeup idle timeout to the device
+     * @param idleTimeout
+     * @throws IOException
+     */
+    public void writeWakeupIdleTimeoutLength(Unsigned32 idleTimeout) throws IOException{
+        try{
+            write(ATTRB_IDLE_TIMEOUT, idleTimeout.getBEREncodedByteArray());
+        } catch (IOException e){
+            throw new IOException("Could not write the given wakeup idle timeout length. " + e.getMessage());
+        }
+    }
 }

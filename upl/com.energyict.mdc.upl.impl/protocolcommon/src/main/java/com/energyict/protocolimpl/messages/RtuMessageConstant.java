@@ -61,8 +61,8 @@ public class RtuMessageConstant {
     public static final String TOU_SPECIAL_DAYS_DELETE = "Special_Days_Delete";
     public static final String TOU_SPECIAL_DAYS_DELETE_ENTRY = "Delete_entry";
     public static final String TOU_SPECIAL_DAYS_CODE_TABLE = "Code_Table";
-
-    public static final String TimeOfUse = "TimeOfUse";
+    public static final String TOU_SEND_NEW_TARIFF = "SendNewTariff";
+    public static final String TOU_TARIFF_USER_FILE = "TariffUserFile";
 
     /**
      * DeviceMessage tag for threshold parameters
@@ -389,4 +389,33 @@ public class RtuMessageConstant {
 
     public static final String PREFERRED_NETWORK_OPERATORS_LIST = "PreferredNetworkOperatorsList";
     public static final String NETWORK_OPERATOR = "Operator";
+
+    public static final String SEND_NEW_PRICE_MATRIX = "SendNewPriceMatrix";
+    public static final String PRICE_MATRIX_USER_FILE = "PriceMatrixUserFile";
+    public static final String SET_STANDING_CHARGE = "SetStandingChargeAndActivationDate";
+    public static final String STANDING_CHARGE = "StandingCharge";
+    public static final String SET_CURRENCY = "SetCurrency";
+    public static final String CURRENCY = "Currency";
+    public static final String ACTIVATION_DATE = "ActivationDate";
+
+    public static final String TENANT_REFERENCE = "Tenant_Reference";
+    public static final String SUPPLIER_REFERENCE = "Supplier_Reference";
+    public static final String SUPPLIER_ID = "Supplier_Id";
+    public static final String SCRIPT_EXECUTED = "Script_executed";
+
+
+    public static final String SET_CONVERSION_FACTOR = "SetConversionFactorAndActivationDate";
+    public static final String CONVERSION_FACTOR = "ConversionFactor";
+    public static final String SET_CALORIFIC_VALUE = "SetCalorificValueAndActivationDate";
+    public static final String CALORIFIC_VALUE = "CalorificValue";
+
+    public static final String CHANGE_OF_SUPPLIER_IMPORT_ENERGY = "Change_Of_Supplier_ImportEnergy";
+    public static final String CHANGE_OF_SUPPLIER_EXPORT_ENERGY = "Change_Of_Supplier_ExportEnergy";
+    public static final String DISCONNECT_CONTROL_RECONNECT = "DisconnectControlReconnect";
+    public static final String DISCONNECT_CONTROL_DISCONNECT = "DisconnectControlDisconnect";
+    public static final String SET_DISCONNECT_CONTROL_MODE = "SetControlMode";
+    public static final String CONTROL_MODE = "Control mode (range 0 - 6)";
+    public static final String SET_ENGINEER_PIN = "Change_Engineer_PIN";
+    public static final String ENGINEER_PIN = "PIN";
+    public static final String ENGINEER_PIN_TIMEOUT = "Timeout";
 }

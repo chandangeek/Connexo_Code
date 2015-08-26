@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.messages;
 
+import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
@@ -73,11 +74,11 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
     ),
     ChangeOfTenancy(24, PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)),
-    SetCalorificValue(25,
+    SetCalorificValueAndActivationDate(25,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CalorificValue),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
     ),
-    SetConversionFactor(26,
+    SetConversionFactorAndActivationDate(26,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ConversionFactor),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
     ),
@@ -131,7 +132,74 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     ChangeUnitStatus(51, PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.UnitStatusAttributeName, "Normal", "Maintenance")),
     ConfigureStartOfGasDaySettings(52, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.IgnoreDSTAttributeName, false)),
     ConfigureStartOfGasDay(53, PropertySpecFactory.timeOfDayPropertySpec(DeviceMessageConstants.StartOfGasDayAttributeName)),
-    ConfigureRSSIMultipleSampling(54, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableRSSIMultipleSampling, true));
+    ConfigureRSSIMultipleSampling(54, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableRSSIMultipleSampling, true)),
+    CHANGE_OF_TENANT(55,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.tenantReference),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.supplierReference),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ChangeOfSupplierID),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.scriptExecuted)
+    ),
+    CHANGE_OF_TENANT_AND_ACTIVATION_DATE(56,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.tenantReference),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.supplierReference),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ChangeOfSupplierID),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.scriptExecuted),
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
+    ),
+    CHANGE_OF_SUPPLIER(57,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.tenantReference),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.supplierReference),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ChangeOfSupplierID),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.scriptExecuted)
+    ),
+    CHANGE_OF_SUPPLIER_AND_ACTIVATION_DATE(58,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.tenantReference),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.supplierReference),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ChangeOfSupplierID),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.scriptExecuted),
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
+    ),
+    CHANGE_OF_SUPPLIER_IMPORT_ENERGY(59,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.tenantReference),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.supplierReference),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ChangeOfSupplierID),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.scriptExecuted)
+    ),
+    CHANGE_OF_SUPPLIER_IMPORT_ENERGY_AND_ACTIVATION_DATE(60,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.tenantReference),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.supplierReference),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ChangeOfSupplierID),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.scriptExecuted),
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
+    ),
+    CHANGE_OF_SUPPLIER_EXPORT_ENERGY(61,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.tenantReference),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.supplierReference),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ChangeOfSupplierID),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.scriptExecuted)
+    ),
+    CHANGE_OF_SUPPLIER_EXPORT_ENERGY_AND_ACTIVATION_DATE(62,
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.tenantReference),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.supplierReference),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ChangeOfSupplierID),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.scriptExecuted),
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
+    ),
+    SET_ENGINEER_PIN(63,
+            PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.engineerPin, 8),
+            PropertySpecFactory.timeDurationPropertySpec(DeviceMessageConstants.engineerPinTimeout, TimeDuration.seconds(30))
+    ),
+    SET_ENGINEER_PIN_AND_ACTIVATION_DATE(64,
+            PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.engineerPin, 8),
+            PropertySpecFactory.timeDurationPropertySpec(DeviceMessageConstants.engineerPinTimeout, TimeDuration.seconds(30)),
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
+    ),
+    SetCalorificValue(65,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CalorificValue)
+    ),
+    SetConversionFactor(66,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ConversionFactor)
+    ),
     ;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;

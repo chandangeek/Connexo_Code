@@ -18,6 +18,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Date;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
@@ -77,7 +78,11 @@ public class AS220DLMSMessageConverterTest extends AbstractMessageConverterTest 
      */
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
         if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
-            return new Date(0);
+            try {
+                return dateTimeFormat.parse("1970/01/01 01:00:00");
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         } else if (propertySpec.getName().equals(specialDaysCodeTableAttributeName) || propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
             return mock(Code.class);
         } else if (propertySpec.getName().equals(activityCalendarNameAttributeName)) {

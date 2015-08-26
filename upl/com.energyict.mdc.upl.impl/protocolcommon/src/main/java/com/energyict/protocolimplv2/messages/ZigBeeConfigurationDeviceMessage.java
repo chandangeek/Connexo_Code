@@ -42,7 +42,14 @@ public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpec {
     ZigBeeNCPFirmwareUpdateWithUserFileAndActivate(11,
             PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ZigBeeConfigurationActivationDateAttributeName)
+    ),
+    UpdateLinkKey(12, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName)),
+    JoinZigBeeSlaveFromDeviceType(13,
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ZigBeeConfigurationDeviceType)
     );
+
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.ZIGBEE_CONFIGURATION;
 

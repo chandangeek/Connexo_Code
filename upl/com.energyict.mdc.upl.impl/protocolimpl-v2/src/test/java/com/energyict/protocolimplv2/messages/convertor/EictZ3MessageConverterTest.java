@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.Date;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
@@ -72,7 +73,11 @@ public class EictZ3MessageConverterTest extends AbstractMessageConverterTest {
      */
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
         if (propertySpec.getName().equals(contactorActivationDateAttributeName)) {
-            return new Date(0);
+            try {
+                return dateTimeFormat.parse("1970/01/01 01:00:00");
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         } else if (propertySpec.getName().equals(contactorModeAttributeName)) {
             return BigDecimal.valueOf(1);
         } else if (propertySpec.getName().equals(openKeyAttributeName) || propertySpec.getName().equals(transferKeyAttributeName)) {
