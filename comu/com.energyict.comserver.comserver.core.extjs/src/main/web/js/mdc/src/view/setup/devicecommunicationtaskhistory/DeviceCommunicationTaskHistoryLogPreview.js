@@ -3,9 +3,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
     frame: true,
     alias: 'widget.deviceCommunicationTaskHistoryLogPreview',
     itemId: 'deviceCommunicationTaskHistoryLogPreview',
-    requires: [
-
-    ],
     layout: {
         type: 'vbox',
         align: 'stretch'
@@ -36,12 +33,13 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                     xtype: 'displayfield',
                     name: 'details',
                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.description', 'MDC', 'Description'),
+                    htmlEncode: false,
                     renderer: function(value,field){
                         if(!value){
                             field.hide();
                         } else {
                             field.show();
-                            return Ext.String.htmlEncode(value);
+                            return value.replace(/(?:\r\n|\r|\n)/g, '<br>');
                         }
                     }
                 },
@@ -54,12 +52,13 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                     xtype: 'displayfield',
                     name: 'errorDetails',
                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.details', 'MDC', 'Details'),
+                    htmlEncode: false,
                     renderer: function(value,field){
                         if(!value){
                             field.hide();
                         } else {
                             field.show();
-                            return Ext.String.htmlEncode(value);
+                            return value.replace(/(?:\r\n|\r|\n)/g, '<br>');
                         }
                     }
                 }
