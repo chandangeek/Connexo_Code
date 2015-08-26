@@ -19,8 +19,10 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
             store = assigned.topMyIssues(),
             issuesCount = store.getCount();
 
-
-        var title = '<h3>' + Uni.I18n.translatePlural('overview.widget.openDataCollectionIssues.header', assigned.get('total'), 'DSH',  'Open data collection issues ({0})') + '</h3>';
+        var title = '<h3>' + Ext.String.format(
+            Uni.I18n.translate('overview.widget.openDataCollectionIssues.header', 'DSH',  'Open data collection issues ({0})'),
+            assigned.get('total'))
+            + '</h3>';
         me.setTitle(title);
 
         store.each(function (item) {
