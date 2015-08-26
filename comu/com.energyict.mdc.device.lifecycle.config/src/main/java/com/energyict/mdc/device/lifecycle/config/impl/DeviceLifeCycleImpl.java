@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -99,7 +100,7 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     }
 
     public DeviceLifeCycleImpl initialize(String name, FiniteStateMachine stateMachine) {
-        this.name = name;
+        setName(name);
         this.stateMachine.set(stateMachine);
         return this;
     }
@@ -118,7 +119,11 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     }
 
     void setName(String name) {
-        this.name = name;
+        if (!Checks.is(name).emptyOrOnlyWhiteSpace()){
+            this.name = name.trim();
+        } else {
+            this.name = null;
+        }
     }
 
     @Override
