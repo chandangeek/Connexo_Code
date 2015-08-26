@@ -4,10 +4,8 @@ import com.energyict.mdc.device.data.Device;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 
 import java.time.Instant;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
@@ -28,27 +26,26 @@ public class EffectiveTimestampNotAfterLastStateChangeException extends DeviceLi
     private final Thesaurus thesaurus;
     private final MessageSeed messageSeed;
     private final String mRID;
-    private final Instant effectiveTimestamp;
-    private final Instant lastStateChange;
+    private final Date effectiveTimestamp;
+    private final Date lastStateChange;
 
     public EffectiveTimestampNotAfterLastStateChangeException(Thesaurus thesaurus, MessageSeed messageSeed, Device device, Instant effectiveTimestamp, Instant lastStateChange) {
         super();
         this.thesaurus = thesaurus;
         this.messageSeed = messageSeed;
         this.mRID = device.getmRID();
-        this.effectiveTimestamp = effectiveTimestamp;
-        this.lastStateChange = lastStateChange;
+        this.effectiveTimestamp = Date.from(effectiveTimestamp);
+        this.lastStateChange = Date.from(lastStateChange);
     }
 
     @Override
     public String getLocalizedMessage() {
-        DateTimeFormatter formatter = DefaultDateTimeFormatters.mediumDate().withLongTime().build();
         return this.thesaurus
                 .getFormat(this.messageSeed)
                 .format(
                     this.mRID,
-                    formatter.format(this.effectiveTimestamp),
-                    formatter.format(this.lastStateChange));
+                    this.effectiveTimestamp,
+                    this.lastStateChange);
     }
 
 }
