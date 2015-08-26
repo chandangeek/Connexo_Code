@@ -5,7 +5,7 @@ Ext.define('Tme.controller.history.Time', {
 
     routeConfig: {
         administration: {
-            title: 'Administration',
+            title: Uni.I18n.translate('general.administration','TME','Administration'),
             route: 'administration',
             disabled: true,
             items: {
