@@ -160,10 +160,10 @@ public class AM130 extends AM500 {
 
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-        return getAM130RegisterFactory().readRegisters(registers);
+        return getRegisterFactory().readRegisters(registers);
     }
 
-    protected AM130RegisterFactory getAM130RegisterFactory() {
+    protected AM130RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
             this.registerFactory = new AM130RegisterFactory(this);
         }
