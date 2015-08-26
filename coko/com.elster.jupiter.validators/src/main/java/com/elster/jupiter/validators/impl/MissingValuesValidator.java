@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 class MissingValuesValidator extends AbstractValidator {
 
     private static final String READING_QUALITY_TYPE_CODE = "3.5.259";
-    
+
     private Set<Instant> instants;
     private ReadingType readingType;
 
@@ -57,29 +57,29 @@ class MissingValuesValidator extends AbstractValidator {
     @Override
     public void init(Channel channel, ReadingType readingType, Range<Instant> interval) {
         this.readingType = readingType;
-    	Instant start = channel.getMeterActivation().getStart();
-    	if (start == null) {
-    		instants = new HashSet<>();
-    	} else {
-    		if (start.isAfter(interval.lowerEndpoint())) {
-    			if (start.isAfter(interval.upperEndpoint())) {
-    				instants = new HashSet<>();
-    			} else {
-    				instants = new HashSet<>(channel.toList(Range.closed(start, interval.upperEndpoint())));
-    			}
-    		} else {
-    			instants = new HashSet<>(channel.toList(interval));
-//                if (readingType.getBulkReadingType().map(bulk -> channel.getReadingTypes().contains(bulk)).orElse(false)) {
-//                    instants.remove(start);
-//                }
-    		}
-    	}
+        Instant start = channel.getMeterActivation().getStart();
+        if (start == null) {
+            instants = new HashSet<>();
+        } else {
+            if (start.isAfter(interval.lowerEndpoint())) {
+                if (start.isAfter(interval.upperEndpoint())) {
+                    instants = new HashSet<>();
+                } else {
+                    instants = new HashSet<>(channel.toList(Range.closed(start, interval.upperEndpoint())));
+                    instants.remove(start);
+                }
+            } else {
+                instants = new HashSet<>(channel.toList(interval));
+            }
+        }
     }
 
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
         if (intervalReadingRecord.getQuantity(readingType) != null) {
-            instants.remove(intervalReadingRecord.getTimeStamp());
+            if(intervalReadingRecord.getValue() != null) {
+                instants.remove(intervalReadingRecord.getTimeStamp());
+            }
         }
         return ValidationResult.VALID;
     }
@@ -102,9 +102,9 @@ class MissingValuesValidator extends AbstractValidator {
 
     @Override
     public Map<Instant, ValidationResult> finish() {
-    	return instants.stream().collect(Collectors.toMap(Function.identity(), instant -> ValidationResult.SUSPECT));
+        return instants.stream().collect(Collectors.toMap(Function.identity(), instant -> ValidationResult.SUSPECT));
     }
-    
+
     @Override
     public List<String> getRequiredProperties() {
         return Collections.emptyList();
