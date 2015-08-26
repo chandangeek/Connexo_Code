@@ -41,11 +41,11 @@ public enum PricingInformationMessage implements DeviceMessageSpec {
             PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.contractsXmlUserFileAttributeName)
     ),
     SET_CURRENCY_AND_ACTIVATION_DATE(7,
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.currency),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.currency),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.PricingInformationActivationDateAttributeName)
     ),
     SET_CURRENCY(8,
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.currency)
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.currency)
     );
 
 

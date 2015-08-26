@@ -47,11 +47,11 @@ public class AS300PMessageConverterTest extends AbstractMessageConverterTest {
 
         offlineDeviceMessage = createMessage(PricingInformationMessage.SET_CURRENCY);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<SetCurrency Currency=\"AAA\"> </SetCurrency>", messageEntry.getContent());
+        assertEquals("<SetCurrency Currency=\"2\"> </SetCurrency>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(PricingInformationMessage.SET_CURRENCY_AND_ACTIVATION_DATE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<SetCurrency Currency=\"AAA\" ActivationDate=\"28/10/2013 10:00:00\"> </SetCurrency>", messageEntry.getContent());
+        assertEquals("<SetCurrency Currency=\"2\" ActivationDate=\"28/10/2013 10:00:00\"> </SetCurrency>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.CHANGE_OF_TENANT);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
@@ -122,7 +122,7 @@ public class AS300PMessageConverterTest extends AbstractMessageConverterTest {
         try {
             switch (propertySpec.getName()) {
                 case DeviceMessageConstants.currency:
-                    return "AAA";
+                    return "2";
                 case DeviceMessageConstants.StandingChargeAttributeName:
                     return new BigDecimal(1);
                 case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
