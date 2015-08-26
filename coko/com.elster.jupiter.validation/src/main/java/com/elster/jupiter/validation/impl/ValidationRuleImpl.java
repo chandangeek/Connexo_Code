@@ -40,8 +40,8 @@ import java.util.Set;
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 @GroupSequence({ValidationRuleImpl.class, ValidationRuleImpl.FirstValidationGroup.class, ValidationRuleImpl.SecondValidationGroup.class})
 public final class ValidationRuleImpl implements IValidationRule {
-    public static final class FirstValidationGroup{};
-    public static final class SecondValidationGroup{};
+    public interface FirstValidationGroup{};
+    public interface SecondValidationGroup{};
     private long id;
 
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
