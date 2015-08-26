@@ -136,8 +136,6 @@ Ext.define('Uni.I18n', {
     blacklist: [],
     //</debug>
 
-    cache: {},
-
     /**
      * Initializes the internationalization components that should be used during loading.
      *
