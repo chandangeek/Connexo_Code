@@ -60,6 +60,14 @@ Ext.define('Uni.property.view.property.Number', {
         return result;
     },
 
+    markInvalid: function (error) {
+        this.down('numberfield').markInvalid(error);
+    },
+
+    clearInvalid: function () {
+        this.down('numberfield').clearInvalid();
+    },
+
     getField: function () {
         var me = this;
         if (me.isCombo()) {
