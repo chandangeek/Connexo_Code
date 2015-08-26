@@ -35,6 +35,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -89,14 +90,19 @@ public class CommunicationResource {
         if (!queryParameters.getStart().isPresent() || !queryParameters.getLimit().isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        List<ComTaskExecution> communicationTasksByFilter = communicationTaskService.findComTaskExecutionsByFilter(filter, queryParameters.getStart().get(), queryParameters.getLimit().get() + 1);
-        List<ComTaskExecutionInfo> comTaskExecutionInfos = new ArrayList<>(communicationTasksByFilter.size());
-        for (ComTaskExecution comTaskExecution : communicationTasksByFilter) {
-            java.util.Optional<ComTaskExecutionSession> lastComTaskExecutionSession = communicationTaskService.findLastSessionFor(comTaskExecution);
-            comTaskExecutionInfos.add(comTaskExecutionInfoFactory.from(comTaskExecution, lastComTaskExecutionSession));
-        }
+        List<ComTaskExecution> communicationTasks = communicationTaskService.findComTaskExecutionsByFilter(filter, queryParameters.getStart().get(), queryParameters.getLimit().get() + 1);
+        List<ComTaskExecutionInfo> comTaskExecutionInfos =
+                communicationTasks
+                        .stream()
+                        .map(this::toComTaskExecutionInfo)
+                        .collect(Collectors.toList());
 
         return Response.ok(PagedInfoList.fromPagedList("communicationTasks", comTaskExecutionInfos, queryParameters)).build();
+    }
+
+    private ComTaskExecutionInfo toComTaskExecutionInfo(ComTaskExecution comTaskExecution) {
+        Optional<ComTaskExecutionSession> lastComTaskExecutionSession = this.communicationTaskService.findLastSessionFor(comTaskExecution);
+        return this.comTaskExecutionInfoFactory.from(comTaskExecution, lastComTaskExecutionSession);
     }
 
     @PUT
@@ -273,6 +279,5 @@ public class CommunicationResource {
         destinationSpec.message(json).send();
         return Response.ok().entity("{\"success\":\"true\"}").build();
     }
-
 
 }
