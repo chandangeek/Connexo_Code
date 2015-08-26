@@ -8,6 +8,8 @@ Ext.define('Mdc.model.DeviceDataValidationRulesSet', {
         {name: 'numberOfRules', type: 'int'},
         {name: 'numberOfVersions', type: 'int'},
         {name: 'hasCurrent', type: 'boolean'},
+        {name: 'startDate'},
+        {name: 'endDate'},
         {
             name: 'numberOfActiveRules',
             persist: false,
