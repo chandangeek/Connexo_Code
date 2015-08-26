@@ -9,7 +9,7 @@ Ext.define('Idv.controller.history.Workspace', {
 
     routeConfig: {
         workspace: {
-            title: 'Workspace',
+            title: Uni.I18n.translate('general.workspace','IDV','Workspace'),
             route: 'workspace',
             disabled: true,
             items: {
@@ -21,13 +21,13 @@ Ext.define('Idv.controller.history.Workspace', {
                     privileges: Isu.privileges.Issue.viewAdminDevice,
                     items: {
                         bulkaction: {
-                            title: 'Bulk action',
+                            title: Uni.I18n.translate('general.bulkAction','IDV','Bulk action'),
                             route: 'bulkaction',
                             privileges: Isu.privileges.Issue.closeOrAssing,
                             controller: 'Idv.controller.BulkChangeIssues'
                         },
                         view: {
-                            title: 'issue details',
+                            title: Uni.I18n.translate('general.issueDetails','IDV','Issue details'),
                             route: '{issueId}',
                             controller: 'Idv.controller.Detail',
                             privileges: Isu.privileges.Issue.viewAdminDevice,
@@ -40,7 +40,7 @@ Ext.define('Idv.controller.history.Workspace', {
                             },
                             items: {
                                 action: {
-                                    title: 'Action',
+                                    title: Uni.I18n.translate('general.action','IDV','Action'),
                                     route: 'action/{actionId}',
                                     controller: 'Idv.controller.ApplyAction',
                                     privileges: Isu.privileges.Issue.viewAdminDevice,
