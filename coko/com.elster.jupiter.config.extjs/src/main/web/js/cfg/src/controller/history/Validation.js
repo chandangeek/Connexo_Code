@@ -7,12 +7,12 @@ Ext.define('Cfg.controller.history.Validation', {
     rootToken: 'administration',
     routeConfig: {
         administration: {
-            title: 'Administration',
+            title: Uni.I18n.translate('general.administration','CFG','Administration'),
             route: 'administration',
             disabled: true,
             items: {
                 rulesets: {
-                    title: 'Validation rule sets',
+                    title: Uni.I18n.translate('general.validationrulesSets','CFG','Validation rule sets'),
                     route: 'validation/rulesets',
                     action: 'showRuleSets',
                     controller: 'Cfg.controller.Validation',
@@ -26,7 +26,7 @@ Ext.define('Cfg.controller.history.Validation', {
                             action: 'createEditRuleSet'
                         },
                         overview: {
-                            title: 'Overview',
+                            title: Uni.I18n.translate('general.overview','CFG','Overview'),
                             route: '{ruleSetId}',
                             controller: 'Cfg.controller.Validation',
                             action: 'showRuleSetOverview',
@@ -40,21 +40,21 @@ Ext.define('Cfg.controller.history.Validation', {
                             },
                             items: {
                                 edit: {
-                                    title: 'Edit',
+                                    title: Uni.I18n.translate('general.edit','CFG','Edit'),
                                     route: 'edit',
                                     controller: 'Cfg.controller.Validation',
                                     privileges: Cfg.privileges.Validation.admin,
                                     action: 'createEditRuleSet'
                                 },
                                 deviceconfigurations: {
-                                    title: 'Device configurations',
+                                    title: Uni.I18n.translate('general.deviceConfigurations','CFG','Device configurations'),
                                     route: 'deviceconfigurations',
                                     controller: 'Mdc.controller.setup.RuleDeviceConfigurations',
                                     privileges: Cfg.privileges.Validation.view,
                                     action: 'showDeviceConfigView',
                                     items: {
                                         add: {
-                                            title: 'Add',
+                                            title: Uni.I18n.translate('general.add','CFG','Add'),
                                             route: 'add',
                                             controller: 'Mdc.controller.setup.RuleDeviceConfigurations',
                                             privileges: Cfg.privileges.Validation.deviceConfiguration,
@@ -63,7 +63,7 @@ Ext.define('Cfg.controller.history.Validation', {
                                     }
                                 },
                                 versions: {
-                                    title: 'Versions',
+                                    title: Uni.I18n.translate('general.versions','CFG','Versions'),
                                     route: 'versions',
                                     controller: 'Cfg.controller.Validation',
                                     privileges: Cfg.privileges.Validation.view,
@@ -77,7 +77,7 @@ Ext.define('Cfg.controller.history.Validation', {
                                             action: 'addVersion'
                                         },
                                         overview: {
-                                            title: 'Overview',
+                                            title: Uni.I18n.translate('general.overview','CFG','Overview'),
                                             route: '{versionId}',
                                             controller: 'Cfg.controller.Validation',
                                             privileges: Cfg.privileges.Validation.view,
@@ -119,7 +119,7 @@ Ext.define('Cfg.controller.history.Validation', {
                                                             action: 'addRule',
                                                             items: {
                                                                 readingtypes: {
-                                                                    title: 'Add reading types',
+                                                                    title: Uni.I18n.translate('general.addReadingTypes','CFG','Add reading types'),
                                                                     route: 'readingtypes',
                                                                     controller: 'Cfg.controller.Validation',
                                                                     privileges: Cfg.privileges.Validation.admin,
@@ -128,7 +128,7 @@ Ext.define('Cfg.controller.history.Validation', {
                                                             }
                                                         },
                                                         overview: {
-                                                            title: 'Overview',
+                                                            title: Uni.I18n.translate('general.overview','CFG','Overview'),
                                                             route: '{ruleId}',
                                                             controller: 'Cfg.controller.Validation',
                                                             privileges: Cfg.privileges.Validation.view,
@@ -142,14 +142,14 @@ Ext.define('Cfg.controller.history.Validation', {
                                                             },
                                                             items: {
                                                                 edit: {
-                                                                    title: 'Edit',
+                                                                    title: Uni.I18n.translate('general.edit','CFG','Edit'),
                                                                     route: 'edit',
                                                                     controller: 'Cfg.controller.Validation',
                                                                     privileges: Cfg.privileges.Validation.admin,
                                                                     action: 'showEditRuleOverview',
                                                                     items: {
                                                                         readingtypes: {
-                                                                            title: 'Add reading types',
+                                                                            title: Uni.I18n.translate('general.addReadingType','CFG','Add reading types'),
                                                                             route: 'readingtypes',
                                                                             controller: 'Cfg.controller.Validation',
                                                                             privileges: Cfg.privileges.Validation.admin,

@@ -5,7 +5,7 @@ Ext.define('Cfg.controller.history.EventType', {
 
     routeConfig: {
         administration: {
-            title: 'Administration',
+            title: Uni.I18n.translate('general.administration','CFG','Administration'),
             route: 'administration',
             disabled: true,
             items: {
