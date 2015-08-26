@@ -41,7 +41,7 @@ Ext.define('Isu.controller.history.Administration', {
                             }
                         },
                         edit: {
-                            title: 'Edit',
+                            title: Uni.I18n.translate('general.edit','ISU','Edit'),
                             route: '{id}/edit',
                             controller: 'Isu.controller.CreationRuleEdit',
                             action: 'showEdit',
