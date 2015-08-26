@@ -114,6 +114,9 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
                     widget.setLoading(false);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycles.removeSuccessMsg', 'DLC', 'Device life cycle removed'));
                     router.getRoute('administration/devicelifecycles').forward();
+                },
+                failure: function () {
+                    widget.setLoading(false);
                 }
             });
         }
