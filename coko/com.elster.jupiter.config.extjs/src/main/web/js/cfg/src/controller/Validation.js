@@ -239,13 +239,11 @@ Ext.define('Cfg.controller.Validation', {
             form = button.up('panel'),
             formErrorsPanel = form.down('[name=form-errors]'),
             arrReadingTypes = [],
-            propertyForm = this.getAddRule().down('property-form'),
+            propertyForm = me.getAddRule().down('property-form'),
             record = me.formToModel();
 
-        form.down('#addRuleName').clearInvalid();
-        form.down('#validatorCombo').clearInvalid();
+        form.getForm().clearInvalid();
         form.down('#readingTypesErrorLabel').hide();
-        form.down('#propertiesErrorLabel').hide();
         form.down('#readingTypesGridPanel').removeCls('error-border');
 
         formErrorsPanel.hide();
@@ -254,9 +252,7 @@ Ext.define('Cfg.controller.Validation', {
             id: router.arguments.versionId
         });
 
-        //if (button.action === 'editRuleAction') {
         record.readingTypes().removeAll();
-        //}
 
         Ext.each(record.get('readingTypes'), function (record) {
             var readingTypeRecord = Ext.create(Cfg.model.ReadingType);
@@ -295,17 +291,10 @@ Ext.define('Cfg.controller.Validation', {
                 var json = Ext.decode(operation.response.responseText, true);
                 if (json && json.errors) {
                     Ext.Array.each(json.errors, function (item) {
-                        if (item.id.indexOf("name") !== -1) {
-                            form.down('#addRuleName').setActiveError(item.msg);
-                        }
                         if (item.id.indexOf("readingTypes") !== -1) {
                             form.down('#readingTypesGridPanel').addCls('error-border');
                             form.down('#readingTypesErrorLabel').setText(item.msg);
                             form.down('#readingTypesErrorLabel').show();
-                        }
-                        if (item.id.indexOf("properties") !== -1) {
-                            form.down('#propertiesErrorLabel').setText(item.msg);
-                            form.down('#propertiesErrorLabel').show();
                         }
                     });
                     form.getForm().markInvalid(json.errors);
