@@ -4,29 +4,13 @@
 
     <parent>
         <groupId>com.elster.jupiter</groupId>
-        <artifactId>parent</artifactId>
+        <artifactId>platform</artifactId>
         <version>1.1.0-SNAPSHOT</version>
     </parent>
     <artifactId>osgi.goodies</artifactId>
     <version>1.1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>OSGi Goodies</name>
-
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <_include>bnd.bnd</_include>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
     <dependencies>
         <dependency>
@@ -55,20 +39,19 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm</artifactId>
-            <version>1.2.0-SNAPSHOT</version>
-            <!-- <scope>provided</scope>-->
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>rest.util</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>http.whiteboard</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
