@@ -15,23 +15,6 @@
     <name>[Jupiter] com.elster.jupiter.yellowfin.app</name>
 
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <_include>bnd.bnd</_include>
-                        <!--Embed-Dependency>*</Embed-Dependency>
-                        <Embed-Transitive>true</Embed-Transitive-->
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -56,6 +39,14 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>users</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm</artifactId>
         </dependency>
 
     </dependencies>
