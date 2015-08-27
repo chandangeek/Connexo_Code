@@ -91,11 +91,15 @@ public class MeterReadingStorer {
         Range<Instant> range = facade.getRange();
         if (range != null) {
             DataMapper<ReadingQualityRecord> mapper = dataModel.mapper(ReadingQualityRecord.class);
-            mapper.remove(
-                    meter.getReadingQualities(range)
-                            .stream()
-                            .filter(this::isRelevant)
-                            .collect(Collectors.<ReadingQualityRecord>toList()));
+            List<ReadingQualityRecord> readingQualitiesForRemoval = meter.getReadingQualities(range)
+                    .stream()
+                    .filter(this::isRelevant)
+                    .collect(Collectors.<ReadingQualityRecord>toList());
+            mapper.remove(readingQualitiesForRemoval);
+            readingQualitiesForRemoval
+                    .stream()
+                    .map(ReadingQualityRecordImpl.class::cast)
+                    .forEach(ReadingQualityRecordImpl::notifyDeleted);
         }
     }
 
