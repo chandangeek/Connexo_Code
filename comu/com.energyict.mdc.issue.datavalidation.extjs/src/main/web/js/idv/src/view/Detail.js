@@ -16,12 +16,24 @@ Ext.define('Idv.view.Detail', {
 
         me.content = [
             {
-                xtype: 'previous-next-navigation-toolbar',
-                itemId: 'data-validation-issue-detail-previous-next-navigation-toolbar',
-                store: 'Idv.store.Issues',
-                router: me.router,
-                routerIdArgument: 'issueId',
-                itemsName: me.issuesListLink
+                xtype: 'container',
+                layout: 'hbox',
+                items: [
+                    {
+                        itemId: 'issue-detail-top-title',
+                        ui: 'large',
+                        flex: 1
+                    },
+                    {
+                        xtype: 'previous-next-navigation-toolbar',
+                        margin: '10 0 0 0',
+                        itemId: 'data-validation-issue-detail-previous-next-navigation-toolbar',
+                        store: 'Idv.store.Issues',
+                        router: me.router,
+                        routerIdArgument: 'issueId',
+                        itemsName: me.issuesListLink
+                    }
+                ]
             },
             {
                 xtype: 'issue-detail-top',
