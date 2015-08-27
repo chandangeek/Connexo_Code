@@ -29,6 +29,13 @@ import com.energyict.mdc.protocol.api.ConnectionType.Direction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Duration;
@@ -37,17 +44,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -55,12 +54,13 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
     Instant comSessionEnd = comSessionStart.plus(Duration.ofMinutes(1));
     Instant nextExecution = Instant.now();
     private ScheduledConnectionTask connectionTask;
+    private Device device;
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        Device device = mock(Device.class);
+        device = mock(Device.class);
         when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         connectionTask = mockConnectionTask(9);
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
@@ -157,6 +157,76 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.errors[0].id")).contains("properties.connectionTimeout");
+    }
+
+    @Test
+    public void testCreateScheduledConnectionMethodWithEmptyUserProperty() {
+        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
+        info.name = "AS1440";
+        info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
+        PropertyInfo propertyInfo = new PropertyInfo("connectionTimeout", "connectionTimeout",
+                new PropertyValueInfo("", "", null, null),
+                new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
+                false);
+        info.properties = Arrays.asList(propertyInfo);
+        Device.ScheduledConnectionTaskBuilder connectionTaskBuilder = mock(Device.ScheduledConnectionTaskBuilder.class);
+        when(device.getScheduledConnectionTaskBuilder(Matchers.any())).thenReturn(connectionTaskBuilder);
+        when(connectionTaskBuilder.add()).thenReturn(connectionTask);
+
+        Response response = target("/devices/ZABF0000000/connectionmethods").request().post(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        verify(connectionTaskBuilder).setProperty("connectionTimeout", null);
+    }
+
+    @Test
+    public void testCreateScheduledConnectionMethodWithInheritedProperty() {
+        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
+        info.name = "AS1440";
+        info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
+        PropertyInfo propertyInfo = new PropertyInfo("connectionTimeout", "connectionTimeout",
+                new PropertyValueInfo(null, new TimeDurationInfo(new TimeDuration("15 minutes")), null, null),
+                new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
+                false);
+        info.properties = Arrays.asList(propertyInfo);
+        Device.ScheduledConnectionTaskBuilder connectionTaskBuilder = mock(Device.ScheduledConnectionTaskBuilder.class);
+        when(device.getScheduledConnectionTaskBuilder(Matchers.any())).thenReturn(connectionTaskBuilder);
+        when(connectionTaskBuilder.add()).thenReturn(connectionTask);
+
+        Response response = target("/devices/ZABF0000000/connectionmethods").request().post(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        verify(connectionTaskBuilder, never()).setProperty("connectionTimeout", null);
+    }
+
+    @Test
+    public void testUpdateScheduledConnectionMethodWithEmptyProperty() throws IOException {
+        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
+        info.name = "AS1440";
+        info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
+        PropertyInfo propertyInfo = new PropertyInfo("connectionTimeout", "connectionTimeout",
+                new PropertyValueInfo<>(null, null, null, null),
+                new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
+                false);
+        info.properties = Arrays.asList(propertyInfo);
+
+        Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(connectionTask).setProperty("connectionTimeout", null);
+    }
+
+    @Test
+    public void testUpdateScheduledConnectionMethodWithInheritedProperty() throws IOException {
+        ScheduledConnectionMethodInfo info = new ScheduledConnectionMethodInfo();
+        info.name = "AS1440";
+        info.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
+        PropertyInfo propertyInfo = new PropertyInfo("connectionTimeout", "connectionTimeout",
+                new PropertyValueInfo<>(null, new TimeDurationInfo(new TimeDuration("15 minutes")), null, null),
+                new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
+                false);
+        info.properties = Arrays.asList(propertyInfo);
+
+        Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(connectionTask).removeProperty("connectionTimeout");
     }
 
     private ScheduledConnectionTask mockConnectionTask(long id) {
