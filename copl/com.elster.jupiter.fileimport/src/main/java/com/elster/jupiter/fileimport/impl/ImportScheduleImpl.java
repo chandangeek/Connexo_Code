@@ -2,8 +2,15 @@ package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.fileimport.*;
+import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.FileImporterFactory;
+import com.elster.jupiter.fileimport.FileImporterProperty;
+import com.elster.jupiter.fileimport.ImportSchedule;
+import com.elster.jupiter.fileimport.MessageSeeds;
+import com.elster.jupiter.fileimport.MissingRequiredProperty;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -14,10 +21,8 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.nio.file.FileSystem;
@@ -25,7 +30,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -87,15 +96,14 @@ class ImportScheduleImpl implements ImportSchedule {
     private Instant obsoleteTime;
 
 
-
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
-    @Pattern(regexp="^$|[a-zA-Z0-9\\-' '_]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Constants.INVALID_CHARS +"}")
+    @Pattern(regexp = "^$|[a-zA-Z0-9\\-' '_]+", groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.INVALID_CHARS + "}")
     private String name;
 
     @SuppressWarnings("unused")
     @Inject
-	ImportScheduleImpl(DataModel dataModel, FileImportService fileImportService, MessageService messageService, ScheduleExpressionParser scheduleExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileUtils fileUtils,JsonService jsonService, Thesaurus thesaurus, FileSystem fileSystem) {
+    ImportScheduleImpl(DataModel dataModel, FileImportService fileImportService, MessageService messageService, ScheduleExpressionParser scheduleExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileUtils fileUtils, JsonService jsonService, Thesaurus thesaurus, FileSystem fileSystem) {
         this.messageService = messageService;
         this.dataModel = dataModel;
         this.jsonService = jsonService;
@@ -112,7 +120,7 @@ class ImportScheduleImpl implements ImportSchedule {
         return dataModel.getInstance(ImportScheduleImpl.class).init(name, active, scheduleExpression, applicationName, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
     }
 
-    private ImportScheduleImpl init( String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destinationName, Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory) {
+    private ImportScheduleImpl init(String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destinationName, Path importDirectory, String pathMatcher, Path inProcessDirectory, Path failureDirectory, Path successDirectory) {
         this.name = name;
         this.active = active;
         this.scheduleExpression = scheduleExpression;
@@ -146,7 +154,7 @@ class ImportScheduleImpl implements ImportSchedule {
     @Override
     public DestinationSpec getDestination() {
         if (destination == null) {
-            if(fileImportService.getImportFactory(importerName).isPresent()) {
+            if (fileImportService.getImportFactory(importerName).isPresent()) {
                 String destinationName = fileImportService.getImportFactory(importerName)
                         .orElseThrow(() -> new IllegalArgumentException("No such file importer: " + importerName))
                         .getDestinationName();
@@ -157,7 +165,7 @@ class ImportScheduleImpl implements ImportSchedule {
     }
 
     @Override
-     public Path getImportDirectory() {
+    public Path getImportDirectory() {
         return importDirectory;
     }
 
@@ -191,13 +199,13 @@ class ImportScheduleImpl implements ImportSchedule {
     }
 
     @Override
-    public String getImporterName(){
+    public String getImporterName() {
         return importerName;
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        if(fileImportService.getImportFactory(importerName).isPresent())
+        if (fileImportService.getImportFactory(importerName).isPresent())
             return fileImportService.getImportFactory(importerName).get().getPropertySpecs();
         return Collections.emptyList();
     }
@@ -240,7 +248,7 @@ class ImportScheduleImpl implements ImportSchedule {
 
     @Override
     public Map<String, Object> getProperties() {
-        if(fileImportService.getImportFactory(importerName).isPresent()) {
+        if (fileImportService.getImportFactory(importerName).isPresent()) {
             return properties.stream()
                     .collect(Collectors.toMap(FileImporterProperty::getName, FileImporterProperty::getValue));
         }
@@ -327,22 +335,22 @@ class ImportScheduleImpl implements ImportSchedule {
     }
 
     @Override
-    public boolean isDeleted(){
+    public boolean isDeleted() {
         return (this.obsoleteTime != null);
     }
 
     @Override
-    public boolean isImporterAvailable(){
+    public boolean isImporterAvailable() {
         return fileImportService.getImportFactory(importerName).isPresent();
     }
 
     @Override
     public Finder<FileImportOccurrence> getFileImportOccurrences() {
-        return DefaultFinder.of(FileImportOccurrence.class,  Where.where("importScheduleId").isEqualTo(getId()), dataModel);
+        return DefaultFinder.of(FileImportOccurrence.class, Where.where("importScheduleId").isEqualTo(getId()), dataModel);
     }
 
     @Override
-    public Optional<FileImportOccurrence>  getFileImportOccurrence(long occurrenceId) {
+    public Optional<FileImportOccurrence> getFileImportOccurrence(long occurrenceId) {
         return dataModel.mapper(FileImportOccurrence.class).getOptional(occurrenceId);
     }
 
@@ -353,7 +361,7 @@ class ImportScheduleImpl implements ImportSchedule {
             throw new IllegalArgumentException();
         }
         Path relativeFilePath = fileImportService.getBasePath().relativize(file);
-        return FileImportOccurrenceImpl.create(fileImportService, fileSystem, fileUtils, dataModel, fileNameCollisionresolver, thesaurus, clock, this,relativeFilePath );
+        return FileImportOccurrenceImpl.create(fileImportService, fileSystem, fileUtils, dataModel, fileNameCollisionresolver, thesaurus, clock, this, relativeFilePath);
     }
 
     public Logger getLogger(FileImportOccurrence occurrence) {
@@ -374,7 +382,7 @@ class ImportScheduleImpl implements ImportSchedule {
     public void save() {
 
         Optional<FileImporterFactory> optional = fileImportService.getImportFactory(importerName);
-        optional.ifPresent(factory->factory.validateProperties(properties));
+        optional.ifPresent(factory -> factory.validateProperties(properties));
         /*Map<String, Object> propertiesWithValuesMap =  properties
                 .stream()
                 .filter(p->!p.useDefault())
