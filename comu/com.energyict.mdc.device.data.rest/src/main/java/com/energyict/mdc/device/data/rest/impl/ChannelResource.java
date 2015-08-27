@@ -139,7 +139,7 @@ public class ChannelResource {
             @BeanParam JsonQueryParameters queryParameters) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
-        boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.instant());
+        boolean isValidationActive = deviceValidation.isValidationActive();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             List<LoadProfileReading> channelData = channel.getChannelData(Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd")));
             List<ChannelDataInfo> infos = channelData.stream().map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReading, isValidationActive, deviceValidation)).collect(Collectors.toList());
