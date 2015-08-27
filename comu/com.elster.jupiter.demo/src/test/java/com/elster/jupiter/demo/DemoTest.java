@@ -390,7 +390,7 @@ public class DemoTest {
         assertThat(configuration.getName()).isEqualTo(DEVICE_CONFIG_NAME);
         assertThat(configuration.isDirectlyAddressable()).isTrue();
         assertThat(configuration.canActAsGateway()).isTrue();
-        assertThat(configuration.getGetwayType()).isEqualTo(GatewayType.LOCAL_AREA_NETWORK);
+        assertThat(configuration.getGatewayType()).isEqualTo(GatewayType.LOCAL_AREA_NETWORK);
         assertThat(configuration.getSecurityPropertySets()).hasSize(1);
         SecurityPropertySet securityPropertySet = configuration.getSecurityPropertySets().get(0);
         assertThat(securityPropertySet.getName()).isEqualTo(SECURITY_PROPERTY_SET_NAME);
@@ -497,7 +497,7 @@ public class DemoTest {
         assertThat(configuration.getName()).isEqualTo(DeviceConfigurationTpl.AM540.getName());
         assertThat(configuration.isDirectlyAddressable()).isFalse();
         assertThat(configuration.canActAsGateway()).isTrue();
-        assertThat(configuration.getGetwayType()).isEqualTo(GatewayType.HOME_AREA_NETWORK);
+        assertThat(configuration.getGatewayType()).isEqualTo(GatewayType.HOME_AREA_NETWORK);
         assertThat(configuration.getSecurityPropertySets()).hasSize(1);
         SecurityPropertySet securityPropertySet = configuration.getSecurityPropertySets().get(0);
         assertThat(securityPropertySet.getName()).isEqualTo(SECURITY_SET_NAME);
