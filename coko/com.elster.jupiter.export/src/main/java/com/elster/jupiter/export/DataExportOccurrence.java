@@ -2,7 +2,6 @@ package com.elster.jupiter.export;
 
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
-import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
@@ -20,7 +19,7 @@ public interface DataExportOccurrence {
 
     String getFailureReason();
 
-    Range<Instant> getExportedDataInterval();
+    Optional<DefaultSelectorOccurrence> getDefaultSelectorOccurrence();
 
     Instant getTriggerTime();
 

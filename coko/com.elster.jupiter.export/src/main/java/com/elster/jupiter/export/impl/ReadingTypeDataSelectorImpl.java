@@ -3,6 +3,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
+import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ReadingTypeDataSelector;
@@ -96,7 +97,7 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
         IExportTask task = (IExportTask) occurrence.getTask();
         Set<IReadingTypeDataExportItem> activeItems;
         try (TransactionContext context = transactionService.getContext()) {
-            activeItems = getActiveItems(task, occurrence);
+            activeItems = getActiveItems(occurrence);
 
             getExportItems().stream()
                     .filter(item -> !activeItems.contains(item))
@@ -114,8 +115,12 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
                 .flatMap(Functions.asStream());
     }
 
-    private Set<IReadingTypeDataExportItem> getActiveItems(IExportTask task, DataExportOccurrence occurrence) {
-        return getEndDeviceGroup().getMembers(occurrence.getExportedDataInterval()).stream()
+    private Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
+        return getEndDeviceGroup()
+                .getMembers(occurrence.getDefaultSelectorOccurrence()
+                        .map(DefaultSelectorOccurrence::getExportedDataInterval)
+                        .orElse(Range.<Instant>all()))
+                .stream()
                 .map(EndDeviceMembership::getEndDevice)
                 .filter(device -> device instanceof Meter)
                 .map(Meter.class::cast)
