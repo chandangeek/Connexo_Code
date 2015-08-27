@@ -74,8 +74,8 @@ Dir.glob(folder + "/src/**/*.js") do |file|
 end
 
 translations.each do |component, keys|
-	componentBlob = "// " + component + " component translations (" + keys.length.to_s + " keys)\n"
-	componentBlob += "// Created " + Time.new.strftime("%Y-%m-%d %T") + "\n"
+	componentBlob = "# " + component + " component translations (" + keys.length.to_s + " keys)\n"
+	componentBlob += "# Created " + Time.new.strftime("%Y-%m-%d %T") + "\n"
 	emptyKeys = Hash.new
 	
 	keys.each do |key, value|
