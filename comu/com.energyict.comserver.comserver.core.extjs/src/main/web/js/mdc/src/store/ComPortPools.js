@@ -5,11 +5,11 @@ Ext.define('Mdc.store.ComPortPools',{
     ],
     model: 'Mdc.model.ComPortPool',
     storeId: 'comPortPools',
-    sorters: [{
+/*    sorters: [{
         property: 'name',
         direction: 'ASC'
     }],
-    sortOnLoad: true,
+    sortOnLoad: true,*/
     autoLoad: false,
     proxy: {
         type: 'rest',
