@@ -1,6 +1,5 @@
 package com.elster.jupiter.export.processor.impl;
 
-import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataFormatter;
@@ -23,7 +22,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 @Component(name = "com.elster.jupiter.export.processor.StandardCsvDataProcessorFactory",
-        property = { DataExportService.DATA_TYPE_PROPERTY + "="+ DataExportService.STANDARD_DATA_TYPE},
+        property = {DataExportService.DATA_TYPE_PROPERTY + "=" + DataExportService.STANDARD_DATA_TYPE},
         service = DataFormatterFactory.class, immediate = true)
 public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
 
@@ -33,7 +32,6 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
     private volatile PropertySpecService propertySpecService;
     private volatile DataExportService dataExportService;
     private volatile ValidationService validationService;
-    private volatile AppService appService;
     private volatile Thesaurus thesaurus;
 
     //OSGI
@@ -42,11 +40,10 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
 
     // Tests
     @Inject
-    public StandardCsvDataFormatterFactory(PropertySpecService propertySpecService, DataExportService dataExportService, ValidationService validationService, AppService appService, NlsService nlsService) {
+    public StandardCsvDataFormatterFactory(PropertySpecService propertySpecService, DataExportService dataExportService, ValidationService validationService, NlsService nlsService) {
         setPropertySpecService(propertySpecService);
         setDataExportService(dataExportService);
         setValidationService(validationService);
-        setAppService(appService);
         setThesaurus(nlsService);
     }
 
@@ -63,11 +60,6 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
     @Reference
     public void setDataExportService(DataExportService dataExportService) {
         this.dataExportService = dataExportService;
-    }
-
-    @Reference
-    public void setAppService(AppService appService) {
-        this.appService = appService;
     }
 
     @Reference
