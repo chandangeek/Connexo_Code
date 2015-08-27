@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * Represents an Offline version of a DeviceMessage
- * which should contain all necessary information needed to perform the actual DeviceMessage
+ * which should contain all necessary information needed to perform the actual DeviceMessage.
  * <p/>
  * Copyrights EnergyICT
  * Date: 18/02/13
