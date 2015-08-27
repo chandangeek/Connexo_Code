@@ -2,6 +2,7 @@ package com.energyict.mdc.masterdata.rest.impl;
 
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -157,10 +158,12 @@ public class LoadProfileTypeResource {
     @Path("/measurementtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
-    public PagedInfoList getAvailableRegisterTypesForLoadProfileType(@BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getAvailableRegisterTypesForLoadProfileType(@BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
+        List<Long> excludedRegisterTypeIds = filter.getLongList("ids");
         Stream<RegisterType> registerTypeStream = this.masterDataService.findAllRegisterTypes().stream()
                 .filter(readingTypesWithInterval())
                 .filter(filterOnCommodity())
+                .filter(registerType -> !excludedRegisterTypeIds.contains(registerType.getId()))
                 .skip(queryParameters.getStart().get())
                 .limit(queryParameters.getLimit().get() + 1);
 
@@ -174,12 +177,14 @@ public class LoadProfileTypeResource {
     @Path("{id}/measurementtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
-    public PagedInfoList getAvailableRegisterTypesForLoadProfileTypeById(@BeanParam JsonQueryParameters queryParameters, @PathParam("id") long loadProfileId) {
+    public PagedInfoList getAvailableRegisterTypesForLoadProfileTypeById(@BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters, @PathParam("id") long loadProfileId) {
         LoadProfileType loadProfileType = this.findLoadProfileTypeByIdOrThrowException(loadProfileId);
+        List<Long> excludedRegisterTypeIds = filter.getLongList("ids");
         Stream<RegisterType> registerTypeStream = this.masterDataService.findAllRegisterTypes().stream()
                 .filter(readingTypesWithInterval())
                 .filter(filterOnCommodity())
                 .filter(filterExistingRegisterTypesOnLoadProfileType(loadProfileType))
+                .filter(registerType -> !excludedRegisterTypeIds.contains(registerType.getId()))
                 .skip(queryParameters.getStart().get())
                 .limit(queryParameters.getLimit().get() + 1);
 

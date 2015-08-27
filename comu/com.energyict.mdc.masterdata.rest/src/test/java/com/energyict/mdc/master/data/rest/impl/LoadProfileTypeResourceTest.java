@@ -11,6 +11,7 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.time.TimeDuration;
@@ -21,12 +22,15 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
+import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 import org.mockito.Matchers;
 
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
@@ -35,6 +39,7 @@ import java.util.Optional;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -91,10 +96,57 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
 
         Map<String, Object> map = target("/loadprofiles/1").request().get(Map.class);
         assertThat(map.get("id")).isEqualTo(1);
-        assertThat((String)map.get("name")).isEqualTo("Load Profile Type 0001");
+        assertThat((String) map.get("name")).isEqualTo("Load Profile Type 0001");
         assertThat(map.get("obisCode")).isEqualTo("10.20.30.40.50.60");
         assertThat((List)map.get("registerTypes")).hasSize(2);
-        assertThat((Integer)((Map)map.get("timeDuration")).get("id")).isBetween(0, 11);
+        assertThat((Integer) ((Map) map.get("timeDuration")).get("id")).isBetween(0, 11);
+    }
+
+    @Test
+    public void testGetAvailableRegisterTypes() {
+        Finder<RegisterType> finder = mock(Finder.class);
+        when(masterDataService.findAllRegisterTypes()).thenReturn(finder);
+        RegisterType registerType = mockRegisterType(1, "Bulk A+", ObisCode.fromString("0.0.0.0.0.0."));
+        ReadingType readingType = registerType.getReadingType();
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
+        when(readingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
+        List<RegisterType> registerTypes = Arrays.asList(registerType);
+        doAnswer(invocationOnMock -> registerTypes.stream()).when(finder).stream();
+
+        String response = target("loadprofiles/measurementtypes").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
+
+        JsonModel model = JsonModel.model(response);
+        assertThat(model.<Number>get("$.total")).isEqualTo(1);
+        assertThat(model.<List<?>>get("$.registerTypes")).hasSize(1);
+        assertThat(model.<Number>get("$.registerTypes[0].id")).isEqualTo(1);
+        assertThat(model.<String>get("$.registerTypes[0].obisCode")).isEqualTo("0.0.0.0.0.0");
+        assertThat(model.<Boolean>get("$registerTypes[0].isLinkedByDeviceType")).isFalse();
+        assertThat(model.<String>get("$registerTypes[0].unitOfMeasure")).isEqualTo("kWh");
+        assertThat(model.<String>get("$registerTypes[0].readingType.aliasName")).isEqualTo("Bulk A+");
+    }
+
+    @Test
+    public void testGetAvailableRegisterTypesWithExcludedId() throws Exception {
+        Finder<RegisterType> finder = mock(Finder.class);
+        when(masterDataService.findAllRegisterTypes()).thenReturn(finder);
+        RegisterType registerType = mockRegisterType(13, "Bulk A+", ObisCode.fromString("0.0.0.0.0.0."));
+        ReadingType readingType = registerType.getReadingType();
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
+        when(readingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
+        List<RegisterType> registerTypes = Arrays.asList(registerType);
+        doAnswer(invocationOnMock -> registerTypes.stream()).when(finder).stream();
+
+        String response = target("loadprofiles/measurementtypes")
+                .queryParam("start", 0)
+                .queryParam("limit", 10)
+                .queryParam("filter", URLEncoder.encode("[{\"property\":\"ids\",\"value\":[13]}]", "UTF-8"))
+                .request().get(String.class);
+
+        JsonModel model = JsonModel.model(response);
+        assertThat(model.<Number>get("$.total")).isEqualTo(0);
+        assertThat(model.<List<?>>get("$.registerTypes")).isEmpty();
     }
 
     private String getServerAnswer(Response response) {
