@@ -17,12 +17,12 @@ public abstract class ConsolidatedServerMicroCheck implements ServerMicroCheck {
 
     @Override
     public String getName() {
-        return getTranslated(MicroCheckTranslationKey.MICRO_CHECK_DESCRIPTION_MANDATORY_COMMUNICATION_ATTRIBUTES_AVAILABLE);
+        return getTranslated(MicroCheckTranslationKey.MICRO_CHECK_NAME_MANDATORY_COMMUNICATION_ATTRIBUTES_AVAILABLE);
     }
 
     @Override
     public String getDescription() {
-        return getTranslated(MicroCheckTranslationKey.MICRO_CHECK_NAME_MANDATORY_COMMUNICATION_ATTRIBUTES_AVAILABLE);
+        return getTranslated(MicroCheckTranslationKey.MICRO_CHECK_DESCRIPTION_MANDATORY_COMMUNICATION_ATTRIBUTES_AVAILABLE);
     }
 
     @Override
