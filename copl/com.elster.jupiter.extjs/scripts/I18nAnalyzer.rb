@@ -1,5 +1,11 @@
 #!/usr/bin/ruby
 
+branch=ARGV[1]
+if branch != "master" then
+        exit(0)
+end
+
+
 require 'fileutils'
 
 regexes = [
@@ -100,6 +106,7 @@ FileUtils.rm('src/main/resources/i18n.properties.bak')
 FileUtils.rm('src/main/resources/i18n.properties.tmp.bak')
 if difference.to_s != '' then
 	FileUtils.mv('src/main/resources/i18n.properties.tmp','src/main/resources/i18n.properties')
+		print "\ni18n.properties changed, push to git\n"
         remote=ARGV[0]
         value=`git remote add origin #{remote}`
         value=`git commit -m "New version of i18n.properties (bamboo build)" src/main/resources/i18n.properties`
