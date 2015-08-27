@@ -99,7 +99,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         var me = this, lastSelected = me.getChannelsGrid().getSelectionModel().getLastSelected();
 
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('loadProfileConfiguration.confirmWindow.removeChannelConfiguration', 'MDC', 'This channel will be removed from load profile configuration.'),
+            msg: Uni.I18n.translate('loadProfileConfiguration.confirmWindow.removeChannelConfiguration', 'MDC', 'This channel configuration will be removed from the load profile configuration.'),
             title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + " '" + lastSelected.get('readingType')['fullAliasName'] + "'?",
             config: {me: me},
             fn: me.confirmationPanelHandler

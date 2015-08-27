@@ -19,7 +19,7 @@ Ext.define('Mdc.model.Device', {
         {name: 'masterDevicemRID', defaultValue: null},
         {name: 'masterDeviceId', type: 'number', useNull: true},
         {name: 'nbrOfDataCollectionIssues', type: 'number', useNull: true},
-        {name: 'nbrOfDataValidationIssues', type: 'number', useNull: true},
+        {name: 'openDataValidationIssue', type: 'number', useNull: true},
         {name: 'gatewayType', type: 'string', useNull: true},
         {name: 'creationTime', dateFormat: 'time', type: 'date', useNull: true},
         {name: 'isDirectlyAddressed', type: 'boolean'},

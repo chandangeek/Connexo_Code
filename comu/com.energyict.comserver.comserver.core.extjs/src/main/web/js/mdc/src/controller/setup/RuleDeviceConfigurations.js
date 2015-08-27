@@ -148,7 +148,7 @@ Ext.define('Mdc.controller.setup.RuleDeviceConfigurations', {
                     'validation.deviceconfiguration.addSuccess',
                     selection.length,
                     'MDC',
-                    'Succesfully added device configurations'
+                    'Successfully added device configurations'
                 );
                 me.getApplication().fireEvent('acknowledge', message);
             },

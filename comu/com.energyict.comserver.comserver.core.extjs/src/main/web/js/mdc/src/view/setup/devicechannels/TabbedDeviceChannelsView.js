@@ -154,8 +154,10 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
 
     onLoad: function () {
         this.setLoading(false);
+        Ext.suspendLayouts();
         this.showGraphView();
         this.store.rejectChanges();
+        Ext.resumeLayouts(true);
     },
 
     onBeforeDestroy: function () {
@@ -240,10 +242,10 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
 
         me.store.each(function (record) {
             var point = {},
-                validationInfo = record.getValidationInfo(),
+                validationInfo = record.get('validationInfo'),
                 interval = record.get('interval'),
-                mainValidationInfo = validationInfo.getMainValidationInfo(),
-                bulkValidationInfo = validationInfo.getBulkValidationInfo(),
+                mainValidationInfo = validationInfo.mainValidationInfo,
+                bulkValidationInfo = validationInfo.bulkValidationInfo,
                 properties = record.get('readingProperties');
 
             point.x = interval.start;
@@ -255,9 +257,9 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
             point.color = okColor;
             point.tooltipColor = tooltipOkColor;
 
-            if (mainValidationInfo.get('valueModificationFlag') == 'EDITED') {
+            if (mainValidationInfo.valueModificationFlag == 'EDITED') {
                 point.edited = true;
-            } else if (mainValidationInfo.get('estimatedByRule')) {
+            } else if (mainValidationInfo.estimatedByRule) {
                 point.color = estimatedColor;
                 point.tooltipColor = tooltipEstimatedColor;
             } else if (properties.delta.notValidated) {
@@ -271,12 +273,25 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                 point.tooltipColor = tooltipInformativeColor;
             }
 
-            if (bulkValidationInfo.get('valueModificationFlag') == 'EDITED') {
+            if (bulkValidationInfo.valueModificationFlag == 'EDITED') {
                 point.bulkEdited = true;
             }
 
             Ext.merge(point, properties);
             data.unshift(point);
+
+            !point.y && (point.y = null);
+            if (!point.y) {
+                if (properties.delta.suspect) {
+                    missedValues.push({
+                        id: record.get('interval').start,
+                        from: record.get('interval').start,
+                        to: record.get('interval').end,
+                        color: 'rgba(235, 86, 66, 0.3)'
+                    });
+                    record.set('plotBand', true);
+                }
+            }
         });
         return {data: data, missedValues: missedValues};
     }

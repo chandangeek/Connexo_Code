@@ -44,6 +44,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                 dock: 'top',
                 store: me.store,
                 isFullTotalCount: true,
+                noBottomPaging: true,
+                usesExactCount: true,
                 displayMsg: '{2} reading(s)',
                 items: [
                 ]

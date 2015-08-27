@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.WizardNavigation', {
         },
         {
             itemId: 'executionStatus',
-            text: Uni.I18n.translate('devicetransitionexecute.navigation.step1title', 'MDC', 'Status')
+            text: Uni.I18n.translate('devicetransitionexecute.navigation.step2title', 'MDC', 'Status')
         }
     ]
 });

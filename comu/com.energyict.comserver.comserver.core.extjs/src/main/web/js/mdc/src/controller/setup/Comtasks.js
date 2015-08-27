@@ -325,7 +325,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             record.save({
                 success: function () {
                     window.location.href = '#/administration/communicationtasks';
-                    self.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comtask.saved', 'MDC', 'Communication task saved'));
+                    self.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comtask.saved', 'MDC', 'Communication task configuration saved'));
                     self.commands = [];
                     editView.setLoading(false);
                 },

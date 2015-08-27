@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             me.setReadingQualities(me.down('#mainReadingQualities'), mainValidationInfo);
             me.setReadingQualities(me.down('#bulkReadingQualities'), bulkValidationInfo);
             me.setGeneralReadingQualities(me.down('#generalReadingQualities'), me.up('tabbedDeviceChannelsView').channel.get('validationInfo'));
-            me.down('#readingDataValidated').setValue(record.getValidationInfo().get('dataValidated'));
+            me.down('#readingDataValidated').setValue(record.get('validationInfo').dataValidated);
         }
         Ext.resumeLayouts(true);
     },
@@ -155,7 +155,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         var me = this,
             record = me.down('form').getRecord(),
             measurementType,
-            validationResult,
+            validationInfo,
             validationResultText = '',
             formatValue,
             channel;
@@ -165,15 +165,16 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 return item.id == channelId;
             });
             measurementType = channel.calculatedReadingType ? channel.calculatedReadingType.unit : channel.readingType.unit;
-            validationResult = (type == 'main') ? record.get('channelValidationData')[channelId].mainValidationInfo.validationResult :
-                record.get('channelValidationData')[channelId].bulkValidationInfo.validationResult;
+            validationInfo = (type == 'main')
+                ? record.get('channelValidationData')[channelId].mainValidationInfo
+                : record.get('channelValidationData')[channelId].bulkValidationInfo;
         } else {
             measurementType = me.channelRecord.get('unitOfMeasure');
-            validationResult = record.get(type + 'ValidationInformation').validationResult;
+            validationInfo = record.get('validationInfo') ? record.get('validationInfo')[type + 'ValidationInfo'] : null;
         }
 
-        if (validationResult) {
-            switch (validationResult.split('.')[1]) {
+        if (validationInfo.validationResult) {
+            switch (validationInfo.validationResult.split('.')[1]) {
                 case 'notValidated':
                     validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated') + ')' +
                         '<img style="vertical-align: top; margin-left: 5px" width="16" height="16" src="../sky/build/resources/images/shared/Not-validated.png"/>';
@@ -184,7 +185,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     break;
                 case 'ok':
                     validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notsuspect', 'MDC', 'Not suspect') + ')';
-                    if (!me.channels && record.get(type + 'ValidationInformation').isConfirmed) {
+                    if (!me.channels && validationInfo.isConfirmed) {
                         validationResultText += '<span style="margin-left: 5px; vertical-align: top" class="icon-checkmark3"</span>';
                     }
                     break;

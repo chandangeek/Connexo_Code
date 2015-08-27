@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.Step2', {
         Ext.resumeLayouts(true);
     },
 
-    handleSuccessRequest: function (response, router) {
+    handleSuccessRequest: function (response, router, deviceRemoved) {
         var me = this;
 
         Ext.suspendLayouts(true);
@@ -39,7 +39,8 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.Step2', {
         me.add({
                 xtype: 'transition-result-panel',
                 response: response,
-                router: router
+                router: router,
+                deviceRemoved: deviceRemoved
             }
         );
         Ext.resumeLayouts(true);

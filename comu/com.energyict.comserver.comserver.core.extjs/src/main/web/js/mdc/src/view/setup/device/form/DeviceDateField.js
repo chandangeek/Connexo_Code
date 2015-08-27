@@ -12,7 +12,7 @@ Ext.define('Mdc.view.setup.device.form.DeviceDateField', {
                 if (Ext.isEmpty(value.displayValue)) {
                     return '-'
                 } else {
-                    return Uni.DateTime.formatDateLong(new Date(value.displayValue));
+                    return Uni.DateTime.formatDateTimeShort(new Date(value.displayValue));
                 }
             } else {
                 me.hide();

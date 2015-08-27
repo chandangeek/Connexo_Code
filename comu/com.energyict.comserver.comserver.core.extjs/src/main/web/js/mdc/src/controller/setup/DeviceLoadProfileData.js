@@ -311,9 +311,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             showTable = button.action === 'showTableView';
 
         if (showTable) {
-            router.getRoute('devices/device/loadprofiles/loadprofiletableData').forward(router.arguments, router.queryParams);
+            router.getRoute('devices/device/loadprofiles/loadprofiletableData').forward(router.arguments, router.getQueryStringValues());
         } else {
-            router.getRoute('devices/device/loadprofiles/loadprofiledata').forward(router.arguments, router.queryParams);
+            router.getRoute('devices/device/loadprofiles/loadprofiledata').forward(router.arguments, router.getQueryStringValues());
         }
     },
 

@@ -154,7 +154,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                         var channelBulkValueField = form.down('#channelBulkValue' + channel.id);
                         channelBulkValueField.setValue(
                             !Ext.isEmpty(record.get('channelCollectedData')[channel.id])
-                                ? record.get('channelCollectedData')[channel.id] + ' ' + channel.unitOfMeasure.unit
+                                ? Uni.Number.formatNumber(record.get('channelCollectedData')[channel.id], -1) + ' ' + channel.unitOfMeasure.unit
                                 : Uni.I18n.translate('general.missing', 'MDC', 'Missing')
                         );
                         channelBulkValueField.show();

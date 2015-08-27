@@ -254,9 +254,12 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     showPreview: function (selectionModel, record) {
         var me = this,
-            previewPanel = me.getDeviceLoadProfileChannelDataPreview();
+            previewPanel;
 
-        previewPanel.updateForm(record);
+        if(selectionModel.getSelection().length === 1){
+            previewPanel = me.getDeviceLoadProfileChannelDataPreview();
+            previewPanel.updateForm(record);
+        }
     },
 
     onGraphResize: function (graphView, width, height) {
@@ -407,6 +410,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             if (!event.record.get('value')) {
                 point.update({ y: NaN });
             } else {
+                if (event.record.get('plotBand')) {
+                    chart.xAxis[0].removePlotBand(event.record.get('interval').start);
+                    event.record.set('plotBand', false);
+                }
                 updatedObj = {
                     y: value,
                     collectedValue: collectedValue,
@@ -430,9 +437,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             properties = record.get('readingProperties'),
             grid = me.getPage().down('deviceLoadProfileChannelDataGrid'),
             store = grid.getStore(),
+            validationInfo = record.get('validationInfo'),
             color = '#70BB51';
 
-        if (record.getValidationInfo().getMainValidationInfo().get('estimatedByRule')) {
+        if (validationInfo.mainValidationInfo.estimatedByRule) {
             color = '#568343';
         } else if (properties.delta.notValidated) {
             color = '#71adc7';
@@ -441,8 +449,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         } else if (properties.delta.informative) {
             color = '#dedc49';
         }
-        record.data.validationInfo.mainValidationInfo.validationResult = record.getValidationInfo().getMainValidationInfo().get('validationResult');
-        record.data.validationInfo.bulkValidationInfo.validationResult = record.getValidationInfo().getBulkValidationInfo().get('validationResult');
+        record.data.validationInfo.mainValidationInfo.validationResult = validationInfo.mainValidationInfo.validationResult;
+        record.data.validationInfo.bulkValidationInfo.validationResult = validationInfo.mainValidationInfo.validationResult;
         record.get('confirmed') && record.set('confirmed', false);
         grid.getView().refreshNode(store.indexOf(record));
         point.update({
@@ -464,15 +472,17 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             bulkValueSuspect = false;
 
         if (!Ext.isArray(record)) {
-            bothSuspected = record.getValidationInfo().getMainValidationInfo().get('validationResult').split('.')[1] == 'suspect' &&
-                record.getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1] == 'suspect';
+            bothSuspected = record.get('validationInfo').mainValidationInfo.validationResult &&
+                record.get('validationInfo').bulkValidationInfo.validationResult &&
+                record.get('validationInfo').mainValidationInfo.validationResult.split('.')[1] == 'suspect' &&
+                record.get('validationInfo').bulkValidationInfo.validationResult.split('.')[1] == 'suspect';
         } else {
             Ext.Array.findBy(record, function (item) {
-                mainValueSuspect = item.getValidationInfo().getMainValidationInfo().get('validationResult').split('.')[1] == 'suspect';
+                mainValueSuspect = item.get('validationInfo').mainValidationInfo.validationResult && item.get('validationInfo').mainValidationInfo.validationResult.split('.')[1] == 'suspect';
                 return mainValueSuspect;
             });
             Ext.Array.findBy(record, function (item) {
-                bulkValueSuspect = item.getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1] == 'suspect';
+                bulkValueSuspect = item.get('validationInfo').bulkValidationInfo.validationResult && item.get('validationInfo').bulkValidationInfo.validationResult.split('.')[1] == 'suspect';
                 return bulkValueSuspect;
             });
             bothSuspected = mainValueSuspect && bulkValueSuspect;
@@ -495,7 +505,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             record = me.getReadingEstimationWindow().record,
             intervalsArray = [];
 
+        !me.getReadingEstimationWindow().down('#form-errors').isHidden() && me.getReadingEstimationWindow().down('#form-errors').hide();
         !me.getReadingEstimationWindow().down('#error-label').isHidden() && me.getReadingEstimationWindow().down('#error-label').hide();
+        propertyForm.clearInvalid();
 
         if (propertyForm.getRecord()) {
             propertyForm.updateRecord();
@@ -506,10 +518,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             estimateBulk = me.getReadingEstimationWindow().down('#value-to-estimate-radio-group').getValue().isBulk;
         } else {
             if (!Ext.isArray(record)) {
-                estimateBulk = record.getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1] == 'suspect';
+                estimateBulk = record.get('validationInfo').bulkValidationInfo.validationResult && (record.get('validationInfo').bulkValidationInfo.validationResult.split('.')[1] == 'suspect');
             } else {
                 Ext.Array.findBy(record, function (item) {
-                    estimateBulk = item.getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1] == 'suspect';
+                    estimateBulk = item.get('validationInfo').bulkValidationInfo.validationResult && (item.get('validationInfo').bulkValidationInfo.validationResult.split('.')[1] == 'suspect');
                     return estimateBulk;
                 });
             }
@@ -560,8 +572,23 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     me.getPage().down('#save-changes-button').isHidden() && me.showButtons();
                 } else {
                     me.getReadingEstimationWindow().setLoading(false);
-                    me.getReadingEstimationWindow().down('#error-label').show();
-                    me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #FF0000">' + (responseText.message ? responseText.message : '') + '</div>', false);
+                    if (responseText.message) {
+                        me.getReadingEstimationWindow().down('#error-label').show();
+                        me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #FF0000">' + responseText.message + '</div>', false);
+                    } else if (responseText.readings) {
+                        me.getReadingEstimationWindow().down('#error-label').show();
+                        var listOfFailedReadings = [];
+                        Ext.Array.each(responseText.readings, function (readingTimestamp) {
+                            listOfFailedReadings.push(Uni.DateTime.formatDateShort(new Date(readingTimestamp)) + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' ' +
+                                Uni.DateTime.formatTimeShort(new Date(readingTimestamp)));
+                        });
+                        me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #FF0000">' +
+                            Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0} with {1}',
+                                [listOfFailedReadings.join(', '), me.getReadingEstimationWindow().down('#estimator-field').getRawValue().toLowerCase()]) + '</div>', false);
+                    } else if (responseText.errors) {
+                        me.getReadingEstimationWindow().down('#form-errors').show();
+                        me.getReadingEstimationWindow().down('#property-form').markInvalid(responseText.errors);
+                    }
                 }
             }
         });
@@ -587,8 +614,19 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     checkSuspect: function (menu) {
-        var mainStatus = menu.record.getValidationInfo().getMainValidationInfo().get('validationResult').split('.')[1] == 'suspect',
-            bulkStatus = menu.record.getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1] == 'suspect';
+        var validationInfo = menu.record.get('validationInfo'),
+            mainValidationResult = validationInfo.mainValidationInfo.validationResult,
+            bulkValidationResult = validationInfo.bulkValidationInfo.validationResult,
+            mainStatus = false,
+            bulkStatus = false;
+
+        if (!Ext.isEmpty(mainValidationResult)) {
+            mainStatus = validationInfo.mainValidationInfo.validationResult.split('.')[1] == 'suspect';
+        }
+
+        if (!Ext.isEmpty(bulkValidationResult)) {
+            bulkStatus = validationInfo.bulkValidationInfo.validationResult.split('.')[1] == 'suspect';
+        }
 
         menu.down('#estimate-value').setVisible(mainStatus || bulkStatus);
         if (menu.record.get('confirmed') || menu.record.isModified('value') || menu.record.isModified('collectedValue')) {
@@ -597,39 +635,28 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             menu.down('#confirm-value').setVisible(mainStatus || bulkStatus);
         }
         if (menu.record.get('mainModificationState') == null && !menu.record.get('value') && !menu.record.get('collectedValue')) {
-            menu.down('#remove-reading').hide();
+            menu.down('#remove-reading') && menu.down('#remove-reading').hide();
         } else {
-            menu.down('#remove-reading').setVisible(true);
+            menu.down('#remove-reading') && menu.down('#remove-reading').setVisible(true);
         }
     },
 
     checkSuspects: function (menu) {
         var me = this,
-            records = me.getPage().down('deviceLoadProfileChannelDataGrid').getSelectionModel().getSelection(),
-            mainValueSuspect,
-            bulkValueSuspect;
+            records = me.getPage().down('deviceLoadProfileChannelDataGrid').getSelectionModel().getSelection();
 
-        for (var i = 0; i < records.length; i++) {
-            mainValueSuspect = records[i].getValidationInfo().getMainValidationInfo().get('validationResult').split('.')[1] == 'suspect';
-            bulkValueSuspect = records[i].getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1] == 'suspect';
-            if (mainValueSuspect || bulkValueSuspect) {
-                menu.down('#estimate-value').show();
-                break;
-            } else {
-                menu.down('#estimate-value').hide();
-            }
-        }
+        var suspects = records.filter(function(record) {
+            var validationInfo = record.get('validationInfo');
+                return (validationInfo.mainValidationInfo.validationResult && validationInfo.mainValidationInfo.validationResult.split('.')[1] == 'suspect')
+                    || (validationInfo.bulkValidationInfo.validationResult && validationInfo.bulkValidationInfo.validationResult.split('.')[1] == 'suspect');
+        });
+        menu.down('#estimate-value').setVisible(suspects.length);
 
-        for (var j = 0; j < records.length; j++) {
-            mainValueSuspect = records[j].getValidationInfo().getMainValidationInfo().get('validationResult').split('.')[1] == 'suspect';
-            bulkValueSuspect = records[j].getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1] == 'suspect';
-            if (!records[j].get('confirmed') && !records[j].isModified('value') && !records[j].isModified('collectedValue') && (mainValueSuspect || bulkValueSuspect)) {
-                menu.down('#confirm-value').show();
-                break;
-            } else {
-                menu.down('#confirm-value').hide();
-            }
-        }
+        var confirms = suspects.filter(function(record) {
+            return !record.get('confirmed') && !record.isModified('value') && !record.isModified('collectedValue')
+        });
+
+        menu.down('#confirm-value').setVisible(confirms.length);
     },
 
     chooseBulkAction: function (menu, item) {
@@ -649,22 +676,34 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     confirmValue: function (record, isBulk) {
         var me = this,
             grid = me.getPage().down('deviceLoadProfileChannelDataGrid'),
-            mainStatus,
-            bulkStatus,
+            mainStatus = false,
+            bulkStatus = false,
             isModified,
             chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart,
             func = function (rec) {
                 isModified = rec.isModified('value') || rec.isModified('collectedValue');
                 if (!rec.get('confirmed') && !isModified) {
-                    mainStatus = rec.getValidationInfo().getMainValidationInfo().get('validationResult').split('.')[1] == 'suspect';
-                    bulkStatus = rec.getValidationInfo().getBulkValidationInfo().get('validationResult').split('.')[1] == 'suspect';
+                    var validationInfo = rec.get('validationInfo'),
+                        mainValidationResult = validationInfo.mainValidationInfo.validationResult,
+                        bulkValidationResult = validationInfo.bulkValidationInfo.validationResult;
+
+                    if (!Ext.isEmpty(mainValidationResult)) {
+                        mainStatus = validationInfo.mainValidationInfo.validationResult.split('.')[1] == 'suspect';
+                    }
+
+                    if (!Ext.isEmpty(bulkValidationResult)) {
+                        bulkStatus = validationInfo.bulkValidationInfo.validationResult.split('.')[1] == 'suspect';
+                    }
+
                     if (mainStatus) {
-                        rec.data.validationInfo.mainValidationInfo.confirmedNotSaved = true;
+                        validationInfo.mainValidationInfo.confirmedNotSaved = true;
                         chart.get(rec.get('interval').start).update({ color: 'rgba(112,187,81,0.3)' });
                     }
+
                     if (bulkStatus) {
-                        rec.data.validationInfo.bulkValidationInfo.confirmedNotSaved = true;
+                        validationInfo.bulkValidationInfo.confirmedNotSaved = true;
                     }
+
                     if (mainStatus || bulkStatus) {
                         grid.getView().refreshNode(grid.getStore().indexOf(rec));
                         rec.set('confirmed', true);

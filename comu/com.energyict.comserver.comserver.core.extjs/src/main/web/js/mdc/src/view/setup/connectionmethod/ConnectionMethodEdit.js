@@ -55,6 +55,17 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                         },
                         items: [
                             {
+                                name: 'errors',
+                                ui: 'form-error-framed',
+                                itemId: 'connectionMethodEditFormErrors',
+                                layout: 'hbox',
+                                margin: '0 0 10 0',
+                                hidden: true,
+                                defaults: {
+                                    xtype: 'container'
+                                }
+                            },
+                            {
                                 xtype: 'textfield',
                                 name: 'name',
                                 msgTarget: 'under',
