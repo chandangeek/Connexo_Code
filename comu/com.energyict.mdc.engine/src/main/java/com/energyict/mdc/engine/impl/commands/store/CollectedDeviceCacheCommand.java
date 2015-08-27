@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -12,7 +13,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import java.util.Optional;
 
 /**
- * Provides functionality to update the cache of a Device in the database
+ * Provides functionality to update the cache of a Device in the database.
  * <p/>
  * Copyrights EnergyICT
  * Date: 31/08/12
@@ -22,8 +23,8 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl {
 
     private final UpdatedDeviceCache deviceCache;
 
-    public CollectedDeviceCacheCommand(UpdatedDeviceCache deviceCache, ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public CollectedDeviceCacheCommand(UpdatedDeviceCache deviceCache, ComTaskExecution comTaskExecution, ServiceProvider serviceProvider) {
+        super(comTaskExecution, serviceProvider);
         this.deviceCache = deviceCache;
     }
 

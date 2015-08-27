@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
 
@@ -34,28 +33,24 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
     private final ComTaskExecution comTaskExecution;
     private final MeterDataStoreCommand meterDataStoreCommand;
     private boolean topologyChanged;
+
     /**
-     * List containing the serial numbers of all slave devices removed from the device
+     * List containing the serial numbers of all slave devices removed from the device.
      */
     private List<String> serialNumbersRemovedFromTopology = new ArrayList<>();
 
     /**
-     * List containing the serial numbers of all unknown slave devices (not yet present in EIServer) who are added to the device
+     * List containing the serial numbers of all unknown slave devices (not yet present in EIServer) who are added to the device.
      */
     private List<String> unknownSerialNumbersAddedToTopology = new ArrayList<>();
 
     /**
-     * List containing the serial numbers of all known slave devices (present in EIServer, but not linked to this device) who are added to the device
+     * List containing the serial numbers of all known slave devices (present in EIServer, but not linked to this device) who are added to the device.
      */
     private List<String> knownSerialNumbersAddedToTopology = new ArrayList<>();
 
-    /**
-     * List of nested commands that should also be executed (e.g. to change properties)
-     */
-    private List<DeviceCommand> collectedDeviceInfoCommands;
-
     public CollectedDeviceTopologyDeviceCommand(CollectedTopology deviceTopology, ComTaskExecution comTaskExecution, MeterDataStoreCommand meterDataStoreCommand, ServiceProvider serviceProvider) {
-        super(serviceProvider);
+        super(comTaskExecution, serviceProvider);
         this.deviceTopology = deviceTopology;
         this.comTaskExecution = comTaskExecution;
         this.meterDataStoreCommand = meterDataStoreCommand;
@@ -264,23 +259,6 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
             oldSlavesBySerialNumber.put(slave.getSerialNumber(), slave);
         }
         return oldSlavesBySerialNumber;
-    }
-
-    private List<DeviceCommand> getCollectedDeviceInfoCommands() {
-        if (collectedDeviceInfoCommands == null) {
-            collectedDeviceInfoCommands =
-                    deviceTopology.getAdditionalCollectedDeviceInfo()
-                            .stream()
-                            .filter(collectedDeviceInfo -> collectedDeviceInfo instanceof CollectedDeviceData)
-                            .map(CollectedDeviceData.class::cast)
-                            .map(this::toDeviceCommand)
-                            .collect(Collectors.toList());
-        }
-        return collectedDeviceInfoCommands;
-    }
-
-    private DeviceCommand toDeviceCommand(CollectedDeviceData collectedDeviceInfo) {
-        return collectedDeviceInfo.toDeviceCommand(meterDataStoreCommand, this.getServiceProvider());
     }
 
     /**

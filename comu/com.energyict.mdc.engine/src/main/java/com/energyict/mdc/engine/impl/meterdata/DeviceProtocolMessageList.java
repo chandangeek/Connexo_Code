@@ -32,7 +32,7 @@ public class DeviceProtocolMessageList extends CompositeCollectedData<CollectedM
 
     @Override
     public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
-        return new CollectedMessageListDeviceCommand(this, offlineDeviceMessages, meterDataStoreCommand, serviceProvider);
+        return new CollectedMessageListDeviceCommand(this, this.offlineDeviceMessages, this.getComTaskExecution(), meterDataStoreCommand, serviceProvider);
     }
 
     @Override

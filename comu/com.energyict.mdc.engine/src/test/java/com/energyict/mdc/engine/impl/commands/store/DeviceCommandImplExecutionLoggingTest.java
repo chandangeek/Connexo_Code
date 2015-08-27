@@ -65,7 +65,7 @@ public class DeviceCommandImplExecutionLoggingTest {
         private boolean executed;
 
         private ForTestingPurposesOnly() {
-            super(new IssueServiceOnly());
+            super(null, new IssueServiceOnly());
         }
 
         @Override

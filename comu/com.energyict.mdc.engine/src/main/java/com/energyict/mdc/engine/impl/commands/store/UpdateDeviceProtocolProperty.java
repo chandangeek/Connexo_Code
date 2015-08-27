@@ -32,7 +32,7 @@ public class UpdateDeviceProtocolProperty extends DeviceCommandImpl {
     private final ComTaskExecution comTaskExecution;
 
     public UpdateDeviceProtocolProperty(DeviceProtocolProperty deviceProtocolProperty, ComTaskExecution comTaskExecution, ServiceProvider serviceProvider) {
-        super(serviceProvider);
+        super(comTaskExecution, serviceProvider);
         this.comTaskExecution = comTaskExecution;
         this.deviceIdentifier = deviceProtocolProperty.getDeviceIdentifier();
         this.propertySpec = deviceProtocolProperty.getPropertySpec();

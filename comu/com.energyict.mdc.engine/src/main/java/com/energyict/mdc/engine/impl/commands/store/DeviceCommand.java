@@ -77,6 +77,7 @@ public interface DeviceCommand {
         public NlsService nlsService();
 
     }
+
     /**
      * Executes this DeviceCommand.<br>
      * Note that this may throw all of the runtime exceptions

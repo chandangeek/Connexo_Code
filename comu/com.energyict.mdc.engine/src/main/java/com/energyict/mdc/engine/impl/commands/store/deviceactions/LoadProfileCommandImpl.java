@@ -25,9 +25,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Implementation of the RegularLoadProfileCommand interface.
@@ -38,42 +36,42 @@ import java.util.Map;
 public class LoadProfileCommandImpl extends CompositeComCommandImpl implements RegularLoadProfileCommand {
 
     /**
-     * The LoadProfilesTask which is used for modeling the actions
+     * The LoadProfilesTask which is used for modeling the actions.
      */
     private final LoadProfilesTask loadProfilesTask;
 
     /**
-     * The used OfflineDevice which contains relevant information for this ComCommand
+     * The used OfflineDevice which contains relevant information for this ComCommand.
      */
     private final OfflineDevice device;
 
     /**
-     * Summary of loadProfileReaders
+     * Summary of loadProfileReaders.
      */
     private List<LoadProfileReader> loadProfileReaders = new ArrayList<>();
 
     /**
-     * The command that will be used to verify the LoadProfile configuration (if necessary)
+     * The command that will be used to verify the LoadProfile configuration (if necessary).
      */
     private VerifyLoadProfilesCommand verifyLoadProfilesCommand;
 
     /**
-     * The used TimeDifferenceCommand
+     * The used TimeDifferenceCommand.
      */
     private TimeDifferenceCommand timeDifferenceCommand;
 
     /**
-     * The used ReadLoadProfileDataCommandImpl
+     * The used ReadLoadProfileDataCommandImpl.
      */
     private ReadLoadProfileDataCommand readLoadProfileDataCommand;
 
     /**
-     * The used MarkIntervalsAsBadTimeCommandImpl
+     * The used MarkIntervalsAsBadTimeCommandImpl.
      */
     private MarkIntervalsAsBadTimeCommand markIntervalsAsBadTimeCommand;
 
     /**
-     * The used CreateMeterEventsFromStatusFlagsCommand
+     * The used CreateMeterEventsFromStatusFlagsCommand.
      */
     private CreateMeterEventsFromStatusFlagsCommand createMeterEventsFromStatusFlagsCommand;
 
@@ -134,19 +132,15 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
         }
     }
 
-    /**
-     * @return the ComCommandTypes ComCommandType of this command
-     */
     @Override
     public ComCommandTypes getCommandType() {
         return ComCommandTypes.LOAD_PROFILE_COMMAND;
     }
 
     /**
-     * Create LoadProfileReaders for this LoadProfileCommand, based on the LoadProfileTypes specified in the {@link #loadProfilesTask}.
+     * Creates LoadProfileReaders for this LoadProfileCommand, based on the LoadProfileTypes specified in the {@link #loadProfilesTask}.
      * If no types are specified, then a LoadProfileReader for all
      * of the BaseLoadProfiles of the device will be created.
-     * @param deviceMrid
      */
     protected void createLoadProfileReaders(String deviceMrid) {
         createLoadProfileReadersForLoadProfilesTask(this.loadProfilesTask, deviceMrid);
@@ -170,7 +164,7 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     }
 
     /**
-     * Add the given BaseLoadProfile to the {@link #loadProfileReaders readerMap}
+     * Adds the given BaseLoadProfile to the {@link #loadProfileReaders readerMap}.
      *
      * @param offlineLoadProfile the loadProfile to add
      */
@@ -213,8 +207,8 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     }
 
     /**
-     * Get the configured interval of the BaseLoadProfile
-     * corresponding with the given LoadProfileReader
+     * Gets the configured interval of the BaseLoadProfile
+     * corresponding with the given LoadProfileReader.
      *
      * @param loadProfileReader the given LoadProfileReader
      * @return the requested interval in seconds
@@ -229,7 +223,7 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     }
 
     /**
-     * Remove all given LoadProfileReader loadProfileReaders from the {@link #loadProfileReaders}
+     * Removes all given LoadProfileReader loadProfileReaders from the {@link #loadProfileReaders}.
      *
      * @param readersToRemove the list of LoadProfileReader loadProfileReaders to remove
      */

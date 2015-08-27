@@ -30,7 +30,7 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl implements Mete
     private final Map<LogBookIdentifier, Instant> lastLogBooks = new HashMap<>();
 
     public MeterDataStoreCommandImpl(DeviceCommand.ServiceProvider serviceProvider) {
-        super(serviceProvider);
+        super(null, serviceProvider);
     }
 
     @Override

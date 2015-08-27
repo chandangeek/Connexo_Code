@@ -90,7 +90,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         collectedRegisterList.addCollectedRegister(collectedRegister);
         MdcReadingTypeUtilServiceAndClock serviceProvider = new MdcReadingTypeUtilServiceAndClock();
         MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommandImpl(serviceProvider);
-        CollectedRegisterListDeviceCommand collectedRegisterListDeviceCommand = new CollectedRegisterListDeviceCommand(collectedRegisterList, meterDataStoreCommand, serviceProvider);
+        CollectedRegisterListDeviceCommand collectedRegisterListDeviceCommand = new CollectedRegisterListDeviceCommand(collectedRegisterList, null, meterDataStoreCommand, serviceProvider);
 
         OfflineRegister offlineRegister = mock(OfflineRegister.class);
         when(offlineRegister.getOverFlowValue()).thenReturn(new BigDecimal(Double.MAX_VALUE));

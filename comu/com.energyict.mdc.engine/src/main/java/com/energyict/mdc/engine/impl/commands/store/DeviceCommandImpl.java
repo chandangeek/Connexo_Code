@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -24,11 +25,17 @@ import java.time.Clock;
 public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDescriptionTitle {
 
     private ExecutionLogger logger;
+    private final ComTaskExecution comTaskExecution;
     private final ServiceProvider serviceProvider;
 
-    public DeviceCommandImpl(ServiceProvider serviceProvider) {
+    public DeviceCommandImpl(ComTaskExecution comTaskExecution, ServiceProvider serviceProvider) {
         super();
+        this.comTaskExecution = comTaskExecution;
         this.serviceProvider = serviceProvider;
+    }
+
+    public ComTaskExecution getComTaskExecution() {
+        return comTaskExecution;
     }
 
     public ServiceProvider getServiceProvider() {

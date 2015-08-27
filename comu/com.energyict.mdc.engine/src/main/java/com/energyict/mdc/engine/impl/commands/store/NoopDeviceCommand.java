@@ -11,7 +11,9 @@ import com.energyict.mdc.engine.config.ComServer;
 public class NoopDeviceCommand extends DeviceCommandImpl {
 
     public NoopDeviceCommand() {
-        super(new NoDeviceCommandServices());
+        /* Not passing the ComTaskExecution because current implementation
+         * is not using it in any way. */
+        super(null, new NoDeviceCommandServices());
     }
 
     @Override

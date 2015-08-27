@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.*;
 import com.energyict.mdc.engine.config.ComServer;
@@ -25,8 +26,8 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl {
     private final List<OfflineDeviceMessage> allDeviceMessages;
     private final MeterDataStoreCommand meterDataStoreCommand;
 
-    public CollectedMessageListDeviceCommand(DeviceProtocolMessageList deviceProtocolMessageList, List<OfflineDeviceMessage> allDeviceMessages, MeterDataStoreCommand meterDataStoreCommand, ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public CollectedMessageListDeviceCommand(DeviceProtocolMessageList deviceProtocolMessageList, List<OfflineDeviceMessage> allDeviceMessages, ComTaskExecution comTaskExecution, MeterDataStoreCommand meterDataStoreCommand, ServiceProvider serviceProvider) {
+        super(comTaskExecution, serviceProvider);
         this.deviceProtocolMessageList = deviceProtocolMessageList;
         this.allDeviceMessages = allDeviceMessages;
         this.meterDataStoreCommand = meterDataStoreCommand;

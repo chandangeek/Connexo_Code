@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
@@ -24,8 +24,8 @@ public class CollectedRegisterListDeviceCommand extends DeviceCommandImpl {
     private final CollectedRegisterList collectedRegisterList;
     private final MeterDataStoreCommand meterDataStoreCommand;
 
-    public CollectedRegisterListDeviceCommand(CollectedRegisterList collectedRegisterList, MeterDataStoreCommand meterDataStoreCommand, ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public CollectedRegisterListDeviceCommand(CollectedRegisterList collectedRegisterList, ComTaskExecution comTaskExecution, MeterDataStoreCommand meterDataStoreCommand, ServiceProvider serviceProvider) {
+        super(comTaskExecution, serviceProvider);
         this.collectedRegisterList = collectedRegisterList;
         this.meterDataStoreCommand = meterDataStoreCommand;
     }

@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
@@ -18,17 +19,15 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl {
 
     private final DeviceLogBook deviceLogBook;
     private final MeterDataStoreCommand meterDataStoreCommand;
-    private ComServerDAO comServerDAO;
 
-    public CollectedLogBookDeviceCommand(DeviceLogBook deviceLogBook, MeterDataStoreCommand meterDataStoreCommand) {
-        super(meterDataStoreCommand.getServiceProvider());
+    public CollectedLogBookDeviceCommand(DeviceLogBook deviceLogBook, ComTaskExecution comTaskExecution, MeterDataStoreCommand meterDataStoreCommand) {
+        super(comTaskExecution, meterDataStoreCommand.getServiceProvider());
         this.deviceLogBook = deviceLogBook;
         this.meterDataStoreCommand = meterDataStoreCommand;
     }
 
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
-        this.comServerDAO = comServerDAO;
         PreStoreLogBook logBookPreStorer = new PreStoreLogBook(this.getClock(), comServerDAO);
         Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook> localLogBook = logBookPreStorer.preStore(this.deviceLogBook);
         updateMeterDataStorer(localLogBook);

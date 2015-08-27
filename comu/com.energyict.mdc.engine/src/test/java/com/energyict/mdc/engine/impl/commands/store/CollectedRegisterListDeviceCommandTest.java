@@ -105,7 +105,7 @@ public class CollectedRegisterListDeviceCommandTest {
     @Test
     public void testExecutionOfDeviceCommand() {
         MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommandImpl(this.serviceProvider);
-        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), meterDataStoreCommand, this.serviceProvider);
+        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), null, meterDataStoreCommand, this.serviceProvider);
         command.logExecutionWith(this.executionLogger);
 
         // Business methods
@@ -127,7 +127,7 @@ public class CollectedRegisterListDeviceCommandTest {
 
     @Test
     public void testToJournalMessageDescription() {
-        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), new MeterDataStoreCommandImpl(this.serviceProvider), this.serviceProvider);
+        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), null, new MeterDataStoreCommandImpl(this.serviceProvider), this.serviceProvider);
         command.logExecutionWith(this.executionLogger);
 
         // Business methods
