@@ -45,7 +45,7 @@ public class DeviceConfigurationInfo {
         registerCount = deviceConfiguration.getRegisterSpecs().size();
         logBookCount = deviceConfiguration.getLogBookSpecs().size();
         canBeGateway = deviceConfiguration.canActAsGateway();
-        gatewayType = deviceConfiguration.getGetwayType();
+        gatewayType = deviceConfiguration.getGatewayType();
         isDirectlyAddressable = deviceConfiguration.isDirectlyAddressable();
         version = deviceConfiguration.getVersion();
 
