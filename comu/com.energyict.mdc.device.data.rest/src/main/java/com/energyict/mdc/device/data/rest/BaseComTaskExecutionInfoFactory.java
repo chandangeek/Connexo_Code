@@ -16,27 +16,27 @@ import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
 
 public abstract class BaseComTaskExecutionInfoFactory <T extends BaseComTaskExecutionInfo>{
-    
+
     private final Thesaurus thesaurus;
-    
+
     public BaseComTaskExecutionInfoFactory(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
-    
+
     protected abstract Supplier<T> getInfoSupplier();
-    
+
     protected abstract void initExtraFields(T info, ComTaskExecution comTaskExecution, Optional<ComTaskExecutionSession> comTaskExecutionSession);
-    
+
     public final T from(ComTaskExecution comTaskExecution, Optional<ComTaskExecutionSession> comTaskExecutionSession) {
         T info = getInfoSupplier().get();
 
         info.id = comTaskExecution.getId();
-        if(comTaskExecution.usesSharedSchedule()){
+        if (comTaskExecution.usesSharedSchedule()) {
             info.name = ((ScheduledComTaskExecution)comTaskExecution).getComSchedule().getName();
         } else {
             info.name = comTaskExecution.getComTasks().stream().map(ComTask::getName).collect(Collectors.joining(" + "));
         }
-        
+
         if (comTaskExecution instanceof ScheduledComTaskExecution) {
             ComSchedule comSchedule = ((ScheduledComTaskExecution) comTaskExecution).getComSchedule();
             info.comScheduleName = comSchedule.getName();
@@ -58,11 +58,11 @@ public abstract class BaseComTaskExecutionInfoFactory <T extends BaseComTaskExec
         info.startTime = comTaskExecution.getLastExecutionStartTimestamp();
         info.successfulFinishTime = comTaskExecution.getLastSuccessfulCompletionTimestamp();
         info.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
-        
+
         initExtraFields(info, comTaskExecution, comTaskExecutionSession);
         return info;
     }
-    
+
     protected Thesaurus getThesaurus() {
         return thesaurus;
     }

@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
@@ -17,6 +18,7 @@ import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.Optional;
 
 public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<ScheduledConnectionTask> {
 
@@ -88,11 +90,14 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
                 if (propertyValue != null) {
                     scheduledConnectionTaskBuilder.setProperty(propertySpec.getName(), propertyValue);
                 } else {
-                    scheduledConnectionTaskBuilder.setProperty(propertySpec.getName(), null);
+                    Optional<PropertyValueInfo<?>> propertyValueInfo = findPropertyValueInfo(this.properties, propertySpec.getName());
+                    //if inherited value is empty it means that user really wants to use empty value
+                    if (propertyValueInfo.isPresent() && (propertyValueInfo.get().inheritedValue == null || "".equals(propertyValueInfo.get().inheritedValue))) {
+                        scheduledConnectionTaskBuilder.setProperty(propertySpec.getName(), null);
+                    }
                 }
             }
         }
         return scheduledConnectionTaskBuilder.add();
     }
-
 }
