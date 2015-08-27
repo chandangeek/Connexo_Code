@@ -4,7 +4,7 @@
 
     <parent>
         <groupId>com.elster.jupiter</groupId>
-        <artifactId>parent</artifactId>
+        <artifactId>platform</artifactId>
         <version>1.1.0-SNAPSHOT</version>
     </parent>
     <artifactId>bootstrap.h2</artifactId>
@@ -48,12 +48,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>util</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bootstrap</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
