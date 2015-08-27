@@ -244,6 +244,7 @@ Ext.define('Cfg.controller.Validation', {
 
         form.getForm().clearInvalid();
         form.down('#readingTypesErrorLabel').hide();
+        form.down('#propertiesErrorLabel').hide();
         form.down('#readingTypesGridPanel').removeCls('error-border');
 
         formErrorsPanel.hide();
@@ -295,6 +296,10 @@ Ext.define('Cfg.controller.Validation', {
                             form.down('#readingTypesGridPanel').addCls('error-border');
                             form.down('#readingTypesErrorLabel').setText(item.msg);
                             form.down('#readingTypesErrorLabel').show();
+                        }
+                        if (item.id.indexOf("properties") !== -1) {
+                            form.down('#propertiesErrorLabel').setText(item.msg);
+                            form.down('#propertiesErrorLabel').show();
                         }
                     });
                     form.getForm().markInvalid(json.errors);

@@ -177,6 +177,12 @@ Ext.define('Cfg.view.validation.AddRule', {
                             width: '100%'
                         },
                         {
+                            xtype: 'label',
+                            cls: 'x-form-invalid-under',
+                            itemId: 'propertiesErrorLabel',
+                            margin: '0 0 0 275'
+                        },
+                        {
                             xtype: 'fieldcontainer',
                             margin: '20 0 0 0',
                             fieldLabel: '&nbsp',
