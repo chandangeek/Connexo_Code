@@ -3,9 +3,6 @@ package com.energyict.mdc.device.data.rest;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
@@ -38,6 +35,7 @@ public final class DevicePrivileges {
     public static final String DEVICES_ACTIONS_CONNECTION_METHODS = "devices.actions.connection.methods";
     public static final String DEVICES_ACTIONS_FIRMWARE_MANAGEMENT = "devices.actions.firmware.management";
     public static final String DEVICES_ACTIONS_DATA_EDIT = "devices.actions.data.edit";
+    public static final String DEVICES_ACTIONS_CHANGE_DEVICE_CONFIGURATION = "devices.actions.change.device.configuration";
     public static final String DEVICES_PAGES_COMMUNICATION_PLANNING = "devices.pages.communication.planning";
 
     public static List<String> getPrivilegesFor(Device device, User user){
@@ -95,6 +93,7 @@ public final class DevicePrivileges {
                     DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_TASKS,
                     DevicePrivileges.DEVICES_ACTIONS_CONNECTION_METHODS,
                     DevicePrivileges.DEVICES_ACTIONS_DATA_EDIT,
+                    DevicePrivileges.DEVICES_ACTIONS_CHANGE_DEVICE_CONFIGURATION,
                     DevicePrivileges.DEVICES_ACTIONS_FIRMWARE_MANAGEMENT,
                     DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
             );

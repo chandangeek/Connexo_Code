@@ -5,11 +5,16 @@ import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.Estimator;
+import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Ranges;
-import com.elster.jupiter.validation.rest.PropertyUtils;
+
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -33,15 +38,17 @@ public class EstimationHelper {
     private final PropertyUtils propertyUtils;
     private final Clock clock;
     private final DeviceDataInfoFactory deviceDataInfoFactory;
+    private final Thesaurus thesaurus;
     public static final Logger LOGGER = Logger.getLogger(EstimationHelper.class.getName());
 
     @Inject
-    public EstimationHelper(EstimationService estimationService, ExceptionFactory exceptionFactory, PropertyUtils propertyUtils, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory) {
+    public EstimationHelper(EstimationService estimationService, ExceptionFactory exceptionFactory, PropertyUtils propertyUtils, Thesaurus thesaurus, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory) {
         this.estimationService = estimationService;
         this.exceptionFactory = exceptionFactory;
         this.propertyUtils = propertyUtils;
         this.clock = clock;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
+        this.thesaurus = thesaurus;
     }
 
     public Estimator getEstimator(EstimateChannelDataInfo estimateChannelDataInfo) {
@@ -51,11 +58,23 @@ public class EstimationHelper {
         }
 
         Estimator estimator = estimationService.getEstimator(estimateChannelDataInfo.estimatorImpl).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.ESTIMATOR_NOT_FOUND));
+        Map<String, String> invalidProperties = new HashMap<>();
         for (PropertySpec propertySpec : estimator.getPropertySpecs()) {
-            Object value = propertyUtils.findPropertyValue(propertySpec, estimateChannelDataInfo.properties);
-            if (value != null) {
+            try {
+                Object value = propertyUtils.findPropertyValue(propertySpec, estimateChannelDataInfo.properties);
+                propertySpec.validateValue(value);
                 propertyMap.put(propertySpec.getName(), value);
+            } catch (Exception ex) {
+                invalidProperties.put(propertySpec.getName(), thesaurus.getSimpleFormat(MessageSeeds.INVALID_ESTIMATOR_PROPERTY_VALUE).format());
             }
+        }
+        try {
+            estimator.validateProperties(propertyMap);
+        } catch (LocalizedFieldValidationException ex) {
+            invalidProperties.put(ex.getViolatingProperty(), thesaurus.getSimpleFormat(MessageSeeds.INVALID_ESTIMATOR_PROPERTY_VALUE).format());
+        }
+        if(!invalidProperties.isEmpty()) {
+            throw new EstimatorPropertiesException(invalidProperties);
         }
 
         Estimator baseEstimator = estimationService.getEstimator(estimateChannelDataInfo.estimatorImpl, propertyMap).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.ESTIMATOR_NOT_FOUND));
@@ -69,6 +88,7 @@ public class EstimationHelper {
     }
 
     public List<ChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, List<Range<Instant>> ranges, List<EstimationResult> results) {
+        List<Instant> failedTimestamps = new ArrayList<>();
         List<ChannelDataInfo> channelDataInfos = new ArrayList<>();
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
         boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.instant());
@@ -82,6 +102,16 @@ public class EstimationHelper {
                     channelDataInfos.addAll(fillChannelDataInfoList(channel, block, estimatable, channelData, isValidationActive, deviceValidation));
                 }
             }
+            for (EstimationBlock block : result.remainingToBeEstimated()) {
+                for (Estimatable estimatable : block.estimatables()) {
+                    failedTimestamps.add(estimatable.getTimestamp());
+                }
+
+            }
+        }
+        if (!failedTimestamps.isEmpty()) {
+            throw new EstimationErrorException(failedTimestamps);
+
         }
         return channelDataInfos;
     }
