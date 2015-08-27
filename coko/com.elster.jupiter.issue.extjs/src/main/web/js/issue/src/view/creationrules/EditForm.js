@@ -211,7 +211,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
                 xtype: 'textareafield',
                 name: 'comment',
                 fieldLabel: Uni.I18n.translate('general.comment', 'ISU', 'Comment'),
-                emptyText: 'Provide a comment (optionally)',
+                emptyText: Uni.I18n.translate('general.provideComment','ISU','Provide a comment (optionally)'),
                 height: 160
             },
             {
