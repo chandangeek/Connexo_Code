@@ -112,6 +112,16 @@ public class RegisterResource {
         return Response.status(Response.Status.OK).entity(validationStatusInfo).build();
     }
 
+    @Path("{registerId}/validationpreview")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    public Response getValidationStatusPreview(@PathParam("mRID") String mrid, @PathParam("registerId") long registerId) {
+        Register<?> register = doGetRegister(mrid, registerId);
+        DetailedValidationInfo detailedValidationInfo = validationInfoHelper.getRegisterValidationInfo(register);
+        return Response.status(Response.Status.OK).entity(detailedValidationInfo).build();
+    }
+
     private ValidationStatusInfo determineStatus(Register<?> register) {
         return new ValidationStatusInfo(isValidationActive(register), register.getDevice().forValidation().getLastChecked(register), hasData(register));
     }
