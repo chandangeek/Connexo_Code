@@ -3,8 +3,8 @@
 require 'fileutils'
 
 regexes = [
-		/Uni\.I18n\.translate\('(\S*)',\s?'(.{3})',\s?'(.+?[^\\])'.*?\)/m,
-		/Uni\.I18n\.translate\('(\S*)',\s?'(.{3})',\s?\"(.+?[^\\])\".*?\)/m,
+		/Uni\.I18n\.translate\('(\S*)',\s*'(.{3})',\s*'(.+?[^\\])'.*?\)/m,
+		/Uni\.I18n\.translate\('(\S*)',\s*'(.{3})',\s*\"(.+?[^\\])\".*?\)/m,
 		/Uni\.I18n\.translatePlural\('(\S*)',.?.*.?,\s?'(.{3})',\s?'(.+?[^\\])'.*?\)/m,
 		/Uni\.I18n\.translatePlural\('(\S*)',.?.*.?,\s?'(.{3})',\s?\"(.+?[^\\])\".*?\)/m
 	]
