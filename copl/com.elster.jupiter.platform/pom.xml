@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>parent</artifactId>
+        <version>1.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>platform</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>[Jupiter] com.elster.jupiter.platform</name>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>platform.bom</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.glassfish.hk2.external</groupId>
+            <artifactId>javax.inject</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.easytesting</groupId>
+            <artifactId>fest-reflect</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.easytesting</groupId>
+            <artifactId>fest-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>aopalliance</artifactId>
+                    <groupId>aopalliance</groupId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.inject</groupId>
+                    <artifactId>javax.inject</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.aopalliance</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>biz.aQute.bnd</groupId>
+            <artifactId>bndlib</artifactId>
+        </dependency>
+    </dependencies>
+
+
+    <profiles>
+        <profile>
+            <id>platform</id>
+            <modules>
+                <module>../com.elster.jupiter.appserver</module>
+                <module>../com.elster.jupiter.appserver.extjs</module>
+                <module>../com.elster.jupiter.appserver.rest</module>
+                <module>../com.elster.jupiter.bootstrap</module>
+                <module>../com.elster.jupiter.bootstrap.oracle</module>
+                <module>../com.elster.jupiter.bpm</module>
+                <module>../com.elster.jupiter.bpm.extjs</module>
+                <module>../com.elster.jupiter.bpm.handler</module>
+                <module>../com.elster.jupiter.bpm.rest</module>
+                <module>../com.elster.jupiter.datavault</module>
+                <module>../com.elster.jupiter.domain.util</module>
+                <module>../com.elster.jupiter.events</module>
+                <module>../com.elster.jupiter.events.rest</module>
+                <module>../com.elster.jupiter.extjs</module>
+                <module>../com.elster.jupiter.fileimport</module>
+                <module>../com.elster.jupiter.fileimport.extjs</module>
+                <module>../com.elster.jupiter.fileimport.rest</module>
+                <module>../com.elster.jupiter.fsm</module>
+                <module>../com.elster.jupiter.fsm.handler</module>
+                <module>../com.elster.jupiter.fsm.rest</module>
+                <module>../com.elster.jupiter.http.whiteboard</module>
+                <module>../com.elster.jupiter.install</module>
+                <module>../com.elster.jupiter.loaderjs</module>
+                <module>../com.elster.jupiter.login.app</module>
+                <module>../com.elster.jupiter.mail</module>
+                <module>../com.elster.jupiter.messaging</module>
+                <module>../com.elster.jupiter.messaging.oracle</module>
+                <module>../com.elster.jupiter.nls.rest</module>
+                <module>../com.elster.jupiter.orm</module>
+                <module>../com.elster.jupiter.orm.schema.oracle</module>
+                <module>../com.elster.jupiter.osgi.goodies</module>
+                <module>../com.elster.jupiter.properties</module>
+                <module>../com.elster.jupiter.pubsub</module>
+                <module>../com.elster.jupiter.rest.util</module>
+                <module>../com.elster.jupiter.rest.whiteboard</module>
+                <module>../com.elster.jupiter.security.thread</module>
+                <module>../com.elster.jupiter.soap.whiteboard</module>
+                <module>../com.elster.jupiter.soap.whiteboard.cxf</module>
+                <!-- todo rename to license -->
+                <module>../com.elster.jupiter.systemadmin</module>
+                <module>../com.elster.jupiter.tasks</module>
+                <module>../com.elster.jupiter.theme.skyline</module>
+                <module>../com.elster.jupiter.time</module>
+                <module>../com.elster.jupiter.time.extjs</module>
+                <module>../com.elster.jupiter.time.rest</module>
+                <module>../com.elster.jupiter.transaction</module>
+                <module>../com.elster.jupiter.unifyingjs</module>
+                <module>../com.elster.jupiter.users</module>
+                <module>../com.elster.jupiter.users.extjs</module>
+                <module>../com.elster.jupiter.users.rest</module>
+                <module>../com.elster.jupiter.util</module>
+
+            </modules>
+        </profile>
+        <profile>
+            <id>test-platform-bundles</id>
+            <modules>
+                <module>../com.elster.jupiter.devtools</module>
+                <module>../com.elster.jupiter.devtools.persistence</module>
+                <module>../com.elster.jupiter.devtools.rest</module>
+                <module>../com.elster.jupiter.bootstrap.h2</module>
+                <module>../com.elster.jupiter.messaging.h2</module>
+            </modules>
+        </profile>
+    </profiles>
+
+</project>
