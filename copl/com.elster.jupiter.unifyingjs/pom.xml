@@ -4,7 +4,7 @@
 
     <parent>
         <groupId>com.elster.jupiter</groupId>
-        <artifactId>parent</artifactId>
+        <artifactId>platform</artifactId>
         <version>1.1.0-SNAPSHOT</version>
     </parent>
 
@@ -26,17 +26,18 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>http.whiteboard</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>install</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>loaderjs</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>domain.util</artifactId>
         </dependency>
     </dependencies>
 
