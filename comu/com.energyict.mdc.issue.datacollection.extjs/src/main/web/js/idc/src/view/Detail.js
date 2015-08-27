@@ -14,12 +14,24 @@ Ext.define('Idc.view.Detail', {
 
         me.content = [
             {
-                xtype: 'previous-next-navigation-toolbar',
-                itemId: 'data-collection-issue-detail-previous-next-navigation-toolbar',
-                store: 'Idc.store.Issues',
-                router: me.router,
-                routerIdArgument: 'issueId',
-                itemsName: me.issuesListLink
+                xtype: 'container',
+                layout: 'hbox',
+                items: [
+                    {
+                        itemId: 'issue-detail-top-title',
+                        ui: 'large',
+                        flex: 1
+                    },
+                    {
+                        xtype: 'previous-next-navigation-toolbar',
+                        margin: '10 0 0 0',
+                        itemId: 'data-collection-issue-detail-previous-next-navigation-toolbar',
+                        store: 'Idc.store.Issues',
+                        router: me.router,
+                        routerIdArgument: 'issueId',
+                        itemsName: me.issuesListLink
+                    }
+                ]
             },
             {
                 xtype: 'issue-detail-top',
