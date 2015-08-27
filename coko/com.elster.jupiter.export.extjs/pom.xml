@@ -38,6 +38,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time.extjs</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>domain.util</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
