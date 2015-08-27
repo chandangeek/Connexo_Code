@@ -370,6 +370,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
         if (template) {
             me.down('#rule-template-info').setTooltip(template.get('description'));
             me.down('property-form').loadRecord(template);
+            me.hideResetButtons();
         }
     },
 
@@ -394,6 +395,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
             me.down('#rule-template-info').setTooltip(null);
             issueReasonCombo.reset();
             me.down('property-form').loadRecord(Ext.create('Isu.model.CreationRuleTemplate'));
+            me.hideResetButtons();
             Ext.resumeLayouts(true);
             me.setLoading();
             templatesStore.getProxy().setExtraParam('issueType', type.getId());
@@ -419,5 +421,13 @@ Ext.define('Isu.view.creationrules.EditForm', {
         var me = this;
 
         me.down('#dueDateTrigger').setValue({dueDate: true});
+    },
+
+    hideResetButtons: function() {
+        var buttons = Ext.ComponentQuery.query("uni-default-button");
+        Ext.Array.each(buttons, function(item) {
+            item.up('container').resetButtonHidden = true;
+            item.hide();
+        })
     }
 });

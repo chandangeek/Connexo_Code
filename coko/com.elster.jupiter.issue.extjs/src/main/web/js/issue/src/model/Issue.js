@@ -22,7 +22,7 @@ Ext.define('Isu.model.Issue', {
             name: 'title',
             persist: false,
             mapping: function (data) {
-                return data.reason.name + (data.device ? ' to ' + data.device.name + ' ' + data.device.serialNumber : '');
+                return data.reason.name + (data.device ? data.device.name + ' ' + data.device.serialNumber : '');
             }
         },
         {name: 'reason_name', persist: false, mapping: 'reason.name'},
