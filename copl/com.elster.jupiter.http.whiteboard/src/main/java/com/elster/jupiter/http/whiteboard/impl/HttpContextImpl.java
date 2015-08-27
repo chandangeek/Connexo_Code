@@ -160,7 +160,8 @@ public class HttpContextImpl implements HttpContext {
                 // Authenticated
                 user = verifyToken(xsrf.get().getValue());
             }
-            else {
+
+            if(!xsrf.isPresent() || !user.isPresent()){
                 if (login(request, response)) {
                     return false;
                 }
