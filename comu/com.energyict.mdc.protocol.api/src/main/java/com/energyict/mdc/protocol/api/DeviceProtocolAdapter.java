@@ -1,15 +1,13 @@
 package com.energyict.mdc.protocol.api;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.legacy.HalfDuplexEnabler;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.legacy.DeviceCachingSupport;
-import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.legacy.CachingProtocol;
-import com.energyict.mdc.protocol.api.HHUEnabler;
+import com.energyict.mdc.protocol.api.tasks.support.UsesLegacyMessageConverter;
 
 import java.util.logging.Logger;
 
@@ -23,11 +21,16 @@ import java.util.logging.Logger;
  * {@link HalfDuplexEnabler} and {@link HHUEnabler}
  * functionality to the corresponding Legacy protocol.
  * <p/>
+ * <p>
+ * As it is meant to support Legacy protocols, the DeviceProtocolAdapters needs
+ * to implement the UsesLegacyMessageConverter
+ * </p>
+ *
  * Copyrights EnergyICT
  * Date: 9/08/12
  * Time: 8:41
  */
-public interface DeviceProtocolAdapter extends HHUEnabler, CachingProtocol, DeviceCachingSupport, DeviceSecuritySupport {
+public interface DeviceProtocolAdapter extends HHUEnabler, CachingProtocol, DeviceCachingSupport, DeviceSecuritySupport, UsesLegacyMessageConverter {
 
     /**
      * Initialize the logger which will be used by the legacy protocols

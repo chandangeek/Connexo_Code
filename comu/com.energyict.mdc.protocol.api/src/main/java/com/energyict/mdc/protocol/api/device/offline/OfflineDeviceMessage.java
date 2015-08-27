@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.api.device.offline;
 
 import com.energyict.mdc.common.Offline;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -49,6 +50,11 @@ public interface OfflineDeviceMessage extends Offline {
      * @return the release date of this message
      */
     public Instant getReleaseDate();
+
+    /**
+     * The DeviceProtocol of the device that has this message
+     */
+    public DeviceProtocol getDeviceProtocol();
 
     /**
      * An ID which can be used to keep track of this message
