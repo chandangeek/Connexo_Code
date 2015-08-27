@@ -91,11 +91,15 @@ public class MeterReadingStorer {
         Range<Instant> range = facade.getRange();
         if (range != null) {
             DataMapper<ReadingQualityRecord> mapper = dataModel.mapper(ReadingQualityRecord.class);
-            mapper.remove(
-                    meter.getReadingQualities(range)
-                            .stream()
-                            .filter(this::isRelevant)
-                            .collect(Collectors.<ReadingQualityRecord>toList()));
+            List<ReadingQualityRecord> readingQualitiesForRemoval = meter.getReadingQualities(range)
+                    .stream()
+                    .filter(this::isRelevant)
+                    .collect(Collectors.<ReadingQualityRecord>toList());
+            mapper.remove(readingQualitiesForRemoval);
+            readingQualitiesForRemoval
+                    .stream()
+                    .map(ReadingQualityRecordImpl.class::cast)
+                    .forEach(ReadingQualityRecordImpl::notifyDeleted);
         }
     }
 
@@ -157,6 +161,14 @@ public class MeterReadingStorer {
                     EndDeviceEventRecordImpl eventRecord = deviceEventFactory.get().init(meter, found.get(), sourceEvent.getCreatedDateTime());
                     eventRecord.updateProperties(sourceEvent.getEventData());
                     eventRecord.setLogBookId(sourceEvent.getLogBookId());
+                    eventRecord.setReason(sourceEvent.getReason());
+                    eventRecord.setSeverity(sourceEvent.getSeverity());
+                    eventRecord.setStatus(sourceEvent.getStatus());
+                    eventRecord.setIssuerID(sourceEvent.getIssuerID());
+                    eventRecord.setIssuerTrackingID(sourceEvent.getIssuerTrackingID());
+                    eventRecord.setName(sourceEvent.getName());
+                    eventRecord.setDescription(sourceEvent.getDescription());
+                    eventRecord.setAliasName(sourceEvent.getAliasName());
                     toCreate.add(eventRecord);
                 }
             } else {

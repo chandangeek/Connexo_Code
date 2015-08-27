@@ -114,7 +114,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 new InMemoryMessagingModule(),
                 new OrmModule(),
                 new IdsModule(),
-                new MeteringModule(false),
+                new MeteringModule(),
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
