@@ -36,6 +36,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ public class DeviceLifeCycleActionResource {
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
     private final DeviceLifeCycleActionInfoFactory deviceLifeCycleActionInfoFactory;
+    private final Clock clock;
     private final Thesaurus thesaurus;
 
     @Inject
@@ -56,11 +58,13 @@ public class DeviceLifeCycleActionResource {
             ResourceHelper resourceHelper,
             ExceptionFactory exceptionFactory,
             DeviceLifeCycleActionInfoFactory deviceLifeCycleActionInfoFactory,
+            Clock clock,
             Thesaurus thesaurus) {
         this.deviceLifeCycleService = deviceLifeCycleService;
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceLifeCycleActionInfoFactory = deviceLifeCycleActionInfoFactory;
+        this.clock = clock;
         this.thesaurus = thesaurus;
     }
 
@@ -101,7 +105,7 @@ public class DeviceLifeCycleActionResource {
         resourceHelper.findDeviceAndLock(device.getId(), info.deviceVersion);
         ExecutableAction requestedAction = getExecuteActionByIdOrThrowException(actionId, device);
         DeviceLifeCycleActionResultInfo wizardResult = new DeviceLifeCycleActionResultInfo();
-        wizardResult.transitionNow = info.transitionNow;
+        info.effectiveTimestamp=info.effectiveTimestamp==null?clock.instant():info.effectiveTimestamp;
         wizardResult.effectiveTimestamp = info.effectiveTimestamp;
         if (requestedAction.getAction() instanceof AuthorizedTransitionAction){
             AuthorizedTransitionAction authorizedAction = (AuthorizedTransitionAction) requestedAction.getAction();
