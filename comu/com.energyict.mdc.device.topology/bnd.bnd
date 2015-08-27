@@ -1,6 +1,6 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package:  \
-	com.energyict.mdc.device.topology.impl,\
+	com.energyict.mdc.device.topology.impl
 Export-Package:  \
 	com.energyict.mdc.device.topology
