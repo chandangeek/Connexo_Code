@@ -71,7 +71,7 @@ public class DeviceConfigurationImplCloneTest extends PersistenceTest {
         DeviceConfiguration activeConfig = deviceType.newConfiguration("cloneGateWayTypeTest").gatewayType(GatewayType.LOCAL_AREA_NETWORK).add();
 
         DeviceConfiguration clone = inMemoryPersistence.getDeviceConfigurationService().cloneDeviceConfiguration(activeConfig, "ClonedGatewayType");
-        assertThat(clone.getGetwayType()).isEqualTo(GatewayType.LOCAL_AREA_NETWORK);
+        assertThat(clone.getGatewayType()).isEqualTo(GatewayType.LOCAL_AREA_NETWORK);
     }
 
     @Test
