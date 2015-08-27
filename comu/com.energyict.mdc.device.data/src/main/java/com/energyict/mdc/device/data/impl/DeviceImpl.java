@@ -192,7 +192,6 @@ public class DeviceImpl implements Device, CanLock {
     @SuppressWarnings("unused")
     private long id;
 
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_TYPE_REQUIRED + "}")
     private final Reference<DeviceType> deviceType = ValueReference.absent();
     @DeviceConfigurationIsPresentAndActive(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_CONFIGURATION_REQUIRED + "}")
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
