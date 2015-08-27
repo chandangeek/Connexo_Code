@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>protocols</artifactId>
-        <version>9.1.23</version>
+        <version>9.1.24-SNAPSHOT</version>
     </parent>
 
     <dependencies>
