@@ -52,8 +52,11 @@ Ext.define('Mdc.controller.setup.DeviceTransitionExecute', {
 
         propertyForm.updateRecord();
         record = propertyForm.getRecord();
-        record.set('transitionNow', transitionFieldValue.transitionNow);
-        record.set('effectiveTimestamp', transitionFieldValue.time);
+        if (!transitionFieldValue.transitionNow) {
+            record.set('effectiveTimestamp', transitionFieldValue.time);
+        } else {
+            record.set('effectiveTimestamp', null);
+        }
         var deviceRemoved = record.get('name')==='Remove';
         record.save({
             success: function (record, operation) {
