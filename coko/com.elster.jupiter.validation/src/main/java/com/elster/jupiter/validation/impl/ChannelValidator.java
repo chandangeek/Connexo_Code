@@ -161,7 +161,6 @@ class ChannelValidator {
                 .filter(ReadingQualityRecord::isActual)
                 .anyMatch(
                         either(ReadingQualityRecord::isConfirmed)
-                                .or(ReadingQualityRecord::hasEditCategory)
                                 .or(ReadingQualityRecord::hasEstimatedCategory)
                 );
     }
