@@ -228,7 +228,7 @@ sub install_connexo {
 
 		print "\n\nInstalling Connexo database schema ...\n";
 		print "==========================================================================\n";
-		if ("$OS" eq "MSWin32") {
+		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 			system("$SCRIPT_DIR/Connexo.exe --install");
 			if ("$CONNEXO_SERVICE" eq "yes") {
 				system("$SCRIPT_DIR/ConnexoService.exe /install Connexo$SERVICE_VERSION");
@@ -260,7 +260,7 @@ sub install_tomcat {
 			chomp($TOMCAT_HTTP_PORT=<STDIN>);
 		}
 
-		$ENV{JVM_OPTIONS}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dconnexo.url=$CONNEXO_URL;-Dbtm.root=$CATALINA_HOME;-Dbitronix.tm.configuration=$CATALINA_HOME/conf/btm-config.properties;-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry";
+		$ENV{JVM_OPTIONS}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dconnexo.url=$CONNEXO_URL;-Dbtm.root=$CATALINA_HOME;-Dbitronix.tm.configuration=$CATALINA_HOME/conf/btm-config.properties;-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false";
 
 		chdir "$TOMCAT_BASE";
 		print "Extracting $TOMCAT_ZIP.zip\n";
@@ -271,14 +271,14 @@ sub install_tomcat {
 		chdir "$TOMCAT_DIR/bin";
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/server.xml","<Connector port=\"8009\" protocol=\"AJP/1.3\" redirectPort=\"8443\" />","<Connector port=\"$TOMCAT_AJP_PORT\" protocol=\"AJP/1.3\" redirectPort=\"8443\" />");
 		print "Installing Apache Tomcat For Connexo as service ...\n";
-		if ("$OS" eq "MSWin32") {
+		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.bat") or die "Could not open $TOMCAT_DIR/bin/setenv.bat: $!";
 			print $FH "set CATALINA_OPTS=".$ENV{CATALINA_OPTS}." -Xmx512M -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dconnexo.url=$CONNEXO_URL -Dbtm.root=$CATALINA_HOME -Dbitronix.tm.configuration=$CATALINA_HOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry\n";
 			close($FH);
 			system("service.bat install ConnexoTomcat$SERVICE_VERSION");
 		} else {
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.sh") or die "Could not open $TOMCAT_DIR/bin/setenv.sh: $!";
-			print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=$CATALINA_HOME -Dorg.uberfire.metadata.index.dir=$CATALINA_HOME -Dorg.uberfire.nio.git.ssh.cert.dir=$CATALINA_HOME -Dorg.guvnor.m2repo.dir=$CATALINA_HOME/repositories -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dconnexo.url=$CONNEXO_URL -Dbtm.root=$CATALINA_HOME -Dbitronix.tm.configuration=$CATALINA_HOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry\"\n";
+			print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M -Dorg.uberfire.nio.git.dir=$CATALINA_HOME -Dorg.uberfire.metadata.index.dir=$CATALINA_HOME -Dorg.uberfire.nio.git.ssh.cert.dir=$CATALINA_HOME -Dorg.guvnor.m2repo.dir=$CATALINA_HOME/repositories -Dport.shutdown=$TOMCAT_SHUTDOWN_PORT -Dport.http=$TOMCAT_HTTP_PORT -Dconnexo.url=$CONNEXO_URL -Dbtm.root=$CATALINA_HOME -Dbitronix.tm.configuration=$CATALINA_HOME/conf/btm-config.properties -Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry -Dorg.kie.demo=false -Dorg.kie.example=false\"\n";
 			close($FH);
 		}
 	}
@@ -301,7 +301,7 @@ sub install_wso2 {
 		replace_in_file("$WSO2_DIR/yajsw-stable-11.11/conf/wrapper.conf","wrapper.ntservice.name=WSO2IS","wrapper.ntservice.name=ConnexoWSO2IS$SERVICE_VERSION");
 		replace_in_file("$WSO2_DIR/yajsw-stable-11.11/conf/wrapper.conf","wrapper.ntservice.displayname=WSO2 Identity Server","wrapper.ntservice.displayname=WSO2 Identity Server$SERVICE_VERSION");
 		replace_in_file("$WSO2_DIR/yajsw-stable-11.11/conf/wrapper.conf","wrapper.ntservice.description=WSO2 Identity Server","wrapper.ntservice.description=WSO2 Identity Server$SERVICE_VERSION");
-		if ("$OS" eq "MSWin32") {
+		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 			system("\"$WSO2_DIR/yajsw-stable-11.11/bat/installService.bat\" < NUL");
 		} else {
 			chmod 0755,"$WSO2_DIR/yajsw-stable-11.11/bin/installDaemon.sh";
@@ -491,7 +491,7 @@ sub start_connexo {
 			print $FH "com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow\n";
 			print $FH "com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts\n";
 			close($FH);
-			if ("$OS" eq "MSWin32") {
+			if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 				system("sc config \"Connexo$SERVICE_VERSION\"  start= delayed-auto");
 				system("sc failure \"Connexo$SERVICE_VERSION\" actions= restart/10000/restart/10000/\"\"/10000 reset= 86400");
 				system("sc start Connexo$SERVICE_VERSION");
@@ -506,7 +506,7 @@ sub start_tomcat {
 	if (("$INSTALL_FACTS" eq "yes") || ("$INSTALL_FLOW" eq "yes")) {
 		print "\n\nStarting Apache Tomcat 7 ...\n";
 		print "==========================================================================\n";
-		if ("$OS" eq "MSWin32") {
+		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 			system("sc config \"ConnexoTomcat$SERVICE_VERSION\"  start= delayed-auto");
 			system("sc failure \"ConnexoTomcat$SERVICE_VERSION\" actions= restart/10000/restart/10000/\"\"/10000 reset= 86400");
 			system("sc start ConnexoTomcat$SERVICE_VERSION");
@@ -564,7 +564,7 @@ sub start_tomcat {
 sub uninstall_all {
 	my $WSO2_DIR="$CONNEXO_DIR/partners";
 	$ENV{CARBON_HOME}="$WSO2_DIR/wso2is-4.5.0";
-	if ("$OS" eq "MSWin32") {
+	if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 		print "Stop and remove connexo service";
 		system("\"$CONNEXO_DIR/bin/ConnexoService.exe\" /uninstall Connexo$SERVICE_VERSION");
 		print "Stop and remove tomcat service";
