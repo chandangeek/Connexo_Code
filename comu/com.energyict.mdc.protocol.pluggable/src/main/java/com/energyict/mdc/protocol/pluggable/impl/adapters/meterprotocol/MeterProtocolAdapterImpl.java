@@ -29,6 +29,7 @@ import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.CachingProtocol;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -217,6 +218,11 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         if (this.meterProtocolMessageAdapter != null) {
             this.meterProtocolMessageAdapter.setSerialNumber(this.offlineDevice.getSerialNumber());
         }
+    }
+
+    @Override
+    public LegacyMessageConverter getLegacyMessageConverter() {
+        return this.meterProtocolMessageAdapter.getLegacyMessageConverter();
     }
 
     private TimeZone getDeviceTimeZoneFromProperties() {
