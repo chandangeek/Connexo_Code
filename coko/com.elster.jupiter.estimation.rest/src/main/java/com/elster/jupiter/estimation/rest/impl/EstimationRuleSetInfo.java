@@ -5,7 +5,6 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.rest.PropertyUtils;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;

@@ -2,8 +2,8 @@ package com.elster.jupiter.estimation.rest;
 
 import com.elster.jupiter.estimation.AdvanceReadingsSettings;
 import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
-import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
+import com.elster.jupiter.estimation.rest.impl.EstimationApplication;
 import com.elster.jupiter.estimation.rest.impl.PropertyInfoFactory;
 import com.elster.jupiter.estimation.rest.impl.PropertyType;
 import com.elster.jupiter.nls.Layer;
@@ -21,7 +21,11 @@ import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.time.RelativePeriod;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class PropertyUtils {
 
@@ -31,7 +35,7 @@ public class PropertyUtils {
 
     @Inject
     public PropertyUtils(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(EstimationService.COMPONENTNAME, Layer.REST);
+        this.thesaurus = nlsService.getThesaurus(EstimationApplication.COMPONENT_NAME, Layer.REST);
     }
 
     private String getTranslatedPropertyName(PropertySpec propertySpec) {

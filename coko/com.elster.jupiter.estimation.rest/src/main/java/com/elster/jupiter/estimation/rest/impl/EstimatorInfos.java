@@ -3,7 +3,6 @@ package com.elster.jupiter.estimation.rest.impl;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.util.ArrayList;
 import java.util.List;
 

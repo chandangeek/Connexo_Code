@@ -1,11 +1,11 @@
 package com.elster.jupiter.estimation.rest.impl;
 
+import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.properties.ListValue;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-
-import com.elster.jupiter.properties.HasIdAndName;
-import com.elster.jupiter.properties.ListValue;
 
 public class PropertyInfoFactory {
 
