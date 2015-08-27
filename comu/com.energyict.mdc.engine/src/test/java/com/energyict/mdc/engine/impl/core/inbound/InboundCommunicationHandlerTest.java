@@ -1,10 +1,13 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -16,8 +19,22 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.FakeTransactionService;
-import com.energyict.mdc.engine.config.*;
-import com.energyict.mdc.engine.impl.commands.store.*;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.InboundDataProcessMeterDataStoreCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.ProvideInboundResponseDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.PublishConnectionCompletionEvent;
+import com.energyict.mdc.engine.impl.commands.store.RescheduleSuccessfulExecution;
+import com.energyict.mdc.engine.impl.commands.store.UnlockScheduledJobDeviceCommand;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.InboundJobExecutionDataProcessor;
@@ -42,16 +59,9 @@ import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.RegistersTask;
-import org.assertj.core.api.Condition;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -59,10 +69,21 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
+
+import org.assertj.core.api.Condition;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -71,7 +92,13 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link InboundCommunicationHandler} component.
@@ -280,8 +307,8 @@ public class InboundCommunicationHandlerTest {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
-        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(device);
-        when(this.comServerDAO.findExecutableInboundComTasks(device, this.comPort)).thenReturn(new ArrayList<ComTaskExecution>(0));
+        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(device));
+        when(this.comServerDAO.findExecutableInboundComTasks(device, this.comPort)).thenReturn(new ArrayList<>(0));
 
         // Business method
         this.handler.handle(inboundDeviceProtocol, context);
@@ -330,8 +357,8 @@ public class InboundCommunicationHandlerTest {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
-        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(device);
-        when(this.comServerDAO.findExecutableInboundComTasks(device, this.comPort)).thenReturn(new ArrayList<ComTaskExecution>(0));
+        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(device));
+        when(this.comServerDAO.findExecutableInboundComTasks(device, this.comPort)).thenReturn(new ArrayList<>(0));
 
         // Business method
         this.handler.handle(inboundDeviceProtocol, context);
@@ -357,7 +384,7 @@ public class InboundCommunicationHandlerTest {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
-        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(device);
+        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(device));
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         ConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(this.comPortPool);
@@ -395,7 +422,7 @@ public class InboundCommunicationHandlerTest {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         when(inboundDeviceProtocol.doDiscovery()).thenReturn(InboundDeviceProtocol.DiscoverResultType.DATA);
         OfflineDevice device = mock(OfflineDevice.class);
-        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(device);
+        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(device));
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(this.comServerDAO.findExecutableInboundComTasks(device, this.comPort)).thenReturn(Arrays.asList(comTaskExecution));
         when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(new ArrayList<>(0));
@@ -435,7 +462,7 @@ public class InboundCommunicationHandlerTest {
         collectedData.add(collectedRegister);
         when(inboundDeviceProtocol.getCollectedData(any(OfflineDevice.class))).thenReturn(collectedData);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(offlineDevice);
+        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(offlineDevice));
         ComTask comTask = mock(ComTask.class);
         RegistersTask registersTask = mock(RegistersTask.class);
         when(comTask.getProtocolTasks()).thenReturn(Arrays.asList(registersTask));
@@ -510,7 +537,7 @@ public class InboundCommunicationHandlerTest {
         Device device = getMockedDevice();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         when(offlineDevice.getId()).thenReturn(DEVICE_ID);
-        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(offlineDevice);
+        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(offlineDevice));
         ComTask comTask = mock(ComTask.class);
 //        when(comTask.isConfiguredToCollectRegisterData()).thenReturn(true);
         ConnectionTask connectionTask = mock(InboundConnectionTask.class);
@@ -557,7 +584,7 @@ public class InboundCommunicationHandlerTest {
         when(offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         Device device = getMockedDevice();
-        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(offlineDevice);
+        when(this.comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(Optional.of(offlineDevice));
         when(device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
         when(device.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         when(device.getProtocolDialectProperties(any(String.class))).thenReturn(Optional.empty());

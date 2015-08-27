@@ -5,11 +5,14 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+
+import java.util.Optional;
 
 /**
  * Provides functionality to store {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} data.
@@ -32,8 +35,18 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
     @Override
     public void doExecute (ComServerDAO comServerDAO) {
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(this.getClock(), this.getMdcReadingTypeUtilService(), comServerDAO);
-        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
-        updateMeterDataStorer(localLoadProfile);
+        Optional<Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile>> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        if (localLoadProfile.isPresent()) {
+            updateMeterDataStorer(localLoadProfile.get());
+        }
+        else {
+            this.addIssue(
+                    CompletionCode.ConfigurationWarning,
+                    this.getIssueService().newWarning(
+                            this,
+                            MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE.getKey(),
+                            this.collectedLoadProfile.getLoadProfileIdentifier()));
+        }
     }
 
     private void updateMeterDataStorer(final Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile) {

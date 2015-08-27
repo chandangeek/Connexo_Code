@@ -21,6 +21,7 @@ import java.util.Optional;
 public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogger {
 
     private ComServer.LogLevel logLevel;
+    private long problemCounter = 0;
     private final Clock clock;
 
     protected ExecutionLoggerImpl(ComServer.LogLevel logLevel, Clock clock) {
@@ -75,7 +76,15 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
     }
 
     private void logIssue(CompletionCode completionCode, Issue issue, ComTaskExecutionSessionBuilder builder) {
+        if (issue.isProblem()) {
+            this.problemCounter++;
+        }
         builder.addComCommandJournalEntry(issue.getTimestamp(), completionCode, issue.isProblem() ? issue.getDescription() : "", issue.getDescription());
+    }
+
+    @Override
+    public boolean hasProblems() {
+        return this.problemCounter > 0;
     }
 
 }

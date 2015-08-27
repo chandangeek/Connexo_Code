@@ -4,13 +4,16 @@ import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
+import java.util.Optional;
+
 /**
- * Provides functionality to store {@link com.energyict.mdc.protocol.api.device.BaseLogBook} data into the system
+ * Provides functionality to store {@link com.energyict.mdc.protocol.api.device.BaseLogBook} data into the system.
  *
  * @author sva
  * @since 10/12/12 - 11:13
@@ -29,8 +32,18 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl {
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
         PreStoreLogBook logBookPreStorer = new PreStoreLogBook(this.getClock(), comServerDAO);
-        Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook> localLogBook = logBookPreStorer.preStore(this.deviceLogBook);
-        updateMeterDataStorer(localLogBook);
+        Optional<Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook>> localLogBook = logBookPreStorer.preStore(this.deviceLogBook);
+        if (localLogBook.isPresent()) {
+            updateMeterDataStorer(localLogBook.get());
+        }
+        else {
+            this.addIssue(
+                    CompletionCode.ConfigurationWarning,
+                    this.getIssueService().newWarning(
+                            this,
+                            MessageSeeds.UNKNOWN_DEVICE_LOG_BOOK.getKey(),
+                            this.deviceLogBook.getLogBookIdentifier()));
+        }
     }
 
     private void updateMeterDataStorer(final Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook> localLogBook) {

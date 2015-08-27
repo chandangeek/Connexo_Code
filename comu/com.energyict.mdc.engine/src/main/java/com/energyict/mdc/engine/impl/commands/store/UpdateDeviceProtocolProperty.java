@@ -7,7 +7,6 @@ import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
@@ -29,11 +28,9 @@ public class UpdateDeviceProtocolProperty extends DeviceCommandImpl {
     private final DeviceIdentifier deviceIdentifier;
     private final PropertySpec propertySpec;
     private final Object propertyValue;
-    private final ComTaskExecution comTaskExecution;
 
     public UpdateDeviceProtocolProperty(DeviceProtocolProperty deviceProtocolProperty, ComTaskExecution comTaskExecution, ServiceProvider serviceProvider) {
         super(comTaskExecution, serviceProvider);
-        this.comTaskExecution = comTaskExecution;
         this.deviceIdentifier = deviceProtocolProperty.getDeviceIdentifier();
         this.propertySpec = deviceProtocolProperty.getPropertySpec();
         this.propertyValue = deviceProtocolProperty.getPropertyValue();
@@ -42,21 +39,21 @@ public class UpdateDeviceProtocolProperty extends DeviceCommandImpl {
     @Override
     protected void doExecute(ComServerDAO comServerDAO) {
         try {
-            if (comServerDAO.findOfflineDevice(deviceIdentifier, new DeviceOfflineFlags(DeviceOfflineFlags.SLAVE_DEVICES_FLAG)) != null) {
+            if (comServerDAO.findOfflineDevice(deviceIdentifier, new DeviceOfflineFlags(DeviceOfflineFlags.SLAVE_DEVICES_FLAG)).isPresent()) {
                 try {
                     if (propertySpec.validateValueIgnoreRequired(propertyValue)) {
                         comServerDAO.updateDeviceProtocolProperty(deviceIdentifier, propertySpec.getName(), propertyValue);
                     }
                 } catch (InvalidValueException | DeviceProtocolPropertyException e) {
-                    getExecutionLogger().addIssue(
+                    this.addIssue(
                             CompletionCode.ConfigurationWarning,
-                            this.getIssueService().newWarning(this, MessageSeeds.PROPERTY_VALIDATION_FAILED.getKey(), propertySpec.getName(), propertyValue), comTaskExecution);
+                            this.getIssueService().newWarning(this, MessageSeeds.PROPERTY_VALIDATION_FAILED.getKey(), propertySpec.getName(), propertyValue));
                 }
             }
         } catch (CanNotFindForIdentifier e) {
-            getExecutionLogger().addIssue(
+            this.addIssue(
                     CompletionCode.ConfigurationWarning,
-                    this.getIssueService().newWarning(deviceIdentifier, e.getMessageSeed().getKey(), deviceIdentifier), comTaskExecution);
+                    this.getIssueService().newWarning(deviceIdentifier, e.getMessageSeed().getKey(), deviceIdentifier));
         }
     }
 

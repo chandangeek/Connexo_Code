@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Models the behavior of a component that provides access to the data
@@ -188,9 +189,9 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     /**
     * Notifies that execution of the specified ComTaskExecution has been started
     * on the specified ComPort.
-    *  @param comTaskExecution The ComTaskExecution
+    * @param comTaskExecution The ComTaskExecution
     * @param comPort The ComPort that has started the execution of the ComTaskExecution
-     * @param executeInTransaction
+     *@param executeInTransaction
      */
     public void executionStarted(ComTaskExecution comTaskExecution, ComPort comPort, boolean executeInTransaction);
 
@@ -276,7 +277,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param offlineDeviceContext  the offlineContext identifying what needs to be offline
      * @return The offline version of the Device that is identified by the DeviceIdentifier
      */
-    public OfflineDevice findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext);
+    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext);
 
     /**
      * Finds the BaseRegister that is uniquely identified
@@ -285,11 +286,21 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param identifier The RegisterIdentifier
      * @return The offline version of the Register that is identified by the RegisterIdentifier
      */
-    public OfflineRegister findOfflineRegister(RegisterIdentifier identifier);
+    public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier);
 
-    public OfflineLoadProfile findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier);
+    public Optional<OfflineLoadProfile> findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier);
 
-    public OfflineLogBook findOfflineLogBook(LogBookIdentifier logBookIdentifier);
+    public Optional<OfflineLogBook> findOfflineLogBook(LogBookIdentifier logBookIdentifier);
+
+    /**
+     * Finds the <b>offline</b> version of the {@link com.energyict.mdc.protocol.api.device.messages.DeviceMessage}
+     * that is uniquely identified by the specified {@link com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier}.
+     *
+     * @param identifier The MessageIdentifier
+     * @return The <b>offline</b> version of the DeviceMessage that is identified by the MessageIdentifier
+     * or null if the DeviceMessage could not be found
+     */
+    public Optional<OfflineDeviceMessage> findOfflineDeviceMessage(MessageIdentifier identifier);
 
     /**
      * Updates the ip address of the BaseDevice device
@@ -304,7 +315,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
 
     /**
      * Updates a protocol property of the BaseDevice
-     * that is uniquely identified by the specified identifier with the given value
+     * that is uniquely identified by the specified identifier with the given value.
      *
      * @param deviceIdentifier The DeviceIdentifier
      * @param propertyName     The name of the generic communication property
@@ -313,10 +324,8 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
 
     /**
-
-    /**
      * Updates the gateway device of the BaseDevice device
-     * that is uniquely identified by the specified identifier
+     * that is uniquely identified by the specified identifier.
      *
      * @param deviceIdentifier The DeviceIdentifier
      * @param gatewayDeviceIdentifier The device identifier of the new gateway device or null (to be used in case no gateway is present)
@@ -375,7 +384,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     public boolean areStillPending (Collection<Long> comTaskExecutionIds);
 
     /**
-     * Executes the given Transaction
+     * Executes the given Transaction.
      *
      * @param transaction the transaction to execute
      */
@@ -396,4 +405,5 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     public void storeG3IdentificationInformation(G3TopologyDeviceAddressInformation topologyDeviceAddressInformation);
 
     void updateFirmwareVersions(CollectedFirmwareVersion collectedFirmwareVersions);
+
 }

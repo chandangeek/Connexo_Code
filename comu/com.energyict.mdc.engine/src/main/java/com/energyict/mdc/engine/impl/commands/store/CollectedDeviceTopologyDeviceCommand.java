@@ -5,7 +5,7 @@ import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.store.MessageSeeds;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.SLAVE_DEVICES_FLAG;
@@ -30,7 +31,6 @@ import static com.energyict.mdc.protocol.api.device.offline.DeviceOfflineFlags.S
 public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
 
     private final CollectedTopology deviceTopology;
-    private final ComTaskExecution comTaskExecution;
     private final MeterDataStoreCommand meterDataStoreCommand;
     private boolean topologyChanged;
 
@@ -52,7 +52,6 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
     public CollectedDeviceTopologyDeviceCommand(CollectedTopology deviceTopology, ComTaskExecution comTaskExecution, MeterDataStoreCommand meterDataStoreCommand, ServiceProvider serviceProvider) {
         super(comTaskExecution, serviceProvider);
         this.deviceTopology = deviceTopology;
-        this.comTaskExecution = comTaskExecution;
         this.meterDataStoreCommand = meterDataStoreCommand;
     }
 
@@ -71,25 +70,23 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
 
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
-        OfflineDevice device = comServerDAO.findOfflineDevice(deviceTopology.getDeviceIdentifier(), new DeviceOfflineFlags(SLAVE_DEVICES_FLAG));
-        if (device != null) {
+        Optional<OfflineDevice> device = comServerDAO.findOfflineDevice(deviceTopology.getDeviceIdentifier(), new DeviceOfflineFlags(SLAVE_DEVICES_FLAG));
+        if (device.isPresent()) {
             this.topologyChanged = false;
             try {
-                handlePhysicalTopologyUpdate(comServerDAO, device);
+                handlePhysicalTopologyUpdate(comServerDAO, device.get());
                 signalTopologyChangedEvent(comServerDAO);
                 updateLogging();
                 handleAdditionalInformation(comServerDAO);
             } catch (CanNotFindForIdentifier e) {
-                getExecutionLogger().addIssue(
+                this.addIssue(
                         CompletionCode.ConfigurationWarning,
-                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), e.getMessageArguments()),
-                        comTaskExecution);
+                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), e.getMessageArguments()));
             }
         } else {
-            getExecutionLogger().addIssue(
+            this.addIssue(
                     CompletionCode.ConfigurationWarning,
-                    getIssueService().newProblem(deviceTopology, MessageSeeds.COLLECTED_DEVICE_TOPOLOGY_FOR_UN_KNOWN_DEVICE.getKey(), deviceTopology.getDeviceIdentifier()),
-                    comTaskExecution);
+                    getIssueService().newProblem(deviceTopology, MessageSeeds.COLLECTED_DEVICE_TOPOLOGY_FOR_UN_KNOWN_DEVICE.getKey(), deviceTopology.getDeviceIdentifier()));
         }
     }
 
@@ -108,10 +105,9 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
             try {
                 comServerDAO.storeG3IdentificationInformation(g3TopologyDeviceAddressInformation);
             } catch (CanNotFindForIdentifier e) {
-                getExecutionLogger().addIssue(
+                this.addIssue(
                         CompletionCode.ConfigurationWarning,
-                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), g3TopologyDeviceAddressInformation.getDeviceIdentifier()),
-                        comTaskExecution);
+                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), g3TopologyDeviceAddressInformation.getDeviceIdentifier()));
             }
         }
     }
@@ -140,24 +136,26 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
     private void updateLogging() {
         if (!this.serialNumbersRemovedFromTopology.isEmpty()) {
             String allSerials = getSerialNumbersAsString(this.serialNumbersRemovedFromTopology);
-            getExecutionLogger().addIssue(
+            this.addIssue(
                     CompletionCode.ConfigurationWarning,
-                    getIssueService().newWarning(deviceTopology, MessageSeeds.SERIALS_REMOVED_FROM_TOPOLOGY.getKey(), allSerials), comTaskExecution);
+                    getIssueService().newWarning(deviceTopology, MessageSeeds.SERIALS_REMOVED_FROM_TOPOLOGY.getKey(), allSerials));
         }
         if (!this.knownSerialNumbersAddedToTopology.isEmpty()) {
             String allSerials = getSerialNumbersAsString(this.knownSerialNumbersAddedToTopology);
-            getExecutionLogger().addIssue(
+            this.addIssue(
                     CompletionCode.ConfigurationWarning,
-                    getIssueService().newWarning(deviceTopology, MessageSeeds.SERIALS_ADDED_TO_TOPOLOGY.getKey(), allSerials), comTaskExecution);
+                    getIssueService().newWarning(deviceTopology, MessageSeeds.SERIALS_ADDED_TO_TOPOLOGY.getKey(), allSerials));
         }
         if (!this.unknownSerialNumbersAddedToTopology.isEmpty()) {
             String allSerials = getSerialNumbersAsString(this.unknownSerialNumbersAddedToTopology);
             if (isVerifyTopologyAction()) {
-                getExecutionLogger().addIssue(CompletionCode.ConfigurationWarning,
-                        getIssueService().newWarning(deviceTopology, MessageSeeds.UNKNOWN_SERIALS_ADDED_TO_TOPOLOGY.getKey(), allSerials), comTaskExecution);
+                this.addIssue(
+                        CompletionCode.ConfigurationWarning,
+                        getIssueService().newWarning(deviceTopology, MessageSeeds.UNKNOWN_SERIALS_ADDED_TO_TOPOLOGY.getKey(), allSerials));
             } else {
-                getExecutionLogger().addIssue(CompletionCode.ConfigurationError,
-                        getIssueService().newProblem(deviceTopology, MessageSeeds.UNKNOWN_SERIALS_ADDED_TO_TOPOLOGY.getKey(), allSerials), comTaskExecution);
+                this.addIssue(
+                        CompletionCode.ConfigurationError,
+                        getIssueService().newProblem(deviceTopology, MessageSeeds.UNKNOWN_SERIALS_ADDED_TO_TOPOLOGY.getKey(), allSerials));
             }
         }
     }
@@ -201,10 +199,9 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
                 this.knownSerialNumbersAddedToTopology.add(actualSerialNumber);
                 this.topologyChanged = true;
             } catch (CanNotFindForIdentifier e) {
-                getExecutionLogger().addIssue(
+                this.addIssue(
                         CompletionCode.ConfigurationWarning,
-                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), movedSlave),
-                        comTaskExecution);
+                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), movedSlave));
             }
         }
     }
@@ -219,10 +216,9 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
                 this.serialNumbersRemovedFromTopology.add(oldSerialNumber);
                 this.topologyChanged = true;
             } catch (CanNotFindForIdentifier e) {
-                getExecutionLogger().addIssue(
+                this.addIssue(
                         CompletionCode.ConfigurationWarning,
-                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), offlineRemovedSlave.getDeviceIdentifier()),
-                        comTaskExecution);
+                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), offlineRemovedSlave.getDeviceIdentifier()));
             }
         }
     }
@@ -231,17 +227,16 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl {
         Map<String, DeviceIdentifier> actualSlavesByDeviceId = new HashMap<>();
         List<DeviceIdentifier> actualSlaveDevices = deviceTopology.getSlaveDeviceIdentifiers();
         for (DeviceIdentifier slaveId : actualSlaveDevices) {
-            OfflineDevice slave = null;
+            Optional<OfflineDevice> slave = Optional.empty();
             try {
                 slave = comServerDAO.findOfflineDevice(slaveId, new DeviceOfflineFlags(SLAVE_DEVICES_FLAG));
             } catch (CanNotFindForIdentifier e) {
-                getExecutionLogger().addIssue(
+                this.addIssue(
                         CompletionCode.ConfigurationWarning,
-                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), slaveId),
-                        comTaskExecution);
+                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), slaveId));
             }
-            if (slave != null) {
-                actualSlavesByDeviceId.put(slave.getSerialNumber(), slaveId);
+            if (slave.isPresent()) {
+                actualSlavesByDeviceId.put(slave.get().getSerialNumber(), slaveId);
             }
             else {
                 this.handleAdditionOfSlave(comServerDAO, slaveId);

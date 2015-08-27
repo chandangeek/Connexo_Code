@@ -56,6 +56,14 @@ public interface DeviceCommand {
          */
         public void addIssue (CompletionCode completionCode, Issue issue, ComTaskExecution comTaskExecution);
 
+        /**
+         * Tests if {@link com.energyict.mdc.issues.Problem}s have been added.
+         *
+         * @return true iff Problems have been added
+         * @see #addIssue(CompletionCode, Issue, ComTaskExecution)
+         */
+        public boolean hasProblems();
+
     }
 
     /**

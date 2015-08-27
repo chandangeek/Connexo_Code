@@ -27,6 +27,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -70,11 +71,12 @@ public class CollectedDeviceTopologyDeviceCommandTest {
         when(slave1Identifier.getIdentifier()).thenReturn(SLAVE_1_SERIAL_NUMBER);
         when(slave2Identifier.getIdentifier()).thenReturn(SLAVE_2_SERIAL_NUMBER);
         when(serviceProvider.issueService()).thenReturn(issueService);
-        when(comServerDAO.findOfflineDevice(eq(deviceIdentifier), any(OfflineDeviceContext.class))).thenReturn(offlineDevice);
-        when(comServerDAO.findOfflineDevice(deviceIdentifier)).thenReturn(offlineDevice);
+        when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(Optional.empty());
+        when(comServerDAO.findOfflineDevice(eq(deviceIdentifier), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineDevice));
+        when(comServerDAO.findOfflineDevice(deviceIdentifier)).thenReturn(Optional.of(offlineDevice));
         when(deviceIdentifier.findDevice()).thenReturn(device);
-        when(comServerDAO.findOfflineDevice(eq(slave1Identifier), any(OfflineDeviceContext.class))).thenReturn(offlineSlave_1);
-        when(comServerDAO.findOfflineDevice(eq(slave2Identifier), any(OfflineDeviceContext.class))).thenReturn(offlineSlave_2);
+        when(comServerDAO.findOfflineDevice(eq(slave1Identifier), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineSlave_1));
+        when(comServerDAO.findOfflineDevice(eq(slave2Identifier), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineSlave_2));
 
         when(offlineSlave_1.getSerialNumber()).thenReturn(SLAVE_1_SERIAL_NUMBER);
         when(offlineSlave_2.getSerialNumber()).thenReturn(SLAVE_2_SERIAL_NUMBER);
@@ -99,8 +101,8 @@ public class CollectedDeviceTopologyDeviceCommandTest {
      */
     @Test
     public void testAddedSlave_UpdateAction() throws Exception {
-        when(comServerDAO.findOfflineDevice(eq(slave1Identifier), any(OfflineDeviceContext.class))).thenReturn(offlineSlave_1);  // Already known in EIServer
-        when(comServerDAO.findOfflineDevice(eq(slave2Identifier), any(OfflineDeviceContext.class))).thenReturn(null);            // Not yet present in EIServer
+        when(comServerDAO.findOfflineDevice(eq(slave1Identifier), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineSlave_1));  // Already known in EIServer
+        when(comServerDAO.findOfflineDevice(eq(slave2Identifier), any(OfflineDeviceContext.class))).thenReturn(Optional.<OfflineDevice>empty());            // Not yet present in EIServer
 
         when(offlineDevice.getAllSlaveDevices()).thenReturn(new ArrayList<>());
 
@@ -140,8 +142,8 @@ public class CollectedDeviceTopologyDeviceCommandTest {
      */
     @Test
     public void testAddedSlave_VerifyAction() throws Exception {
-        when(comServerDAO.findOfflineDevice(eq(slave1Identifier), any(OfflineDeviceContext.class))).thenReturn(offlineSlave_1);  // Already known in EIServer
-        when(comServerDAO.findOfflineDevice(eq(slave2Identifier), any(OfflineDeviceContext.class))).thenReturn(null);            // Not yet present in EIServer
+        when(comServerDAO.findOfflineDevice(eq(slave1Identifier), any(OfflineDeviceContext.class))).thenReturn(Optional.of(offlineSlave_1));  // Already known in EIServer
+        when(comServerDAO.findOfflineDevice(eq(slave2Identifier), any(OfflineDeviceContext.class))).thenReturn(Optional.<OfflineDevice>empty());            // Not yet present in EIServer
 
         when(offlineDevice.getAllSlaveDevices()).thenReturn(new ArrayList<>());
 

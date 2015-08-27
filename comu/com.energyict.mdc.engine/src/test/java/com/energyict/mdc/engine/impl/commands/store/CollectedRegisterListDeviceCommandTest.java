@@ -43,7 +43,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the execution of the CollectedRegisterListDeviceCommand
+ * Tests the execution of the CollectedRegisterListDeviceCommand.
  *
  * @author sva
  * @since 21/01/13 - 11:21
@@ -81,7 +81,7 @@ public class CollectedRegisterListDeviceCommandTest {
     @Before
     public void initializeMocksAndFactories() {
         when(this.offlineDevice.getId()).thenReturn(DEVICE_ID);
-        when(comServerDAO.findOfflineRegister(any(RegisterIdentifier.class))).thenReturn(offlineRegister);
+        when(comServerDAO.findOfflineRegister(any(RegisterIdentifier.class))).thenReturn(Optional.of(offlineRegister));
         when(offlineRegister.getRegisterId()).thenReturn(REGISTER_ID);
         when(offlineRegister.getObisCode()).thenReturn(REGISTER_OBIS);
         when(offlineRegister.getOverFlowValue()).thenReturn(new BigDecimal(DeviceCreator.CHANNEL_OVERFLOW_VALUE));

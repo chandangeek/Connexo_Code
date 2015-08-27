@@ -53,11 +53,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     PRETTY_PRINT_TIMEDURATION_SEPARATOR(138, "PrettyPrintTimeDuration.separator", ", ", Level.INFO),
     PRETTY_PRINT_TIMEDURATION_LAST_SEPARATOR(139, "PrettyPrintTimeDuration.lastSeparator", " and ", Level.INFO),
     DUPLICATE_FOUND(140, "duplicateFound", "A duplicate ''{0}'' was found when a unique result was expected for ''{1}''", Level.SEVERE),
-    SERIALS_REMOVED_FROM_TOPOLOGY(141, "serialsRemovedFromTopology", "The following devices are removed from the topology: {0}", Level.SEVERE),
-    SERIALS_ADDED_TO_TOPOLOGY(142, "serialsAddedToTopology", "The following devices are added to the topology: {0}", Level.SEVERE),
-    COLLECTED_DEVICE_TOPOLOGY_FOR_UN_KNOWN_DEVICE(143, "collectedDeviceTopologyForUnKnownDevice", "The collected topology is for an unknown device ''{0}''", Level.SEVERE),
-    UNKNOWN_SERIALS_ADDED_TO_TOPOLOGY(144, "unknownSerialsAddedToTopology", "The following unknown devices were found in the topology: ''{0}''", Level.SEVERE),
-    PROPERTY_VALIDATION_FAILED(145, "propertyValidationFailed", "The validation of property ''{0}'' with value ''{1}'' failed", Level.SEVERE),
     COMTASK_NOT_ENABLED_ON_CONFIGURATION(146, "comTaskNotEnabled", "The communication task ''{0}'' is not enabled for execution on devices of configuration ''{1}''", Level.SEVERE),
 
     FW_DISCOVERED_NEW_GHOST(147, Keys.FW_DISCOVERED_NEW_GHOST, "Discovered a new ghost firmware version ''{0}''", Level.SEVERE),

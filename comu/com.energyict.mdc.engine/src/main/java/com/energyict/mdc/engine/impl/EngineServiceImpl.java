@@ -275,7 +275,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         List<TranslationKey> keys = new ArrayList<>();
         Stream.of(MessageSeeds.values()).forEach(keys::add);
         Stream.of(com.energyict.mdc.engine.impl.monitor.MessageSeeds.values()).forEach(keys::add);
-        Stream.of(com.energyict.mdc.engine.impl.commands.store.deviceactions.MessageSeeds.values()).forEach(keys::add);
+        Stream.of(com.energyict.mdc.engine.impl.commands.store.MessageSeeds.values()).forEach(keys::add);
         return keys;
     }
 

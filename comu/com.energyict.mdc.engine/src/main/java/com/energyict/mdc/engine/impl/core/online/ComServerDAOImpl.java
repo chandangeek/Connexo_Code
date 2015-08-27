@@ -219,33 +219,43 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public OfflineDevice findOfflineDevice(DeviceIdentifier<?> identifier) {
+    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier) {
         return findOfflineDevice(identifier, DeviceOffline.needsEverything);
     }
 
     @Override
-    public OfflineDevice findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
+    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
         BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister> device = identifier.findDevice();
         if (device != null) {
-            return new OfflineDeviceImpl((Device) device, offlineDeviceContext, new OfflineDeviceServiceProvider());
+            return Optional.of(new OfflineDeviceImpl((Device) device, offlineDeviceContext, new OfflineDeviceServiceProvider()));
         } else {
-            return null;
+            return Optional.empty();
         }
     }
 
     @Override
-    public OfflineRegister findOfflineRegister(RegisterIdentifier identifier) {
-        return new OfflineRegisterImpl((Register) identifier.findRegister(), this.serviceProvider.identificationService());
+    public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier) {
+        return Optional.of(new OfflineRegisterImpl((Register) identifier.findRegister(), this.serviceProvider.identificationService()));
     }
 
     @Override
-    public OfflineLoadProfile findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
-        return new OfflineLoadProfileImpl((LoadProfile) loadProfileIdentifier.findLoadProfile(), this.serviceProvider.topologyService(), this.serviceProvider.identificationService());
+    public Optional<OfflineLoadProfile> findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
+        return Optional.of(new OfflineLoadProfileImpl((LoadProfile) loadProfileIdentifier.findLoadProfile(), this.serviceProvider.topologyService(), this.serviceProvider.identificationService()));
     }
 
     @Override
-    public OfflineLogBook findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
-        return new OfflineLogBookImpl((LogBook) logBookIdentifier.getLogBook(), this.serviceProvider.identificationService());
+    public Optional<OfflineLogBook> findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
+        return Optional.of(new OfflineLogBookImpl((LogBook) logBookIdentifier.getLogBook(), this.serviceProvider.identificationService()));
+    }
+
+    @Override
+    public Optional<OfflineDeviceMessage> findOfflineDeviceMessage(MessageIdentifier identifier) {
+        DeviceMessage<Device> deviceMessage = identifier.getDeviceMessage();
+        return Optional.of(
+                new OfflineDeviceMessageImpl(
+                    deviceMessage,
+                    deviceMessage.getDevice().getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol(),
+                    this.serviceProvider.identificationService()));
     }
 
     @Override

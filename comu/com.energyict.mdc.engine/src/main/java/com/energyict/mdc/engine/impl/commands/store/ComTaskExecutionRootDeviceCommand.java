@@ -33,7 +33,9 @@ public class ComTaskExecutionRootDeviceCommand extends CompositeDeviceCommandImp
     public void execute(final ComServerDAO comServerDAO) {
         try {
             executeAll(comServerDAO);
-        } catch (Throwable t) {
+            this.markExecutionFailedWhenProblemsWereLogged(comServerDAO);
+        }
+        catch (Throwable t) {
             handleUnexpectedError(t, comServerDAO);
         }
     }
@@ -42,8 +44,16 @@ public class ComTaskExecutionRootDeviceCommand extends CompositeDeviceCommandImp
     public void executeDuringShutdown(final ComServerDAO comServerDAO) {
         try {
             executeAllDuringShutdown(comServerDAO);
-        } catch (Throwable t) {
+            this.markExecutionFailedWhenProblemsWereLogged(comServerDAO);
+        }
+        catch (Throwable t) {
             handleUnexpectedError(t, comServerDAO);
+        }
+    }
+
+    private void markExecutionFailedWhenProblemsWereLogged(ComServerDAO comServerDAO) {
+        if (this.executionLogger.hasProblems()) {
+            comServerDAO.executionFailed(this.comTaskExecution);
         }
     }
 
@@ -69,16 +79,18 @@ public class ComTaskExecutionRootDeviceCommand extends CompositeDeviceCommandImp
     @Override
     public String toJournalMessageDescription(ComServer.LogLevel serverLogLevel) {
         DescriptionBuilder descriptionBuilder = new DescriptionBuilderImpl(this);
-        if(this.comTaskExecution != null){
+        if (this.comTaskExecution != null) {
             descriptionBuilder.addProperty("deviceID").append(comTaskExecution.getDevice().getId());
             if (this.comTaskExecution instanceof ScheduledComTaskExecution) {
                 ScheduledComTaskExecution scheduledComTaskExecution = (ScheduledComTaskExecution) this.comTaskExecution;
                 descriptionBuilder.addProperty("comSchedule").append(scheduledComTaskExecution.getComSchedule().getName());
-            } else if (this.comTaskExecution instanceof ManuallyScheduledComTaskExecution) {
+            }
+            else if (this.comTaskExecution instanceof ManuallyScheduledComTaskExecution) {
                 // Must be ManuallyScheduledComTaskExecution
                 ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = (ManuallyScheduledComTaskExecution) this.comTaskExecution;
                 descriptionBuilder.addProperty("comTask").append(manuallyScheduledComTaskExecution.getComTask().getName());
-            } else if (this.comTaskExecution instanceof FirmwareComTaskExecution) {
+            }
+            else if (this.comTaskExecution instanceof FirmwareComTaskExecution) {
                 FirmwareComTaskExecution firmwareComTaskExecution = (FirmwareComTaskExecution) this.comTaskExecution;
                 descriptionBuilder.addProperty("comTask").append(firmwareComTaskExecution.getComTask().getName());
             }

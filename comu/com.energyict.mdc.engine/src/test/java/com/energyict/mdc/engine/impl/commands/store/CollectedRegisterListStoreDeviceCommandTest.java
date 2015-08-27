@@ -95,7 +95,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         OfflineRegister offlineRegister = mock(OfflineRegister.class);
         when(offlineRegister.getOverFlowValue()).thenReturn(new BigDecimal(Double.MAX_VALUE));
         ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
-        when(comServerDAO.findOfflineRegister(registerIdentifier)).thenReturn(offlineRegister);
+        when(comServerDAO.findOfflineRegister(registerIdentifier)).thenReturn(Optional.of(offlineRegister));
 
         // Business method
         collectedRegisterListDeviceCommand.execute(comServerDAO);
