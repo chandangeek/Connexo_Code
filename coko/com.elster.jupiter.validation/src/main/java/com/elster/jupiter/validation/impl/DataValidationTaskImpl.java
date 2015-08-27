@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
@@ -14,18 +15,19 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.validation.*;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.elster.jupiter.validation.CannotDeleteWhileBusyException;
 import com.elster.jupiter.validation.DataValidationOccurrence;
-import com.elster.jupiter.util.conditions.Condition;
-import org.hibernate.validator.constraints.NotEmpty;
-
+import com.elster.jupiter.validation.DataValidationOccurrenceFinder;
+import com.elster.jupiter.validation.DataValidationTask;
+import com.elster.jupiter.validation.DataValidationTaskStatus;
+import com.elster.jupiter.validation.MessageSeeds;
+import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;

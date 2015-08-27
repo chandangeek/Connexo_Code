@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
@@ -15,10 +16,15 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
-import com.elster.jupiter.validation.*;
 import com.elster.jupiter.validation.MessageSeeds.Constants;
+import com.elster.jupiter.validation.ReadingTypeInValidationRule;
+import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationRuleProperties;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
+import com.elster.jupiter.validation.Validator;
+import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.collect.ImmutableMap;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -56,7 +62,7 @@ public final class ValidationRuleImpl implements IValidationRule {
     private String userName;
     // associations
     @Valid
-    @Size(min=1, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
     private List<ReadingTypeInValidationRule> readingTypesInRule = new ArrayList<>();
 
     private Reference<ValidationRuleSet> ruleSet = ValueReference.absent();
@@ -315,7 +321,7 @@ public final class ValidationRuleImpl implements IValidationRule {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(getImplementation()).append(' ').append(getAction().name()).append(' ').append(isActive());
-        properties.forEach( p -> builder.append(p.toString()).append('\n'));
+        properties.forEach(p -> builder.append(p.toString()).append('\n'));
         return builder.toString();
     }
 
@@ -404,7 +410,7 @@ public final class ValidationRuleImpl implements IValidationRule {
 
     @Override
     public boolean appliesTo(Channel channel) {
-    	return isActive() && getReadingTypes().stream().anyMatch(readingType -> channel.hasReadingType(readingType));
+        return isActive() && getReadingTypes().stream().anyMatch(readingType -> channel.hasReadingType(readingType));
     }
 
 }
