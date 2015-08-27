@@ -256,12 +256,23 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 me.getApplication().fireEvent('acknowledge', actionMsg);
                 me.showDeviceCommunicationTasksView(me.mrid);
             },
-            failure: function () {
-                var changeConnectionItemPopUp = me.getChangeConnectionItemPopUp();
-                if(changeConnectionItemPopUp){
-                    changeConnectionItemPopUp.close();
+            failure: function (response) {
+                var json = Ext.decode(response.responseText),
+                    changeConnectionItemPopUp = me.getChangeConnectionItemPopUp(),
+                    form = changeConnectionItemPopUp && changeConnectionItemPopUp.down('form').getForm();
+
+                if (json && json.errors && form) {
+                    Ext.each(json.errors, function (error) {
+                        switch (error.id) {
+                            case 'plannedPriority':
+                                error.id = 'urgency';
+                                break;
+                        }
+                    });
+                    form.markInvalid(json.errors);
+                } else {
+                    me.showDeviceCommunicationTasksView(me.mrid);
                 }
-                me.showDeviceCommunicationTasksView(me.mrid);
             }
         });
     },
