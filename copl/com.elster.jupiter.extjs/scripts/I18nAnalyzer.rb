@@ -77,7 +77,7 @@ translations.each do |component, keys|
 	componentBlob = "# " + component + " component translations (" + keys.length.to_s + " keys)\n"
 	componentBlob += "# Created " + Time.new.strftime("%Y-%m-%d %T") + "\n"
 	emptyKeys = Hash.new
-	
+	keys = keys.sort_by{|key,value|key}
 	keys.each do |key, value|
 		if key == "" || value == "" then
 			emptyKeys[key] = value
