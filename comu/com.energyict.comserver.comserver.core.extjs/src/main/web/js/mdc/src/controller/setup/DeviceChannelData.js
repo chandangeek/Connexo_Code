@@ -317,7 +317,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 jsonData: Ext.encode(changedData),
                 timeout: 300000,
                 success: function () {
-                    router.getRoute().forward(router.arguments, router.queryParams);
+                    router.getRoute().forward(router.arguments, Uni.util.QueryString.getQueryStringValues());
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicechannels.successSavingMessage', 'MDC', 'Channel data have been saved'));
                 },
                 failure: function (response) {
