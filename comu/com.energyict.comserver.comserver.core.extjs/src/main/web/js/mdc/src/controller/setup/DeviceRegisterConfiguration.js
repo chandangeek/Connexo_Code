@@ -28,6 +28,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         {ref: 'deviceRegisterConfigurationSetup', selector: '#deviceRegisterConfigurationSetup'},
         {ref: 'deviceRegisterConfigurationPreview', selector: '#deviceRegisterConfigurationPreview'},
         {ref: 'deviceRegisterConfigurationPreviewForm', selector: '#deviceRegisterConfigurationPreviewForm'},
+        {ref: 'deviceRegisterConfigurationDetailForm', selector: '#deviceRegisterConfigurationDetailForm'},
         {ref: 'stepsMenu', selector: '#stepsMenu'}
     ],
 
@@ -105,19 +106,22 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     {
         var me = this,
             form = me.getDeviceRegisterConfigurationPreviewForm(),
-            prevRecord;
-
-        prevRecord = form.getRecord();
-
-        prevRecord.set('validationInfo_dataValidated',
+            formRecord;
+        if(form)
+            formRecord = form.getRecord();
+        else{
+            form = me.getDeviceRegisterConfigurationDetailForm();
+            formRecord = form.getRecord();
+        }
+        formRecord.set('validationInfo_dataValidated',
             record.get('dataValidated')? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
                 : Uni.I18n.translate('general.no', 'MDC', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>');
-        prevRecord.set('lastChecked_formatted',
+        formRecord.set('lastChecked_formatted',
             Uni.DateTime.formatDateTimeLong(new Date(record.get('lastChecked'))));
 
-        form.loadRecord(prevRecord);
-
+        form.loadRecord(formRecord);
     },
+
     onDeviceRegisterConfigurationGridSelect: function (rowmodel, record, index) {
         var me = this;
         me.previewRegisterConfiguration(record);
