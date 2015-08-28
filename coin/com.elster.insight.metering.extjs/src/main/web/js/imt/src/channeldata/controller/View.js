@@ -21,6 +21,7 @@ Ext.define('Imt.channeldata.controller.View', {
     ],
     refs: [
         {ref: 'page', selector: 'channel-graph'},
+        {ref: 'channelList', selector: '#channelList'},
         {ref: 'overviewLink', selector: '#usage-point-overview-link'},
         {ref: 'channelListSetup', selector: '#channel-list-setup'},
         {ref: 'usagePointChannelGraphView', selector: '#usagePointChannelGraphView'}
@@ -49,6 +50,7 @@ Ext.define('Imt.channeldata.controller.View', {
         me.getApplication().fireEvent('usagePointLoaded', usagePoint);
         me.getApplication().fireEvent('changecontentevent', widget);
         me.getOverviewLink().setText(mRID);
+        me.getChannelList().getSelectionModel().select(0);
         pageMainContent.setLoading(false);
     },
     onChannelListSelect: function (rowmodel, record, index) {
