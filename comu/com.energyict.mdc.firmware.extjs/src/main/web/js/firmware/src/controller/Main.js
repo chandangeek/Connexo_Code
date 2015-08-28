@@ -3,7 +3,9 @@ Ext.define('Fwc.controller.Main', {
 
     requires: [
         'Uni.controller.Navigation',
-        'Uni.store.PortalItems'
+        'Uni.store.PortalItems',
+        'Mdc.dynamicprivileges.DeviceState',
+        'Mdc.dynamicprivileges.Stores'
     ],
 
     controllers: [
