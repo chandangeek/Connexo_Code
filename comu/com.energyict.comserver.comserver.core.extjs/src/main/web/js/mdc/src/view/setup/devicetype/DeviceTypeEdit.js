@@ -21,7 +21,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                 xtype: 'form',
                 width: '100%',
                 itemId: 'deviceTypeEditForm',
-                title: '&nbsp;',
                 ui: 'large',
                 defaults: {
                     labelWidth: 250

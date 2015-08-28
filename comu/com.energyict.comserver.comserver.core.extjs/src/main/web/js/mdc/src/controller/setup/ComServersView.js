@@ -126,7 +126,21 @@ Ext.define('Mdc.controller.setup.ComServersView', {
                         Ext.each(json.errors, function (error) {
                             msg += error["id"] + ': ' + error["msg"];
                         });
-                        var title = Uni.I18n.translate('comserver.changeState.'+item.action+'.failed', 'MDC', 'Activation/Deactivation failed');
+                        var title;
+                        switch (item.action) {
+                            case 'edit':
+                                title = Uni.I18n.translate('comserver.changeState.edit.failed', 'MDC', 'Editing failed');
+                                break;
+                            case 'remove':
+                                title = Uni.I18n.translate('comserver.changeState.remove.failed', 'MDC', 'Removal failed');
+                                break;
+                            case 'activate':
+                                title = Uni.I18n.translate('comserver.changeState.activate.failed', 'MDC', 'Activation failed');
+                                break;
+                            case 'deactivate':
+                                title = Uni.I18n.translate('comserver.changeState.deactivate.failed', 'MDC', 'Deactivation failed');
+                                break;
+                        }
                         me.getApplication().getController('Uni.controller.Error').showError(title, msg);
                     }
                 }

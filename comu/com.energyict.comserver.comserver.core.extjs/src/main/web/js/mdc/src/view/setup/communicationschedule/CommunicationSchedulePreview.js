@@ -58,8 +58,10 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
                                 {
                                     xtype: 'displayfield',
                                     name: 'mRID',
-                                    fieldLabel: Uni.I18n.translate('communicationschedule.MRID', 'MDC', 'MRID')
-
+                                    fieldLabel: Uni.I18n.translate('communicationschedule.MRID', 'MDC', 'MRID'),
+                                    renderer: function (value) {
+                                        return value ? Ext.String.htmlEncode(value) : '-';
+                                    }
                                 },
                                 {
                                     xtype: 'fieldcontainer',
