@@ -222,12 +222,11 @@ public class LoadProfileTypeResource {
     }
 
     private void addAllChannelTypesToLoadProfileType(LoadProfileType loadProfileType) {
-        Set<Long> alreadyAdded = loadProfileType.getChannelTypes().stream().map(ChannelType::getId).collect(Collectors.toSet());
-        for (RegisterType registerType : this.masterDataService.findAllRegisterTypes().find()) {
-            if (!alreadyAdded.remove(registerType.getId())) {
-                loadProfileType.createChannelTypeForRegisterType(registerType);
-            }
-        }
+        this.masterDataService
+                .findAllRegisterTypes()
+                .stream()
+                .filter(filterExistingRegisterTypesOnLoadProfileType(loadProfileType))
+                .forEach(loadProfileType::createChannelTypeForRegisterType);
     }
 
     private void editChannelTypesToLoadProfileType(LoadProfileType loadProfileType, LoadProfileTypeInfo request) {
