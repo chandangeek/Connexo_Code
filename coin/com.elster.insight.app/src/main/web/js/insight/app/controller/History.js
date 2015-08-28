@@ -40,6 +40,20 @@ Ext.define('InsightApp.controller.History', {
                                     action: 'showUsagePointChannel'
                                 }                                    
                             }
+           			    },
+           			    registers: {
+                            title: Uni.I18n.translate('general.usagePointRegisters', 'INS', 'Registers'),
+                            route: 'registers',
+                            controller: 'Imt.registerdata.controller.View',
+                            action: 'showUsagePointRegisters',
+                            items: {
+                                channel: {
+                                    title: Uni.I18n.translate('general.usagePointRegister', 'INS', 'Register'),
+                                    route: '{register}',
+                                    controller: 'Imt.registerdata.controller.View',
+                                    action: 'showUsagePointregister'
+                                }                                    
+                            }
            			    }
            			}
            		},
