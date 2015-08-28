@@ -47,6 +47,7 @@ Ext.define('Imt.registerdata.controller.View', {
         me.getApplication().fireEvent('usagePointLoaded', usagePoint);
         me.getApplication().fireEvent('changecontentevent', widget);
         me.getOverviewLink().setText(mRID);
+        me.getRegisterList().getSelectionModel().select(0);
         pageMainContent.setLoading(false);
     },
     
