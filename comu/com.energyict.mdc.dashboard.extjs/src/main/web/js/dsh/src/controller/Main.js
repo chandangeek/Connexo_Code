@@ -68,7 +68,7 @@ Ext.define('Dsh.controller.Main', {
         if (Mdc.privileges.Device.canOperateDevice()) {
             Uni.store.MenuItems.add(
                 Ext.create('Uni.model.MenuItem', {
-                    text: 'Workspace',
+                    text:  Uni.I18n.translate('general.workspace','DSH','Workspace'),
                     glyph: 'workspace',
                     portal: 'workspace',
                     index: 30
@@ -77,7 +77,7 @@ Ext.define('Dsh.controller.Main', {
 
             Uni.store.PortalItems.add(
                 Ext.create('Uni.model.PortalItem', {
-                    title: 'Data communication',
+                    title: Uni.I18n.translate('general.dataCommunication','DSH','Data communication'),
                     portal: 'workspace',
                     route: 'datacommunication',
                     items: [
