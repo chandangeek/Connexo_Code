@@ -1,9 +1,9 @@
 package com.energyict.mdc.rest.impl;
 
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OfflineComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
@@ -13,25 +13,23 @@ import com.energyict.mdc.rest.impl.comserver.OfflineComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.RemoteComServerInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.assertj.core.data.MapEntry;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
-import java.util.Optional;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Path;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-
-import org.assertj.core.data.MapEntry;
-import org.hibernate.validator.internal.engine.path.PathImpl;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -310,12 +308,12 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
         ConstraintViolation constraintViolation1 = mock(ConstraintViolation.class);
         when(constraintViolation1.getMessageTemplate()).thenReturn("{MDC.CanNotBeNull}");
-        when(constraintViolation1.getPropertyPath()).thenReturn(PathImpl.createPathFromString("name"));
+        when(constraintViolation1.getPropertyPath()).thenReturn(mock(Path.class));
         constrainViolations.add(constraintViolation1);
 
         ConstraintViolation constraintViolation2 = mock(ConstraintViolation.class);
         when(constraintViolation2.getMessageTemplate()).thenReturn("{MDC.CanNotBeNull}");
-        when(constraintViolation2.getPropertyPath()).thenReturn(PathImpl.createPathFromString("someProperty"));
+        when(constraintViolation2.getPropertyPath()).thenReturn(mock(Path.class));
         constrainViolations.add(constraintViolation2);
 
         when(nlsService.interpolate(Matchers.<ConstraintViolation<?>>anyObject())).thenReturn("Property can not be null");
