@@ -54,7 +54,7 @@ Ext.define('Uni.view.panel.FilterToolbar', {
                 style: {
                     marginRight: '0px !important'
                 },
-                text: 'Clear all',
+                text: Uni.I18n.translate('general.clearAll','UNI','Clear all'),
                 action: 'clear'
             }
         }

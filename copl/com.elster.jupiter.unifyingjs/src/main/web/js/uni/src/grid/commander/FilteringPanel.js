@@ -20,7 +20,7 @@ Ext.define('Uni.grid.commander.FilteringPanel', {
         },
         {
             xtype: 'button',
-            text: 'Clear all',
+            text: Uni.I18n.translate('general.clearAll','UNI','Clear all'),
             action: 'clear'
         }
     ],
