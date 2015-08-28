@@ -2,8 +2,10 @@ Ext.define('Imt.channeldata.model.Channel', {
     extend: 'Ext.data.Model',
     requires: [],
     fields: [
-        {name: 'id', type: 'number'},
-        {name: 'name', type: 'string'}
+        {name: 'deviceName', type: 'string'},
+        {name: 'readingTypemRID', type: 'string'},
+        {name: 'readingTypeAlias', type: 'string'},
+        {name: 'interval', type: 'auto'},
     ],
     proxy: {
         type: 'rest',

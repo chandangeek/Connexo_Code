@@ -2,8 +2,9 @@ Ext.define('Imt.channeldata.store.Channel', {
     extend: 'Ext.data.Store',
     model: 'Imt.channeldata.model.Channel',
     data: [
-        {id: 1, name: 'kWh Delivered'},
-        {id: 2, name: 'kWh Received'}
+        {deviceName: '999100E-name', readingTypemRID: '0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.2', readingTypeAlias: 'Bulk A+ (kWh)', interval: {count: 15, timeUnit: "minutes"}},
+        {deviceName: '999100E-name', readingTypemRID: '0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.1', readingTypeAlias: 'Bulk A- (kWh)', interval: {count: 15, timeUnit: "minutes"}}
+
     ]
 //    proxy: {
 //        type: 'rest',
