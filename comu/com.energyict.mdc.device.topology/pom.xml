@@ -55,6 +55,14 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>domain.util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>events</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.osgi</groupId>
@@ -111,6 +119,91 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>ids</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>users</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>pubsub</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>time</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>datavault</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>validation</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>kpi</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fsm</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cbo</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>estimation</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>security.thread</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>transaction</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.groups</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>issue</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>systemadmin</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>tasks</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
