@@ -5,11 +5,13 @@ Ext.define('Imt.channeldata.controller.View', {
         'Imt.channeldata.view.Setup'
     ],
     models: [
-        'Imt.usagepointmanagement.model.UsagePoint'
+        'Imt.usagepointmanagement.model.UsagePoint',
+        'Imt.model.DataIntervalAndZoomLevels'
     ],
     stores: [
              'Imt.channeldata.store.Channel',
-             'Imt.channeldata.store.ChannelData'        
+             'Imt.channeldata.store.ChannelData',
+             'Imt.store.DataIntervalAndZoomLevels'
     ],
     views: [
             'Imt.channeldata.view.ChannelList',
@@ -41,10 +43,12 @@ Ext.define('Imt.channeldata.controller.View', {
         me.getOverviewLink().setText(mRID);
         pageMainContent.setLoading(false);
     },
+    // TODO: Pass channel record instead of "id"
     showUsagePointChannel: function(mRID, id) {
         var me = this,
         container = this.getUsagePointChannelGraphView(),
         dataStore = me.getStore('Imt.channeldata.store.ChannelData'),
+        zoomLevelsStore = me.getStore('Imt.store.DataIntervalAndZoomLevels'),
         channelName = id,
         unitOfMeasure = 'Wh',
         seriesObject = { 
@@ -63,7 +67,14 @@ Ext.define('Imt.channeldata.controller.View', {
         series = [];
 
         seriesObject['data'] = [];
-
+        //TODO: Get parameter from actual channel record.
+        o=Object();
+        o.timeUnit='minutes';
+        o.count=15;
+        intervalRecord = zoomLevelsStore.getIntervalRecord(o);
+        intervalLengthInMs = zoomLevelsStore.getIntervalInMs(o);
+        zoomLevels = intervalRecord.get('zoomLevels');
+        
 //    switch (channelRecord.get('flowUnit')) {
 //        case 'flow':
 //            seriesObject['type'] = 'line';
@@ -87,7 +98,7 @@ Ext.define('Imt.channeldata.controller.View', {
             Ext.suspendLayouts();
             container.down('#graphContainer').show();
             container.down('#ctr-graph-no-data').hide();
-            container.drawGraph(yAxis, series, 900000, channelName, unitOfMeasure, null);
+            container.drawGraph(yAxis, series, intervalLengthInMs, channelName, unitOfMeasure, zoomLevels);
             Ext.resumeLayouts(true);
         } else {
             Ext.suspendLayouts();

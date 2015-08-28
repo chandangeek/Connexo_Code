@@ -83,11 +83,11 @@ Ext.define('Imt.channeldata.view.ChannelGraph', {
                 }
             },
 
-//            rangeSelector: {
-//                selected: 0,
-//                inputEnabled: true,
-//                buttons: zoomLevels
-//            },
+            rangeSelector: {
+                selected: 0,
+                inputEnabled: true,
+                buttons: zoomLevels
+            },
 
             tooltip: {
                 useHTML: true,
