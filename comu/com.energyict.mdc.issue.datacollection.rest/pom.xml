@@ -51,6 +51,22 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>cbo</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>users</artifactId>
         </dependency>
         <dependency>
@@ -124,6 +140,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools.rest</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fsm</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
