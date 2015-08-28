@@ -1,13 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
-import com.energyict.mdc.device.lifecycle.config.impl.constraints.MaximumFutureEffectiveTimeShiftInRange;
-import com.energyict.mdc.device.lifecycle.config.impl.constraints.MaximumPastEffectiveTimeShiftInRange;
-import com.energyict.mdc.device.lifecycle.config.impl.constraints.Unique;
-
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
@@ -19,7 +12,13 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TimeDuration;
-import org.hibernate.validator.constraints.NotEmpty;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
+import com.energyict.mdc.device.lifecycle.config.impl.constraints.MaximumFutureEffectiveTimeShiftInRange;
+import com.energyict.mdc.device.lifecycle.config.impl.constraints.MaximumPastEffectiveTimeShiftInRange;
+import com.energyict.mdc.device.lifecycle.config.impl.constraints.Unique;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
