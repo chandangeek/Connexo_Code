@@ -22,7 +22,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
- * Tests for the {@link RxTxSerialPort} component
+ * Tests for the {@link RxTxSerialPort} component.
  * <p/>
  * Copyrights EnergyICT
  * Date: 17/08/12
