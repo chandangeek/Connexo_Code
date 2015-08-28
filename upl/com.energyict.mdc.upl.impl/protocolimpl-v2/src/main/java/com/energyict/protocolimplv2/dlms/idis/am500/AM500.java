@@ -98,7 +98,9 @@ public class AM500 extends AbstractDlmsProtocol {
     public void logOn() {
         connectWithRetries(getDlmsSession(), getDlmsSessionProperties());
         checkCacheObjects();
-        getMeterTopology().searchForSlaveDevices();
+        if (!getOfflineDevice().getAllSlaveDevices().isEmpty()) {
+            getMeterTopology().searchForSlaveDevices();
+        }
     }
 
     /**

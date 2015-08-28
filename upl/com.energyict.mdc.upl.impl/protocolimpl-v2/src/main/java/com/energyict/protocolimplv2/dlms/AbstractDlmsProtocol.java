@@ -64,7 +64,9 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     public void logOn() {
         getDlmsSession().connect();
         checkCacheObjects();
-        getMeterTopology().searchForSlaveDevices();
+        if (!getOfflineDevice().getAllSlaveDevices().isEmpty()) {
+            getMeterTopology().searchForSlaveDevices();
+        }
     }
 
     @Override

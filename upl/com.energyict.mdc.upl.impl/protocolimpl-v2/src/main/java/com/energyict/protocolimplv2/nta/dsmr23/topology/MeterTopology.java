@@ -9,7 +9,6 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
@@ -56,12 +55,7 @@ public class MeterTopology extends AbstractMeterTopology {
     /**
      * A list of MbusMeter <CODE>DeviceMappings</CODE>
      */
-    private List<DeviceMapping> mbusMap = new ArrayList<DeviceMapping>();
-
-    /**
-     * The device topology containing a DeviceIdentifier for the master and each of the attached slaves.
-     */
-    private CollectedTopology deviceTopology;
+    private List<DeviceMapping> mbusMap = new ArrayList<>();
 
     public MeterTopology(final AbstractDlmsProtocol protocol) {
         this.protocol = protocol;
@@ -121,7 +115,6 @@ public class MeterTopology extends AbstractMeterTopology {
     protected List<DeviceMapping> constructMbusMap() {
         String mbusSerial;
         mbusMap = new ArrayList<>();
-        deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(protocol.getOfflineDevice().getId()));
         for (int i = 1; i <= MaxMbusDevices; i++) {
             ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
             if (this.protocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
@@ -133,7 +126,6 @@ public class MeterTopology extends AbstractMeterTopology {
                     mbusSerial = constructShortId(manufacturer, identification, version, deviceType);
                     if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase("")) && !mbusSerial.equalsIgnoreCase(ignoreZombieMbusDevice)) {
                         mbusMap.add(new DeviceMapping(mbusSerial, i));
-                        deviceTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(mbusSerial));
                     }
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
@@ -232,10 +224,11 @@ public class MeterTopology extends AbstractMeterTopology {
      */
     @Override
     public CollectedTopology getDeviceTopology() {
-        if (deviceTopology == null) {
-            deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(protocol.getOfflineDevice().getId()));
-            deviceTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning("devicetopologynotsupported"));
+        CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(protocol.getOfflineDevice().getId()));
+        for (DeviceMapping mapping : getMbusMeterMap()) {
+            deviceTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(mapping.getSerialNumber()));
         }
+
         return deviceTopology;
     }
 

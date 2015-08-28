@@ -62,7 +62,7 @@ public class IDISMeterTopology extends AbstractMeterTopology {
 
     public List<DeviceMapping> getDeviceMapping() {
         if (deviceMapping == null) {
-            searchForSlaveDevices();
+            deviceMapping = new ArrayList<>();
         }
         return deviceMapping;
     }
