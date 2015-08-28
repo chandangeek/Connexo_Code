@@ -36,6 +36,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.data.validation.extjs</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>domain.util</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
