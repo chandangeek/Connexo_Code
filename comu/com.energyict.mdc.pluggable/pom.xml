@@ -32,6 +32,22 @@
             <artifactId>events</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>domain.util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
