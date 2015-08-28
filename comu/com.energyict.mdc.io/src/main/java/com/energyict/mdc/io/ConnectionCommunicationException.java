@@ -52,4 +52,14 @@ public class ConnectionCommunicationException extends CommunicationException {
         super(MessageSeeds.COMMUNICATION_INTERRUPTED, cause);
     }
 
+    /**
+     * An communication exception occurred while executing an operation on the input / outputstream
+     * <p/>
+     * After this exception, communication to the device is no longer possible.
+     * The ComServer won't execute the remaining (communication related) ComCommands.
+     */
+    public ConnectionCommunicationException(MessageSeed messageSeed, CommunicationException cause) {
+        super(messageSeed, cause);
+    }
+
 }
