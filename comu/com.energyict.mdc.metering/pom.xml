@@ -24,6 +24,14 @@
             <artifactId>orm</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.common</artifactId>
         </dependency>
@@ -55,6 +63,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>messaging.h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>domain.util</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
