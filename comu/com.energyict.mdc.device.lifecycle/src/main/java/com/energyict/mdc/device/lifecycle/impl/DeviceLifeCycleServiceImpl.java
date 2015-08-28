@@ -35,6 +35,9 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
+import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCategoryTranslationKey;
+import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCheckTranslationKey;
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -49,7 +52,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link DeviceLifeCycleService} interface.
@@ -134,7 +139,13 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
+        return Stream.of(
+                Arrays.stream(MessageSeeds.values()),
+                Arrays.stream(MicroCategoryTranslationKey.values()),
+                Arrays.stream(MicroActionTranslationKey.values()),
+                Arrays.stream(MicroCheckTranslationKey.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Override
