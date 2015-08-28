@@ -21,11 +21,23 @@
   <dependencies>
     <dependency>
       <groupId>com.elster.jupiter</groupId>
+      <artifactId>orm</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>metering</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
       <artifactId>metering.groups</artifactId>
     </dependency>
     <dependency>
       <groupId>com.elster.jupiter</groupId>
       <artifactId>validation</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>util</artifactId>
     </dependency>
     <dependency>
       <groupId>com.elster.jupiter</groupId>
