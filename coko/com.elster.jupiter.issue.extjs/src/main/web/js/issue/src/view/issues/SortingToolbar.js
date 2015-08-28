@@ -29,7 +29,7 @@ Ext.define('Isu.view.issues.SortingToolbar', {
                         style: {
                             marginRight: '0px !important'
                         },
-                        text: 'Clear all',
+                        text: Uni.I18n.translate('issues.clearAll','ISU','Clear all'),
                         action: 'clear'
                     },
                     {
@@ -39,7 +39,7 @@ Ext.define('Isu.view.issues.SortingToolbar', {
                             marginRight: '0px !important'
                         },
                         //      ui: 'sort',
-                        text: 'Add sort',
+                        text: Uni.I18n.translate('issues.addSort','ISU','Add sort'),
                         action: 'addSort',
                         menu: {
                             xtype: 'issues-sorting-menu',
