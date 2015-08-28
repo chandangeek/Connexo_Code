@@ -17,10 +17,10 @@ import java.util.List;
  * @author sva
  * @since 11/08/2015 - 15:15
  */
-public class AM540ConfigurationSupport extends AM130ConfigurationSupport {  //TODO: implement bulk request (after ticket COMMUNICATION-1116 is finished)
+public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
 
     public static final String USE_EQUIPMENT_IDENTIFIER_AS_SERIAL = "UseEquipmentIdentifierAsSerialNumber";
-    public static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = true;
+    public static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = false;
     public static final BigDecimal DEFAULT_SERVER_LOWER_MAC_ADDRESS = BigDecimal.valueOf(17);
 
     @Override

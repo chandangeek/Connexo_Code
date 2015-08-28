@@ -11,7 +11,7 @@ import com.energyict.dlms.DLMSAttribute;
  * Time: 9:23:49
  * </pre>
  */
-public class ComposedProfileConfig {
+public class ComposedProfileConfig implements ComposedObject {
 
     private final DLMSAttribute loadProfileInterval;
     private final DLMSAttribute loadProfileCapturedObjects;

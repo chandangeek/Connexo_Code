@@ -12,6 +12,7 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultCode;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.GenericWrite;
@@ -196,8 +197,22 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
             }
         }
 
+        imageTransfer.setUsePollingVerifyAndActivate(true);    //Poll verification
         imageTransfer.upgrade(binaryImage, false, firmwareIdentifier, false);
-        imageTransfer.imageActivation();
+        try {
+            imageTransfer.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation (the meter will immediately reboot)!
+            imageTransfer.imageActivation();
+        } catch (DataAccessResultException e) {
+            if (isTemporaryFailure(e)) {
+                getProtocol().getLogger().log(Level.INFO, "Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    private boolean isTemporaryFailure(DataAccessResultException e) {
+        return (e.getDataAccessResult() == DataAccessResultCode.TEMPORARY_FAILURE.getResultCode());
     }
 
     protected void setTimeoutNotAddressed(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -437,7 +452,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         String xmlContent = SimpleTagWriter.writeTag(mainTag);
 
         //Now provide the full code table description to the controller
-        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getTimeZone());
+        ActivityCalendarController activityCalendarController = getActivityCalendarController();
         activityCalendarController.parseContent(xmlContent);
         activityCalendarController.writeCalendarName("");
         activityCalendarController.writeCalendar();
@@ -453,9 +468,13 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         mainTag.add(subTag);
         String xmlContent = SimpleTagWriter.writeTag(mainTag);
 
-        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getTimeZone());
+        ActivityCalendarController activityCalendarController = getActivityCalendarController();
         activityCalendarController.parseContent(xmlContent);
         activityCalendarController.writeSpecialDaysTable();
+    }
+
+    protected ActivityCalendarController getActivityCalendarController() {
+        return new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getTimeZone());
     }
 
     /**

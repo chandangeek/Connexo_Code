@@ -26,6 +26,10 @@ public class DSMR50ActivitiyCalendarController extends DSMR40ActivityCalendarCon
         super(cosemObjectFactory, timeZone, activityCalendarObisCode, specialDaysCalendarObisCode);
     }
 
+    public DSMR50ActivitiyCalendarController(CosemObjectFactory cosemObjectFactory, TimeZone timeZone, boolean contentBase64Encoded) {
+        super(cosemObjectFactory, timeZone, contentBase64Encoded);
+    }
+
     /**
      * Days must start with ID 0
      *

@@ -4,6 +4,7 @@ import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
@@ -32,6 +33,8 @@ import java.util.List;
  * @since 11/08/2015 - 14:04
  */
 public class AM540 extends AM130 {
+
+    private AM540Cache am540Cache;
 
     @Override
     public String getProtocolDescription() {
@@ -77,6 +80,36 @@ public class AM540 extends AM130 {
     @Override
     protected AM540Properties getNewInstanceOfProperties() {
         return new AM540Properties();
+    }
+
+    @Override
+    public AM540Cache getDeviceCache() {
+        if (am540Cache == null) {
+            am540Cache = new AM540Cache(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
+        }
+        return am540Cache;
+    }
+
+    @Override
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+        if ((deviceProtocolCache != null) && (deviceProtocolCache instanceof AM540Cache)) {
+            am540Cache = (AM540Cache) deviceProtocolCache;
+        }
+    }
+
+    /**
+     * Method to check whether the cache needs to be read out or not, if so the read will be forced
+     */
+    protected void checkCacheObjects() {
+        boolean readCache = getDlmsSessionProperties().isReadCache();
+        if ((getDeviceCache().getObjectList() == null) || (readCache)) {
+            getLogger().info("ReadCache property is true, reading cache!");
+            readObjectList();
+            getDeviceCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
+        } else {
+            getLogger().info("Cache exist, will not be read!");
+        }
+        getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDeviceCache().getObjectList());
     }
 
     @Override

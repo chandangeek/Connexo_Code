@@ -20,7 +20,11 @@ import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Copyrights EnergyICT
@@ -71,7 +75,7 @@ public class RegisterFactory {
                 int[] attributeNumbers = g3Mapping.getAttributeNumbers();
                 for (int index = 0; index < attributeNumbers.length; index++) {
                     int attributeNumber = attributeNumbers[index];
-                    DLMSAttribute dlmsAttribute = new DLMSAttribute(register.getObisCode(), attributeNumber, g3Mapping.getDLMSClassId());
+                    DLMSAttribute dlmsAttribute = new DLMSAttribute(g3Mapping.getBaseObisCode(), attributeNumber, g3Mapping.getDLMSClassId());
                     dlmsAttributes.add(dlmsAttribute);
 
                     //If the mapping contains more than 1 attribute, the order is always value, unit, captureTime

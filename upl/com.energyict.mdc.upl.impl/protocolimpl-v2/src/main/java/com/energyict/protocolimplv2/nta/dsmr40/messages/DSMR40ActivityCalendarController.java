@@ -20,6 +20,10 @@ public class DSMR40ActivityCalendarController extends DLMSActivityCalendarContro
         super(cosemObjectFactory, timeZone, CONTENT_NOT_ENCODED_AS_BASE64);
     }
 
+    public DSMR40ActivityCalendarController(CosemObjectFactory cosemObjectFactory, TimeZone timeZone, boolean xmlContentEncodedAsBase64) {
+        super(cosemObjectFactory, timeZone, xmlContentEncodedAsBase64);
+    }
+
     public DSMR40ActivityCalendarController(CosemObjectFactory cosemObjectFactory, TimeZone timeZone, ObisCode activityCalendarObisCode, ObisCode specialDaysCalendarObisCode) {
         super(cosemObjectFactory, timeZone, CONTENT_NOT_ENCODED_AS_BASE64, activityCalendarObisCode, specialDaysCalendarObisCode);
     }

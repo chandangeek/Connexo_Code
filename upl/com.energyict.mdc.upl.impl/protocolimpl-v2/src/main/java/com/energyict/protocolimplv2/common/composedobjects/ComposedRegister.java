@@ -5,7 +5,7 @@ import com.energyict.dlms.DLMSAttribute;
 /**
  * The ComposedRegister is just a ValueObject that holds the {@link com.energyict.dlms.DLMSAttribute} from the register his value and unit
  */
-public class ComposedRegister {
+public class ComposedRegister implements ComposedObject {
 
     private DLMSAttribute registerValue;
     private DLMSAttribute registerUnit;
