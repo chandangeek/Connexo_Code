@@ -17,13 +17,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class FirmwareUiInstallerTest {
     @Test
-    public void testPropertyKeysDoNotExceed256Chars() throws Exception {
+    public void testPropertyValuesDoNotExceed256Chars() throws Exception {
         Properties properties = new Properties();
         properties.load(FirmwareUiInstaller.class.getClassLoader().getResourceAsStream("i18n.properties"));
         List<String> list = properties.stringPropertyNames()
                 .stream()
                 .filter(p -> properties.getProperty(p).length() > Table.SHORT_DESCRIPTION_LENGTH)
                 .collect(toList());
-        assertThat(list).describedAs("Some properties are too long: "+list).isEmpty();
+        assertThat(list).describedAs("Some property values are too long: "+list).isEmpty();
+    }
+
+    @Test
+    public void testPropertyKeysDoNotExceed256Chars() throws Exception {
+        Properties properties = new Properties();
+        properties.load(FirmwareUiInstaller.class.getClassLoader().getResourceAsStream("i18n.properties"));
+        List<String> list = properties.stringPropertyNames()
+                .stream()
+                .filter(p -> p.length() > Table.SHORT_DESCRIPTION_LENGTH)
+                .collect(toList());
+        assertThat(list).describedAs("Some property keys are too long: "+list).isEmpty();
     }
 }
