@@ -79,10 +79,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>time</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>fileimport</artifactId>
         </dependency>
         <dependency>
@@ -104,6 +100,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>time</artifactId>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
