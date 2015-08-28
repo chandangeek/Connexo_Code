@@ -7,6 +7,8 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -26,9 +28,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.export.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/export", "app=SYS", "name=" + DataExportApplication.COMPONENT_NAME})
-public class DataExportApplication extends Application implements InstallService {
+@Component(
+        name = "com.elster.jupiter.export.rest",
+        service = {Application.class, TranslationKeyProvider.class},
+        immediate = true,
+        property = {"alias=/export", "app=SYS", "name=" + DataExportApplication.COMPONENT_NAME})
+public class DataExportApplication extends Application implements TranslationKeyProvider {
     public static final String COMPONENT_NAME = "DER";
+
     private volatile DataExportService dataExportService;
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
@@ -92,25 +99,6 @@ public class DataExportApplication extends Application implements InstallService
         this.appService = appService;
     }
 
-    @Activate
-    public void activate() {
-        System.out.println("activated");
-    }
-
-    @Deactivate
-    public void deactivate() {
-
-    }
-
-    @Override
-    public final void install() {
-        new TranslationInstaller(thesaurus).createTranslations();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "NLS", "DES", "APS");
-    }
 
     @Override
     public Set<Object> getSingletons() {
@@ -135,4 +123,18 @@ public class DataExportApplication extends Application implements InstallService
         return Collections.unmodifiableSet(hashSet);
     }
 
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
+    }
 }
