@@ -13,10 +13,16 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.parties.rest", service = Application.class, immediate = true, property = {"alias=/prt", "app=SYS", "name=" + PartiesApplication.COMPONENT_NAME})
-public class PartiesApplication extends Application implements BinderProvider {
+@Component(
+        name = "com.elster.jupiter.parties.rest",
+        service = Application.class,
+        immediate = true,
+        property = {"alias=/prt", "app=SYS", "name=" + PartiesApplication.COMPONENT_NAME})
+public class PartiesApplication extends Application {
 
     public static final String COMPONENT_NAME = "PRT";
 
@@ -34,6 +40,14 @@ public class PartiesApplication extends Application implements BinderProvider {
                 PersonsResource.class,
                 OrganizationsResource.class,
                 RolesResource.class);
+    }
+
+    @Override
+    public Set<Object> getSingletons() {
+        Set<Object> hashSet = new HashSet<>();
+        hashSet.addAll(super.getSingletons());
+        hashSet.add(new HK2Binder());
+        return Collections.unmodifiableSet(hashSet);
     }
 
     @Reference
@@ -65,17 +79,14 @@ public class PartiesApplication extends Application implements BinderProvider {
         this.clock = clock;
     }
 
-    @Override
-    public Binder getBinder() {
-        return new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bind(partyService).to(PartyService.class);
-                bind(userService).to(UserService.class);
-                bind(clock).to(Clock.class);
-                bind(transactionService).to(TransactionService.class);
-                bind(restQueryService).to(RestQueryService.class);
-            }
-        };
+    class HK2Binder extends AbstractBinder {
+        @Override
+        protected void configure() {
+            bind(partyService).to(PartyService.class);
+            bind(userService).to(UserService.class);
+            bind(clock).to(Clock.class);
+            bind(transactionService).to(TransactionService.class);
+            bind(restQueryService).to(RestQueryService.class);
+        }
     }
 }
