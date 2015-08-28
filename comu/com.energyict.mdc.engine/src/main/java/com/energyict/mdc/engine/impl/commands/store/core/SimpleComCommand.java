@@ -5,8 +5,7 @@ import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
-import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
+import com.energyict.mdc.engine.exceptions.*;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
@@ -35,10 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.energyict.mdc.device.data.tasks.history.CompletionCode.ConnectionError;
-import static com.energyict.mdc.device.data.tasks.history.CompletionCode.Ok;
-import static com.energyict.mdc.device.data.tasks.history.CompletionCode.UnexpectedError;
-import static com.energyict.mdc.device.data.tasks.history.CompletionCode.forResultType;
+import static com.energyict.mdc.device.data.tasks.history.CompletionCode.*;
 
 /**
  * Provides an implementation for the {@link ComCommand} interface.
@@ -203,9 +199,13 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
             try {
                 doExecute(deviceProtocol, executionContext);
                 success = true;
-            } catch (CommunicationException e) {
+            } catch (ConnectionCommunicationException e){
                 setCompletionCode(ConnectionError);
                 throw e;
+            } catch (CommunicationException e) {
+                setCompletionCode(ProtocolError);
+                addIssue(getIssueService().newProblem(deviceProtocol, "deviceprotocol.protocol.issue", StackTracePrinter.print(e)), ProtocolError);
+                throw new ConnectionCommunicationException(MessageSeeds.COMMUNICATION_FAILURE, e);
             } catch (LegacyProtocolException e) {
                 if (isExceptionCausedByALegacyTimeout(e)) {
                     setCompletionCode(ConnectionError);
