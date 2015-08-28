@@ -273,9 +273,11 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private void effectiveTimestampIsInRange(Instant effectiveTimestamp, DeviceLifeCycle deviceLifeCycle) {
-        Range<Instant> range = Range.closedOpen(deviceLifeCycle.getMaximumPastEffectiveTimestamp().truncatedTo(ChronoUnit.DAYS), deviceLifeCycle.getMaximumFutureEffectiveTimestamp().truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS));
+        Instant lowerBound = deviceLifeCycle.getMaximumPastEffectiveTimestamp().truncatedTo(ChronoUnit.DAYS);
+        Instant upperBound = deviceLifeCycle.getMaximumFutureEffectiveTimestamp().truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS);
+        Range<Instant> range = Range.closedOpen(lowerBound, upperBound);
         if (!range.contains(effectiveTimestamp)) {
-            throw new EffectiveTimestampNotInRangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE, deviceLifeCycle);
+            throw new EffectiveTimestampNotInRangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE, lowerBound, upperBound);
         }
     }
 
