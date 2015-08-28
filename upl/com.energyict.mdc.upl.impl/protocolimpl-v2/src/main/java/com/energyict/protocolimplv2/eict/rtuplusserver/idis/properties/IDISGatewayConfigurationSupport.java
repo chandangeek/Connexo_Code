@@ -31,7 +31,8 @@ public class IDISGatewayConfigurationSupport extends DlmsConfigurationSupport {
                 this.maxRecPduSizePropertySpec(),
                 this.timeZonePropertySpec(),
                 this.serverUpperMacAddressPropertySpec(),
-                this.validateInvokeIdPropertySpec()
+                this.validateInvokeIdPropertySpec(),
+                this.deviceId()
         );
     }
 }
