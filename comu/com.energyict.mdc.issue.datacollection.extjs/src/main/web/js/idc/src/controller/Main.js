@@ -49,7 +49,7 @@ Ext.define('Idc.controller.Main', {
 
         if (Isu.privileges.Issue.canViewAdminDevice()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
-                text: 'Workspace',
+                text: Uni.I18n.translate('general.workspace','IDC','Workspace'),
                 glyph: 'workspace',
                 portal: 'workspace',
                 index: 30
@@ -58,7 +58,7 @@ Ext.define('Idc.controller.Main', {
 
         if (Isu.privileges.Issue.canViewAdminDevice()) {
             dataCollection = Ext.create('Uni.model.PortalItem', {
-                title: 'Data collection',
+                title: Uni.I18n.translate('general.dataCollection','IDC','Data collection'),
                 portal: 'workspace',
                 route: 'datacollection',
                 items: [
