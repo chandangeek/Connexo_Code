@@ -71,7 +71,7 @@ Ext.define('Idv.controller.Main', {
                     href: router.getRoute('workspace/datavalidationissues').buildUrl()
                 });
                 items.push({
-                    text: 'My open issues',
+                    text: Uni.I18n.translate('datavalidation.myOpenIssues','IDV','My open issues'),
                     itemId: 'my-open-issues',
                     href: router.getRoute('workspace/datavalidationissues').buildUrl({}, {myopenissues: true})
                 });
@@ -85,7 +85,7 @@ Ext.define('Idv.controller.Main', {
             }
 
             dataCollection = Ext.create('Uni.model.PortalItem', {
-                title: 'Data validation',
+                title: Uni.I18n.translate('general.dataValidation','IDV','Data validation'),
                 portal: 'workspace',
                 route: 'datavalidation',
                 items:  items
