@@ -5,6 +5,8 @@ import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionService;
@@ -20,9 +22,14 @@ import javax.ws.rs.core.Application;
 import java.nio.file.FileSystem;
 import java.util.*;
 
-@Component(name = "com.elster.jupiter.fileimport.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/fir", "app=SYS", "name=" + FileImportApplication.COMPONENT_NAME})
-public class FileImportApplication extends Application implements InstallService {
+@Component(
+        name = "com.elster.jupiter.fileimport.rest",
+        service = {Application.class, TranslationKeyProvider.class},
+        immediate = true,
+        property = {"alias=/fir", "app=SYS", "name=" + FileImportApplication.COMPONENT_NAME})
+public class FileImportApplication extends Application implements TranslationKeyProvider {
     public static final String COMPONENT_NAME = "FIR";
+
     private volatile FileImportService fileImportService;
     private volatile AppService appService;
     private volatile TransactionService transactionService;
@@ -77,27 +84,6 @@ public class FileImportApplication extends Application implements InstallService
         this.thesaurus = domainThesaurus.join(restThesaurus);
     }
 
-
-    @Activate
-    public void activate() {
-
-    }
-
-    @Deactivate
-    public void deactivate() {
-
-    }
-
-    @Override
-    public final void install() {
-        new TranslationInstaller(thesaurus).createTranslations();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "NLS", "FIM");
-    }
-
     @Override
     public Set<Object> getSingletons() {
         Set<Object> hashSet = new HashSet<>();
@@ -120,4 +106,18 @@ public class FileImportApplication extends Application implements InstallService
         return Collections.unmodifiableSet(hashSet);
     }
 
+    @Override
+    public String getComponentName() {
+        return FileImportApplication.COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
+    }
 }
