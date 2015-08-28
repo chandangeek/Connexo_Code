@@ -35,10 +35,10 @@ import com.google.common.collect.ImmutableList.Builder;
            immediate = true)
 public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTemplate {
     static final String NAME = "BasicDataCollectionRuleTemplate";
-    
+
     public static final String EVENTTYPE = NAME + ".eventType";
     public static final String AUTORESOLUTION = NAME + ".autoresolution";
-    
+
     private volatile IssueDataCollectionService issueDataCollectionService;
     private volatile IssueService issueService;
 
@@ -62,7 +62,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
 
     @Reference
     public final void setNlsService(NlsService nlsService) {
-        super.setThesaurus(nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN));
+        this.setThesaurus(nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -74,7 +74,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     public final void setIssueService(IssueService issueService) {
         this.issueService = issueService;
     }
-    
+
     @Reference
     public final void setPropertySpecService(PropertySpecService propertySpecService) {
         super.setPropertySpecService(propertySpecService);
@@ -94,7 +94,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     public String getContent() {
         return "package com.energyict.mdc.issue.datacollection\n" +
                "import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;\n" +
-               "global java.util.logging.Logger LOGGER;\n" + 
+               "global java.util.logging.Logger LOGGER;\n" +
                "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                "rule \"Basic datacollection rule @{ruleId}\"\n"+
                "when\n"+
@@ -138,12 +138,12 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
         }
         return issue;
     }
-    
+
     @Override
     public IssueType getIssueType() {
         return issueService.findIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE).get();
     }
-    
+
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
@@ -155,11 +155,11 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                                        .finish());
         return builder.build();
     }
-    
+
     public Object[] getPossibleValuesForEventTypes() {
         return Arrays.asList(DataCollectionEventDescription.values()).stream().map(DataCollectionEventDescription::name).toArray();
     }
-    
+
     @Override
     public String getDisplayName() {
         return MessageSeeds.BASIC_TEMPLATE_DATACOLLECTION_NAME.getTranslated(getThesaurus());

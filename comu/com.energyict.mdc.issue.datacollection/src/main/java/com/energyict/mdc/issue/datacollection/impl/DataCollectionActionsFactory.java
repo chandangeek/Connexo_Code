@@ -9,7 +9,6 @@ import javax.inject.Provider;
 import javax.validation.MessageInterpolator;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.issue.datacollection.impl.actions.CloseIssueAction;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -132,12 +131,12 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
     public final void setIssueService(IssueService issueService) {
         this.issueService = issueService;
     }
-    
+
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
-    
+
     @Reference
     public void setOrmService(OrmService ormService) {
         this.dataModel = ormService.getDataModel(IssueService.COMPONENT_NAME).orElse(null);
