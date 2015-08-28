@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.config.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -11,15 +12,13 @@ import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableMap;
 
-import java.time.Instant;
-import java.util.Map;
-
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
+import java.time.Instant;
+import java.util.Map;
 
-import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * Serves as the root for all concrete {@link com.energyict.mdc.engine.config.ComPortPool} interfaces.

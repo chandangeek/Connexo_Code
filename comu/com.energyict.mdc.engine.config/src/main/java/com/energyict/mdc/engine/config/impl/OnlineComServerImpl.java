@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.config.impl;
 
+import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -15,14 +16,13 @@ import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 import com.google.inject.Provider;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlElement;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.hibernate.validator.constraints.Range;
-import org.hibernate.validator.constraints.URL;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.config.OnlineComServer} interface.
@@ -41,7 +41,7 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
     @Size(max = 512)
     private String eventRegistrationUri;
     private boolean usesDefaultEventRegistrationUri = true;
-    @URL(message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}", groups = {Save.Update.class, Save.Create.class})
+    @URI(message = "{" + MessageSeeds.Keys.MDC_INVALID_URL + "}", groups = {Save.Update.class, Save.Create.class})
     @Size(max = 512)
     private String statusUri;
     private boolean usesDefaultStatusUri = true;

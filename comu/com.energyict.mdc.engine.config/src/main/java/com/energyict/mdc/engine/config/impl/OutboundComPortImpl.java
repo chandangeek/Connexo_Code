@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.config.impl;
 
+import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -10,11 +11,11 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
-import java.util.List;
+
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlElement;
+import java.util.List;
 
-import org.hibernate.validator.constraints.Range;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.config.OutboundComPort} interface.
