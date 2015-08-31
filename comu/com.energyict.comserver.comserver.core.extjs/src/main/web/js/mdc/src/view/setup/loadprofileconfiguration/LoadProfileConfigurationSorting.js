@@ -4,7 +4,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSort
     title: 'Sort',
     name: 'sortitemspanel',
     height: 40,
-    emptyText: 'None',
+    emptyText: Uni.I18n.translate('general.none','MDC','None'),
     tools: [
         {
             xtype: 'button',
