@@ -16,7 +16,6 @@ import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.RTU3;
 import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.firmwareobjects.BroadcastUpgrade;
@@ -30,7 +29,6 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,32 +80,31 @@ public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMess
             return ((Password) messageAttribute).getValue();
         } else if (propertySpec.getName().equals(DeviceMessageConstants.broadcastDevicesGroupAttributeName)) {
             return DeviceInfoSerializer.serializeDeviceInfo(messageAttribute);
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.broadcastFirmwareUpdateImageIdentifierAttributeName)) {
-            return new Base64EncoderDecoder().encode(((UserFile) messageAttribute).loadFileInByteArray());  //Base64 string representing the byte array
         } else if (propertySpec.getName().equals(DeviceMessageConstants.broadcastInitialTimeBetweenBlocksAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getMilliSeconds()); //Return value in ms
         } else if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName)) {
 
-            //TODO stream the blobcontent to a file instead of fully loading it in memory (see userfile impl)
+            //final UserFile userFile = (UserFile) messageAttribute;
+            //final byte[] bytes = userFile.loadFileInByteArray();
+            //final String fileName = System.getProperty(TEMP_DIR) + userFile.getFileName() + "_" + userFile.getId();
 
-            final UserFile userFile = (UserFile) messageAttribute;
-            final byte[] bytes = userFile.loadFileInByteArray();
-            final String fileName = System.getProperty(TEMP_DIR) + userFile.getFileName() + "_" + userFile.getId();
+            //final File testFile = new File(fileName);
+            //if (testFile.exists()) {
+            //    if (testFile.length() != bytes.length) {
+            //        if (testFile.delete()) {
+            //            ProtocolTools.writeBytesToFile(fileName, bytes, false);
+            //        } else {
+            //            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new IOException("Could not write file '" + userFile.getFileName() + "' to temp directory, it already exists but is still in use"));
+            //        }
+            //    }   //Else: file exists and has the correct content. Ok, continue to execute message.
+            //} else {
+            //    ProtocolTools.writeBytesToFile(fileName, bytes, false);
+            //}
+            //System.gc();    //Remove the in memory byte array
 
-            final File testFile = new File(fileName);
-            if (testFile.exists()) {
-                if (testFile.length() != bytes.length) {
-                    if (testFile.delete()) {
-                        ProtocolTools.writeBytesToFile(fileName, bytes, false);
-                    } else {
-                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new IOException("Could not write file '" + userFile.getFileName() + "' to temp directory, it already exists but is still in use"));
-                    }
-                }   //Else: file exists and has the correct content. Ok, continue to execute message.
-            } else {
-                ProtocolTools.writeBytesToFile(fileName, bytes, false);
-            }
-            System.gc();    //Remove the in memory byte array
-            return fileName;
+
+            final byte[] data = ((UserFile) messageAttribute).loadFileInByteArray();
+            return new Base64EncoderDecoder().encode(data, true);
         } else {
             return messageAttribute.toString();
         }
@@ -169,10 +166,9 @@ public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMess
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
 
-        //TODO no, not userfile in memory!!
-        String userFile = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
+        String b64EncodedImage = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
         String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue(); // Will return empty string if the MessageAttribute could not be found
-        byte[] image = ProtocolTools.getBytesFromHexString(userFile, "");
+        byte[] image = new Base64EncoderDecoder().decode(b64EncodedImage);
 
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
 

@@ -59,7 +59,7 @@ public class BroadcastUpgrade {
 
         final String serializedDeviceInfos = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastDevicesGroupAttributeName).getDeviceMessageAttributeValue();
 
-        final byte[] image = new Base64EncoderDecoder().decode(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastFirmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue());
+        final byte[] image = new Base64EncoderDecoder().decode(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue());
         final String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue();
 
         final int broadcastLogicalDeviceId = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.broadcastLogicalDeviceIdAttributeName).getDeviceMessageAttributeValue());

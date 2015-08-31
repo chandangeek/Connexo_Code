@@ -70,7 +70,7 @@ public class Base64EncoderDecoderTest {
 
             String ourEncoding;
 
-            ourEncoding = b64Eict.encode(rawBytes, 0, rawBytes.length);
+            ourEncoding = b64Eict.encode(rawBytes, 0, rawBytes.length, false);
             assertNotNull(ourEncoding);
             assertEquals(sunEncoding, ourEncoding);
             assertArrayEquals(rawBytes, b64Eict.decode(b64Eict.encode(rawBytes)));

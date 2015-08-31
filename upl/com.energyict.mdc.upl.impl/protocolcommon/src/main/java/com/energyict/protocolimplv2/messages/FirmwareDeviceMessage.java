@@ -59,13 +59,13 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName)),
     BroadcastFirmwareUpgrade(16,
             PropertySpecFactory.groupReferencePropertySpec(DeviceMessageConstants.broadcastDevicesGroupAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(broadcastLogicalDeviceIdAttributeName),        //TODO also get the default hardcoded value from Alex?
+            PropertySpecFactory.bigDecimalPropertySpec(broadcastLogicalDeviceIdAttributeName, BigDecimal.valueOf(16)),
             PropertySpecFactory.bigDecimalPropertySpec(broadcastClientMacAddressAttributeName, BigDecimal.valueOf(102)),
             PropertySpecFactory.bigDecimalPropertySpec(broadcastGroupIdAttributeName, BigDecimal.valueOf(1)),   //Default group 1 is broadcast (to all devices)
             PropertySpecFactory.bigDecimalPropertySpec(broadcastNumberOfBlocksInCycleAttributeName, BigDecimal.valueOf(100)),
             PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(broadcastInitialTimeBetweenBlocksAttributeName, TimeDuration.seconds(1)), //TODO check if this is a good default value??
             PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
-            PropertySpecFactory.stringPropertySpec(broadcastFirmwareUpdateImageIdentifierAttributeName),
+            PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName),
             PropertySpecFactory.passwordPropertySpec(broadcastEncryptionKeyAttributeName),
             PropertySpecFactory.passwordPropertySpec(broadcastAuthenticationKeyAttributeName),
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.encryptionLevelAttributeName, DlmsEncryptionLevelMessageValues.getNames())

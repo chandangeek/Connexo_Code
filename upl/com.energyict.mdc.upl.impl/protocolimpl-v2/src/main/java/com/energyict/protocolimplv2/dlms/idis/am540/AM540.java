@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.dlms.idis.am540;
 
 import com.energyict.cbo.ConfigurationSupport;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
@@ -71,6 +73,40 @@ public class AM540 extends AM130 {
 
     protected ConfigurationSupport getNewInstanceOfConfigurationSupport() {
         return new AM540ConfigurationSupport();
+    }
+
+    /**
+     * First read out the frame counter for the management client, using the public client.
+     * Unless of course the whole session is done with the public client, then there's no need to read out the FC.
+     */
+    protected void readFrameCounter(ComChannel comChannel) {
+        if (!getDlmsSessionProperties().usesPublicClient()) {
+            super.readFrameCounter(comChannel);
+        }
+    }
+
+    /**
+     * There's 2 different ways to connect to the public client.
+     * - on a mirror device, the public client has a pre-established association
+     * - on an actual AM540 module, the public client requires a new association
+     */
+    protected void connectToPublicClient(DlmsSession publicDlmsSession) {
+        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+            publicDlmsSession.assumeConnected(getDlmsSessionProperties().getMaxRecPDUSize(), getDlmsSessionProperties().getConformanceBlock());
+        } else {
+            super.connectToPublicClient(publicDlmsSession);
+        }
+    }
+
+    /**
+     * There's 2 different ways to disconnect from the public client.
+     * - on a mirror device, the public client is pre-established, so no need to release the association
+     * - on an actual AM540 module, the public client requires a new association
+     */
+    protected void disconnectFromPublicClient(DlmsSession publicDlmsSession) {
+        if (!getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+            super.disconnectFromPublicClient(publicDlmsSession);
+        }
     }
 
     @Override
