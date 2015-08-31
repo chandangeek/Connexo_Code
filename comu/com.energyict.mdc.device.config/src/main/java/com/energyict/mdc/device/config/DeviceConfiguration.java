@@ -119,7 +119,7 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
 
     public List<ValidationRule> getValidationRules(Iterable<? extends ReadingType> readingTypes);
 
-    public GatewayType getGetwayType();
+    public GatewayType getGatewayType();
 
     public void setGatewayType(GatewayType gatewayType);
     //TODO we remove 'CreateDeviceTransaction' and 'DeviceConfigurationChanges' from the API, must be included when time comes ...

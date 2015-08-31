@@ -104,7 +104,7 @@ public interface DeviceCommunicationConfiguration {
     /**
      * Checks if the current user is allowed to perform the provided
      * DeviceMessage (by it's DeviceMessageId). Even if this config is marked to allow all
-     * messages ({@link #isSupportsAllProtocolMessages}), we check
+     * messages ({@link #supportsAllProtocolMessages}), we check
      * if the message is supported by the DeviceProtocol and match if
      * the User is allowed to perform the message.
      *
@@ -123,14 +123,17 @@ public interface DeviceCommunicationConfiguration {
     void setSupportsAllProtocolMessagesWithUserActions(boolean supportAllProtocolMessages, DeviceMessageUserAction... deviceMessageUserActions);
 
     /**
-     * Indicates whether or not all protocol messages are supported
+     * Tests whether or not all protocol messages are supported.
      *
      * @return true if all protocol messages are supported, false otherwise
      */
-    boolean isSupportsAllProtocolMessages();
+    boolean supportsAllProtocolMessages();
 
     /**
-     * @return the userActions for when all protocol messages are supported
+     * Gets the Set of {@link DeviceMessageUserAction} when all protocol messages are supported.
+     *
+     * @return The Set of DeviceMessageUserAction
+     * @see #supportsAllProtocolMessages()
      */
     Set<DeviceMessageUserAction> getAllProtocolMessagesUserActions();
 

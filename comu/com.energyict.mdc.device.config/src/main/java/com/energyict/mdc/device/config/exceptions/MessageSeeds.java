@@ -21,7 +21,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     VETO_DEVICEPROTOCOLPLUGGABLECLASS_DELETION(999, "deviceProtocolPluggableClass.XstillInUseByDeviceTypesY", "The device protocol pluggable class {0} is still used by the following device types: {1}", SEVERE),
     DEVICE_TYPE(1, "deviceType.with.article", "a device type", SEVERE),
     NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required", SEVERE),
-    NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "The name must be unique", SEVERE),
+    NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "Name must be unique", SEVERE),
     FIELD_TOO_LONG(1003, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters", SEVERE),
     FIELD_IS_REQUIRED(1004, Keys.FIELD_IS_REQUIRED, "This field is required", SEVERE),
     REGISTER_GROUP_NAME_IS_REQUIRED(1501, "registerGroup.name.required", "The name of a register group is required", SEVERE),

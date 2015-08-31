@@ -85,12 +85,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
+ * Provides an implementation for the {@link DeviceConfiguration} interface.
+ *
  * User: gde
  * Date: 5/11/12
  */
@@ -200,9 +203,11 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     DeviceConfigurationImpl initialize(DeviceType deviceType, String name){
         this.deviceType.set(deviceType);
         setName(name);
-        for (DeviceProtocolDialect deviceProtocolDialect : this.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getDeviceProtocolDialects()) {
-            findOrCreateProtocolDialectConfigurationProperties(deviceProtocolDialect);
-        }
+        this.getDeviceType()
+                .getDeviceProtocolPluggableClass()
+                .getDeviceProtocol()
+                .getDeviceProtocolDialects()
+                .forEach(this::findOrCreateProtocolDialectConfigurationProperties);
         return this;
     }
 
@@ -393,7 +398,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     /**
-     * Looks for the next available Obiscode with different B-field.
+     * Looks for the next available ObisCode with different B-field.
      */
     private String findNextAvailableObisCode(String obisCodeValue, Collection<String> obisCodeKeys) {
         String availableObisCode = obisCodeValue;
@@ -842,7 +847,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     @Override
-    public boolean isSupportsAllProtocolMessages() {
+    public boolean supportsAllProtocolMessages() {
         return supportsAllProtocolMessages;
     }
 
@@ -1077,7 +1082,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         Optional<User> currentUser = getCurrentUser();
         if (currentUser.isPresent()) {
             User user = currentUser.get();
-            if (isSupportsAllProtocolMessages()) {
+            if (supportsAllProtocolMessages()) {
                 if (this.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages().contains(deviceMessageId)){
                     return getAllProtocolMessagesUserActions().stream().anyMatch(deviceMessageUserAction -> isUserAuthorizedForAction(deviceMessageUserAction, user));
                 }
@@ -1107,13 +1112,11 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     }
 
     public List<ValidationRuleSet> getValidationRuleSets() {
-        List<ValidationRuleSet> result = new ArrayList<>();
-        for (DeviceConfValidationRuleSetUsage usage : this.deviceConfValidationRuleSetUsages)  {
-            if (usage.getValidationRuleSet() != null) {
-                result.add(usage.getValidationRuleSet());
-            }
-        }
-        return result;
+        return this.deviceConfValidationRuleSetUsages
+                .stream()
+                .map(DeviceConfValidationRuleSetUsage::getValidationRuleSet)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -1193,7 +1196,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.getDataModel().reorder(usages, target);
     }
 
-    public GatewayType getGetwayType(){
+    public GatewayType getGatewayType(){
         return this.gatewayType;
     }
 
@@ -1407,7 +1410,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         DeviceConfiguration clone = getDeviceType().newConfiguration(nameOfClone)
                 .canActAsGateway(canActAsGateway())
                 .description(getDescription())
-                .gatewayType(getGetwayType())
+                .gatewayType(getGatewayType())
                 .isDirectlyAddressable(isDirectlyAddressable())
                 .add();
         this.getDeviceProtocolProperties().getPropertySpecs().stream().forEach(cloneDeviceProtocolProperties(clone));

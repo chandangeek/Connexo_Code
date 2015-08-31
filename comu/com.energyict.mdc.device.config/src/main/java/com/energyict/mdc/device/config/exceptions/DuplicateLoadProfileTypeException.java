@@ -20,7 +20,7 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 public class DuplicateLoadProfileTypeException extends LocalizedException{
 
     public DuplicateLoadProfileTypeException(Thesaurus thesaurus, DeviceConfiguration deviceConfiguration, LoadProfileType loadProfileType, LoadProfileSpec loadProfileSpec) {
-        super(thesaurus, MessageSeeds.DEVICE_CONFIGURATION_DUPLICATE_LOAD_PROFILE_TYPE_IN_SPEC, deviceConfiguration, loadProfileType);
+        super(thesaurus, MessageSeeds.DEVICE_CONFIGURATION_DUPLICATE_LOAD_PROFILE_TYPE_IN_SPEC, deviceConfiguration.getName(), loadProfileType.getName());
         set("deviceConfiguration", deviceConfiguration);
         set("loadProfileType", loadProfileType);
         set("loadProfileSpec", loadProfileSpec);

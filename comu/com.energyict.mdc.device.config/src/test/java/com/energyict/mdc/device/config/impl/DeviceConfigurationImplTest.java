@@ -612,7 +612,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
         DeviceConfiguration configWithSupportAllMessages = reloadDeviceConfiguration(reloadDeviceConfiguration);
 
-        assertThat(configWithSupportAllMessages.isSupportsAllProtocolMessages()).isTrue();
+        assertThat(configWithSupportAllMessages.supportsAllProtocolMessages()).isTrue();
         assertThat(configWithSupportAllMessages.getAllProtocolMessagesUserActions()).containsOnly(deviceMessageUserActions);
     }
 
@@ -682,7 +682,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
                 .build();
 
         DeviceConfiguration configWithEnablements = reloadDeviceConfiguration(reloadDeviceConfiguration);
-        assertThat(configWithEnablements.isSupportsAllProtocolMessages()).isFalse();
+        assertThat(configWithEnablements.supportsAllProtocolMessages()).isFalse();
         assertThat(configWithEnablements.getAllProtocolMessagesUserActions()).hasSize(0);
         assertThat(configWithEnablements.getDeviceMessageEnablements()).hasSize(1);
         assertThat(configWithEnablements.getDeviceMessageEnablements().get(0).getDeviceMessageId()).isEqualTo(deviceMessageEnablement.getDeviceMessageId());
