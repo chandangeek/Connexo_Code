@@ -54,6 +54,7 @@ public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMess
         supportedMessages.add(DeviceActionMessage.SyncDeviceDataForDC);
         supportedMessages.add(DeviceActionMessage.PauseDCScheduler);
         supportedMessages.add(DeviceActionMessage.ResumeDCScheduler);
+        supportedMessages.add(DeviceActionMessage.SyncOneConfigurationForDC);
         supportedMessages.add(FirmwareDeviceMessage.BroadcastFirmwareUpgrade);
         supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER);
     }
@@ -73,6 +74,8 @@ public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMess
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.dcDeviceIDAttributeName)) {
             return MasterDataSerializer.serializeMasterData(messageAttribute);
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.deviceConfigurationIDAttributeName)) {
+            return MasterDataSerializer.serializeMasterDataForOneConfig(messageAttribute);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.dcDeviceID2AttributeName)) {
             return MasterDataSerializer.serializeMeterDetails(messageAttribute);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.broadcastEncryptionKeyAttributeName)
@@ -119,7 +122,9 @@ public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMess
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
             try {
                 if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncMasterdataForDC)) {
-                    collectedMessage = getMasterDataSync().syncMasterData(pendingMessage, collectedMessage);
+                    collectedMessage = getMasterDataSync().syncMasterData(pendingMessage, collectedMessage, true);
+                } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncOneConfigurationForDC)) {
+                    collectedMessage = getMasterDataSync().syncMasterData(pendingMessage, collectedMessage, false);
                 } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncDeviceDataForDC)) {
                     collectedMessage = getMasterDataSync().syncDeviceData(pendingMessage, collectedMessage);
                 } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.PauseDCScheduler)) {

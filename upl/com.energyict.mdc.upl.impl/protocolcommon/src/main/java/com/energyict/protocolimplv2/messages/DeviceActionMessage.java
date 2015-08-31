@@ -85,7 +85,7 @@ public enum DeviceActionMessage implements DeviceMessageSpec {
     PauseDCScheduler(44),
     ResumeDCScheduler(45),
     SyncDeviceDataForDC(46, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dcDeviceID2AttributeName)),
-    ;
+    SyncOneConfigurationForDC(47, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.deviceConfigurationIDAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.DEVICE_ACTIONS;
     private final int id;

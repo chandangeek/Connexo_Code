@@ -62,6 +62,25 @@ public class AM540 extends AM130 {
     }
 
     @Override
+    public Date getTime() {
+        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+            return new Date();  //Don't read out the clock of the mirror logical device, it does not know the actual meter time.
+        } else {
+            return super.getTime();
+        }
+    }
+
+    @Override
+    public void setTime(Date timeToSet) {
+        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+            IOException cause = new IOException("When connected to the mirror logical device, writing of the clock is not allowed.");
+            throw MdcManager.getComServerExceptionFactory().notAllowedToExecuteCommand("date/time change", cause);
+        } else {
+            super.setTime(timeToSet);
+        }
+    }
+
+    @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Arrays.asList((DeviceProtocolDialect) new SerialDeviceProtocolDialect());
     }
@@ -150,16 +169,6 @@ public class AM540 extends AM130 {
             getLogger().info("Cache exist, will not be read!");
         }
         getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDeviceCache().getObjectList());
-    }
-
-    @Override
-    public void setTime(Date timeToSet) {
-        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
-            IOException cause = new IOException("When connected to the mirror logical device, writing of the clock is not allowed.");
-            throw MdcManager.getComServerExceptionFactory().notAllowedToExecuteCommand("date/time change", cause);
-        } else {
-            super.setTime(timeToSet);
-        }
     }
 
     @Override

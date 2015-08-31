@@ -84,6 +84,7 @@ public class DeviceMessageConstants {
     public static final String randomBytesAttributeName = "SecurityMessage.random32bytes";
     public static final String deviceGroupAttributeName = "SecurityMessage.devicegroup";
 
+    public static final String deviceConfigurationIDAttributeName = "DeviceActionMessage.deviceConfigurationID";
     public static final String dcDeviceIDAttributeName = "DeviceActionMessage.dcDeviceID";
     public static final String dcDeviceID2AttributeName = "DeviceActionMessage.dcDeviceID2";
     public static final String broadcastDevicesGroupAttributeName = "FirmwareDeviceMessage.broadcastDevicesGroup";

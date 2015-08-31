@@ -38,7 +38,7 @@ public class MasterDataSync {
     /**
      * Sync all master data of the device types (tasks, schedules, security levels, master data obiscodes, etc)
      */
-    public CollectedMessage syncMasterData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+    public CollectedMessage syncMasterData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage, boolean all) throws IOException {
         AllMasterData allMasterData;
         try {
             final String serializedMasterData = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
@@ -51,9 +51,9 @@ public class MasterDataSync {
             return collectedMessage;
         }
 
-        syncSchedules(allMasterData);
-        syncClientTypes(allMasterData);
-        syncDeviceTypes(allMasterData);
+        syncSchedules(allMasterData, all);
+        syncClientTypes(allMasterData, all);
+        syncDeviceTypes(allMasterData, all);
 
         return collectedMessage;
     }
@@ -88,7 +88,7 @@ public class MasterDataSync {
         }
     }
 
-    private void syncDeviceTypes(AllMasterData allMasterData) throws IOException {
+    private void syncDeviceTypes(AllMasterData allMasterData, boolean all) throws IOException {
         final DeviceTypeManager deviceTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager();
         final Array deviceTypesArray = deviceTypeManager.readDeviceTypes();
 
@@ -111,15 +111,18 @@ public class MasterDataSync {
             }
         }
 
-        //Remove device type information from the Beacon that is no longer in EIServer
-        for (Long deviceTypeId : deviceTypeIds) {
-            if (!syncedDeviceTypes.contains(deviceTypeId)) {
-                deviceTypeManager.removeDeviceType(deviceTypeId);
+        //Only remove 'ghost' data in the beacon if we just sync'ed ALL master data
+        if (all) {
+            //Remove device type information from the Beacon that is no longer in EIServer
+            for (Long deviceTypeId : deviceTypeIds) {
+                if (!syncedDeviceTypes.contains(deviceTypeId)) {
+                    deviceTypeManager.removeDeviceType(deviceTypeId);
+                }
             }
         }
     }
 
-    private void syncClientTypes(AllMasterData allMasterData) throws IOException {
+    private void syncClientTypes(AllMasterData allMasterData, boolean all) throws IOException {
         final ClientTypeManager clientTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getClientTypeManager();
         final Array clientTypesArray = clientTypeManager.readClients();
 
@@ -142,15 +145,18 @@ public class MasterDataSync {
             }
         }
 
-        //Remove client information from the Beacon that is no longer in EIServer
-        for (Long clientTypeId : clientTypeIds) {
-            if (!syncedClientTypes.contains(clientTypeId)) {
-                clientTypeManager.removeClientType(clientTypeId);
+        //Only remove 'ghost' data in the beacon if we just sync'ed ALL master data
+        if (all) {
+            //Remove client information from the Beacon that is no longer in EIServer
+            for (Long clientTypeId : clientTypeIds) {
+                if (!syncedClientTypes.contains(clientTypeId)) {
+                    clientTypeManager.removeClientType(clientTypeId);
+                }
             }
         }
     }
 
-    private void syncSchedules(AllMasterData allMasterData) throws IOException {
+    private void syncSchedules(AllMasterData allMasterData, boolean all) throws IOException {
         final ScheduleManager scheduleManager = getProtocol().getDlmsSession().getCosemObjectFactory().getScheduleManager();
         final Array schedulesArray = scheduleManager.readSchedules();
 
@@ -173,10 +179,13 @@ public class MasterDataSync {
             }
         }
 
-        //Remove scheduling information from the Beacon that is no longer in EIServer
-        for (Long scheduleId : scheduleIds) {
-            if (!syncedSchedules.contains(scheduleId)) {
-                scheduleManager.removeSchedule(scheduleId);
+        //Only remove 'ghost' data in the beacon if we just sync'ed ALL master data
+        if (all) {
+            //Remove scheduling information from the Beacon that is no longer in EIServer
+            for (Long scheduleId : scheduleIds) {
+                if (!syncedSchedules.contains(scheduleId)) {
+                    scheduleManager.removeSchedule(scheduleId);
+                }
             }
         }
     }
