@@ -3,14 +3,14 @@
 Private-Package: com.elster.jupiter.metering.cim.impl,\
     com.elster.jupiter.metering.cim.soap.impl,\
     com.elster.jupiter.metering.cim.soap.client.impl,\
-    ch.iec.tc57._2011.meterreadings_,\
-    ch.iec.tc57._2011.getmeterreadings_,\
+    ch.iec.tc57._2011.meterreadings,\
+    ch.iec.tc57._2011.getmeterreadings,\
     ch.iec.tc57._2011.getmeterreadings,\
     ch.iec.tc57._2011.schema.message,\
     ch.iec.tc57._2011.getmeterreadingsmessage,\
     ch.iec.tc57._2011.sendmeterreadings,\
     com.moodykettle.webservice.helloworld,\
     org.w3._2001.xmlschema
-Export-Package: com.elster.jupiter.metering.cim
+Export-Package: !com.elster.jupiter.metering.cim
 Import-Package: !net.jcip.annotations,\
 	*
