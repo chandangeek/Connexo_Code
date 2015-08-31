@@ -49,7 +49,7 @@ Ext.define('Idc.controller.Main', {
 
         if (Isu.privileges.Issue.canViewAdminDevice()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
-                text: 'Workspace',
+                text: Uni.I18n.translate('general.workspace','IDC','Workspace'),
                 glyph: 'workspace',
                 portal: 'workspace',
                 index: 30
@@ -58,7 +58,7 @@ Ext.define('Idc.controller.Main', {
 
         if (Isu.privileges.Issue.canViewAdminDevice()) {
             dataCollection = Ext.create('Uni.model.PortalItem', {
-                title: 'Data collection',
+                title: Uni.I18n.translate('general.dataCollection','IDC','Data collection'),
                 portal: 'workspace',
                 route: 'datacollection',
                 items: [
@@ -67,7 +67,7 @@ Ext.define('Idc.controller.Main', {
                         href: router.getRoute('workspace/datacollectionissues').buildUrl()
                     },
                     {
-                        text: 'My open issues',
+                        text: Uni.I18n.translate('datacollection.myOpenIssues','IDC','My open issues'),
                         itemId: 'my-open-issues',
                         href: router.getRoute('workspace/datacollectionissues').buildUrl({}, {myopenissues: true})
                     }
