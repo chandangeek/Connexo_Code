@@ -3,8 +3,8 @@ package com.energyict.protocols.mdc.inbound.general;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.dialer.serialserviceprovider.SerialPort;
 import com.energyict.mdc.io.ComChannel;
-import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
-import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
+import com.energyict.mdc.io.ComChannelInputStreamAdapter;
+import com.energyict.mdc.io.ComChannelOutputStreamAdapter;
 
 import java.io.IOException;
 import java.io.InputStream;

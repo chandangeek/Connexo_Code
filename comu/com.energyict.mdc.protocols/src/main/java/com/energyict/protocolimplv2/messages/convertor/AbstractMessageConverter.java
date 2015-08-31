@@ -30,7 +30,6 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
     protected final SimpleDateFormat europeanDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     private Messaging messagingProtocol;
-    private String characterEncodingForZipping = "UTF-8";
 
     /**
      * Get the registry which contains the mapping between the {@link DeviceMessageId}s
@@ -53,7 +52,7 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
         if (messageEntryCreator != null) {
             return messageEntryCreator.createMessageEntry(getMessagingProtocol(), offlineDeviceMessage);
         } else {
-            return new MessageEntry("", "");
+            return MessageEntry.EMPTY;
         }
     }
 

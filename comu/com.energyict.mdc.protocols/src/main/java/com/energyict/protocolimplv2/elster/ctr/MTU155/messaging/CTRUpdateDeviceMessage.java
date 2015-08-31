@@ -13,8 +13,8 @@ public class CTRUpdateDeviceMessage {
 //
 //    @Override
 //    public void doExecute(ComServerDAO comServerDAO) {
-//        OfflineDeviceMessage deviceMessage = comServerDAO.findOfflineDeviceMessage(getMessageIdentifier());
-//        if (deviceMessage != null) {
+//        Optional<OfflineDeviceMessage> deviceMessage = comServerDAO.findOfflineDeviceMessage(getMessageIdentifier());
+//        if (deviceMessage.isPresent()) {
 //            String messageProtocolInfo = deviceMessage.getProtocolInfo();
 //            String wdb = ((DeviceMessageIdentifierByDeviceAndProtocolInfoParts) getMessageIdentifier()).getMessageProtocolInfoParts()[1];
 //
@@ -29,8 +29,8 @@ public class CTRUpdateDeviceMessage {
 //                comServerDAO.updateDeviceMessageInformation(getMessageIdentifier(), getDeviceMessageStatus(), getProtocolInfo());
 //            }
 //        } else {
-//            addIssueToExecutionLogger(comServerDAO, CompletionCode.ConfigurationWarning,
-//                    new WarningImpl(this, "unknownDeviceMessageCollected", getMessageIdentifier())
+//            addIssue(CompletionCode.ConfigurationWarning,
+//                    this.getIssuesService().newWarning(this, MessageSeeds.UNKNOWN_DEVICE_MESSAGE.getKey(), getMessageIdentifier())
 //            );
 //        }
 //    }

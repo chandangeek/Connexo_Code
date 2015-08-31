@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.common.Environment;
+
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -9,7 +9,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribu
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.datavault.LegacyDataVaultProvider;
 import com.energyict.mdc.protocol.api.messaging.Messaging;
-import com.energyict.protocols.messaging.LegacyMessageConverter;
+import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.invocation.InvocationOnMock;
