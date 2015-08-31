@@ -120,7 +120,7 @@ public enum FirmwareManagementDeviceStatus {
      * <li>Release date of the message is in future or in past, but task is not launched yet</li>
      * </ul>
      */
-    ACTIVATION_PENDING(Constants.PENDING) {
+    ACTIVATION_PENDING(Constants.SUCCESS) {
         @Override
         public boolean validateMessage(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
             return !isUploadMessage(message)
@@ -154,7 +154,7 @@ public enum FirmwareManagementDeviceStatus {
      * </li>
      * </ul>
      */
-    ACTIVATION_ONGOING(Constants.ONGOING) {
+    ACTIVATION_ONGOING(Constants.SUCCESS) {
         @Override
         public boolean validateMessage(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
             return helper.getUploadOptionFromMessage(message).isPresent()
@@ -189,7 +189,7 @@ public enum FirmwareManagementDeviceStatus {
      * <li>Task was failed and the message has one of pending statuses OR the message has the failed status</li>
      * </ul>
      */
-    ACTIVATION_FAILED(Constants.FAILED) {
+    ACTIVATION_FAILED(Constants.SUCCESS) {
         @Override
         public boolean validateMessage(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
             return !isUploadMessage(message)
@@ -377,14 +377,14 @@ public enum FirmwareManagementDeviceStatus {
     CANCELLED(Constants.CANCELLED),
     ;
 
-    private String statusKey;
+    private String deviceInCampaignStatusKey;
 
-    FirmwareManagementDeviceStatus(String statusKey) {
-        this.statusKey = statusKey;
+    FirmwareManagementDeviceStatus(String deviceInCampaignStatusKey) {
+        this.deviceInCampaignStatusKey = deviceInCampaignStatusKey;
     }
 
     public String key(){
-        return this.statusKey;
+        return this.deviceInCampaignStatusKey;
     }
 
     public boolean validateMessage(DeviceMessage<Device> message, FirmwareManagementDeviceUtils helper) {
