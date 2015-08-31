@@ -2,6 +2,7 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStatus;
+import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
@@ -14,7 +15,6 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
-import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -65,9 +65,12 @@ public class DataExportTaskHistoryInfo {
         this.status = getName(dataExportOccurrence.getStatus(), thesaurus);
         this.reason = dataExportOccurrence.getFailureReason();
         this.lastRun = dataExportOccurrence.getTriggerTime().toEpochMilli();
-        Range<Instant> interval = dataExportOccurrence.getExportedDataInterval();
-        this.exportPeriodFrom = interval.lowerEndpoint().toEpochMilli();
-        this.exportPeriodTo = interval.upperEndpoint().toEpochMilli();
+        dataExportOccurrence.getDefaultSelectorOccurrence()
+                .map(DefaultSelectorOccurrence::getExportedDataInterval)
+                .ifPresent(interval -> {
+                    this.exportPeriodFrom = interval.lowerEndpoint().toEpochMilli();
+                    this.exportPeriodTo = interval.upperEndpoint().toEpochMilli();
+                });
         setStatusOnDate(dataExportOccurrence, thesaurus);
         ExportTask version = history.getVersionAt(dataExportOccurrence.getTriggerTime())
                 .orElseGet(() -> history.getVersionAt(dataExportOccurrence.getTask().getCreateTime())
