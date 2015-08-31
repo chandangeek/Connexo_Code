@@ -162,7 +162,6 @@ Ext.define('Uni.view.notifications.NoItemsFoundPanel', {
         var me = this,
             result = '<span class="reasons-text">' + me.reasonsText + '</span>',
             formattedReasons = '';
-
         if (Ext.isArray(reasons)) {
             Ext.Array.each(reasons, function (reason) {
                 formattedReasons += me.formatReason(reason);
