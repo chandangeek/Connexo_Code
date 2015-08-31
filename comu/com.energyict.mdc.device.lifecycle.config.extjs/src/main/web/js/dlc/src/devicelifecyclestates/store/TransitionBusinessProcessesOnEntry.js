@@ -5,6 +5,10 @@ Ext.define('Dlc.devicelifecyclestates.store.TransitionBusinessProcessesOnEntry',
     ],
     model: 'Dlc.devicelifecyclestates.model.TransitionBusinessProcess',
     autoLoad: false,
+    sorters: [{
+        property: 'processId',
+        direction: 'ASC'
+    }],
     modelId : -1,
     removeAll: function(){
         this.callParent(arguments);
