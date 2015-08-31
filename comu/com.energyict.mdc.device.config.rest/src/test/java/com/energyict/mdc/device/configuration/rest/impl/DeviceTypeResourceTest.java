@@ -355,7 +355,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getDeviceFunction()).thenReturn(DeviceFunction.METER);
         when(deviceConfiguration.canActAsGateway()).thenReturn(true);
-        when(deviceConfiguration.getGetwayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
+        when(deviceConfiguration.getGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
         when(deviceConfiguration.isDirectlyAddressable()).thenReturn(true);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocolPluggableClass.getName()).thenReturn("device protocol name");
