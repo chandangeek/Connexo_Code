@@ -188,17 +188,17 @@ public class ValidationEvaluatorIT {
         List<ValidationResult> validationResults =  validationStates.stream()
         		.map(DataValidationStatus::getValidationResult)
         		.collect(Collectors.toList());
-        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID,SUSPECT, SUSPECT, NOT_VALIDATED));
+        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, SUSPECT, SUSPECT, NOT_VALIDATED));
         injector.getInstance(TransactionService.class).execute(() -> {
             channel.removeReadings(ImmutableList.of(channel.getReadings(Range.all()).get(1)));
             return null;
         });
         validationStates = evaluator.getValidationStatus(channel, channel.getReadings(Range.all()), Range.all());
-        assertThat(validationStates).hasSize(4);
+        assertThat(validationStates).hasSize(3);
         validationResults =  validationStates.stream()
         		.map(DataValidationStatus::getValidationResult)
         		.collect(Collectors.toList());
-        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID,NOT_VALIDATED, NOT_VALIDATED, NOT_VALIDATED));
+        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, NOT_VALIDATED, NOT_VALIDATED));
     }
 
     @Test
@@ -231,11 +231,11 @@ public class ValidationEvaluatorIT {
         validationResults =  validationStates.stream()
         		.map(DataValidationStatus::getValidationResult)
         		.collect(Collectors.toList());
-        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT));
+        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, SUSPECT, SUSPECT));
         Set<QualityCodeIndex> qualityCodes = validationStates.get(1).getReadingQualities().stream()
         		.map(q -> q.getType().qualityIndex().orElse(null))
         		.collect(Collectors.toSet());
-        assertThat(qualityCodes).contains(QualityCodeIndex.REJECTED);
+        assertThat(qualityCodes).contains(QualityCodeIndex.SUSPECT);
     }
 
     @Test

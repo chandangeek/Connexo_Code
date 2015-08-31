@@ -202,7 +202,7 @@ public class RegisterValidationEvaluatorIT {
         validationResults =  validationStates.stream()
         		.map(DataValidationStatus::getValidationResult)
         		.collect(Collectors.toList());
-        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, VALID));
+        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT));
     }
 
 }
