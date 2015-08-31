@@ -56,7 +56,7 @@ Ext.define('Idv.controller.Main', {
 
         if (Isu.privileges.Issue.canViewAdminDevice()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
-                text: 'Workspace',
+                text: Uni.I18n.translate('general.workspace','IDV','Workspace'),
                 glyph: 'workspace',
                 portal: 'workspace',
                 index: 30
@@ -67,11 +67,11 @@ Ext.define('Idv.controller.Main', {
 
             if (Isu.privileges.Issue.canViewAdminDevice()) {
                 items.push({
-                    text: 'Issues',
+                    text: Uni.I18n.translate('general.issues','IDV','Issues'),
                     href: router.getRoute('workspace/datavalidationissues').buildUrl()
                 });
                 items.push({
-                    text: 'My open issues',
+                    text: Uni.I18n.translate('datavalidation.myOpenIssues','IDV','My open issues'),
                     itemId: 'my-open-issues',
                     href: router.getRoute('workspace/datavalidationissues').buildUrl({}, {myopenissues: true})
                 });
@@ -85,7 +85,7 @@ Ext.define('Idv.controller.Main', {
             }
 
             dataCollection = Ext.create('Uni.model.PortalItem', {
-                title: 'Data validation',
+                title: Uni.I18n.translate('general.dataValidation','IDV','Data validation'),
                 portal: 'workspace',
                 route: 'datavalidation',
                 items:  items
