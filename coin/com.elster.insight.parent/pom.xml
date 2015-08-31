@@ -45,11 +45,31 @@
         <dependencies>
             <dependency>
                 <groupId>com.elster.jupiter.subsystem</groupId>
-                <artifactId>platform</artifactId>
+                <artifactId>kore</artifactId>
                 <version>1.1.0-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>com.elster</groupId>
+                <artifactId>insight.common</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.elster</groupId>
+                <artifactId>insight.usagepoint.data</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${json.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+
+
            <!-- 
                 Once there is a bundle that contains test, it's forseen 
                 that we'll need at least some of these dependencies so
@@ -101,7 +121,9 @@
             <id>insight</id>
             <modules>
                 <module>../com.elster.insight.app</module>
+                <module>../com.elster.insight.common</module>
                 <module>../com.elster.insight.metering.extjs</module>
+                <module>../com.elster.insight.usagepoint.data</module>
                 <module>../com.elster.insight.usagepoint.data.rest</module>
             </modules>
         </profile>
