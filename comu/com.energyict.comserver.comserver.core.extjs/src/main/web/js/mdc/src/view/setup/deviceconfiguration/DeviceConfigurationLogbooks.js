@@ -112,7 +112,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                         tools: [
                             {
                                 xtype: 'button',
-                                text: 'Actions',
+                                text: Uni.I18n.translate('general.actions','MDC','Actions'),
                                 privileges: Mdc.privileges.DeviceType.admin,
                                 iconCls: 'x-uni-action-iconD',
                                 menu: {

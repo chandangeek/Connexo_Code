@@ -16,6 +16,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         'setup.deviceregisterconfiguration.TabbedDeviceRegisterView'
     ],
 
+    models: [
+        'Mdc.model.RegisterValidationPreview'
+        ],
     stores: [
         'RegisterConfigsOfDevice'
     ],
@@ -24,6 +27,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         {ref: 'deviceRegisterConfigurationGrid', selector: '#deviceRegisterConfigurationGrid'},
         {ref: 'deviceRegisterConfigurationSetup', selector: '#deviceRegisterConfigurationSetup'},
         {ref: 'deviceRegisterConfigurationPreview', selector: '#deviceRegisterConfigurationPreview'},
+        {ref: 'deviceRegisterConfigurationPreviewForm', selector: '#deviceRegisterConfigurationPreviewForm'},
+        {ref: 'deviceRegisterConfigurationDetailForm', selector: '#deviceRegisterConfigurationDetailForm'},
         {ref: 'stepsMenu', selector: '#stepsMenu'}
     ],
 
@@ -78,6 +83,43 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                 viewport.setLoading(false);
             }
         });
+    },
+
+    updateDeviceRegisterConfigurationsDetails: function (mRID, registerId) {
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+        me.mRID = mRID;
+        me.registerId = registerId;
+
+        viewport.setLoading();
+        var model = me.getModel('Mdc.model.RegisterValidationPreview');
+        model.getProxy().setUrl(mRID, registerId);
+        model.load('', {
+            success: function (record) {
+                me.updateValidationData(record);
+            }
+        });
+        viewport.setLoading(false);
+    },
+
+    updateValidationData: function(record)
+    {
+        var me = this,
+            form = me.getDeviceRegisterConfigurationPreviewForm(),
+            formRecord;
+        if(form)
+            formRecord = form.getRecord();
+        else{
+            form = me.getDeviceRegisterConfigurationDetailForm();
+            formRecord = form.getRecord();
+        }
+        formRecord.set('validationInfo_dataValidated',
+            record.get('dataValidated')? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+                : Uni.I18n.translate('general.no', 'MDC', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>');
+        formRecord.set('lastChecked_formatted',
+            Uni.DateTime.formatDateTimeLong(new Date(record.get('lastChecked'))));
+
+        form.loadRecord(formRecord);
     },
 
     onDeviceRegisterConfigurationGridSelect: function (rowmodel, record, index) {
@@ -213,17 +255,12 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                     if (Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid')[0]) {
                         Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid')[0].fireEvent('select', Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid')[0].getSelectionModel(), record);
                     }
+
+                    me.updateDeviceRegisterConfigurationsDetails(me.mRID, me.registerId);
                 }
-                /*failure: function (response) {
-                 if (confWindow) {
-                 var res = Ext.JSON.decode(response.responseText);
-                 me.showValidationActivationErrors(res.errors[0].msg);
-                 }
-                 },
-                 callback: function () {
-                 Ext.Ajax.resumeEvent('requestexception');
-                 }*/
+
             });
+
         }
     },
 

@@ -24,7 +24,7 @@ Ext.define('Mdc.view.setup.comport.ModemInitStrings', {
 
         this.buttons = [
             {
-                text: 'Add',
+                text: Uni.I18n.translate('general.add','MDC','Add'),
                 action: 'add',
                 style: {
                     background: '#404040 ',

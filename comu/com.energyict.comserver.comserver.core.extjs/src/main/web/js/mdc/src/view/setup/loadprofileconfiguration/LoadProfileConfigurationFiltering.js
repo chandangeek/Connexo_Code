@@ -2,6 +2,6 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationFilt
     extend: 'Uni.view.panel.FilterToolbar',
     alias: 'widget.loadProfileConfigurationFiltering',
     title: 'Filters',
-    emptyText: 'None',
+    emptyText: Uni.I18n.translate('general.none','MDC','None'),
     height: 40
 });

@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.comtasks.ComTaskAddCommandWindow', {
         },
         {
             xtype: 'button',
-            text: 'Cancel',
+            text: Uni.I18n.translate('general.cancel','MDC','Cancel'),
             action: 'cancel',
             ui: 'link',
             listeners: {

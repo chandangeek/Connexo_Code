@@ -19,11 +19,11 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
 
     buttons: [
         {
-            text: 'Apply',
+            text: Uni.I18n.translate('general.apply','MDC','Apply'),
             action: 'filter'
         },
         {
-            text: 'Reset',
+            text: Uni.I18n.translate('general.reset','MDC','Reset'),
             action: 'reset'
         }
     ],
