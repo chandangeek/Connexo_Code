@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigAndRulesPreviewContainer
             ui: 'medium',
             padding: '32 0 0 0',
             itemId: 'rulesForRegisterConfigPreview',
-            title: 'Validation rules'
+            title: Uni.I18n.translate('registerconfig.validationRules','MDC','Validation rules')
         },
         {
             xtype: 'preview-container',

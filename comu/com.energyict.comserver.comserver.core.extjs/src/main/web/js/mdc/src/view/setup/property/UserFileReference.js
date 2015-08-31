@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.property.UserFileReference', {
     extend: 'Ext.window.Window',
     alias: 'widget.userFileReferenceSelectionWindow',
-    title: 'Select a user File Reference',
+    title: Uni.I18n.translate('property.selectUserFile','MDC','Select a user File Reference'),
     layout: 'fit',
     width: 350,
     height: 400,

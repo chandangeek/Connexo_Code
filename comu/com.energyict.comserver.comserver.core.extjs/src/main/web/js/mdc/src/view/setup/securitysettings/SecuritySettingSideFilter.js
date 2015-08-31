@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSideFilter', {
     extend: 'Ext.form.Panel',
     alias: 'widget.securitySettingSideFilter',
-    title: 'Filter',
+    title: Uni.I18n.translate('general.filter','MDC','Filter'),
     ui: 'filter',
     width: 180,
 

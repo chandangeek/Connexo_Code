@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     content: [
         {
             ui: 'large',
-            title: 'Channel configuration',
+            title: Uni.I18n.translate('channel.channelConfiguration','MDC','Channel configuration'),
             xtype: 'form',
             width: '100%',
             itemId: 'loadProfileConfigurationDetailChannelFormId',

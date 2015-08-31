@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.property.LoadProfileType', {
     extend: 'Ext.window.Window',
     alias: 'widget.loadProfileTypeSelectionWindow',
-    title: 'Select a load profile type',
+    title: Uni.I18n.translate('property.selectLoadProfileType','MDC','Select a load profile type'),
     layout: 'fit',
     width: 350,
     height: 400,

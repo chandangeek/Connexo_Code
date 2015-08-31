@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.licensedprotocol.Detail', {
                 items: [
                     {
                         xtype: 'fieldset',
-                        title: 'Licensed Protocol Info',
+                        title: Uni.I18n.translate('protocol.licansedProtocolInfo','MDC','Licensed Protocol Info'),
                         defaults: {
                             labelWidth: 200
                         },

@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.comport.OutboundComPortSelectionWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.outboundComPortSelectionWindow',
-    title: 'Select a comport',
+    title: Uni.I18n.translate('comport.selectComPort','MDC','Select a comport'),
     layout: 'fit',
     width: 350,
     height: 400,

@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
         type: 'vbox',
         align: 'stretch'
     },
-    title: 'Details',
+    title: Uni.I18n.translate('general.details','MDC','Details'),
 
 
     items: [
@@ -133,7 +133,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
         },
         {
             xtype: 'panel',
-            title: 'Details',
+            title: Uni.I18n.translate('general.details','MDC','Details'),
             itemId: 'deviceConnectionHistoryPreviewPanel',
             tools: [
                 {

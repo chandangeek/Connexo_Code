@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSideFilter', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.loadProfileTypeSideFilter',
-    title: 'Filter',
+    title: Uni.I18n.translate('general.filter','MDC','Filter'),
     width: 200,
     ui: 'filter',
 

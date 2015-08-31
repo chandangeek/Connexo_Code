@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.comport.OutboundComPortEdit', {
     extend: 'Ext.window.Window',
     alias: 'widget.outboundComPortEdit',
     autoScroll: true,
-    title: 'ComServer',
+    title: Uni.I18n.translate('comserver.comServer','MDC','ComServer'),
     width: '80%',
     height: '90%',
     modal: true,
@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.comport.OutboundComPortEdit', {
                 items: [
                     {
                         xtype: 'fieldset',
-                        title: 'Required',
+                        title: Uni.I18n.translate('general.required','required','Required'),
                         defaults: {
                             labelWidth: 200
                         },

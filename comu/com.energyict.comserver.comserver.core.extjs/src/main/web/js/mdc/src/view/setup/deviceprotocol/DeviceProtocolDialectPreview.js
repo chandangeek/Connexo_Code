@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectPreview', {
         'Mdc.view.setup.deviceprotocol.DeviceProtocolDialectActionMenu'
     ],
     frame: true,
-    title: 'Details',
+    title: Uni.I18n.translate('general.details','MDC','Details'),
 
     tools: [
         {

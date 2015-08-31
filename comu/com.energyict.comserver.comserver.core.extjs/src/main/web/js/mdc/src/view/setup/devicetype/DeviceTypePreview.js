@@ -9,7 +9,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
         'Mdc.view.setup.devicetype.DeviceTypeActionMenu'
     ],
 
-    title: 'Details',
+    title: Uni.I18n.translate('general.details','MDC','Details'),
 
     tools: [
         {

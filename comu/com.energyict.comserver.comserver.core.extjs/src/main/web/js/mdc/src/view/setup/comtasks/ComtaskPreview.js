@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskPreview', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.comtaskPreview',
     hidden: false,
-    title: 'Details',
+    title: Uni.I18n.translate('general.details','MDC','Details'),
     frame: true,
     requires: [
         'Mdc.view.setup.comtasks.ComtaskActionMenu'
