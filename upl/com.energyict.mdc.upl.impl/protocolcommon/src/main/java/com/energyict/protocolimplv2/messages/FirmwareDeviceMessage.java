@@ -36,13 +36,6 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
     UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(4,
             PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
             PropertySpecFactory.dateTimePropertySpec(firmwareUpdateActivationDateAttributeName)),
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER(15,
-            PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
-            PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName)),
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER(14,
-            PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(firmwareUpdateActivationDateAttributeName),
-            PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName)),
     UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE(5, PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
             PropertySpecFactory.dateTimePropertySpec(firmwareUpdateActivationDateAttributeName),
             PropertySpecFactory.stringPropertySpec(firmwareUpdateVersionNumberAttributeName)),
@@ -57,7 +50,14 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
     FTIONUpgradeRFMeshFirmware(11),
     RFMeshUpgradeURL(12, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetUpgradeUrlAttributeName)),
     UpgradeBootloader(13, PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.PricingInformationUserFileAttributeName)),
-    BroadcastFirmwareUpgrade(14,
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER(14,
+            PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(firmwareUpdateActivationDateAttributeName),
+            PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName)),
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER(15,
+            PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+            PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName)),
+    BroadcastFirmwareUpgrade(16,
             PropertySpecFactory.groupReferencePropertySpec(DeviceMessageConstants.broadcastDevicesGroupAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(broadcastLogicalDeviceIdAttributeName),        //TODO also get the default hardcoded value from Alex?
             PropertySpecFactory.bigDecimalPropertySpec(broadcastClientMacAddressAttributeName, BigDecimal.valueOf(102)),
@@ -70,7 +70,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.passwordPropertySpec(broadcastAuthenticationKeyAttributeName),
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.encryptionLevelAttributeName, DlmsEncryptionLevelMessageValues.getNames())
     ),
-    VerifyAndActivateFirmware(15);
+    VerifyAndActivateFirmware(17);
 
     private static final DeviceMessageCategory firmwareCategory = DeviceMessageCategories.FIRMWARE;
 
