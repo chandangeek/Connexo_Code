@@ -33,7 +33,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.systemadmin.rest", service = Application.class, immediate = true, property = {"alias=/lic", "app=SYS", "name=" + LicensingApplication.COMPONENT_NAME})
+@Component(
+        name = "com.elster.jupiter.systemadmin.rest",
+        service = {Application.class, TranslationKeyProvider.class},
+        immediate = true,
+        property = {"alias=/lic", "app=SYS", "name=" + LicensingApplication.COMPONENT_NAME})
 public class LicensingApplication extends Application implements TranslationKeyProvider {
     public static final String COMPONENT_NAME = "LIC";
 
