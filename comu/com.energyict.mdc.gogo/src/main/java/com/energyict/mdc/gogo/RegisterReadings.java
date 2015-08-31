@@ -1,5 +1,7 @@
 package com.energyict.mdc.gogo;
 
+import com.elster.jupiter.cbo.Status;
+import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -19,14 +21,17 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
-import java.util.TimeZone;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Insert your comments here.
@@ -35,7 +40,7 @@ import java.util.TimeZone;
  * @since 2014-07-17 (14:17)
  */
 @Component(name = "com.energyict.mdc.gogo.RegisterReadings", service = RegisterReadings.class,
-        property = {"osgi.command.scope=mdc.metering", "osgi.command.function=printReadings", "osgi.command.function=addReading"},
+        property = {"osgi.command.scope=mdc.metering", "osgi.command.function=printReadings", "osgi.command.function=addReading", "osgi.command.function=addDeviceEvent"},
         immediate = true)
 @SuppressWarnings("unused")
 public class RegisterReadings {
@@ -44,16 +49,14 @@ public class RegisterReadings {
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UserService userService;
-    private SimpleDateFormat printDateFormat;
-    private SimpleDateFormat parseDateFormat;
+    private DateTimeFormatter printDateFormat;
+    private DateTimeFormatter parseDateFormat;
     private Random random;
 
     public RegisterReadings() {
         super();
-        this.printDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        this.printDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        this.parseDateFormat = new SimpleDateFormat("yyyy-MM-dd@HH:mm:ss");
-        this.parseDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        this.printDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
+        this.parseDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd@HH:mm:ss").withZone(ZoneId.of("UTC"));
         this.random = new Random(System.currentTimeMillis());
     }
 
@@ -101,6 +104,46 @@ public class RegisterReadings {
         }
     }
 
+    public void addDeviceEvent(String... mistakenArgs) {
+        System.out.println("Usage : \n" +
+                "\taddDeviceEvent deviceMRID eventCode dateTime alias reason severity status type issuerId issuerTrackingId userId logBookId logBookPosition data" +
+                "\n" +
+                "\tdateTime : format yyyy-MM-dd@HH:mm:ss\n" +
+                "\tdata     : comma-separated properties formatted as field=value\n");
+    }
+
+    public void addDeviceEvent(String deviceMRID, String eventCode, String dateTime, String alias, String reason, String severity, String status, String type, String issuerId, String issuerTrackingId, String userId, long logBookId, int logBookPosition, String data) {
+        Instant eventTime = Instant.from(parseDateFormat.parse(dateTime));
+        Optional<Device> found = this.deviceService.findByUniqueMrid(deviceMRID);
+        found.ifPresent(device -> {
+            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+            EndDeviceEventImpl endDeviceEvent = EndDeviceEventImpl.of(eventCode, eventTime);
+            endDeviceEvent.setAliasName(alias);
+            endDeviceEvent.setReason(reason);
+            endDeviceEvent.setSeverity(severity);
+            endDeviceEvent.setStatus(parseStatus(status));
+            endDeviceEvent.setType(type);
+            endDeviceEvent.setIssuerId(issuerId);
+            endDeviceEvent.setIssuerTrackingId(issuerTrackingId);
+            endDeviceEvent.setUserId(userId);
+            endDeviceEvent.setLogBookId(logBookId);
+            endDeviceEvent.setLogBookPosition(logBookPosition);
+            endDeviceEvent.setEventData(parseMap(data));
+            meterReading.addEndDeviceEvent(endDeviceEvent);
+            executeAsBatchExecutor(VoidTransaction.of(() -> device.store(meterReading)));
+        });
+    }
+
+    private Status parseStatus(String status) {
+        return Status.builder().value(status).build();
+    }
+
+    private Map<String, String> parseMap(String data) {
+        return Pattern.compile(",").splitAsStream(data)
+                .map(entry -> entry.split("\\="))
+                .collect(Collectors.toMap(d -> d[0], d -> d[1]));
+    }
+
     private Optional<Register<Reading>> findRegister(Device device, String readingTypeMRID) {
         for (Register<Reading> register : device.getRegisters()) {
             if (register.getRegisterSpec().getRegisterType().getReadingType().getMRID().equals(readingTypeMRID)) {
@@ -145,8 +188,8 @@ public class RegisterReadings {
         List<Instant> parsed = new ArrayList<>(formattedDates.length);
         for (String formattedDate : formattedDates) {
             try {
-                parsed.add(this.parseDateFormat.parse(formattedDate).toInstant());
-            } catch (ParseException e) {
+                parsed.add(Instant.from(this.parseDateFormat.parse(formattedDate)));
+            } catch (DateTimeParseException e) {
                 e.printStackTrace(System.err);
             }
         }
