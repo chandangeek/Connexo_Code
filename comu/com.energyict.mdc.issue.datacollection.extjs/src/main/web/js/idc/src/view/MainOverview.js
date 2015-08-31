@@ -8,7 +8,7 @@ Ext.define('Idc.view.MainOverview', {
 
     side: [
         {
-            title: 'overview',
+            title: Uni.I18n.translate('general.overview','IDC','overview'),
             xtype: 'menu',
             itemId: 'sideMenu'
         }
