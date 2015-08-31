@@ -3,13 +3,16 @@ package com.elster.jupiter.estimators.impl;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorFactory;
 import com.elster.jupiter.estimators.AbstractEstimator;
-import com.elster.jupiter.estimators.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleTranslation;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeService;
@@ -24,11 +27,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Component(name = "com.elster.jupiter.estimators.impl.DefaultEstimatorFactory", service = {EstimatorFactory.class, InstallService.class}, property = "name=" + MessageSeeds.COMPONENT_NAME, immediate = true)
-public class DefaultEstimatorFactory implements EstimatorFactory, InstallService {
+@Component(
+        name = "com.elster.jupiter.estimators.impl.DefaultEstimatorFactory",
+        service = {EstimatorFactory.class, TranslationKeyProvider.class},
+        property = "name=" + MessageSeeds.COMPONENT_NAME,
+        immediate = true)
+public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKeyProvider {
 
     public static final String VALUE_FILL_ESTIMATOR = ValueFillEstimator.class.getName();
     public static final String LINEAR_INTERPOLATION_ESTIMATOR = LinearInterpolation.class.getName();
@@ -78,31 +86,37 @@ public class DefaultEstimatorFactory implements EstimatorFactory, InstallService
         this.timeService = timeService;
     }
 
+
     @Override
-    public void install() {
-        ExceptionCatcher.executing(() -> {
-            List<Translation> translations = new ArrayList<>();
-            for (EstimatorDefinition estimatorDefinition : EstimatorDefinition.values()) {
-                AbstractEstimator estimator = estimatorDefinition.createTemplate(thesaurus, propertySpecService, validationService, meteringService,timeService);
-                Translation translation = SimpleTranslation.translation(estimator.getNlsKey(), Locale.ENGLISH, estimator.getDefaultFormat());
-                translations.add(translation);
-                estimator.getPropertySpecs()
-                        .stream()
-                        .map(key -> SimpleTranslation.translation(estimator.getPropertyNlsKey(key.getName()), Locale.ENGLISH, estimator.getPropertyDefaultFormat(key.getName())))
-                        .forEach(translations::add);
-                estimator.getExtraTranslations()
-                        .stream()
-                        .map(extraTranslation -> SimpleTranslation.translation(extraTranslation.getFirst(), Locale.ENGLISH, extraTranslation.getLast()))
-                        .forEach(translations::add);
-            }
-            thesaurus.addTranslations(translations);
-        }).andHandleExceptionsWith(Throwable::printStackTrace)
-          .execute();
+    public String getComponentName() {
+        return MessageSeeds.COMPONENT_NAME;
     }
 
     @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("NLS");
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> translationKeys = new ArrayList<>();
+        for (EstimatorDefinition estimatorDefinition : EstimatorDefinition.values()) {
+            AbstractEstimator estimator = estimatorDefinition.createTemplate(thesaurus, propertySpecService, validationService, meteringService,timeService);
+            translationKeys.add(new SimpleTranslationKey(estimator.getNlsKey().getKey(), estimator.getDefaultFormat()));
+            estimator.getPropertySpecs()
+                    .stream()
+                    .map(key -> {
+                        NlsKey nlsKey = estimator.getPropertyNlsKey(key.getName());
+                        return nlsKey != null ? new SimpleTranslationKey(nlsKey.getKey(), estimator.getPropertyDefaultFormat(key.getName())) : null;
+                    })
+                    .filter(Objects::nonNull)
+                    .forEach(translationKeys::add);
+            estimator.getExtraTranslations()
+                    .stream()
+                    .map(extraTranslation -> new SimpleTranslationKey(extraTranslation.getFirst().getKey(), extraTranslation.getLast()))
+                    .forEach(translationKeys::add);
+        }
+        return translationKeys;
     }
 
     private enum EstimatorDefinition {
