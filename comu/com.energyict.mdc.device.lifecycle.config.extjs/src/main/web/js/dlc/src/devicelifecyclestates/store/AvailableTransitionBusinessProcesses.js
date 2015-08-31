@@ -24,6 +24,9 @@ Ext.define('Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses
         reader: {
             type: 'json',
             root: 'stateChangeBusinessProcesses'
-        }
+        },
+        startParam: undefined,
+        limitParam: undefined,
+        pageParam: undefined
     }
 });
