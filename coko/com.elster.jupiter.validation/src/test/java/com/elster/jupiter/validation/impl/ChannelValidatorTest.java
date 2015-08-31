@@ -122,24 +122,6 @@ public class ChannelValidatorTest {
     }
 
     @Test
-    public void testValidateRuleNoQualityWrittenIfEdited() throws Exception {
-        doReturn(true).when(readingQualityRecord).isActual();
-        doReturn(true).when(readingQualityRecord).hasEditCategory();
-
-        setUpPreExistingQualityType(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC));
-        ReadingQualityType validationQuality = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1001);
-        setUpNewQualityType(validationQuality);
-
-        doReturn(ValidationResult.SUSPECT).when(validator).validate(readingRecord);
-
-        ChannelValidator channelValidator = new ChannelValidator(channel, RANGE);
-
-        channelValidator.validateRule(rule);
-
-        verify(channel, never()).createReadingQuality(validationQuality, readingType, readingRecord);
-    }
-
-    @Test
     public void testValidateRuleNoQualityWrittenIfEstimated() throws Exception {
         doReturn(true).when(readingQualityRecord).isActual();
         doReturn(true).when(readingQualityRecord).hasEstimatedCategory();
