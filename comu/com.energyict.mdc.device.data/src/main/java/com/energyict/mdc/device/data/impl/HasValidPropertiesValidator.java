@@ -53,15 +53,17 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
     }
 
     private void validatePropertiesAreLinkedToAttributeSpecs(TypedProperties properties, DeviceProtocolDialect deviceProtocolDialect, ConstraintValidatorContext context) {
-        for (String propertyName : properties.propertyNames()) {
-            if (deviceProtocolDialect.getPropertySpec(propertyName) == null) {
+        properties
+            .propertyNames()
+            .stream()
+            .filter(propertyName -> deviceProtocolDialect.getPropertySpec(propertyName) == null)
+            .forEach(propertyName -> {
                 context
-                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC + "}")
-                    .addPropertyNode("properties").addConstraintViolation()
-                    .disableDefaultConstraintViolation();
+                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC + "}")
+                        .addPropertyNode("properties").addConstraintViolation()
+                        .disableDefaultConstraintViolation();
                 this.valid = false;
-            }
-        }
+            });
     }
 
     private void validatePropertyValues(TypedProperties properties, DeviceProtocolDialect deviceProtocolDialect, ConstraintValidatorContext context) {

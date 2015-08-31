@@ -57,7 +57,7 @@ public class DeviceIdentifierForAlreadyKnownDeviceBySerialNumber implements Devi
 
     @Override
     public String toString() {
-        return this.device.getmRID();
+        return this.device.getSerialNumber();
     }
-}
 
+}
