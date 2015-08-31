@@ -1,6 +1,8 @@
 package com.elster.jupiter.export;
 
-public enum DataExportStatus {
+import com.elster.jupiter.nls.TranslationKey;
+
+public enum DataExportStatus implements TranslationKey{
     BUSY("Busy"),
     SUCCESS("Success"),
     WARNING("Warning"),
@@ -16,5 +18,15 @@ public enum DataExportStatus {
     @Override
     public String toString() {
         return this.name;
+    }
+
+    @Override
+    public String getKey() {
+        return name();
+    }
+
+    @Override
+    public String getDefaultFormat() {
+        return toString();
     }
 }
