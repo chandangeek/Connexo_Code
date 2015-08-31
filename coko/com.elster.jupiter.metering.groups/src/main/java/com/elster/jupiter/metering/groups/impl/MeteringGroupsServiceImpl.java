@@ -14,6 +14,9 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryUsagePointGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -42,8 +45,12 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "com.elster.jupiter.metering", service = {MeteringGroupsService.class, InstallService.class}, property = "name=" + MeteringGroupsService.COMPONENTNAME, immediate = true)
-public class MeteringGroupsServiceImpl implements MeteringGroupsService, InstallService {
+@Component(
+        name = "com.elster.jupiter.metering",
+        service = {MeteringGroupsService.class, InstallService.class, TranslationKeyProvider.class},
+        property = "name=" + MeteringGroupsService.COMPONENTNAME,
+        immediate = true)
+public class MeteringGroupsServiceImpl implements MeteringGroupsService, InstallService, TranslationKeyProvider {
 
     private static final Logger LOGGER = Logger.getLogger(MeteringGroupsServiceImpl.class.getSimpleName());
 
@@ -256,4 +263,18 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
         return p -> p.getName().equals(name);
     }
 
+    @Override
+    public String getComponentName() {
+        return COMPONENTNAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
+    }
 }
