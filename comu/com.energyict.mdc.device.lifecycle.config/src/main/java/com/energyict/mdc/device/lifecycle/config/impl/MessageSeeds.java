@@ -24,7 +24,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     TRANSITION_PROCESS_IN_USE(1001, Keys.TRANSITION_PROCESS_IN_USE, "The external business process with deployment id {0} and process id {1} is still in use by at least one transition action"),
 
     // DeviceLifeCycle
-    UNIQUE_DEVICE_LIFE_CYCLE_NAME(202, Keys.UNIQUE_DEVICE_LIFE_CYCLE_NAME, "The name of a device life cycle must be unique"),
+    UNIQUE_DEVICE_LIFE_CYCLE_NAME(202, Keys.UNIQUE_DEVICE_LIFE_CYCLE_NAME, "Name must be unique"),
     MAXIMUM_FUTURE_EFFECTIVE_TIME_SHIFT_NOT_IN_RANGE(203, Keys.MAXIMUM_FUTURE_EFFECTIVE_TIME_SHIFT_NOT_IN_RANGE, "Field must not exceed the maximum value"),
     MAXIMUM_PAST_EFFECTIVE_TIME_SHIFT_NOT_IN_RANGE(204, Keys.MAXIMUM_PAST_EFFECTIVE_TIME_SHIFT_NOT_IN_RANGE, "Field must not exceed the maximum value");
 
