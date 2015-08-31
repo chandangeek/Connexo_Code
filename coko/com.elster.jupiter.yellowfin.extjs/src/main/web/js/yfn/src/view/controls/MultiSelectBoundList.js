@@ -75,7 +75,7 @@ Ext.define('Yfn.view.controls.MultiSelectBoundList', {
                     items: [
                         {
                             xtype: 'button',
-                            text: 'Select All',
+                            text: Uni.I18n.translate('general.selectAll','YFN','Select All'),
                             handler: function(btn, e) {
                                 combo.select(combo.getStore().getRange());
 
@@ -93,7 +93,7 @@ Ext.define('Yfn.view.controls.MultiSelectBoundList', {
                         {
                             xtype: 'button',
                             id: this.id + '-clear-all-button',
-                            text: 'Clear All',
+                            text: Uni.I18n.translate('general.clearAll','YFN','Clear All'),
                             cls:'x-btn-default-small',
                             disabled: true,
                             handler: function(btn, e) {
