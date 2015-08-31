@@ -47,6 +47,7 @@ Ext.define('Idv.view.Detail', {
             },
             {
                 xtype: 'container',
+                margin: '0 0 0 16',
                 itemId: 'no-estimated-data-panel',
                 router: me.router
             },
