@@ -450,7 +450,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
         }
 
         /**
-         * Need to do this so the Kore knows who did what in the database
+         * Need to do this so the Kore knows who did what in the database.
          */
         private void assignThreadUser() {
             Optional<User> user = userService.findUser("batch executor");

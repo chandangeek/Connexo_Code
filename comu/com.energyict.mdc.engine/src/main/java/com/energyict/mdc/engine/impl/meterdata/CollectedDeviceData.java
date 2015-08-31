@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.issues.Issue;
@@ -25,6 +26,7 @@ public abstract class CollectedDeviceData implements ServerCollectedData {
      * Indication of the <i>type</i> of the result.
      */
     private ResultType resultType = ResultType.Supported;
+    private ComTaskExecution comTaskExecution;
 
     public CollectedDeviceData() {
         super();
@@ -77,6 +79,15 @@ public abstract class CollectedDeviceData implements ServerCollectedData {
     @Override
     public void postProcess (ConnectionTask connectionTask) {
         // No post processing by default
+    }
+
+    public ComTaskExecution getComTaskExecution() {
+        return comTaskExecution;
+    }
+
+    @Override
+    public void injectComTaskExecution(ComTaskExecution comTaskExecution) {
+        this.comTaskExecution = comTaskExecution;
     }
 
 }

@@ -28,18 +28,18 @@ import java.util.List;
 public class DeviceLoadProfile extends CollectedDeviceData implements CollectedLoadProfile {
 
     /**
-     * The unique identifier of the LoadProfile for this collected data
+     * The unique identifier of the LoadProfile for this collected data.
      */
     private final LoadProfileIdentifier loadProfileIdentifier;
 
     /**
-     * The collected intervals for the LoadProfile
+     * The collected intervals for the LoadProfile.
      */
     private List<IntervalData> collectedIntervalData;
     private Range<Instant> collectedIntervalDataRange = Range.all();
 
     /**
-     * The <code>ChannelInfo</code> corresponding with the {@link #collectedIntervalData}
+     * The <code>ChannelInfo</code> corresponding to the {@link #collectedIntervalData}.
      */
     private List<ChannelInfo> deviceChannelInfo;
 
@@ -55,7 +55,7 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
 
     @Override
     public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
-        return new CollectedLoadProfileDeviceCommand(this, meterDataStoreCommand, serviceProvider);
+        return new CollectedLoadProfileDeviceCommand(this, this.getComTaskExecution(), meterDataStoreCommand, serviceProvider);
     }
 
     public DeviceLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
@@ -68,9 +68,6 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
         return configuration.isConfiguredToCollectLoadProfileData();
     }
 
-    /**
-     * @return the collected {@link IntervalData} since lastReading
-     */
     @Override
     public List<IntervalData> getCollectedIntervalData() {
         if (this.collectedIntervalData == null) {
@@ -83,9 +80,6 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
         return collectedIntervalDataRange;
     }
 
-    /**
-     * @return the channel configuration of the collected {@link IntervalData}
-     */
     @Override
     public List<ChannelInfo> getChannelInfo() {
         if (this.deviceChannelInfo == null) {

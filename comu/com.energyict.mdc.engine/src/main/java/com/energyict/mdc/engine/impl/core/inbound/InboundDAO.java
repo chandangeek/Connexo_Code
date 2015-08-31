@@ -10,6 +10,7 @@ import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Models the behavior of a component that provides access to
@@ -81,6 +82,6 @@ public interface InboundDAO {
      * @param identifier The DeviceIdentifier
      * @return The offline version of the Device that is identified by the DeviceIdentifier
      */
-    public OfflineDevice findOfflineDevice(DeviceIdentifier<?> identifier);
+    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier);
 
 }

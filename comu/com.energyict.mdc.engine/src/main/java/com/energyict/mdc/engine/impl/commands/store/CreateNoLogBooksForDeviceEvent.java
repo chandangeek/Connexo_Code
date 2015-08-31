@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.NoLogBooksForDeviceEvent;
@@ -20,8 +21,8 @@ public class CreateNoLogBooksForDeviceEvent extends DeviceCommandImpl {
 
     private final DeviceIdentifier deviceIdentifier;
 
-    public CreateNoLogBooksForDeviceEvent(NoLogBooksForDevice collectedDeviceData, ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public CreateNoLogBooksForDeviceEvent(NoLogBooksForDevice collectedDeviceData, ComTaskExecution comTaskExecution, ServiceProvider serviceProvider) {
+        super(comTaskExecution, serviceProvider);
         deviceIdentifier = collectedDeviceData.getDeviceIdentifier();
     }
 

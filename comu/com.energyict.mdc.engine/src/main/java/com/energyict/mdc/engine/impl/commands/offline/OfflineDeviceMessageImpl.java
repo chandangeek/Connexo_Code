@@ -85,6 +85,11 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     }
 
     @Override
+    public DeviceProtocol getDeviceProtocol() {
+        return deviceProtocol;
+    }
+
+    @Override
     public DeviceMessageSpec getSpecification () {
         return specification;
     }

@@ -18,6 +18,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Produces wrappers for a logging framework that uses interface based logging,
@@ -72,7 +74,7 @@ public final class LoggerFactory {
     /**
      * Produces an instance of the message interface class
      * that will log message at the {@link LogLevel}
-     * that is conigured in the underlying logging framework
+     * that is configured in the underlying logging framework
      * for the logging category that relates to the message interface class.
      *
      * @param messageInterfaceClass The message interface class
@@ -350,12 +352,10 @@ public final class LoggerFactory {
                 return allParameterTypes;
             }
             else {
-                List<Class<?>> parameterTypes = new ArrayList<>(allParameterTypes.length);
-                for (int i = 0; i < allParameterTypes.length; i++) {
-                    if (!this.isThrowable(allParameterTypes[i])) {
-                        parameterTypes.add(allParameterTypes[i]);
-                    }
-                }
+                List<Class<?>> parameterTypes = Stream
+                        .of(allParameterTypes)
+                        .filter(parameterType -> !this.isThrowable(parameterType))
+                        .collect(Collectors.toList());
                 return parameterTypes.toArray(new Class<?>[parameterTypes.size()]);
             }
         }

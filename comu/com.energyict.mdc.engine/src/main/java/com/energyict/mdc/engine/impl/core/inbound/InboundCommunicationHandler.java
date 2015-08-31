@@ -160,17 +160,18 @@ public class InboundCommunicationHandler {
         this.publish(new UndiscoveredEstablishConnectionEvent(new ComServerEventServiceProvider(), this.comPort));
         this.initializeContext(context);
         this.initializeLogging();
-        OfflineDevice device;
+        Optional<OfflineDevice> device;
         InboundDeviceProtocol.DiscoverResultType discoverResultType;
         try {
             discoverResultType = this.doDiscovery(inboundDeviceProtocol);
             this.publishDiscoveryResult(discoverResultType, inboundDeviceProtocol);
             device = this.comServerDAO.findOfflineDevice(inboundDeviceProtocol.getDeviceIdentifier());
-            if (device == null) {
-                this.handleUnknownDevice(inboundDeviceProtocol);
-            } else {
+            if (device.isPresent()) {
                 this.logger.deviceIdentified(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
-                this.handleKnownDevice(inboundDeviceProtocol, context, discoverResultType, device);
+                this.handleKnownDevice(inboundDeviceProtocol, context, discoverResultType, device.get());
+            }
+            else {
+                this.handleUnknownDevice(inboundDeviceProtocol);
             }
         } catch (Throwable e) {
             this.handleRuntimeExceptionDuringDiscovery(inboundDeviceProtocol, e);

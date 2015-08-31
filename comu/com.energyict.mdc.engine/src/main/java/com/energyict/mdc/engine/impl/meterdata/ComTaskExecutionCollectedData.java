@@ -34,6 +34,7 @@ public class ComTaskExecutionCollectedData extends CompositeCollectedData<Server
         this.comTaskExecution = comTaskExecution;
         this.communicationLogLevel = communicationLogLevel;
         this.exposeStoringException = exposeStoringException;
+        relatedCollectedData.forEach(collectedData ->  collectedData.injectComTaskExecution(comTaskExecution));
         relatedCollectedData.forEach(this::add);
     }
 

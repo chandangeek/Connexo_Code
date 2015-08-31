@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.CollectedRegisterListDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
@@ -71,8 +72,18 @@ public class DeviceProtocolMessageWithCollectedRegisterData extends CollectedDev
     }
 
     @Override
+    public void injectComTaskExecution(ComTaskExecution comTaskExecution) {
+        super.injectComTaskExecution(comTaskExecution);
+        this.getCollectedRegisters()
+                .stream()
+                .filter(collectedRegister -> collectedRegister instanceof ServerCollectedData)
+                .map(ServerCollectedData.class::cast)
+                .forEach(collectedData -> collectedData.injectComTaskExecution(comTaskExecution));
+    }
+
+    @Override
     public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
-        return new CollectedRegisterListDeviceCommand(this, meterDataStoreCommand, serviceProvider);
+        return new CollectedRegisterListDeviceCommand(this, this.getComTaskExecution(), meterDataStoreCommand, serviceProvider);
     }
 
     @Override

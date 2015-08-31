@@ -214,34 +214,34 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public OfflineDevice findOfflineDevice(DeviceIdentifier identifier) {
-        return null;
+    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier identifier) {
+        return Optional.empty();
     }
 
     @Override
-    public OfflineDevice findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
-        return null;
-    }
-    @Override
-    public OfflineRegister findOfflineRegister(RegisterIdentifier identifier) {
-        return null;
+    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
+        return Optional.empty();
     }
 
     @Override
-    public OfflineLoadProfile findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
-        return null;
+    public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier) {
+        return Optional.empty();
     }
 
     @Override
-    public OfflineLogBook findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
-        return null;
+    public Optional<OfflineLoadProfile> findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
+        return Optional.empty();
     }
 
-    //    @Override
-//    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
-//        return null;
-//    }
+    @Override
+    public Optional<OfflineLogBook> findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
+        return Optional.empty();
+    }
 
+    @Override
+    public Optional<OfflineDeviceMessage> findOfflineDeviceMessage(MessageIdentifier identifier) {
+        return Optional.empty();
+    }
 
     @Override
     public List<ConnectionTaskProperty> findProperties(ConnectionTask connectionTask) {

@@ -23,7 +23,7 @@ public class ProvideInboundResponseDeviceCommandImpl extends DeviceCommandImpl i
     private InboundDeviceProtocol.DiscoverResponseType responseType = InboundDeviceProtocol.DiscoverResponseType.SUCCESS; // optimistic
 
     public ProvideInboundResponseDeviceCommandImpl(InboundCommunicationHandler inboundCommunicationHandler, InboundDeviceProtocol inboundDeviceProtocol, ExecutionContext executionContext) {
-        super(executionContext.getDeviceCommandServiceProvider());
+        super(executionContext.getComTaskExecution(), executionContext.getDeviceCommandServiceProvider());
         this.inboundCommunicationHandler = inboundCommunicationHandler;
         this.inboundDeviceProtocol = inboundDeviceProtocol;
         this.executionContext = executionContext;
@@ -32,17 +32,24 @@ public class ProvideInboundResponseDeviceCommandImpl extends DeviceCommandImpl i
     @Override
     protected void doExecute(ComServerDAO comServerDAO) {
         try {
-            if(responseType.equals(InboundDeviceProtocol.DiscoverResponseType.SUCCESS) && !inboundCommunicationHandler.getContext().isAllCollectedDataWasProcessed()){
+            if (responseType.equals(InboundDeviceProtocol.DiscoverResponseType.SUCCESS) && !inboundCommunicationHandler.getContext().isAllCollectedDataWasProcessed()) {
                 this.responseType = InboundDeviceProtocol.DiscoverResponseType.DATA_ONLY_PARTIALLY_HANDLED;
             }
             inboundCommunicationHandler.provideResponse(inboundDeviceProtocol, responseType);
         } catch (Exception e) {
-            executionContext.getStoreCommand().getChildren().stream().filter(deviceCommand -> deviceCommand instanceof CreateComSessionDeviceCommand)
-                    .findFirst().ifPresent(deviceCommand -> {
-                CreateComSessionDeviceCommand createComSessionDeviceCommand = (CreateComSessionDeviceCommand) deviceCommand;
-                createComSessionDeviceCommand.addIssue(CompletionCode.ConnectionError,
-                        createCouldNotProvideProperResponseIssue(), executionContext.getComTaskExecution());
-                createComSessionDeviceCommand.updateSuccessIndicator(ComSession.SuccessIndicator.Broken);
+            executionContext
+                    .getStoreCommand()
+                    .getChildren()
+                    .stream()
+                    .filter(deviceCommand -> deviceCommand instanceof CreateComSessionDeviceCommand)
+                    .findFirst()
+                    .ifPresent(deviceCommand -> {
+                        CreateComSessionDeviceCommand createComSessionDeviceCommand = (CreateComSessionDeviceCommand) deviceCommand;
+                        createComSessionDeviceCommand.addIssue(
+                                CompletionCode.ConnectionError,
+                                createCouldNotProvideProperResponseIssue(),
+                                executionContext.getComTaskExecution());
+                        createComSessionDeviceCommand.updateSuccessIndicator(ComSession.SuccessIndicator.Broken);
             });
         }
     }
@@ -67,4 +74,5 @@ public class ProvideInboundResponseDeviceCommandImpl extends DeviceCommandImpl i
     public void dataStorageFailed() {
         this.responseType = InboundDeviceProtocol.DiscoverResponseType.STORING_FAILURE;
     }
+
 }

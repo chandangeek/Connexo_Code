@@ -28,7 +28,7 @@ import java.time.Clock;
 public interface DeviceCommand {
 
     /**
-     * Provides Loging services for the execution of DeviceCommands.
+     * Provides Logging services for the execution of DeviceCommands.
      */
     public interface ExecutionLogger {
 
@@ -48,13 +48,21 @@ public interface DeviceCommand {
         public void logUnexpected (Throwable t, ComTaskExecution comTaskExecution);
 
         /**
-         * Adds an additional issue to the log of a ComTaskExecution
+         * Adds an additional issue to the log of a ComTaskExecution.
          *
          * @param completionCode the additional completionCode
          * @param issue the issue that should be logged
          * @param comTaskExecution The ComTaskExecution
          */
         public void addIssue (CompletionCode completionCode, Issue issue, ComTaskExecution comTaskExecution);
+
+        /**
+         * Tests if {@link com.energyict.mdc.issues.Problem}s have been added.
+         *
+         * @return true iff Problems have been added
+         * @see #addIssue(CompletionCode, Issue, ComTaskExecution)
+         */
+        public boolean hasProblems();
 
     }
 
@@ -77,6 +85,7 @@ public interface DeviceCommand {
         public NlsService nlsService();
 
     }
+
     /**
      * Executes this DeviceCommand.<br>
      * Note that this may throw all of the runtime exceptions

@@ -8,6 +8,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
 import com.energyict.mdc.engine.impl.commands.collect.VerifyLoadProfilesCommand;
+import com.energyict.mdc.engine.impl.commands.store.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -108,7 +109,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
                 LoadProfileReader loadProfileReader = getLoadProfileReaderForGivenLoadProfileConfiguration(loadProfileConfiguration);
                 if (loadProfileReader != null) {
                     if (!loadProfileConfiguration.isSupportedByMeter()) {
-                        readersToRemove.add(loadProfileReader);
+                        this.addLoadProfileReaderToTheListOfReadersToRemove(loadProfileReader);
                         if (!loadProfileConfiguration.getIssues().isEmpty()){
                             for (Issue issue : loadProfileConfiguration.getIssues()) {
                                 addIssue(issue, CompletionCode.forResultType(loadProfileConfiguration.getResultType()));
@@ -283,7 +284,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
         List<Issue> issues = new ArrayList<>();
         int loadProfileInterval = this.loadProfileCommand.findLoadProfileIntervalForLoadProfileReader(loadProfileReader);
         if (loadProfileConfiguration.getProfileInterval() != 0 && loadProfileConfiguration.getProfileInterval() != loadProfileInterval) {
-            addLoadProfileReaderToTheListOfReadersToRemove(loadProfileReader);
+            this.addLoadProfileReaderToTheListOfReadersToRemove(loadProfileReader);
             issues.add(
                     getIssueService().newProblem(
                             loadProfileConfiguration.getObisCode(),
@@ -307,7 +308,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
         List<Issue> issues = new ArrayList<>();
         if (failIfLoadProfileConfigurationMisMatch()) {
             if (loadProfileReader.getChannelInfos().size() != loadProfileConfiguration.getNumberOfChannels()) {
-                addLoadProfileReaderToTheListOfReadersToRemove(loadProfileReader);
+                this.addLoadProfileReaderToTheListOfReadersToRemove(loadProfileReader);
                 issues.add(
                         getIssueService().newProblem(
                                 loadProfileConfiguration.getObisCode(),

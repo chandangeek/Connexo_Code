@@ -40,7 +40,7 @@ public class StoreConfigurationUserFileTest {
     public void testExecute() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         DeviceUserFileConfigurationInformation collectedData = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
-        StoreConfigurationUserFile command = new StoreConfigurationUserFile(collectedData, new NoDeviceCommandServices());
+        StoreConfigurationUserFile command = new StoreConfigurationUserFile(collectedData, null, new NoDeviceCommandServices());
         command.logExecutionWith(this.executionLogger);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
@@ -56,7 +56,7 @@ public class StoreConfigurationUserFileTest {
     public void testToString() {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         DeviceUserFileConfigurationInformation collectedData = new DeviceUserFileConfigurationInformation(deviceIdentifier, FILE_EXTENSION, CONTENTS);
-        StoreConfigurationUserFile command = new StoreConfigurationUserFile(collectedData, new NoDeviceCommandServices());
+        StoreConfigurationUserFile command = new StoreConfigurationUserFile(collectedData, null, new NoDeviceCommandServices());
 
         // Business method
         String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);

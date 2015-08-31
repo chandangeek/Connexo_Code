@@ -46,7 +46,7 @@ public class DeviceLogBook extends CollectedDeviceData implements CollectedLogBo
 
     @Override
     public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
-        return new CollectedLogBookDeviceCommand(this, meterDataStoreCommand);
+        return new CollectedLogBookDeviceCommand(this, this.getComTaskExecution(), meterDataStoreCommand);
     }
 
     @Override

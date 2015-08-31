@@ -3,9 +3,12 @@ package com.energyict.mdc.engine.impl.commands.store;
 import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
@@ -24,11 +27,17 @@ import java.time.Clock;
 public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDescriptionTitle {
 
     private ExecutionLogger logger;
+    private final ComTaskExecution comTaskExecution;
     private final ServiceProvider serviceProvider;
 
-    public DeviceCommandImpl(ServiceProvider serviceProvider) {
+    public DeviceCommandImpl(ComTaskExecution comTaskExecution, ServiceProvider serviceProvider) {
         super();
+        this.comTaskExecution = comTaskExecution;
         this.serviceProvider = serviceProvider;
+    }
+
+    protected ComTaskExecution getComTaskExecution() {
+        return comTaskExecution;
     }
 
     public ServiceProvider getServiceProvider() {
@@ -87,6 +96,17 @@ public abstract class DeviceCommandImpl implements DeviceCommand, CanProvideDesc
 
     protected ExecutionLogger getExecutionLogger() {
         return this.logger;
+    }
+
+    /**
+     * Adds the specified {@link Issue} to the {@link ExecutionLogger}
+     * against the related {@link ComTaskExecution}.
+     *
+     * @param completionCode the additional completionCode
+     * @param issue the issue that should be logged
+     */
+    protected void addIssue (CompletionCode completionCode, Issue issue) {
+        this.getExecutionLogger().addIssue(completionCode, issue, this.getComTaskExecution());
     }
 
     @Override

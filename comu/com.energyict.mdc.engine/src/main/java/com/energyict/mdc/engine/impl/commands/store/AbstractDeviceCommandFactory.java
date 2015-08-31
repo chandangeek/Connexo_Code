@@ -27,4 +27,5 @@ public abstract class AbstractDeviceCommandFactory implements DeviceCommandFacto
         }
         return deviceCommands;
     }
+
 }

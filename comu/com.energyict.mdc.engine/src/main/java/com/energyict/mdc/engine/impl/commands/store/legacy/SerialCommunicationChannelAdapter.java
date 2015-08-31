@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
 import com.energyict.mdc.io.BaudrateValue;
+import com.energyict.mdc.io.ComChannelInputStreamAdapter;
+import com.energyict.mdc.io.ComChannelOutputStreamAdapter;
 import com.energyict.mdc.io.NrOfDataBits;
 import com.energyict.mdc.io.NrOfStopBits;
 import com.energyict.mdc.io.Parities;
@@ -16,7 +18,7 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 
 /**
- * Serves as an Adapter between a {@link SerialCommunicationChannel} and a {@link ServerSerialPort}
+ * Serves as an Adapter between a {@link SerialCommunicationChannel} and a {@link ServerSerialPort}.
  *
  * Copyrights EnergyICT
  * Date: 21/08/12

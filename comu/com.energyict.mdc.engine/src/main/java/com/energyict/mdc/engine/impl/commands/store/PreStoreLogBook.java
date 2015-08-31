@@ -14,10 +14,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
- * Performs several actions on the given LogBook which are required before storing
+ * Performs several actions on the given LogBook which are required before storing.
  *
  * Copyrights EnergyICT
  * Date: 9/18/14
@@ -44,24 +45,28 @@ public class PreStoreLogBook {
      * @param deviceLogBook the collected events from the device
      * @return the preStored logbook
      */
-    public Pair<DeviceIdentifier<Device>, LocalLogBook> preStore(CollectedLogBook deviceLogBook) {
+    public Optional<Pair<DeviceIdentifier<Device>, LocalLogBook>> preStore(CollectedLogBook deviceLogBook) {
         Set<UniqueDuo<String, Instant>> uniqueCheck = new HashSet<>();
-        OfflineLogBook offlineLogBook = this.comServerDAO.findOfflineLogBook(deviceLogBook.getLogBookIdentifier());
-
-        List<EndDeviceEvent> filteredEndDeviceEvents = new ArrayList<>();
-        Instant lastLogbook = null;
-        Instant currentDate = this.clock.instant();
-        for (EndDeviceEvent endDeviceEvent : MeterDataFactory.createEndDeviceEventsFor(deviceLogBook, offlineLogBook.getLogBookId())) {
-            if(uniqueCheck.add(new UniqueDuo<>(endDeviceEvent.getMRID(), endDeviceEvent.getCreatedDateTime()))) {
-                if (!endDeviceEvent.getCreatedDateTime().isAfter(currentDate)) {
-                    filteredEndDeviceEvents.add(endDeviceEvent);
-                    if (lastLogbook == null || endDeviceEvent.getCreatedDateTime().isAfter(lastLogbook)) {
-                        lastLogbook = endDeviceEvent.getCreatedDateTime();
+        Optional<OfflineLogBook> offlineLogBook = this.comServerDAO.findOfflineLogBook(deviceLogBook.getLogBookIdentifier());
+        if (offlineLogBook.isPresent()) {
+            List<EndDeviceEvent> filteredEndDeviceEvents = new ArrayList<>();
+            Instant lastLogbook = null;
+            Instant currentDate = this.clock.instant();
+            for (EndDeviceEvent endDeviceEvent : MeterDataFactory.createEndDeviceEventsFor(deviceLogBook, offlineLogBook.get().getLogBookId())) {
+                if(uniqueCheck.add(new UniqueDuo<>(endDeviceEvent.getMRID(), endDeviceEvent.getCreatedDateTime()))) {
+                    if (!endDeviceEvent.getCreatedDateTime().isAfter(currentDate)) {
+                        filteredEndDeviceEvents.add(endDeviceEvent);
+                        if (lastLogbook == null || endDeviceEvent.getCreatedDateTime().isAfter(lastLogbook)) {
+                            lastLogbook = endDeviceEvent.getCreatedDateTime();
+                        }
                     }
                 }
             }
+            return Optional.of(Pair.of(deviceLogBook.getLogBookIdentifier().getDeviceIdentifier(), new LocalLogBook(filteredEndDeviceEvents, lastLogbook)));
         }
-        return Pair.of(deviceLogBook.getLogBookIdentifier().getDeviceIdentifier(), new LocalLogBook(filteredEndDeviceEvents, lastLogbook));
+        else {
+            return Optional.empty();
+        }
     }
 
     class LocalLogBook {

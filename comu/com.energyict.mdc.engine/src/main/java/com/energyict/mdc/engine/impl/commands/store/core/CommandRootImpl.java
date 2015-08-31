@@ -88,7 +88,7 @@ import java.util.Set;
 public class CommandRootImpl extends CompositeComCommandImpl implements CommandRoot {
 
     /**
-     * The {@link OfflineDevice} which owns this CommandRoot
+     * The {@link OfflineDevice} which owns this CommandRoot.
      */
     private final OfflineDevice offlineDevice;
     private final ServiceProvider serviceProvider;
@@ -148,7 +148,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     }
 
     /**
-     * Find the {@link ComCommand} with the given {@link ComCommandTypes} from the given List
+     * Finds the {@link ComCommand} with the given {@link ComCommandTypes} from the given List.
      *
      * @param commandType the type of ComCommand to search for
      * @param comCommands the list of ComCommands to search in

@@ -43,7 +43,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the execution of the CollectedRegisterListDeviceCommand
+ * Tests the execution of the CollectedRegisterListDeviceCommand.
  *
  * @author sva
  * @since 21/01/13 - 11:21
@@ -81,7 +81,7 @@ public class CollectedRegisterListDeviceCommandTest {
     @Before
     public void initializeMocksAndFactories() {
         when(this.offlineDevice.getId()).thenReturn(DEVICE_ID);
-        when(comServerDAO.findOfflineRegister(any(RegisterIdentifier.class))).thenReturn(offlineRegister);
+        when(comServerDAO.findOfflineRegister(any(RegisterIdentifier.class))).thenReturn(Optional.of(offlineRegister));
         when(offlineRegister.getRegisterId()).thenReturn(REGISTER_ID);
         when(offlineRegister.getObisCode()).thenReturn(REGISTER_OBIS);
         when(offlineRegister.getOverFlowValue()).thenReturn(new BigDecimal(DeviceCreator.CHANNEL_OVERFLOW_VALUE));
@@ -105,7 +105,7 @@ public class CollectedRegisterListDeviceCommandTest {
     @Test
     public void testExecutionOfDeviceCommand() {
         MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommandImpl(this.serviceProvider);
-        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), meterDataStoreCommand, this.serviceProvider);
+        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), null, meterDataStoreCommand, this.serviceProvider);
         command.logExecutionWith(this.executionLogger);
 
         // Business methods
@@ -127,7 +127,7 @@ public class CollectedRegisterListDeviceCommandTest {
 
     @Test
     public void testToJournalMessageDescription() {
-        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), new MeterDataStoreCommandImpl(this.serviceProvider), this.serviceProvider);
+        CollectedRegisterListDeviceCommand command = new CollectedRegisterListDeviceCommand(getDeviceRegisterList(), null, new MeterDataStoreCommandImpl(this.serviceProvider), this.serviceProvider);
         command.logExecutionWith(this.executionLogger);
 
         // Business methods
