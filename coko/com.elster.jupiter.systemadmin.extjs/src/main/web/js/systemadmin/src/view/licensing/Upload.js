@@ -29,7 +29,7 @@ Ext.define('Sam.view.licensing.Upload', {
                             name: 'uploadField',
                             fieldLabel: 'License file',
                             emptyText: 'Choose license file *.lic',
-                            text: 'Browse...',
+                            text: Uni.I18n.translate('general.browse','SAM','Browse...'),
                             msgTarget: 'side',
                             vtype: 'fileUpload'
                         }
@@ -47,14 +47,14 @@ Ext.define('Sam.view.licensing.Upload', {
                             items: [
                                 {
                                     itemId: 'upload',
-                                    text: 'Upload',
+                                    text: Uni.I18n.translate('general.upload','SAM','Upload'),
                                     name: 'upload',
                                     disabled: true,
                                     ui: 'action'
                                 },
                                 {
                                     itemId: 'Cancel',
-                                    text: 'Cancel',
+                                    text: Uni.I18n.translate('general.cancel','SAM','Cancel'),
                                     ui: 'link',
                                     hrefTarget: '',
                                     href: '#/administration/licenses'
