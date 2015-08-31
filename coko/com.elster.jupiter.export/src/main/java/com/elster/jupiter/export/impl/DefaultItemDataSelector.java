@@ -54,7 +54,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
         return occurrence.getTask().getReadingTypeDataSelector()
                 .map(IReadingTypeDataSelector.class::cast)
                 .map(selector -> selector.adjustedExportPeriod(occurrence, item))
-                .orElse(occurrence.getExportedDataInterval());
+                .orElse(Range.all());
     }
 
     private MeterReadingImpl asMeterReading(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {

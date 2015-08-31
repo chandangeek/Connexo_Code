@@ -70,7 +70,7 @@ class LoggingItemExporter implements ItemExporter {
         return occurrence.getTask().getReadingTypeDataSelector()
                 .map(IReadingTypeDataSelector.class::cast)
                 .map(selector -> selector.adjustedExportPeriod(occurrence, item))
-                .orElse(occurrence.getExportedDataInterval());
+                .orElseGet(Range::all);
     }
 
     private MeterReadingImpl asMeterReading(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings) {

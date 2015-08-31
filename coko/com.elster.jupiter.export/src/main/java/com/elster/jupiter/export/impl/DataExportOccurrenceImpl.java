@@ -1,6 +1,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportStatus;
+import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -17,7 +18,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
-class DataExportOccurrenceImpl implements IDataExportOccurrence {
+class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelectorOccurrence {
 
     private Reference<TaskOccurrence> taskOccurrence = ValueReference.absent();
     private Reference<IExportTask> readingTask = ValueReference.absent();
@@ -68,6 +69,14 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence {
     @Override
     public DataExportStatus getStatus() {
         return status;
+    }
+
+    @Override
+    public Optional<DefaultSelectorOccurrence> getDefaultSelectorOccurrence() {
+        if (!getTask().hasDefaultSelector()) {
+            return Optional.empty();
+        }
+        return Optional.of(this);
     }
 
     @Override
