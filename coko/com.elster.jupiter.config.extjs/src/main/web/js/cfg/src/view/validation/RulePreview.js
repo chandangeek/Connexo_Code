@@ -9,7 +9,7 @@ Ext.define('Cfg.view.validation.RulePreview', {
         'Cfg.view.validation.RuleActionMenu'
     ],
 
-    title: 'Details',
+    title: Uni.I18n.translate('general.details','CFG','Details'),
 
     layout: {
         type: 'vbox'
