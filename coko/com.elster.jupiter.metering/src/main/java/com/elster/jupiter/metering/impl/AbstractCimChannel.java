@@ -104,11 +104,16 @@ public abstract class AbstractCimChannel implements CimChannel {
         return readingQualities()
                 .filter(isActual())
                 .filter(inRange(interval))
+                .filter(isSuspect())
                 .collect(Collectors.toList());
     }
 
     private Condition isActual() {
         return where("actual").isEqualTo(true);
+    }
+
+    private Condition isSuspect() {
+        return where("typeCode").isNotNull();
     }
 
     private Condition inRange(Range<Instant> range) {
@@ -128,7 +133,7 @@ public abstract class AbstractCimChannel implements CimChannel {
     }
 
     private Condition ofThisReadingType() {
-        return where("readingType").isEqualTo(getReadingType());
+        return where("readingType").in(getChannel().getReadingTypes());
     }
 
     @Override
