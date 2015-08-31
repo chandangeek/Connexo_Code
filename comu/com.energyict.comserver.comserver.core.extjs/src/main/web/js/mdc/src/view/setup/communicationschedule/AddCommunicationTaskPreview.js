@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.communicationschedule.AddCommunicationTaskPreview', {
     alias: 'widget.addCommunicationTaskPreview',
     itemId: 'addCommunicationTaskPreview',
     hidden: false,
-    title: 'Details',
+    title: Uni.I18n.translate('general.details','MDC','Details'),
     frame: true,
     items: {
         xtype: 'panel',

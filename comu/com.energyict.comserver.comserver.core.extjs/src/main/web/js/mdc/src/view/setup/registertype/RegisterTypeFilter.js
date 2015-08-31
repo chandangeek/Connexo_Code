@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.registertype.RegisterTypeFilter', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.registerTypeFilter',
-    title: 'Filter',
+    title: Uni.I18n.translate('general.filter','MDC','Filter'),
     cls: 'filter-form',
 
     items: [
@@ -19,11 +19,11 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeFilter', {
 
     buttons: [
         {
-            text: 'Apply',
+            text: Uni.I18n.translate('general.apply','MDC','Apply'),
             action: 'filter'
         },
         {
-            text: 'Reset',
+            text: Uni.I18n.translate('general.reset','MDC','Reset'),
             action: 'reset'
         }
     ],

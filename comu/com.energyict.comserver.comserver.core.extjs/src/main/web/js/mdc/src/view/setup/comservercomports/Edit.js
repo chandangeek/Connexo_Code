@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
             ui: 'large',
             name: 'addComPortForm',
             itemId: 'addComPortForm',
-            title: 'Add inbound communication port',
+            title: Uni.I18n.translate('comport.addInboundComPort','MDC','Add inbound communication port'),
             buttonAlign: 'left',
             defaults: {
                 labelWidth: 250,

@@ -72,7 +72,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
         this.tools = [
             {
                 xtype: 'button',
-                text: 'Actions',
+                text: Uni.I18n.translate('general.actions','MDC','Actions'),
                 privileges: Mdc.privileges.DeviceType.admin,
                 iconCls: 'x-uni-action-iconD',
                 menu: {
@@ -82,11 +82,11 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     shadow: false,
                     items: [
                         {
-                            text: 'Edit',
+                            text: Uni.I18n.translate('general.edit','MDC','Edit'),
                             action: this.editActionName
                         },
                         {
-                            text: 'Remove',
+                            text: Uni.I18n.translate('general.remove','MDC','Remove'),
                             action: this.deleteActionName
                         }
                     ]

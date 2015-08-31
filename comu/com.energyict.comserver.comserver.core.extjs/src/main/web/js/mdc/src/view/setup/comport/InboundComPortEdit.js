@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
     ],
     alias: 'widget.inboundComPortEdit',
     autoScroll: true,
-    title: 'ComServer',
+    title: Uni.I18n.translate('comserver.comServer','MDC','ComServer'),
     // layout: 'fit',
     width: '80%',
     height: '90%',
@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                 items: [
                     {
                         xtype: 'fieldset',
-                        title: 'Required',
+                        title: Uni.I18n.translate('general.required','required','Required'),
                         defaults: {
                             labelWidth: 200
                         },
@@ -105,7 +105,7 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                         ]},
                     {
                         xtype: 'fieldset',
-                        title: 'Serial',
+                        title: Uni.I18n.translate('comport.serial','MDC','Serial'),
                         itemId: 'serialFieldSet',
                         defaults: {
                             labelWidth: 200
@@ -208,7 +208,7 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                     },
                     {
                         xtype: 'fieldset',
-                        title: 'Servlet',
+                        title: Uni.I18n.translate('comport.servlet','MDC','Servlet'),
                         itemId: 'servletFieldSet',
                         defaults: {
                             labelWidth: 200
@@ -253,7 +253,7 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                     },
                     {
                         xtype: 'fieldset',
-                        title: 'Udp',
+                        title: Uni.I18n.translate('comport.udp','MDC','Udp'),
                         itemId: 'udpFieldSet',
                         defaults: {
                             labelWidth: 200
@@ -275,11 +275,11 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
 
         this.buttons = [
             {
-                text: 'Save',
+                text: Uni.I18n.translate('general.save','MDC','Save'),
                 action: 'save'
             },
             {
-                text: 'Cancel',
+                text: Uni.I18n.translate('general.cancel','MDC','Cancel'),
                 action: 'cancel'
             }
         ];

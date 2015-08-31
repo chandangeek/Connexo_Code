@@ -62,7 +62,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             name: 'comPortPool_id',
             displayField: 'name',
             valueField: 'id',
-            emptyText: 'Select inbound communication port pool...'
+            emptyText: Uni.I18n.translate('comports.selectInboundPool','MDC','Select inbound communication port pool...')
         },
         {
             xtype: 'fieldcontainer',

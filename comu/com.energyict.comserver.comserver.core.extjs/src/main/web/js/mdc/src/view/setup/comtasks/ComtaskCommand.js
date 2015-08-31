@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCommand', {
     bbar: [
         {
             xtype: 'button',
-            text: 'Add action',
+            text: Uni.I18n.translate('general.add','MDC','Add'),
             ui: 'action',
             action: 'addCommand',
             disabled: true,
@@ -26,14 +26,14 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCommand', {
         },
         {
             xtype: 'button',
-            text: 'Save action',
+            text: Uni.I18n.translate('general.save','MDC','Save'),
             ui: 'action',
             action: 'saveCommand',
             hidden: true
         },
         {
             xtype: 'button',
-            text: 'Remove action',
+            text: Uni.I18n.translate('general.remove','MDC','Remove'),
             ui: 'remove',
             action: 'removeCommand',
             hidden: true
@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCommand', {
         {
             xtype: 'button',
             ui: 'link',
-            text: 'Cancel',
+            text: Uni.I18n.translate('general.cancel','MDC','Cancel'),
             action: 'cancelEditCommand',
             hidden: true
         }

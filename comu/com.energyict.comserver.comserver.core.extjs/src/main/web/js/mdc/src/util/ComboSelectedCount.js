@@ -16,7 +16,7 @@ Ext.define('Mdc.util.ComboSelectedCount', {
             items: [
                 {
                     itemId: 'selectAll',
-                    text: 'Deselect all',
+                    text: Uni.I18n.translate('general.deselectAll','MDC','Deselect all'),
                     handler: function (btn, e) {
                         if (!allSelected) {
                             combo.select(combo.getStore().getRange());

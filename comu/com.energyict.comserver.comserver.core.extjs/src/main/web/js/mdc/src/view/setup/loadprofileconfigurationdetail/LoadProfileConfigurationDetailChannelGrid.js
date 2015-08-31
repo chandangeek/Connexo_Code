@@ -35,11 +35,11 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 items: [
 
                     {
-                        text: 'Edit',
+                        text: Uni.I18n.translate('general.edit','MDC','Edit'),
                         action: this.editActionName
                     },
                     {
-                        text: 'Remove',
+                        text: Uni.I18n.translate('general.remove','MDC','Remove'),
                         action: this.deleteActionName
                     }
                 ]

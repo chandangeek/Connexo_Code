@@ -275,7 +275,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                 itemId: 'minuteLabel',
                 submitValue: false,
                 hidden: true,
-                value: 'minute(s)',
+                value: Uni.I18n.translate('schedulefield.minutes','MDC','minute(s)'),
                 msgTarget: 'none'
             }),
             Ext.apply({
@@ -299,7 +299,7 @@ Ext.define('Mdc.widget.ScheduleField', {
                 itemId: 'secondLabel',
                 submitValue: false,
                 hidden: true,
-                value: 'second(s)',
+                value: Uni.I18n.translate('schedulefiled.seconds','MDC','second(s)'),
                 msgTarget: 'none'
             })
 
