@@ -30,12 +30,12 @@ Ext.define('Uni.view.error.Window', {
     initComponent: function () {
         this.buttons = [
             {
-                text: 'Report issue',
+                text: Uni.I18n.translate('general.reportIssue','UNI','Report issue'),
                 action: 'report',
                 disabled: true
             },
             {
-                text: 'Close',
+                text: Uni.I18n.translate('general.close','UNI','Close'),
                 scope: this,
                 handler: this.close
             }
