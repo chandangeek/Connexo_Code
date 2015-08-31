@@ -1,3 +1,4 @@
 -classpath: target/classes 
 Include-Resource: README.HTML
+Private-Package: com.elster.jupiter.cbo.impl
 Export-Package: com.elster.jupiter.cbo
