@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
@@ -15,6 +16,7 @@ import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExce
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.mdc.protocol.api.tasks.support.UsesLegacyMessageConverter;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
@@ -37,7 +39,7 @@ import java.util.Set;
  * Date: 11/03/13
  * Time: 11:27
  */
-public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMessageSupport {
+public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMessageSupport{
 
     private static final int UPDATE_SENT_MASK = 0b0001;
     private static final int EXECUTE_PENDING_MASK = 0b0010;
@@ -97,7 +99,7 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
         return legacyMessageConverter;
     }
 
-    public void setLegacyMessageConverter(LegacyMessageConverter legacyMessageConverter) {
+    protected void setLegacyMessageConverter(LegacyMessageConverter legacyMessageConverter) {
         this.legacyMessageConverter = legacyMessageConverter;
     }
 
@@ -127,7 +129,17 @@ public abstract class AbstractDeviceMessageConverterAdapter implements DeviceMes
 
     private void addMessages(List<OfflineDeviceMessage> offlineDeviceMessages) {
         for (OfflineDeviceMessage offlineDeviceMessage : offlineDeviceMessages) {
-            final MessageEntry messageEntry = getLegacyMessageConverter().toMessageEntry(offlineDeviceMessage);
+            // COMU-1469: If the offlineDeviceMessage 's Protocol uses a LegacyMessageConverter, it is
+            // this one we will use to create the MessageEntry instead of the current one
+            //When preparing to execute the messages, this adapter represents the master protocol, even if the messages were defined on a slave protocol.
+            LegacyMessageConverter messageConverter = getLegacyMessageConverter();
+
+            DeviceProtocol deviceProtocol = offlineDeviceMessage.getDeviceProtocol();
+            if (deviceProtocol != null && deviceProtocol instanceof UsesLegacyMessageConverter) {
+                messageConverter = ((UsesLegacyMessageConverter) deviceProtocol).getLegacyMessageConverter();
+            }
+
+            final MessageEntry messageEntry = messageConverter.toMessageEntry(offlineDeviceMessage);
             messageEntry.setSerialNumber(this.serialNumber);
             this.messageEntries.put(messageEntry, offlineDeviceMessage);
         }
