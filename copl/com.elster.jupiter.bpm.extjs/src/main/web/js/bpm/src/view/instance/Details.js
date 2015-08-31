@@ -12,7 +12,7 @@ Ext.define('Bpm.view.instance.Details', {
         'Bpm.store.ProcessInstances',
         'Bpm.model.ProcessInstance'
     ],
-    title: 'Process instance',
+    title: Uni.I18n.translate('proces.processInstance','BPM','Process instance'),
 
     items: [
         {
