@@ -3,9 +3,9 @@ Ext.define('Est.estimationtasks.store.DaysWeeksMonths', {
     requires: ['Est.estimationtasks.model.DayWeekMonth'],
     model: 'Est.estimationtasks.model.DayWeekMonth',
     data: [
-        {name: 'days', displayValue: 'day(s)'},
-        {name: 'weeks', displayValue: 'week(s)'},
-        {name: 'months', displayValue: 'month(s)'},
-        {name: 'years', displayValue: 'year(s)'}
+        {name: 'days', displayValue: Uni.I18n.translate('period.days','EST','day(s)')},
+        {name: 'weeks', displayValue: Uni.I18n.translate('period.weeks','EST','week(s)')},
+        {name: 'months', displayValue: Uni.I18n.translate('period.months','EST','month(s)')},
+        {name: 'years', displayValue: Uni.I18n.translate('perios.years','EST','year(s)')}
     ]
 });
