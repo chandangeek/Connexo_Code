@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                 {
                     xtype: 'obis-displayfield',
                     name: 'obisCode',
-                    value: 'Select a load profile type first'
+                    value: Uni.I18n.translate('general.selectLoadProfileType','MDC','Select a load profile type first')
                 },
                 {
                     xtype: 'obis-field',
