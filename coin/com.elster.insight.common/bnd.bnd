@@ -1,0 +1,8 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package:  \
+	com.elster.insight.common.impl
+Export-Package:  \
+	com.elster.insight.common,\
+	com.elster.insight.common.rest,\
+	com.elster.insight.common.services
