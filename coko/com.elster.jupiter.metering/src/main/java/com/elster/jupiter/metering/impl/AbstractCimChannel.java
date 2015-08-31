@@ -113,7 +113,7 @@ public abstract class AbstractCimChannel implements CimChannel {
     }
 
     private Condition isSuspect() {
-        return where("typeCode").isEqualTo("3.5.258").or(where("typeCode").isEqualTo("3.6.1003"));
+        return where("typeCode").isNotNull();
     }
 
     private Condition inRange(Range<Instant> range) {
