@@ -39,8 +39,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE(10015, MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE, "There should at least one active connection on the device"),
     // MicroActions
     MISSING_REQUIRED_PROPERTY_VALUES(20001, Keys.MISSING_REQUIRED_PROPERTY_VALUES, "No value was specified for the following property spec of the configured actions: {0}"),
-    EFFECTIVE_TIMESTAMP_NOT_IN_RANGE(20002, Keys.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE, "The transition date should be between {0,date} and {1,date}"),
-    EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE(20003, Keys.EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE, "The transition {1,date} date should be after the last state change {2,date} of device (mRID={0})"),
+    EFFECTIVE_TIMESTAMP_NOT_IN_RANGE(20002, Keys.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE, "The transition date should be between {0} and {1}"),
+    EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE(20003, Keys.EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE, "The transition date {1} should be after the last state change {2} for device (mRID={0})"),
     NOT_ALL_DATA_VALID_FOR_DEVICE(20004,"microAction.exception.notAllDataValidForDeviceX","Device {0} has still suspect values: Action is undone.");
 
     private final int number;

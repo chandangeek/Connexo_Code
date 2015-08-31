@@ -5,8 +5,8 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import java.sql.Date;
 import java.time.Instant;
+import java.util.Date;
 
 /**
  * Models the exceptional situation that occurs when
@@ -21,20 +21,24 @@ public class EffectiveTimestampNotInRangeException extends DeviceLifeCycleAction
 
     private final Thesaurus thesaurus;
     private final MessageSeed messageSeed;
-    private final Instant lowerBound;
-    private final Instant upperBound;
+    private final Date lowerBound;
+    private final Date upperBound;
 
-    public EffectiveTimestampNotInRangeException(Thesaurus thesaurus, MessageSeed messageSeed, DeviceLifeCycle deviceLifeCycle) {
+    public EffectiveTimestampNotInRangeException(Thesaurus thesaurus, MessageSeed messageSeed, Instant lowerBound, Instant upperBound) {
         super();
         this.thesaurus = thesaurus;
         this.messageSeed = messageSeed;
-        this.lowerBound = deviceLifeCycle.getMaximumPastEffectiveTimestamp();
-        this.upperBound = deviceLifeCycle.getMaximumFutureEffectiveTimestamp();
+        this.lowerBound = Date.from(lowerBound);
+        this.upperBound = Date.from(upperBound);
     }
 
     @Override
     public String getLocalizedMessage() {
-        return this.thesaurus.getFormat(this.messageSeed).format(Date.from(this.lowerBound), Date.from(this.upperBound));
+        return this.thesaurus
+                .getFormat(this.messageSeed)
+                .format(
+                    this.lowerBound,
+                    this.upperBound);
     }
 
 }
