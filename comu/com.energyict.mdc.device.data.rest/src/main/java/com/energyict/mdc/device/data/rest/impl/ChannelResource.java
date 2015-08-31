@@ -271,6 +271,7 @@ public class ChannelResource {
         return Response.ok(deviceValidationStatusInfo).build();
     }
 
+    /*
     @GET
     @Path("{channelid}/validationpreview")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -281,7 +282,7 @@ public class ChannelResource {
         channelHelper.get().addValidationInfo(channel, channelInfo);
         return Response.ok(channelInfo.validationInfo).build();
     }
-
+    */
     @PUT
     @Path("{channelid}/validate")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
