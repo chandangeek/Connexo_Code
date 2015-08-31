@@ -14,7 +14,7 @@ Ext.define('Dsh.controller.history.Workspace', {
 
     routeConfig: {
         workspace: {
-            title: 'Workspace',
+            title: Uni.I18n.translate('title.workspace','DSH','Workspace'),
             route: 'workspace',
             disabled: true,
             items: {

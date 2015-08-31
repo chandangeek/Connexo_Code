@@ -87,7 +87,9 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
         me.setLoading();
         targetContainer.removeAll();
         store.load(function () {
-            var title = '<h3>' + Uni.I18n.translatePlural('overview.widget.communicationServers.header', store.count(), 'DSH', 'Active communication servers ({0})') + '</h3>';
+            var title = '<h3>'
+                + Ext.String.format(Uni.I18n.translate('overview.widget.communicationServers.header', 'DSH', 'Active communication servers ({0})'), store.count())
+                + '</h3>';
             if(me.down('#connection-summary-title-panel')){
                 me.down('#connection-summary-title-panel').update(title);
             }

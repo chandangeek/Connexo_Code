@@ -43,7 +43,7 @@ Ext.define('Dsh.view.MyFavoriteDeviceGroups', {
                             },
                             {
                                 xtype: 'button',
-                                text: 'Uncheck all',
+                                text: Uni.I18n.translate('general.uncheckAll','DSH','Uncheck all'),
                                 action: 'uncheckall'
                             }
                         ]
@@ -76,13 +76,13 @@ Ext.define('Dsh.view.MyFavoriteDeviceGroups', {
                 buttons: [
                     {
                         xtype: 'button',
-                        text: 'Save',
+                        text: Uni.I18n.translate('general.save','DSH','Save'),
                         action: 'save',
                         ui: 'action'
                     },
                     {
                         xtype: 'button',
-                        text: 'Cancel',
+                        text: Uni.I18n.translate('general.cancel','DSH','Cancel'),
                         href: '#/dashboard',
                         ui: 'link'
                     }
