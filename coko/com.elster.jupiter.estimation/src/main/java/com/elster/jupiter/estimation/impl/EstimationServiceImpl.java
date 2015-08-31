@@ -15,7 +15,6 @@ import com.elster.jupiter.estimation.EstimationTaskBuilder;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.EstimatorFactory;
 import com.elster.jupiter.estimation.EstimatorNotFoundException;
-import com.elster.jupiter.estimation.MessageSeeds;
 import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -36,6 +35,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.tasks.TaskStatus;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -61,6 +61,7 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -376,7 +377,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     @Override
     public void install() {
-        new InstallerImpl(dataModel, messageService, thesaurus, userService, timeService, eventService).install();
+        new InstallerImpl(dataModel, messageService, timeService, eventService).install();
     }
 
     @Override
@@ -484,13 +485,19 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
+        return Stream.of(
+                Arrays.stream(MessageSeeds.values()),
+                Arrays.stream(Privileges.values()),
+                Arrays.stream(TranslationKeys.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
     }
+
     @Override
     public String getModuleName() {
         return EstimationService.COMPONENTNAME;

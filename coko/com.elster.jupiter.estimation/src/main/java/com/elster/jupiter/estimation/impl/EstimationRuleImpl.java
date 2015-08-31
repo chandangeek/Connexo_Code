@@ -16,7 +16,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.Estimator;
-import com.elster.jupiter.estimation.MessageSeeds.Constants;
+import com.elster.jupiter.estimation.impl.MessageSeeds.Constants;
 import com.elster.jupiter.estimation.ReadingTypeInEstimationRule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;

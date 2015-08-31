@@ -22,7 +22,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.estimation.MessageSeeds.Constants;
+import com.elster.jupiter.estimation.impl.MessageSeeds.Constants;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
@@ -33,7 +33,6 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.estimation.impl.UniqueName;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_ESTIMATION_RULE_SET + "}")
 class EstimationRuleSetImpl implements IEstimationRuleSet {

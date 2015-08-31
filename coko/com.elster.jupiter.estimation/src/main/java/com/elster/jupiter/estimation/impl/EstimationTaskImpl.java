@@ -3,7 +3,6 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
-import com.elster.jupiter.estimation.MessageSeeds;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;

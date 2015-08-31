@@ -1,7 +1,6 @@
 package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.estimation.MessageSeeds;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -36,24 +35,18 @@ class InstallerImpl {
     public static final String DESTINATION_NAME = EstimationServiceImpl.DESTINATION_NAME;
     public static final String SUBSCRIBER_NAME = EstimationServiceImpl.SUBSCRIBER_NAME;
     public static final String RELATIVE_PERIOD_CATEGORY = "relativeperiod.category.estimation";
-    private static final String ESTIMATIONS_PRIVILEGE_CATEGORY_NAME = "estimation.estimations";
-    private static final String ESTIMATIONS_PRIVILEGE_CATEGORY_DESCRIPTION = "estimation.estimations.description";
 
     private final DataModel dataModel;
     private final MessageService messageService;
     private final TimeService timeService;
-    private final Thesaurus thesaurus;
-    private final UserService userService;
     private final EventService eventService;
 
     private DestinationSpec destinationSpec;
 
-    InstallerImpl(DataModel dataModel, MessageService messageService, Thesaurus thesaurus, UserService userService, TimeService timeService, EventService eventService/*, Thesaurus thesaurus*/) {
+    InstallerImpl(DataModel dataModel, MessageService messageService, TimeService timeService, EventService eventService) {
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.timeService = timeService;
-        this.thesaurus = thesaurus;
-        this.userService = userService;
         this.eventService = eventService;
     }
 
@@ -66,50 +59,10 @@ class InstallerImpl {
                 this::installDataModel,
                 this::createDestinationAndSubscriber,
                 this::createRelativePeriodCategory,
-                this::createTranslations,
                 this::createRelativePeriods,
                 this::createEventTypes
         ).andHandleExceptionsWith(Throwable::printStackTrace)
                 .execute();
-    }
-
-    private void createTranslations() {
-        List<Translation> translations =
-                Stream.of(
-                        fromMessageSeeds(),
-                        fromTaskStatus(),
-                        Stream.of(relativePeriodCategoryTranslation()),
-                        Stream.of(statusTranslation())
-                )
-                        .flatMap(Function.identity())
-                        .collect(Collectors.toList());
-
-        thesaurus.addTranslations(translations);
-    }
-
-    private Stream<Translation> fromMessageSeeds() {
-        return Arrays.stream(MessageSeeds.values())
-                .map(this::toTranslation);
-    }
-
-    private Stream<Translation> fromTaskStatus() {
-        return Arrays.stream(TaskStatus.values())
-                .map(this::toTranslation);
-    }
-
-    private Translation statusTranslation() {
-        NlsKey statusKey = SimpleNlsKey.key(EstimationService.COMPONENTNAME, Layer.DOMAIN, SUBSCRIBER_NAME);
-        return SimpleTranslation.translation(statusKey, Locale.ENGLISH, EstimationServiceImpl.SUBSCRIBER_DISPLAYNAME);
-    }
-
-    private Translation toTranslation(TranslationKey translationKey) {
-        NlsKey nlsKey = SimpleNlsKey.key(EstimationService.COMPONENTNAME, Layer.DOMAIN, translationKey.getKey()).defaultMessage(translationKey.getDefaultFormat());
-        return SimpleTranslation.translation(nlsKey, Locale.ENGLISH, translationKey.getDefaultFormat());
-    }
-
-    private Translation relativePeriodCategoryTranslation() {
-        NlsKey categoryKey = SimpleNlsKey.key(EstimationService.COMPONENTNAME, Layer.DOMAIN, RELATIVE_PERIOD_CATEGORY);
-        return SimpleTranslation.translation(categoryKey, Locale.ENGLISH, "Estimation");
     }
 
     private void createRelativePeriodCategory() {
