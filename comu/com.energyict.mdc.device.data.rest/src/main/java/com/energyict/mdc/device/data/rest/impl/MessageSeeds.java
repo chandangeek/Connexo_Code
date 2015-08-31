@@ -210,7 +210,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_SUCH_MESSAGE_QUEUE(240, "NoSuchMessageQueue", "Unable to queue command: no message queue was found"),
     BAD_ACTION(241, "BadAction", "Expected action to be either 'add' or 'remove'"),
     NO_SUCH_COM_SCHEDULE(242, "NoSuchSchedule", "No communication schedule with id {0}"),
-    CANT_ADD_READINGS_FOR_STATE(243, "cantAddReadingForState", "The state of the device at {0} does not allow adding readings."),
+    CANT_ADD_READINGS_FOR_STATE(243, "cantAddReadingForState", "The state of the device at {0,date,long} {0,time,long} does not allow adding readings."),
     INVALID_ESTIMATOR_PROPERTY_VALUE(244, "invalidEstimatorPropertyValue", "Invalid property value");
     ;
     private final int number;
