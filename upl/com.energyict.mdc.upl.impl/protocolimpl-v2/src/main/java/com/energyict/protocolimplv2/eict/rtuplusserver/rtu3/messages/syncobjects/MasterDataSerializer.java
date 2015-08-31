@@ -40,6 +40,9 @@ import java.util.Set;
 
 /**
  * Helper class that takes a group of slave devices and returns a JSon serialized version of all their devicetypes, tasks & master data.
+ * Note that every device config is in fact considered as a new unique device type, in the Beacon model.
+ * It's name is DevicTypeName_ConfigName, the ID is the one of the config (which is unique in the config context).
+ * <p/>
  * The result can then be used by the message executor.
  * <p/>
  * Copyrights EnergyICT
@@ -63,11 +66,12 @@ public class MasterDataSerializer {
         final AllMasterData allMasterData = new AllMasterData();
         for (Device device : masterDevice.getDownstreamDevices()) {
 
-            //Add all information about the device type. (only once per device type)
+            //Add all information about the device type config. (only once per device type config)
             final DeviceType deviceType = device.getDeviceType();
-            if (!deviceTypeAlreadyExists(allMasterData.getDeviceTypes(), deviceType)) {
-                final int deviceTypeId = deviceType.getId();
-                final String deviceTypeName = deviceType.getName();
+            final DeviceConfiguration deviceConfiguration = device.getConfiguration();
+            if (!deviceTypeAlreadyExists(allMasterData.getDeviceTypes(), deviceConfiguration)) {
+                final int deviceTypeConfigId = deviceConfiguration.getId();
+                final String deviceTypeName = deviceType.getName() + "_" + deviceConfiguration.getName();   //DevicTypeName_ConfigName
 
                 final RTU3ProtocolConfiguration protocolConfiguration = getProtocolConfiguration(device, masterDevice, deviceType);
                 final List<RTU3Schedulable> schedulables = getSchedulables(device);
@@ -76,7 +80,7 @@ public class MasterDataSerializer {
                 //Use the security set of the first task to read out the serial number.. doesn't really matter
                 final RTU3MeterSerialConfiguration meterSerialConfiguration = new RTU3MeterSerialConfiguration(FIXED_SERIAL_NUMBER_OBISCODE, schedulables.get(0).getClientTypeId());
 
-                final RTU3DeviceType rtu3DeviceType = new RTU3DeviceType(deviceTypeId, deviceTypeName, meterSerialConfiguration, protocolConfiguration, schedulables, clockSyncConfiguration);
+                final RTU3DeviceType rtu3DeviceType = new RTU3DeviceType(deviceTypeConfigId, deviceTypeName, meterSerialConfiguration, protocolConfiguration, schedulables, clockSyncConfiguration);
                 allMasterData.getDeviceTypes().add(rtu3DeviceType);
 
                 //Now add all information about the comtasks (get from configuration level, so it's the same for every device of the same device type)
@@ -419,9 +423,9 @@ public class MasterDataSerializer {
         return new RTU3ProtocolConfiguration(javaClassName, allProperties);
     }
 
-    private static boolean deviceTypeAlreadyExists(List<RTU3DeviceType> rtu3DeviceTypes, DeviceType deviceType) {
+    private static boolean deviceTypeAlreadyExists(List<RTU3DeviceType> rtu3DeviceTypes, DeviceConfiguration deviceConfiguration) {
         for (RTU3DeviceType rtu3DeviceType : rtu3DeviceTypes) {
-            if (rtu3DeviceType.getId() == deviceType.getId()) {
+            if (rtu3DeviceType.getId() == deviceConfiguration.getId()) {
                 return true;
             }
         }

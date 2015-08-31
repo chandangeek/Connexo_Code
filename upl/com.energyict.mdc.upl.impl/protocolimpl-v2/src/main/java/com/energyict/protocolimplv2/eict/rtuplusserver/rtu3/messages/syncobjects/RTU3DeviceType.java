@@ -25,6 +25,9 @@ public class RTU3DeviceType {
     private RTU3ClockSyncConfiguration clockSyncConfiguration;
     private RTU3MeterSerialConfiguration meterSerialConfiguration;
 
+    /**
+     * Note that the ID is actually the one of the device type configuration, since every new config is considered as a unique new device type in the Beacon model.
+     */
     public RTU3DeviceType(long id, String name, RTU3MeterSerialConfiguration meterSerialConfiguration, RTU3ProtocolConfiguration protocolConfiguration, List<RTU3Schedulable> schedulables, RTU3ClockSyncConfiguration clockSyncConfiguration) {
         this.id = id;
         this.name = name;
