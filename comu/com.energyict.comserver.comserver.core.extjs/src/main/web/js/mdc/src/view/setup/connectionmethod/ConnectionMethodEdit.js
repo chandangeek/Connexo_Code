@@ -318,8 +318,9 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                         items: [
                             {
                                 xtype: 'displayfield',
+                                itemId: 'connectionDetailsField',
                                 fieldLabel: '<h3>' + Uni.I18n.translate('deviceconnectionmethod.connectionDetails', 'MDC', 'Connection details') + '</h3>',
-                                text: ''
+                                value: '-'
                             }
                         ]
                     },

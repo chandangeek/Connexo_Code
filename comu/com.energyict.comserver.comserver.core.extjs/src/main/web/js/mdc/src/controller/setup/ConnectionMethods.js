@@ -390,9 +390,11 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
         form.loadRecordAsNotRequired(objectWithProperties);
         if (properties.count()) {
+            this.getConnectionMethodEditView().down('#connectionDetailsField').setValue('');
             form.show();
         } else {
             form.hide();
+            this.getConnectionMethodEditView().down('#connectionDetailsField').setValue('-');
         }
         this.getCommunicationPortPoolComboBox().enable();
     },
@@ -461,6 +463,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                         var title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + connectionMethod.get('name') + "'";
                                                         widget.down('#connectionMethodEditAddTitle').setTitle(title);
                                                         widget.down('form').down('#connectionTypeComboBox').setValue(connectionMethod.get('connectionTypePluggableClass'));
+                                                        connectionMethod.properties().count() ? widget.down('#connectionDetailsField').setValue('') : widget.down('#connectionDetailsField').setValue('-');
                                                         me.getConnectionTypeComboBox().disable();
                                                         widget.down('form').down('#communicationPortPoolComboBox').setValue(connectionMethod.get('comPortPool'));
                                                         widget.down('form').down('#connectionStrategyComboBox').setValue(connectionMethod.get('connectionStrategy'));
