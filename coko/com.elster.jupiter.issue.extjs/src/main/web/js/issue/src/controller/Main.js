@@ -36,7 +36,7 @@ Ext.define('Isu.controller.Main', {
 
         if (Isu.privileges.Issue.canAdminRule()){
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
-                text: 'Administration',
+                text: Uni.I18n.translate('general.administration','ISU','Administration'),
                 glyph: 'settings',
                 portal: 'administration',
                 index: 10
