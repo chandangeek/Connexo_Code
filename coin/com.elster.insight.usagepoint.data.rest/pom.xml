@@ -17,12 +17,69 @@
         Contains Rest implementations to interface between the FrontEnd and BackEnd regarding usage point data
     </description>
 
+
+<build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <_include>bnd.bnd</_include>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.qmino</groupId>
+                <artifactId>miredot-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>restdoc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    
     <dependencies>
-        <!--<dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.data</artifactId>
+        <dependency>
+            <groupId>com.elster</groupId>
+            <artifactId>insight.usagepoint.data</artifactId>
         </dependency>
-        -->
+<!-- should be able to remove the below dependency as it comes from the
+     above dependency but it's not working... -->
+        <dependency>
+          <groupId>com.elster</groupId>
+          <artifactId>insight.common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.rest</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>com.elster.jupiter</groupId>
+          <artifactId>validation</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>com.elster.jupiter</groupId>
+          <artifactId>validation.rest</artifactId>
+        </dependency>
+        
+
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+        </dependency>
+         <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
         <!--INTEGRATION TESTS-->
 
 <!--
