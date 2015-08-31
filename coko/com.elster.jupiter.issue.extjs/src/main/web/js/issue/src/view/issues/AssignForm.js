@@ -6,7 +6,7 @@ Ext.define('Isu.view.issues.AssignForm', {
     ],
     ui: 'medium',
     padding: 0,
-    title: 'Assign issue',
+    title: Uni.I18n.translate('issue.assignIssue','ISU','Assign issue'),
     alias: 'widget.issues-assign-form',
     items: [
         {

@@ -105,7 +105,7 @@ Ext.define('Isu.view.issues.bulk.Wizard', {
             });
             Ext.Msg.show({
                 scope: this,
-                title: 'Wizard Invalid',
+                title: Uni.I18n.translate('issue.wizardInvalid','ISU','Wizard Invalid'),
                 msg: invalidFields,
                 buttons: Ext.Msg.OK,
                 icon: Ext.Msg.ERROR
@@ -121,7 +121,7 @@ Ext.define('Isu.view.issues.bulk.Wizard', {
         if (wizard.getForm().isDirty()) {
             Ext.Msg.show({
                 scope: this,
-                title: 'Cancelling Wizard',
+                title: Uni.I18n.translate('issue.cancellingWizard','ISU','Cancelling Wizard'),
                 msg: 'All changes will be lost. Are you sure you want to cancel?',
                 buttons: Ext.Msg.YESNO,
                 icon: Ext.Msg.QUESTION,
