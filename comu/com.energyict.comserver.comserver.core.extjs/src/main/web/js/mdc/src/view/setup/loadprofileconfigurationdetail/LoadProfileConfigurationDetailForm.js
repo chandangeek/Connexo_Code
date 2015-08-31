@@ -116,7 +116,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
         this.down('#LoadProfileChannelCancel').add(
             {
                 xtype: 'button',
-                text: 'Cancel',
+                text: Uni.I18n.translate('general.cancel','MDC','Cancel'),
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofiles/' + this.loadProfileConfigurationId + '/channels',
                 ui: 'link'
             }

@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.property.UserFileReference', {
                 store: userFileReferences,
                 columns: [
                     {
-                        text: 'User File References',
+                        text: Uni.I18n.translate('userFileReferences.userFileReferences','MDC','User File References'),
                         xtype: 'templatecolumn',
                         tpl: '<table width="100%" border = "0" style="color:dimgrey;font-size:x-small;line-height:110%">' +
                             '<caption style="color:black;font-size:small;line-height:200%;font-weight:bold;text-align:left;caption-side: left">' +
@@ -41,11 +41,11 @@ Ext.define('Mdc.view.setup.property.UserFileReference', {
 
         this.buttons = [
             {
-                text: 'Select',
+                text: Uni.I18n.translate('general.select','MDC','Select'),
                 action: 'select'
             },
             {
-                text: 'Cancel',
+                text: Uni.I18n.translate('general.cancel','MDC','Cancel'),
                 action: 'cancel'
             }
         ];

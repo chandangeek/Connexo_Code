@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.searchitems.ContentFilter', {
                 {
                     xtype: 'button',
                     action: 'addSort',
-                    text: 'Add sort',
+                    text: Uni.I18n.translate('general.addSort','MDC','Add sort'),
                     menu: {
                         xtype: 'items-sort-menu',
                         name: 'addsortitemmenu'

@@ -34,7 +34,7 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
             closeBtn: true,
             btns: [
                 {
-                    text: 'Cancel',
+                    text: Uni.I18n.translate('general.cancel','MDC','Cancel'),
                     cls: 'isu-btn-link',
                     hnd: function () {
                         window.location = '#/administration/devicetypes/' + encodeURIComponent(editView.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(editView.deviceConfigurationId) + '/logbookconfigurations';
@@ -66,7 +66,7 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
             bodyItem = {},
             msges = [],
             preloader = Ext.create('Ext.LoadMask', {
-                msg: "Loading...",
+                msg: Uni.I18n.translate('general.loading','MDC','Loading...'),
                 target: editView
             });
         if (form.isValid()) {
@@ -83,8 +83,8 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
                 failure: function (response) {
                     if(response.status == 400) {
                         var result = Ext.decode(response.responseText, true),
-                            errorTitle = 'Failed to update ' + record.data.name,
-                            errorText = 'Logbook configuration could not be updated. There was a problem accessing the database';
+                            errorTitle = Ext.String.format(Uni.I18n.translate('logbookconfiguration.failedToUpdate','','Failed to update {0}'),record.data.name),
+                            errorText = Uni.I18n.translate('logbookconfiguration.configurationCouldNotBeUpdated','MDC','Logbook configuration could not be updated. There was a problem accessing the database');
 
                         if (result !== null) {
                             errorTitle = result.error;

@@ -105,7 +105,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                         {
                             xtype: 'button',
                             itemId: 'cancelLink',
-                            text: 'Cancel',
+                            text: Uni.I18n.translate('general.cancel','MDC','Cancel'),
                             action: 'cancel',
                             ui: 'link',
                             listeners: {

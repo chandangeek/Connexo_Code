@@ -9,7 +9,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSorting', {
             {
                 xtype: 'button',
                 action: 'addSort',
-                text: 'Add sort',
+                text: Uni.I18n.translate('general.addSort','MDC','Add sort'),
                 menu: {
                     name: 'addsortitemmenu'
                 }

@@ -9,7 +9,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSort
         {
             xtype: 'button',
             action: 'addSort',
-            text: 'Add sort',
+            text: Uni.I18n.translate('loadprofileconfiguration.addSort','MDC','Add sort'),
             menu: {
                 name: 'addsortitemmenu'
             }

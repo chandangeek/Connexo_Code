@@ -35,14 +35,14 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandAdd', {
                 ],
                 buttons: [
                     {
-                        text: 'Add',
+                        text: Uni.I18n.translate('general.add','MDC','Add'),
                         ui: 'action',
                         margins: '0 0 0 164',
                         action: 'add',
                         mRID: me.device.get('mRID')
                     },
                     {
-                        text: 'Cancel',
+                        text: Uni.I18n.translate('general.cancel','MDC','Cancel'),
                         ui: 'link',
                         action: 'cancel',
                         mRID: me.device.get('mRID')

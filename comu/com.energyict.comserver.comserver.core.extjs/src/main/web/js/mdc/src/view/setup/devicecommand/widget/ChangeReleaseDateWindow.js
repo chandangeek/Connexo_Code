@@ -56,7 +56,7 @@ Ext.define('Mdc.view.setup.devicecommand.widget.ChangeReleaseDateWindow', {
                 ],
                 buttons: [
                     {
-                        text: 'Save',
+                        text: Uni.I18n.translate('general.save','MDC','Save'),
                         ui: 'action',
                         handler: function () {
                             if (me.record) {
@@ -67,7 +67,7 @@ Ext.define('Mdc.view.setup.devicecommand.widget.ChangeReleaseDateWindow', {
                         }
                     },
                     {
-                        text: 'Cancel',
+                        text: Uni.I18n.translate('general.cancel','MDC','Cancel'),
                         ui: 'link',
                         handler: function () {
                             me.close()
