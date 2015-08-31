@@ -20,7 +20,7 @@ Ext.define('Isu.view.issues.CommentsList', {
             stepItems: [
                 {
                     itemId: 'empty-message-add-comment-button',
-                    text: 'Add comment',
+                    text: Uni.I18n.translate('general.addComment','ISU','Add comment'),
                     privileges: Isu.privileges.Issue.comment,
                     action: 'add'
                 }
@@ -60,7 +60,7 @@ Ext.define('Isu.view.issues.CommentsList', {
     buttons: [
         {
             itemId: 'issue-comments-add-comment-button',
-            text: 'Add comment',
+            text: Uni.I18n.translate('general.addComment','ISU','Add comment'),
             hidden: true,
             action: 'add'
         }

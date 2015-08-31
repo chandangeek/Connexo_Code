@@ -84,7 +84,7 @@ Ext.define('Isu.controller.CreationRules', {
         var me = this;
 
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('administration.issueCreationRules.deleteConfirmation.msg', 'ISU', 'This issue creation rule will disappear from the list.<br>Issues will not be created automatically by this rule.'),
+            msg: Uni.I18n.translate('administration.issueCreationRules.deleteConfirmation.message', 'ISU', 'This issue creation rule will disappear from the list. Issues will not be created automatically by this rule.'),
             title: Ext.String.format(Uni.I18n.translate('administration.issueCreationRules.deleteConfirmation.title', 'ISU', 'Remove rule \'{0}\'?'), rule.get('name')),
             config: {
                 me: me,

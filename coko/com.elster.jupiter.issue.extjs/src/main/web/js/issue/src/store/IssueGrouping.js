@@ -13,11 +13,11 @@ Ext.define('Isu.store.IssueGrouping', {
     data: [
         {
             id: 'none',
-            value: 'None'
+            value: Uni.I18n.translate('general.none', 'ISU', 'None')
         },
         {
             id: 'reason',
-            value: 'Reason'
+            value: Uni.I18n.translate('general.reason', 'ISU', 'Reason')
         }
     ]
 });
