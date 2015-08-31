@@ -23,10 +23,12 @@ public class RTU3DeviceType {
     private RTU3ProtocolConfiguration protocolConfiguration;
     private List<RTU3Schedulable> schedulables;
     private RTU3ClockSyncConfiguration clockSyncConfiguration;
+    private RTU3MeterSerialConfiguration meterSerialConfiguration;
 
-    public RTU3DeviceType(long id, String name, RTU3ProtocolConfiguration protocolConfiguration, List<RTU3Schedulable> schedulables, RTU3ClockSyncConfiguration clockSyncConfiguration) {
+    public RTU3DeviceType(long id, String name, RTU3MeterSerialConfiguration meterSerialConfiguration, RTU3ProtocolConfiguration protocolConfiguration, List<RTU3Schedulable> schedulables, RTU3ClockSyncConfiguration clockSyncConfiguration) {
         this.id = id;
         this.name = name;
+        this.meterSerialConfiguration = meterSerialConfiguration;
         this.protocolConfiguration = protocolConfiguration;
         this.schedulables = schedulables;
         this.clockSyncConfiguration = clockSyncConfiguration;
@@ -40,6 +42,7 @@ public class RTU3DeviceType {
         final Structure structure = new Structure();
         structure.addDataType(new Unsigned32(getId()));
         structure.addDataType(OctetString.fromString(getName()));
+        structure.addDataType(getMeterSerialConfiguration().toStructure());
         structure.addDataType(getProtocolConfiguration().toStructure());
 
         final Array schedulableArray = new Array();
@@ -61,6 +64,11 @@ public class RTU3DeviceType {
     @XmlAttribute
     public String getName() {
         return name;
+    }
+
+    @XmlAttribute
+    public RTU3MeterSerialConfiguration getMeterSerialConfiguration() {
+        return meterSerialConfiguration;
     }
 
     @XmlAttribute

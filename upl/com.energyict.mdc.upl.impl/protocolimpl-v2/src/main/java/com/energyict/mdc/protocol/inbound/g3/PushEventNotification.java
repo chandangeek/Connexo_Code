@@ -53,6 +53,10 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     private static final int METER_HAS_JOINED = 0xC2;
     private static final int METER_HAS_LEFT = 0xC3;
     private static final int METER_JOIN_ATTEMPT = 0xC5;
+
+    private static final int METER_SERIAL_NUMBER_READOUT_SUCCESS = 0x36;
+    private static final int METER_SERIAL_NUMBER_READOUT_FAIL = 0x37;
+
     protected ComChannel tcpComChannel;
     protected InboundDiscoveryContext context;
     protected ComChannel comChannel;
@@ -192,15 +196,15 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
                 if (macAddressOctetString != null) {
                     String macAddress = ProtocolTools.getHexStringFromBytes((macAddressOctetString).getOctetStr(), "");
 
-                    final TypedProperties deviceProtocolProperties = context.getInboundDAO().getDeviceProtocolProperties(new DialHomeIdDeviceIdentifier(macAddress));
+                    final DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);
+                    final TypedProperties deviceProtocolProperties = context.getInboundDAO().getDeviceProtocolProperties(slaveDeviceIdentifier);
                     if (deviceProtocolProperties != null) {
                         final HexString psk = deviceProtocolProperties.<HexString>getTypedProperty(G3Properties.PSK);
                         if (psk != null && psk.getContent() != null && psk.getContent().length() > 0) {
-                            final OctetString pskOctetString = parsePSK(psk.getContent());
-                            if (pskOctetString != null) {
-                                Structure macAndKeyPair = new Structure();
-                                macAndKeyPair.addDataType(macAddressOctetString);
-                                macAndKeyPair.addDataType(pskOctetString);
+                            final byte[] pskBytes = parseKey(psk.getContent());
+                            if (pskBytes != null) {
+                                final OctetString wrappedPSKKey = wrap(dlmsSession.getProperties().getProperties(), pskBytes);
+                                Structure macAndKeyPair = createMacAndKeyPair(macAddressOctetString, wrappedPSKKey, slaveDeviceIdentifier);
                                 macKeyPairs.addDataType(macAndKeyPair);
                             } else {
                                 context.getLogger().warning("Device with MAC address " + macAddress + " has an invalid PSK property: '" + psk + "'. Should be 32 hex characters. Skipping.");
@@ -221,12 +225,27 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         }
     }
 
-    private OctetString parsePSK(String psk) {
-        if (psk.length() != 32) {
+    protected Structure createMacAndKeyPair(OctetString macAddressOctetString, OctetString wrappedPSKKey, DeviceIdentifier slaveDeviceIdentifier) {
+        Structure macAndKeyPair = new Structure();
+        macAndKeyPair.addDataType(macAddressOctetString);
+        macAndKeyPair.addDataType(wrappedPSKKey);
+        return macAndKeyPair;
+    }
+
+    /**
+     * The PSK key is sent plain in this implementation.
+     * No wrapping here, subclasses can override.
+     */
+    protected OctetString wrap(TypedProperties properties, byte[] pskBytes) {
+        return OctetString.fromByteArray(pskBytes);
+    }
+
+    protected byte[] parseKey(String key) {
+        if (key.length() != 32) {
             return null;
         }
         try {
-            return OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(psk, ""));
+            return ProtocolTools.getBytesFromHexString(key, "");
         } catch (IndexOutOfBoundsException | NumberFormatException e) {
             return null;
         }

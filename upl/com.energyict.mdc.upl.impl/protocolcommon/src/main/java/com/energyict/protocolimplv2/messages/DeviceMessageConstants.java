@@ -16,6 +16,15 @@ public class DeviceMessageConstants {
     public static final String contactorModeAttributeName = "ContactorDeviceMessage.changemode.mode";
     public static final String relayNumberAttributeName = "ContactorDeviceMessage.relaynumber";
     public static final String relayOperatingModeAttributeName = "ContactorDeviceMessage.relayoperatingmode";
+
+    public static final String broadcastLogicalDeviceIdAttributeName = "FirmwareDeviceMessage.broadcast.logicaldeviceid";
+    public static final String broadcastClientMacAddressAttributeName = "FirmwareDeviceMessage.broadcast.clientmacaddress";
+    public static final String broadcastGroupIdAttributeName = "FirmwareDeviceMessage.broadcast.groupid";
+    public static final String broadcastInitialTimeBetweenBlocksAttributeName = "FirmwareDeviceMessage.broadcast.initialtimebetweenblocks";
+    public static final String broadcastNumberOfBlocksInCycleAttributeName = "FirmwareDeviceMessage.broadcast.numberofblocksincycle";
+    public static final String broadcastEncryptionKeyAttributeName = "FirmwareDeviceMessage.broadcast.encryptionkey";
+    public static final String broadcastAuthenticationKeyAttributeName = "FirmwareDeviceMessage.broadcast.authenticationkey";
+
     public static final String firmwareUpdateActivationDateAttributeName = "FirmwareDeviceMessage.upgrade.activationdate";
     public static final String meterTimeAttributeName = "ClockDeviceMessage.metertime";
     public static final String dstStartAlgorithmAttributeName = "ClockDeviceMessage.dststartalgorithm";
@@ -23,6 +32,7 @@ public class DeviceMessageConstants {
     public static final String firmwareUpdateVersionNumberAttributeName = "FirmwareDeviceMessage.upgrade.version";
     public static final String firmwareUpdateUserFileAttributeName = "FirmwareDeviceMessage.upgrade.userfile";
     public static final String firmwareUpdateImageIdentifierAttributeName = "FirmwareDeviceMessage.image.identifier";
+    public static final String broadcastFirmwareUpdateImageIdentifierAttributeName = "FirmwareDeviceMessage.image.identifier";
     public static final String resumeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.resume";
     public static final String plcTypeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.plc";
     public static final String firmwareUpdateURLAttributeName = "FirmwareDeviceMessage.upgrade.url";
@@ -76,6 +86,8 @@ public class DeviceMessageConstants {
     public static final String deviceGroupAttributeName = "SecurityMessage.devicegroup";
 
     public static final String dcDeviceIDAttributeName = "DeviceActionMessage.dcDeviceID";
+    public static final String dcDeviceID2AttributeName = "DeviceActionMessage.dcDeviceID2";
+    public static final String broadcastDevicesGroupAttributeName = "FirmwareDeviceMessage.broadcastDevicesGroup";
 
     public static final String usernameAttributeName = "username";   // commonly used translation key
     public static final String passwordAttributeName = "password";   // commonly used translation key

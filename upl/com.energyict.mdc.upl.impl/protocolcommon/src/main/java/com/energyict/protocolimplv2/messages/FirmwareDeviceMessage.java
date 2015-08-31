@@ -1,12 +1,15 @@
 package com.energyict.protocolimplv2.messages;
 
+import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,8 +37,8 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
             PropertySpecFactory.dateTimePropertySpec(firmwareUpdateActivationDateAttributeName)),
     UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER(15,
-                PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
-                PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName)),
+            PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+            PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName)),
     UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER(14,
             PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
             PropertySpecFactory.dateTimePropertySpec(firmwareUpdateActivationDateAttributeName),
@@ -54,8 +57,20 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
     FTIONUpgradeRFMeshFirmware(11),
     RFMeshUpgradeURL(12, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetUpgradeUrlAttributeName)),
     UpgradeBootloader(13, PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.PricingInformationUserFileAttributeName)),
-    VerifyAndActivateFirmware(16),
-    ;
+    BroadcastFirmwareUpgrade(14,
+            PropertySpecFactory.groupReferencePropertySpec(DeviceMessageConstants.broadcastDevicesGroupAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(broadcastLogicalDeviceIdAttributeName),        //TODO also get the default hardcoded value from Alex?
+            PropertySpecFactory.bigDecimalPropertySpec(broadcastClientMacAddressAttributeName, BigDecimal.valueOf(102)),
+            PropertySpecFactory.bigDecimalPropertySpec(broadcastGroupIdAttributeName, BigDecimal.valueOf(1)),   //Default group 1 is broadcast (to all devices)
+            PropertySpecFactory.bigDecimalPropertySpec(broadcastNumberOfBlocksInCycleAttributeName, BigDecimal.valueOf(100)),
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(broadcastInitialTimeBetweenBlocksAttributeName, TimeDuration.seconds(1)), //TODO check if this is a good default value??
+            PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+            PropertySpecFactory.stringPropertySpec(broadcastFirmwareUpdateImageIdentifierAttributeName),
+            PropertySpecFactory.passwordPropertySpec(broadcastEncryptionKeyAttributeName),
+            PropertySpecFactory.passwordPropertySpec(broadcastAuthenticationKeyAttributeName),
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.encryptionLevelAttributeName, DlmsEncryptionLevelMessageValues.getNames())
+    ),
+    VerifyAndActivateFirmware(15);
 
     private static final DeviceMessageCategory firmwareCategory = DeviceMessageCategories.FIRMWARE;
 

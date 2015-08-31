@@ -54,6 +54,10 @@ public class DlmsSession implements ProtocolLink {
         }
     }
 
+    public ComChannel getComChannel() {
+        return comChannel;
+    }
+
     /**
      * Init and set the connection state to connected, without actually opening the association to the meter.
      * This method can be used do create a new DlmsSession on a meter that has already an open association,

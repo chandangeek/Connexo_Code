@@ -27,18 +27,6 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
     private static final String authenticationTranslationKeyConstant = "DlmsSecuritySupport.authenticationlevel.";
     private static final String encryptionTranslationKeyConstant = "DlmsSecuritySupport.encryptionlevel.";
 
-    protected boolean includeMasterKey = false;
-
-    /**
-     * Enable or disable the master key property.
-     * If enabled, the security levels that have an AK or EK will include the master key.
-     * <p/>
-     * Note that extending security sets that include the master key need to have a different relation type name!
-     */
-    protected void setIncludeMasterKey(boolean includeMasterKey) {
-        this.includeMasterKey = includeMasterKey;
-    }
-
     @Override
     public List<PropertySpec> getSecurityProperties() {
         List<PropertySpec> propertySpecs = new ArrayList<>();
@@ -46,9 +34,6 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
         propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
         propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
         propertySpecs.add(getClientMacAddressPropertySpec());
-        if (includeMasterKey) {
-            propertySpecs.add(DeviceSecurityProperty.MASTER_KEY.getPropertySpec());
-        }
         return propertySpecs;
     }
 
@@ -330,9 +315,6 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
             propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            if (includeMasterKey) {
-                propertySpecs.add(DeviceSecurityProperty.MASTER_KEY.getPropertySpec());
-            }
             return propertySpecs;
         }
     }
@@ -359,9 +341,6 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
             propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            if (includeMasterKey) {
-                propertySpecs.add(DeviceSecurityProperty.MASTER_KEY.getPropertySpec());
-            }
             return propertySpecs;
         }
     }
@@ -388,9 +367,6 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
             propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            if (includeMasterKey) {
-                propertySpecs.add(DeviceSecurityProperty.MASTER_KEY.getPropertySpec());
-            }
             return propertySpecs;
         }
     }
@@ -438,9 +414,6 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec());
-            if (includeMasterKey) {
-                propertySpecs.add(DeviceSecurityProperty.MASTER_KEY.getPropertySpec());
-            }
             return propertySpecs;
         }
     }
@@ -492,9 +465,6 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec());
-            if (includeMasterKey) {
-                propertySpecs.add(DeviceSecurityProperty.MASTER_KEY.getPropertySpec());
-            }
             return propertySpecs;
         }
     }
@@ -521,9 +491,6 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
             List<PropertySpec> propertySpecs = new ArrayList<>();
             propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.PASSWORD.getPropertySpec());
-            if (includeMasterKey) {
-                propertySpecs.add(DeviceSecurityProperty.MASTER_KEY.getPropertySpec());
-            }
             return propertySpecs;
         }
     }
@@ -551,9 +518,6 @@ public class DlmsSecuritySupport implements LegacyDeviceProtocolSecurityCapabili
             propertySpecs.add(getClientMacAddressPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec());
             propertySpecs.add(DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-            if (includeMasterKey) {
-                propertySpecs.add(DeviceSecurityProperty.MASTER_KEY.getPropertySpec());
-            }
             return propertySpecs;
         }
     }

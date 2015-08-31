@@ -4,6 +4,7 @@ import com.energyict.cbo.TemporalExpression;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.mdc.tasks.NextExecutionSpecs;
 import com.energyict.mdc.tasks.NextExecutionSpecsImpl;
+import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobjects.CronTabStyleConverter;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;

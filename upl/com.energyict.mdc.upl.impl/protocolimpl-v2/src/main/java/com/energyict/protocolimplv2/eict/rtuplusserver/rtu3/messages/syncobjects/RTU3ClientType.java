@@ -1,9 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobjects;
 
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.*;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -37,8 +34,8 @@ public class RTU3ClientType {
         final Structure structure = new Structure();
         structure.addDataType(new Unsigned32(getId()));
         structure.addDataType(new Unsigned16(getClientMacAddress()));
-        structure.addDataType(new Unsigned8(getSecurityLevel()));
-        structure.addDataType(new Unsigned8(getSecurityPolicy()));
+        structure.addDataType(new TypeEnum(getSecurityLevel()));
+        structure.addDataType(new TypeEnum(getSecurityPolicy()));
         return structure;
     }
 

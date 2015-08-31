@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobjects;
 
+import com.energyict.cpo.TypedProperties;
+import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned8;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -18,13 +18,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class RTU3ProtocolConfiguration {
 
     private String className;
-    private int retries;
-    private int timeout;
 
-    public RTU3ProtocolConfiguration(String className, int retries, int timeout) {
+    /**
+     * The protocol general properties and the dialect properties of the master device.
+     * The security and connection properties are not included, they are stored in other sync objects.
+     */
+    private TypedProperties properties;
+
+    public RTU3ProtocolConfiguration(String className, TypedProperties properties) {
         this.className = className;
-        this.retries = retries;
-        this.timeout = timeout;
+        this.properties = properties;
     }
 
     //JSon constructor
@@ -34,8 +37,18 @@ public class RTU3ProtocolConfiguration {
     public Structure toStructure() {
         final Structure structure = new Structure();
         structure.addDataType(OctetString.fromString(getClassName()));
-        structure.addDataType(new Unsigned8(getRetries()));
-        structure.addDataType(new Unsigned16(getTimeout()));
+
+        final Array protocolTypedProperties = new Array();
+        for (String name : getProperties().propertyNames()) {
+            final Object value = getProperties().getProperty(name);
+
+            //Only add if the type of the value is supported
+            if (value != null && RTU3ProtocolTypedProperty.isSupportedType(value)) {
+                protocolTypedProperties.addDataType(new RTU3ProtocolTypedProperty(name, value).toStructure());
+            }
+        }
+        structure.addDataType(protocolTypedProperties);
+
         return structure;
     }
 
@@ -45,12 +58,7 @@ public class RTU3ProtocolConfiguration {
     }
 
     @XmlAttribute
-    public int getRetries() {
-        return retries;
-    }
-
-    @XmlAttribute
-    public int getTimeout() {
-        return timeout;
+    public TypedProperties getProperties() {
+        return properties;
     }
 }

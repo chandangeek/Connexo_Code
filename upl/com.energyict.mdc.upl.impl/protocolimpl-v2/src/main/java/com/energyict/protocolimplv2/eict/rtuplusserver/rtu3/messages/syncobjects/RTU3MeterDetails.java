@@ -21,14 +21,16 @@ public class RTU3MeterDetails {
     private String macAddress;
     private long deviceTypeId;
     private String deviceTimeZone;
+    private String serialNumber;
     private String llsSecret;
     private String authenticationKey;
     private String encryptionKey;
 
-    public RTU3MeterDetails(String macAddress, long deviceTypeId, String deviceTimeZone, String llsSecret, String authenticationKey, String encryptionKey) {
+    public RTU3MeterDetails(String macAddress, long deviceTypeId, String deviceTimeZone, String serialNumber, String llsSecret, String authenticationKey, String encryptionKey) {
         this.macAddress = macAddress;
         this.deviceTypeId = deviceTypeId;
         this.deviceTimeZone = deviceTimeZone;
+        this.serialNumber = serialNumber;
         this.llsSecret = llsSecret;
         this.authenticationKey = authenticationKey;
         this.encryptionKey = encryptionKey;
@@ -68,11 +70,17 @@ public class RTU3MeterDetails {
         return encryptionKey;
     }
 
+    @XmlAttribute
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
     public Structure toStructure() {
         final Structure structure = new Structure();
         structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getMacAddress(), "")));
         structure.addDataType(new Unsigned32(getDeviceTypeId()));
         structure.addDataType(new VisibleString(getDeviceTimeZone()));
+        structure.addDataType(OctetString.fromString(getSerialNumber()));
         structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getLlsSecret(), "")));
         structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getAuthenticationKey(), "")));
         structure.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getEncryptionKey(), "")));

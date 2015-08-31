@@ -9,6 +9,7 @@ import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
@@ -29,8 +30,8 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.*;
  */
 public class DlmsProperties implements DlmsSessionProperties {
 
-    protected SecurityProvider securityProvider;
     private final TypedProperties properties;
+    protected SecurityProvider securityProvider;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
     private String serialNumber = "";
 
@@ -129,7 +130,11 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public boolean isNtaSimulationTool() {
-        return properties.<Boolean>getTypedProperty(NTA_SIMULATION_TOOL, DEFAULT_NTA_SIMULATION_TOOL);
+        try {
+            return properties.<Boolean>getTypedProperty(NTA_SIMULATION_TOOL, DEFAULT_NTA_SIMULATION_TOOL);
+        } catch (Throwable e) {
+            return false;
+        }
     }
 
     @Override
@@ -262,8 +267,17 @@ public class DlmsProperties implements DlmsSessionProperties {
         return properties.<BigDecimal>getTypedProperty(key, defaultValue).intValue();
     }
 
+    /**
+     * Parse a BigDecimal property that has no default value.
+     * Throw an error if no value was configured for this property.
+     */
     protected int parseBigDecimalProperty(String key) {
-        return properties.<BigDecimal>getTypedProperty(key).intValue();
+        final BigDecimal value = properties.<BigDecimal>getTypedProperty(key);
+        if (value != null) {
+            return value.intValue();
+        } else {
+            throw MdcManager.getComServerExceptionFactory().missingProperty(key);
+        }
     }
 
     @Override

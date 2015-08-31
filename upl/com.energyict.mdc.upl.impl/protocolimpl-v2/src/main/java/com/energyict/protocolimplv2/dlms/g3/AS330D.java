@@ -44,10 +44,7 @@ import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetIm
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Protocol that reads out the G3 e-meter connected to an RTU3 gateway / concentrator (for the G3 international project).
@@ -59,7 +56,7 @@ import java.util.Random;
  */
 public class AS330D extends AbstractDlmsProtocol {
 
-    //TODO mirror logical device ID & real logical device ID  + switch between both when necessary + daisy chained logon....
+    //TODO mirror logical device ID & real logical device ID  + switch between both when necessary
     //TODO Create 2 DlmsSessions, 1 to the mirror logical device, and 1 to the gateway transparent logical device.
     //TODO Both use the same security keys, but a different ServerUpperMacAddress: either MIRROR_LOGICAL_DEVICE_ID or GATEWAY_LOGICAL_DEVICE_ID
     //TODO both sessions need to read out the FC first, this is in the same register
@@ -70,8 +67,6 @@ public class AS330D extends AbstractDlmsProtocol {
     private RegisterFactory registerFactory;
     private LogBookFactory logBookFactory;
     private ProfileDataFactory profileDataFactory;
-
-    private String cachedMeterSerialNumber = null;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -86,9 +81,6 @@ public class AS330D extends AbstractDlmsProtocol {
 
         DlmsSession publicDlmsSession = createPublicDlmsSession(comChannel);
         readFrameCounter(publicDlmsSession);
-
-        //Now read out the serial number using the public client
-        readMeterSerialNumber(publicDlmsSession);
 
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));    //Session to the mirror logical device
     }
@@ -145,16 +137,9 @@ public class AS330D extends AbstractDlmsProtocol {
 
     @Override
     public String getSerialNumber() {
-        if (cachedMeterSerialNumber == null) {
-            readMeterSerialNumber(getDlmsSession());
-        }
-        return cachedMeterSerialNumber;
-    }
-
-    private void readMeterSerialNumber(DlmsSession dlmsSession) {
-        final G3DeviceInfo g3DeviceInfo = new G3DeviceInfo(dlmsSession.getCosemObjectFactory());
+        final G3DeviceInfo g3DeviceInfo = new G3DeviceInfo(getDlmsSession().getCosemObjectFactory());
         try {
-            cachedMeterSerialNumber = g3DeviceInfo.getSerialNumber();
+            return g3DeviceInfo.getSerialNumber();
         } catch (DataAccessResultException | ProtocolException | ExceptionResponseException e) {
             throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);   //Received error code from the meter, instead of the expected value
         } catch (IOException e) {
@@ -318,22 +303,22 @@ public class AS330D extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return null;
+        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return null;
+        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return null;
+        return "";
     }
 
     @Override

@@ -183,7 +183,7 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
             throw MdcManager.getComServerExceptionFactory().missingProperty("SerialNumber");
         }
 
-        if (serialNumber.equals(this.meterProtocol.getSerialNumber())) {
+        if (serialNumber.equals(meterProtocol.getDlmsSession().getProperties().getSerialNumber())) {
             return 0;   // the 'Master' has physicalAddress 0
         }
 

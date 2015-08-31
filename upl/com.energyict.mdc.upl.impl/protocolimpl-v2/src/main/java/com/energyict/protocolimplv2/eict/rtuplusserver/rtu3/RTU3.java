@@ -13,7 +13,6 @@ import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
@@ -26,18 +25,19 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
-import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
 import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.RTU3Messaging;
 import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.properties.RTU3ConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.properties.RTU3Properties;
+import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.registers.RegisterFactory;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
-import com.energyict.protocolimplv2.security.RTU3SecuritySupport;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -56,10 +56,12 @@ public class RTU3 extends AbstractDlmsProtocol {    //TODO rename to Beacon 3100
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
     private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
+    private static final String MIRROR_LOGICAL_DEVICE_PREFIX = "ELS-MIR-";
+    private static final String GATEWAY_LOGICAL_DEVICE_PREFIX = "ELS-UGW-";
 
-    private static final int MIRROR_DEVICES_START = 2;
-    private static final int MIRROR_DEVICES_END = Short.MAX_VALUE;
     private RTU3Messaging rtu3Messaging;
+    private G3GatewayEvents g3GatewayEvents;
+    private RegisterFactory registerFactory;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -70,13 +72,13 @@ public class RTU3 extends AbstractDlmsProtocol {    //TODO rename to Beacon 3100
     }
 
     /**
-     * First read out the frame counter for the management client, using the public client.
+     * First read out the frame counter for the management client, using the public client. It has a pre-established association.
      * Note that this happens without setting up an association, since the it's pre-established for the public client.
      */
     protected void readFrameCounter(ComChannel comChannel) {
         TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
-        G3GatewayProperties publicClientProperties = new G3GatewayProperties();
+        RTU3Properties publicClientProperties = new RTU3Properties();
         publicClientProperties.addProperties(clone);
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, clone));    //SecurityLevel 0:0
 
@@ -91,7 +93,6 @@ public class RTU3 extends AbstractDlmsProtocol {    //TODO rename to Beacon 3100
             throw IOExceptionHandler.handle(e, publicDlmsSession);
         }
 
-        //Read out the frame counter using the public client, it has a pre-established association
         getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
     }
 
@@ -129,9 +130,19 @@ public class RTU3 extends AbstractDlmsProtocol {    //TODO rename to Beacon 3100
         return Collections.emptyList(); //Not supported
     }
 
+    /**
+     * Note that the logbook (and it's possible entries) are exactly the same as for the G3 gateway.
+     */
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-        return null;    //TODO get logbook obiscode and buffer entries description
+        return getG3GatewayEvents().readEvents(logBooks);
+    }
+
+    private G3GatewayEvents getG3GatewayEvents() {
+        if (g3GatewayEvents == null) {
+            g3GatewayEvents = new G3GatewayEvents(getDlmsSession());
+        }
+        return g3GatewayEvents;
     }
 
     @Override
@@ -173,8 +184,14 @@ public class RTU3 extends AbstractDlmsProtocol {    //TODO rename to Beacon 3100
 
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-        //TODO get documentation
-        return null;
+        return getRegisterFactory().readRegisters(registers);
+    }
+
+    private RegisterFactory getRegisterFactory() {
+        if (registerFactory == null) {
+            registerFactory = new RegisterFactory(getDlmsSession());
+        }
+        return registerFactory;
     }
 
     @Override
@@ -189,22 +206,23 @@ public class RTU3 extends AbstractDlmsProtocol {    //TODO rename to Beacon 3100
         }
 
         for (SAPAssignmentItem sapAssignmentItem : sapAssignmentList) {
-            if (!isGatewayNode(sapAssignmentItem) && isMirrorLogicalDevice(sapAssignmentItem.getSap())) {
-                //The name is the MAC address of the meter
-                DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(sapAssignmentItem.getLogicalDeviceName());
+            final String logicalDeviceName = sapAssignmentItem.getLogicalDeviceName();
+            if (isGatewayLogicalDevice(logicalDeviceName)) {
+                final String macAddress = ProtocolTools.getHexStringFromBytes(logicalDeviceName.substring(logicalDeviceName.length() - 8).getBytes(), "");  //Last 8 bytes = the MAC address!
+                DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);
                 deviceTopology.addSlaveDevice(slaveDeviceIdentifier);   //Using callHomeId as a general property
                 deviceTopology.addAdditionalCollectedDeviceInfo(
                         MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                 slaveDeviceIdentifier,
-                                AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID,
+                                AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID,
                                 BigDecimal.valueOf(sapAssignmentItem.getSap())
                         )
                 );
                 deviceTopology.addAdditionalCollectedDeviceInfo(
                         MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
                                 slaveDeviceIdentifier,
-                                AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID,
-                                BigDecimal.valueOf(calculateGatewayLogicalDeviceId(sapAssignmentItem))
+                                AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID,
+                                BigDecimal.valueOf(findMatchingMirrorLogicalDevice(macAddress, sapAssignmentList))
                         )
                 );
             }
@@ -212,29 +230,21 @@ public class RTU3 extends AbstractDlmsProtocol {    //TODO rename to Beacon 3100
         return deviceTopology;
     }
 
-    private int calculateGatewayLogicalDeviceId(SAPAssignmentItem sapAssignmentItem) {
-        return MIRROR_DEVICES_END + sapAssignmentItem.getSap(); //TODO -1 offset?
+    private boolean isGatewayLogicalDevice(String logicalDeviceName) {
+        return logicalDeviceName.startsWith(GATEWAY_LOGICAL_DEVICE_PREFIX);
     }
 
-    /**
-     * A logical device represents a 'mirror' (cached meter data in the DC) if its SAP is between 2 and 32767
-     */
-    private boolean isMirrorLogicalDevice(int sap) {
-        return sap > MIRROR_DEVICES_START && sap < MIRROR_DEVICES_END;
-    }
-
-    /**
-     * True if the SAP item represents the DC itself, false if it represents a slave meter
-     */
-    private boolean isGatewayNode(SAPAssignmentItem sapAssignmentItem) {
-        return sapAssignmentItem.getSap() == 1;
-    }
-
-    protected DeviceProtocolSecurityCapabilities getSecuritySupport() {
-        if (dlmsSecuritySupport == null) {
-            dlmsSecuritySupport = new RTU3SecuritySupport();
+    private long findMatchingMirrorLogicalDevice(String gatewayMacAddress, List<SAPAssignmentItem> sapAssignmentList) {
+        for (SAPAssignmentItem sapAssignmentItem : sapAssignmentList) {
+            final String logicalDeviceName = sapAssignmentItem.getLogicalDeviceName();
+            if (logicalDeviceName.startsWith(MIRROR_LOGICAL_DEVICE_PREFIX)) {
+                final String mirrorMacAddress = ProtocolTools.getHexStringFromBytes(logicalDeviceName.substring(logicalDeviceName.length() - 8).getBytes(), "");
+                if (gatewayMacAddress.equals(mirrorMacAddress)) {
+                    return sapAssignmentItem.getSap();
+                }
+            }
         }
-        return dlmsSecuritySupport;
+        return -1;
     }
 
     @Override
@@ -246,7 +256,6 @@ public class RTU3 extends AbstractDlmsProtocol {    //TODO rename to Beacon 3100
     public void logOn() {
         getDlmsSession().connect();
         checkCacheObjects();
-        //No MBus slave devices
     }
 
     protected void checkCacheObjects() {

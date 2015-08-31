@@ -16,7 +16,6 @@ public class AllMasterData {
 
     private final List<RTU3ClientType> clientTypes = new ArrayList<>();
     private final List<RTU3DeviceType> deviceTypes = new ArrayList<>();
-    private final List<RTU3MeterDetails> meterDetailsList = new ArrayList<>();
     private final List<RTU3Schedule> schedules = new ArrayList<>();
 
     public AllMasterData() {
@@ -30,11 +29,6 @@ public class AllMasterData {
     @XmlAttribute
     public List<RTU3DeviceType> getDeviceTypes() {
         return deviceTypes;
-    }
-
-    @XmlAttribute
-    public List<RTU3MeterDetails> getMeterDetailsList() {
-        return meterDetailsList;
     }
 
     @XmlAttribute

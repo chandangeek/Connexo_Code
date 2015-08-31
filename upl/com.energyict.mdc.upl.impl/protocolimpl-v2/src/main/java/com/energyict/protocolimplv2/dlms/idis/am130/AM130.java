@@ -46,7 +46,7 @@ import java.util.Random;
  */
 public class AM130 extends AM500 {
 
-    private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.0.255");
+    protected static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.0.255");
 
     protected AM130RegisterFactory registerFactory;
 
@@ -123,7 +123,7 @@ public class AM130 extends AM500 {
 
         long frameCounter;
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
-        connectWithRetries(publicDlmsSession, publicClientProperties);
+        connectToPublicClient(publicDlmsSession);
         try {
             frameCounter = publicDlmsSession.getCosemObjectFactory().getData(FRAMECOUNTER_OBISCODE).getValueAttr().longValue();
         } catch (DataAccessResultException | ProtocolException e) {
@@ -131,9 +131,23 @@ public class AM130 extends AM500 {
         } catch (IOException e) {
             throw IOExceptionHandler.handle(e, publicDlmsSession);
         }
-        publicDlmsSession.disconnect();
+        disconnectFromPublicClient(publicDlmsSession);
 
         getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
+    }
+
+    /**
+     * Actually create an association to the public client, it is not pre-established
+     */
+    protected void connectToPublicClient(DlmsSession publicDlmsSession) {
+        connectWithRetries(publicDlmsSession);
+    }
+
+    /**
+     * Actually release from the public client, it is not pre-established
+     */
+    protected void disconnectFromPublicClient(DlmsSession publicDlmsSession) {
+        publicDlmsSession.disconnect();
     }
 
     protected IDISLogBookFactory getIDISLogBookFactory() {

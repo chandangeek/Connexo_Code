@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobjects;
 
 import com.energyict.dlms.axrdencoding.*;
+import com.energyict.mdc.tasks.ComTaskEnablement;
 import com.energyict.obis.ObisCode;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -23,7 +24,13 @@ public class RTU3Schedulable {
     private List<ObisCode> registers;
     private List<ObisCode> eventLogs;
 
-    public RTU3Schedulable(long scheduleId, int logicalDeviceId, int clientTypeId, List<ObisCode> profiles, List<ObisCode> registers, List<ObisCode> eventLogs) {
+    /**
+     * A reference to the original comTaskEnablement that defined this masterdata
+     */
+    private ComTaskEnablement comTaskEnablement;
+
+    public RTU3Schedulable(ComTaskEnablement comTaskEnablement, long scheduleId, int logicalDeviceId, int clientTypeId, List<ObisCode> profiles, List<ObisCode> registers, List<ObisCode> eventLogs) {
+        this.comTaskEnablement = comTaskEnablement;
         this.scheduleId = scheduleId;
         this.logicalDeviceId = logicalDeviceId;
         this.clientTypeId = clientTypeId;
@@ -61,6 +68,10 @@ public class RTU3Schedulable {
         structure.addDataType(eventLogArray);
 
         return structure;
+    }
+
+    public ComTaskEnablement getComTaskEnablement() {
+        return comTaskEnablement;
     }
 
     @XmlAttribute

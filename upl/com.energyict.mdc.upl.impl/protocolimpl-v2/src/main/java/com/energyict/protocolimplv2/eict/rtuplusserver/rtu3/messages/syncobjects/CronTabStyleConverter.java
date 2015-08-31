@@ -1,8 +1,9 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages;
+package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobjects;
 
 import com.energyict.cbo.TimeDuration;
 import com.energyict.mdc.shadow.tasks.NextExecutionSpecsShadow;
 import com.energyict.mdc.tasks.NextExecutionSpecs;
+import com.energyict.protocolimplv2.MdcManager;
 
 /**
  * Copyrights EnergyICT
@@ -35,7 +36,7 @@ public class CronTabStyleConverter {
                     return "";
             }
         } else if (nextExecutionSpecs.getDialCalendar() != null) {
-            return "";    //TODO add support to convert dial calendar to crontab style
+            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException("Comtask schedule", "Read schedule with ID " + String.valueOf(nextExecutionSpecs.getDialCalendar().getId()), "A read schedule (dial calendar) is not supported by this message");
         } else {
             return "";
         }

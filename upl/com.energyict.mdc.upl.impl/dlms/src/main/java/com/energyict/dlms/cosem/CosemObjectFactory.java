@@ -88,6 +88,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new ClientTypeManager(protocolLink, getObjectReference(ClientTypeManager.getDefaultObisCode(), DLMSClassId.CLIENT_TYPE_MANAGER.getClassId()));
     }
 
+    public MulticastIC getMulticastIC() throws NotInObjectListException {
+        return new MulticastIC(protocolLink, getObjectReference(MulticastIC.getDefaultObisCode(), DLMSClassId.MULTICAST_IC.getClassId()));
+    }
+
     public Clock getClock(ObisCode obisCode) throws NotInObjectListException {
         return new Clock(protocolLink, getObjectReference(obisCode));
     }

@@ -112,7 +112,7 @@ public class TCPIPConnection implements DlmsV2Connection {
             readVersion(wpdu, header);
             readSourceField(wpdu, header);
             readDestinationField(wpdu, header);
-            short length = header.getShort();
+            int length = (header.getShort()  & 0x0FFFF);
             wpdu.setLength(length);
 
             byte[] frame = new byte[length];
@@ -273,7 +273,7 @@ public class TCPIPConnection implements DlmsV2Connection {
     }
 
     private void readDestinationField(WPDU wpdu, ByteBuffer header) throws ProtocolException {
-        wpdu.setDestination(header.getShort());
+        wpdu.setDestination(header.getShort() & 0x0FFFF);
         int address = switchAddresses ? this.clientAddress : this.serverAddress;
         if (wpdu.getDestination() != address) {
             throw new ProtocolException("Received WPDU with wrong destination address! Expected [" + address + "] but received [" + wpdu.getDestination() + "].");
@@ -281,7 +281,7 @@ public class TCPIPConnection implements DlmsV2Connection {
     }
 
     private void readSourceField(WPDU wpdu, ByteBuffer header) throws ProtocolException {
-        wpdu.setSource(header.getShort());
+        wpdu.setSource(header.getShort() & 0x0FFFF);
         int address = this.switchAddresses ? this.serverAddress : this.clientAddress;
         if (wpdu.getSource() != address) {
             throw new ProtocolException("Received WPDU with wrong source address! Expected [" + address + "] but received [" + wpdu.getSource() + "].");
@@ -289,7 +289,7 @@ public class TCPIPConnection implements DlmsV2Connection {
     }
 
     private void readVersion(WPDU wpdu, ByteBuffer header) throws ProtocolException {
-        wpdu.setVersion(header.getShort());
+        wpdu.setVersion(header.getShort() & 0x0FFFF);
         if (wpdu.getVersion() != WRAPPER_VERSION) {
             throw new ProtocolException("Received WPDU with wrong WPDU version! Expected [" + WRAPPER_VERSION + "] but received [" + wpdu.getVersion() + "].");
         }

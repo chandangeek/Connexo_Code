@@ -105,7 +105,7 @@ public abstract class AbstractMessageExecutor {
                 pendingMessage.getSpecification().getName());
     }
 
-    protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, Exception e) {
+    public Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, Exception e) {
         return createMessageFailedIssue(pendingMessage, e.getMessage());
     }
 

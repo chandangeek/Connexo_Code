@@ -149,13 +149,7 @@ public class EventPushNotificationParser {
         if (securityPropertySet == null) {
             List<SecurityProperty> securityProperties = inboundDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, inboundComPort);
             if (securityProperties != null && !securityProperties.isEmpty()) {
-                TypedProperties typedProperties = TypedProperties.empty();
-                for (SecurityProperty securityProperty : securityProperties) {
-                    typedProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
-                }
-                int authLevel = securityProperties.get(0).getSecurityPropertySet().getAuthenticationDeviceAccessLevelId();
-                int encrLevel = securityProperties.get(0).getSecurityPropertySet().getEncryptionDeviceAccessLevelId();
-                this.securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(authLevel, encrLevel, typedProperties);
+                this.securityPropertySet = new DeviceProtocolSecurityPropertySetImpl(securityProperties);
             } else {
                 throw MdcManager.getComServerExceptionFactory().notConfiguredForInboundCommunication(deviceIdentifier);
             }
@@ -165,6 +159,7 @@ public class EventPushNotificationParser {
 
     private ByteBuffer readInboundFrame() {
         byte[] header = new byte[8];
+        getComChannel().startReading();
         int readBytes = getComChannel().read(header);
         if (readBytes != 8) {
             throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Attempted to read out 8 header bytes but received " + readBytes + " bytes instead..."));
