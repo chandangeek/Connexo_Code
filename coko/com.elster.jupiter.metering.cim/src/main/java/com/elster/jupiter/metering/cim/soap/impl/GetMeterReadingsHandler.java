@@ -1,18 +1,17 @@
 package com.elster.jupiter.metering.cim.soap.impl;
 
+import ch.iec.tc57._2011.getmeterreadings.EndDevice;
 import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
+import ch.iec.tc57._2011.getmeterreadings.GetMeterReadings;
 import ch.iec.tc57._2011.getmeterreadings.GetMeterReadingsPort;
-import ch.iec.tc57._2011.getmeterreadings_.EndDevice;
-import ch.iec.tc57._2011.getmeterreadings_.GetMeterReadings;
-import ch.iec.tc57._2011.getmeterreadings_.ReadingType;
-import ch.iec.tc57._2011.getmeterreadings_.UsagePoint;
-import ch.iec.tc57._2011.getmeterreadings_.UsagePointGroup;
+import ch.iec.tc57._2011.getmeterreadings.ReadingType;
+import ch.iec.tc57._2011.getmeterreadings.UsagePoint;
+import ch.iec.tc57._2011.getmeterreadings.UsagePointGroup;
 import ch.iec.tc57._2011.getmeterreadingsmessage.GetMeterReadingsRequestType;
 import ch.iec.tc57._2011.getmeterreadingsmessage.MeterReadingsPayloadType;
 import ch.iec.tc57._2011.getmeterreadingsmessage.ObjectFactory;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
-
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -22,29 +21,26 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointMembership;
-
-import java.time.Instant;
-import java.util.Optional;
-
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
-
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class GetMeterReadingsHandler implements GetMeterReadingsPort {
     private final ObjectFactory objectFactory = new ObjectFactory();
     private final MeteringService meteringService;
     private final MeteringGroupsService meteringGroupsService;
-    private final ch.iec.tc57._2011.meterreadings_.ObjectFactory payloadObjectFactory = new ch.iec.tc57._2011.meterreadings_.ObjectFactory();
+    private final ch.iec.tc57._2011.meterreadings.ObjectFactory payloadObjectFactory = new ch.iec.tc57._2011.meterreadings.ObjectFactory();
     private MeterReadingsGenerator meterReadingsGenerator = new MeterReadingsGenerator();
 
     public GetMeterReadingsHandler(MeteringService meteringService, MeteringGroupsService meteringGroupsService) {
@@ -227,7 +223,7 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
         List<String> endDeviceGroups = new ArrayList<>();
         if (request.getGetMeterReadings() != null) {
             GetMeterReadings getMeterReadings = request.getGetMeterReadings();
-            for (ch.iec.tc57._2011.getmeterreadings_.EndDeviceGroup endDeviceGroup : getMeterReadings.getEndDeviceGroup()) {
+            for (ch.iec.tc57._2011.getmeterreadings.EndDeviceGroup endDeviceGroup : getMeterReadings.getEndDeviceGroup()) {
                 endDeviceGroups.add(endDeviceGroup.getMRID());
             }
         }

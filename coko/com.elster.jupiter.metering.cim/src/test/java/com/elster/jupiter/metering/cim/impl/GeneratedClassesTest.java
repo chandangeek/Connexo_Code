@@ -1,9 +1,9 @@
 package com.elster.jupiter.metering.cim.impl;
 
-import ch.iec.tc57._2011.meterreadings_.Meter;
-import ch.iec.tc57._2011.meterreadings_.MeterReading;
-import ch.iec.tc57._2011.meterreadings_.MeterReadings;
-import ch.iec.tc57._2011.meterreadings_.Reading;
+import ch.iec.tc57._2011.meterreadings.Meter;
+import ch.iec.tc57._2011.meterreadings.MeterReading;
+import ch.iec.tc57._2011.meterreadings.MeterReadings;
+import ch.iec.tc57._2011.meterreadings.Reading;
 import ch.iec.tc57._2011.schema.message.CreatedMeterReadings;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ObjectFactory;
@@ -24,7 +24,7 @@ import java.util.Date;
 
 public class GeneratedClassesTest {
 
-    private ch.iec.tc57._2011.meterreadings_.ObjectFactory payloadObjectFactory = new ch.iec.tc57._2011.meterreadings_.ObjectFactory();
+    private ch.iec.tc57._2011.meterreadings.ObjectFactory payloadObjectFactory = new ch.iec.tc57._2011.meterreadings.ObjectFactory();
 
     @Test
     public void testGenerateMeterReadingMessage() throws JAXBException {
@@ -58,7 +58,7 @@ public class GeneratedClassesTest {
         try {
             MeterReadings meterReadings = payloadObjectFactory.createMeterReadings();
             meterReadings.getMeterReading().add(createMeterReading());
-            JAXBContext jc = JAXBContext.newInstance("ch.iec.tc57._2011.meterreadings_");
+            JAXBContext jc = JAXBContext.newInstance("ch.iec.tc57._2011.meterreadings");
             Marshaller m = jc.createMarshaller();
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
@@ -84,7 +84,7 @@ public class GeneratedClassesTest {
     }
 
     private Reading createReading() {
-        Reading reading = new ch.iec.tc57._2011.meterreadings_.ObjectFactory().createReading();
+        Reading reading = new ch.iec.tc57._2011.meterreadings.ObjectFactory().createReading();
         Reading.ReadingType readingType = new Reading.ReadingType();
         readingType.setRef("1.2.3");
         reading.setReadingType(readingType);

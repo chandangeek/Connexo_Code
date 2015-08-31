@@ -1,14 +1,13 @@
 package com.elster.jupiter.metering.cim.impl;
 
-import ch.iec.tc57._2011.meterreadings_.EndDeviceEvent;
-import ch.iec.tc57._2011.meterreadings_.Meter;
-import ch.iec.tc57._2011.meterreadings_.MeterReading;
-import ch.iec.tc57._2011.meterreadings_.MeterReadings;
-import ch.iec.tc57._2011.meterreadings_.ObjectFactory;
-import ch.iec.tc57._2011.meterreadings_.Reading;
-import ch.iec.tc57._2011.meterreadings_.ReadingQuality;
-import ch.iec.tc57._2011.meterreadings_.UsagePoint;
-
+import ch.iec.tc57._2011.meterreadings.EndDeviceEvent;
+import ch.iec.tc57._2011.meterreadings.Meter;
+import ch.iec.tc57._2011.meterreadings.MeterReading;
+import ch.iec.tc57._2011.meterreadings.MeterReadings;
+import ch.iec.tc57._2011.meterreadings.ObjectFactory;
+import ch.iec.tc57._2011.meterreadings.Reading;
+import ch.iec.tc57._2011.meterreadings.ReadingQuality;
+import ch.iec.tc57._2011.meterreadings.UsagePoint;
 import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -108,11 +107,11 @@ public class MeterReadingsGenerator {
         }
     }
 
-    private ch.iec.tc57._2011.meterreadings_.Status toStatus(Status status) {
+    private ch.iec.tc57._2011.meterreadings.Status toStatus(Status status) {
         if (status == null) {
             return null;
         }
-        ch.iec.tc57._2011.meterreadings_.Status state = payloadObjectFactory.createStatus();
+        ch.iec.tc57._2011.meterreadings.Status state = payloadObjectFactory.createStatus();
         state.setDateTime(Date.from(status.getDateTime()));
         state.setReason(status.getReason());
         state.setRemark(status.getRemark());

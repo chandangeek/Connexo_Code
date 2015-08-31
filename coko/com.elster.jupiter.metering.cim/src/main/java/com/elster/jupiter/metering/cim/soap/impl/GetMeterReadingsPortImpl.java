@@ -9,16 +9,16 @@ import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import java.time.Clock;
 
 import javax.jws.WebParam;
 import javax.xml.ws.Holder;
+import java.time.Clock;
 
 class GetMeterReadingsPortImpl implements GetMeterReadingsPort {
     private final ObjectFactory objectFactory = new ObjectFactory();
     private final MeteringService meteringService;
     private final MeteringGroupsService meteringGroupsService;
-    private final ch.iec.tc57._2011.meterreadings_.ObjectFactory payloadObjectFactory = new ch.iec.tc57._2011.meterreadings_.ObjectFactory();
+    private final ch.iec.tc57._2011.meterreadings.ObjectFactory payloadObjectFactory = new ch.iec.tc57._2011.meterreadings.ObjectFactory();
     private final Clock clock;
 
     @Override

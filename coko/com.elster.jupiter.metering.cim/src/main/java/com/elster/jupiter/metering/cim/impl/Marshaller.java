@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.cim.impl;
 
-import ch.iec.tc57._2011.meterreadings_.MeterReadings;
+import ch.iec.tc57._2011.meterreadings.MeterReadings;
 import ch.iec.tc57._2011.schema.message.CreatedMeterReadings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -14,7 +14,7 @@ import java.io.OutputStream;
 
 public class Marshaller {
 
-    private javax.xml.bind.Marshaller payloadMarshaller = getMarshallerForContext("ch.iec.tc57._2011.meterreadings_");
+    private javax.xml.bind.Marshaller payloadMarshaller = getMarshallerForContext("ch.iec.tc57._2011.meterreadings");
     private javax.xml.bind.Marshaller messageMarshaller = getMarshallerForContext("ch.iec.tc57._2011.schema.message");
 
     public void marshal(CreatedMeterReadings createdMeterReadings, OutputStream out) {

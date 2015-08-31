@@ -1,13 +1,11 @@
 package com.elster.jupiter.metering.cim.impl;
 
-import ch.iec.tc57._2011.meterreadings_.ObjectFactory;
-
+import ch.iec.tc57._2011.meterreadings.ObjectFactory;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.collect.Range;
-
 import org.osgi.service.event.EventConstants;
 
 import java.time.Instant;

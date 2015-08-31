@@ -1,18 +1,15 @@
 package com.elster.jupiter.metering.cim.impl;
 
-import ch.iec.tc57._2011.meterreadings_.MeterReadings;
+import ch.iec.tc57._2011.meterreadings.MeterReadings;
 import ch.iec.tc57._2011.schema.message.CreatedMeterReadings;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.ObjectFactory;
-
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.cim.Sender;
+import com.google.common.collect.Range;
 
 import java.time.Clock;
 import java.time.Instant;
-
-import com.google.common.collect.Range;
-
 import java.util.Date;
 import java.util.UUID;
 
