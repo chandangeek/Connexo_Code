@@ -413,7 +413,7 @@ Ext.define('Dxp.view.tasks.Add', {
 
                             {
                                 xtype: 'label',
-                                text: 'There are no destinations added yet',
+                                text: Uni.I18n.translate('dataExport.noDestinations','DES','There are no destinations added yet'),
                                 itemId: 'noDestinationsLabel'
 
                             },
@@ -435,7 +435,7 @@ Ext.define('Dxp.view.tasks.Add', {
 
                     {
                          xtype: 'label',
-                         text: 'This field is required',
+                         text: Uni.I18n.translate('dataExport.requiredField','DES','This field is required'),
                          cls: 'x-form-invalid-under',
                          itemId: 'noDestinationsErrorLabel',
                          hidden: true,
