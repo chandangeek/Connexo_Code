@@ -5,7 +5,9 @@ import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class EstimationRuleInfo {

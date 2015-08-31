@@ -112,6 +112,10 @@
 
         <!-- TEST -->
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bootstrap.h2</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
             <artifactId>jersey-test-framework-provider-inmemory</artifactId>
         </dependency>
@@ -130,5 +134,10 @@
             <artifactId>json-path</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>devtools.rest</artifactId>
+        </dependency>
+
     </dependencies>
 </project>
