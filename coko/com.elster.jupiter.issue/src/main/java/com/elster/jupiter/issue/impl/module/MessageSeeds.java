@@ -61,7 +61,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     ISSUE_CREATION_RULE_INCORRECT_NUMBER_PARAMETER(9009, "issue.creation.incorrect.number.parameter", "Number should be between %s and %s", Level.SEVERE),
     ISSUE_CREATION_RULE_INVALID_NUMBER_PARAMETER(9010, "issue.creation.invalid.number.parameter", "%s is not a number", Level.SEVERE),
     NOT_UNIQUE_KEY(9011, "issue.not.unique.key", "The key '{0}' is already in use", Level.SEVERE),
-    CREATION_RULE_UNIQUE_NAME(9012, Keys.CREATION_RULE_UNIQUE_NAME, "The name should be unique", Level.SEVERE),
+    CREATION_RULE_UNIQUE_NAME(9012, Keys.CREATION_RULE_UNIQUE_NAME, "Name must be unique", Level.SEVERE),
     PROPERTY_NOT_IN_PROPERTYSPECS(9013, Keys.PROPERTY_NOT_IN_PROPERTYSPECS, "Property is not in property specs", Level.SEVERE),
     PROPERTY_MISSING(9014, Keys.PROPERTY_MISSING, "This field is required", Level.SEVERE),
     PROPERTY_NOT_POSSIBLE_VALUE(9015, Keys.PROPERTY_NOT_POSSIBLE_VALUE, "The value is not listed as a possible value for this property", Level.SEVERE)
