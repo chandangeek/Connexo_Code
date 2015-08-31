@@ -6,6 +6,10 @@ Ext.define('Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses
     model: 'Dlc.devicelifecyclestates.model.TransitionBusinessProcess',
     storeId: 'AvailableTransitionBusinessProcesses',
     remoteFilter: false,
+    sorters: [{
+        property: 'processId',
+        direction: 'ASC'
+    }],
 /*
     // for 'playing' purposes
     proxy: {
@@ -24,6 +28,9 @@ Ext.define('Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses
         reader: {
             type: 'json',
             root: 'stateChangeBusinessProcesses'
-        }
+        },
+        startParam: undefined,
+        limitParam: undefined,
+        pageParam: undefined
     }
 });

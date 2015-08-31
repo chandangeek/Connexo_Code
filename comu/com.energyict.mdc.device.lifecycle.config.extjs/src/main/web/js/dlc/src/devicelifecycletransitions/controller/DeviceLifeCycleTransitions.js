@@ -274,9 +274,9 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
             success: function () {
                 router.getRoute('administration/devicelifecycles/devicelifecycle/transitions').forward();
                 if (button.action === 'editTransition') {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycleTransitions.edit.successMsg', 'DLC', 'Device life cycle transition saved'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycleTransitions.edit.successMessage', 'DLC', 'Transition saved'));
                 } else {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycleTransitions.add.successMsg', 'DLC', 'Device life cycle transition added'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycleTransitions.add.successMessage', 'DLC', 'Transition added'));
                 }
             },
             failure: function (record, operation) {

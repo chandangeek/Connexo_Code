@@ -214,6 +214,8 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             deviceLifeCycleModel = me.getModel('Dlc.devicelifecycles.model.DeviceLifeCycle'),
             router = me.getController('Uni.controller.history.Router'),
             store = me.getStore('Dlc.devicelifecyclestates.store.DeviceLifeCycleStates'),
+            entryProcessesStore = me.getStore('Dlc.devicelifecyclestates.store.TransitionBusinessProcessesOnEntry'),
+            exitProcessesStore = me.getStore('Dlc.devicelifecyclestates.store.TransitionBusinessProcessesOnExit'),
             view;
 
         store.getProxy().setUrl(router.arguments);
@@ -224,6 +226,11 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
                     router: router,
                     lifecycleRecord: deviceLifeCycleRecord
                 });
+                if (entryProcessesStore)
+                    entryProcessesStore.removeAll();
+                if (exitProcessesStore)
+                    exitProcessesStore.removeAll();
+
                 me.getApplication().fireEvent('devicelifecycleload', deviceLifeCycleRecord);
                 view.down('#device-life-cycle-link').setText(deviceLifeCycleRecord.get('name'));
                 me.getApplication().fireEvent('changecontentevent', view);
