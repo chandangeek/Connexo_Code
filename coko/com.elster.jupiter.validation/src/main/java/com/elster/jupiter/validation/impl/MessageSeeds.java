@@ -1,13 +1,14 @@
-package com.elster.jupiter.validation;
+package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.nls.*;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.validation.ValidationService;
 
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     CAN_NOT_BE_EMPTY(2, Constants.NAME_REQUIRED_KEY, "This field is required", Level.SEVERE),
 
@@ -97,7 +98,7 @@ public enum MessageSeeds implements MessageSeed {
 
     }
 
-    public enum Labels {
+    public enum Labels implements TranslationKey {
         SCHEDULED("validationtask.occurrence.scheduled", "Scheduled"),
         ON_REQUEST("validationtask.occurrence.onrequest", "On Request");
 
@@ -119,6 +120,16 @@ public enum MessageSeeds implements MessageSeed {
 
         public String translate(Thesaurus thesaurus, Locale locale) {
             return thesaurus.getString(locale, key, defaultTranslation);
+        }
+
+        @Override
+        public String getKey() {
+            return key;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return defaultTranslation;
         }
     }
 }

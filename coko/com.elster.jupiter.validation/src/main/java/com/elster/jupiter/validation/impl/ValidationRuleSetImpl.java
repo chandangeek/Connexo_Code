@@ -10,8 +10,6 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -26,7 +24,7 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.validation.*;
-import com.elster.jupiter.validation.MessageSeeds.Constants;
+import com.elster.jupiter.validation.impl.MessageSeeds.Constants;
 import org.hibernate.validator.constraints.NotEmpty;
 
 @XmlRootElement

@@ -8,7 +8,6 @@ import javax.validation.ConstraintValidatorContext;
 
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.validation.MessageSeeds;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 
 public class HasValidPropertiesValidator implements ConstraintValidator<HasValidProperties, ValidationRuleImpl> {

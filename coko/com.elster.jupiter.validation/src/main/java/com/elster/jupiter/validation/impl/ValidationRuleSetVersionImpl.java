@@ -24,7 +24,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.validation.*;
-import com.elster.jupiter.validation.MessageSeeds.Constants;
+import com.elster.jupiter.validation.impl.MessageSeeds.Constants;
 
 @UniqueStartDate(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.OVERLAPPED_PERIOD + "}")
 public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVersion {
