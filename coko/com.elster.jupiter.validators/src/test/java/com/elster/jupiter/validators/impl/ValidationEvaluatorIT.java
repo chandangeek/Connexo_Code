@@ -194,11 +194,11 @@ public class ValidationEvaluatorIT {
             return null;
         });
         validationStates = evaluator.getValidationStatus(channel, channel.getReadings(Range.all()), Range.all());
-        assertThat(validationStates).hasSize(3);
+        assertThat(validationStates).hasSize(4);
         validationResults =  validationStates.stream()
         		.map(DataValidationStatus::getValidationResult)
         		.collect(Collectors.toList());
-        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, NOT_VALIDATED, NOT_VALIDATED));
+        assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, NOT_VALIDATED, NOT_VALIDATED, NOT_VALIDATED));
     }
 
     @Test
