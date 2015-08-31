@@ -63,7 +63,7 @@ Ext.define('Idc.controller.Main', {
                 route: 'datacollection',
                 items: [
                     {
-                        text: 'Issues',
+                        text: Uni.I18n.translate('datacollection.issues','IDC','Issues'),
                         href: router.getRoute('workspace/datacollectionissues').buildUrl()
                     },
                     {
