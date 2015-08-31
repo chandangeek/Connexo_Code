@@ -1,5 +1,6 @@
-package com.elster.jupiter.estimation;
+package com.elster.jupiter.estimation.impl;
 
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
