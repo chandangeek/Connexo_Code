@@ -24,7 +24,7 @@ Ext.define('Isu.view.component.AssigneeCombo', {
     forceSelection: true,
 
     gridConfig: {
-        emptyText: 'No assignee found',
+        emptyText: Uni.I18n.translate('issues.noAssigneeFound','ISU','No assignee found'),
         resizable: false,
         stripeRows: true,
 

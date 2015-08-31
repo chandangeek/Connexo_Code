@@ -36,7 +36,7 @@ Ext.define('Isu.view.issues.AssignForm', {
                     allowBlank: false,
                     validateOnChange: false,
                     name: 'assigneeCombo',
-                    emptyText: 'Start typing for users',
+                    emptyText: Uni.I18n.translate('issues.startTypingForUsers','ISU','Start typing for users'),
                     displayField: 'name'
                 },
                 {
@@ -44,7 +44,7 @@ Ext.define('Isu.view.issues.AssignForm', {
                     xtype: 'textareafield',
                     fieldLabel: 'Comment',
                     name: 'comment',
-                    emptyText: 'Provide a comment \r\n(optionally)',
+                    emptyText: Uni.I18n.translate('issues.provideComment','ISU','Provide a comment \r\n(optionally)'),
                     height: 150
                 }
             ]

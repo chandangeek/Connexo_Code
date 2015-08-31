@@ -16,7 +16,7 @@ Ext.define('Isu.view.component.UserCombo', {
     typeAhead: true,
     forceSelection: true,
     formBind: false,
-    emptyText: 'select user',
+    emptyText: Uni.I18n.translate('issues.selectUser','ISU','select user'),
     listConfig: {
         getInnerTpl: function(displayField) {
             return '<img src="../../apps/isu/resources/images/icons/USER.png"/> {' + displayField + '}';

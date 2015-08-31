@@ -29,7 +29,7 @@ Ext.define('Isu.view.issues.CloseForm', {
                     name: 'comment',
                     width: 500,
                     height: 150,
-                    emptyText: 'Provide a comment (optionally)'
+                    emptyText:  Uni.I18n.translate('issues.provideComment','ISU','Provide a comment \r\n(optionally)')
                 }
             ]
         }

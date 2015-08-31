@@ -30,7 +30,7 @@ Ext.define('Isu.view.issues.SideFilter', {
             fieldLabel: Uni.I18n.translate('general.assignee', 'ISU', 'Assignee'),
             forceSelection: true,
             anyMatch: true,
-            emptyText: 'Start typing to select an assignee'
+            emptyText: Uni.I18n.translate('issues.selectAssignee','ISU','Start typing to select an assignee')
 
         },
         {
@@ -46,7 +46,7 @@ Ext.define('Isu.view.issues.SideFilter', {
 
             listConfig: {
                 cls: 'isu-combo-color-list',
-                emptyText: 'No reason found'
+                emptyText: Uni.I18n.translate('issues.noReasonFound','ISU','No reason found')
             },
 
             queryMode: 'remote',
@@ -56,7 +56,7 @@ Ext.define('Isu.view.issues.SideFilter', {
             minChars: 0,
 
             anchor: '100%',
-            emptyText: 'Select a reason'
+            emptyText: Uni.I18n.translate('issues.selectReason','ISU','Select a reason')
         },
         {
             itemId: 'filter-by-meter',
