@@ -77,7 +77,7 @@ public class UsagePointDataInfoFactory {
         return channelIntervalInfo;
     }
     
-    public RegisterDataInfo createRegisterDataInfo(Channel channel, ReadingRecord irr, Range<Instant> range) {
+    public RegisterDataInfo createRegisterDataInfo(Channel channel, ReadingRecord irr, Range<Instant> range, String rt_mrid) {
         RegisterDataInfo registerDataInfo = new RegisterDataInfo();
         registerDataInfo.interval = IntervalInfo.from(range);
         registerDataInfo.readingTime = irr.getReportedDateTime();//.getReadingTime();
@@ -87,6 +87,7 @@ public class UsagePointDataInfoFactory {
         registerDataInfo.value = irr.getValue();
         //TODO: safety check this...
         registerDataInfo.deviceMRID = channel.getMeterActivation().getMeter().get().getMRID();
+        registerDataInfo.readingType = rt_mrid;
 //            channel.getReadingType().getCalculatedReadingType().ifPresent(calculatedReadingType -> {
 //                channelIntervalInfo.isBulk = true;
 //                channelIntervalInfo.collectedValue = channelIntervalInfo.value;

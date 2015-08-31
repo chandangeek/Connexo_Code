@@ -84,7 +84,7 @@ public class RegisterResource {
             Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
             List<ReadingRecord> registerDataInfo = channel.getRegisterReadings(range);
             List<RegisterDataInfo> infos = registerDataInfo.stream().map(
-                    readingRecord -> usagePointDataInfoFactory.createRegisterDataInfo(channel, readingRecord, range)).
+                    readingRecord -> usagePointDataInfoFactory.createRegisterDataInfo(channel, readingRecord, range, rt_mrid)).
                     collect(Collectors.toList());
             
             

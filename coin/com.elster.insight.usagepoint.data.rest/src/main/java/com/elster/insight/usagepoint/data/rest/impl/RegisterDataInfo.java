@@ -27,6 +27,7 @@ public class RegisterDataInfo {
 //    public boolean isBulk;
     public BigDecimal deltaValue;
     public String deviceMRID;
+    public String readingType;
 
 //    @JsonProperty("validationStatus")
 //    public Boolean validationStatus;
