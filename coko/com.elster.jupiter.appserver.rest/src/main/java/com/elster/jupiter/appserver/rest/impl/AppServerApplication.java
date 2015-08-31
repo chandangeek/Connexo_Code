@@ -26,8 +26,12 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.elster.jupiter.appserver.rest", service = {Application.class, InstallService.class}, immediate = true, property = {"alias=/apr", "app=SYS", "name=" + AppServerApplication.COMPONENT_NAME})
-public class AppServerApplication extends Application implements InstallService {
+@Component(
+        name = "com.elster.jupiter.appserver.rest",
+        service = {Application.class},
+        immediate = true,
+        property = {"alias=/apr", "app=SYS", "name=" + AppServerApplication.COMPONENT_NAME})
+public class AppServerApplication extends Application {
 
     public static final String COMPONENT_NAME = "APR";
     private volatile RestQueryService restQueryService;
@@ -88,26 +92,6 @@ public class AppServerApplication extends Application implements InstallService 
         this.thesaurus = domainThesaurus.join(restThesaurus);
     }
 
-    @Activate
-    public void activate() {
-
-    }
-
-    @Deactivate
-    public void deactivate() {
-
-    }
-
-    @Override
-    public final void install() {
-
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "NLS", "DES", "FIM", "MSG");
-    }
-
     @Override
     public Set<Object> getSingletons() {
         Set<Object> hashSet = new HashSet<>();
@@ -129,5 +113,4 @@ public class AppServerApplication extends Application implements InstallService 
         });
         return Collections.unmodifiableSet(hashSet);
     }
-
 }
