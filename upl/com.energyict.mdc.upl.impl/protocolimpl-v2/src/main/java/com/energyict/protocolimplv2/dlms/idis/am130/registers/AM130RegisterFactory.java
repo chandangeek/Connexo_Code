@@ -8,9 +8,13 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.HistoricalValue;
+import com.energyict.dlms.cosem.attributes.ActivityCalendarAttributes;
+import com.energyict.dlms.cosem.attributes.ClockAttributes;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
@@ -27,6 +31,8 @@ import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.idis.registers.AlarmBitsRegister;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.common.composedobjects.ComposedActivityCalendar;
+import com.energyict.protocolimplv2.common.composedobjects.ComposedClock;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedData;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedDisconnectControl;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedObject;
@@ -38,6 +44,7 @@ import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -139,6 +146,14 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                 DLMSAttribute controlStateAttribute = new DLMSAttribute(obisCode, DisconnectControlAttribute.CONTROL_STATE.getAttributeNumber(), uo.getClassID());
                 composedObject = new ComposedDisconnectControl(null, controlStateAttribute, null);
                 dlmsAttributes.add(((ComposedDisconnectControl) composedObject).getControlStateAttribute());
+            } else if (uo.getClassID() == DLMSClassId.CLOCK.getClassId()) {
+                DLMSAttribute timeAttribute = new DLMSAttribute(obisCode, ClockAttributes.TIME.getAttributeNumber(), uo.getClassID());
+                composedObject = new ComposedClock(timeAttribute);
+                dlmsAttributes.add(((ComposedClock) composedObject).getTimeAttribute());
+            } else if (uo.getClassID() == DLMSClassId.ACTIVITY_CALENDAR.getClassId()) {
+                DLMSAttribute timeAttribute = new DLMSAttribute(obisCode, ActivityCalendarAttributes.CALENDAR_NAME_ACTIVE.getAttributeNumber(), uo.getClassID());
+                composedObject = new ComposedActivityCalendar(timeAttribute);
+                dlmsAttributes.add(((ComposedActivityCalendar) composedObject).getCalendarNameActiveAttribute());
             }
             if (composedObject != null) {
                 composedObjectMap.put(obisCode, composedObject);
@@ -194,7 +209,7 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
 
                     RegisterValue registerValue;
                     if (dataValue.getOctetString() != null) {
-                        registerValue = new RegisterValue(offlineRegister, dataValue.getOctetString().stringValue());
+                        registerValue = new RegisterValue(offlineRegister, dataValue.getOctetString().stringValue().trim());
                     } else if (dataValue.getBooleanObject() != null) {
                         registerValue = new RegisterValue(offlineRegister, String.valueOf(dataValue.getBooleanObject().getState()));
                     } else {
@@ -215,6 +230,19 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
 
                     RegisterValue registerValue = new RegisterValue(offlineRegister, DisconnectControlState.fromState(controlState.intValue()).name());
                     registerValue.setQuantity(new Quantity(controlState.intValue(), Unit.get(BaseUnit.UNITLESS)));
+                    return createCollectedRegister(registerValue, offlineRegister);
+                } else if (composedObject instanceof ComposedClock) {
+                    ComposedClock composedClock = (ComposedClock) composedObject;
+                    AbstractDataType timeAttribute = composedCosemObject.getAttribute(composedClock.getTimeAttribute());
+                    Calendar calendar = new AXDRDateTime(timeAttribute.getOctetString(), AXDRDateTimeDeviationType.Negative).getValue();
+
+                    RegisterValue registerValue = new RegisterValue(offlineRegister, calendar.getTime());
+                    registerValue.setQuantity(new Quantity(calendar.getTimeInMillis() / 1000, Unit.get(BaseUnit.SECOND)));
+                    return createCollectedRegister(registerValue, offlineRegister);
+                } else if (composedObject instanceof ComposedActivityCalendar) {
+                    ComposedActivityCalendar composedActivityCalendar = (ComposedActivityCalendar) composedObject;
+                    AbstractDataType calendarNameValue = composedCosemObject.getAttribute(composedActivityCalendar.getCalendarNameActiveAttribute());
+                    RegisterValue registerValue = new RegisterValue(offlineRegister, calendarNameValue.getOctetString().stringValue().trim());
                     return createCollectedRegister(registerValue, offlineRegister);
                 } else {
                     return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Encountered unexpected ComposedObject - data cannot be parsed."); // Should never occur
