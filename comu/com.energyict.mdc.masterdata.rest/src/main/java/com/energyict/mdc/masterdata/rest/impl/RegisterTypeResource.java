@@ -115,7 +115,7 @@ public class RegisterTypeResource {
     }
 
     private ReadingType findReadingType(RegisterTypeInfo registerTypeInfo) {
-        return meteringService.getReadingType(registerTypeInfo.readingType.mRID).orElse(null);
+        return registerTypeInfo.readingType != null ? meteringService.getReadingType(registerTypeInfo.readingType.mRID).orElse(null) : null;
     }
 
     private RegisterType findRegisterTypeByIdOrThrowException(long id) {
