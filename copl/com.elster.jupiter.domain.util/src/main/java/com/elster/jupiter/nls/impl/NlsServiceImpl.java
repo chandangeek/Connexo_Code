@@ -74,7 +74,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
         setValidationProviderResolver(validationProviderResolver);
         activate();
         if (!dataModel.isInstalled()) {
-            dataModel.install(true, true);
+            install();
         }
     }
 
