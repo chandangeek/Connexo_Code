@@ -4,7 +4,7 @@
 Ext.define('Uni.component.filter.view.FilterTopPanel', {
     extend: 'Uni.view.panel.FilterToolbar',
     alias: 'widget.filter-top-panel',
-    title: 'Filters',
+    title: Uni.I18n.translate('general.filters','UNI','Filters'),
     setFilter: function (key, name, value, hideIcon) {
         var me = this,
             btnsContainer = me.getContainer(),
