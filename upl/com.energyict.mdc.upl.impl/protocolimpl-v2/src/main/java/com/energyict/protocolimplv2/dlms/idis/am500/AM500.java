@@ -96,7 +96,7 @@ public class AM500 extends AbstractDlmsProtocol {
      */
     @Override
     public void logOn() {
-        connectWithRetries(getDlmsSession(), getDlmsSessionProperties());
+        connectWithRetries(getDlmsSession());
         checkCacheObjects();
         if (!getOfflineDevice().getAllSlaveDevices().isEmpty()) {
             getMeterTopology().searchForSlaveDevices();
@@ -109,7 +109,7 @@ public class AM500 extends AbstractDlmsProtocol {
      *
      * @param dlmsSession
      */
-    protected void connectWithRetries(DlmsSession dlmsSession, IDISProperties dlmsSessionProperties) {
+    protected void connectWithRetries(DlmsSession dlmsSession) {
         int tries = 0;
         while (true) {
             ComServerExecutionException exception;
@@ -131,11 +131,11 @@ public class AM500 extends AbstractDlmsProtocol {
             }
 
             //Release and retry the AARQ in case of ACSE exception
-            if (++tries > dlmsSessionProperties.getRetries()) {
-                getLogger().severe("Unable to establish association after [" + tries + "/" + (dlmsSessionProperties.getRetries() + 1) + "] tries.");
+            if (++tries > dlmsSession.getProperties().getRetries()) {
+                getLogger().severe("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries.");
                 throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(exception);
             } else {
-                getLogger().info("Unable to establish association after [" + tries + "/" + (dlmsSessionProperties.getRetries() + 1) + "] tries. Sending RLRQ and retry ...");
+                getLogger().info("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
                     dlmsSession.getAso().releaseAssociation();
                 } catch (ComServerExecutionException e) {

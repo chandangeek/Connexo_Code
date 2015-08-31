@@ -2,6 +2,9 @@ package com.energyict.protocolimplv2.common.composedobjects;
 
 import com.energyict.dlms.DLMSAttribute;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * The ComposedRegister is just a ValueObject that holds the {@link com.energyict.dlms.DLMSAttribute} from the register his value and unit
  */
@@ -32,6 +35,20 @@ public class ComposedRegister implements ComposedObject {
 
     public DLMSAttribute getRegisterUnitAttribute() {
         return registerUnit;
+    }
+
+    public List<DLMSAttribute> getAllAttributes() {
+        List<DLMSAttribute> result = new ArrayList<>();
+        if (getRegisterValueAttribute() != null) {
+            result.add(getRegisterValueAttribute());
+        }
+        if (getRegisterUnitAttribute() != null) {
+            result.add(getRegisterUnitAttribute());
+        }
+        if (getRegisterCaptureTime() != null) {
+            result.add(getRegisterCaptureTime());
+        }
+        return result;
     }
 
     public DLMSAttribute getRegisterCaptureTime() {

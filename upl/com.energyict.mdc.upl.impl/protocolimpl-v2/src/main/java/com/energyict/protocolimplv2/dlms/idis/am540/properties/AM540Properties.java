@@ -19,12 +19,19 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_LOWER_MAC_
  */
 public class AM540Properties extends IDISProperties {
 
+    private static final int PUBLIC_CLIENT_MAC_ADDRESS = 16;
+
     @Override
     public SecurityProvider getSecurityProvider() {
         if (securityProvider == null) {
             securityProvider = new IDISSecurityProvider(getProperties(), getSecurityPropertySet().getAuthenticationDeviceAccessLevel());
         }
         return securityProvider;
+    }
+
+    @Override
+    public boolean isUsePolling() {
+        return false;   //The AM540 protocol will run embedded in the RTU3, so avoid polling on the inputstream
     }
 
     @Override
@@ -55,17 +62,24 @@ public class AM540Properties extends IDISProperties {
         return parseBigDecimalProperty(MeterProtocol.NODEID);
     }
 
+    /**
+     * False by default, to return the serial number of the connected e-meter
+     */
     public boolean useEquipmentIdentifierAsSerialNumber() {
         return getProperties().getTypedProperty(AM540ConfigurationSupport.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, AM540ConfigurationSupport.USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE);
     }
 
     @Override
     public int getClientMacAddress() {
-        if (useBeaconMirrorDeviceDialect()) {
-            return BigDecimal.ONE.intValue();   // When talking to the Beacon mirrored device, we should always use client address 1
+        if (useBeaconMirrorDeviceDialect() && !usesPublicClient()) {
+            return BigDecimal.ONE.intValue();   // When talking to the Beacon mirrored device, we should always use client address 1 (except for the public client, which is always 16)
         } else {
             return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
         }
+    }
+
+    public boolean usesPublicClient() {
+        return parseBigDecimalProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE) == PUBLIC_CLIENT_MAC_ADDRESS;
     }
 
     public boolean useBeaconMirrorDeviceDialect() {

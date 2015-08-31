@@ -82,7 +82,7 @@ public class IDISMeterTopology extends AbstractMeterTopology {
         if (serialNumber == null || serialNumber.isEmpty()) {
             throw MdcManager.getComServerExceptionFactory().missingProperty("SerialNumber");
         }
-        if (serialNumber.equals(protocol.getSerialNumber())) {
+        if (serialNumber.equals(protocol.getDlmsSession().getProperties().getSerialNumber())) {
             return 0;
         }
         for (DeviceMapping mapping : getDeviceMapping()) {

@@ -274,7 +274,11 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
      * @return the corrected ObisCode
      */
     public ObisCode getPhysicalAddressCorrectedObisCode(ObisCode obisCode, String serialNumber) {
-        return getMeterTopology().getPhysicalAddressCorrectedObisCode(obisCode, serialNumber);
+        if (obisCode.anyChannel()) {
+            return getMeterTopology().getPhysicalAddressCorrectedObisCode(obisCode, serialNumber);
+        } else {
+            return obisCode;
+        }
     }
 
     /**

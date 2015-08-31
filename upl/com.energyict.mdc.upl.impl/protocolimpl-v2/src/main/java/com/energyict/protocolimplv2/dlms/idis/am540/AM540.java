@@ -46,6 +46,10 @@ public class AM540 extends AM130 {
         return "$Date$";
     }
 
+    /**
+     * Read out the serial number, this can either be of the module (equipment identifier) or of the connected e-meter.
+     * Note that reading out this register from the mirror logical device in the Beacon, the obiscode must always be 0.0.96.1.0.255
+     */
     @Override
     public String getSerialNumber() {
         if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect() || !getDlmsSessionProperties().useEquipmentIdentifierAsSerialNumber()) {
