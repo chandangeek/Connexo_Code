@@ -17,6 +17,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceLifeCycleUIInstallerTest {
     @Test
+    public void testPropertyValuesDoNotExceed256Chars() throws Exception {
+        Properties properties = new Properties();
+        properties.load(DeviceLifeCycleUIInstaller.class.getClassLoader().getResourceAsStream("i18n.properties"));
+        List<String> list = properties.stringPropertyNames()
+                .stream()
+                .filter(p -> properties.getProperty(p).length() > Table.SHORT_DESCRIPTION_LENGTH)
+                .collect(toList());
+        assertThat(list).describedAs("Some properties are too long: "+list).isEmpty();
+    }
+
+    @Test
     public void testPropertyKeysDoNotExceed256Chars() throws Exception {
         Properties properties = new Properties();
         properties.load(DeviceLifeCycleUIInstaller.class.getClassLoader().getResourceAsStream("i18n.properties"));
