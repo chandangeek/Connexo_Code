@@ -28,7 +28,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_SUCH_PROCESS_ON_STATE(301, Keys.NO_SUCH_PROCESS_ON_STATE, "No external business process with deployment id {0} and process id {1} is linked to state {2} of finite state machine {3}"),
 
     // FiniteStateMachine
-    UNIQUE_FINITE_STATE_MACHINE_NAME(400, Keys.UNIQUE_FINITE_STATE_MACHINE_NAME, "The name of a finite state machine must be unique"),
+    UNIQUE_FINITE_STATE_MACHINE_NAME(400, Keys.UNIQUE_FINITE_STATE_MACHINE_NAME, "Name must be unique"),
     AT_LEAST_ONE_STATE(401, Keys.AT_LEAST_ONE_STATE, "A finite state machine must have at least one state"),
     EXACTLY_ONE_INITIAL_STATE(402, Keys.EXACTLY_ONE_INITIAL_STATE, "A finite state machine must have exactly one initial state"),
     UNKNOWN_STATE(403, Keys.UNKNOWN_STATE, "Unable to remove state {0} because it does not exist in the finite state machine {1}"),
