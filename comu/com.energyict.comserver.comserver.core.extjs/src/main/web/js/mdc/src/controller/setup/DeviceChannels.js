@@ -13,7 +13,8 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
         'Mdc.model.Device',
         'Mdc.model.LoadProfileOfDevice',
         'Mdc.model.ChannelOfLoadProfilesOfDevice',
-        'Mdc.model.filter.DeviceChannelsFilter'
+        'Mdc.model.filter.DeviceChannelsFilter',
+        'Mdc.model.ChannelValidationPreview'
     ],
 
     stores: [
@@ -34,7 +35,17 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
         {
             ref: 'channelsFilterForm',
             selector: '#device-channels-filter nested-form'
-        }
+        },
+        {
+            ref: 'deviceLoadProfileChannelsPreviewForm',
+            selector: '#deviceLoadProfileChannelsPreviewForm'
+        },
+        {
+            ref: 'deviceLoadProfileChannelsOverviewForm',
+            selector: '#deviceLoadProfileChannelsOverviewForm'
+        },
+
+
     ],
 
     init: function () {
@@ -237,9 +248,44 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                     confWindow.destroy();
                     me.getApplication().fireEvent('acknowledge',
                         Uni.I18n.translatePlural('deviceloadprofiles.channels.activation.completed', record.get('name'), 'MDC', 'Data validation completed'));
-                    Ext.ComponentQuery.query('#deviceLoadProfileChannelsGrid')[0].fireEvent('select', Ext.ComponentQuery.query('#deviceLoadProfileChannelsGrid')[0].getSelectionModel(), record);
+                    if (Ext.ComponentQuery.query('#deviceLoadProfileChannelsGrid')[0]) {
+                        Ext.ComponentQuery.query('#deviceLoadProfileChannelsGrid')[0].fireEvent('select', Ext.ComponentQuery.query('#deviceLoadProfileChannelsGrid')[0].getSelectionModel(), record);
+                    }
+                    me.updateDeviceChannelDetails(mRID, record.get('id'));
                 }
             });
         }
+    },
+    updateDeviceChannelDetails: function (mRID, channelId) {
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+        viewport.setLoading();
+        var model = me.getModel('Mdc.model.ChannelValidationPreview');
+        model.getProxy().setUrl(mRID, channelId);
+        model.load('', {
+            success: function (record) {
+                me.updateValidationData(record);
+            }
+        });
+        viewport.setLoading(false);
+    },
+    updateValidationData: function(record)
+    {
+        var me = this,
+            form = me.getDeviceLoadProfileChannelsPreviewForm(),
+            formRecord;
+        if(form)
+            formRecord = form.getRecord();
+        else{
+            form = me.getDeviceLoadProfileChannelsOverviewForm();
+            formRecord = form.getRecord();
+        }
+        formRecord.set('validationInfo_dataValidated',
+            record.get('dataValidated')? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+                : Uni.I18n.translate('general.no', 'MDC', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>');
+        formRecord.set('lastChecked_formatted',
+            Uni.DateTime.formatDateTimeLong(new Date(record.get('lastChecked'))));
+
+        form.loadRecord(formRecord);
     }
 });
