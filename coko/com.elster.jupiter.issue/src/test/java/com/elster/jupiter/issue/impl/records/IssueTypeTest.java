@@ -49,8 +49,9 @@ public class IssueTypeTest extends BaseTest {
         assertThat(typeRef.isPresent()).isFalse();
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     public void checkCreationWithNullTranslation(){
         getIssueService().createIssueType("type.with.null.translation", null);
     }
@@ -88,13 +89,6 @@ public class IssueTypeTest extends BaseTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "translationKey", strict = false)
     public void checkTranslationValidation(){
-        getDataModel().getInstance(IssueTypeImpl.class).init("type.validation", null).save();
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_200 + "}", property = "defaultName", strict = false)
-    public void checkDefaultNameValidation(){
         getDataModel().getInstance(IssueTypeImpl.class).init("type.validation", null).save();
     }
 }

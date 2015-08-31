@@ -40,7 +40,7 @@ public final class DatabaseConst {
 // Issue Reason table
     public static final String ISSUE_REASON_COLUMN_KEY = "KEY";
     public static final String ISSUE_REASON_COLUMN_TRANSLATION = "TRANSLATION";
-    public static final String ISSUE_REASON_COLUMN_DEFAULT_NAME = "DEFAULT_NAME";
+    public static final String ISSUE_REASON_COLUMN_DESCRIPTION = "DESCRIPTION_KEY";
     public static final String ISSUE_REASON_COLUMN_TYPE = "ISSUE_TYPE";
 
     public static final String ISSUE_REASON_PK_NAME = "ISU_PK_ISSUE_REASON";

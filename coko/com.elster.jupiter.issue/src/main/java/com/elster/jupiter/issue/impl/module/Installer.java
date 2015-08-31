@@ -71,16 +71,7 @@ public class Installer {
         issueService.createStatus(IssueStatus.WONT_FIX, true, MessageSeeds.ISSUE_STATUS_WONT_FIX);
     }
 
-    private void addTranslation(String componentName, String subscriberName, String subscriberDisplayName) {
-        NlsKey statusKey = SimpleNlsKey.key(componentName, Layer.DOMAIN, subscriberName);
-        Translation statusTranslation = SimpleTranslation.translation(statusKey, Locale.ENGLISH, subscriberDisplayName);
-        List<Translation> translations = new ArrayList<>();
-        translations.add(statusTranslation);
-        thesaurus.addTranslations(translations);
-    }
-
     private void createIssueOverdueTask() {
-        addTranslation(IssueService.COMPONENT_NAME, IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_SUBSCRIBER, IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DISPLAYNAME);
         DestinationSpec destination = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get()
                 .createDestinationSpec(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DESTINATION, ISSUE_OVERDUE_TASK_RETRY_DELAY);
         destination.activate();

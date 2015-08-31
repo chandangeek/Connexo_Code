@@ -19,10 +19,6 @@ public class IssueTypeImpl extends EntityImpl implements IssueType {
     @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String translationKey;
 
-    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_200 + "}")
-    @Size(min = 1, max = 200, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_200 + "}")
-    private String defaultName;
-
     private final Thesaurus thesaurus;
 
     @Inject
@@ -35,7 +31,6 @@ public class IssueTypeImpl extends EntityImpl implements IssueType {
         this.key = key;
         if (translationKey != null) {
             this.translationKey = translationKey.getKey();
-            this.defaultName = translationKey.getDefaultFormat();
         }
         return this;
     }
@@ -47,6 +42,6 @@ public class IssueTypeImpl extends EntityImpl implements IssueType {
 
     @Override
     public String getName() {
-        return this.thesaurus.getStringBeyondComponent(this.translationKey, this.defaultName);
+        return this.thesaurus.getStringBeyondComponent(this.translationKey, this.translationKey);
     }
 }

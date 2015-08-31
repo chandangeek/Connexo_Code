@@ -53,8 +53,9 @@ public class IssueReasonTest extends BaseTest{
         assertThat(reasonRef.isPresent()).isFalse();
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", strict = false)
     public void checkCreationWithNullTranslation(){
         getIssueService().createReason("reason.with.null.translation", getDefaultIssueType(), null, null);
     }
@@ -94,13 +95,6 @@ public class IssueReasonTest extends BaseTest{
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "translationKey", strict = false)
     public void checkTranslationValidation(){
-        getDataModel().getInstance(IssueReasonImpl.class).init("reason.validation", getDefaultIssueType(), null, null).save();
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_200 + "}", property = "defaultName", strict = false)
-    public void checkDefaultNameValidation(){
         getDataModel().getInstance(IssueReasonImpl.class).init("reason.validation", getDefaultIssueType(), null, null).save();
     }
 

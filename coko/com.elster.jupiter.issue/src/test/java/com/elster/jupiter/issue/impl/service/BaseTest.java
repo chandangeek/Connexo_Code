@@ -30,8 +30,10 @@ import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleB
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.nls.impl.NlsServiceImpl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -134,8 +136,8 @@ public class BaseTest {
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
-                new OrmModule(),
                 new ThreadSecurityModule(),
+                new OrmModule(),
                 new UtilModule(),
                 new PubSubModule(),
                 new TransactionModule(),
@@ -146,10 +148,13 @@ public class BaseTest {
                 new BasicPropertiesModule()
         );
 
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        try (TransactionContext ctx = transactionService.getContext()) {
             injector.getInstance(FiniteStateMachineService.class);
             issueService = injector.getInstance(IssueService.class);
             injector.getInstance(DummyIssueProvider.class);
+            ((NlsServiceImpl)injector.getInstance(NlsService.class)).addTranslationProvider((IssueServiceImpl) issueService);
+            injector.getInstance(ThreadPrincipalService.class).set(() -> "Test");
             // In OSGI container issue types will be set by separate bundle
             IssueType type = issueService.createIssueType(ISSUE_DEFAULT_TYPE_UUID, MESSAGE_SEED_DEFAULT_TRANSLATION);
             issueService.createReason(ISSUE_DEFAULT_REASON, type, MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION);

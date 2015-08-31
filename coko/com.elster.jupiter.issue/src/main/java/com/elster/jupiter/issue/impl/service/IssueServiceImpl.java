@@ -367,7 +367,6 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         if(findStatus(key).isPresent()){
             throw new NotUniqueKeyException(thesaurus, key);
         }
-        installEntityTranslation(translationKey);
         IssueStatusImpl status = dataModel.getInstance(IssueStatusImpl.class);
         status.init(key, isHistorical, translationKey).save();
         return status;
@@ -378,9 +377,6 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         if(findReason(key).isPresent()){
             throw new NotUniqueKeyException(thesaurus, key);
         }
-        installEntityTranslation(name);
-        installEntityTranslation(name.getKey() + IssueReasonImpl.ISSUE_REASON_DESCRIPTION_TRANSLATION_SUFFIX,
-                description != null ? description.getDefaultFormat() : name.getDefaultFormat() + " to {0}");
         IssueReasonImpl reason = dataModel.getInstance(IssueReasonImpl.class);
         reason.init(key, type, name, description).save();
         return reason;
@@ -391,28 +387,9 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         if(findIssueType(key).isPresent()){
             throw new NotUniqueKeyException(thesaurus, key);
         }
-        installEntityTranslation(translationKey);
         IssueTypeImpl issueType = dataModel.getInstance(IssueTypeImpl.class);
         issueType.init(key, translationKey).save();
         return issueType;
-    }
-
-    private void installEntityTranslation(TranslationKey translationKey) {
-        if (translationKey == null) {
-            throw new IllegalArgumentException("Translation for the new entity can't be null");
-        }
-        installEntityTranslation(translationKey.getKey(), translationKey.getDefaultFormat());
-    }
-
-    private void installEntityTranslation(String key, String defaultFormat) {
-        if (thesaurus.getTranslations().get(key) == null) {
-            try {
-                SimpleNlsKey nlsKey = SimpleNlsKey.key(IssueService.COMPONENT_NAME, Layer.DOMAIN, key).defaultMessage(defaultFormat);
-                thesaurus.addTranslations(Collections.singletonList(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, defaultFormat)));
-            } catch (Exception ex) {
-                LOG.warning("Unable to setup translation for: key = " + key + ", value = " + defaultFormat);
-            }
-        }
     }
 
     private <T extends Entity> Optional<T> find(Class<T> clazz, Object... key) {
