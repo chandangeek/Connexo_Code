@@ -4,10 +4,12 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 //import com.energyict.mdc.common.ObisCode;
 //import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.elster.insight.common.rest.TimeDurationInfo;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.time.TimeDuration;
@@ -22,7 +24,7 @@ public class ChannelInfo {
     public String name;
     public TimeDurationInfo interval;
     public String unitOfMeasure;
-    public Instant lastReading;
+    public BigDecimal lastReadingValue;
     public Instant lastValueTimestamp;
     public ReadingTypeInfo readingType;
     public ReadingTypeInfo calculatedReadingType;
@@ -43,7 +45,7 @@ public class ChannelInfo {
         
         info.unitOfMeasure = channel.getMainReadingType().getUnit().toString();
         
-//        info.lastReading = channel.getLastReading().orElse(null);
+        info.lastReadingValue = channel.getReading(channel.getLastDateTime()).get().getValue();
         info.lastValueTimestamp = channel.getLastDateTime();
         
         info.readingType = new ReadingTypeInfo(channel.getMainReadingType());
