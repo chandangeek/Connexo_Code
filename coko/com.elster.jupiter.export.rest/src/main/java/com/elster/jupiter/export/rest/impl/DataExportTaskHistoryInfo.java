@@ -132,7 +132,7 @@ public class DataExportTaskHistoryInfo {
     }
 
     private static String getName(DataExportStatus status, Thesaurus thesaurus) {
-        return thesaurus.getStringBeyondComponent(status.toString(), status.toString());
+        return thesaurus.getStringBeyondComponent(status.getKey(), status.getDefaultFormat());
     }
 
     private String getScheduledTriggerDescription(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService) {
