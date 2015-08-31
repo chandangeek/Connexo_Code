@@ -2,6 +2,7 @@ package com.energyict.mdc.io;
 
 import com.energyict.mdc.common.TypedProperties;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 
@@ -22,6 +23,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-12-03 (17:56)
  */
+@ProviderType
 public interface SerialComponentService {
 
     public static final String COMPONENT_NAME = "MIO";

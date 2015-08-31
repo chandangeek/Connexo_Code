@@ -1,11 +1,14 @@
 package com.energyict.mdc.io;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Insert your comments here.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-11-04 (10:18)
  */
+@ProviderType
 public interface InboundUdpSession extends VirtualUdpSession {
 
     /**

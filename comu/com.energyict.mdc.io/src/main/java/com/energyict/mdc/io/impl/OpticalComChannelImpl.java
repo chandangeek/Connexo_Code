@@ -6,7 +6,7 @@ import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.ServerSerialPort;
 
 /**
- * Serves as an Optical ComChannel
+ * Serves as an Optical ComChannel.
  *
  * Copyrights EnergyICT
  * Date: 12/11/14

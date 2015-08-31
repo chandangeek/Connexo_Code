@@ -1,11 +1,14 @@
 package com.energyict.mdc.io;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Insert your comments here.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-11-03 (09:51)
  */
+@ProviderType
 public interface ModemComponent {
 
     public void connect(String name, SerialComChannel comChannel);
