@@ -30,7 +30,7 @@ Ext.define('Cfg.view.eventtype.List', {
     initComponent: function () {
         this.buttons = [
             {
-                text: 'Save',
+                text: Uni.I18n.translate('general.save','CFG','Save'),
                 action: 'save'
             }
         ];

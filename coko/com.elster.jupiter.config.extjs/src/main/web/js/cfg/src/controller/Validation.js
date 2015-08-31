@@ -244,6 +244,7 @@ Ext.define('Cfg.controller.Validation', {
 
         form.getForm().clearInvalid();
         form.down('#readingTypesErrorLabel').hide();
+        form.down('#propertiesErrorLabel').hide();
         form.down('#readingTypesGridPanel').removeCls('error-border');
 
         formErrorsPanel.hide();
@@ -295,6 +296,10 @@ Ext.define('Cfg.controller.Validation', {
                             form.down('#readingTypesGridPanel').addCls('error-border');
                             form.down('#readingTypesErrorLabel').setText(item.msg);
                             form.down('#readingTypesErrorLabel').show();
+                        }
+                        if (item.id.indexOf("properties") !== -1) {
+                            form.down('#propertiesErrorLabel').setText(item.msg);
+                            form.down('#propertiesErrorLabel').show();
                         }
                     });
                     form.getForm().markInvalid(json.errors);
@@ -1178,7 +1183,7 @@ Ext.define('Cfg.controller.Validation', {
     showDeleteVersionConfirmation: function (version) {
         var self = this;
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: Uni.I18n.translate('validation.removeVersion.msg', 'CFG', 'This validation rule version will no longer be available on the validation rule set.'),
+            msg: Uni.I18n.translate('validation.removeVersion.msg', 'CFG', 'This validation ruleset version will no longer be available on the validation rule set.'),
             title: Ext.String.format(Uni.I18n.translate('validation.removeRule.title', 'CFG', "Remove '{0}'?"), version.get('name')),
             config: {
                 version: version

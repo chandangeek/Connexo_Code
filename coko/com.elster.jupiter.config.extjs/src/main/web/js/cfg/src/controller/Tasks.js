@@ -456,14 +456,14 @@ Ext.define('Cfg.controller.Tasks', {
                         itemId: 'remove-error-messagebox',
                         buttons: [
                             {
-                                text: 'Retry',
+                                text: Uni.I18n.translate('general.retry','CFG','Retry'),
                                 ui: 'remove',
                                 handler: function (button, event) {
                                     me.removeOperation(record);
                                 }
                             },
                             {
-                                text: 'Cancel',
+                                text: Uni.I18n.translate('general.cancel','CFG','Cancel'),
                                 action: 'cancel',
                                 ui: 'link',
                                 href: '#/administration/validationtasks/',
