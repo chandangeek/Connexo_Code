@@ -13,7 +13,7 @@ Ext.define('Usr.view.group.Details', {
         'Ext.button.Button',
         'Usr.view.group.GroupActionMenu'
     ],
-    title: 'Group',
+    title: Uni.I18n.translate('users.group','USR','Group'),
 
     tools: [
         {

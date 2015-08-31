@@ -16,7 +16,7 @@ Ext.define('Usr.view.user.Edit', {
                 xtype: 'panel',
                 ui: 'large',
                 layout: 'vbox',
-                title: 'Edit User',
+                title: Uni.I18n.translate('users.editUser','USR','Edit User'),
 
                 items: [
                     {

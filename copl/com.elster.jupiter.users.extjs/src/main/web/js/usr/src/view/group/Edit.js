@@ -27,7 +27,7 @@ Ext.define('Usr.view.group.Edit', {
                     type: 'vbox',
                     align: 'stretch'
                 },
-                title: 'Edit Group',
+                title: Uni.I18n.translate('users.editGroup','USR','Edit Group'),
 
                 items: [
                     {
