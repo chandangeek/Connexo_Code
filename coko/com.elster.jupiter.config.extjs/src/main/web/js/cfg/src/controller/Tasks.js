@@ -361,7 +361,7 @@ Ext.define('Cfg.controller.Tasks', {
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('validationTasks.runMsg', 'CFG', 'This validation task will be queued to run at the earliest possible time.'),
-			title: Ext.String.format(Uni.I18n.translate('validationTasks.runTask', 'CFG', "Run validation task '{0}'?"), record.data.name)			
+			title: Uni.I18n.translate('validationTasks.runTask', 'CFG', "Run validation task '{0}'?", [record.data.name])
         });
     },
 

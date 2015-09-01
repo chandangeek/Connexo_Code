@@ -12,11 +12,8 @@ Ext.define('Cfg.view.validation.AddReadingTypesBulk', {
     },
 
     counterTextFn: function (count) {
-        return Uni.I18n.translatePlural(
-            'validation.readingTypes.counterText',
-            count,
-            'CFG',
-            '{0} reading types selected'
+        return Uni.I18n.translatePlural('general.nrOfReadingTypes.selected', count, 'CFG',
+            'No reading types selected', '{0} reading type selected', '{0} reading types selected'
         );
     },
 

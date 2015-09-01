@@ -12,7 +12,7 @@ Ext.define('Cfg.controller.history.Validation', {
             disabled: true,
             items: {
                 rulesets: {
-                    title: Uni.I18n.translate('general.validationrulesSets','CFG','Validation rule sets'),
+                    title: Uni.I18n.translate('general.validationRuleSets','CFG','Validation rule sets'),
                     route: 'validation/rulesets',
                     action: 'showRuleSets',
                     controller: 'Cfg.controller.Validation',
@@ -149,7 +149,7 @@ Ext.define('Cfg.controller.history.Validation', {
                                                                     action: 'showEditRuleOverview',
                                                                     items: {
                                                                         readingtypes: {
-                                                                            title: Uni.I18n.translate('general.addReadingType','CFG','Add reading types'),
+                                                                            title: Uni.I18n.translate('general.addReadingTypes','CFG','Add reading types'),
                                                                             route: 'readingtypes',
                                                                             controller: 'Cfg.controller.Validation',
                                                                             privileges: Cfg.privileges.Validation.admin,
