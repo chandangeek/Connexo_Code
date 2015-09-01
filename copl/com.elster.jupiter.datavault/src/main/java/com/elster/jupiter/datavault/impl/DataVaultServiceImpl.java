@@ -6,6 +6,8 @@ import com.elster.jupiter.datavault.LegacyDataVaultProvider;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -24,8 +26,12 @@ import java.util.List;
 /**
  * Created by bvn on 11/6/14.
  */
-@Component(name = "com.elster.kore.datavault", service = {DataVaultService.class, InstallService.class}, property = "name=" + DataVaultService.COMPONENT_NAME, immediate = true)
-public class DataVaultServiceImpl implements DataVaultService, InstallService {
+@Component(
+        name = "com.elster.kore.datavault",
+        service = {DataVaultService.class, InstallService.class, TranslationKeyProvider.class},
+        property = "name=" + DataVaultService.COMPONENT_NAME,
+        immediate = true)
+public class DataVaultServiceImpl implements DataVaultService, InstallService, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -81,7 +87,7 @@ public class DataVaultServiceImpl implements DataVaultService, InstallService {
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.thesaurus).install();
+        new Installer(this.dataModel).install();
     }
 
     @Override
@@ -99,5 +105,20 @@ public class DataVaultServiceImpl implements DataVaultService, InstallService {
     public byte[] decrypt(String encrypted) {
         DataVault dataVault = dataModel.getInstance(DataVault.class);
         return dataVault.decrypt(encrypted);
+    }
+
+    @Override
+    public String getComponentName() {
+        return DataVaultService.COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
     }
 }

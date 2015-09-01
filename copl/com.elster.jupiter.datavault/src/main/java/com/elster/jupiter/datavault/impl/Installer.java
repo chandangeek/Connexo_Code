@@ -20,16 +20,13 @@ class Installer {
     private final Logger logger = Logger.getLogger(Installer.class.getName());
 
     private final DataModel dataModel;
-    private final Thesaurus thesaurus;
 
-    Installer(DataModel dataModel, Thesaurus thesaurus) {
+    Installer(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.thesaurus = thesaurus;
     }
 
     public void install() {
         installDataModel();
-        createTranslations();
         if (dataModel.mapper(OrmKeyStoreImpl.class).find().isEmpty()) {
             generateKeyStore();
         }
@@ -55,34 +52,4 @@ class Installer {
             throw dataModel.getInstance(ExceptionFactory.class).newException(MessageSeeds.KEYSTORE_CREATION_FAILED);
         }
     }
-
-
-    private void createTranslations() {
-        List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            SimpleNlsKey nlsKey = SimpleNlsKey.key(DataVaultService.COMPONENT_NAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
-            translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
-        }
-        thesaurus.addTranslations(translations);
-    }
-
-    private Translation toTranslation(final SimpleNlsKey nlsKey, final Locale locale, final String translation) {
-        return new Translation() {
-            @Override
-            public NlsKey getNlsKey() {
-                return nlsKey;
-            }
-
-            @Override
-            public Locale getLocale() {
-                return locale;
-            }
-
-            @Override
-            public String getTranslation() {
-                return translation;
-            }
-        };
-    }
-
 }
