@@ -8,11 +8,26 @@ end
 
 require 'fileutils'
 
+regexesPluralOneMissingPara = [
+        /Uni\.I18n\.translatePlural\(\s*'([^,]*)'\s*,\s*([^,]*)\s*,\s*'(.{3})'\s*,\s*'([^,]*)'\s*,\s*'([^,]*)'\s*\)/m,
+		/Uni\.I18n\.translatePlural\(\s*'([^,]*)'\s*,\s*([^,]*)\s*,\s*'(.{3})'\s*,\s*"([^,]*)"\s*,\s*"([^,]*)"\s*\)/m,
+        /Uni\.I18n\.translatePlural\(\s*'([^,]*)'\s*,\s*([^,]*)\s*,\s*'(.{3})'\s*,\s*'([^,]*)'\s*,\s*"([^,]*)"\s*\)/m,
+		/Uni\.I18n\.translatePlural\(\s*'([^,]*)'\s*,\s*([^,]*)\s*,\s*'(.{3})'\s*,\s*"([^,]*)"\s*,\s*'([^,]*)'\s*\)/m
+	]
+
+regexesPluralTwoMissingPara = [
+        /Uni\.I18n\.translatePlural\(\s*'([^,]*)'\s*,\s*([^,]*)\s*,\s*'(.{3})'\s*,\s*'([^,]*)'\s*\)/m,
+		/Uni\.I18n\.translatePlural\(\s*'([^,]*)'\s*,\s*([^,]*)\s*,\s*'(.{3})'\s*,\s*"([^,]*)"\s*\)/m
+	]
+
+regexesPlural = [
+        /Uni\.I18n\.translatePlural\(\s*'([^,]*)'\s*,\s*([^,]*)\s*,\s*'(.{3})'\s*,\s*'([^,]*)'\s*,\s*'([^,]*)'\s*,\s*'([^,^;]*)'\s*\)/m,
+		/Uni\.I18n\.translatePlural\(\s*'([^,]*)'\s*,\s*([^,]*)\s*,\s*'(.{3})'\s*,\s*"([^,]*)"\s*,\s*"([^,]*)"\s*,\s*"([^,^;]*)"\s*\)/m
+    ]
+
 regexes = [
-		/Uni\.I18n\.translate\('(\S*)',\s*'(.{3})',\s*'(.+?[^\\])'.*?\)/m,
-		/Uni\.I18n\.translate\('(\S*)',\s*'(.{3})',\s*\"(.+?[^\\])\".*?\)/m,
-		/Uni\.I18n\.translatePlural\('(\S*)',.?.*.?,\s?'(.{3})',\s?'(.+?[^\\])'.*?\)/m,
-		/Uni\.I18n\.translatePlural\('(\S*)',.?.*.?,\s?'(.{3})',\s?\"(.+?[^\\])\".*?\)/m
+		/Uni\.I18n\.translate\(\s*'(\S*)'\s*,\s*'(.{3})'\s*,\s*'(.+?[^\\])'.*?\)/m,
+		/Uni\.I18n\.translate\(\s*'(\S*)'\s*,\s*'(.{3})'\s*,\s*"(.+?[^\\])".*?\)/m
 	]
 
 duplicates = Hash.new
@@ -33,6 +48,30 @@ end
 
 Dir.glob(folder + "/src/**/*.js") do |file|
 	contents = File.read(file)
+
+	doAbort = false
+	for regex in regexesPluralOneMissingPara
+		contents.scan(regex) {|key, counter, component, valueZero, valueOne|
+			print "The call of translatePlural() for key '" + key + "' is missing a parameter\n"
+			doAbort = doAbort || true
+		}
+	end
+	if doAbort
+		print " ======= ERROR ======= \n"
+		abort("Aborted due to the above errors in the file:\n" + file);
+	end
+
+	doAbort = false
+	for regex in regexesPluralTwoMissingPara
+		contents.scan(regex) {|key, counter, component, valueZero|
+			print "The call of translatePlural() for key '" + key + "' is missing two parameters\n"
+			doAbort = doAbort || true;
+		}
+	end
+	if doAbort
+		print " ======= ERROR ======= \n"
+		abort("Aborted due to the above errors in the file:\n" + file);
+	end
 
 	for regex in regexes 
 		contents.scan(regex) {|key, component, value|
@@ -71,6 +110,58 @@ Dir.glob(folder + "/src/**/*.js") do |file|
 			end
 		}
 	end
+
+	for regex in regexesPlural
+		contents.scan(regex) {|key, counter, component, valueZero, valueOne, valueMany|
+
+			if component != current_component
+				abort("Incorrect component: " + component + " (while " + current_component + " expected)")
+			end
+
+			if translations[component].nil? then
+				translations[component] = Hash.new
+			end
+
+			if duplicates[valueZero].nil? then
+				duplicates[valueZero] = Hash.new
+			end
+			if duplicates[valueOne].nil? then
+				duplicates[valueOne] = Hash.new
+			end
+			if duplicates[valueMany].nil? then
+				duplicates[valueMany] = Hash.new
+			end
+
+			keysToProcess = [ key + '[0]', key + '[1]', key + '[many]' ]
+			valuesToProcess = [ valueZero, valueOne, valueMany ]
+
+			(0..2).each do |i|
+			    value = valuesToProcess[i]
+				currentKey = keysToProcess[i]
+				currentValue = translations[component][currentKey]
+				if currentValue.nil? && currentValue == value then
+					if conflicts[component].nil? then
+						conflicts[component] = Hash.new
+					end
+
+					conflicts[component][currentKey] = value
+				else
+					translations[component][currentKey] = value
+
+					if duplicates[value][component].nil? then
+						duplicates[value][component] = Hash.new
+					end
+
+					if duplicates[value][component][currentKey].nil? then
+						duplicates[value][component][currentKey] = 0
+					end
+
+					duplicates[value][component][currentKey] = duplicates[value][component][currentKey] + 1
+				end
+			end
+		}
+	end
+
 end
 
 translations.each do |component, keys|
