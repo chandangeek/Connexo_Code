@@ -100,7 +100,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
             Ext.each(store.getAt(0).data.data, function (item) {
                 ycat.push(item.displayName);
             });
-            me.setXAxis(ycat, 'Latest result');
+            me.setXAxis(ycat, Uni.I18n.translate('general.latestResult', 'DSH', 'Latest result'));
             me.setYAxis(xcat, xTitle);
             me.setChartData(me.storeToHighchartData(store));
         }
