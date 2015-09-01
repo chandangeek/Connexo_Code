@@ -2,12 +2,13 @@ package com.elster.jupiter.messaging;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
     CANNOT_SUBSCRIBE_ON_INACTIVE_DESTINATION(1001, "destination.inactive.cannotsubscribe", "DestinationSpec with name {0} was inactive when attempting to create a subscription with name {1}", Level.SEVERE),
     DUPLICATE_SUBSCRIBER_NAME(1002, "subscriber.duplicatename", "A subscriber with name {0} already exists.", Level.SEVERE),
     MULTIPLE_SUBSCRIBER_ON_QUEUE(1003, "queue.multiplesubscriber", "Cannot register multiple subscribers on a queue, there is already a subscriber on queue {0}", Level.SEVERE),
