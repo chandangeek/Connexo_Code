@@ -140,11 +140,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                                 return text;
                                             }
                                         }
-//                                {
-//                                    xtype: 'displayfield',
-//                                    name: 'communicationProtocolName',
-//                                    fieldLabel: Uni.I18n.translate('devicetype.communicationProtocol', 'MDC', 'Device Communication protocol')
-//                                },
                                     ]
                                 },
                                 {
