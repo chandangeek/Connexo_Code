@@ -132,7 +132,7 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
             } else if (uo.getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
                 DLMSAttribute valueAttribute = new DLMSAttribute(obisCode, DemandRegisterAttributes.CURRENT_AVG_VALUE.getAttributeNumber(), uo.getClassID());
                 DLMSAttribute unitAttribute = new DLMSAttribute(obisCode, DemandRegisterAttributes.UNIT.getAttributeNumber(), uo.getClassID());
-                DLMSAttribute captureTimeAttribute = new DLMSAttribute(obisCode, ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber(), uo.getClassID());
+                DLMSAttribute captureTimeAttribute = new DLMSAttribute(obisCode, DemandRegisterAttributes.CAPTURE_TIME.getAttributeNumber(), uo.getClassID());
 
                 composedObject = new ComposedRegister(valueAttribute, unitAttribute, captureTimeAttribute);
                 dlmsAttributes.add(((ComposedRegister) composedObject).getRegisterValueAttribute());
