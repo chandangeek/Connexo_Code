@@ -2,7 +2,7 @@ Ext.define('Cfg.view.eventtype.List', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.eventtypeList',
     itemId: 'eventtypeList',
-    title: 'All Event Types',
+    title: Uni.I18n.translate('eventtype.allEventTypes','CFG','All Event Types'),
     store: 'EventTypes',
 
     columns: {
@@ -30,7 +30,7 @@ Ext.define('Cfg.view.eventtype.List', {
     initComponent: function () {
         this.buttons = [
             {
-                text: 'Save',
+                text: Uni.I18n.translate('general.save','CFG','Save'),
                 action: 'save'
             }
         ];
