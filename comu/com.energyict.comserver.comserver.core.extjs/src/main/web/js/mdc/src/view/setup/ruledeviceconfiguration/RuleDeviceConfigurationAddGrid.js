@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationAddGri
     ruleSetId: null,
 
     counterTextFn: function (count) {
-        return Uni.I18n.translatePlural('general.nrOfDevices.selected', count, 'MDC',
+        return Uni.I18n.translatePlural('general.nrOfDeviceConfigurations.selected', count, 'MDC',
             'No device configurations selected', '{0} device configuration selected', '{0} device configurations selected'
         );
     },
