@@ -36,10 +36,57 @@
                 <js.dir>js/skyline</js.dir>
                 <package.name>uni-theme-skyline</package.name>
             </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>1.8</version>
+                        <executions>
+                            <execution>
+                                <id>add-compiled-js</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>add-resource</goal>
+                                </goals>
+                                <configuration>
+                                    <resources>
+                                        <resource>
+                                            <directory>${basedir}/target/web</directory>
+                                            <targetPath>${js.dir}/build</targetPath>
+                                            <includes>
+                                                <!--  WATCH OUT : our build is case sensitive !!!! -->
+                                                <include>*.html</include>
+                                                <include>*.js</include>
+                                                <include>resources/**/*</include>
+                                            </includes>
+                                            <excludes>
+                                                <exclude>resources/packages/**/*</exclude>
+                                                <exclude>resources/resources/**/*</exclude>
+                                                <exclude>resources/sass/**/*</exclude>
+                                            </excludes>
+                                        </resource>
+                                        <resource>
+                                            <directory>src/main/web</directory>
+                                            <excludes>
+                                                <exclude>${js.dir}/*.html</exclude>
+                                                <exclude>${js.dir}/*.js</exclude>
+                                                <exclude>${js.dir}/resources/**/*</exclude>
+                                                <exclude>${js.dir}/build/**/*</exclude>
+                                            </excludes>
+
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 
-    <build>
+    <!--<build>
         <resources>
             <resource>
                 <directory>src/main/web/js/skyline/build</directory>
@@ -50,5 +97,5 @@
                 </includes>
             </resource>
         </resources>
-    </build>
+    </build>-->
 </project>
