@@ -42,9 +42,9 @@ Ext.define('Idc.view.Overview', {
                     {
                         xtype: 'no-items-found-panel',
                         itemId: 'no-data-collection-issues-group-panel',
-                        title: Uni.I18n.translate('group.empty.title', 'ISU', 'No groups found'),
+                        title: Uni.I18n.translate('group.empty.title', 'IDC', 'No groups found'),
                         reasons: [
-                            Uni.I18n.translate('group.empty.list.item1', 'ISU', 'No groups have been defined yet.')
+                            Uni.I18n.translate('group.empty.list.item1', 'IDC', 'No groups have been defined yet.')
                         ],
                         hidden: true
                     },
