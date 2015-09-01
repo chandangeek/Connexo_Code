@@ -4,12 +4,15 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.MessageSeeds;
 import com.elster.jupiter.events.NoSuchTopicException;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -17,8 +20,6 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
-import java.time.Clock;
-import java.util.Optional;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -27,13 +28,20 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
+
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
-@Component(name = "com.elster.jupiter.events", service = {InstallService.class, EventService.class}, property = "name=" + EventService.COMPONENTNAME, immediate = true)
-public class EventServiceImpl implements EventService, InstallService {
+@Component(
+        name = "com.elster.jupiter.events",
+        service = {InstallService.class, EventService.class, TranslationKeyProvider.class},
+        property = "name=" + EventService.COMPONENTNAME,
+        immediate = true)
+public class EventServiceImpl implements EventService, InstallService, TranslationKeyProvider {
 
     private volatile Clock clock;
     private volatile Publisher publisher;
@@ -67,7 +75,7 @@ public class EventServiceImpl implements EventService, InstallService {
 
     @Override
     public final void install() {
-        new InstallerImpl(dataModel, messageService, thesaurus).install();
+        new InstallerImpl(dataModel, messageService).install();
     }
 
     @Override
@@ -188,4 +196,18 @@ public class EventServiceImpl implements EventService, InstallService {
     }
 
 
+    @Override
+    public String getComponentName() {
+        return EventService.COMPONENTNAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
+    }
 }
