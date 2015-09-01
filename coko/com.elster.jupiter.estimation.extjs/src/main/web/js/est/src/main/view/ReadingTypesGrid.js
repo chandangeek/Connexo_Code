@@ -8,11 +8,8 @@ Ext.define('Est.main.view.ReadingTypesGrid', {
     ],
 
     counterTextFn: function (count) {
-        return Uni.I18n.translatePlural(
-            'readingTypes.counterText',
-            count,
-            'EST',
-            '{0} reading types selected'
+        return Uni.I18n.translatePlural('general.nrOfReadingTypes.selected', count, 'EST',
+            'No reading types selected', '{0} reading type selected', '{0} reading types selected'
         );
     },
 
