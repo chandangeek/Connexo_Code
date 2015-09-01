@@ -35,10 +35,10 @@ Ext.define('InsightApp.controller.History', {
                             items: {
                                 channel: {
                                     title: Uni.I18n.translate('general.usagePointChannel', 'INS', 'Channel'),
-                                    route: '{channel}',
+                                    route: '{channelId}',
                                     controller: 'Imt.channeldata.controller.View',
                                     action: 'showUsagePointChannelData'
-                                }                                    
+                                }
                             }
            			    },
            			    registers: {
