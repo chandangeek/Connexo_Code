@@ -36,6 +36,10 @@
         </dependencySet>
         <dependencySet>
             <outputDirectory>bundles</outputDirectory>
+            <includes>
+                <include>com.energyict:*</include>
+            </includes>
+            <scope>provided</scope>
             <unpack>false</unpack>
             <outputFileNameMapping>
                 ${artifact.groupId}.${artifact.artifactId}-${artifact.version}${dashClassifier?}.${artifact.extension}
