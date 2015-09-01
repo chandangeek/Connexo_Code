@@ -32,16 +32,16 @@ public class TypedCaseModemProperties implements CaseModemProperties, HasDynamic
     public static final String MODEM_ADDRESS_SELECTOR = "modem_address_select"; // the address selector to use after a physical connect
     public static final String DTR_TOGGLE_DELAY = "disconnect_line_toggle_delay";// the delay between DTR line toggles, which are used to disconnect the active connection.
 
-    private static final String DEFAULT_GLOBAL_MODEM_INIT_STRINGS = "";
-    private static final String DEFAULT_MODEM_INIT_STRINGS = "";
-    private static final BigDecimal DEFAULT_COMMAND_TRIES = new BigDecimal(5);
-    private static final TimeDuration DEFAULT_COMMAND_TIMEOUT = new TimeDuration(10, TimeDuration.TimeUnit.SECONDS);
-    private static final TimeDuration DEFAULT_DELAY_BEFORE_SEND = new TimeDuration(500, TimeDuration.TimeUnit.MILLISECONDS);
-    private static final TimeDuration DEFAULT_DELAY_AFTER_CONNECT = new TimeDuration(500, TimeDuration.TimeUnit.MILLISECONDS);
-    private static final TimeDuration DEFAULT_CONNECT_TIMEOUT = new TimeDuration(30, TimeDuration.TimeUnit.SECONDS);
-    private static final String DEFAULT_MODEM_DIAL_PREFIX = "";
-    private static final String DEFAULT_MODEM_ADDRESS_SELECTOR = "";
-    private static final TimeDuration DEFAULT_DTR_TOGGLE_DELAY = new TimeDuration(2, TimeDuration.TimeUnit.SECONDS);
+    static final String DEFAULT_GLOBAL_MODEM_INIT_STRINGS = "";
+    static final String DEFAULT_MODEM_INIT_STRINGS = "";
+    static final BigDecimal DEFAULT_COMMAND_TRIES = new BigDecimal(5);
+    static final TimeDuration DEFAULT_COMMAND_TIMEOUT = new TimeDuration(10, TimeDuration.TimeUnit.SECONDS);
+    static final TimeDuration DEFAULT_DELAY_BEFORE_SEND = new TimeDuration(500, TimeDuration.TimeUnit.MILLISECONDS);
+    static final TimeDuration DEFAULT_DELAY_AFTER_CONNECT = new TimeDuration(500, TimeDuration.TimeUnit.MILLISECONDS);
+    static final TimeDuration DEFAULT_CONNECT_TIMEOUT = new TimeDuration(30, TimeDuration.TimeUnit.SECONDS);
+    static final String DEFAULT_MODEM_DIAL_PREFIX = "";
+    static final String DEFAULT_MODEM_ADDRESS_SELECTOR = "";
+    static final TimeDuration DEFAULT_DTR_TOGGLE_DELAY = new TimeDuration(2, TimeDuration.TimeUnit.SECONDS);
 
     private final PropertySpecService propertySpecService;
     private final TypedProperties properties;
@@ -95,42 +95,42 @@ public class TypedCaseModemProperties implements CaseModemProperties, HasDynamic
 
     @Override
     public String getPhoneNumber() {
-        return (String) getProperty(PHONE_NUMBER_PROPERTY_NAME);
+        return (String) properties.getProperty(PHONE_NUMBER_PROPERTY_NAME);
     }
 
     @Override
     public String getCommandPrefix() {
-        return (String) getProperty(MODEM_DIAL_PREFIX);
+        return (String) properties.getProperty(MODEM_DIAL_PREFIX, DEFAULT_MODEM_DIAL_PREFIX);
     }
 
     @Override
     public TimeDuration getConnectTimeout() {
-        return (TimeDuration) getProperty(CONNECT_TIMEOUT);
+        return (TimeDuration) properties.getProperty(CONNECT_TIMEOUT, DEFAULT_CONNECT_TIMEOUT);
     }
 
     @Override
     public TimeDuration getDelayAfterConnect() {
-        return (TimeDuration) getProperty(DELAY_AFTER_CONNECT);
+        return (TimeDuration) properties.getProperty(DELAY_AFTER_CONNECT, DEFAULT_DELAY_AFTER_CONNECT);
     }
 
     @Override
     public TimeDuration getDelayBeforeSend() {
-        return (TimeDuration) getProperty(DELAY_BEFORE_SEND);
+        return (TimeDuration) properties.getProperty(DELAY_BEFORE_SEND, DEFAULT_DELAY_BEFORE_SEND);
     }
 
     @Override
     public TimeDuration getCommandTimeOut() {
-        return (TimeDuration) getProperty(COMMAND_TIMEOUT);
+        return (TimeDuration) properties.getProperty(COMMAND_TIMEOUT, DEFAULT_COMMAND_TIMEOUT);
     }
 
     @Override
     public BigDecimal getCommandTry() {
-        return (BigDecimal) getProperty(COMMAND_TRIES);
+        return (BigDecimal) properties.getProperty(COMMAND_TRIES, DEFAULT_COMMAND_TRIES);
     }
 
     @Override
     public List<String> getModemInitStrings() {
-        String initStringSpecs = (String) getProperty(MODEM_INIT_STRINGS);
+        String initStringSpecs = (String) properties.getProperty(MODEM_INIT_STRINGS, DEFAULT_MODEM_INIT_STRINGS);
         if (!initStringSpecs.isEmpty()) {
             return Arrays.asList(initStringSpecs.split(AtModemComponent.SEPARATOR));
         } else {
@@ -140,7 +140,7 @@ public class TypedCaseModemProperties implements CaseModemProperties, HasDynamic
 
     @Override
     public List<String> getGlobalModemInitStrings() {
-        String globalInitStringSpecs = (String) getProperty(GLOBAL_MODEM_INIT_STRINGS);
+        String globalInitStringSpecs = (String) properties.getProperty(GLOBAL_MODEM_INIT_STRINGS, DEFAULT_GLOBAL_MODEM_INIT_STRINGS);
         if (!globalInitStringSpecs.isEmpty()) {
             return Arrays.asList(globalInitStringSpecs.split(AtModemComponent.SEPARATOR));
         } else {
@@ -150,20 +150,12 @@ public class TypedCaseModemProperties implements CaseModemProperties, HasDynamic
 
     @Override
     public String getAddressSelector() {
-        return (String) getProperty(MODEM_ADDRESS_SELECTOR);
+        return (String) properties.getProperty(MODEM_ADDRESS_SELECTOR, DEFAULT_MODEM_ADDRESS_SELECTOR);
     }
 
     @Override
     public TimeDuration getLineToggleDelay() {
-        return (TimeDuration) getProperty(DTR_TOGGLE_DELAY);
-    }
-
-    protected TypedProperties getAllProperties() {
-        return this.properties;
-    }
-
-    protected Object getProperty(String propertyName) {
-        return this.getAllProperties().getProperty(propertyName);
+        return (TimeDuration) properties.getProperty(DTR_TOGGLE_DELAY, DEFAULT_DTR_TOGGLE_DELAY);
     }
 
     protected void setProperty(String propertyName, Object value) {

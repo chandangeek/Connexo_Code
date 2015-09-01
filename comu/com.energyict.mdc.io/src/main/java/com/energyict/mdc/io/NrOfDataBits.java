@@ -1,6 +1,7 @@
 package com.energyict.mdc.io;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 /**
  * Provide predefined values for the used number of data bits.
@@ -19,30 +20,20 @@ public enum NrOfDataBits {
     }
 
     public static BigDecimal[] getTypedValues(){
-        BigDecimal[] typedValues = new BigDecimal[values().length];
-        int i = 0;
-        for (NrOfDataBits dataBits : values()) {
-            typedValues[i++] = dataBits.value();
-        }
-        return typedValues;
+        return Arrays.stream(values()).map(NrOfDataBits::value).toArray(BigDecimal[]:: new);
     }
 
     public BigDecimal value() {
         return nrOfDataBits;
     }
 
-    public static NrOfDataBits valueFor (BigDecimal numercialValue) {
-        for (NrOfDataBits dataBitsValues : values()) {
-            if (dataBitsValues.value().equals(numercialValue)) {
-                return dataBitsValues;
-            }
-        }
-        return null;
+    public static NrOfDataBits valueFor (BigDecimal numericalValue) {
+        return Arrays.stream(values()).filter(x -> x.value().equals(numericalValue)).findFirst().orElse(null);
     }
 
     @Override
     public String toString() {
-        return String.valueOf(value().intValue());
+        return "" + value();
     }
 
 }

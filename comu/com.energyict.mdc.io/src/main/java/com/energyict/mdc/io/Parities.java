@@ -1,5 +1,7 @@
 package com.energyict.mdc.io;
 
+import java.util.Arrays;
+
 /**
  * Provide predefined values for the used parity.
  */
@@ -19,12 +21,7 @@ public enum Parities {
     }
 
     public static String[] getTypedValues() {
-        String[] typedValues = new String[values().length];
-        int i = 0;
-        for (Parities parity : values()) {
-            typedValues[i++] = parity.value();
-        }
-        return typedValues;
+        return Arrays.stream(values()).map(Parities::value).toArray(String[]::new);
     }
 
     public String value() {
@@ -36,22 +33,11 @@ public enum Parities {
     }
 
     public static Parities valueFor (String strValue) {
-        for (Parities parity : values()) {
-            if (parity.value().equals(strValue)) {
-                return parity;
-            }
-        }
-        return null;
+        return Arrays.stream(values()).filter(x -> x.value().equals(strValue)).findFirst().orElse(null);
     }
 
     public static Parities valueFor(Character abbreviation) {
-        for (Parities parity : values()) {
-            Character parityAbbreviation = parity.getAbbreviation();
-            if (parityAbbreviation.toString().equalsIgnoreCase(abbreviation.toString())) {
-                return parity;
-            }
-        }
-        return null;
+        return Arrays.stream(values()).filter(x -> Character.valueOf(x.getAbbreviation()).toString().equalsIgnoreCase(abbreviation.toString())).findFirst().orElse(null);
     }
 
 }

@@ -10,6 +10,8 @@ import com.energyict.mdc.io.ModemTimeoutException;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.io.SerialComChannel;
 
+import java.util.List;
+
 /**
 * @author sva
 * @since 18/03/13 - 16:26
@@ -98,7 +100,8 @@ public class PaknetModemComponent implements ModemComponent {
      * @return true if all commands succeeded, false otherwise
      */
     public boolean sendParameters(ComChannel comChannel) {
-        String modemInitString = modemProperties.getModemInitStrings().get(0);
+        List<String> modemInitStrings = modemProperties.getModemInitStrings();
+        String modemInitString = (modemInitStrings == null || modemInitStrings.isEmpty()) ? null : modemInitStrings.get(0);
         if (modemInitString != null && !modemInitString.isEmpty()) {
             String modemParameters = PARAMETER_SET_REQUEST + modemInitString;
 
@@ -122,7 +125,7 @@ public class PaknetModemComponent implements ModemComponent {
     /**
      * Initialization method to be performed right after the modem of the device has established a connection.
      *
-     * @param comChannel
+     * @param comChannel to initialize
      */
     public void initializeAfterConnect(ComChannel comChannel) {
         PaknetModemComponent.delay(modemProperties.getDelayAfterConnect().getMilliSeconds());
