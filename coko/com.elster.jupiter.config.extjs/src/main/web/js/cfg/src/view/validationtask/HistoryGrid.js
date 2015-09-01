@@ -16,7 +16,7 @@ Ext.define('Cfg.view.validationtask.HistoryGrid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('validationTasks.general.startedOn', 'CFG', 'Started On'),
+                header: Uni.I18n.translate('validationTasks.general.startedOn', 'CFG', 'Started on'),
                 dataIndex: 'startedOn',
                 flex: 2,
                 renderer: function (value, metaData, record) {
