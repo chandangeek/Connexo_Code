@@ -4,7 +4,6 @@ import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
-import com.elster.jupiter.fileimport.MessageSeeds;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;

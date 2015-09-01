@@ -1,13 +1,15 @@
-package com.elster.jupiter.fileimport;
+package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
     FILE_IO(1001, "file.io.reading.failure", "Failure while doing IO on file {0}", Level.SEVERE),
     FAILED_TO_START_IMPORT_SCHEDULES(2001, "importschedule.start.failed", "Could not start Import schedules, please check if FIM is installed properly.", Level.SEVERE),
     NO_SUCH_IMPORTER(2002, "importschedule.noSuchImporter", "Importer {0} does not exist.", Level.SEVERE),

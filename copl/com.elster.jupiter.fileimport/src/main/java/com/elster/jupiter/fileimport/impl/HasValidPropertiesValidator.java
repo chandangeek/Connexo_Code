@@ -1,6 +1,5 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.fileimport.MessageSeeds;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 

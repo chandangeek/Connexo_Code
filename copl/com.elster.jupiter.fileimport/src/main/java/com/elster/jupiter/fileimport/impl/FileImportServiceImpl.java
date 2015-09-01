@@ -11,6 +11,8 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -20,7 +22,6 @@ import com.elster.jupiter.time.PeriodicalScheduleExpressionParser;
 import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -46,8 +47,12 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "com.elster.jupiter.fileimport", service = {InstallService.class, FileImportService.class, PrivilegesProvider.class}, property = {"name=" + FileImportService.COMPONENT_NAME}, immediate = true)
-public class FileImportServiceImpl implements InstallService, FileImportService, PrivilegesProvider {
+@Component(
+        name = "com.elster.jupiter.fileimport",
+        service = {InstallService.class, FileImportService.class, PrivilegesProvider.class, TranslationKeyProvider.class},
+        property = {"name=" + FileImportService.COMPONENT_NAME},
+        immediate = true)
+public class FileImportServiceImpl implements InstallService, FileImportService, PrivilegesProvider,TranslationKeyProvider {
 
     private static final Logger LOGGER = Logger.getLogger(FileImportServiceImpl.class.getName());
     private static final String COMPONENTNAME = "FIS";
@@ -96,7 +101,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
 
     @Override
     public void install() {
-        new InstallerImpl(dataModel, messageService, thesaurus, userService).install();
+        new InstallerImpl(dataModel).install();
         createScheduler();
     }
 
@@ -335,7 +340,6 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
         return this.basePath;
     }
 
-
     @Override
     public String getModuleName() {
         return FileImportService.COMPONENT_NAME;
@@ -348,5 +352,20 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
                 "fileImport.importServices", "fileImport.importServices.description",
                 Arrays.asList(Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES)));
         return resources;
+    }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
     }
 }
