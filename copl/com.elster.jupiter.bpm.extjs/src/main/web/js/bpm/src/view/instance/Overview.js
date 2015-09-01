@@ -14,7 +14,7 @@ Ext.define('Bpm.view.instance.Overview', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('bpm.instance', 'BPM', 'Process instance'),
+            title: Uni.I18n.translate('bpm.processInstance', 'BPM', 'Process instance'),
             layout: {
                 type: 'vbox',
                 align: 'stretch'

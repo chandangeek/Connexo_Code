@@ -20,7 +20,7 @@ Ext.define('Bpm.controller.history.BpmManagement', {
                     action: 'showProcessInstances',
                     items: {
                         view: {
-                            title: Uni.I18n.translate('bpm.instance', 'BPM', 'Process'),
+                            title: Uni.I18n.translate('bpm.process', 'BPM', 'Process'),
                             route: '{deploymentId}/{instanceId}',
                             controller: 'Bpm.controller.ProcessInstances',
                             action: 'showProcessInstanceOverview',
