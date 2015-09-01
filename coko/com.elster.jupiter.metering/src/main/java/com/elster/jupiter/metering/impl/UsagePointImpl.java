@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.GasDetailBuilder;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -435,6 +437,34 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public List<? extends BaseReadingRecord> getReadings(Range<Instant> range, ReadingType readingType) {
         return MeterActivationsImpl.from(meterActivations, range).getReadings(range, readingType);
+    }
+
+    @Override
+    public List<? extends BaseReadingRecord> getReadingsWithFill(Range<Instant> range, ReadingType readingType) {
+        List<? extends BaseReadingRecord> notFilled = MeterActivationsImpl.from(meterActivations, range).getReadings(range, readingType);
+        List<IntervalReadingRecord> filled = new ArrayList<>();
+
+        if (!readingType.isRegular()) {
+            return notFilled;
+        }
+        IntervalReadingRecord previous = null;
+        for (BaseReadingRecord brr : notFilled) {
+            IntervalReadingRecord irr = (IntervalReadingRecord) brr;
+            if (previous == null) {
+                filled.add(irr);
+                previous = irr;
+                continue;
+            }
+            Instant previousTime = previous.getTimeStamp().plus(Duration.ofMinutes(readingType.getMeasuringPeriod().getMinutes()));
+            while (previousTime.compareTo(brr.getTimeStamp()) != 0) {
+                IntervalReadingRecord irri = new EmptyIntervalReadingRecordImpl(readingType, previousTime);
+                previousTime = previousTime.plus(Duration.ofMinutes(readingType.getMeasuringPeriod().getMinutes()));
+                filled.add(irri);
+            }
+            filled.add(irr);
+            previous = irr;
+        }
+        return filled;
     }
 
     @Override

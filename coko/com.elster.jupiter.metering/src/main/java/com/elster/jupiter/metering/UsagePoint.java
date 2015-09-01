@@ -97,5 +97,7 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
     GasDetailBuilder newGasDetailBuilder(Instant instant);
 
     WaterDetailBuilder newWaterDetailBuilder(Instant instant);
+    
+    List<? extends BaseReadingRecord> getReadingsWithFill(Range<Instant> range, ReadingType readingType);
 
 }
