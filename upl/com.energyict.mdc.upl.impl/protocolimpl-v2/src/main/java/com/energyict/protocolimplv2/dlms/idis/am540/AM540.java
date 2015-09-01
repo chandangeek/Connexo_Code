@@ -160,6 +160,8 @@ public class AM540 extends AM130 {
      * Method to check whether the cache needs to be read out or not, if so the read will be forced
      */
     protected void checkCacheObjects() {
+        getDeviceCache().setConnectionToBeaconMirror(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
+
         boolean readCache = getDlmsSessionProperties().isReadCache();
         if ((getDeviceCache().getObjectList() == null) || (readCache)) {
             getLogger().info("ReadCache property is true, reading cache!");

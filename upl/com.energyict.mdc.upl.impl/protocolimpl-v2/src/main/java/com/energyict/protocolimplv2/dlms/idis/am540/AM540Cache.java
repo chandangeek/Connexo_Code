@@ -43,6 +43,10 @@ public class AM540Cache extends DLMSCache implements ServerDeviceProtocolCache, 
         return connectionToBeaconMirror;
     }
 
+    public void setConnectionToBeaconMirror(boolean connectionToBeaconMirror) {
+        this.connectionToBeaconMirror = connectionToBeaconMirror;
+    }
+
     @Override
     @Deprecated // The AM540 meter doesn't have this counter - so method should not be used
     public void setConfProgChange(int confProgChange) {
