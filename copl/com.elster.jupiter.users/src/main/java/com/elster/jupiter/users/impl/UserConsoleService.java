@@ -86,13 +86,13 @@ public class UserConsoleService {
 
     public void addApacheUserDirectory(){
         System.out.println("Please add domain, dirUser, password, url, baseUser, baseGroup, security, backupUrl!\n  " +
-                " Exemple: addUserDirectory \"MyDomain\" \"user\" \"password\" \"url\" \"baseUser\" \"baseGroup\" \"SSL\" \"backupURL\"");
+                " Exemple: addApacheUserDirectory \"MyDomain\" \"user\" \"password\" \"url\" \"baseUser\" \"baseGroup\" \"SSL\" \"backupURL\"");
 
     }
 
     public void addActiveUserDirectory(){
         System.out.println("Please add domain, dirUser, password, url, baseUser, baseGroup!\n  " +
-                " Exemple: addUserDirectory \"MyDomain\" \"user\" \"password\" \"url\" \"baseUser\" \"baseGroup\"");
+                " Exemple: addActiveUserDirectory \"MyDomain\" \"user\" \"password\" \"url\" \"baseUser\" \"baseGroup\"");
     }
 
     private Principal getPrincipal() {
