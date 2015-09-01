@@ -16,7 +16,6 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
-import com.elster.jupiter.validation.MessageSeeds.Constants;
 import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRuleProperties;
@@ -42,7 +41,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_VALIDATION_RULE + "}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_VALIDATION_RULE + "}")
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 @GroupSequence({ValidationRuleImpl.class, ValidationRuleImpl.FirstValidationGroup.class, ValidationRuleImpl.SecondValidationGroup.class})
 public final class ValidationRuleImpl implements IValidationRule {
@@ -50,14 +49,14 @@ public final class ValidationRuleImpl implements IValidationRule {
     public interface SecondValidationGroup{};
     private long id;
 
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
     private boolean active;
     private ValidationAction action;
-    @NotNull(message = "{" + Constants.NAME_REQUIRED_KEY + "}", groups = Default.class)
-    @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}", groups = FirstValidationGroup.class)
-    @ExistingValidator(message = "{" + Constants.NO_SUCH_VALIDATOR + "}", groups = SecondValidationGroup.class)
+    @NotNull(message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}", groups = Default.class)
+    @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}", groups = FirstValidationGroup.class)
+    @ExistingValidator(message = "{" + MessageSeeds.Constants.NO_SUCH_VALIDATOR + "}", groups = SecondValidationGroup.class)
     private String implementation; //validator classname
     private Instant obsoleteTime;
 
@@ -67,7 +66,7 @@ public final class ValidationRuleImpl implements IValidationRule {
     private String userName;
     // associations
     @Valid
-    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
+    @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private List<ReadingTypeInValidationRule> readingTypesInRule = new ArrayList<>();
 
     private Reference<ValidationRuleSet> ruleSet = ValueReference.absent();

@@ -24,7 +24,6 @@ import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationOccurrenceFinder;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskStatus;
-import com.elster.jupiter.validation.MessageSeeds;
 import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
