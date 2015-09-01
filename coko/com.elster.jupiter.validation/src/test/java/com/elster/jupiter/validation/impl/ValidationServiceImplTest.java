@@ -46,8 +46,11 @@ import java.lang.reflect.Field;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -755,6 +758,59 @@ public class ValidationServiceImplTest {
         assertThat(validationService.createValidationOccurrence(taskOccurence)).isEqualTo(dataValidationOcc);
         assertThat(dataValidationOcc.getTask()).isEqualTo(iDataTask);
         assertThat(dataValidationOcc.getTaskOccurrence()).isEqualTo(taskOccurence);
+    }
+
+    @Test
+    public void testGetDataValidationStatusBulkChannel() {
+        Channel channel = mock(Channel.class);
+        CimChannel mainChannel = mock(CimChannel.class);
+        CimChannel bulkChannel = mock(CimChannel.class);
+        when(mainChannel.getChannel()).thenReturn(channel);
+        when(bulkChannel.getChannel()).thenReturn(channel);
+        Instant start = ZonedDateTime.of(2015, 9, 1, 0, 0, 0, 0, ZoneOffset.UTC).toInstant();
+        Instant end = ZonedDateTime.of(2015, 9, 5, 0, 0, 0, 0, ZoneOffset.UTC).toInstant();
+        Range<Instant> range = Range.openClosed(start, end);
+
+        IChannelValidation channelValidation = mock(IChannelValidation.class);
+        when(channelValidationFactory.find(eq("channel"), eq(channel))).thenReturn(Arrays.asList(channelValidation));
+        when(channelValidation.getLastChecked()).thenReturn(end);
+        Answer<ReadingQualityRecord> answer = invocationOnMock -> {
+            ReadingQualityType rqType = (ReadingQualityType)invocationOnMock.getArguments()[0];
+            Instant instant = (Instant) invocationOnMock.getArguments()[1];
+            return mockReadingQualityRecord(rqType.getCode(), instant);
+        };
+        doAnswer(answer).when(mainChannel).createReadingQuality(any(), any(Instant.class));
+        doAnswer(answer).when(bulkChannel).createReadingQuality(any(), any(Instant.class));
+
+        setupValidationRuleSet(channelValidation, channel, true);
+
+        List<ReadingQualityRecord> bulkRQs = Arrays.asList(
+                mockReadingQualityRecord("3.5.258", start.plus(2, ChronoUnit.DAYS)), mockReadingQualityRecord("3.5.259", start.plus(2, ChronoUnit.DAYS)),//missing
+                mockReadingQualityRecord("3.5.258", start.plus(3, ChronoUnit.DAYS)), mockReadingQualityRecord("3.5.259", start.plus(3, ChronoUnit.DAYS)));//missing
+        when(bulkChannel.findActualReadingQuality(range)).thenReturn(bulkRQs);
+        List<ReadingQualityRecord> mainRQs = Arrays.asList(
+                mockReadingQualityRecord("3.5.258", start.plus(4, ChronoUnit.DAYS)), mockReadingQualityRecord("3.6.1003", start.plus(4, ChronoUnit.DAYS)));//rule violation
+        when(mainChannel.findActualReadingQuality(range)).thenReturn(mainRQs);
+        List<DataValidationStatus> validationStatus = validationService.getEvaluator().getValidationStatus(mainChannel, bulkChannel, Collections.emptyList(), range);
+        assertThat(validationStatus).hasSize(3);
+        Map<Instant, DataValidationStatus> map = validationStatus.stream().collect(Collectors.toMap(DataValidationStatus::getReadingTimestamp, java.util.function.Function.<DataValidationStatus>identity()));
+        assertThat(map.get(start.plus(2, ChronoUnit.DAYS)).getValidationResult()).isEqualTo(ValidationResult.VALID);
+        assertThat(map.get(start.plus(3, ChronoUnit.DAYS)).getValidationResult()).isEqualTo(ValidationResult.VALID);
+        assertThat(map.get(start.plus(4, ChronoUnit.DAYS)).getValidationResult()).isEqualTo(ValidationResult.SUSPECT);
+        assertThat(map.get(start.plus(2, ChronoUnit.DAYS)).getBulkValidationResult()).isEqualTo(ValidationResult.SUSPECT);
+        assertThat(map.get(start.plus(3, ChronoUnit.DAYS)).getBulkValidationResult()).isEqualTo(ValidationResult.SUSPECT);
+        assertThat(map.get(start.plus(4, ChronoUnit.DAYS)).getBulkValidationResult()).isEqualTo(ValidationResult.VALID);
+    }
+
+    private ReadingQualityRecord mockReadingQualityRecord(String code, Instant readingTimeStamp) {
+        ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
+        ReadingQualityType readingQualityType = new ReadingQualityType(code);
+        when(readingQualityRecord.getType()).thenReturn(readingQualityType);
+        when(readingQualityRecord.getReadingTimestamp()).thenReturn(readingTimeStamp);
+        if (code.equals("3.5.258") || code.equals("3.5.259")) {
+            when(readingQualityRecord.isSuspect()).thenReturn(true);
+        }
+        return readingQualityRecord;
     }
 
 }
