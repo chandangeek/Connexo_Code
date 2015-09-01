@@ -6,11 +6,9 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.Validator;
-import com.elster.jupiter.validators.MessageSeeds;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -99,12 +97,7 @@ public class DefaultValidatorFactoryTest {
             expectedTranslations += ((IValidator)validator).getExtraTranslations().size();
         }
 
-        validatorFactory.install();
-
-        ArgumentCaptor<Iterable> iterableCaptor = ArgumentCaptor.forClass(Iterable.class);
-        verify(thesaurus).addTranslations(iterableCaptor.capture());
-
-        assertThat(iterableCaptor.getValue()).hasSize(expectedTranslations);
+        assertThat(validatorFactory.getKeys()).hasSize(expectedTranslations + MessageSeeds.values().length);
     }
 
 }

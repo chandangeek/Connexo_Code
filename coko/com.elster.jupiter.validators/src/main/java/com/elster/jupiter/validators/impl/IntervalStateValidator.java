@@ -17,7 +17,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.ValidationResult;
-import com.elster.jupiter.validators.MessageSeeds;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
