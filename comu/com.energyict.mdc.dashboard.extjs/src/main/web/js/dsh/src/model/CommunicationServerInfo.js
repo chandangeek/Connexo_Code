@@ -12,11 +12,9 @@ Ext.define('Dsh.model.CommunicationServerInfo', {
             //Stopped: All communication servers with attribute "running:false"
             //Running: All communication servers with attributes "running:true" and "blocked:false"
             if (record.get('running')) {
-                return record.get('blocked')
-                    ? Uni.I18n.translate('overview.widget.communicationServer.blocked','DSH','blocked')
-                    : Uni.I18n.translate('overview.widget.communicationServer.running','DSH','running');
+                return record.get('blocked') ? 'blocked' : 'running';
             } else {
-                return Uni.I18n.translate('overview.widget.communicationServer.stopped','DSH','stopped');
+                return 'stopped';
             }
         }}
     ],

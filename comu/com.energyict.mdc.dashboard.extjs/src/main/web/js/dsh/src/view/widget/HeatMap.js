@@ -248,7 +248,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
 
                     s = '<table><tbody>'
                     s += '<tr>'
-                    s += '<td style="padding-right: 10px; text-align: right">' + Uni.I18n.translate('overview.widget.summary.numberOf', 'DSH', 'Number of') + ' ' + label + '</td>';
+                    s += '<td style="padding-right: 10px; text-align: right">' + Uni.I18n.translate('overview.widget.summary.numberOf', 'DSH', 'Number of {0}',[label]) + '</td>';
                     s += '<td style="padding-right: 1px; text-align: left"><b>' + Math.abs(this.point.value) + '</b></td>';
                     s += '</tr>'
                     s += '<tr>'
