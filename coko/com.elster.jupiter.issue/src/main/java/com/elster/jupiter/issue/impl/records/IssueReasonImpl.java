@@ -26,9 +26,9 @@ public class IssueReasonImpl extends EntityImpl implements IssueReason{
     @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String translationKey;
 
-    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_200 + "}")
-    @Size(min = 1, max = 200, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_200 + "}")
-    private String defaultName;
+    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    private String descrTranslationKey;
 
     @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<IssueType> issueType = ValueReference.absent();
@@ -46,7 +46,11 @@ public class IssueReasonImpl extends EntityImpl implements IssueReason{
         this.issueType.set(issueType);
         if (name != null) {
             this.translationKey = name.getKey();
-            this.defaultName = name.getDefaultFormat();
+        }
+        if (description != null) {
+            this.descrTranslationKey = description.getKey();
+        } else {
+            this.descrTranslationKey = this.translationKey;
         }
         return this;
     }
@@ -63,11 +67,11 @@ public class IssueReasonImpl extends EntityImpl implements IssueReason{
 
     @Override
     public String getName() {
-        return this.thesaurus.getStringBeyondComponent(this.translationKey, this.defaultName);
+        return this.thesaurus.getStringBeyondComponent(this.translationKey, this.translationKey);
     }
 
     public String getDescriptionFor(String deviceMrid) {
-        String description = this.thesaurus.getStringBeyondComponent(this.translationKey + ISSUE_REASON_DESCRIPTION_TRANSLATION_SUFFIX, this.defaultName);
+        String description = this.thesaurus.getStringBeyondComponent(this.descrTranslationKey, this.descrTranslationKey);
         return new MessageFormat(description).format(new Object[]{deviceMrid}, new StringBuffer(), null).toString();
     }
 

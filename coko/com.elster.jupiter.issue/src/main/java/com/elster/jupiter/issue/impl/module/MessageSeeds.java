@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.impl.module;
 
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
 import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
+import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
@@ -64,7 +65,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     CREATION_RULE_UNIQUE_NAME(9012, Keys.CREATION_RULE_UNIQUE_NAME, "Name must be unique", Level.SEVERE),
     PROPERTY_NOT_IN_PROPERTYSPECS(9013, Keys.PROPERTY_NOT_IN_PROPERTYSPECS, "Property is not in property specs", Level.SEVERE),
     PROPERTY_MISSING(9014, Keys.PROPERTY_MISSING, "This field is required", Level.SEVERE),
-    PROPERTY_NOT_POSSIBLE_VALUE(9015, Keys.PROPERTY_NOT_POSSIBLE_VALUE, "The value is not listed as a possible value for this property", Level.SEVERE)
+    PROPERTY_NOT_POSSIBLE_VALUE(9015, Keys.PROPERTY_NOT_POSSIBLE_VALUE, "The value is not listed as a possible value for this property", Level.SEVERE),
+    SUBSCRIBER_NAME(9016,  IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_SUBSCRIBER, IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DISPLAYNAME, Level.INFO)
     ;
 
     private final int number;

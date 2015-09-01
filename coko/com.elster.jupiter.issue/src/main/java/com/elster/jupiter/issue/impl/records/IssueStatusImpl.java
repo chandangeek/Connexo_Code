@@ -19,10 +19,6 @@ public class IssueStatusImpl extends EntityImpl implements IssueStatus{
     @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String translationKey;
 
-    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_200 + "}")
-    @Size(min = 1, max = 200, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_200 + "}")
-    private String defaultName;
-
     private boolean isHistorical;
 
     private final Thesaurus thesaurus;
@@ -38,7 +34,6 @@ public class IssueStatusImpl extends EntityImpl implements IssueStatus{
         this.isHistorical = isHistorical;
         if (translationKey != null) {
             this.translationKey = translationKey.getKey();
-            this.defaultName = translationKey.getDefaultFormat();
         }
         return this;
     }
@@ -55,7 +50,7 @@ public class IssueStatusImpl extends EntityImpl implements IssueStatus{
     }
 
     public String getName() {
-        return thesaurus.getString(this.translationKey, this.defaultName);
+        return thesaurus.getStringBeyondComponent(this.translationKey, this.translationKey);
     }
 
     public boolean isHistorical() {
