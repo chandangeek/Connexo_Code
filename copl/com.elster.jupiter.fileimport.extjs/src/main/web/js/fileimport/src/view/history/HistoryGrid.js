@@ -14,7 +14,7 @@ Ext.define('Fim.view.history.HistoryGrid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('importService.history.startedOn', 'FIM', 'Started On'),
+                header: Uni.I18n.translate('importService.history.startedOn', 'FIM', 'Started on'),
                 dataIndex: 'startedOn',
                 flex: 1,
                 renderer: function (value, metaData, record) {
