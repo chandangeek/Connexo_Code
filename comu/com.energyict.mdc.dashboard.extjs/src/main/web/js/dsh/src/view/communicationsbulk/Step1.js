@@ -22,11 +22,8 @@ Ext.define('Dsh.view.communicationsbulk.Step1', {
                 store: 'Dsh.store.CommunicationTasksBuffered',
 
                 counterTextFn: function (count) {
-                    return Uni.I18n.translatePlural(
-                        'communication.bulk.counterText',
-                        count,
-                        'DSH',
-                        '{0} communications selected'
+                    return Uni.I18n.translatePlural('general.nrOfCommunications.selected', count, 'DSH',
+                        'No communications selected', '{0} communication selected', '{0} communications selected'
                     );
                 },
 

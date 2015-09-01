@@ -22,11 +22,8 @@ Ext.define('Dsh.view.connectionsbulk.Step1', {
                 store: 'Dsh.store.ConnectionTasksBuffered',
 
                 counterTextFn: function (count) {
-                    return Uni.I18n.translatePlural(
-                        'connection.bulk.counterText',
-                        count,
-                        'DSH',
-                        '{0} connections selected'
+                    return Uni.I18n.translatePlural('general.nrOfConnections.selected', count, 'DSH',
+                        'No connections selected', '{0} connection selected', '{0} connections selected'
                     );
                 },
 
