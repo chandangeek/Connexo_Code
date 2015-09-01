@@ -9,11 +9,8 @@ Ext.define('Dlc.devicelifecyclestates.view.AddProcessesToStateGrid', {
         ptype: 'bufferedrenderer'
     },
     counterTextFn: function (count) {
-        return Uni.I18n.translatePlural(
-            'transitionBusinessProcesses.numberSelected',
-            count,
-            'DLC',
-            '{0} processes selected'
+        return Uni.I18n.translatePlural('general.nrOfProcesses.selected', count, 'DLC',
+            'No processes selected', '{0} process selected', '{0} processes selected'
         );
     },
     bottomToolbarHidden: true,

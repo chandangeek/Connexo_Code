@@ -56,7 +56,7 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                     action: 'showEditDeviceLifeCycle',
                                     callback: function (route) {
                                         this.getApplication().on('deviceLifeCycleEdit', function (record) {
-                                            route.setTitle(Uni.I18n.translatePlural('deviceLifeCycles.edit.title', record.get('name'), 'DLC', 'Edit \'{0}\''));
+                                            route.setTitle(Uni.I18n.translate('deviceLifeCycles.edit.title', 'DLC', "Edit '{0}'", [record.get('name')]));
                                             return true;
                                         }, {single: true});
                                         return this;
@@ -95,7 +95,7 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                             action: 'showDeviceLifeCycleStateEdit',
                                             callback: function (route) {
                                                 this.getApplication().on('loadlifecyclestate', function (record) {
-                                                    route.setTitle(Uni.I18n.translatePlural('deviceLifeCycles.edit.title', record.get('name'), 'DLC', 'Edit \'{0}\''));
+                                                    route.setTitle(Uni.I18n.translate('deviceLifeCycles.edit.title', 'DLC', "Edit '{0}'", [record.get('name')]));
                                                     return true;
                                                 }, {single: true});
                                                 return this;
@@ -136,7 +136,7 @@ Ext.define('Dlc.main.controller.history.DeviceLifeCycle', {
                                             action: 'showAddDeviceLifeCycleTransition',
                                             callback: function (route) {
                                                 this.getApplication().on('deviceLifeCycleTransitionEdit', function (record) {
-                                                    route.setTitle(Uni.I18n.translatePlural('deviceLifeCycles.edit.title', record.get('name'), 'DLC', 'Edit \'{0}\''));
+                                                    route.setTitle(Uni.I18n.translate('deviceLifeCycles.edit.title', 'DLC', "Edit '{0}'", [record.get('name')]));
                                                     return true;
                                                 }, {single: true});
                                                 return this;

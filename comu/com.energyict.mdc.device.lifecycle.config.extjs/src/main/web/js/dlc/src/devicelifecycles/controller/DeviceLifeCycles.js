@@ -185,7 +185,7 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
                 me.deviceLifeCycle = deviceLifeCycleRecord;
                 me.getApplication().fireEvent('devicelifecycleload', deviceLifeCycleRecord);
                 me.getApplication().fireEvent('deviceLifeCycleEdit', deviceLifeCycleRecord);
-                form.setTitle(Uni.I18n.translatePlural('deviceLifeCycles.edit.title', deviceLifeCycleRecord.get('name'), 'DLC', 'Edit \'{0}\''));
+                form.setTitle(Uni.I18n.translate('deviceLifeCycles.edit.title', 'DLC', "Edit '{0}'", [deviceLifeCycleRecord.get('name')]));
                 form.loadRecord(deviceLifeCycleRecord);
                 me.getApplication().fireEvent('changecontentevent', view);
             }
@@ -207,7 +207,9 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
                 view = Ext.widget('device-life-cycles-clone', {
                     router: me.getController('Uni.controller.history.Router'),
                     title: title,
-                    infoText: Uni.I18n.translatePlural('deviceLifeCycles.clone.templateMsg', deviceLifeCycleRecord.get('name'), 'DLC', "The new device life cycle is based on the '{0}' and will use the same states and transitions."),
+                    infoText: Uni.I18n.translate('deviceLifeCycles.clone.templateMsg', 'DLC',
+                        "The new device life cycle is based on '{0}' and will use the same states and transitions.",
+                        [deviceLifeCycleRecord.get('name')]),
                     route: route
                 });
                 me.getApplication().fireEvent('changecontentevent', view);

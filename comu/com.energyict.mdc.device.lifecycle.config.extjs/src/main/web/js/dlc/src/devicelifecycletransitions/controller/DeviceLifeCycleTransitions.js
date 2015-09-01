@@ -191,7 +191,7 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
 
                                 me.transition = transition;
                                 me.getApplication().fireEvent('deviceLifeCycleTransitionEdit', transition);
-                                form.setTitle(Uni.I18n.translatePlural('deviceLifeCycles.edit.title', transition.get('name'), 'DLC', 'Edit \'{0}\''));
+                                form.setTitle(Uni.I18n.translate('deviceLifeCycles.edit.title', 'DLC', "Edit '{0}'", [transition.get('name')]));
                                 if (me.getStore('Dlc.main.store.Clipboard').get('addTransitionValues')) {
                                     me.setFormValues();
                                 } else {
@@ -289,6 +289,7 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
                         if (item.id.indexOf('duplicate') !== -1) {
                             formErrorsPanel.setText(item.msg);
                             formErrorsPanel.doLayout();
+                            formErrorsPanel.getEl().scrollIntoView(page.getEl()); // make sure the formErrorsPanel is visible even when you scrolled down far away
                         }
                     });
                 }
