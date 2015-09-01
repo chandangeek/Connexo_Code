@@ -11,7 +11,7 @@ Ext.define('Cfg.controller.history.EventType', {
             items: {
                 eventtypes: {
                     disabled: true,
-                    title: 'Event types',
+                    title: Uni.I18n.translate('eventtype.eventTypes','CFG','Event types'),
                     route: 'validation/eventtypes',
                     controller: 'Cfg.controller.EventType',
                     action: 'showOverview'

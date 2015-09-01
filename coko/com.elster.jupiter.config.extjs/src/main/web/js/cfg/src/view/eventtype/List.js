@@ -2,7 +2,7 @@ Ext.define('Cfg.view.eventtype.List', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.eventtypeList',
     itemId: 'eventtypeList',
-    title: 'All Event Types',
+    title: Uni.I18n.translate('eventtype.allEventTypes','CFG','All Event Types'),
     store: 'EventTypes',
 
     columns: {
