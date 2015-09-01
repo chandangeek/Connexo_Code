@@ -16,7 +16,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.validation.*;
-import com.elster.jupiter.validation.MessageSeeds.Constants;
+import com.elster.jupiter.validation.impl.MessageSeeds.Constants;
 import com.google.common.collect.ImmutableMap;
 import org.hibernate.validator.constraints.NotEmpty;
 

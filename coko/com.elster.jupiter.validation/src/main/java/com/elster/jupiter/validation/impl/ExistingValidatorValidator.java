@@ -1,6 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.validation.MessageSeeds;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 
