@@ -20,8 +20,6 @@ public interface MeterActivation extends Effectivity , ReadingContainer {
     Instant getStart();
     Instant getEnd();
     ZoneId getZoneId();
-    void setUsagePoint(UsagePoint usagePoint);
-    void setMeter(Meter meter);
 
     /**
      * @param startTime new start time for this MeterActivation, which must be earlier than the current start time.
