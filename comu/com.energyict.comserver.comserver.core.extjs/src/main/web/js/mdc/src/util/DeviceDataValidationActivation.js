@@ -103,7 +103,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
 					owner.insert(1, me.getButtonContent(confirmationWindow));
 					
                     confirmationWindow.show({
-                        title: Uni.I18n.translatePlural('device.dataValidation.activateConfirmation.title', me.mRID, 'MDC', 'Activate data validation on device {0}?'),
+                        title: Uni.I18n.translate('device.dataValidation.activateConfirmation.title', 'MDC', 'Activate data validation on device {0}?', [me.mRID]),
                         msg: ''
                     });
                 } else {
@@ -117,7 +117,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                         padding: '0 0 15px 48px'
                     }]);
                     confirmationWindow.show({
-                        title: Uni.I18n.translatePlural('device.dataValidation.activateConfirmation.title', me.mRID, 'MDC', 'Activate data validation on device {0}?'),
+                        title: Uni.I18n.translate('device.dataValidation.activateConfirmation.title', 'MDC', 'Activate data validation on device {0}?', [me.mRID]),
                         msg: Uni.I18n.translate('device.dataValidation.activateMsg', 'MDC', 'There are currently no readings for this device')
                     });
                 }
@@ -154,7 +154,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 } else {
                     me.destroyConfirmationWindow();
                     me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translatePlural('device.dataValidation.activation.activated', me.mRID, 'MDC', 'Data validation activated'));
+                        Uni.I18n.translate('device.dataValidation.activation.activated', 'MDC', 'Data validation activated'));
                 }
             },
             failure: function (response) {
@@ -209,10 +209,10 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 me.destroyConfirmationWindow();
                 if (me.isValidationRunImmediately) {
                     me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translatePlural('device.dataValidation.activation.validated', me.mRID, 'MDC', 'Data validation completed'));
+                        Uni.I18n.translate('device.dataValidation.activation.validated', 'MDC', 'Data validation completed'));
                 } else {
                     me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translatePlural('device.dataValidation.activation.activated', me.mRID, 'MDC', 'Data validation activated'));
+                        Uni.I18n.translate('device.dataValidation.activation.activated', 'MDC', 'Data validation activated'));
                 }
             },
             failure: function (response) {
@@ -324,7 +324,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate')
         }).show({
-            title: Uni.I18n.translatePlural('device.dataValidation.deactivateConfirmation.title', me.mRID, 'MDC', 'Deactivate data validation on device {0}?'),
+            title: Uni.I18n.translate('device.dataValidation.deactivateConfirmation.title', 'MDC', 'Deactivate data validation on device {0}?', [me.mRID]),
             msg: Uni.I18n.translate('device.dataValidation.deactivateConfirmation.msg', 'MDC', 'The data of this device will no longer be validated'),
             fn: function (state) {
                 if (state === 'confirm') {
@@ -345,7 +345,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
             success: function () {
                 me.updateDataValidationStatusSection(me.mRID, view);
                 me.getApplication().fireEvent('acknowledge',
-                    Uni.I18n.translatePlural('device.dataValidation.deactivation.successMsg', me.mRID, 'MDC', 'Data validation deactivated'));
+                    Uni.I18n.translate('device.dataValidation.deactivation.successMsg', 'MDC', 'Data validation deactivated'));
             }
         });
     },

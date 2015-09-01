@@ -151,11 +151,11 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                     }
                     confirmationWindow.insert(1,me.getValidationContent());
                     confirmationWindow.show({
-                        title: Uni.I18n.translatePlural('deviceloadprofiles.validateNow', record.get('name'), 'MDC', 'Validate data of load profile {0}?'),
+                        title: Uni.I18n.translate('deviceloadprofiles.validateNow', 'MDC', 'Validate data of load profile {0}?', [record.get('name')]),
                         msg: ''
                     });
                 } else {
-                    var title = Uni.I18n.translatePlural('deviceloadprofiles.validateNow.error', record.get('name'), 'MDC', 'Failed to validate data of load profile {0}'),
+                    var title = Uni.I18n.translate('deviceloadprofiles.validateNow.error', 'MDC', 'Failed to validate data of load profile {0}', [record.get('name')]),
                         message = Uni.I18n.translate('deviceloadprofiles.noData', 'MDC', 'There is currently no data for this load profile'),
                         config = {
                             icon: Ext.MessageBox.WARNING
@@ -197,7 +197,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
                     confWindow.removeAll(true);
                     confWindow.destroy();
                     me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translatePlural('deviceloadprofiles.activation.completed', me.loadProfileName, 'MDC', 'Data validation completed'));
+                        Uni.I18n.translate('deviceloadprofiles.activation.completed', 'MDC', 'Data validation completed'));
                     Ext.ComponentQuery.query('#deviceLoadProfilesGrid')[0].fireEvent('select', Ext.ComponentQuery.query('#deviceLoadProfilesGrid')[0].getSelectionModel(), record);
                 }
             });

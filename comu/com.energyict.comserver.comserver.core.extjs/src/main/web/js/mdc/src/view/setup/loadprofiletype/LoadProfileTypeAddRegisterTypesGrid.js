@@ -14,12 +14,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeAddRegisterTypesGrid',
     },
 
     counterTextFn: function (count) {
-        return Uni.I18n.translatePlural(
-            'setup.loadprofiletype.LoadProfileTypeAddRegisterTypesGrid.counterText',
-            count,
-            'MDC',
-            '{0} register types selected'
-        );
+        return Uni.I18n.translatePlural('general.nrOfRegisterTypes.selected', count, 'MDC',
+            'No register types selected', '{0} register type selected', '{0} register types selected');
     },
 
     allLabel: Uni.I18n.translate('setup.loadprofiletype.LoadProfileTypeAddRegisterTypesGrid.allLabel', 'MDC', 'All register types'),

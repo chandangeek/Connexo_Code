@@ -6,13 +6,11 @@ Ext.define('Mdc.view.setup.searchitems.bulk.SchedulesSelectionGrid', {
 
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
-            'setup.searchitems.bulk.SchedulesSelectionGrid.counterText',
-            count,
-            'MDC',
-            '{0} shared communication schedules selected'
+            'general.nrOfSharedComSchedules.selected', count, 'MDC',
+            'No shared communication schedules selected', '{0} shared communication schedule selected', '{0} shared communication schedules selected'
         );
     },
-  selectedDescription: Uni.I18n.translate('searchItems.bulk.selectedScheduleInTable', 'MDC', 'Select shered communication schedules in table'),
+    selectedDescription: Uni.I18n.translate('searchItems.bulk.selectedScheduleInTable', 'MDC', 'Select shared communication schedules in table'),
 
     cancelHref: '#/search',
 

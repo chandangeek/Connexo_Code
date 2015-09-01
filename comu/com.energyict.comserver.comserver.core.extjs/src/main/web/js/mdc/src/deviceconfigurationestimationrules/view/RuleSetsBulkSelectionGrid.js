@@ -15,6 +15,8 @@ Ext.define('Mdc.deviceconfigurationestimationrules.view.RuleSetsBulkSelectionGri
             'deviceconfiguration.estimation.ruleSets.selectedcount',
             count,
             'MDC',
+            'No estimation rule sets selected',
+            '{0} estimation rule set selected',
             '{0} estimation rule sets selected'
         );
     },

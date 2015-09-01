@@ -7,11 +7,8 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypesGrid', {
     ],
 
     counterTextFn: function (count) {
-        return Uni.I18n.translatePlural(
-            'logbooktypes.selectedItems',
-            count,
-            'MDC',
-            '{0} logbook types selected'
+        return Uni.I18n.translatePlural('general.nrOfLogbookTypes.selected', count, 'MDC',
+            'No logbook types selected', '{0} logbook type selected', '{0} logbook types selected'
         );
     },
 

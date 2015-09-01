@@ -225,7 +225,9 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                     'validation.ruleSetAdded',
                     selection.length,
                     'MDC',
-                    'Successfully added validation rule sets.'
+                    'Successfully added {0} validation rule sets.',
+                    'Successfully added {0} validation rule set.',
+                    'Successfully added {0} validation rule sets.'
                 );
 
                 me.getApplication().fireEvent('acknowledge', message);
@@ -234,11 +236,8 @@ Ext.define('Mdc.controller.setup.ValidationRuleSets', {
                 if (response.status === 400) {
                     var result = Ext.decode(response.responseText, true),
                         title = Uni.I18n.translate('general.failedToAdd', 'MDC', 'Failed to add'),
-                        message = Uni.I18n.translatePlural(
-                            'validation.failedToAddMessage',
-                            selection.length,
-                            'MDC',
-                            'Validation rule sets could not be added. There was a problem accessing the database'
+                        message = Uni.I18n.translate('validation.failedToAddRuleSets', 'MDC',
+                            'Validation rule sets could not be added. There was a problem accessing the database.'
                         );
 
                     if (result !== null) {
