@@ -79,12 +79,12 @@ Ext.define('Dsh.controller.OperatorDashboard', {
             store = this.getFavoriteDeviceGroupsGrid().getStore(),
             selectedGroups = store.queryBy(function (record) {
                 return record.get('favorite') === true;
-            }), selectedGroupsQty = selectedGroups.items.length;
+            }),
+            selectedGroupsQty = selectedGroups.items.length;
 
         summaryOfSelectedField.setValue(
-            selectedGroupsQty > 0 ?
-                Uni.I18n.translatePlural('myFavoriteDeviceGroups.summarySelectedTpl', selectedGroupsQty, 'DSH', '{0} device groups selected') :
-                Uni.I18n.translate('myFavoriteDeviceGroups.summaryTplNoSelected', 'DSH', 'No device groups selected')
+            Uni.I18n.translatePlural('general.nrOfDeviceGroups.selected', selectedGroupsQty, 'DSH',
+                'No device groups selected', '{0} device group selected', '{0} device groups selected')
         );
 
         this.getUncheckAllBtn().setDisabled(selectedGroupsQty < 1);
