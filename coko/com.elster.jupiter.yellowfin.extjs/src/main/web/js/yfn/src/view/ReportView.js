@@ -92,7 +92,7 @@ Ext.define('Yfn.view.ReportView', {
                                      itemId: 'csv-btn',
                                      action: 'export',
                                      exportType: 'csv',
-                                     text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'CSV')
+                                     text: Uni.I18n.translateXXX('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'CSV')
                                      },
 
                                      {
@@ -100,35 +100,35 @@ Ext.define('Yfn.view.ReportView', {
                                      itemId: 'doc-btn',
                                      action: 'export',
                                      exportType: 'doc',
-                                     text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to Word')
+                                     text: Uni.I18n.translateXXX('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to Word')
                                      },
                                      {
                                      xtype: 'menucheckitem',
                                      itemId: 'pdf-btn',
                                      action: 'export',
                                      exportType: 'pdf',
-                                     text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to PDF')
+                                     text: Uni.I18n.translateXXX('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to PDF')
                                      },
                                      {
                                      xtype: 'menucheckitem',
                                      itemId: 'rtf-btn',
                                      action: 'export',
                                      exportType: 'rtf',
-                                     text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to RTF')
+                                     text: Uni.I18n.translateXXX('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to RTF')
                                      },
                                      {
                                      xtype: 'menucheckitem',
                                      itemId: 'txt-btn',
                                      action: 'export',
                                      exportType: 'txt',
-                                     text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to TXT')
+                                     text: Uni.I18n.translateXXX('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to TXT')
                                      },
                                      {
                                      xtype: 'menucheckitem',
                                      itemId: 'xls-btn',
                                      action: 'export',
                                      exportType: 'xls',
-                                     text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to XLS')
+                                     text: Uni.I18n.translateXXX('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Export to XLS')
                                      }
                                      ]
                                      }
@@ -136,19 +136,19 @@ Ext.define('Yfn.view.ReportView', {
                                      {
                                      xtype: 'button',
                                      itemId: 'chart-btn',
-                                     text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Chart'),
+                                     text: Uni.I18n.translateXXX('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Chart'),
                                      icon: '/apps/sky/resources/images/form/restore.png'
                                      },
                                      {
                                      xtype: 'button',
                                      itemId: 'table-btn',
-                                     text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Table'),
+                                     text: Uni.I18n.translateXXX('overview.widget.headerSection.refreshBtnTxt', 'YFN', 'Table'),
                                      icon: '/apps/sky/resources/images/form/restore.png'
                                      },
                                     {
                                         xtype: 'button',
                                         itemId: 'refresh-btn',
-                                        text: Uni.I18n.translate('generatereport.applyFiltersBtnTxt', 'YFN', 'Apply filters'),
+                                        text: Uni.I18n.translateXXX('generatereport.applyFiltersBtnTxt', 'YFN', 'Apply filters'),
                                         icon: '/apps/sky/resources/images/form/restore.png'
                                     }
                                 ]
