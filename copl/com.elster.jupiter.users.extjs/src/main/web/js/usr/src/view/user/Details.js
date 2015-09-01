@@ -9,7 +9,7 @@ Ext.define('Usr.view.user.Details', {
         'Ext.button.Button',
         'Usr.view.user.UserActionMenu'
     ],
-    title: 'user',
+    title: Uni.I18n.translate('users.user','USR','User'),
 
 
     tools: [

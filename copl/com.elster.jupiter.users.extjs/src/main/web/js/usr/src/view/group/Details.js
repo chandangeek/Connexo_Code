@@ -13,7 +13,7 @@ Ext.define('Usr.view.group.Details', {
         'Ext.button.Button',
         'Usr.view.group.GroupActionMenu'
     ],
-    title: 'Group',
+    title: Uni.I18n.translate('users.group','USR','Group'),
 
     tools: [
         {
@@ -58,7 +58,7 @@ Ext.define('Usr.view.group.Details', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'name',
-                                    fieldLabel: Uni.I18n.translate('group.name', 'USR', 'Role name')
+                                    fieldLabel: Uni.I18n.translate('role.name', 'USR', 'Role name')
                                 },
                                 {
                                     xtype: 'displayfield',

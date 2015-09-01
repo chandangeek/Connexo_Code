@@ -62,7 +62,7 @@ Ext.define('Usr.view.group.privilege.FeatureList', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('privilege.feature.top', 'USR', 'Resources')
+                displayMsg: Uni.I18n.translate('privilege.resources.top', 'USR', 'Resources')
             }
         ];
 

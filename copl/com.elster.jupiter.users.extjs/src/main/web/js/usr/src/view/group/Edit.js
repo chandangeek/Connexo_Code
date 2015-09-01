@@ -27,7 +27,7 @@ Ext.define('Usr.view.group.Edit', {
                     type: 'vbox',
                     align: 'stretch'
                 },
-                title: 'Edit Group',
+                title: Uni.I18n.translate('users.editGroup','USR','Edit group'),
 
                 items: [
                     {
@@ -51,8 +51,8 @@ Ext.define('Usr.view.group.Edit', {
                             {
                                 xtype: 'uni-form-info-message',
                                 itemId: 'alertmessagerole',
-                                title: Uni.I18n.translate('group.cannot.edit.title', 'USR', 'This role cannot be changed.'),
-                                text:Uni.I18n.translate('group.cannot.edit.message', 'USR', 'Only the description is editable.'),
+                                title: Uni.I18n.translate('role.cannot.edit.title', 'USR', 'This role cannot be changed.'),
+                                text:Uni.I18n.translate('role.cannot.edit.message', 'USR', 'Only the description is editable.'),
                                 hidden: true
 
                             },
