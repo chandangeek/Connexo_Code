@@ -1,16 +1,16 @@
-Ext.define('Imt.registerdata.view.RegisterList', {
+Ext.define('Imt.registerdata.view.ReadingList', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.registerList',
+    alias: 'widget.readingList',
     requires: [
-        'Imt.registerdata.store.Register',
+        'Imt.registerdata.store.Reading',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Imt.registerdata.view.ActionMenu'
     ],
-    store: 'Imt.registerdata.store.Register',
+    store: 'Imt.registerdata.store.Reading',
     overflowY: 'auto',
-    itemId: 'registerList',
-    title: Uni.I18n.translate('registers.registerList', 'IMT', 'Registers'),
+    itemId: 'readingList',
+    title: Uni.I18n.translate('registers.readingList', 'IMT', 'Readings'),
     viewConfig: {
         style: { overflow: 'auto', overflowX: 'hidden' },
         enableTextSelection: true
@@ -19,17 +19,17 @@ Ext.define('Imt.registerdata.view.RegisterList', {
     initComponent: function () {
         var me = this;
         me.columns = [
-        {
-            header: Uni.I18n.translate('registers.title.registers', 'MDC', 'Registers'),
-            flex: 1,
-            dataIndex: 'readingTypeAlias', 
-            renderer: function (value, b, record) {
-                var me = this,
-                   url = me.router.getRoute('administration/usagepoint/registers/register').buildUrl({mRID: me.mRID, register: record.get('readingTypemRID')});//record.get('id')});
-
-                return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
-            }
-        },
+//        {
+//            header: Uni.I18n.translate('registers.title.registers', 'MDC', 'Readings'),
+//            flex: 1,
+//            dataIndex: 'readingTypeAlias', 
+//            renderer: function (value, b, record) {
+//                var me = this,
+//                    url = me.router.getRoute('administration/usagepoint/reading').buildUrl({mRID: me.mRID, register: record.get('readingTypemRID')});//record.get('id')});
+//
+//                return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+//            }
+//        },
         {
             header: Uni.I18n.translate('registers.title.registers', 'MDC', 'Reading Timestamp'),
             flex: 1,

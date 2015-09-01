@@ -16,7 +16,7 @@ Ext.define('Imt.registerdata.store.Register', {
     ],
     proxy: {
         type: 'rest',
-        url: '/api/imt/registers/{id}',
+        url: '/api/imt/usagepoints/{mrid}/registers',
         timeout: 240000,
         reader: {
             type: 'json',
