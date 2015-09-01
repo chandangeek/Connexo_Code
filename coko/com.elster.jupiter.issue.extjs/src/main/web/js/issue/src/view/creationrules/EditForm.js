@@ -285,7 +285,7 @@ Ext.define('Isu.view.creationrules.EditForm', {
 
         Ext.suspendLayouts();
         if (me.isEdit) {
-            me.setTitle(Uni.I18n.translate('administration.issueCreationRules.title.editIssueCreationRule', 'ISU', 'Edit \'{0}\'', [record.get('name')]));
+            me.setTitle(Uni.I18n.translate('administration.issueCreationRules.title.editIssueCreationRule', 'ISU', "Edit '{0}'", [record.get('name')]));
         }
         record.associations.each(function (association) {
             var field,
