@@ -4,11 +4,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingAddGrid', {
     store: 'AvailableRegisterTypes',
 
     counterTextFn: function (count) {
-        return Uni.I18n.translatePlural(
-            'registerTypes.selectedItems',
-            count,
-            'MDC',
-            '{0} register types selected'
+        return Uni.I18n.translatePlural('general.nrOfRegisterTypes.selected', count, 'MDC',
+            'No register types selected', '{0} register type selected', '{0} register types selected'
         );
     },
 

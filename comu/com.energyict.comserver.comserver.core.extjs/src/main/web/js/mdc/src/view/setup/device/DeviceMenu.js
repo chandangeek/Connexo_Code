@@ -35,7 +35,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 ]
             },
             {
-                title: 'Data sources',
+                title: Uni.I18n.translate('device.dataSources','MDC','Data sources'),
                 xtype: 'menu',
                 items: [
                     {
@@ -72,7 +72,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                 ]
             },
             {
-                title: 'Communication',
+                title: Uni.I18n.translate('device.communication','MDC','Communication'),
                 items: [
                     {
                         text: Uni.I18n.translate('general.generalAttributes', 'MDC', 'General attributes'),

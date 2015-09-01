@@ -94,7 +94,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
         switch (item.action) {
             case 'edit':
                 var router = this.getController('Uni.controller.history.Router');
-                router.getRoute('administration/general.edit').forward({id: record.get('id')});
+                router.getRoute('administration/communicationtasks/edit').forward({id: record.get('id')});
                 break;
             case 'delete':
                 this.showConfirmationPanel();

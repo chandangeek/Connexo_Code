@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.comserver.RemoteComServerEdit', {
     extend: 'Ext.window.Window',
     alias: 'widget.remoteComServerEdit',
-    title: 'Remote ComServer',
+    title: Uni.I18n.translate('comServer.remoteComserver','MDC','Remote ComServer'),
     width: '80%',
     height: '90%',
     modal: true,
@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.comserver.RemoteComServerEdit', {
                 items: [
                     {
                         xtype: 'fieldset',
-                        title: 'Required',
+                        title: Uni.I18n.translate('general.required','required','Required'),
                         defaults: {
                             labelWidth: 200
                         },
@@ -122,7 +122,7 @@ Ext.define('Mdc.view.setup.comserver.RemoteComServerEdit', {
                         ]},
                     {
                         xtype: 'fieldset',
-                        title: 'Optional',
+                        title: Uni.I18n.translate('general.optional','MDC','Optional'),
                         defaults: {
                             labelWidth: 200
                         },
@@ -161,11 +161,11 @@ Ext.define('Mdc.view.setup.comserver.RemoteComServerEdit', {
 
         this.buttons = [
             {
-                text: 'Save',
+                text: Uni.I18n.translate('general.save','MDC','Save'),
                 action: 'save'
             },
             {
-                text: 'Cancel',
+                text: Uni.I18n.translate('general.cancel','MDC','Cancel'),
                 action: 'cancel'
             }
         ];

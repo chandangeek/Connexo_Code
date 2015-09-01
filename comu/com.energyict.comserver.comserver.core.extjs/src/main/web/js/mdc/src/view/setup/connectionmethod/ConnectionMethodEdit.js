@@ -55,6 +55,17 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                         },
                         items: [
                             {
+                                name: 'errors',
+                                ui: 'form-error-framed',
+                                itemId: 'connectionMethodEditFormErrors',
+                                layout: 'hbox',
+                                margin: '0 0 10 0',
+                                hidden: true,
+                                defaults: {
+                                    xtype: 'container'
+                                }
+                            },
+                            {
                                 xtype: 'textfield',
                                 name: 'name',
                                 msgTarget: 'under',
@@ -73,7 +84,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 queryMode: 'local',
                                 displayField: 'name',
                                 valueField: 'name',
-                                emptyText: Uni.I18n.translate('connectionmethod.selectConnectionMethod', 'MDC', 'Select a connection type...'),
+                                emptyText: Uni.I18n.translate('connectionmethod.selectConnectionType', 'MDC', 'Select a connection type...'),
                                 required: true,
                                 forceSelection: true,
                                 typeAhead: true,
@@ -307,8 +318,9 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                         items: [
                             {
                                 xtype: 'displayfield',
+                                itemId: 'connectionDetailsField',
                                 fieldLabel: '<h3>' + Uni.I18n.translate('deviceconnectionmethod.connectionDetails', 'MDC', 'Connection details') + '</h3>',
-                                text: ''
+                                value: '-'
                             }
                         ]
                     },

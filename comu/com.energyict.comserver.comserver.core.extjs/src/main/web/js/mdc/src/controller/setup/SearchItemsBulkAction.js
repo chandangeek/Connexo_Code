@@ -256,10 +256,18 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
         switch (me.operation) {
             case 'add':
-                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.successfullyAddedCommunicationSchedule', count, 'MDC', 'Successfully added communication schedule \'{1}\' to {0} devices');
+                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.successfullyAddedCommunicationSchedule', count, 'MDC',
+                    "Successfully added communication schedule '{1}' to {0} devices",
+                    "Successfully added communication schedule '{1}' to {0} device",
+                    "Successfully added communication schedule '{1}' to {0} devices"
+                );
                 break;
             case 'remove':
-                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.successfullyRemovedCommunicationSchedule', count, 'MDC', 'Successfully removed communication schedule \'{1}\' from {0} devices');
+                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.successfullyRemovedCommunicationSchedule', count, 'MDC',
+                    "Successfully removed communication schedule '{1}' from {0} devices",
+                    "Successfully removed communication schedule '{1}' from {0} device",
+                    "Successfully removed communication schedule '{1}' from {0} devices"
+                );
                 break;
         }
 
@@ -282,10 +290,18 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
         switch (me.operation) {
             case 'add':
-                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.failedToAddCommunicationSchedule', count, 'MDC', 'Failed to add communication schedule \'{1}\' to {0} devices');
+                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.failedToAddCommunicationSchedule', count, 'MDC',
+                    "Failed to add communication schedule '{1}' to {0} devices",
+                    "Failed to add communication schedule '{1}' to {0} device",
+                    "Failed to add communication schedule '{1}' to {0} devices"
+                );
                 break;
             case 'remove':
-                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.failedToRemoveCommunicationSchedule', count, 'MDC', 'Failed to remove communication schedule \'{1}\' from {0} devices');
+                messageHeader = Uni.I18n.translatePlural('searchItems.bulk.failedToRemoveCommunicationSchedule', count, 'MDC',
+                    "Failed to remove communication schedule '{1}' from {0} devices",
+                    "Failed to remove communication schedule '{1}' from {0} device",
+                    "Failed to remove communication schedule '{1}' from {0} devices"
+                );
                 break;
         }
 
@@ -422,38 +438,99 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     buildConfirmMessage: function () {
         var me = this,
             message,
-            scheduleWord,
-            deviceWord,
-            startStr,
-            finishStr,
-            scheduleList = '',
-            unit,
-            deviceCount = (me.allDevices ? Uni.I18n.translate('searchItems.bulk.all', 'MDC', 'all') : false) || me.devices.length;
-        scheduleWord = Uni.I18n.translatePlural('searchItems.bulk.comSchedules', parseInt(me.schedules.length), 'MDC', 'shared communication schedules');
-        deviceWord = Uni.I18n.translatePlural('searchItems.bulk.devices', parseInt(Ext.isString(deviceCount) ? 0 : deviceCount), 'MDC', 'devices');
-        if (me.schedules.length === 1) {
-            scheduleList = '\'' + me.schedules[0].get('name') + '\'';
+            pattern,
+            titleText,
+            bodyText,
+            scheduleList = '';
+
+        if (me.allDevices) {
+            switch (me.operation) {
+                case 'add':
+                    if (me.schedules.length === 1) {
+                        titleText = Uni.I18n.translate('searchItems.bulk.addOneComScheduleToAllDevices.confirmMsg', 'MDC',
+                            "Add shared communication schedule '{0}' to all devices?", [me.schedules[0].get('name')]);
+                    } else {
+                        Ext.each(me.schedules, function (item, index) {
+                            scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
+                        });
+                        titleText = Uni.I18n.translate('searchItems.bulk.addComSchedulesToAllDevices.confirmMsg', 'MDC',
+                            "Add shared communication schedules {0} to all devices?", [scheduleList]);
+                    }
+                    break;
+                case 'remove':
+                    if (me.schedules.length === 1) {
+                        titleText = Uni.I18n.translate('searchItems.bulk.removeOneComScheduleFromAllDevices.confirmMsg', 'MDC',
+                            "Remove shared communication schedule '{0}' from all devices?", [me.schedules[0].get('name')]);
+                    } else {
+                        Ext.each(me.schedules, function (item, index) {
+                            scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
+                        });
+                        titleText = Uni.I18n.translate('searchItems.bulk.removeComSchedulesFromAllDevices.confirmMsg', 'MDC',
+                            "Remove shared communication schedules {0} from all devices?", [scheduleList]);
+                    }
+                    break;
+            }
         } else {
-            Ext.each(me.schedules, function (item, index) {
-                scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
-            });
+            switch (me.operation) {
+                case 'add':
+                    if (me.schedules.length === 1) {
+                        pattern = Uni.I18n.translatePlural('searchItems.bulk.addOneComScheduleToDevices.confirmMsg', 'MDC',
+                            me.devices.length,
+                            "Add shared communication schedule '{1}' to {0} devices?",
+                            "Add shared communication schedule '{1}' to {0} device?",
+                            "Add shared communication schedule '{1}' to {0} devices?"
+                        );
+                        titleText = Ext.String.format(pattern, 1/*notused*/, Ext.String.htmlEncode(me.schedules[0].get('name')));
+                    } else {
+                        Ext.each(me.schedules, function (item, index) {
+                            scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
+                        });
+                        pattern = Uni.I18n.translatePlural('searchItems.bulk.addComSchedulesToDevices.confirmMsg', 'MDC',
+                            me.devices.length,
+                            "Add shared communication schedules {1} to {0} devices?",
+                            "Add shared communication schedules {1} to {0} device?",
+                            "Add shared communication schedules {1} to {0} devices?"
+                        );
+                        titleText = Ext.String.format(pattern, 1/*notused*/, Ext.String.htmlEncode(scheduleList));
+                    }
+                    break;
+                case 'remove':
+                    if (me.schedules.length === 1) {
+                        pattern = Uni.I18n.translatePlural('searchItems.bulk.removeOneComScheduleFromDevices.confirmMsg', 'MDC',
+                            me.devices.length,
+                            "Remove shared communication schedule '{1}' from {0} devices?",
+                            "Remove shared communication schedule '{1}' from {0} device?",
+                            "Remove shared communication schedule '{1}' from {0} devices?"
+                        );
+                        titleText = Ext.String.format(pattern, 1/*notused*/, Ext.String.htmlEncode(me.schedules[0].get('name')));
+                    } else {
+                        Ext.each(me.schedules, function (item, index) {
+                            scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
+                        });
+                        pattern = Uni.I18n.translatePlural('searchItems.bulk.removeComSchedulesFromDevices.confirmMsg', 'MDC',
+                            me.devices.length,
+                            "Remove shared communication schedules {1} from {0} devices?",
+                            "Remove shared communication schedules {1} from {0} device?",
+                            "Remove shared communication schedules {1} from {0} devices?"
+                        );
+                        titleText = Ext.String.format(pattern, 1/*notused*/, Ext.String.htmlEncode(scheduleList));
+                    }
+                    break;
+            }
         }
+
         switch (me.operation) {
             case 'add':
-                startStr = Uni.I18n.translate('general.add', 'MDC', 'Add');
-                finishStr = Uni.I18n.translate('searchItems.bulk.addMsg', 'MDC', 'The selected devices will execute the chosen shared communication schedules');
-                unit = Uni.I18n.translate('general.unitTo', 'MDC', 'to');
+                bodyText = Uni.I18n.translate('searchItems.bulk.addMsg', 'MDC', 'The selected devices will execute the chosen shared communication schedules');
                 break;
             case 'remove':
-                startStr = Uni.I18n.translate('general.remove', 'MDC', 'Remove');
-                finishStr = Uni.I18n.translate('searchItems.bulk.removeMsg', 'MDC', 'The selected devices will not execute the chosen shared communication schedules');
-                unit = Uni.I18n.translate('general.unitFrom', 'MDC', 'from');
+                bodyText = Uni.I18n.translate('searchItems.bulk.removeMsg', 'MDC', 'The selected devices will not execute the chosen shared communication schedules');
                 break;
         }
+
         message = {
-            title: startStr + ' ' + scheduleWord + ' ' + scheduleList + ' ' + unit + ' ' +
-                deviceCount + ' ' + deviceWord + '?',
-            body: finishStr
+            title: titleText,
+            body: bodyText
         };
         return message;
     },

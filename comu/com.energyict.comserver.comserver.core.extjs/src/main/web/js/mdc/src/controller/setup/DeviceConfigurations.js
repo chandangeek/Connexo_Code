@@ -149,13 +149,22 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             Ext.suspendLayouts();
 
             registerLink.setHref('#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/registerconfigurations');
-            registerLink.setText(deviceConfigurations[0].get('registerCount') + ' ' + Uni.I18n.translatePlural('general.edit', deviceConfigurations[0].get('registerCount'), 'MDC', 'register configurations'));
+            registerLink.setText(
+                Uni.I18n.translatePlural('general.registerConfigurations', deviceConfigurations[0].get('registerCount'), 'MDC',
+                    'No register configurations', '1 register configuration', '{0} register configurations')
+            );
 
             logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/logbookconfigurations');
-            logBookLink.setText(deviceConfigurations[0].get('logBookCount') + ' ' + Uni.I18n.translatePlural('general.logbookConfigurations', deviceConfigurations[0].get('logBookCount'), 'MDC', 'logbook configurations'));
+            logBookLink.setText(
+                Uni.I18n.translatePlural('general.logbookConfigurations', deviceConfigurations[0].get('logBookCount'), 'MDC',
+                    'No logbook configurations', '1 logbook configuration', '{0} logbook configurations')
+            );
 
             loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(this.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/loadprofiles');
-            loadProfilesLink.setText(deviceConfigurations[0].get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('general.loadProfileConfigurations', deviceConfigurations[0].get('loadProfileCount'), 'MDC', 'load profile configurations'));
+            loadProfilesLink.setText(
+                Uni.I18n.translatePlural('general.loadProfileConfigurations', deviceConfigurations[0].get('loadProfileCount'), 'MDC',
+                    'No load profile configurations', '1 load profile configuration', '{0} load profile configurations')
+            );
 
             this.getDeviceConfigurationPreviewForm().loadRecord(deviceConfigurations[0]);
 
@@ -202,13 +211,22 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                         Ext.suspendLayouts();
 
                         registerLink.setHref('#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/registerconfigurations');
-                        registerLink.setText(deviceConfiguration.get('registerCount') + ' ' + Uni.I18n.translatePlural('deviceconfig.registerconfigs', deviceConfiguration.get('registerCount'), 'MDC', 'register configurations'));
+                        registerLink.setText(
+                            Uni.I18n.translatePlural('general.registerConfigurations', deviceConfiguration.get('registerCount'), 'MDC',
+                                'No register configurations', '1 register configuration', '{0} register configurations')
+                        );
 
                         logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/logbookconfigurations');
-                        logBookLink.setText(deviceConfiguration.get('logBookCount') + ' ' + Uni.I18n.translatePlural('general.logbookConfigurations', deviceConfiguration.get('logBookCount'), 'MDC', 'logbook configurations'));
+                        logBookLink.setText(
+                            Uni.I18n.translatePlural('general.logbookConfigurations', deviceConfiguration.get('logBookCount'), 'MDC',
+                                'No logbook configurations', '1 logbook configuration', '{0} logbook configurations')
+                        );
 
                         loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/loadprofiles');
-                        loadProfilesLink.setText(deviceConfiguration.get('loadProfileCount') + ' ' + Uni.I18n.translatePlural('general.loadProfileConfigurations', deviceConfiguration.get('loadProfileCount'), 'MDC', 'load profile configurations'));
+                        loadProfilesLink.setText(
+                            Uni.I18n.translatePlural('general.loadProfileConfigurations', deviceConfiguration.get('loadProfileCount'), 'MDC',
+                                'No load profile configurations', '1 load profile configuration', '{0} load profile configurations')
+                        );
 
                         widget.down('form').loadRecord(deviceConfiguration);
                         var menuItem = widget.down('#device-configuration-action-menu');
@@ -653,7 +671,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     });
                     var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-configurations #logbook-count')[0],
                         grid = Ext.ComponentQuery.query('add-logbook-configurations grid')[0];
-                    numberOfLogbooksLabel.setText(Uni.I18n.translate('logbookConfiguration.zeroSelected', 'MDC', '0 logbook configurations selected'));
+                    numberOfLogbooksLabel.setText(
+                        Uni.I18n.translatePlural('general.nrOfLogbookConfigurations.selected', 0, 'MDC',
+                            'No logbook configurations selected', '{0} logbook configuration selected', '{0} logbook configurations selected')
+                    );
                 }
             }
         );

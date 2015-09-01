@@ -140,11 +140,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                                 return text;
                                             }
                                         }
-//                                {
-//                                    xtype: 'displayfield',
-//                                    name: 'communicationProtocolName',
-//                                    fieldLabel: Uni.I18n.translate('devicetype.communicationProtocol', 'MDC', 'Device Communication protocol')
-//                                },
                                     ]
                                 },
                                 {
@@ -174,19 +169,19 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationDetail', {
                                             items: [
                                                 {
                                                     name: 'registerCount',
-                                                    text: Uni.I18n.translate('deviceconfig.registerconfigs', 'MDC', 'register configurations'),
+                                                    text: Uni.I18n.translate('deviceconfig.registerconfigs', 'MDC', 'Register configurations'),
                                                     itemId: 'deviceConfigurationDetailRegistersLink'
                                                 },
 
                                                 {
                                                     name: 'loadProfileCount',
-                                                    text: Uni.I18n.translate('general.loadProfileConfigurations', 'MDC', 'load profile configurations'),
+                                                    text: Uni.I18n.translate('general.loadProfileConfigurations', 'MDC', 'Load profile configurations'),
                                                     itemId: 'deviceConfigurationDetailLoadProfilesLink'
                                                 },
 
                                                 {
                                                     name: 'logBookCount',
-                                                    text: Uni.I18n.translate('general.logbookConfigurations', 'MDC', 'logbook configurations'),
+                                                    text: Uni.I18n.translate('general.logbookConfigurations', 'MDC', 'Logbook configurations'),
                                                     itemId: 'deviceConfigurationDetailLogBooksLink'
                                                 }
                                             ]

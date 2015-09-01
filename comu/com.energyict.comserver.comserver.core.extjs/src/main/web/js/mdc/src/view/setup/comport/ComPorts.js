@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.comport.ComPorts', {
     initComponent: function () {
         this.columns = [
             {
-                text: 'ComPorts',
+                text: Uni.I18n.translate('comports.comports','MDC','ComPorts'),
                 xtype: 'templatecolumn',
                 tpl: '<table width="100%" border = "0" style="color:dimgrey;font-size:x-small;line-height:110%">' +
                     '<caption style="color:black;font-size:small;line-height:200%;font-weight:bold;text-align:left;caption-side: left">' +
@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.comport.ComPorts', {
 
         this.buttons = [
             {
-                text: 'Add',
+                text: Uni.I18n.translate('general.add','MDC','Add'),
                 action: 'add'
             },
             {

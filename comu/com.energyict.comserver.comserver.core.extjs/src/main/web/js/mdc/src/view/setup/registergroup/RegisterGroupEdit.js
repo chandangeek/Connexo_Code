@@ -83,7 +83,8 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                         msgTarget: 'under',
                                         itemId: 'editRegisterGroupSelectedField',
                                         fieldLabel: Uni.I18n.translate('general.registerTypes', 'MDC', 'Register types'),
-                                        value: Uni.I18n.translate('registerGroup.selectedRegisterTypes', 'MDC', 'Register types selected'),
+                                        value: Uni.I18n.translatePlural('general.nrOfRegisterTypes.selected', 0, 'MDC',
+                                            'No register types selected', '{0} register type selected', '{0} register types selected'),
                                         required: true
                                     },
                                     {
@@ -188,7 +189,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                                 xtype: 'button',
                                                 itemId: 'createRegisterType',
                                                 margin: '10 0 0 0',
-                                                text: Uni.I18n.translate('registerType.addRegisterType', 'MDC', 'Add register types'),
+                                                text: Uni.I18n.translate('registerType.addRegisterType', 'MDC', 'Add register type'),
                                                 action: 'createRegisterType'
                                             }
                                         ]

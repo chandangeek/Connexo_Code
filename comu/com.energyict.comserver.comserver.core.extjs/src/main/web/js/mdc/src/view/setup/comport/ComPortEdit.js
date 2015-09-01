@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.comport.ComPortEdit', {
                 items: [
                     {
                         xtype: 'fieldset',
-                        title: 'Required',
+                        title: Uni.I18n.translate('general.required','MDC','Required'),
                         defaults: {
                             labelWidth: 200
                         },
@@ -67,11 +67,11 @@ Ext.define('Mdc.view.setup.comport.ComPortEdit', {
 
         this.buttons = [
             {
-                text: 'Save',
+                text: Uni.I18n.translate('general.save','MDC','Save'),
                 action: 'save'
             },
             {
-                text: 'Cancel',
+                text: Uni.I18n.translate('general.cancel','MDC','Cancel'),
                 action: 'cancel'
             }
         ];

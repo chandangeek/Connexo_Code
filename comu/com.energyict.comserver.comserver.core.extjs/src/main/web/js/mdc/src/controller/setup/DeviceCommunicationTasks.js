@@ -215,28 +215,36 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         var request = {};
         var values = this.getChangeConnectionItemForm().getForm().getValues();
         request.connectionMethod = values.name;
-        this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.mrid) + '/comtasks/' + this.comTask.id + '/connectionmethod',Uni.I18n.translate('deviceCommunicationTask.changeConnectionMethod', 'MDC', 'Connection method changed'));
+        this.sendToServer(request,
+            '/api/ddr/devices/' + encodeURIComponent(this.mrid) + '/comtasks/' + this.comTask.id + '/connectionmethod',
+            Uni.I18n.translate('deviceCommunicationTask.connectionMethodChanged', 'MDC', 'Connection method changed'));
     },
 
     changeUrgency: function () {
         var request = {};
         var values = this.getChangeConnectionItemForm().getForm().getValues();
         request.urgency = values.urgency;
-        this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.mrid) + '/comtasks/' + this.comTask.id + '/urgency',Uni.I18n.translate('deviceCommunicationTask.changeUrgency', 'MDC', 'Urgency changed'));
+        this.sendToServer(request,
+            '/api/ddr/devices/' + encodeURIComponent(this.mrid) + '/comtasks/' + this.comTask.id + '/urgency',
+            Uni.I18n.translate('deviceCommunicationTask.urgencyChanged', 'MDC', 'Urgency changed'));
     },
 
     changeFrequency: function () {
         var request = {};
         var values = this.getChangeConnectionItemForm().getForm().getValues();
         request.temporalExpression = values.schedule;
-        this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.mrid) + '/comtasks/' + this.comTask.id + '/frequency',Uni.I18n.translate('deviceCommunicationTask.changeFrequency', 'MDC', 'Frequency changed'));
+        this.sendToServer(request,
+            '/api/ddr/devices/' + encodeURIComponent(this.mrid) + '/comtasks/' + this.comTask.id + '/frequency',
+            Uni.I18n.translate('deviceCommunicationTask.frequencyChanged', 'MDC', 'Frequency changed'));
     },
 
     changeProtocolDialect: function () {
         var request = {};
         var values = this.getChangeConnectionItemForm().getForm().getValues();
         request.protocolDialect = values.name;
-        this.sendToServer(request, '/api/ddr/devices/' + encodeURIComponent(this.mrid) + '/comtasks/' + this.comTask.id + '/protocoldialect',Uni.I18n.translate('deviceCommunicationTask.changeProtocolDialect', 'MDC', 'Protocol dialect changed'));
+        this.sendToServer(request,
+            '/api/ddr/devices/' + encodeURIComponent(this.mrid) + '/comtasks/' + this.comTask.id + '/protocoldialect',
+            Uni.I18n.translate('deviceCommunicationTask.protocolDialectChanged', 'MDC', 'Protocol dialect changed'));
     },
 
     sendToServer: function (request, actionUrl, actionMsg) {
@@ -256,12 +264,23 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 me.getApplication().fireEvent('acknowledge', actionMsg);
                 me.showDeviceCommunicationTasksView(me.mrid);
             },
-            failure: function () {
-                var changeConnectionItemPopUp = me.getChangeConnectionItemPopUp();
-                if(changeConnectionItemPopUp){
-                    changeConnectionItemPopUp.close();
+            failure: function (response) {
+                var json = Ext.decode(response.responseText),
+                    changeConnectionItemPopUp = me.getChangeConnectionItemPopUp(),
+                    form = changeConnectionItemPopUp && changeConnectionItemPopUp.down('form').getForm();
+
+                if (json && json.errors && form) {
+                    Ext.each(json.errors, function (error) {
+                        switch (error.id) {
+                            case 'plannedPriority':
+                                error.id = 'urgency';
+                                break;
+                        }
+                    });
+                    form.markInvalid(json.errors);
+                } else {
+                    me.showDeviceCommunicationTasksView(me.mrid);
                 }
-                me.showDeviceCommunicationTasksView(me.mrid);
             }
         });
     },

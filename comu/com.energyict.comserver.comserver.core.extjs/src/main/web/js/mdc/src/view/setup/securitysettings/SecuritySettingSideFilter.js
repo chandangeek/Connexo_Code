@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSideFilter', {
     extend: 'Ext.form.Panel',
     alias: 'widget.securitySettingSideFilter',
-    title: 'Filter',
+    title: Uni.I18n.translate('general.filter','MDC','Filter'),
     ui: 'filter',
     width: 180,
 
@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSideFilter', {
                 {
                     xtype: 'button',
                     ui: 'link',
-                    text: 'More criteria',
+                    text: Uni.I18n.translate('general.moreCriteria','MDC','More criteria'),
                     aling: 'left'
                 }
             ]
@@ -37,11 +37,11 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSideFilter', {
 
     buttons: [
         {
-            text: 'Apply',
+            text: Uni.I18n.translate('general.apply','MDC','Apply'),
             action: 'applysecurityfilter'
         },
         {
-            text: 'Reset',
+            text: Uni.I18n.translate('general.reset','MDC','Reset'),
             action: 'reset'
         }
     ]

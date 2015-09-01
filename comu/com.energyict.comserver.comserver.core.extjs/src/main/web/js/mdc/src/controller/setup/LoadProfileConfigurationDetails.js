@@ -267,12 +267,12 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         Ext.widget('messagebox', {
             buttons: [
                 {
-                    text: 'Retry',
+                    text: Uni.I18n.translate('general.retry','MDC','Retry'),
                     action: retryAction,
                     ui: 'remove'
                 },
                 {
-                    text: 'Cancel',
+                    text: Uni.I18n.translate('general.cancel','MDC','Cancel'),
                     action: 'cancel',
                     ui: 'link',
                     href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofiles/' + me.loadProfileConfigurationId + '/channels',
@@ -318,7 +318,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             recordData = channelConfig.getData(),
             channelId = channelConfig.getId(),
             preloader = Ext.create('Ext.LoadMask', {
-                msg: "Loading...",
+                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                 target: form
             });
         if (this.displayedItemId != recordData.id) {
@@ -463,7 +463,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                             loadProfileConfigurationId: loadProfileConfigurationId
                                         }),
                                     preloader = Ext.create('Ext.LoadMask', {
-                                        msg: "Loading...",
+                                        msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                                         target: widget
                                     }),
                                     readingTypeCombo = widget.down('reading-type-combo'),
@@ -535,7 +535,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                                     loadProfileConfigurationId: loadProfileConfigurationId
                                                 }),
                                             preloader = Ext.create('Ext.LoadMask', {
-                                                msg: "Loading...",
+                                                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                                                 target: widget
                                             }),
                                             title = Uni.I18n.translate('loadprofiles.loadprofileEditChannelConfiguration', 'MDC', 'Edit channel configuration'),

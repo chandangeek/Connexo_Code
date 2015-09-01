@@ -25,6 +25,8 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationTaskSelectionGrid'
             'communicationtask.communicationTask',
             count,
             'MDC',
+            'No communication tasks selected',
+            '{0} communication task selected',
             '{0} communication tasks selected'
         );
     },

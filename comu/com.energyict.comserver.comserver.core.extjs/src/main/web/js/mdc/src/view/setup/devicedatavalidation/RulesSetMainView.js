@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.devicedatavalidation.RulesSetMainView', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: Uni.I18n.translate('device.dataValidation', 'MDC', 'Validation configuration'),
+                title: Uni.I18n.translate('device.dataValidation.validationConfiguration', 'MDC', 'Validation configuration'),
                 items: [
                     {
                         xtype: 'container',

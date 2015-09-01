@@ -37,7 +37,7 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
         var itemPanel = Ext.ComponentQuery.query('device-type-logbooks panel[name=details]')[0],
             itemForm = Ext.ComponentQuery.query('device-type-logbooks form[name=logbookTypeDetails]')[0],
             preloader = Ext.create('Ext.LoadMask', {
-                msg: "Loading...",
+                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                 target: itemPanel
             });
         if (this.displayedItemId != record.id) {
@@ -59,7 +59,7 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
             url = '/api/dtc/devicetypes/' + logbooksView.deviceTypeId + '/logbooktypes/' + record.data.id;
         Ext.create('Uni.view.window.Confirmation').show({
             msg: 'The logbook type will no longer be available on this device type.',
-            title: 'Remove logbook type ' + record.data.name + ' ?',
+            title: Uni.I18n.translate('deviceTypeLogbook.removeLogbook','',"Remove logbook type '{0}'?",record.data.name),
             config: {
             },
             fn: function (state) {

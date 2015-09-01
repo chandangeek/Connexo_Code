@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.searchitems.ContentFilter', {
             xtype: 'filter-toolbar',
             itemId: 'filteritemid',
             name: 'filter',
-            emptyText: 'None'
+            emptyText: Uni.I18n.translate('general.none','MDC','None')
         },
         { xtype: 'menuseparator' },
 
@@ -28,12 +28,12 @@ Ext.define('Mdc.view.setup.searchitems.ContentFilter', {
             title: Uni.I18n.translate('searchItems.filter.sort', 'MDC', 'Sort'),
             name: 'sortitemspanel',
             itemId: 'sortitemid',
-            emptyText: 'None',
+            emptyText: Uni.I18n.translate('general.none','MDC','None'),
             tools: [
                 {
                     xtype: 'button',
                     action: 'addSort',
-                    text: 'Add sort',
+                    text: Uni.I18n.translate('general.addSort','MDC','Add sort'),
                     menu: {
                         xtype: 'items-sort-menu',
                         name: 'addsortitemmenu'

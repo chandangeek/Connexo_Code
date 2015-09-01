@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.registerconfig.RuleForRegisterConfigPreview', {
         'Mdc.view.setup.registerconfig.RulesForRegisterConfigActionMenu'
     ],
 
-    title: 'Details',
+    title: Uni.I18n.translate('general.details','MDC','Details'),
 
     layout: {
         type: 'vbox'

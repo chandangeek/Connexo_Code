@@ -9,7 +9,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
         'Mdc.view.setup.devicetype.DeviceTypeActionMenu'
     ],
 
-    title: 'Details',
+    title: Uni.I18n.translate('general.details','MDC','Details'),
 
     tools: [
         {
@@ -127,13 +127,13 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
 
                                     {
                                         name: 'loadProfileCount',
-                                        text: Uni.I18n.translate('devicetype.loadprofiles', 'MDC', 'loadprofile types'),
+                                        text: Uni.I18n.translate('devicetype.loadprofiles', 'MDC', 'Load profile types'),
                                         itemId: 'deviceTypeLoadProfilesLink'
                                     },
 
                                     {
                                         name: 'logBookCount',
-                                        text: Uni.I18n.translate('devicetype.logbooks', 'MDC', 'logbooks'),
+                                        text: Uni.I18n.translate('devicetype.logbooks', 'MDC', 'Logbook types'),
                                         itemId: 'deviceTypeLogBooksLink'
                                     }
                                 ]

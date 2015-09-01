@@ -9,7 +9,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
     layout: {
         type: 'vbox'
     },
-    title: 'Details',
+    title: Uni.I18n.translate('general.details','MDC','Details'),
 
     tools: [
         {

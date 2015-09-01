@@ -167,12 +167,12 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
         Ext.widget('messagebox', {
             buttons: [
                 {
-                    text: 'Retry',
+                    text: Uni.I18n.translate('general.retry','MDC','Retry'),
                     action: retryAction,
                     ui: 'remove'
                 },
                 {
-                    text: 'Cancel',
+                    text: Uni.I18n.translate('general.cancel','MDC','Cancel'),
                     action: 'cancel',
                     ui: 'link',
                     href: '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/loadprofiles',
@@ -193,7 +193,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
         var form = Ext.ComponentQuery.query('loadProfileTypeOnDeviceTypeSetup loadProfileTypePreview form')[0],
             recordData = record.getData(),
             preloader = Ext.create('Ext.LoadMask', {
-                msg: "Loading...",
+                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                 target: form
             });
 

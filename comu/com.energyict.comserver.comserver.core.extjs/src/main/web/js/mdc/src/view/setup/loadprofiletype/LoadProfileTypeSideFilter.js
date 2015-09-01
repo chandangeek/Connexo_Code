@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSideFilter', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.loadProfileTypeSideFilter',
-    title: 'Filter',
+    title: Uni.I18n.translate('general.filter','MDC','Filter'),
     width: 200,
     ui: 'filter',
 
@@ -31,11 +31,11 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSideFilter', {
 
     buttons: [
         {
-            text: 'Apply',
+            text: Uni.I18n.translate('general.apply','MDC','Apply'),
             action: 'applyloadprofiletypefilter'
         },
         {
-            text: 'Reset',
+            text: Uni.I18n.translate('general.reset','MDC','Reset'),
             action: 'reset'
         }
     ]

@@ -148,17 +148,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                 success: function () {
                     me.handleSuccessRequest(Uni.I18n.translate('loadProfileConfigurations.removeSuccessMsg', 'MDC', 'Load profile configuration was removed successfully'));
                     me.store.loadPage(1);
-                },
-                failure: function (response) {
-                    var errorText,
-                        errorTitle;
-
-                    if (response.status == 400) {
-                        errorText = Ext.decode(response.responseText, true).message;
-                        errorTitle = Uni.I18n.translate('loadProfileConfigurations.removeErrorMsg', 'MDC', 'Error during removing of load profile configuration');
-
-                        me.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText);
-                    }
                 }
             });
         }
@@ -264,7 +253,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
 //                    ui: 'remove'
 //                },
                 {
-                    text: 'Cancel',
+                    text: Uni.I18n.translate('general.cancel','MDC','Cancel'),
                     action: 'cancel',
                     ui: 'link',
                     href: '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/loadprofiles',

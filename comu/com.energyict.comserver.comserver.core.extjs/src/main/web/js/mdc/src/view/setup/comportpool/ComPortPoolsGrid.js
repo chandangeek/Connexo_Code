@@ -21,6 +21,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
               //  xtype: 'templatecolumn',
               //  tpl: '<a href="#/administration/comportpools/{id}">{name}</a>',
                 flex: 1,
+                sortable: false,
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
                     return '<a href="#/administration/comportpools/' + record.get('id') + '">' + Ext.String.htmlEncode(value) + '</a>';
@@ -33,7 +34,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolsGrid', {
             },
             {
                 header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
-                dataIndex: 'type',
+                dataIndex: 'comPortType',
                 flex: 1
             },
             {

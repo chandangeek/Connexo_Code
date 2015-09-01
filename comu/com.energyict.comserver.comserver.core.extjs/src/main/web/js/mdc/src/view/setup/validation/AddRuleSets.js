@@ -51,17 +51,16 @@ Ext.define('Mdc.view.setup.validation.AddRuleSets', {
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
                             itemId: 'ctr-add-no-validation-rule-set',
-                            title: Uni.I18n.translate('validation.empty.title', 'MDC', 'No validation rule sets found'),
+                            title: Uni.I18n.translate('validation.rulesets.empty.title', 'MDC', 'No validation rule sets found'),
                             reasons: [
-                                Uni.I18n.translate('validation.empty.list.item1', 'MDC', 'No validation rule sets have been added yet.'),
-                                Uni.I18n.translate('validation.empty.list.item2', 'MDC', 'Validation rule sets exists, but you do not have permission to view them.')
+                                Uni.I18n.translate('validation.rulesets.empty.list.item1', 'MDC', 'No validation rule sets have been added yet.'),
+                                Uni.I18n.translate('validation.rulesets.empty.list.item2', 'MDC', 'Validation rule sets exists, but you do not have permission to view them.')
                             ],
                             stepItems: [
                                 {
                                     xtype: 'button',
                                     text: Uni.I18n.translate('validation.addValidationRuleSets', 'MDC', 'Add validation rule sets'),
                                     privileges : Cfg.privileges.Validation.deviceConfiguration,
-                                    ui: 'action',
                                     href: '#/administration/validation/rulesets/add'
                                 }
                             ]

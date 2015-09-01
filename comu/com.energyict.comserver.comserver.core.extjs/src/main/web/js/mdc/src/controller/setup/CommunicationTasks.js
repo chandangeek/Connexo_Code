@@ -142,7 +142,11 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 gridView = grid.getView(),
                 selectionModel = gridView.getSelectionModel(),
                 communicationTasksCount = me.getCommunicationTaskConfigsOfDeviceConfigurationStore().getCount(),
-                word = Uni.I18n.translatePlural('communicationtasks.commtaskconfigurations', communicationTasksCount, 'MDC', 'communication task configurations'),
+                word = Uni.I18n.translatePlural('communicationtasks.commtaskconfigurations', communicationTasksCount, 'MDC',
+                    'No communication task configurations',
+                    '1 communication task configuration',
+                    '{0} communication task configurations'
+                ),
                 widget = Ext.widget('container', {
                     html: Ext.String.htmlEncode(communicationTasksCount + ' ' + word)
                 });
@@ -192,7 +196,14 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             comTasksStore = me.getComTasksStore(),
             securityPropertySetsStore = me.getSecuritySettingsOfDeviceConfigurationStore(),
             connectionMethodsStore = me.getConnectionMethodsOfDeviceConfigurationComboStore(),
-            protocolDialectsStore = me.getProtocolDialectsOfDeviceConfigurationStore();
+            protocolDialectsStore = me.getProtocolDialectsOfDeviceConfigurationStore(),
+            defaultConnectionMethod;
+
+        defaultConnectionMethod = Ext.create('Mdc.model.ConnectionMethod', {
+            id: -1,
+            name: Uni.I18n.translate('communicationtasks.form.selectPartialConnectionTask', 'MDC', 'Use the default connection method')
+        });
+
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigurationId = deviceConfigurationId;
         var widget = Ext.widget('communicationTaskEdit', {
@@ -223,22 +234,19 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                         comTasksStore.getProxy().startParam = false;
                         comTasksStore.load({
                             callback: function () {
-                                securityPropertySetsStore.getProxy().extraParams = ({
+                                connectionMethodsStore.getProxy().extraParams = ({
                                     deviceType: deviceTypeId,
                                     deviceConfig: deviceConfigurationId
                                 });
-                                securityPropertySetsStore.load({
+                                connectionMethodsStore.load({
                                     callback: function () {
-                                        connectionMethodsStore.getProxy().extraParams = ({
+                                        securityPropertySetsStore.getProxy().extraParams = ({
                                             deviceType: deviceTypeId,
                                             deviceConfig: deviceConfigurationId
                                         });
-                                        connectionMethodsStore.load({
+                                        connectionMethodsStore.add(defaultConnectionMethod);
+                                        securityPropertySetsStore.load({
                                             callback: function () {
-                                                connectionMethodsStore.add(Ext.create('Mdc.model.ConnectionMethod', {
-                                                    id: -1,
-                                                    name: Uni.I18n.translate('communicationtasks.form.selectPartialConnectionTask', 'MDC', 'Use the default connection method')
-                                                }));
                                                 protocolDialectsStore.getProxy().extraParams = ({
                                                     deviceType: deviceTypeId,
                                                     deviceConfig: deviceConfigurationId
@@ -247,6 +255,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                                     callback: function () {
                                                         var title = Uni.I18n.translate('communicationtasks.add', 'MDC', 'Add communication task configuration');
                                                         widget.down('#communicationTaskEditForm').setTitle(title);
+                                                        widget.down('#partialConnectionTaskComboBox').setValue(-1);
                                                         widget.setLoading(false);
                                                     }
                                                 });
@@ -538,7 +547,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         formErrorsPlaceHolder.hide();
         formErrorsPlaceHolder.removeAll();
         formErrorsPlaceHolder.add({
-            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention')
+            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.')
         });
         formErrorsPlaceHolder.show();
     },

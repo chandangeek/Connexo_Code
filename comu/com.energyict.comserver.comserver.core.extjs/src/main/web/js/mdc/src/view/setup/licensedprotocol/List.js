@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.licensedprotocol.List', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.setupLicensedProtocols',
     itemId: 'licensedprotocolgrid',
-    title: 'All licensed protocols',
+    title: Uni.I18n.translate('protocol.allLicensedProtocols','MDC','All licensed protocols'),
     store: 'LicensedProtocols',
 
     requires: [

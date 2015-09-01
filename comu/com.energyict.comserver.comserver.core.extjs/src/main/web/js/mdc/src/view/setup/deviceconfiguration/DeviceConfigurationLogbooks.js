@@ -87,7 +87,6 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                         title: Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.title', 'MDC', 'No logbook configuration found'),
                         reasons: [
                             Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.list.item1', 'MDC', 'No logbook configuration have been defined yet.'),
-                            Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.list.item2', 'MDC', 'No logbook configuration comply to the filter.')
                         ],
                         stepItems: [
                             {
@@ -106,13 +105,13 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                     },
                     previewComponent: {
                         xtype: 'panel',
-                        title: 'Details',
+                        title: Uni.I18n.translate('general.details','MDC','Details'),
                         name: 'details',
                         frame: true,
                         tools: [
                             {
                                 xtype: 'button',
-                                text: 'Actions',
+                                text: Uni.I18n.translate('general.actions','MDC','Actions'),
                                 privileges: Mdc.privileges.DeviceType.admin,
                                 iconCls: 'x-uni-action-iconD',
                                 menu: {

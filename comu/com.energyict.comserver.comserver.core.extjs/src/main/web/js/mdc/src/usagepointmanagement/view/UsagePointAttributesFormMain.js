@@ -74,12 +74,12 @@ Ext.define('Mdc.usagepointmanagement.view.UsagePointAttributesFormMain', {
                     {
                         name: 'created',
                         itemId: 'fld-up-created',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.status', 'MDC', 'Created')
+                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.created', 'MDC', 'Created')
                     },
                     {
                         name: 'updated',
                         itemId: 'fld-up-updated',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.status', 'MDC', 'Last update'),
+                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.lastUpdate', 'MDC', 'Last update'),
                         renderer: function (value) {
                             return value ? value : '-';
                         }

@@ -106,7 +106,7 @@ Ext.define('Mdc.controller.setup.Messages', {
             var enablements = record['deviceMessageEnablementsStore'];
             if (enablements && enablements.getRange().length > 0) {
                 var store = grid.getStore();
-                grid.setTitle(Uni.I18n.translate('commands.titleof', 'MDC', 'Commands of ') + record.get('name'));
+                grid.setTitle(Uni.I18n.translate('commands.titleof', 'MDC', 'Commands of') + ' ' + record.get('name'));
 
                 record['deviceMessageEnablementsStore'].each(function (rec) {
                     store.add(rec);
@@ -114,7 +114,7 @@ Ext.define('Mdc.controller.setup.Messages', {
 
                 grid.down('pagingtoolbartop').store = store;
                 grid.down('pagingtoolbartop').store.totalCount = store.getCount();
-                grid.down('pagingtoolbartop').displayMsg = Uni.I18n.translatePlural('commands.commands', store.getCount(), 'MDC', '{2} commands');
+                grid.down('pagingtoolbartop').displayMsg = Uni.I18n.translatePlural('commands.commands', store.getCount(), 'MDC', 'No commands', '{0} command', '{0} commands');
                 grid.down('pagingtoolbartop').updateInfo();
 
                 Ext.defer(function () {
@@ -244,8 +244,8 @@ Ext.define('Mdc.controller.setup.Messages', {
             recordName = isMessageCategory ? record.get('DeviceMessageCategory') : record.get('name'),
             selectPrivilegesPanel = Ext.create('Ext.window.Window', {
                 title: !setAlreadyChecked ?
-                    Uni.I18n.translatePlural('messages.category.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges of '{0}' commands") :
-                    Uni.I18n.translatePlural('messages.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges for command '{0}'"),
+                    Uni.I18n.translate('messages.category.selectPrivilegesPanel.title', 'MDC', "Select privileges of '{0}' commands", [recordName]) :
+                    Uni.I18n.translate('messages.selectPrivilegesPanel.title', 'MDC', "Select privileges for command '{0}'", [recordName]),
                 modal: true,
                 closeAction: 'destroy',
                 buttons: [
@@ -300,11 +300,15 @@ Ext.define('Mdc.controller.setup.Messages', {
         if (!setAlreadyChecked) {
             switch (action) {
                 case 'activateAll':
-                    selectPrivilegesPanel.setTitle(Uni.I18n.translatePlural('messages.category.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges of '{0}' commands"));
+                    selectPrivilegesPanel.setTitle(
+                        Uni.I18n.translate('messages.category.selectPrivilegesPanel.title', 'MDC', "Select privileges of '{0}' commands", [recordName])
+                    );
                     warningText = Uni.I18n.translate('messages.selectPrivilegesPanelChange.msg', 'MDC', 'The selected privileges will only apply to the commands that aren\'t active yet.');
                     break;
                 case 'changePrivilegesForAll':
-                    selectPrivilegesPanel.setTitle(Uni.I18n.translatePlural('messages.category.changePrivilegesPanel.title', recordName, 'MDC', "Change privileges of '{0}' commands"));
+                    selectPrivilegesPanel.setTitle(
+                        Uni.I18n.translate('messages.category.changePrivilegesPanel.title', 'MDC', "Change privileges of '{0}' commands", [recordName])
+                    );
                     warningText = Uni.I18n.translate('messages.selectPrivilegesPanel.msg', 'MDC', 'The selected privileges will only apply to the commands that are active.');
                     break;
             }
@@ -313,7 +317,9 @@ Ext.define('Mdc.controller.setup.Messages', {
                 html: Ext.String.htmlEncode(warningText)
             });
         } else {
-            selectPrivilegesPanel.setTitle(Uni.I18n.translatePlural('messages.selectPrivilegesPanel.title', recordName, 'MDC', "Select privileges for command '{0}'"));
+            selectPrivilegesPanel.setTitle(
+                Uni.I18n.translate('messages.selectPrivilegesPanel.title', 'MDC', "Select privileges for command '{0}'", [recordName])
+            );
         }
 
         selectPrivilegesPanel.add(

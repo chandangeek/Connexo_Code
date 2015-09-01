@@ -27,22 +27,7 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
         me.content = {
             ui: 'large',
             title: Uni.I18n.translate('general.history', 'MDC', 'History'),
-            itemId: 'history-panel',
-            items: [
-                {
-                    xtype: 'tabpanel',
-                    margin: '20 0 0 20',
-                    itemId: 'device-history-tab-panel',
-                    activeTab: 0,
-                    width: 140,
-                    items: [
-                        {
-                            title: Uni.I18n.translate('general.deviceLifeCycle', 'MDC', 'Device life cycle'),
-                            itemId: 'device-history-life-cycle-tab'
-                        }
-                    ]
-                }
-            ]
+            itemId: 'history-panel'
         };
 
         me.callParent(arguments);

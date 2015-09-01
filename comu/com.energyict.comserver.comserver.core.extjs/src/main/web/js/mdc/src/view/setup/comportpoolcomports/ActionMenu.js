@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.comportpoolcomports.ActionMenu', {
     items: [
         {
             itemId: 'remove',
-            text: 'Remove',
+            text: Uni.I18n.translate('general.remove','MDC','Remove'),
             action: 'remove'
         }
     ]

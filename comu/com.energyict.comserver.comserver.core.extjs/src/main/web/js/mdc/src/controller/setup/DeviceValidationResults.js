@@ -406,9 +406,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             timeout: 600000,
             success: function () {
                 me.destroyConfirmationWindow();
-                me.getApplication().fireEvent('acknowledge',
-                    Uni.I18n.translatePlural('device.dataValidation.activation.validated', me.mRID, 'MDC', 'Data validation completed'));
-
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.dataValidation.activation.validated', 'MDC', 'Data validation completed'));
                 me.showDeviceValidationResultsMainView(me.mRID, 0);
             },
             failure: function (response) {

@@ -91,7 +91,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                     {
                         xtype: 'button',
                         privileges: Mdc.privileges.DeviceCommands.executeCommands,
-                        text: 'Add command',
+                        text: Uni.I18n.translate('devicecommands.addCommand','MDC','Add command'),
                         itemId: 'deviceAddCommandButton',
                         mRID: me.mRID,
                         dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.allDeviceCommandPrivileges

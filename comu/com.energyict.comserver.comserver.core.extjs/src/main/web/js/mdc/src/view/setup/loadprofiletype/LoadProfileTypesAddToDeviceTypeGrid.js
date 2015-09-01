@@ -19,10 +19,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeGrid',
 
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
-            'setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeGrid.counterText',
-            count,
-            'MDC',
-            '{0} load profile types selected'
+            'general.nrOfLoadProfileTypes.selected', count, 'MDC',
+            'No load profile types selected', '{0} load profile type selected', '{0} load profile types selected'
         );
     },
 

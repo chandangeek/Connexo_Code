@@ -11,7 +11,7 @@ Ext.define('Mdc.model.LoadProfileType', {
 
     proxy: {
         type: 'rest',
-        url: '../../api/mds/loadprofiles',
+        url: '/api/mds/loadprofiles',
         reader: {
             type: 'json'
         }

@@ -5,10 +5,8 @@ Ext.define('Mdc.view.setup.searchitems.bulk.DevicesSelectionGrid', {
 
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
-            'setup.searchitems.bulk.DevicesSelectionGrid.counterText',
-            count,
-            'MDC',
-            '{0} devices selected'
+            'general.nrOfDevices.selected', count, 'MDC',
+            'No devices selected', '{0} device selected', '{0} devices selected'
         );
     },
 

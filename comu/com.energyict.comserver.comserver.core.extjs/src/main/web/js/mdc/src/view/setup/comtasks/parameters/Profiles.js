@@ -75,7 +75,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
                         },
                         {
                             xtype: 'label',
-                            text: 'Minimum clock difference'
+                            text: Uni.I18n.translate('profiles.minimumClockDifference','MDC','Minimum clock difference')
                         }
                     ]
                 }

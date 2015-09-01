@@ -97,7 +97,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
             method: 'PUT',
             jsonData: Ext.encode(ruleSets),
             success: function () {
-                var message = Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.add.success', 'MDC', 'Estimation rule sets order saved.');
+                var message = Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.orderSaved.success', 'MDC', 'Estimation rule sets order saved.');
                 router.getRoute('administration/devicetypes/view/deviceconfigurations/view/estimationrulesets').forward();
                 me.getApplication().fireEvent('acknowledge', message);
             },

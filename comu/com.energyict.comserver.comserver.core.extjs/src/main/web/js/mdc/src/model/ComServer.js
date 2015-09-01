@@ -26,7 +26,10 @@ Ext.define('Mdc.model.ComServer', {
                 var inboundComPorts = data.inboundComPorts ? data.inboundComPorts.length : 0,
                     outboundComPorts = data.outboundComPorts ? data.outboundComPorts.length : 0,
                     comports = inboundComPorts + outboundComPorts;
-                return '<a href="#/administration/comservers/' + data.id + '/comports">' + comports + ' ' + Uni.I18n.translatePlural('comserver.preview.communicationPorts', parseInt(comports), 'MDC', 'communication ports') + '</a>';
+                return '<a href="#/administration/comservers/' + data.id + '/comports">'
+                    + Uni.I18n.translatePlural('comserver.preview.communicationPorts', parseInt(comports), 'MDC',
+                        'No communication ports', '{0} communication port', '{0} communication ports')
+                    + '</a>';
             }
         }
     ],

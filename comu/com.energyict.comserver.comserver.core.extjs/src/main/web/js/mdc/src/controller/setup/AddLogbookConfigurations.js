@@ -23,8 +23,9 @@ Ext.define('Mdc.controller.setup.AddLogbookConfigurations', {
     countSelectedLogbooks: function (grid) {
         var textLabel = Ext.ComponentQuery.query('add-logbook-configurations #logbook-count')[0];
         textLabel.setText(
-            grid.view.getSelectionModel().getSelection().length >= 1 ? (grid.view.getSelectionModel().getSelection().length +
-                (grid.view.getSelectionModel().getSelection().length > 1 ? ' ' + Uni.I18n.translate('general.logbookConfigurations', 'MDC', 'logbook configurations') : '  ' + Uni.I18n.translate('general.logbookConfiguration', 'MDC', 'logbook configuration')) + ' ' + Uni.I18n.translate('general.selected', 'MDC', 'selected')) : Uni.I18n.translate('logbookConfiguration.zeroSelected', 'MDC', '0 logbook configurations selected'));
+            Uni.I18n.translatePlural('general.nrOfLogbookConfigurations.selected', grid.view.getSelectionModel().getSelection().length, 'MDC',
+                'No logbook configurations selected', '{0} logbook configuration selected', '{0} logbook configurations selected')
+        );
     },
 
     addLogbookType: function (btn) {
@@ -33,7 +34,7 @@ Ext.define('Mdc.controller.setup.AddLogbookConfigurations', {
             grid = addView.down('grid'),
             url = '/api/dtc/devicetypes/' + addView.deviceTypeId + '/deviceconfigurations/' + addView.deviceConfigurationId + '/logbookconfigurations',
             preloader = Ext.create('Ext.LoadMask', {
-                msg: "Loading...",
+                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                 target: addView
             }),
             records = grid.getSelectionModel().getSelection(),

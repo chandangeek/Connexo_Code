@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
         align: 'stretch'
     },
 
-    title: 'Details',
+    title: Uni.I18n.translate('general.details','MDC','Details'),
 
     tools: [
         {

@@ -70,8 +70,8 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
             confirmText: activate ? Uni.I18n.translate('general.activate', 'MDC', 'Activate') : Uni.I18n.translate('general.deactivate', 'MDC', 'Deactivate'),
             itemId: 'activationConfirmationWindow'
         }).show({
-            title: activate ? Uni.I18n.translatePlural('estimationDevice.activateConfirmation.title', me.mRID, 'MDC', 'Activate data estimation on device {0}?') :
-                Uni.I18n.translatePlural('estimationDevice.deactivateConfirmation.title', me.mRID, 'MDC', 'Deactivate data estimation on device {0}?'),
+            title: activate ? Uni.I18n.translate('estimationDevice.activateConfirmation.title', 'MDC', 'Activate data estimation on device {0}?', [me.mRID]) :
+                Uni.I18n.translate('estimationDevice.deactivateConfirmation.title', 'MDC', 'Deactivate data estimation on device {0}?', [me.mRID]),
             msg: activate ? '' :
                 Uni.I18n.translate('estimationDevice.deactivateConfirmation.msg', 'MDC', 'The data of this device will no longer be estimated'),
             fn: function (state) {
@@ -96,9 +96,10 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
             success: function () {
                 var router = me.getController('Uni.controller.history.Router');
                 router.getRoute().forward();
-                me.getApplication().fireEvent('acknowledge', activate ?
-                    Uni.I18n.translatePlural('estimationDevice.activation.activated', me.mRID, 'MDC', 'Data estimation on device {0} was activated successfully') :
-                    Uni.I18n.translatePlural('estimationDevice.activation.deactivated', me.mRID, 'MDC', 'Data estimation on device {0} was deactivated successfully'));
+                me.getApplication().fireEvent('acknowledge', activate
+                    ? Uni.I18n.translate('estimationDevice.activation.activated', 'MDC', 'Data estimation on device {0} was activated successfully', [me.mRID])
+                    : Uni.I18n.translate('estimationDevice.activation.deactivated', 'MDC', 'Data estimation on device {0} was deactivated successfully', [me.mRID])
+                );
             }
         });
     },
@@ -176,9 +177,10 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
             success: function () {
                 var router = me.getController('Uni.controller.history.Router');
                 router.getRoute().forward();
-                me.getApplication().fireEvent('acknowledge', ruleSetIsActive ?
-                    Uni.I18n.translatePlural('device.dataEstimation.ruleSet.deactivated', ruleSetName, 'MDC', 'Estimation rule set deactivated') :
-                    Uni.I18n.translatePlural('device.dataEstimation.ruleSet.activated', ruleSetName, 'MDC', 'Estimation rule set activated'));
+                me.getApplication().fireEvent('acknowledge', ruleSetIsActive
+                    ? Uni.I18n.translate('device.dataEstimation.ruleSet.deactivated', 'MDC', 'Estimation rule set deactivated', [ruleSetName])
+                    : Uni.I18n.translate('device.dataEstimation.ruleSet.activated', 'MDC', 'Estimation rule set activated', [ruleSetName])
+                );
             }
         });
     }
