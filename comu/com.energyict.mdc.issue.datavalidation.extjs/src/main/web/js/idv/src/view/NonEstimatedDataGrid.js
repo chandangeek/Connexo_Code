@@ -49,7 +49,8 @@ Ext.define('Idv.view.NonEstimatedDataGrid', {
                 },
                 summaryType: 'count',
                 summaryRenderer: function(value, summaryData, dataIndex) {
-                    return Uni.I18n.translatePlural('issues.NonEstimatedDataGrid.total', value, 'IDV', 'Total of {0} blocks');
+                    return Uni.I18n.translatePlural('issues.NonEstimatedDataGrid.total', value, 'IDV',
+                        'Total of {0} blocks', 'Total of {0} block', 'Total of {0} blocks');
                 },
                 flex: 1
             },
