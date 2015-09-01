@@ -14,7 +14,7 @@ Ext.define('Isu.view.issues.DetailTop', {
         me.items = [
             {
                 itemId: 'issue-detail-title',
-                title: 'Details',
+                title: Uni.I18n.translate('general.details','ISU','Details'),
                 ui: 'medium',
                 flex: 1
             },

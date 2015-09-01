@@ -1,7 +1,7 @@
 Ext.define('Isu.view.issues.bulk.Step2', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.bulk-step2',
-    title: 'Select action',
+    title: Uni.I18n.translate('issue.selectAction','ISU','Select action'),
 
     requires: [
         'Ext.form.RadioGroup'

@@ -6,14 +6,14 @@ Ext.define('Isu.view.issues.CommentsList', {
         'Isu.privileges.Issue'
     ],
     alias: 'widget.issue-comments',
-    title: 'Comments',
+    title: Uni.I18n.translate('genral.comments','ISU','Comments'),
     ui: 'medium',
     buttonAlign: 'left',
     items: [
         {
             xtype: 'no-items-found-panel',
             itemId: 'no-issue-comments',
-            title: 'No comments found',
+            title: Uni.I18n.translate('general.NoCommentsFound','ISU','No comments found'),
             reasons: [
                 'No comments created yet on this issue'
             ],
@@ -30,7 +30,7 @@ Ext.define('Isu.view.issues.CommentsList', {
         {
             xtype: 'dataview',
             itemId: 'issue-comments-view',
-            title: 'User Images',
+            title: Uni.I18n.translate('issue.userImages','ISU','User Images'),
             itemSelector: 'div.thumb-wrap',
             tpl: new Ext.XTemplate(
                 '<tpl for=".">',

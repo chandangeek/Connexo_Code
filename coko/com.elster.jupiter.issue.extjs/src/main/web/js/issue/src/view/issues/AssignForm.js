@@ -6,7 +6,7 @@ Ext.define('Isu.view.issues.AssignForm', {
     ],
     ui: 'medium',
     padding: 0,
-    title: 'Assign issue',
+    title: Uni.I18n.translate('issue.assignIssue','ISU','Assign issue'),
     alias: 'widget.issues-assign-form',
     items: [
         {
@@ -59,7 +59,7 @@ Ext.define('Isu.view.issues.AssignForm', {
 
         me.callParent(arguments);
         assigneeCombo = me.down('combobox[name=assigneeCombo]');
-        Ext.getBody().mask( 'Loading...' );
+        Ext.getBody().mask( Uni.I18n.translate('general.loading', 'ISU', 'Loading...') );
         userStore.load(function (records) {
             Ext.getBody().unmask();
             if (!Ext.isEmpty(records)) {
