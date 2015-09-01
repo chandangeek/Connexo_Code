@@ -3,7 +3,7 @@ Ext.define('Imt.channeldata.view.Preview', {
     alias: 'widget.channel-preview',
     itemId: 'channel-preview',
     record: null,
-
+    frame: true,
     requires: [
         'Uni.form.field.ReadingTypeDisplay'
     ],
@@ -27,13 +27,13 @@ Ext.define('Imt.channeldata.view.Preview', {
                         },
                         items: [
                             {
-                            	fieldLabel: Uni.I18n.translate('general.readingTypeAlias', 'IMT', 'Reading type alias'),
-                                name: 'readingTypeFullAliasName'
+                                fieldLabel: Uni.I18n.translate('general.readingTypemRID', 'IMT', 'Reading type'),
+                                xtype: 'reading-type-displayfield',
+                                name: 'readingType',
+                                itemId: 'readingType',
+                                showTimeAttribute: false
                             },
-                            {
-                                fieldLabel: Uni.I18n.translate('general.readingTypemRID', 'IMT', 'Reading type mRID'),
-                                name: 'readingTypemRID'
-                            },
+
                             {
                                 fieldLabel: Uni.I18n.translate('general.interval', 'IMT', 'Interval'),
                                 name: 'interval',
@@ -42,6 +42,19 @@ Ext.define('Imt.channeldata.view.Preview', {
                                     value ? res = Ext.String.htmlEncode('{count} {timeUnit}'.replace('{count}', value.count).replace('{timeUnit}', value.timeUnit)) : null;
                                     return res
                                 }
+                            },
+                            {
+                                fieldLabel: Uni.I18n.translate('general.lastReading', 'IMT', 'Last reading'),
+                                name: 'lastValueTimestamp',
+                                renderer: function (value) {
+                                    if (!Ext.isEmpty(value)) {
+                                        return Uni.DateTime.formatDateLong(new Date(value))
+                                            + ' ' + Uni.I18n.translate('general.at', 'IMT', 'At').toLowerCase() + ' '
+                                            + Uni.DateTime.formatTimeLong(new Date(value));
+                                    }
+                                    return '-';
+                                }
+
                             }
                         ]
                     }
