@@ -266,7 +266,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             action: 'showAddDeviceConfigurationLogbooksView'
                                                         },
                                                         edit: {
-                                                            title: Uni.I18n.translate('Edit logbook configuration','MDC','Edit logbook configuration'),
+                                                            title: Uni.I18n.translate('general.editLogbookConfiguration','MDC','Edit logbook configuration'),
                                                             route: '{logbookConfigurationId}/edit',
                                                             privileges: Mdc.privileges.DeviceType.admin,
                                                             controller: 'Mdc.controller.setup.DeviceConfigurations',
