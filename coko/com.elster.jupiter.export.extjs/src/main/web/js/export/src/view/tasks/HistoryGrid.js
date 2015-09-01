@@ -17,7 +17,7 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('general.startedOn', 'DES', 'Started On'),
+                header: Uni.I18n.translate('general.startedOn', 'DES', 'Started on'),
                 dataIndex: 'startedOn',
                 flex: 2,
                 renderer: function (value, metaData, record) {
