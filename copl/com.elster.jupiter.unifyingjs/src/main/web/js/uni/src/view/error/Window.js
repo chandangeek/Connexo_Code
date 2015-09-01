@@ -17,7 +17,7 @@ Ext.define('Uni.view.error.Window', {
     constrain: true,
     closeAction: 'hide',
 
-    title: 'Error message',
+    title: Uni.I18n.translate('error.message','UNI','Error message'),
 
     items: [
         {

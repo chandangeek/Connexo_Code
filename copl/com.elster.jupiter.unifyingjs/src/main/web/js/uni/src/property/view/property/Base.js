@@ -432,6 +432,9 @@ Ext.define('Uni.property.view.property.Base', {
                     me.getProperty().set('isInheritedOrDefaultValue', true);
                     me.updateResetButton();
                 }
+                if (!field.getValue() && field.up().required && field.up().getResetButton()) {
+                    me.restoreDefault();
+                }
                 me.customHandlerLogic();
             })
         }

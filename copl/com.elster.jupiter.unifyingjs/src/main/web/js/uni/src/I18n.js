@@ -185,6 +185,7 @@ Ext.define('Uni.I18n', {
      * @param {String} component Component on which to filter
      * @param {String} fallback Fallback value in case the translation was not found
      * @param {String[]} [values] Values to replace in the translation
+     * @param {boolean} htmlEncode if the values should be HTML encoded
      * @returns {String} Translation
      */
     translate: function (key, component, fallback, values, htmlEncode) {
@@ -218,18 +219,34 @@ Ext.define('Uni.I18n', {
 
     /**
      * Looks up the plural translation of a number, e.g. for 0 items the translation could be
-     * 'There no items', for 1 item 'There is 1 item', or for 7 items 'There are 7 items'.
+     * 'There are no items', for 1 item 'There is one item', or for 7 items 'There are 7 items'.
      * If your key is named 'itemCount' then for the amount 0 will look up 'itemCount[0]',
-     * for the amount 1 'itemCount[1]', and so on. It falls back on the generic 'itemCount' key.
+     * for the amount 1 'itemCount[1]', and for all the others 'itemCount[many]'.
+     * If the key isn't found, it falls back on the resp. defaults that are provided in the last three parameters
      *
      * @param {String} key Translation key to look up
      * @param {Number/String} amount Amount to translate with
      * @param {String} component Component to look up the translation for
-     * @param {String} fallback Fallback value in case the translation was not found
+     * @param {String} defaultZero Fallback translation to be used in case of amount == 0
+     * @param {String} defaultOne Fallback translation to be used in case of amount == 1
+     * @param {String} defaultMany Fallback translation to be used in case of amount > 1
      */
-    translatePlural: function (key, amount, component, fallback) {
-        var lookup = key + '[' + amount + ']',
-            translation = this.lookupTranslation(lookup, component) || fallback;
+    translatePlural: function (key, amount, component, defaultZero, defaultOne, defaultMany) {
+        var lookup, translation;
+
+        switch (amount) {
+            case 0: lookup = key + '[0]'; break;
+            case 1: lookup = key + '[1]'; break;
+            default: lookup = key + '[many]'; break;
+        }
+        translation = this.lookupTranslation(lookup, component);
+        if (!translation) {
+            switch (amount) {
+                case 0: translation = defaultZero; break;
+                case 1: translation = defaultOne; break;
+                default: translation = defaultMany; break;
+            }
+        }
 
         if (typeof amount !== 'undefined') {
             translation = Uni.util.String.replaceAll(translation, 0, amount);
