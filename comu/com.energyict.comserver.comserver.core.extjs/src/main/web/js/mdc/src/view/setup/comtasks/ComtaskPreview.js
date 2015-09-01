@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskPreview', {
             },
             {
                 itemId: 'comtaskCommands',
-                fieldLabel: Uni.I18n.translate('comtask.commands', 'MDC', 'Actions'),
+                fieldLabel: Uni.I18n.translate('comtask.actions', 'MDC', 'Actions'),
                 name: 'commands',
                 renderer: function (value) {
                     var str = '';

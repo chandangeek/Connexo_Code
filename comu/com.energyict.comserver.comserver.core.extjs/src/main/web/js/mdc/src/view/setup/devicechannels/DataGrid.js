@@ -137,7 +137,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                     {
                         xtype: 'button',
                         itemId: 'device-channel-data-bulk-action-button',
-                        text: Uni.I18n.translate('general.bulkAction', 'MDC', 'Bulk Action'),
+                        text: Uni.I18n.translate('general.bulkAction', 'MDC', 'Bulk action'),
                         privileges: Mdc.privileges.Device.administrateDeviceData,
                         menu: {
                             xtype: 'channel-data-bulk-action-menu',

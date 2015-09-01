@@ -134,7 +134,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
-                            title: Uni.I18n.translate('devicecommunicationtaskhistory.empty.title', 'MDC', 'No logs found'),
+                            title: Uni.I18n.translate('devicecommunicationtaskhistory.emptyLog.title', 'MDC', 'No logs found'),
                             reasons: [
                                 Uni.I18n.translate('devicecommunicationtaskhistory.empty.list.item1', 'MDC', 'The communication failed before communication logs could be created'),
                                 Uni.I18n.translate('devicecommunicationtaskhistory.empty.list.item2', 'MDC', 'The filter is too narrow')

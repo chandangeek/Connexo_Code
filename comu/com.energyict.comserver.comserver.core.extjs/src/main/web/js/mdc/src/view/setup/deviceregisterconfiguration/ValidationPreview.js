@@ -75,7 +75,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.ValidationPreview', {
                     },
                     {
                         xtype: 'button',
-                        tooltip: Uni.I18n.translate('deviceloadprofiles.tooltip.lastChecked', 'MDC', 'The timestamp of the last data that was validated'),
+                        tooltip: Uni.I18n.translate('deviceloadprofiles.tooltip.lastChecked', 'MDC', 'The moment when the last interval was checked in the validation process.'),
                         iconCls: 'icon-info-small',
                         ui: 'blank',
                         itemId: 'lastCheckedHelp',

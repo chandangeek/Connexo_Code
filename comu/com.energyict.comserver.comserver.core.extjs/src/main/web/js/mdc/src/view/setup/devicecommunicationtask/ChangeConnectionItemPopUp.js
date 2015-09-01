@@ -78,7 +78,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
         switch (this.action) {
             case 'changeConnectionMethodOfDeviceComTask':
             {
-                this.setTitle(Ext.String.format(Uni.I18n.translate('deviceCommunicationTask.changeConnectionMethodOf', 'MDC', 'Change connection method of \'{0}\''),this.comTaskName));
+                this.setTitle(Uni.I18n.translate('deviceCommunicationTask.changeConnectionMethodOf', 'MDC', "Change connection method of '{0}'", [this.comTaskName]));
                 this.down('#changeConnectionItemForm').add(
                     {
                         xtype: 'combobox',
@@ -128,7 +128,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
             }
             case 'changeProtocolDialectOfDeviceComTask':
             {
-                this.setTitle(Ext.String.format(Uni.I18n.translate('deviceCommunicationTask.changeProtocolDialectOfDeviceComTask', 'MDC', 'Change protocol dialect of {0}'),this.comTaskName));
+                this.setTitle(Uni.I18n.translate('deviceCommunicationTask.changeProtocolDialectOfDeviceComTask', 'MDC', "Change protocol dialect of {0}", [this.comTaskName]));
                 this.down('#changeConnectionItemForm').add(
                     {
                         xtype: 'combobox',
@@ -144,7 +144,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.ChangeConnectionItemPopUp', {
             }
             case 'changeUrgencyOfDeviceComTask':
             {
-                this.setTitle(Ext.String.format(Uni.I18n.translate('deviceCommunicationTask.changeUrgencyOfDeviceComTask', 'MDC', 'Change urgency of {0}'),this.comTaskName));
+                this.setTitle(Uni.I18n.translate('deviceCommunicationTask.changeUrgencyOfDeviceComTask', 'MDC', 'Change urgency of {0}', [this.comTaskName]));
                 this.down('#changeConnectionItemForm').add({
                     xtype: 'numberfield',
                     itemId: 'urgencyCombo',

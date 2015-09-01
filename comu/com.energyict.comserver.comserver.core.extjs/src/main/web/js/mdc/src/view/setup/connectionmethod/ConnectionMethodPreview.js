@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                 {
                     xtype: 'component',
                     height: '100px',
-                    html: '<h5>' + Uni.I18n.translate('connectionmethod.selectConnectionMethod', 'MDC', 'Select a connection method to see its details') + '</h5>'
+                    html: '<h5>' + Uni.I18n.translate('connectionmethod.details.selectConnectionMethod', 'MDC', 'Select a connection method to see its details') + '</h5>'
                 }
             ]
 

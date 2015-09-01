@@ -20,7 +20,7 @@ Ext.define('Mdc.view.setup.communicationschedule.AddCommunicationTaskPreview', {
             {
                 xtype: 'displayfield',
                 itemId: 'comtaskCommands',
-                fieldLabel: Uni.I18n.translate('comtask.commands', 'MDC', 'Commands'),
+                fieldLabel: Uni.I18n.translate('comtask.actions', 'MDC', 'Actions'),
                 name: 'commandsString',
                 htmlEncode: false
             }

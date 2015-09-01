@@ -189,7 +189,7 @@ Ext.define('Mdc.view.setup.registergroup.RegisterGroupEdit', {
                                                 xtype: 'button',
                                                 itemId: 'createRegisterType',
                                                 margin: '10 0 0 0',
-                                                text: Uni.I18n.translate('registerType.addRegisterType', 'MDC', 'Add register types'),
+                                                text: Uni.I18n.translate('registerType.addRegisterType', 'MDC', 'Add register type'),
                                                 action: 'createRegisterType'
                                             }
                                         ]
