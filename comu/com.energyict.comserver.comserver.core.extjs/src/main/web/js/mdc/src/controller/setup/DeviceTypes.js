@@ -163,22 +163,26 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
                 registersLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/registertypes');
                 registersLink.setText(
-                    Uni.I18n.translatePlural('devicetype.registers', deviceType.get('registerCount'), 'MDC', '{0} register types', '{0} register type', '{0} register types')
+                    Uni.I18n.translatePlural('devicetype.registers', deviceType.get('registerCount'), 'MDC',
+                        '{0} register types', '{0} register type', '{0} register types')
                 );
 
                 logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/logbooktypes');
                 logBookLink.setText(
-                    Uni.I18n.translatePlural('devicetype.logbooks', deviceType.get('logBookCount'), 'MDC', '{0} logbook types', '{0} logbook type', '{0} logbook types')
+                    Uni.I18n.translatePlural('devicetype.logbooks', deviceType.get('logBookCount'), 'MDC',
+                        '{0} logbook types', '{0} logbook type', '{0} logbook types')
                 );
 
                 loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/loadprofiles');
                 loadProfilesLink.setText(
-                    Uni.I18n.translatePlural('devicetype.loadprofiles', deviceType.get('loadProfileCount'), 'MDC', '{0} loadprofile types', '{0} loadprofile type', '{0} loadprofile types')
+                    Uni.I18n.translatePlural('devicetype.loadprofiles', deviceType.get('loadProfileCount'), 'MDC',
+                        '{0} load profile types', '{0} load profile type', '{0} load profile types')
                 );
 
                 deviceConfigurationsLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/deviceconfigurations');
                 deviceConfigurationsLink.setText(
-                    Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceType.get('deviceConfigurationCount'), 'MDC', '{0} device configurations', '{0} device configuration', '{0} device configurations')
+                    Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceType.get('deviceConfigurationCount'), 'MDC',
+                        '{0} device configurations', '{0} device configuration', '{0} device configurations')
                 );
 
                 widget.down('form').loadRecord(deviceType);
