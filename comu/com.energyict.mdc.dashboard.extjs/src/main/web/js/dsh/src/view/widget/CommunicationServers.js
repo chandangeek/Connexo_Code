@@ -95,13 +95,40 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
             }
 
             var groups = store.getGroups().map(function (item) {
-                item.title = Uni.I18n.translate('overview.widget.communicationServers.title.' + item.name, 'DSH', item.name);
+                switch(item.name){
+                    case 'blocked' :
+                        item.title = Uni.I18n.translate('overview.widget.communicationServers.blocked', 'DSH', 'blocked');
+                        break;
+                    case 'inactive':
+                        item.title = Uni.I18n.translate('overview.widget.communicationServers.inactive', 'DSH', 'inactive');
+                        break;
+                    case 'running':
+                        item.title = Uni.I18n.translate('overview.widget.communicationServers.running', 'DSH', 'running');
+                        break;
+                    case 'stopped':
+                        item.title = Uni.I18n.translate('overview.widget.communicationServers.stopped', 'DSH', 'stopped');
+                        break;
+                }
                 item.expand = (item.name === 'blocked' && item.children && item.children.length < 5);
                 var html = '';
                 if (item.children) {
                     item.children = item.children.map(function (server) {
                         var data = server.getData();
-                        data.title = data.comServerName + ' ' + Uni.I18n.translate('overview.widget.communicationServers.status.' + item.name, 'DSH', item.name);
+                        data.title = data.comServerName + ' ';
+                        switch(item.name){
+                            case 'blocked' :
+                                data.title += Uni.I18n.translate('overview.widget.communicationServers.blocked', 'DSH', 'blocked');
+                                break;
+                            case 'inactive':
+                                data.title += Uni.I18n.translate('overview.widget.communicationServers.inactive', 'DSH', 'inactive');
+                                break;
+                            case 'running':
+                                data.title += Uni.I18n.translate('overview.widget.communicationServers.running', 'DSH', 'running');
+                                break;
+                            case 'stopped':
+                                data.title += Uni.I18n.translate('overview.widget.communicationServers.stopped', 'DSH', 'stopped');
+                                break;
+                        }
                         data.href = me.router.getRoute('administration/comservers/detail/overview').buildUrl({id: data.comServerId});
                         data.tooltip = me.serverTpl.apply(data);
                         html += data.tooltip;
@@ -109,7 +136,6 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                     });
                 }
                 item.tooltip = html;
-
                 return item;
             });
 
