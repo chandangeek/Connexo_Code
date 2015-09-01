@@ -32,6 +32,7 @@ regexes = [
 
 duplicates = Hash.new
 duplicatesBlob = "Translation duplicates\n"
+differentTranslations = Hash.new
 translations = Hash.new
 translationsBlob = "// Translations\n\n"
 duplicatesFile = "I18nDuplicates.txt"
@@ -80,6 +81,12 @@ Dir.glob(folder + "/src/**/*.js") do |file|
 				abort("Incorrect component: " + component + " (while " + current_component + " expected)")
 			end
 			
+			# Check for same keys with different translations
+			if differentTranslations.fetch(key, nil) == nil then
+				differentTranslations[key] = value
+			elsif differentTranslations.fetch(key, nil) != value then
+				abort("Found different translations for the same key '" + key + "': '" + value + "' vs. '" + differentTranslations.fetch(key, nil) + "'")
+			end
 			if translations[component].nil? then
 				translations[component] = Hash.new
 			end
@@ -138,6 +145,12 @@ Dir.glob(folder + "/src/**/*.js") do |file|
 			(0..2).each do |i|
 			    value = valuesToProcess[i]
 				currentKey = keysToProcess[i]
+				# Check for same keys with different translations
+				if differentTranslations.fetch(currentKey, nil) == nil then
+					differentTranslations[currentKey] = value
+				elsif differentTranslations.fetch(currentKey, nil) != value then
+					abort("Found different translations for the same key '" + currentKey + "': '" + value + "' vs. '" + differentTranslations.fetch(currentKey, nil) + "'")
+				end
 				currentValue = translations[component][currentKey]
 				if currentValue.nil? && currentValue == value then
 					if conflicts[component].nil? then
