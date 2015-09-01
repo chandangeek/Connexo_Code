@@ -128,7 +128,7 @@ public abstract class AbstractCimChannel implements CimChannel {
     }
 
     private Condition ofThisReadingType() {
-        return where("readingType").in(getChannel().getReadingTypes());
+        return where("readingType").isEqualTo(getReadingType());
     }
 
     @Override
