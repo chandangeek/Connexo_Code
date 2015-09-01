@@ -24,7 +24,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     EVENT_TYPE_STILL_IN_USE(202, Keys.EVENT_TYPE_STILL_IN_USE, "The standard event type cannot be removed because it is still in use by the following finite state machines: {0}"),
 
     // State
-    UNIQUE_STATE_NAME(300, Keys.UNIQUE_STATE_NAME, "The name of a state must be unique in the finite state machine's context"),
+    UNIQUE_STATE_NAME(300, Keys.UNIQUE_STATE_NAME, "Name must be unique"),
     NO_SUCH_PROCESS_ON_STATE(301, Keys.NO_SUCH_PROCESS_ON_STATE, "No external business process with deployment id {0} and process id {1} is linked to state {2} of finite state machine {3}"),
 
     // FiniteStateMachine
@@ -33,7 +33,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     EXACTLY_ONE_INITIAL_STATE(402, Keys.EXACTLY_ONE_INITIAL_STATE, "A finite state machine must have exactly one initial state"),
     UNKNOWN_STATE(403, Keys.UNKNOWN_STATE, "Unable to remove state {0} because it does not exist in the finite state machine {1}"),
     UNKNOWN_STATE_TRANSITION(404, Keys.UNKNOWN_STATE_TRANSITION, "Unable to remove state transition from {0} and event type {1} because it does not exist in the finite state machine {2}"),
-    DUPLICATE_STATE_TRANSITION(405, Keys.DUPLICATE_STATE_TRANSITION, "The combination of From state and Triggered by-event must be unique in a device life cycle"),
+    DUPLICATE_STATE_TRANSITION(405, Keys.DUPLICATE_STATE_TRANSITION, "The combination of the fields 'From' and 'Triggered by' must be unique in a device life cycle"),
 
     NO_SUCH_PROCESS(500, Keys.NO_SUCH_PROCESS, "No external business process with deployment id {0} and process id {1}"),
     STATE_CHANGE_PROCESS_IN_USE(501, Keys.STATE_CHANGE_PROCESS_IN_USE, "The external business process with deployment id {0} and process id {1} is still in use by at least one state");
