@@ -63,7 +63,7 @@ Ext.define('Sam.view.licensing.Details', {
                             fieldLabel: Uni.I18n.translate('licensing.gracePeriod', 'SAM', 'Grace period'),
                             name: 'graceperiod',
                             renderer: function (value) {
-                                return value ? value + ' ' + Uni.I18n.translatePlural('licensing.days', value, 'SAM', 'days') : '';
+                                return value ? Uni.I18n.translatePlural('licensing.days', value, 'SAM', '0 days', '{0} day', '{0} days') : '';
                             }
                         }
                     ]
