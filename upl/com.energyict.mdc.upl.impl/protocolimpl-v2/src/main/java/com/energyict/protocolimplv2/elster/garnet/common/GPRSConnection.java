@@ -5,7 +5,12 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.garnet.GarnetProperties;
-import com.energyict.protocolimplv2.elster.garnet.exception.*;
+import com.energyict.protocolimplv2.elster.garnet.exception.CipheringException;
+import com.energyict.protocolimplv2.elster.garnet.exception.ConnectionException;
+import com.energyict.protocolimplv2.elster.garnet.exception.CrcMismatchException;
+import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
+import com.energyict.protocolimplv2.elster.garnet.exception.NotExecutedException;
+import com.energyict.protocolimplv2.elster.garnet.exception.TimeoutException;
 import com.energyict.protocolimplv2.elster.garnet.frame.RequestFrame;
 import com.energyict.protocolimplv2.elster.garnet.frame.ResponseFrame;
 import com.energyict.protocolimplv2.elster.garnet.frame.field.Address;
@@ -180,7 +185,7 @@ public class GPRSConnection implements Connection {
                 throw new TimeoutException(message);
             }
             if (!bytesFromDeviceAvailable()) {
-                ProtocolTools.delay(1);
+                ProtocolTools.delay(100);
             } else {
                 i++;
                 ensureComChannelIsInReadingMode();
