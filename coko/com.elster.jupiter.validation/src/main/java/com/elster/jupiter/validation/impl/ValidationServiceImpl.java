@@ -528,11 +528,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Stream.of(
-                Arrays.stream(MessageSeeds.values()),
-                Arrays.stream(MessageSeeds.Labels.values()))
-                .flatMap(Function.identity())
-                .collect(Collectors.toList());
+        return Arrays.asList(MessageSeeds.values());
     }
 
     class DefaultValidatorCreator implements ValidatorCreator {

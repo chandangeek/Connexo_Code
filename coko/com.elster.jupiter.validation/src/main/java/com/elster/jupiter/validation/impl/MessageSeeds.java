@@ -97,40 +97,5 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String OVERLAPPED_PERIOD = "OverlappedPeriod";
 
     }
-
-    public enum Labels implements TranslationKey {
-        SCHEDULED("validationtask.occurrence.scheduled", "Scheduled"),
-        ON_REQUEST("validationtask.occurrence.onrequest", "On Request");
-
-        private final String key;
-        private final String defaultTranslation;
-
-        Labels(String key, String defaultTranslation) {
-            this.key = key;
-            this.defaultTranslation = defaultTranslation;
-        }
-
-        public Translation toDefaultTransation() {
-            return SimpleTranslation.translation(SimpleNlsKey.key(ValidationService.COMPONENTNAME, Layer.REST, key), Locale.ENGLISH, defaultTranslation);
-        }
-
-        public String translate(Thesaurus thesaurus) {
-            return thesaurus.getString(key, defaultTranslation);
-        }
-
-        public String translate(Thesaurus thesaurus, Locale locale) {
-            return thesaurus.getString(locale, key, defaultTranslation);
-        }
-
-        @Override
-        public String getKey() {
-            return key;
-        }
-
-        @Override
-        public String getDefaultFormat() {
-            return defaultTranslation;
-        }
-    }
 }
 
