@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.rest;
 
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -12,6 +13,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
 import com.elster.jupiter.validation.ValidationService;
@@ -47,16 +49,8 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Ignore("Base functionality for rest tests")
-@RunWith(MockitoJUnitRunner.class)
-public class BaseValidationRestTest extends JerseyTest {
+public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
 
-    @Mock
-    protected NlsService nlsService;
-    @Mock
-    protected Thesaurus thesaurus;
-    @Mock
-    protected TransactionService transactionService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     protected ValidationService validationService;
     @Mock
@@ -72,7 +66,6 @@ public class BaseValidationRestTest extends JerseyTest {
 
     protected DataValidationTaskBuilder builder = initBuilderStub();
     protected PropertyUtils propertyUtils;
-    protected ValidationApplication serviceLocator;
     private ValidationRuleInfoFactory validationRuleInfoFactory;
 
     private DataValidationTaskBuilder initBuilderStub() {
@@ -92,71 +85,37 @@ public class BaseValidationRestTest extends JerseyTest {
         return (DataValidationTaskBuilder) proxyInstance;
     }
 
-    @Before
-    public void setUp() throws Exception {
-        when(nlsService.getThesaurus(anyString(), any())).thenReturn(thesaurus);
+
+    @Override
+    public void setupMocks() {
+        super.setupMocks();
         propertyUtils = new PropertyUtils(nlsService);
         validationRuleInfoFactory = new ValidationRuleInfoFactory(propertyUtils);
-        super.setUp();
-        serviceLocator = new ValidationApplication();
-        serviceLocator.setValidationService(validationService);
-        serviceLocator.setRestQueryService(restQueryService);
-        serviceLocator.setTransactionService(transactionService);
-        serviceLocator.setNlsService(nlsService);
-        serviceLocator.setTimeService(timeService);
-
         when(validationService.newTaskBuilder()).thenReturn(builder);
-
         when(meteringGroupsService.findEndDeviceGroup(1)).thenReturn(Optional.of(endDeviceGroup));
-
-        when(transactionService.getContext()).thenReturn(mock(TransactionContext.class));
-
         when(transactionService.execute(Matchers.any())).thenAnswer(new Answer() {
-            
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
-                return ((Transaction<?>)invocation.getArguments()[0]).perform();
+                return ((Transaction<?>) invocation.getArguments()[0]).perform();
             }
         });
     }
-    
-    @After
-    public void tearDown() throws Exception {
-        super.tearDown();
+
+    @Override
+    protected MessageSeed[] getMessageSeeds() {
+        return new MessageSeed[0];
     }
 
     @Override
-    protected Application configure() {
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
-
-        ResourceConfig resourceConfig = new ResourceConfig(
-                ValidationResource.class,
-                DataValidationTaskResource.class,
-                ConstraintViolationExceptionMapper.class,
-                LocalizedExceptionMapper.class);
-        resourceConfig.register(JacksonFeature.class);
-        resourceConfig.register(new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bind(restQueryService).to(RestQueryService.class);
-                bind(propertyUtils).to(PropertyUtils.class);
-                bind(validationService).to(ValidationService.class);
-                bind(transactionService).to(TransactionService.class);
-                bind(meteringGroupsService).to(MeteringGroupsService.class);
-                bind(timeService).to(TimeService.class);
-                bind(nlsService).to(NlsService.class);
-                bind(thesaurus).to(Thesaurus.class);
-                bind(validationRuleInfoFactory).to(ValidationRuleInfoFactory.class);
-//              bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-            }
-        });
-        return resourceConfig;
+    protected Application getApplication() {
+        ValidationApplication app = new ValidationApplication();
+        app.setValidationService(validationService);
+        app.setRestQueryService(restQueryService);
+        app.setTransactionService(transactionService);
+        app.setMeteringGroupsService(meteringGroupsService);
+        app.setNlsService(nlsService);
+        app.setTimeService(timeService);
+        return app;
     }
 
-    @Override
-    protected void configureClient(ClientConfig config) {
-        config.register(JacksonFeature.class);
-        super.configureClient(config);
-    }
 }
