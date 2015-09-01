@@ -251,7 +251,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                     if (Ext.ComponentQuery.query('#deviceLoadProfileChannelsGrid')[0]) {
                         Ext.ComponentQuery.query('#deviceLoadProfileChannelsGrid')[0].fireEvent('select', Ext.ComponentQuery.query('#deviceLoadProfileChannelsGrid')[0].getSelectionModel(), record);
                     }
-                    //me.updateDeviceChannelDetails(mRID, record.get('id'));
+                    me.updateDeviceChannelDetails(mRID, record.get('id'));
                 }
             });
         }
