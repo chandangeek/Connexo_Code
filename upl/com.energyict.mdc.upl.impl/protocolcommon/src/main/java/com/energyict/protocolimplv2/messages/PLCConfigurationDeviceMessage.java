@@ -187,7 +187,8 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.keepAliveStartTime, BigDecimal.ZERO, BigDecimal.valueOf(0xFFFFl)),
             PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.keepAliveSendPeriod, BigDecimal.ONE, BigDecimal.valueOf(0xFFl))
     ),
-    ;
+    PingMeter(72, PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.macAddress),
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.timeout));
 
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.PLC_CONFIGURATION;

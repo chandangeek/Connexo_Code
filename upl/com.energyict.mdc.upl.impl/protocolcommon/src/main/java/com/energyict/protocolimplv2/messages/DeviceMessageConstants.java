@@ -130,6 +130,7 @@ public class DeviceMessageConstants {
     public static final String onOffsetsAttributeName = "OnOffsets";
     public static final String latitudeAttributeName = "latitude";
     public static final String longitudeAttributeName = "longitude";
+    public static final String timeout = "protocol.timeout";
 
     public static final String DemandCloseToContractPowerThresholdAttributeName = "LoadBalanceDeviceMessage.demandclosetocontractpowerthreshold";
     public static final String readFrequencyInMinutesAttributeName = "LoadBalanceDeviceMessage.parameters.readfrequencyinminutes";

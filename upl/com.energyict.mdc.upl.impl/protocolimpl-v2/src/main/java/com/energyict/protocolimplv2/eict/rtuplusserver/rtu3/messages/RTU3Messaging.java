@@ -16,6 +16,7 @@ import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.RTU3;
 import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.firmwareobjects.BroadcastUpgrade;
@@ -25,6 +26,7 @@ import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobjects
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
@@ -55,6 +57,7 @@ public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMess
         supportedMessages.add(DeviceActionMessage.PauseDCScheduler);
         supportedMessages.add(DeviceActionMessage.ResumeDCScheduler);
         supportedMessages.add(DeviceActionMessage.SyncOneConfigurationForDC);
+        supportedMessages.add(PLCConfigurationDeviceMessage.PingMeter);
         supportedMessages.add(FirmwareDeviceMessage.BroadcastFirmwareUpgrade);
         supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER);
     }
@@ -83,7 +86,8 @@ public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMess
             return ((Password) messageAttribute).getValue();
         } else if (propertySpec.getName().equals(DeviceMessageConstants.broadcastDevicesGroupAttributeName)) {
             return DeviceInfoSerializer.serializeDeviceInfo(messageAttribute);
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.broadcastInitialTimeBetweenBlocksAttributeName)) {
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.broadcastInitialTimeBetweenBlocksAttributeName)
+                || propertySpec.getName().equals(DeviceMessageConstants.timeout)) {
             return String.valueOf(((TimeDuration) messageAttribute).getMilliSeconds()); //Return value in ms
         } else if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName)) {
 
@@ -131,6 +135,8 @@ public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMess
                     setSchedulerState(SchedulerState.PAUSED);
                 } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.ResumeDCScheduler)) {
                     setSchedulerState(SchedulerState.RUNNING);
+                } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.PingMeter)) {
+                    collectedMessage = pingMeter(pendingMessage, collectedMessage);
                 } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.BroadcastFirmwareUpgrade)) {
                     collectedMessage = new BroadcastUpgrade(this).broadcastFirmware(pendingMessage, collectedMessage);
                 } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER)) {
@@ -156,6 +162,26 @@ public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMess
         }
 
         return result;
+    }
+
+    private CollectedMessage pingMeter(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        final String hexMacAddress = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.macAddress).getDeviceMessageAttributeValue();
+        final long timeoutInMillis = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.timeout).getDeviceMessageAttributeValue());
+
+        try {
+            ProtocolTools.getBytesFromHexString(hexMacAddress, "");
+        } catch (IndexOutOfBoundsException | NumberFormatException e) {
+            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException("MAC address", hexMacAddress, "Should be 16 hex characters");
+        }
+
+        final long normalTimeout = getProtocol().getDlmsSessionProperties().getTimeout();
+        final long fullRoundTripTimeout = timeoutInMillis + normalTimeout;
+        getProtocol().getDlmsSession().getDLMSConnection().setTimeout(fullRoundTripTimeout);
+        final int pingTime = getProtocol().getDlmsSession().getCosemObjectFactory().getG3NetworkManagement().pingNode(hexMacAddress, ((int) timeoutInMillis) / 1000);
+        getProtocol().getDlmsSession().getDLMSConnection().setTimeout(normalTimeout);
+
+        collectedMessage.setDeviceProtocolInformation(pingTime + " ms");
+        return collectedMessage;
     }
 
     private MasterDataSync getMasterDataSync() {
