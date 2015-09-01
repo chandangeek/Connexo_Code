@@ -122,9 +122,9 @@ public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMess
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
             try {
                 if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncMasterdataForDC)) {
-                    collectedMessage = getMasterDataSync().syncMasterData(pendingMessage, collectedMessage, true);
+                    collectedMessage = getMasterDataSync().syncMasterData(pendingMessage, collectedMessage);
                 } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncOneConfigurationForDC)) {
-                    collectedMessage = getMasterDataSync().syncMasterData(pendingMessage, collectedMessage, false);
+                    collectedMessage = getMasterDataSync().syncMasterData(pendingMessage, collectedMessage);
                 } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncDeviceDataForDC)) {
                     collectedMessage = getMasterDataSync().syncDeviceData(pendingMessage, collectedMessage);
                 } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.PauseDCScheduler)) {

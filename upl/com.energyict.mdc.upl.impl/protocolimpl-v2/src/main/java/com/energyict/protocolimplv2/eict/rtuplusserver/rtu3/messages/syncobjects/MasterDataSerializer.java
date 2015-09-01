@@ -183,7 +183,7 @@ public class MasterDataSerializer {
             throw invalidFormatException(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, callHomeId, "Should be 16 hex characters");
         }
 
-        final int deviceTypeId = device.getDeviceType().getId();
+        final int deviceTypeId = device.getConfigurationId();   //The ID of the config, instead of the device type. Since every new config represents a unique device type in the Beacon model
 
         String deviceTimeZone = DlmsProtocolProperties.DEFAULT_TIMEZONE;
         final TimeZoneInUse timeZoneInUse = device.getProtocolProperties().<TimeZoneInUse>getTypedProperty(DlmsProtocolProperties.TIMEZONE);

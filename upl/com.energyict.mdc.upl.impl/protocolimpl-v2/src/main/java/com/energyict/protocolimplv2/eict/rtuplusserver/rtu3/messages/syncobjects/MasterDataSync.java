@@ -12,6 +12,8 @@ import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.RTU3Messaging;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +40,7 @@ public class MasterDataSync {
     /**
      * Sync all master data of the device types (tasks, schedules, security levels, master data obiscodes, etc)
      */
-    public CollectedMessage syncMasterData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage, boolean all) throws IOException {
+    public CollectedMessage syncMasterData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         AllMasterData allMasterData;
         try {
             final String serializedMasterData = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
@@ -51,9 +53,9 @@ public class MasterDataSync {
             return collectedMessage;
         }
 
-        syncSchedules(allMasterData, all);
-        syncClientTypes(allMasterData, all);
-        syncDeviceTypes(allMasterData, all);
+        syncSchedules(allMasterData);
+        syncClientTypes(allMasterData);
+        syncDeviceTypes(allMasterData);
 
         return collectedMessage;
     }
@@ -64,7 +66,7 @@ public class MasterDataSync {
     public CollectedMessage syncDeviceData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         RTU3MeterDetails[] meterDetails;
         try {
-            final String serializedMasterData = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+            final String serializedMasterData = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dcDeviceID2AttributeName).getDeviceMessageAttributeValue();
             final JSONArray jsonObject = new JSONArray(serializedMasterData);
             meterDetails = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), RTU3MeterDetails[].class);
         } catch (JSONException | IOException e) {
@@ -75,7 +77,46 @@ public class MasterDataSync {
         }
 
         syncDevices(meterDetails);
+
+        boolean cleanupUnusedMasterData = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.cleanUpUnusedDeviceTypesAttributeName).getDeviceMessageAttributeValue());
+        if (cleanupUnusedMasterData) {
+            //Remove the device types in the RTU3 data that are no longer defined in EIServer
+
+            final List<Long> rtu3DeviceTypeIds = readDeviceTypesIDs();
+
+            final List<Long> eiServerDeviceTypeIds = new ArrayList<>();
+            for (RTU3MeterDetails meterDetail : meterDetails) {
+                if (!eiServerDeviceTypeIds.contains(meterDetail.getDeviceTypeId())) {
+                    eiServerDeviceTypeIds.add(meterDetail.getDeviceTypeId());
+                }
+            }
+
+            for (Long rtu3DeviceTypeId : rtu3DeviceTypeIds) {
+                if (shouldBeRemoved(eiServerDeviceTypeIds, rtu3DeviceTypeId)) {
+                    getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager().removeDeviceType(rtu3DeviceTypeId);
+                }
+            }
+        }
+
         return collectedMessage;
+    }
+
+    private boolean shouldBeRemoved(List<Long> eiServerDeviceTypeIds, Long rtu3DeviceTypeId) {
+        return !eiServerDeviceTypeIds.contains(rtu3DeviceTypeId);
+    }
+
+    /**
+     * Return a cached (read out only once) list of the IDs of all device types in the RTU3 data.
+     */
+    private List<Long> readDeviceTypesIDs() throws IOException {
+        List<Long> deviceTypesIDs = new ArrayList<>();
+        for (AbstractDataType deviceType : getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager().readDeviceTypes()) {
+            if (deviceType.isStructure() && deviceType.getStructure().nrOfDataTypes() > 0) {
+                final long deviceTypeId = deviceType.getStructure().getDataType(0).longValue();     //First element of the structure is the deviceType ID
+                deviceTypesIDs.add(deviceTypeId);
+            }
+        }
+        return deviceTypesIDs;
     }
 
     public AbstractDlmsProtocol getProtocol() {
@@ -88,7 +129,7 @@ public class MasterDataSync {
         }
     }
 
-    private void syncDeviceTypes(AllMasterData allMasterData, boolean all) throws IOException {
+    private void syncDeviceTypes(AllMasterData allMasterData) throws IOException {
         final DeviceTypeManager deviceTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager();
         final Array deviceTypesArray = deviceTypeManager.readDeviceTypes();
 
@@ -100,29 +141,16 @@ public class MasterDataSync {
             }
         }
 
-        List<Long> syncedDeviceTypes = new ArrayList<>();
         for (RTU3DeviceType deviceType : allMasterData.getDeviceTypes()) {
             if (deviceTypeIds.contains(deviceType.getId())) {
                 deviceTypeManager.updateDeviceType(deviceType.toStructure());   //TODO optimize: only update if something's different
-                syncedDeviceTypes.add(deviceType.getId());
             } else {
                 deviceTypeManager.addDeviceType(deviceType.toStructure());
-                syncedDeviceTypes.add(deviceType.getId());
-            }
-        }
-
-        //Only remove 'ghost' data in the beacon if we just sync'ed ALL master data
-        if (all) {
-            //Remove device type information from the Beacon that is no longer in EIServer
-            for (Long deviceTypeId : deviceTypeIds) {
-                if (!syncedDeviceTypes.contains(deviceTypeId)) {
-                    deviceTypeManager.removeDeviceType(deviceTypeId);
-                }
             }
         }
     }
 
-    private void syncClientTypes(AllMasterData allMasterData, boolean all) throws IOException {
+    private void syncClientTypes(AllMasterData allMasterData) throws IOException {
         final ClientTypeManager clientTypeManager = getProtocol().getDlmsSession().getCosemObjectFactory().getClientTypeManager();
         final Array clientTypesArray = clientTypeManager.readClients();
 
@@ -134,29 +162,16 @@ public class MasterDataSync {
             }
         }
 
-        List<Long> syncedClientTypes = new ArrayList<>();
         for (RTU3ClientType rtu3ClientType : allMasterData.getClientTypes()) {
             if (clientTypeIds.contains(rtu3ClientType.getId())) {
                 clientTypeManager.updateClientType(rtu3ClientType.toStructure());     //TODO optimize: only update if something's different
-                syncedClientTypes.add(rtu3ClientType.getId());
             } else {
                 clientTypeManager.addClientType(rtu3ClientType.toStructure());
-                syncedClientTypes.add(rtu3ClientType.getId());
-            }
-        }
-
-        //Only remove 'ghost' data in the beacon if we just sync'ed ALL master data
-        if (all) {
-            //Remove client information from the Beacon that is no longer in EIServer
-            for (Long clientTypeId : clientTypeIds) {
-                if (!syncedClientTypes.contains(clientTypeId)) {
-                    clientTypeManager.removeClientType(clientTypeId);
-                }
             }
         }
     }
 
-    private void syncSchedules(AllMasterData allMasterData, boolean all) throws IOException {
+    private void syncSchedules(AllMasterData allMasterData) throws IOException {
         final ScheduleManager scheduleManager = getProtocol().getDlmsSession().getCosemObjectFactory().getScheduleManager();
         final Array schedulesArray = scheduleManager.readSchedules();
 
@@ -168,24 +183,11 @@ public class MasterDataSync {
             }
         }
 
-        List<Long> syncedSchedules = new ArrayList<>();
         for (RTU3Schedule rtu3Schedule : allMasterData.getSchedules()) {
             if (scheduleIds.contains(rtu3Schedule.getId())) {
                 scheduleManager.updateSchedule(rtu3Schedule.toStructure());   //TODO optimize: only update if something's different
-                syncedSchedules.add(rtu3Schedule.getId());
             } else {
                 scheduleManager.addSchedule(rtu3Schedule.toStructure());
-                syncedSchedules.add(rtu3Schedule.getId());
-            }
-        }
-
-        //Only remove 'ghost' data in the beacon if we just sync'ed ALL master data
-        if (all) {
-            //Remove scheduling information from the Beacon that is no longer in EIServer
-            for (Long scheduleId : scheduleIds) {
-                if (!syncedSchedules.contains(scheduleId)) {
-                    scheduleManager.removeSchedule(scheduleId);
-                }
             }
         }
     }
