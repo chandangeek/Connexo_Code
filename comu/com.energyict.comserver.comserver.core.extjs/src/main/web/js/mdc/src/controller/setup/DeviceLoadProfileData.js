@@ -136,7 +136,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 tabWidget.down('#loadProfile-data').add(widget);
                 me.getApplication().fireEvent('changecontentevent', tabWidget);
                 tabController.showTab(1);
-                Ext.getBody().mask('Loading...');
+                Ext.getBody().mask(Uni.I18n.translate('general.loading', 'MDC', 'Loading...'));
                 widget.setLoading();
                 widget.down('#deviceLoadProfilesGraphViewBtn').setDisabled(!isTable);
                 widget.down('#deviceLoadProfilesTableViewBtn').setDisabled(isTable);

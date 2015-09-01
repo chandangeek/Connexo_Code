@@ -38,7 +38,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurationLogbooks', {
         var itemPanel = Ext.ComponentQuery.query('device-configuration-logbooks panel[name=details]')[0],
             itemForm = Ext.ComponentQuery.query('device-configuration-logbooks form[name=logbookConfigurationDetails]')[0],
             preloader = Ext.create('Ext.LoadMask', {
-                msg: "Loading...",
+                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                 target: itemPanel
             });
         if (this.displayedItemId != record.id) {

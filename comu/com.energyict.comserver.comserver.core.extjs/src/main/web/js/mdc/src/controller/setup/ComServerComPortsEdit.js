@@ -380,7 +380,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             inboundStore = me.getStore('Mdc.store.InboundComPortPools'),
             comServerModel = me.getModel('Mdc.model.ComServer'),
             preloader = Ext.create('Ext.LoadMask', {
-                msg: "Loading...",
+                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                 target: widget
             }),
             comportTypeSelectCombo,

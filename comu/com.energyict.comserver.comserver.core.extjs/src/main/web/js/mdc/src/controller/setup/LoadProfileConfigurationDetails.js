@@ -318,7 +318,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             recordData = channelConfig.getData(),
             channelId = channelConfig.getId(),
             preloader = Ext.create('Ext.LoadMask', {
-                msg: "Loading...",
+                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                 target: form
             });
         if (this.displayedItemId != recordData.id) {
@@ -463,7 +463,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                             loadProfileConfigurationId: loadProfileConfigurationId
                                         }),
                                     preloader = Ext.create('Ext.LoadMask', {
-                                        msg: "Loading...",
+                                        msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                                         target: widget
                                     }),
                                     readingTypeCombo = widget.down('reading-type-combo'),
@@ -535,7 +535,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                                     loadProfileConfigurationId: loadProfileConfigurationId
                                                 }),
                                             preloader = Ext.create('Ext.LoadMask', {
-                                                msg: "Loading...",
+                                                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                                                 target: widget
                                             }),
                                             title = Uni.I18n.translate('loadprofiles.loadprofileEditChannelConfiguration', 'MDC', 'Edit channel configuration'),
