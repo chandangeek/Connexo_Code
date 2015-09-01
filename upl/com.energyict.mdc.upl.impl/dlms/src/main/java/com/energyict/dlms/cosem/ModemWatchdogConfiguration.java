@@ -50,4 +50,17 @@ public class ModemWatchdogConfiguration extends AbstractCosemObject {
         structure.addDataType(new Unsigned16(deviceRebootThreshold));
         write(ModemWatchdogConfigurationAttributes.CONFIG_PARAMETERS, structure.getBEREncodedByteArray());
     }
+
+    /**
+     * RTU3 added an extra entry (initialDelay) in the structure
+     */
+    public void writeExtendedConfigParameters(int interval, int initialDelay, int pppResetThreshold, int modemResetThreshold, int deviceRebootThreshold) throws IOException {
+        Structure structure = new Structure();
+        structure.addDataType(new Unsigned16(interval));
+        structure.addDataType(new Unsigned16(initialDelay));
+        structure.addDataType(new Unsigned16(pppResetThreshold));
+        structure.addDataType(new Unsigned16(modemResetThreshold));
+        structure.addDataType(new Unsigned16(deviceRebootThreshold));
+        write(ModemWatchdogConfigurationAttributes.CONFIG_PARAMETERS, structure.getBEREncodedByteArray());
+    }
 }

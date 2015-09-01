@@ -20,3 +20,5 @@
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DeviceActionMessage.SyncOneConfigurationForDC', 'Sync one configuration for DC', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DeviceActionMessage.cleanupUnusedDeviceTypes', 'Clean up unused master data', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('PLCConfigurationDeviceMessage.PingMeter', 'Ping meter', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('NetworkConnectivityMessage.modemWatchdogInitialDelay', 'Modem watchdog initial delay', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('NetworkConnectivityMessage.SetModemWatchdogParameters2', 'Write modem watchdog parameters', 'L', 'Y', 'N', 'MDW', sysdate);

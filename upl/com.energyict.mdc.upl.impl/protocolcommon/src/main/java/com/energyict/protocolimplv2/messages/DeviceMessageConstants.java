@@ -204,6 +204,7 @@ public class DeviceMessageConstants {
     public static final String preferGPRSUpstreamCommunication = "NetworkConnectivityMessage.preferGPRSUpstreamCommunication";
     public static final String enableModemWatchdog = "NetworkConnectivityMessage.enableModemWatchdog";
     public static final String modemWatchdogInterval = "NetworkConnectivityMessage.modemWatchdogInterval";
+    public static final String modemWatchdogInitialDelay = "NetworkConnectivityMessage.modemWatchdogInitialDelay";
     public static final String modemResetThreshold = "NetworkConnectivityMessage.modemResetThreshold";
     public static final String networkOperator = "NetworkConnectivityMessage.networkOperator";
     public static final String Destination1IPAddressAttributeName = "NetworkConnectivityMessage.destination.1";

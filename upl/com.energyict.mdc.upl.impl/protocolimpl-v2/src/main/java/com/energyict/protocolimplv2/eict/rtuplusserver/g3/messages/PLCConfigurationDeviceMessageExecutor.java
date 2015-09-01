@@ -26,12 +26,7 @@ import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Helper class that groups all logic related to the execution of the (standard) PLC messages. <br/>
@@ -123,7 +118,7 @@ public class PLCConfigurationDeviceMessageExecutor {
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetSNRPayload)) {
             setSNRPayload(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.EnableKeepAlive)) {
-                enableKeepAlive(pendingMessage);
+            enableKeepAlive(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetKeepAliveScheduleInterval)) {
             setKeepAliveScheduleInterval(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetKeepAliveBucketSize)) {
@@ -523,7 +518,7 @@ public class PLCConfigurationDeviceMessageExecutor {
         int timeoutInMinutes = getSingleIntegerAttribute(pendingMessage);
         this.session.getCosemObjectFactory().getData(PLC_G3_TIMEOUT_OBISCODE).setValueAttr(new Unsigned16(timeoutInMinutes));
     }
-    
+
     private void configurePlcG3KeepAlive(OfflineDeviceMessage pendingMessage) throws IOException {
         boolean enable = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.EnableKeepAlive).getDeviceMessageAttributeValue());
         int startTime = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.keepAliveStartTime).getDeviceMessageAttributeValue());

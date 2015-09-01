@@ -445,7 +445,8 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     private void setNTPAddress(OfflineDeviceMessage pendingMessage) throws IOException {
-        //TODO port from 8.11
+        String address = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+        this.session.getCosemObjectFactory().getNTPServerAddress().writeNTPServerName(address);
     }
 
     private void syncNTPServer(OfflineDeviceMessage pendingMessage) throws IOException {

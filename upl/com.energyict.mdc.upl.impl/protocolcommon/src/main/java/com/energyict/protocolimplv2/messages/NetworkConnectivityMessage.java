@@ -134,7 +134,21 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.autoConnectDestionation2, "N/A")
     ),
     DisableAutoConnect(49, PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.windowAttributeName, getPossibleValues(1, 2))),
-    ;
+    SetModemWatchdogParameters2(50,
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.modemWatchdogInterval),
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.modemWatchdogInitialDelay),
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.PPPDaemonResetThreshold),
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.modemResetThreshold),
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.systemRebootThreshold)
+    );
+
+    private final List<PropertySpec> deviceMessagePropertySpecs;
+    private final int id;
+
+    private NetworkConnectivityMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
+        this.id = id;
+        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+    }
 
     /**
      * Construct an array of all possible values within range [lowerLimit, upperLimit]
@@ -149,22 +163,12 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
             values.add(BigDecimal.valueOf(i));
         }
 
-        return values.toArray(new BigDecimal[0]);
-    }
-
-    private static final DeviceMessageCategory networkAndConnectivityCategory = DeviceMessageCategories.NETWORK_AND_CONNECTIVITY;
-
-    private final List<PropertySpec> deviceMessagePropertySpecs;
-    private final int id;
-
-    private NetworkConnectivityMessage(int id, PropertySpec... deviceMessagePropertySpecs) {
-        this.id = id;
-        this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+        return values.toArray(new BigDecimal[values.size()]);
     }
 
     @Override
     public DeviceMessageCategory getCategory() {
-        return networkAndConnectivityCategory;
+        return DeviceMessageCategories.NETWORK_AND_CONNECTIVITY;
     }
 
     @Override
@@ -220,14 +224,6 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
             this.description = description;
         }
 
-        public int getMode() {
-            return mode;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
         public static AutoConnectMode modeForDescription(String description) {
             for (AutoConnectMode autoConnectMode : values()) {
                 if (autoConnectMode.getDescription().equals(description)) {
@@ -235,6 +231,14 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
                 }
             }
             return AutoConnectMode.Invalid;
+        }
+
+        public int getMode() {
+            return mode;
+        }
+
+        public String getDescription() {
+            return description;
         }
     }
 }
