@@ -59,7 +59,7 @@ Ext.define('Isu.view.issues.AssignForm', {
 
         me.callParent(arguments);
         assigneeCombo = me.down('combobox[name=assigneeCombo]');
-        Ext.getBody().mask( 'Loading...' );
+        Ext.getBody().mask( Uni.I18n.translate('general.loading', 'ISU', 'Loading...') );
         userStore.load(function (records) {
             Ext.getBody().unmask();
             if (!Ext.isEmpty(records)) {
