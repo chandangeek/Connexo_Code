@@ -11,6 +11,10 @@
 
 }
 
+.#{$prefix}form-field::-ms-clear {
+  display: none;
+}
+
 .#{$prefix}form-invalid-under {
     background: none;
     color: $form-error-msg-color;
