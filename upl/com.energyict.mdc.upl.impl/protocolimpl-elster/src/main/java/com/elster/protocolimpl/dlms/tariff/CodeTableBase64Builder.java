@@ -27,6 +27,11 @@ public class CodeTableBase64Builder {
         return new String(getBase64FromCodeTable(mw().getCodeFactory().find(codeTableId))).replaceFirst("<[?]*(.*)[?]>", "");
     }
 
+
+    public static String getXmlStringFromCodeTable(Code codeTable) {
+        return new String(getBase64FromCodeTable(codeTable)).replaceFirst("<[?]*(.*)[?]>", "");
+    }
+
     /**
      * @param codeTableId
      * @return

@@ -57,6 +57,11 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
     ACTIVITY_CALENDAR_SEND_WITH_DATETIME_FROM_XML_USER_FILE(13,
             PropertySpecFactory.userFileReferencePropertySpec(XmlUserFileAttributeName),
             PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
+    ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_DEFAULT_TARIFF_CODE(14,
+            PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
+            PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(defaultTariffCodeAttrributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3))),
     ;
 
     private static final DeviceMessageCategory activityCalendarCategory = DeviceMessageCategories.ACTIVITY_CALENDAR;

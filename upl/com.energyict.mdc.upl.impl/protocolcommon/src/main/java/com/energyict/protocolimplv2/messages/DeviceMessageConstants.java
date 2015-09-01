@@ -36,6 +36,7 @@ public class DeviceMessageConstants {
     public static final String plcTypeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.plc";
     public static final String firmwareUpdateURLAttributeName = "FirmwareDeviceMessage.upgrade.url";
     public static final String contractAttributeName = "contract";
+    public static final String defaultTariffCodeAttrributeName = "ActivityCalendarDeviceMessage.default.tariff";
     public static final String activityCalendarTypeAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.type";
     public static final String activityCalendarNameAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.name";
     public static final String activityCalendarCodeTableAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.codetable";
@@ -207,6 +208,14 @@ public class DeviceMessageConstants {
     public static final String networkOperator = "NetworkConnectivityMessage.networkOperator";
     public static final String Destination1IPAddressAttributeName = "NetworkConnectivityMessage.destination.1";
     public static final String Destination2IPAddressAttributeName = "NetworkConnectivityMessage.destination.2";
+    public static final String windowAttributeName = "NetworkConnectivityMessage.window";
+    public static final String autoConnectMode = "NetworkConnectivityMessage.autoconnect.mode";
+    public static final String autoConnectStartTime = "NetworkConnectivityMessage.autoconnect.starttime";
+    public static final String autoConnectEndTime = "NetworkConnectivityMessage.autoconnect.endtime";
+    public static final String autoConnectDestionation1 = "NetworkConnectivityMessage.destination1";
+    public static final String autoConnectDestionation2 = "NetworkConnectivityMessage.destination2";
+    public static final String autoAnswerStartTime = "NetworkConnectivityMessage.autoanswer.starttime";
+    public static final String autoAnswerEndTime = "NetworkConnectivityMessage.autoanswer.endtime";
 
     public static final String enableDSTAttributeName = "ClockDeviceMessage.enabledst";
     public static final String DSTDeviationAttributeName= "ClockDeviceMessage.dst.deviation";
@@ -341,7 +350,9 @@ public class DeviceMessageConstants {
     public static final String relativeDensityAttributeName = "ConfigurationChangeDeviceMessage.relative.density";
     public static final String molecularNitrogenPercentageAttributeName = "ConfigurationChangeDeviceMessage.molecularnitrogen.percentage";
     public static final String carbonDioxidePercentageAttributeName = "ConfigurationChangeDeviceMessage.carbondioxide.percentage";
+    public static final String carbonOxidePercentageAttributeName = "ConfigurationChangeDeviceMessage.carbonoxide.percentage";
     public static final String molecularHydrogenPercentageAttributeName = "ConfigurationChangeDeviceMessage.molecularhydrogen.percentage";
+    public static final String methanePercentageAttributeName = "ConfigurationChangeDeviceMessage.methane.percentage";
     public static final String higherCalorificValueAttributeName = "ConfigurationChangeDeviceMessage.highercalorificvalue";
     public static final String billingPeriodLengthAttributeName = "ConfigurationChangeDeviceMessage.billingperiod.length";
     public static final String setOnDemandBillingDateAttributeName= "ConfigurationChangeDeviceMessage.ondemand.billing.date";
@@ -350,6 +361,7 @@ public class DeviceMessageConstants {
     public static final String IgnoreDSTAttributeName = "ConfigurationChangeDeviceMessage.ignore.dst";
     public static final String StartOfGasDayAttributeName = "ConfigurationChangeDeviceMessage.start.of.gasday";
     public static final String enableRSSIMultipleSampling = "ConfigurationChangeDeviceMessage.enable.rssi.multiple.sampling";
+    public static final String meterLocationAttributeName = "ConfigurationChangeDeviceMessage.meter.location";
     public static final String month = "month";
     public static final String year = "year";
     public static final String dayOfMonth = "dayOfMonth";

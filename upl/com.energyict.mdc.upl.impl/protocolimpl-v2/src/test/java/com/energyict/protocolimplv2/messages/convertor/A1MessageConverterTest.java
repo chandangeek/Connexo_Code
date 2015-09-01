@@ -24,7 +24,6 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -114,7 +113,7 @@ public class A1MessageConverterTest extends AbstractMessageConverterTest {
 
     @Test
     public void testMessageConversion_SetOnDemandBillingDate() {
-        OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.SetOnDemandBillingDate);
+        OfflineDeviceMessage offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.WriteNewOnDemandBillingDate);
         MessageEntry messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<OnDemandSnapshotTime DATE=\"2015-08-01 00:00:00\" REASON=\"1\"> </OnDemandSnapshotTime>", messageEntry.getContent());
     }

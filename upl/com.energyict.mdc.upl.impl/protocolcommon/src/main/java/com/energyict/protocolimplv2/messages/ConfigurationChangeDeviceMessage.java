@@ -124,7 +124,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.day),
             PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.dayOfWeek, "--", "MO", "TU", "WE", "TH", "FR", "SA", "SU")    ),
     ConfigureBillingPeriodLength(49, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.billingPeriodLengthAttributeName)),
-    SetOnDemandBillingDate(50,
+    WriteNewOnDemandBillingDate(50,
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.setOnDemandBillingDateAttributeName),
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.OnDemandBillingReasonAttributeName,
                     BigDecimal.valueOf(0), BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3), BigDecimal.valueOf(4),
@@ -200,6 +200,16 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     SetConversionFactor(66,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ConversionFactor)
     ),
+    ConfigureAllGasParameters(67,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.gasDensityAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.relativeDensityAttributeName),
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.molecularNitrogenPercentageAttributeName, new BigDecimal(0), new BigDecimal(100)),
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.carbonDioxidePercentageAttributeName, new BigDecimal(0), new BigDecimal(100)),
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.carbonOxidePercentageAttributeName, new BigDecimal(0), new BigDecimal(100)),
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.molecularHydrogenPercentageAttributeName, new BigDecimal(0), new BigDecimal(100)),
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.methanePercentageAttributeName, new BigDecimal(0), new BigDecimal(100)),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.higherCalorificValueAttributeName)),
+    ChangeMeterLocation(68, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.meterLocationAttributeName)),
     ;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;

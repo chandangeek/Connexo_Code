@@ -8,6 +8,7 @@ import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -118,7 +119,38 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.networkOperator + "_" + 9),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.networkOperator + "_" + 10)
     ),
+    ConfigureAutoAnswer(46,
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.windowAttributeName, getPossibleValues(1, 6)),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.autoAnswerStartTime),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.autoAnswerEndTime)
+    ),
+    DisableAutoAnswer(47, PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.windowAttributeName, getPossibleValues(1, 6))),
+    ConfigureAutoConnect(48,
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.windowAttributeName, getPossibleValues(1, 2)),
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.autoConnectMode, AutoConnectMode.SpecifiedTime.description, AutoConnectMode.InsideWindow.description),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.autoConnectStartTime),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.autoConnectEndTime, "N/A"),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.autoConnectDestionation1),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.autoConnectDestionation2, "N/A")
+    ),
+    DisableAutoConnect(49, PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.windowAttributeName, getPossibleValues(1, 2))),
     ;
+
+    /**
+     * Construct an array of all possible values within range [lowerLimit, upperLimit]
+     *
+     * @param lowerLimit the inclusive lower limit
+     * @param upperLimit the inclusive upper limit
+     * @return the array containing all possible values
+     */
+    private static BigDecimal[] getPossibleValues(int lowerLimit, int upperLimit) {
+        List<BigDecimal> values = new ArrayList<>();
+        for (int i = lowerLimit; i <= upperLimit; i++) {
+            values.add(BigDecimal.valueOf(i));
+        }
+
+        return values.toArray(new BigDecimal[0]);
+    }
 
     private static final DeviceMessageCategory networkAndConnectivityCategory = DeviceMessageCategories.NETWORK_AND_CONNECTIVITY;
 
@@ -173,5 +205,36 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
     @Override
     public int getMessageId() {
         return id;
+    }
+
+    public enum AutoConnectMode {
+        SpecifiedTime(1, "Auto connect at specified time"),
+        InsideWindow(2, "Auto connect inside time window"),
+        Invalid(-1, "Invalid mode");
+
+        private final int mode;
+        private final String description;
+
+        AutoConnectMode(int mode, String description) {
+            this.mode = mode;
+            this.description = description;
+        }
+
+        public int getMode() {
+            return mode;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public static AutoConnectMode modeForDescription(String description) {
+            for (AutoConnectMode autoConnectMode : values()) {
+                if (autoConnectMode.getDescription().equals(description)) {
+                    return autoConnectMode;
+                }
+            }
+            return AutoConnectMode.Invalid;
+        }
     }
 }

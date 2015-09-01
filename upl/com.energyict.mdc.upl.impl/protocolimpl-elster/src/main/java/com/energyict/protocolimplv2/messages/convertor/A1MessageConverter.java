@@ -55,7 +55,7 @@ public class A1MessageConverter extends AbstractMessageConverter {
         registry.put(ConfigurationChangeDeviceMessage.WriteNewPDRNumber, new MultipleAttributeMessageEntry("WritePDR", "PdrToWrite"));
         registry.put(ConfigurationChangeDeviceMessage.ConfigureBillingPeriodStartDate, new ConfigureBillingPeriodStartDate("BillingPeriodStart", "BILLING_PERIOD_START_DATE"));
         registry.put(ConfigurationChangeDeviceMessage.ConfigureBillingPeriodLength, new MultipleAttributeMessageEntry("BillingPeriod", "BILLING_PERIOD_LENGTH"));
-        registry.put(ConfigurationChangeDeviceMessage.SetOnDemandBillingDate, new MultipleAttributeMessageEntry("OnDemandSnapshotTime", "DATE", "REASON"));
+        registry.put(ConfigurationChangeDeviceMessage.WriteNewOnDemandBillingDate, new MultipleAttributeMessageEntry("OnDemandSnapshotTime", "DATE", "REASON"));
         registry.put(ConfigurationChangeDeviceMessage.ChangeUnitStatus, new MultipleAttributeMessageEntry("UnitsStatus", "UNITS_Status"));
         registry.put(ConfigurationChangeDeviceMessage.ConfigureStartOfGasDaySettings, new MultipleAttributeMessageEntry("GasDayConfiguration", "GDC_FLAG"));
         registry.put(ConfigurationChangeDeviceMessage.ConfigureStartOfGasDay, new MultipleAttributeMessageEntry("StartOfGasDay", "SGD_TIME"));
