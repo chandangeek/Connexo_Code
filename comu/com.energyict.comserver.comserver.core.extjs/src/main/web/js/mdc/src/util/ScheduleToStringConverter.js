@@ -5,9 +5,31 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
 
     convert: function (temporalExpression) {
         if (temporalExpression !== null && temporalExpression !== '') {
-            var timeUnit = temporalExpression.every.timeUnit,
-                count = temporalExpression.every.count,
-                formattedSchedule = Ext.String.format('Every {0} {1}', count, Uni.I18n.translatePlural('general.timeUnit.' + timeUnit, count, 'MDC', timeUnit));
+            var count = temporalExpression.every.count,
+                formattedSchedule;
+            switch (temporalExpression.every.timeUnit) {
+                case 'seconds':
+                    formattedSchedule = Uni.I18n.translatePlural('general.every.seconds', count, 'MDC', 'Every {0} seconds', 'Every second', 'Every {0} seconds');
+                    break;
+                case 'minutes':
+                    formattedSchedule = Uni.I18n.translatePlural('general.every.minutes', count, 'MDC', 'Every {0} minutes', 'Every minute', 'Every {0} minutes');
+                    break;
+                case 'hours':
+                    formattedSchedule = Uni.I18n.translatePlural('general.every.hours', count, 'MDC', 'Every {0} hours', 'Every hour', 'Every {0} hours');
+                    break;
+                case 'days':
+                    formattedSchedule = Uni.I18n.translatePlural('general.every.days', count, 'MDC', 'Every {0} days', 'Every day', 'Every {0} days');
+                    break;
+                case 'weeks':
+                    formattedSchedule = Uni.I18n.translatePlural('general.every.weeks', count, 'MDC', 'Every {0} weeks', 'Every week', 'Every {0} weeks');
+                    break;
+                case 'months':
+                    formattedSchedule = Uni.I18n.translatePlural('general.every.months', count, 'MDC', 'Every {0} months', 'Every month', 'Every {0} months');
+                    break;
+                case 'years':
+                    formattedSchedule = Uni.I18n.translatePlural('general.every.years', count, 'MDC', 'Every {0} years', 'Every year', 'Every {0} years');
+                    break;
+            }
             return formattedSchedule + this.formatOffset(temporalExpression);
         } else {
             return undefined;
@@ -30,7 +52,7 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
 
                     if (seconds) {
                         result += ' ' + Uni.I18n.translate('scheduleToStringConverter.at', 'MDC', 'at') + ' ';
-                        result += Ext.String.format(Uni.I18n.translatePlural('scheduleToStringConverter.seconds', seconds, 'MDC', '{0} seconds'), seconds);
+                        result += Ext.String.format(Uni.I18n.translatePlural('general.timeUnit.seconds', seconds, 'MDC', '{0} seconds', '{0} second', '{0} seconds'), seconds);
                     }
                     break;
                 case 'hours':
@@ -40,13 +62,13 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
                     if (minutes || seconds) {
                         result += ' ' + Uni.I18n.translate('scheduleToStringConverter.at', 'MDC', 'at') + ' ';
                         if (minutes) {
-                            result += Ext.String.format(Uni.I18n.translatePlural('scheduleToStringConverter.minutes', minutes, 'MDC', '{0} minutes'), minutes);
+                            result += Ext.String.format(Uni.I18n.translatePlural('general.timeUnit.minutes', minutes, 'MDC', '{0} minutes', '{0} minute', '{0} minutes'), minutes);
                         }
                         if (minutes && seconds) {
                             result += ' ' + Uni.I18n.translate('scheduleToStringConverter.and', 'MDC', 'and') + ' ';
                         }
                         if (seconds) {
-                            result += Ext.String.format(Uni.I18n.translatePlural('scheduleToStringConverter.seconds', seconds, 'MDC', '{0} seconds'), seconds);
+                            result += Ext.String.format(Uni.I18n.translatePlural('general.timeUnit.seconds', seconds, 'MDC', '{0} seconds', '{0} second', '{0} seconds'), seconds);
                         }
                     }
                     break;
@@ -78,7 +100,7 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
                     days = Math.floor((offset.count + 86400) / 86400);
 
                     if (temporalExpression.lastDay === false) {
-                        result += days ? ' ' + Ext.String.format(Uni.I18n.translate('scheduleToStringConverter.onTheDay', 'MDC', 'on the {0} day'), days) : '';
+                        result += days ? ' ' + Ext.String.format(Uni.I18n.translate('scheduleToStringConverter.onTheDay', 'MDC', 'on day {0}'), days) : '';
                     } else {
                         result += ' ' + Uni.I18n.translate('scheduleToStringConverter.onTheLastDay', 'MDC', 'on the last day');
                     }
@@ -97,19 +119,19 @@ Ext.define('Mdc.util.ScheduleToStringConverter', {
         if (hours || minutes || seconds) {
             result += ' ' + Uni.I18n.translate('scheduleToStringConverter.at', 'MDC', 'at') + ' ';
             if (hours) {
-                result += Ext.String.format(Uni.I18n.translatePlural('scheduleToStringConverter.hours', hours, 'MDC', '{0} hours'), hours);
+                result += Uni.I18n.translatePlural('general.timeUnit.hours', hours, 'MDC', '{0} hours', '{0} hour', '{0} hours');
             }
             if (hours && (minutes || seconds)) {
                 result += ', '
             }
             if (minutes) {
-                result += Ext.String.format(Uni.I18n.translatePlural('scheduleToStringConverter.minutes', minutes, 'MDC', '{0} minutes'), minutes);
+                result += Uni.I18n.translatePlural('general.timeUnit.minutes', minutes, 'MDC', '{0} minutes', '{0} minute', '{0} minutes');
             }
             if (minutes && seconds) {
                 result += ' ' + Uni.I18n.translate('scheduleToStringConverter.and', 'MDC', 'and') + ' ';
             }
             if (seconds) {
-                result += Ext.String.format(Uni.I18n.translatePlural('scheduleToStringConverter.seconds', seconds, 'MDC', '{0} seconds'), seconds);
+                result += Uni.I18n.translatePlural('general.timeUnit.seconds', seconds, 'MDC', '{0} seconds', '{0} second', '{0} seconds');
             }
         }
 

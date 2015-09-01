@@ -80,7 +80,7 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
             dock: 'top',
             store: me.store,
             usesExactCount: true,
-            displayMsg: Uni.I18n.translatePlural('commands.pagingtoolbartop.displayMsg', 0 ,'MDC', '{2} commands'),
+            displayMsg: Uni.I18n.translatePlural('commands.pagingtoolbartop.displayMsg', 0 ,'MDC', 'No commands', '{0} command', '{0} commands'),
             emptyMsg: Uni.I18n.translate('commands.pagingtoolbartop.emptyMsg', 'MDC', 'There are no commands'),
             items: [
                 {

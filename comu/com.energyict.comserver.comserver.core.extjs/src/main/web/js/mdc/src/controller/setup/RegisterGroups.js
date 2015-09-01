@@ -188,7 +188,10 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 registerGroup = Ext.create(Ext.ModelManager.getModel('Mdc.model.RegisterGroup'));
                 widget.down('form').loadRecord(registerGroup);
                 if (this.totalCount > 0) {
-                    widget.down('#editRegisterGroupSelectedField').setValue(Ext.String.format(Uni.I18n.translate('registerGroup.selectedRegisterTypes', 'MDC', '{0} register types selected'), 0));
+                    widget.down('#editRegisterGroupSelectedField').setValue(
+                        Uni.I18n.translatePlural('general.nrOfRegisterTypes.selected', 0, 'MDC',
+                            'No register types selected', '{0} register type selected', '{0} register types selected')
+                    );
                     widget.down('#editRegisterGroupGridField').reconfigure(store);
                 }
                 widget.setLoading(false);
@@ -197,7 +200,10 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
     },
 
     checkboxChanged: function (grid, selected) {
-        grid.view.up('#registerGroupEdit').down('#editRegisterGroupSelectedField').setValue(Ext.String.format(Uni.I18n.translate('registerGroup.selectedRegisterTypes', 'MDC', '{0} register types selected'), selected.length));
+        grid.view.up('#registerGroupEdit').down('#editRegisterGroupSelectedField').setValue(
+            Uni.I18n.translatePlural('general.nrOfRegisterTypes.selected', selected.length, 'MDC',
+                'No register types selected', '{0} register type selected', '{0} register types selected')
+        );
     },
 
     saveRegisterGroup: function () {
@@ -219,10 +225,10 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 var message;
 
                 if (me.mode == 'edit') {
-                    message = Uni.I18n.translatePlural('registergroup.saved', record.get('name'), 'MDC', 'Register group saved.');
+                    message = Uni.I18n.translate('registergroup.saved', 'MDC', 'Register group {0} saved.', [record.get('name')]);
                 }
                 else {
-                    message = Uni.I18n.translatePlural('registergroup.added', record.get('name'), 'MDC', 'Register group added.');
+                    message = Uni.I18n.translate('registergroup.added', 'MDC', 'Register group {0} added.', [record.get('name')]);
                 }
                 me.getApplication().fireEvent('acknowledge', message);
                 location.href = '#/administration/registergroups/';
@@ -264,7 +270,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 app = opt.app;
             registerTypeToDelete.destroy({
                 success: function () {
-                    app.fireEvent('acknowledge', Uni.I18n.translatePlural('registergroup.removed', name, 'MDC', 'Register group removed.'));
+                    app.fireEvent('acknowledge', Uni.I18n.translate('registergroup.removed', 'MDC', 'Register group {0} removed.', [name]));
                 },
                 callback: function () {
                     location.href = '#/administration/registergroups/';

@@ -221,12 +221,16 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         executionLevelsTitle.show();
         executionLevelscontainer.show();
 
-        this.getExecutionLevelsForSecuritySettingPreview().setTitle(Ext.String.format(Uni.I18n.translate('securitySetting.executionLevel.gridTitle', 'MDC', "Privileges of '{0}'"), Ext.String.htmlEncode(record.getData().name)));
+        this.getExecutionLevelsForSecuritySettingPreview().setTitle(
+            Uni.I18n.translate('securitySetting.executionLevel.gridTitle', 'MDC', "Privileges of '{0}'", [record.getData().name])
+        );
 
         executionLevelsgrid.down('pagingtoolbartop').store = record.executionLevels();
         executionLevelsgrid.down('pagingtoolbartop').store.totalCount = record.executionLevels().getCount();
-        executionLevelsgrid.down('pagingtoolbartop').displayMsg = Uni.I18n.translatePlural('executionLevel.pagingtoolbartop.displayMsg', record.executionLevels().getCount(), 'MDC', '{0} privileges'),
-            executionLevelsgrid.down('pagingtoolbartop').updateInfo();
+        executionLevelsgrid.down('pagingtoolbartop').displayMsg =
+            Uni.I18n.translatePlural('executionLevel.pagingtoolbartop.displayMsg', record.executionLevels().getCount(), 'MDC',
+                'No privileges', '{0} privilege', '{0} privileges');
+        executionLevelsgrid.down('pagingtoolbartop').updateInfo();
 
         preloader.destroy();
     },
@@ -402,13 +406,6 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             }
         );
     },
-
-    /*countSelectedExecutionLevels: function (grid) {
-     var textLabel = Ext.ComponentQuery.query('add-execution-levels label')[0],
-     chosenExecutionLevelsCount = grid.view.getSelectionModel().getSelection().length;
-     textLabel.setText(Ext.String.format(Uni.I18n.translatePlural('executionlevels.selectedItems', chosenExecutionLevelsCount, 'MDC', '{0} execution levels selected'),chosenExecutionLevelsCount));
-     },*/
-
 
     addExecutionLevels: function (btn) {
         var self = this,

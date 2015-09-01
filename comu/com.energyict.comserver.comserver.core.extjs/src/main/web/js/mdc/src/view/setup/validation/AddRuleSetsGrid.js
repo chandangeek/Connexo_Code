@@ -14,10 +14,8 @@ Ext.define('Mdc.view.setup.validation.AddRuleSetsGrid', {
 
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
-            'validation.noValidationRuleSetSelected',
-            count,
-            'MDC',
-            '{0} validation rule sets selected'
+            'general.nrOfValidationRuleSets.selected', count, 'MDC',
+            'No validation rule sets selected', '{0} validation rule set selected', '{0} validation rule sets selected'
         );
     },
 

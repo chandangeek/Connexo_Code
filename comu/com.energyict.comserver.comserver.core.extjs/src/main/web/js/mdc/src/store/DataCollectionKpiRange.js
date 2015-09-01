@@ -9,7 +9,7 @@ Ext.define('Mdc.store.DataCollectionKpiRange', {
     data: [
         {
             id: '1hours',
-            name: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.hours', 1, 'MDC', 'hour'),
+            name: Uni.I18n.translatePlural('general.timeUnit.hours', 1, 'MDC', '{0} hours', '{0} hour', '{0} hours'),
             value: {
                 count: 1,
                 timeUnit: 'hours'
@@ -17,7 +17,7 @@ Ext.define('Mdc.store.DataCollectionKpiRange', {
         },
         {
             id: '1days',
-            name: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.days', 1, 'MDC', 'day'),
+            name: Uni.I18n.translatePlural('general.timeUnit.days', 1, 'MDC', '{0} days', '{0} day', '{0} days'),
             value: {
                 count: 1,
                 timeUnit: 'days'
@@ -25,7 +25,7 @@ Ext.define('Mdc.store.DataCollectionKpiRange', {
         },
         {
             id: '1weeks',
-            name: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.weeks', 1, 'MDC', 'week'),
+            name: Uni.I18n.translatePlural('general.timeUnit.weeks', 1, 'MDC', '{0} weeks', '{0} week', '{0} weeks'),
             value: {
                 count: 1,
                 timeUnit: 'weeks'
@@ -33,7 +33,7 @@ Ext.define('Mdc.store.DataCollectionKpiRange', {
         },
         {
             id: '2weeks',
-            name: 2 + ' ' + Uni.I18n.translatePlural('general.timeUnit.weeks', 2, 'MDC', 'weeks'),
+            name: Uni.I18n.translatePlural('general.timeUnit.weeks', 2, 'MDC', '{0} weeks', '{0} week', '{0} weeks'),
             value: {
                 count: 2,
                 timeUnit: 'weeks'
@@ -41,7 +41,7 @@ Ext.define('Mdc.store.DataCollectionKpiRange', {
         },
         {
             id: '1months',
-            name: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 1, 'MDC', 'month'),
+            name: Uni.I18n.translatePlural('general.timeUnit.months', 1, 'MDC', '{0} months', '{0} month', '{0} months'),
             value: {
                 count: 1,
                 timeUnit: 'months'
@@ -49,7 +49,7 @@ Ext.define('Mdc.store.DataCollectionKpiRange', {
         },
         {
             id: '1years',
-            name: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 1, 'MDC', 'year'),
+            name: Uni.I18n.translatePlural('general.timeUnit.years', 1, 'MDC', '{0} years', '{0} year', '{0} years'),
             value: {
                 count: 1,
                 timeUnit: 'years'

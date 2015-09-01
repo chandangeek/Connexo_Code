@@ -175,6 +175,8 @@ Ext.define('Mdc.controller.setup.EstimationDeviceConfigurations', {
                     'estimationDeviceConfigurations.addSuccess',
                     quantityOfConfigurations,
                     'MDC',
+                    'Successfully added {0} device configurations',
+                    'Successfully added {0} device configuration',
                     'Successfully added {0} device configurations'
                 );
                 me.getApplication().fireEvent('acknowledge', message);

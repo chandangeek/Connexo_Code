@@ -171,11 +171,11 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                     }
                     confirmationWindow.insert(1, me.getValidationContent());
                     confirmationWindow.show({
-                        title: Uni.I18n.translatePlural('deviceloadprofiles.channels.validateNow', record.get('name'), 'MDC', 'Validate data of channel {0}?'),
+                        title: Uni.I18n.translate('deviceloadprofiles.channels.validateNow', 'MDC', 'Validate data of channel {0}?', [record.get('name')]),
                         msg: ''
                     });
                 } else {
-                    var title = Uni.I18n.translatePlural('deviceloadprofiles.channels.validateNow.error', record.get('name'), 'MDC', 'Failed to validate data of channel {0}'),
+                    var title = Uni.I18n.translate('deviceloadprofiles.channels.validateNow.error', 'MDC', 'Failed to validate data of channel {0}', [record.get('name')]),
                         message = Uni.I18n.translate('deviceloadprofiles.channels.noData', 'MDC', 'There is currently no data for this channel'),
                         config = {
                             icon: Ext.MessageBox.WARNING
@@ -203,7 +203,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                     editable: false,
                     showToday: false,
                     value: me.dataValidationLastChecked,
-                    fieldLabel: Uni.I18n.translate('devicechannel.validateNow.item1', 'MDC', 'The data of load profile will be validated starting from'),
+                    fieldLabel: Uni.I18n.translate('devicechannel.validateNow.item1', 'MDC', 'The data of the load profile will be validated starting from'),
                     labelWidth: 375,
                     labelPad: 0.5
                 },
@@ -247,7 +247,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                     confWindow.removeAll(true);
                     confWindow.destroy();
                     me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translatePlural('deviceloadprofiles.channels.activation.completed', record.get('name'), 'MDC', 'Data validation completed'));
+                        Uni.I18n.translate('deviceloadprofiles.channels.activation.completed', 'MDC', 'Data validation completed'));
                     if (Ext.ComponentQuery.query('#deviceLoadProfileChannelsGrid')[0]) {
                         Ext.ComponentQuery.query('#deviceLoadProfileChannelsGrid')[0].fireEvent('select', Ext.ComponentQuery.query('#deviceLoadProfileChannelsGrid')[0].getSelectionModel(), record);
                     }
