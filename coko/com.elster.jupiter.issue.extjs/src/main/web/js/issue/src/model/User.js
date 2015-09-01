@@ -6,17 +6,17 @@ Ext.define('Isu.model.User', {
     fields: [
         {
             name: 'id',
-            displayValue: 'ID',
+            displayValue: Uni.I18n.translate('general.id','ISU','ID'),
             type: 'int'
         },
         {
             name: 'type',
-            displayValue: 'Type',
+            displayValue: Uni.I18n.translate('general.type','ISU','Type'),
             type: 'auto'
         },
         {
             name: 'name',
-            displayValue: 'Name',
+            displayValue: Uni.I18n.translate('general.name','ISU','Name'),
             type: 'auto'
         }
     ],

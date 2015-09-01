@@ -3,11 +3,8 @@ Ext.define('Isu.view.issues.bulk.IssuesSelectionGrid', {
     xtype: 'issues-selection-grid',
 
     counterTextFn: function (count) {
-        return Uni.I18n.translatePlural(
-            'workspace.issues.bulk.IssuesSelectionGrid.counterText',
-            count,
-            'ISU',
-            '{0} issues selected'
+        return Uni.I18n.translatePlural('general.nrOfIssues.selected', count, 'ISU',
+            'No issues selected', '{0} issue selected', '{0} issues selected'
         );
     },
 

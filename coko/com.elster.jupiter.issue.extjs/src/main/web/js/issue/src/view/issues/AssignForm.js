@@ -6,7 +6,7 @@ Ext.define('Isu.view.issues.AssignForm', {
     ],
     ui: 'medium',
     padding: 0,
-    title: 'Assign issue',
+    title: Uni.I18n.translate('issue.assignIssue','ISU','Assign issue'),
     alias: 'widget.issues-assign-form',
     items: [
         {
@@ -36,7 +36,7 @@ Ext.define('Isu.view.issues.AssignForm', {
                     allowBlank: false,
                     validateOnChange: false,
                     name: 'assigneeCombo',
-                    emptyText: 'Start typing for users',
+                    emptyText: Uni.I18n.translate('issues.startTypingForUsers','ISU','Start typing for users'),
                     displayField: 'name'
                 },
                 {
@@ -44,7 +44,7 @@ Ext.define('Isu.view.issues.AssignForm', {
                     xtype: 'textareafield',
                     fieldLabel: 'Comment',
                     name: 'comment',
-                    emptyText: 'Provide a comment \r\n(optionally)',
+                    emptyText: Uni.I18n.translate('issues.provideComment','ISU','Provide a comment \r\n(optionally)'),
                     height: 150
                 }
             ]
@@ -59,7 +59,7 @@ Ext.define('Isu.view.issues.AssignForm', {
 
         me.callParent(arguments);
         assigneeCombo = me.down('combobox[name=assigneeCombo]');
-        Ext.getBody().mask( 'Loading...' );
+        Ext.getBody().mask( Uni.I18n.translate('general.loading', 'ISU', 'Loading...') );
         userStore.load(function (records) {
             Ext.getBody().unmask();
             if (!Ext.isEmpty(records)) {

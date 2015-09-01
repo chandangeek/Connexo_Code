@@ -19,14 +19,14 @@ Ext.define('Isu.view.issues.AddCommentForm', {
         items: [
             {
                 itemId: 'issue-comment-save-button',
-                text: 'Add',
+                text: Uni.I18n.translate('general.add','ISU','Add'),
                 ui: 'action',
                 action: 'send',
                 disabled: true
             },
             {
                 itemId: 'issue-comment-cancel-adding-button',
-                text: 'Cancel',
+                text: Uni.I18n.translate('general.cancel','ISU','Cancel'),
                 action: 'cancel',
                 ui: 'link'
             }

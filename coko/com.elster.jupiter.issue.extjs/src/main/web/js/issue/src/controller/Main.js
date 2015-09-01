@@ -36,7 +36,7 @@ Ext.define('Isu.controller.Main', {
 
         if (Isu.privileges.Issue.canAdminRule()){
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
-                text: 'Administration',
+                text: Uni.I18n.translate('general.administration','ISU','Administration'),
                 glyph: 'settings',
                 portal: 'administration',
                 index: 10
@@ -47,7 +47,7 @@ Ext.define('Isu.controller.Main', {
             if(Isu.privileges.Issue.canViewRule()) {
                 issuemanagementItems.push(
                     {
-                        text: 'Issue assignment rules',
+                        text: Uni.I18n.translate('issue.administration.assignment','ISU','Issue assignment rules'),
                         href: router.getRoute('administration/assignmentrules').buildUrl()
                     }
                 );
@@ -55,13 +55,13 @@ Ext.define('Isu.controller.Main', {
             if(Isu.privileges.Issue.canAdminCreateRule()) {
                 issuemanagementItems.push(
                     {
-                        text: 'Issue creation rules',
+                        text: Uni.I18n.translate('general.issueCreationRules','ISU','Issue creation rules'),
                         href: router.getRoute('administration/creationrules').buildUrl()
                     }
                 );
             }
             issuemanagement = Ext.create('Uni.model.PortalItem', {
-                title: 'Issue management',
+                title: Uni.I18n.translate('general.issueManagement','ISU','Issue management'),
                 portal: 'administration',
                 route: 'issuemanagement',
                 items: issuemanagementItems
