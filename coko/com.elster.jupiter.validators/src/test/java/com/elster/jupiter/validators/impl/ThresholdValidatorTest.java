@@ -13,7 +13,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationResult;
-import com.elster.jupiter.validators.MessageSeeds;
 import com.elster.jupiter.validators.MissingRequiredProperty;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;

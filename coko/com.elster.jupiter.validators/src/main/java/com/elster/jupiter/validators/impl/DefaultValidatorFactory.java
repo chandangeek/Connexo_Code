@@ -3,28 +3,28 @@ package com.elster.jupiter.validators.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.SimpleTranslation;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
-import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
-import com.elster.jupiter.validators.MessageSeeds;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
-import javax.inject.Inject;
-
-@Component(name = "com.elster.jupiter.validators.impl.DefaultValidatorFactory", service = {ValidatorFactory.class, InstallService.class}, property = "name=" + MessageSeeds.COMPONENT_NAME, immediate = true)
-public class DefaultValidatorFactory implements ValidatorFactory, InstallService {
+@Component(
+        name = "com.elster.jupiter.validators.impl.DefaultValidatorFactory",
+        service = {ValidatorFactory.class, TranslationKeyProvider.class},
+        property = "name=" + MessageSeeds.COMPONENT_NAME,
+        immediate = true)
+public class DefaultValidatorFactory implements ValidatorFactory, TranslationKeyProvider {
 
     public static final String THRESHOLD_VALIDATOR = ThresholdValidator.class.getName();
     public static final String MISSING_VALUES_VALIDATOR = MissingValuesValidator.class.getName();
@@ -60,27 +60,32 @@ public class DefaultValidatorFactory implements ValidatorFactory, InstallService
     }
 
     @Override
-    public void install() {
-        List<Translation> translations = new ArrayList<>(ValidatorDefinition.values().length);
-        for (ValidatorDefinition validatorDefinition : ValidatorDefinition.values()) {
-            IValidator validator = validatorDefinition.createTemplate(thesaurus, propertySpecService, meteringService);
-            Translation translation = SimpleTranslation.translation(validator.getNlsKey(), Locale.ENGLISH, validator.getDefaultFormat());
-            translations.add(translation);
-            validator.getPropertySpecs()
-                    .stream()
-                    .map(key -> SimpleTranslation.translation(validator.getPropertyNlsKey(key.getName()), Locale.ENGLISH, validator.getPropertyDefaultFormat(key.getName())))
-                    .forEach(translations::add);
-            validator.getExtraTranslations()
-                    .stream()
-                    .map(extraTranslation -> SimpleTranslation.translation(extraTranslation.getFirst(), Locale.ENGLISH, extraTranslation.getLast()))
-                    .forEach(translations::add);
-        }
-        thesaurus.addTranslations(translations);
+    public String getComponentName() {
+        return MessageSeeds.COMPONENT_NAME;
     }
 
     @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList("NLS");
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> translationKeys = new ArrayList<>(ValidatorDefinition.values().length + MessageSeeds.values().length) ;
+        for (ValidatorDefinition validatorDefinition : ValidatorDefinition.values()) {
+            IValidator validator = validatorDefinition.createTemplate(thesaurus, propertySpecService, meteringService);
+            translationKeys.add(new SimpleTranslationKey(validator.getNlsKey().getKey(), validator.getDefaultFormat()));
+            validator.getPropertySpecs()
+                    .stream()
+                    .map(key -> new SimpleTranslationKey(validator.getPropertyNlsKey(key.getName()).getKey(), validator.getPropertyDefaultFormat(key.getName())))
+                    .forEach(translationKeys::add);
+            validator.getExtraTranslations()
+                    .stream()
+                    .map(extraTranslation -> new SimpleTranslationKey(extraTranslation.getFirst().getKey(), extraTranslation.getLast()))
+                    .forEach(translationKeys::add);
+        }
+        translationKeys.addAll(Arrays.asList(MessageSeeds.values()));
+        return translationKeys;
     }
 
     private enum ValidatorDefinition {
