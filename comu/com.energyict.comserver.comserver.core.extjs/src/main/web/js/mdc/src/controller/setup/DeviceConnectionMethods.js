@@ -245,11 +245,12 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     showProperties: function (connectionMethod) {
-        var propertiesArray = connectionMethod.propertiesStore.data.items;
+        var me = this,
+            propertiesArray = connectionMethod.propertiesStore.data.items;
         if (propertiesArray.length > 0) {
-            this.getDeviceConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(true);
+            me.getDeviceConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(true);
             Ext.Array.each(propertiesArray, function (property) {
-                if (property.getPropertyValue().get('value') != property.getPropertyValue().get('inheritedValue')) {
+                if (me.getDeviceConnectionMethodEditView().edit && (property.getPropertyValue().get('value') != property.getPropertyValue().get('inheritedValue'))) {
                     property.getPropertyValue().set('defaultValue', property.getPropertyValue().get('inheritedValue'));
                 } else {
                     property.getPropertyValue().set('defaultValue', property.getPropertyValue().get('value'));
