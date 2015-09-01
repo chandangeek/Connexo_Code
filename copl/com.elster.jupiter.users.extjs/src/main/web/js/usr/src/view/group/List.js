@@ -45,10 +45,10 @@ Ext.define('Usr.view.group.List', {
                 xtype: 'pagingtoolbartop',
                 store: this.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('group.list.top', 'USR', '{0} - {1} of {2} roles'),
+                displayMsg: Uni.I18n.translate('role.list.top', 'USR', '{0} - {1} of {2} roles'),
                 items: [
                     {
-                        text: Uni.I18n.translate('group.create', 'USR', 'Add role'),
+                        text: Uni.I18n.translate('role.create', 'USR', 'Add role'),
                         action: 'createGroup',
                         href: '#/administration/roles/add',
                         privileges: Usr.privileges.Users.admin
@@ -60,7 +60,7 @@ Ext.define('Usr.view.group.List', {
                 store: this.store,
                 dock: 'bottom',
                 limit: 10,
-                itemsPerPageMsg: Uni.I18n.translate('group.list.bottom', 'USR', 'Roles per page')
+                itemsPerPageMsg: Uni.I18n.translate('role.list.bottom', 'USR', 'Roles per page')
             }
         ];
 

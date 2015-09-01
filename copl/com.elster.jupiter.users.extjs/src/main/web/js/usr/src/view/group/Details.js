@@ -58,7 +58,7 @@ Ext.define('Usr.view.group.Details', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'name',
-                                    fieldLabel: Uni.I18n.translate('group.name', 'USR', 'Role name')
+                                    fieldLabel: Uni.I18n.translate('role.name', 'USR', 'Role name')
                                 },
                                 {
                                     xtype: 'displayfield',
