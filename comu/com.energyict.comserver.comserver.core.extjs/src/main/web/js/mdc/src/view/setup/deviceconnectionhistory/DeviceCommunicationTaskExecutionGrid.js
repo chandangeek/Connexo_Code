@@ -65,9 +65,9 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('deviceconnectionhistory.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} communications'),
-                displayMoreMsg: Uni.I18n.translate('deviceconnectionhistory.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} communications'),
-                emptyMsg: Uni.I18n.translate('deviceconnectionhistory.pagingtoolbartop.emptyMsg', 'MDC', 'There are no communications to display')
+                displayMsg: Uni.I18n.translate('devicecommunicationhistory.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} communications'),
+                displayMoreMsg: Uni.I18n.translate('devicecommunicationhistory.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} communications'),
+                emptyMsg: Uni.I18n.translate('devicecommunicationhistory.pagingtoolbartop.emptyMsg', 'MDC', 'There are no communications to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
@@ -76,7 +76,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceCommunicationTaskExecut
 //                {mrid: me.mrid}
 //            ],
                 deferLoading: true,
-                itemsPerPageMsg: Uni.I18n.translate('deviceconnectionmethod.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Communications per page'),
+                itemsPerPageMsg: Uni.I18n.translate('devicecommunicationhistory.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Communications per page'),
                 dock: 'bottom'
             }
         ];

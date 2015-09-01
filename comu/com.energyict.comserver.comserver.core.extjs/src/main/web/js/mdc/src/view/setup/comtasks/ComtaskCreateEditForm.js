@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                 },
                 {
                     xtype: 'fieldcontainer',
-                    fieldLabel: Uni.I18n.translate('comtask.commands', 'MDC', 'Actions'),
+                    fieldLabel: Uni.I18n.translate('comtask.actions', 'MDC', 'Actions'),
                     items: [
                         {
                           xtype: 'container',

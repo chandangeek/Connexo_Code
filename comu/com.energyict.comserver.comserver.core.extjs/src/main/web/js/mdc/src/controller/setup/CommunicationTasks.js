@@ -547,7 +547,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         formErrorsPlaceHolder.hide();
         formErrorsPlaceHolder.removeAll();
         formErrorsPlaceHolder.add({
-            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention')
+            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.')
         });
         formErrorsPlaceHolder.show();
     },

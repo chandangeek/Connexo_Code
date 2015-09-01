@@ -144,19 +144,19 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
 
                                         {
                                             name: 'registerCount',
-                                            text: Uni.I18n.translate('deviceconfiguration.registers', 'MDC', 'register configurations'),
+                                            text: Uni.I18n.translate('deviceconfiguration.registers', 'MDC', 'Register configurations'),
                                             itemId: 'deviceConfigurationRegistersLink'
                                         },
 
                                         {
                                             name: 'loadProfileCount',
-                                            text: Uni.I18n.translate('general.loadProfileConfigurations', 'MDC', 'load profile configurations'),
+                                            text: Uni.I18n.translate('general.loadProfileConfigurations', 'MDC', 'Load profile configurations'),
                                             itemId: 'deviceConfigurationLoadProfilesLink'
                                         },
 
                                         {
                                             name: 'logBookCount',
-                                            text: Uni.I18n.translate('general.logbookConfigurations', 'MDC', 'logbook configurations'),
+                                            text: Uni.I18n.translate('general.logbookConfigurations', 'MDC', 'Logbook configurations'),
                                             itemId: 'deviceConfigurationLogBooksLink'
                                         }
                                     ]

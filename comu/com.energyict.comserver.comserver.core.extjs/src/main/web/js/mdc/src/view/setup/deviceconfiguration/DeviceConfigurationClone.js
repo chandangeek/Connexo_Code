@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationClone', {
                             {
                                 xtype: 'button',
                                 itemId: 'clone-button',
-                                text: Uni.I18n.translate('general.add', 'MDC', 'Clone'),
+                                text: Uni.I18n.translate('general.clone', 'MDC', 'Clone'),
                                 ui: 'action'
                             },
                             {

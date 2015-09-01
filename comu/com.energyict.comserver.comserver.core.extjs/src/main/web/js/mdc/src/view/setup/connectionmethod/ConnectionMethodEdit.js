@@ -84,7 +84,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 queryMode: 'local',
                                 displayField: 'name',
                                 valueField: 'name',
-                                emptyText: Uni.I18n.translate('connectionmethod.selectConnectionMethod', 'MDC', 'Select a connection type...'),
+                                emptyText: Uni.I18n.translate('connectionmethod.selectConnectionType', 'MDC', 'Select a connection type...'),
                                 required: true,
                                 forceSelection: true,
                                 typeAhead: true,
