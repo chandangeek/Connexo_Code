@@ -41,11 +41,11 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
                         }
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('general.readingTypes', 'DES', 'Reading type(s)'),
+                        fieldLabel: Uni.I18n.translate('general.readingTypes', 'DES', 'Reading types'),
                         name: 'readingTypes',
                         renderer: function (value) {
                             if (value) {
-                                return value.length + ' ' + Uni.I18n.translate('general.readingtypes', 'DES', 'reading type(s)');
+                                return Uni.I18n.translatePlural('general.nrOfReadingTypes', value.length, 'DES', 'No reading types', '1 reading type', '{0} reading types');
                             }
                         },
                         listeners: {
