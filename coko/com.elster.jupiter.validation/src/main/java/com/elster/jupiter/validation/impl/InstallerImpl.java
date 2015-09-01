@@ -17,9 +17,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.validation.MessageSeeds;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.security.Privileges;
 
 public class InstallerImpl {
     public static final String DESTINATION_NAME = ValidationServiceImpl.DESTINATION_NAME;
@@ -28,17 +26,13 @@ public class InstallerImpl {
 
     private final DataModel dataModel;
     private final EventService eventService;
-    private final UserService userService;
-    private volatile Thesaurus thesaurus;
     private final MessageService messageService;
     private DestinationSpec destinationSpec;
 
-    public InstallerImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, UserService userService,MessageService messageService) {
+    public InstallerImpl(DataModel dataModel, EventService eventService, MessageService messageService) {
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.eventService = eventService;
-        this.thesaurus = thesaurus;
-        this.userService = userService;
     }
 
     public DestinationSpec getDestinationSpec() {
@@ -51,7 +45,6 @@ public class InstallerImpl {
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Could not install datamodel : " + ex.getMessage(), ex);
         }
-        setTranslations();
         createEventTypes();
         createDestinationAndSubscriber();
     }
@@ -64,22 +57,6 @@ public class InstallerImpl {
             } catch (Exception ex) {
                 LOGGER.log(Level.SEVERE, "Could not install eventType '" + eventType.name() + "': " + ex.getMessage(), ex);
             }
-        }
-    }
-
-    private void setTranslations() {
-        List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            SimpleNlsKey nlsKey = SimpleNlsKey.key(ValidationService.COMPONENTNAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
-            translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
-        }
-        for (MessageSeeds.Labels label : MessageSeeds.Labels.values()) {
-            translations.add(label.toDefaultTransation());
-        }
-        try {
-            thesaurus.addTranslations(translations);
-        } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Could not install translations : " + ex.getMessage(), ex);
         }
     }
 

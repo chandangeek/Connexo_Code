@@ -72,7 +72,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         this.eventService = eventService;
         this.validationRuleSetVersionProvider = validationRuleSetValidationProvider;
     }
-    
+
     ValidationRuleSetImpl init(String name) {
     	return init(name,null);
     }
@@ -220,7 +220,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         });
         versionToSave.clear();
     }
-    
+
     private Stream<IValidationRule> doGetRules() {
         return getRuleSetVersions()
                 .stream()

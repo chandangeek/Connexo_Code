@@ -88,7 +88,7 @@ public class DataValidationTaskExecutor implements TaskExecutor {
                             validationService.validate(activation);
                             transactionContext.commit();
                         }
-                        transactionService.execute(VoidTransaction.of(() -> com.elster.jupiter.validation.MessageSeeds.TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, device.getMRID(), occurrence.getStartDate().get())));
+                        transactionService.execute(VoidTransaction.of(() -> MessageSeeds.TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, device.getMRID(), occurrence.getStartDate().get())));
                     }
 
                 }
