@@ -1,10 +1,12 @@
-package com.elster.jupiter.bpm;
+package com.elster.jupiter.bpm.impl;
 
+import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed{
+public enum MessageSeeds implements MessageSeed, TranslationKey{
     NO_BPM_NAME_FOUND(1001, "bpm.name.not.found", "No BPM engine found with the name {0}.", Level.SEVERE);
 
     private final int number;
