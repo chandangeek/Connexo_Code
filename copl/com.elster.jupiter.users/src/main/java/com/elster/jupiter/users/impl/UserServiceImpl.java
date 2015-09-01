@@ -146,6 +146,11 @@ public class UserServiceImpl implements UserService, InstallService, Translation
             domain = items[0];
             userName = items[1];
         }
+        items = userName.split("\\\\");
+        if (items.length > 1) {
+            domain = items[0];
+            userName = items[1];
+        }
 
         return authenticate(domain, userName, names[1]);
     }
