@@ -67,7 +67,7 @@ Ext.define('Yfn.view.ReportView', {
                                         dock: 'right',
                                         itemId: 'refresh-btn',
                                         text: Uni.I18n.translate('generatereport.applyFiltersBtnTxt', 'YFN', 'Apply filters'),
-                                        icon: '/apps/sky/resources/images/form/restore.png'
+                                        icon: '/apps/sky/build/resources/images/form/restore.png'
                                     }
                                 ]
                             }
