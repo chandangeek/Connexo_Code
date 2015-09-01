@@ -532,6 +532,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         List<TranslationKey> translationKeys = new ArrayList<>();
         Arrays.stream(MessageSeeds.values()).forEach(translationKeys::add);
         Arrays.stream(DefaultTranslationKey.values()).forEach(translationKeys::add);
+        Arrays.stream(ServiceKind.values()).forEach(translationKeys::add);
         return translationKeys;
     }
 

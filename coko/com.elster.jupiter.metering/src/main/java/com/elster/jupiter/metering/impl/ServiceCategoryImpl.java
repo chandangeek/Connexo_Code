@@ -86,7 +86,7 @@ public class ServiceCategoryImpl implements ServiceCategory {
 
     @Override
     public String getTranslationKey() {
-        return "service.category." + kind.name().toLowerCase();
+        return ServiceKind.getTranslationKey(this.kind);
     }
 
     @Override
