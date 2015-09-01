@@ -2,16 +2,21 @@ Ext.define('Imt.channeldata.model.Channel', {
     extend: 'Ext.data.Model',
     requires: [],
     fields: [
-        {name: 'id', type: 'number'},
-        {name: 'name', type: 'string'}
+        {name: 'deviceName', type: 'string'},
+        {name: 'readingType', type: 'auto'},
+        {name: 'readingTypemRID', type: 'string', mapping: 'readingType.mRID', persist: false},
+        {name: 'readingTypeFullAliasName', type: 'string', mapping: 'readingType.fullAliasName', persist: false},
+        {name: 'interval', type: 'auto'},
     ],
     proxy: {
         type: 'rest',
-        url: '/api/mtr/channels',
+        urlTpl: '/api/udr/usagepoints/{mRID}/channels/{channelId}',
         timeout: 240000,
         reader: {
-            type: 'json',
-            root: 'channelInfos'
+            type: 'json'
+        },
+        setUrl: function (params) {
+            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(params.mRID)).replace('{channelId}', params.channelId);
         }
     }
 });

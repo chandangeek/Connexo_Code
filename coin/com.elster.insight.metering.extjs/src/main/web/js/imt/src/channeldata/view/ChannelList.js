@@ -11,14 +11,24 @@ Ext.define('Imt.channeldata.view.ChannelList', {
     
     columns: [
         {
-            header: Uni.I18n.translate('channels.title.channels', 'MDC', 'Channels'),
+            header: Uni.I18n.translate('channels.title.channel', 'MDC', 'Channel'),
             flex: 1,
-            dataIndex: 'name',
+            dataIndex: 'readingTypeFullAliasName',
             renderer: function (value, b, record) {
                 var me = this,
-                    url = me.router.getRoute('administration/usagepoint/channels/channel').buildUrl({mRID: me.mRID, channel: record.get('id')});
+                    url = me.router.getRoute('administration/usagepoint/channels/channel').buildUrl({mRID: me.mRID, channelId: record.get('readingTypemRID')});
 
                 return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+            }
+        },
+        {
+            header: Uni.I18n.translate('usagepoint.interval', 'IMT', 'Interval'),            
+            flex: 1,
+            dataIndex: 'interval',
+            renderer: function (value) {
+                var res = '';
+                value ? res = Ext.String.htmlEncode('{count} {timeUnit}'.replace('{count}', value.count).replace('{timeUnit}', value.timeUnit)) : null;
+                return res
             }
         }
     ]
