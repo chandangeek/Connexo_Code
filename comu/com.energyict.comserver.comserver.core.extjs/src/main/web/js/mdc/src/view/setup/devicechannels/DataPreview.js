@@ -173,7 +173,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             validationInfo = record.get('validationInfo') ? record.get('validationInfo')[type + 'ValidationInfo'] : null;
         }
 
-        if (validationInfo) {
+        if (validationInfo.validationResult) {
             switch (validationInfo.validationResult.split('.')[1]) {
                 case 'notValidated':
                     validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated') + ')' +

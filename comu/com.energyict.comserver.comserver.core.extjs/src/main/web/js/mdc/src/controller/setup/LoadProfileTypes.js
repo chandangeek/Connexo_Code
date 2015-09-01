@@ -90,16 +90,6 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 success: function () {
                     widget.setLoading(false);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type removed'));
-                },
-                failure: function (response) {
-                    var json;
-                    json = Ext.decode(response.responseText, true);
-                    if (json && json.message) {
-                        me.getApplication().getController(
-                                'Uni.controller.Error').showError(Uni.I18n.translate('loadProfileTypes.removeErrorMsg', 'MDC', 'Error during removing of load profile'),
-                                json.message
-                            );
-                    }
                 }
             });
         }
@@ -320,6 +310,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             me.getEditPage().setTitle(Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'));
             form.setEdit(false, returnLink, addRegisterTypesLink);
             form.loadRecord(Ext.create('Mdc.model.LoadProfileType'));
+            form.down('[name=timeDuration]').select(0);
         }
     },
 
@@ -335,6 +326,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         if (editPage && id != null) {
             var loadProfileModel = me.getModel('Mdc.model.LoadProfileType');
             store.getProxy().url = loadProfileModel.getProxy().url + '/' + id + '/measurementtypes';
+        } else {
+            store.getProxy().url = store.getProxy().baseUrl;
         }
 
         Ext.suspendLayouts();
@@ -456,6 +449,9 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                         Ext.Array.each(json.errors, function (item) {
                             if (item.id.indexOf("interval") !== -1) {
                                 me.getEditPage().down('#timeDuration').setActiveError(item.msg);
+                            }
+                            if (item.id.indexOf("readingType") !== -1) {
+                                me.getEditPage().down('#register-types-fieldcontainer').setActiveError(item.msg);
                             }
                         });
                         basicForm.markInvalid(json.errors);

@@ -106,7 +106,7 @@ Ext.define('Mdc.controller.setup.Messages', {
             var enablements = record['deviceMessageEnablementsStore'];
             if (enablements && enablements.getRange().length > 0) {
                 var store = grid.getStore();
-                grid.setTitle(Uni.I18n.translate('commands.titleof', 'MDC', 'Commands of ') + record.get('name'));
+                grid.setTitle(Uni.I18n.translate('commands.titleof', 'MDC', 'Commands of') + ' ' + record.get('name'));
 
                 record['deviceMessageEnablementsStore'].each(function (rec) {
                     store.add(rec);

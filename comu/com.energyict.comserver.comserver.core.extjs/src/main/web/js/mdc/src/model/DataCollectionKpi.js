@@ -5,7 +5,7 @@ Ext.define('Mdc.model.DataCollectionKpi', {
     ],
     fields: [
         {name: 'id', type: 'integer', useNull: true},
-        {name: 'deviceGroup', type: 'auto'},
+        {name: 'deviceGroup', type: 'auto', defaultValue: null},
         {name: 'frequency', type: 'auto', defaultValue: null},
         {name: 'displayRange', type: 'auto', defaultValue: null},
         {name: 'connectionTarget', type: 'integer', useNull: true, defaultValue: null},

@@ -293,8 +293,11 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     },
 
     updateRecord: function (record, values, isNewRecord) {
-        var me = this;
-        var propertyForm = me.getConnectionMethodEditView().down('property-form');
+        var me = this,
+            propertyForm = me.getConnectionMethodEditView().down('property-form');
+
+        me.getConnectionMethodEditForm().getForm().clearInvalid();
+        me.hideErrorPanel();
         if (record) {
             if (propertyForm.down('#connectionTimeoutnumberfield')) {
                 propertyForm.down('#connectionTimeoutnumberfield').clearInvalid();
@@ -329,6 +332,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         me.getConnectionMethodEditForm().getForm().markInvalid(json.errors);
+                        me.showErrorPanel();
                         propertyForm.getForm().markInvalid(json.errors);
                         Ext.Array.each(json.errors, function (item) {
                             if (item.id.indexOf("timeCount") !== -1) {
@@ -533,5 +537,26 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             this.getComWindowStart().setValue(0);
             this.getComWindowEnd().setValue(0);
         }
+    },
+
+    showErrorPanel: function () {
+        var me = this,
+            formErrorsPlaceHolder = me.getConnectionMethodEditForm().down('#connectionMethodEditFormErrors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
+        formErrorsPlaceHolder.add({
+            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.')
+        });
+        formErrorsPlaceHolder.show();
+    },
+
+    hideErrorPanel: function () {
+        var me = this,
+            formErrorsPlaceHolder = me.getConnectionMethodEditForm().down('#connectionMethodEditFormErrors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
     }
+
 });
