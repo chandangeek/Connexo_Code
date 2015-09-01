@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
+import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
@@ -28,10 +29,9 @@ public class UniqueComSchedulePerDeviceValidator implements ConstraintValidator<
             if (other.getId() != scheduledComTaskExecution.getId()) {
                 ComTaskExecutionImpl serverComTaskExecution = (ComTaskExecutionImpl) other;
                 if (this.isScheduled(serverComTaskExecution) && serverComTaskExecution.executesComSchedule(scheduledComTaskExecution.getComSchedule())) {
-                    context.disableDefaultConstraintViolation();
                     context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DUPLICATE_COMTASK_SCHEDULING + "}")
-                            .addPropertyNode(ComTaskExecutionFields.COMTASK.fieldName())
-                            .addPropertyNode(ComTaskExecutionFields.DEVICE.fieldName()).addConstraintViolation();
+                            .addConstraintViolation()
+                            .disableDefaultConstraintViolation();
                     return false;
                 }
             }
