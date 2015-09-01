@@ -18,7 +18,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     MESSAGEHANDLER_FAILED(2003, "messagehandler.failed", "Message handler failed", Level.SEVERE),
     FIELD_CAN_NOT_BE_EMPTY(3001, Keys.FIELD_CAN_NOT_BE_EMPTY, "This field can not be empty", Level.SEVERE),
     APPSERVER_NAME_INVALID_CHARS(3002, Keys.APPSERVER_NAME_INVALID_CHARS, "The name of a application server should comply with the hostname standard (rfc 952) and can therefore only contain a-z, A-Z, 0-9 and - characters", Level.SEVERE),
-    APPSERVER_NAME_MUST_BE_UNIQUE(3003, Keys.NAME_MUST_BE_UNIQUE, "The name of a application server must be unique in a case insensitive way", Level.SEVERE),
+    APPSERVER_NAME_MUST_BE_UNIQUE(3003, Keys.NAME_MUST_BE_UNIQUE, "Name must be unique", Level.SEVERE),
     FIELD_SIZE_BETWEEN_1_AND_14(3004, Keys.FIELD_SIZE_BETWEEN_1_AND_14, "Field's text length should be between 1 and 14 characters", Level.SEVERE),
     FIELD_SIZE_BETWEEN_1_AND_80(3005, Keys.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
         ;
