@@ -12,12 +12,10 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskStatus;
+import com.elster.jupiter.validation.rest.impl.TranslationKeys;
 
 import java.time.Instant;
 import java.util.Optional;
-
-import static com.elster.jupiter.validation.MessageSeeds.Labels.ON_REQUEST;
-import static com.elster.jupiter.validation.MessageSeeds.Labels.SCHEDULED;
 
 public class DataValidationTaskHistoryInfo {
 
@@ -47,7 +45,7 @@ public class DataValidationTaskHistoryInfo {
     private void populate(History<DataValidationTask> history, DataValidationOccurrence dataValidationOccurrence, Thesaurus thesaurus, TimeService timeService) {
         this.id = dataValidationOccurrence.getId();
 
-        this.trigger = (dataValidationOccurrence.wasScheduled() ? SCHEDULED : ON_REQUEST).translate(thesaurus);
+        this.trigger = thesaurus.getSimpleFormat(dataValidationOccurrence.wasScheduled() ? TranslationKeys.SCHEDULED : TranslationKeys.ON_REQUEST).format();
         if (dataValidationOccurrence.wasScheduled()) {
             String scheduledTriggerDescription = this.getScheduledTriggerDescription(dataValidationOccurrence, thesaurus, timeService);
             if (scheduledTriggerDescription != null) {
