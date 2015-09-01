@@ -66,11 +66,11 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map(StateImpl.Fields.NAME.fieldName()).add();
-            table.column("OBSOLETE_TIMESTAMP").number().conversion(ColumnConversion.NUMBER2INSTANT).map(StateImpl.Fields.OBSOLETE_TIMESTAMP.fieldName()).add();
+            Column obsolete = table.column("OBSOLETE_TIMESTAMP").number().conversion(ColumnConversion.NUMBER2INSTANT).map(StateImpl.Fields.OBSOLETE_TIMESTAMP.fieldName()).add();
             table.column("ISINITIAL").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(StateImpl.Fields.INITIAL.fieldName()).add();
             table.column("CUSTOM").number().notNull().conversion(ColumnConversion.NUMBER2BOOLEAN).map(StateImpl.Fields.CUSTOM.fieldName()).add();
             Column finiteStateMachine = table.column("FSM").number().notNull().add();
-            table.unique("UK_FSM_STATE").on(finiteStateMachine, name).add();
+            table.unique("UK_FSM_STATE").on(finiteStateMachine, name, obsolete).add();
             table.foreignKey("FK_FSM_STATE_FSM")
                     .on(finiteStateMachine)
                     .references(FSM_FINITE_STATE_MACHINE.name())

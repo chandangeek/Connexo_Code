@@ -29,14 +29,16 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.google.common.base.Strings;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import org.junit.*;
-import org.junit.rules.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -602,13 +604,36 @@ public class FiniteStateMachineIT {
         State initial = builder.newCustomState("Initial").complete();
         String sameName = "State";
         builder.newCustomState(sameName).complete();
-        builder.newCustomState(sameName).complete();
         FiniteStateMachine stateMachine = builder.complete(initial);
+        stateMachine.save();
+        FiniteStateMachineUpdater updater = stateMachine.startUpdate();
+        updater.newCustomState(sameName).complete();
+        stateMachine = updater.complete();
 
         // Business method
         stateMachine.save();
 
         // Asserts: see expected contraint violation rule
+    }
+
+    @Transactional
+    @Test
+    public void addStateWithTheNameOfRemovedState() {
+        String expectedName = "addStateWithTheNameOfRemovedState";
+        FiniteStateMachineBuilder builder = this.getTestService().newFiniteStateMachine(expectedName);
+        State initial = builder.newCustomState("Initial").complete();
+        builder.newCustomState("State").complete();
+        FiniteStateMachine stateMachine = builder.complete(initial);
+        stateMachine.save();
+
+        stateMachine.startUpdate().removeState("State").complete();
+        FiniteStateMachineUpdater updater = stateMachine.startUpdate();
+        updater.newCustomState("State").complete();
+        updater.complete();
+
+        assertThat(stateMachine.getStates()).hasSize(2);
+        assertThat(stateMachine.getStates().get(0).getName()).isEqualTo("Initial");
+        assertThat(stateMachine.getStates().get(1).getName()).isEqualTo("State");
     }
 
     @Transactional
