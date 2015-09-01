@@ -22,16 +22,16 @@ Ext.define('Uni.util.String', {
         if (duration.asHours() > 1) {
             hours = Math.floor(duration.asHours()); // Avoids rounding errors.
             format += shortFormat ?
-                Uni.I18n.translatePlural('general.time.hours_short', hours, 'UNI', '{0}h') :
-                Uni.I18n.translatePlural('general.time.hours', hours, 'UNI', '{0} hours');
+                Uni.I18n.translate('general.time.hours_short', 'UNI', '{0}h', hours) :
+                Uni.I18n.translatePlural('general.time.hours', hours, 'UNI', '{0} hours', '{0} hour', '{0} hours');
             format += ' ';
         }
 
         if (duration.asMinutes() > 1) {
             minutes = duration.minutes();
             format += shortFormat ?
-                Uni.I18n.translatePlural('general.time.minutes_short', minutes, 'UNI', '{0}m') :
-                Uni.I18n.translatePlural('general.time.minutes', minutes, 'UNI', '{0} minutes');
+                Uni.I18n.translate('general.time.minutes_short', 'UNI', '{0}m', minutes) :
+                Uni.I18n.translatePlural('general.time.minutes', minutes, 'UNI', '{0} minutes', '{0} minute', '{0} minutes');
             format += ' ';
         }
 
@@ -43,17 +43,17 @@ Ext.define('Uni.util.String', {
         }
 
         format += shortFormat ?
-            Uni.I18n.translatePlural('general.time.seconds_short', seconds, 'UNI', '{0}s') :
-            Uni.I18n.translatePlural('general.time.seconds', seconds, 'UNI', '{0} seconds');
+            Uni.I18n.translate('general.time.seconds_short', 'UNI', '{0}s', seconds) :
+            Uni.I18n.translatePlural('general.time.seconds', seconds, 'UNI', '{0} seconds', '{0} second', '{0} seconds');
 
         if (duration.asHours() === 1 && duration.asMinutes() === 60 && duration.asSeconds() === 3600) {
             format = shortFormat ?
-                Uni.I18n.translatePlural('general.time.hours_short', 1, 'UNI', '{0}h') :
-                Uni.I18n.translatePlural('general.time.hours', 1, 'UNI', '{0} hours');
+                Uni.I18n.translate('general.time.hours_short', 'UNI', '{0}h', 1) :
+                Uni.I18n.translatePlural('general.time.hours', 1, 'UNI', '{0} hours', '{0} hour', '{0} hours');
         } else if (duration.asHours() < 1 && duration.asMinutes() === 1 && duration.asSeconds() === 60) {
             format = shortFormat ?
-                Uni.I18n.translatePlural('general.time.minutes_short', 1, 'UNI', '{0}m') :
-                Uni.I18n.translatePlural('general.time.minutes', 1, 'UNI', '{0} minutes');
+                Uni.I18n.translate('general.time.minutes_short', 'UNI', '{0}m', 1) :
+                Uni.I18n.translatePlural('general.time.minutes', 1, 'UNI', '{0} minutes', '{0} minute', '{0} minutes');
         }
 
         return format;
