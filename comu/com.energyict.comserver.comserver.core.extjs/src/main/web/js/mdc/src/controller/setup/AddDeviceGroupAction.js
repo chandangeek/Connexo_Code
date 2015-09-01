@@ -248,13 +248,14 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             record.save({
                 success: function () {
                     me.getController('Uni.controller.history.Router').getRoute('devices/devicegroups').forward();
-                    me.getApplication().fireEvent('acknowledge', 'Device group added');
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceGroup.add.success.msg', 'MDC', 'Device group added'));
                 },
                 failure: function (response) {
                     if (response.status == 400) {
                         var result = Ext.decode(response.responseText, true),
-                            errorTitle = 'Failed to add',
-                            errorText = 'Device group could not be added. There was a problem accessing the database';
+                            errorTitle = Uni.I18n.translate('deviceGroup.add.fail.msg', 'MDC', 'Failed to add'),
+                            errorText = Uni.I18n.translate('deviceGroup.add.fail.info', 'MDC',
+                                'Device group could not be added. There was a problem accessing the database');
 
                         if (result !== null) {
                             errorTitle = result.error;
@@ -445,9 +446,13 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                         });
                     }
                     Ext.suspendLayouts();
-                    view.down('#device-group-edit-panel').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + Ext.String.htmlEncode(me.deviceGroupName) + "'");
+                    view.down('#device-group-edit-panel').setTitle(
+                        Uni.I18n.translate('general.editX', 'MDC', "Edit '{0}'", [me.deviceGroupName])
+                    );
                     me.getNameTextField().setValue(record.get('name'));
-                    isDynamic = record.get('dynamic') ? Uni.I18n.translate('general.dynamic', 'MDC', 'Dynamic') : Uni.I18n.translate('general.static', 'MDC', 'Static');
+                    isDynamic = record.get('dynamic')
+                        ? Uni.I18n.translate('general.dynamic', 'MDC', 'Dynamic')
+                        : Uni.I18n.translate('general.static', 'MDC', 'Static');
                     view.down('#device-group-type').setValue(isDynamic);
                     if (me.dynamic) {
                         view.showDynamicFilter();
