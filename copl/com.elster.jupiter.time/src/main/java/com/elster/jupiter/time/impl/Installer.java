@@ -25,46 +25,23 @@ public class Installer {
     private final Logger logger = Logger.getLogger(Installer.class.getName());
 
     private final DataModel dataModel;
-    private final Thesaurus thesaurus;
-    private final UserService userService;
     private final EventService eventService;
     private final TimeService timeService;
 
-    public Installer(DataModel dataModel, TimeService timeService, Thesaurus thesaurus, UserService userService, EventService eventService) {
+    public Installer(DataModel dataModel, TimeService timeService, EventService eventService) {
         super();
         this.timeService = timeService;
         this.dataModel = dataModel;
-        this.thesaurus = thesaurus;
-        this.userService = userService;
         this.eventService = eventService;
     }
 
     public void install(boolean executeDdl) {
         ExceptionCatcher.executing(
                 () -> this.dataModel.install(executeDdl, true),
-                this::createMessageSeedTranslations,
-                this::createLabelTranslations,
                 this::createEventTypes,
                 this::createDefaultRelativePeriods
         ).andHandleExceptionsWith(e -> logger.log(Level.SEVERE, e.getMessage(), e))
                 .execute();
-    }
-    private void createMessageSeedTranslations() {
-        List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            SimpleNlsKey nlsKey = SimpleNlsKey.key(TimeService.COMPONENT_NAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
-            translations.add(toTranslation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
-        }
-        thesaurus.addTranslations(translations);
-    }
-
-    private void createLabelTranslations() {
-        List<Translation> translations = new ArrayList<>(MessageSeeds.values().length);
-        for (Labels label : Labels.values()) {
-            SimpleNlsKey nlsKey = SimpleNlsKey.key(TimeService.COMPONENT_NAME, Layer.DOMAIN, label.getKey()).defaultMessage(label.getDefaultFormat());
-            translations.add(toTranslation(nlsKey, Locale.ENGLISH, label.getDefaultFormat()));
-        }
-        thesaurus.addTranslations(translations);
     }
 
     private void createDefaultRelativePeriods() {
