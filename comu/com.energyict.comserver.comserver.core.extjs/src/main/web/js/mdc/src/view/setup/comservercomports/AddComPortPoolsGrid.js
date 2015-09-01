@@ -5,8 +5,7 @@ Ext.define('Mdc.view.setup.comservercomports.AddComPortPoolsGrid', {
     store: 'Mdc.store.OutboundComPortPools',
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural('comServerComPorts.pagingtoolbartop.portPoolsSelected', count, 'MDC',
-            'No communication port pools selected',
-            '1 communication port pool selected'
+            'No communication port pools selected', '1 communication port pool selected', '{0} communication port pool selected'
         );
     },
 
