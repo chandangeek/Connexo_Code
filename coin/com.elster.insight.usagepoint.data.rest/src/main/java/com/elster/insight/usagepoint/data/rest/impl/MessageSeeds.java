@@ -8,7 +8,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
 public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     NO_DEVICE_FOR_MRID(101, Keys.NO_DEVICE_FOR_MRID, "No device with MRID {0}"),
-    NO_USAGE_POINT_FOR_MRID(101, Keys.NO_USAGE_POINT_FOR_MRID, "No usage point with MRID {0}"),
+    NO_USAGE_POINT_FOR_MRID(102, Keys.NO_USAGE_POINT_FOR_MRID, "No usage point with MRID {0}"), 
+    NO_READING_TYPE_FOR_MRID(103, Keys.NO_USAGE_POINT_FOR_MRID, "No reading type with MRID {0}"),
 //    DEVICE_DOES_NOT_MATCH_CONFIG(15, "deviceDoesNotMatchConfig", "Device does not match device configuration"),
 //    NO_SUCH_PARTIAL_CONNECTION_TASK(16, "NoSuchPartialConnectionTask", "No such connection method on device config"),
 //    NO_SUCH_CONNECTION_METHOD(17, "NoSuchConnectionTask" , "Device {0} has no connection method {1}"),

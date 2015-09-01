@@ -1,6 +1,7 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,11 +10,13 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import com.elster.insight.common.rest.IntervalInfo;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.Ranges;
 import com.google.common.collect.Range;
 
 /**
@@ -36,19 +39,23 @@ public class UsagePointDataInfoFactory {
 //        this.validationRuleInfoFactory = validationRuleInfoFactory;
     }
 
-    public ChannelDataInfo createChannelDataInfo(Channel channel, IntervalReadingRecord irr, Range<Instant> range) {
+    public ChannelDataInfo createChannelDataInfo(BaseReadingRecord brr) {
         ChannelDataInfo channelIntervalInfo = new ChannelDataInfo();
+        
+        Range<Instant> range = Ranges.openClosed(brr.getTimeStamp(), brr.getTimeStamp().plus(Duration.ofMinutes(brr.getReadingType().getMeasuringPeriod().getMinutes())));
         channelIntervalInfo.interval = IntervalInfo.from(range);
-        channelIntervalInfo.readingTime = irr.getReportedDateTime();//.getReadingTime();
+        channelIntervalInfo.readingTime = brr.getReportedDateTime();//.getReadingTime();
         channelIntervalInfo.intervalFlags = new ArrayList<>();
 //        channelIntervalInfo.validationStatus = false;
+        IntervalReadingRecord irr = (IntervalReadingRecord)brr;
+        
         channelIntervalInfo.intervalFlags.addAll(getFlagsFromProfileStatus(irr.getProfileStatus()).stream().map(flag -> thesaurus.getString(flag.name(), flag.name())).collect(Collectors.toList()));
 //        Optional<IntervalReadingRecord> channelReading = loadProfileReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst();// There can be only one channel (or no channel at all if the channel has no dta for this interval)
 
 //        irr.ifPresent(reading -> {
-            channelIntervalInfo.value = irr.getValue();
+            channelIntervalInfo.value = brr.getValue();
             
-            channelIntervalInfo.deviceMRID = channel.getMeterActivation().getMeter().get().getMRID();
+//            channelIntervalInfo.deviceMRID = channel.getMeterActivation().getMeter().get().getMRID();
 //            channel.getReadingType().getCalculatedReadingType().ifPresent(calculatedReadingType -> {
 //                channelIntervalInfo.isBulk = true;
 //                channelIntervalInfo.collectedValue = channelIntervalInfo.value;
@@ -119,12 +126,52 @@ public class UsagePointDataInfoFactory {
     
     private List<ProfileStatus.Flag> getFlagsFromProfileStatus(ProfileStatus profileStatus) {
         List<ProfileStatus.Flag> flags = new ArrayList<>();
+        if (profileStatus==null)
+            return flags;
         for (ProfileStatus.Flag flag : ProfileStatus.Flag.values()) {
             if (profileStatus.get(flag)) {
                 flags.add(flag);
             }
         }
         return flags;
+    }
+
+    public ChannelDataInfo createEmptyChannelDataInfo(Channel channel, Range<Instant> range) {
+        ChannelDataInfo channelIntervalInfo = new ChannelDataInfo();
+        channelIntervalInfo.interval = IntervalInfo.from(range);
+        channelIntervalInfo.intervalFlags = new ArrayList<>();
+//        channelIntervalInfo.validationStatus = false;
+//        Optional<IntervalReadingRecord> channelReading = loadProfileReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst();// There can be only one channel (or no channel at all if the channel has no dta for this interval)
+
+//        irr.ifPresent(reading -> {
+            
+            channelIntervalInfo.deviceMRID = channel.getMeterActivation().getMeter().get().getMRID();
+//            channel.getReadingType().getCalculatedReadingType().ifPresent(calculatedReadingType -> {
+//                channelIntervalInfo.isBulk = true;
+//                channelIntervalInfo.collectedValue = channelIntervalInfo.value;
+//                Quantity quantity = reading.getQuantity(calculatedReadingType);
+//                channelIntervalInfo.value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, channel);
+//            });
+//            channelIntervalInfo.reportedDateTime = reading.getReportedDateTime();
+//        });
+//        if (!channelReading.isPresent() && loadProfileReading.getReadingTime() != null) {
+//            channelIntervalInfo.reportedDateTime = loadProfileReading.getReadingTime();
+//        }
+
+//        Optional<DataValidationStatus> dataValidationStatus = loadProfileReading.getChannelValidationStates().entrySet().stream().map(Map.Entry::getValue).findFirst();
+//        dataValidationStatus.ifPresent(status -> {
+//            channelIntervalInfo.validationInfo = validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, status, deviceValidation, channelReading.orElse(null));
+//        });
+//        if (!channelReading.isPresent() && !dataValidationStatus.isPresent()) {
+//            // we have a reading with no data and no validation result => it's a placeholder (missing value) which hasn't validated ( = detected ) yet
+//            channelIntervalInfo.validationInfo = new VeeReadingInfo();
+//            channelIntervalInfo.validationInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+//            if(channelIntervalInfo.isBulk) {
+//                channelIntervalInfo.validationInfo.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+//            }
+//            channelIntervalInfo.validationInfo.dataValidated = false;
+//        }
+        return channelIntervalInfo;
     }
     
     

@@ -1,9 +1,8 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
-import static com.elster.jupiter.util.streams.Predicates.not;
-
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -21,13 +20,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.elster.insight.common.services.ListPager;
+import com.elster.jupiter.ids.TimeSeriesEntry;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.time.PeriodicalScheduleExpression.Period;
 import com.elster.jupiter.util.Ranges;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -79,7 +83,7 @@ public class ChannelResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 //    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION})
     public Response getChannel(@PathParam("mrid") String mrid, @PathParam("rt_mrid") String rt_mrid) {
-        Channel channel = channelHelper.get().findChannelOnUsagePoint(mrid, rt_mrid); 
+        Channel channel = channelHelper.get().findCurrentChannelOnUsagePoint(mrid, rt_mrid); 
         return channelHelper.get().getChannel(() -> channel);
     }
 
@@ -143,16 +147,40 @@ public class ChannelResource {
             @PathParam("rt_mrid") String rt_mrid,
             @BeanParam JsonQueryFilter filter,
             @BeanParam JsonQueryParameters queryParameters) {
-        Channel channel = channelHelper.get().findChannelOnUsagePoint(mrid, rt_mrid);
-//        DeviceValidation deviceValidation = channel.getDevice().forValidation();
-//        boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.instant());
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             
             Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
-            List<IntervalReadingRecord> channelData = channel.getIntervalReadings(range);
-            List<ChannelDataInfo> infos = channelData.stream().map(
-                    irr -> usagePointDataInfoFactory.createChannelDataInfo(channel, irr, range)).
-                    collect(Collectors.toList());
+        
+            
+            UsagePoint usagepoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
+            ReadingType readingType = resourceHelper.findReadingTypeByMrIdOrThrowException(rt_mrid);
+            
+            List<? extends BaseReadingRecord> channelData = usagepoint.getReadingsWithFill(range, readingType);
+            List<ChannelDataInfo> infos = new ArrayList<>();
+//            for (Channel channel : channelList) {
+//                Range<Instant> r = channel.getMeterActivation().getRange().intersection(range);
+//                if (prRange != null && !(prRange.upperEndpoint().compareTo(r.lowerEndpoint()) == 0)) {
+                    //NOT Adjacent, might need to fill
+                    
+//                    int intervalLength = channel.getIntervalLength().get().get(Period.MINUTE);
+//                    Instant start = roundToInterval(prRange.upperEndpoint(), ));
+                    
+                    
+                    
+//                    List<TimeSeriesEntry> entries = channel.getTimeSeries().getEntries(Ranges.openClosed(prRange.upperEndpoint(), r.lowerEndpoint()));
+//                    ImmutableList.Builder<IntervalReadingRecord> builder = ImmutableList.builder();
+//                    for (TimeSeriesEntry entry : entries) {
+//                        infos.add(usagePointDataInfoFactory.createEmptyChannelDataInfo(channel, range));
+//                    }
+//                }
+//                channelData = channel.getIntervalReadings(range);
+                
+//            }
+            
+            infos.addAll(channelData.stream().map(
+                    irr -> usagePointDataInfoFactory.createChannelDataInfo(irr)).
+                    collect(Collectors.toList()));
+            
             
             infos = filter(infos, filter);
             List<ChannelDataInfo> paginatedChannelData = ListPager.of(infos).from(queryParameters).find();
@@ -160,6 +188,11 @@ public class ChannelResource {
             return Response.ok(pagedInfoList).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    private Instant roundToInterval(Instant upperEndpoint, int intervalLength) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     private List<ChannelDataInfo> filter(List<ChannelDataInfo> infos, JsonQueryFilter filter) {
