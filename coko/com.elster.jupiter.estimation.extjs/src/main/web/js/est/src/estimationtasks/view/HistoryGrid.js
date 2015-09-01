@@ -16,7 +16,7 @@ Ext.define('Est.estimationtasks.view.HistoryGrid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('estimationtasks.general.startedOn', 'EST', 'Started On'),
+                header: Uni.I18n.translate('estimationtasks.general.startedOn', 'EST', 'Started on'),
                 dataIndex: 'startedOn',
                 flex: 2,
                 renderer: function (value) {
