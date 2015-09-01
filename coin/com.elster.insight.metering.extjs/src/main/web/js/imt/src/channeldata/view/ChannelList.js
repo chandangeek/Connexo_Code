@@ -13,10 +13,10 @@ Ext.define('Imt.channeldata.view.ChannelList', {
         {
             header: Uni.I18n.translate('channels.title.channel', 'MDC', 'Channel'),
             flex: 1,
-            dataIndex: 'readingTypeAlias',
+            dataIndex: 'readingTypeFullAliasName',
             renderer: function (value, b, record) {
                 var me = this,
-                    url = me.router.getRoute('administration/usagepoint/channels/channel').buildUrl({mRID: me.mRID, channel: record.get('readingTypemRID')});
+                    url = me.router.getRoute('administration/usagepoint/channels/channel').buildUrl({mRID: me.mRID, channelId: record.get('readingTypemRID')});
 
                 return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
             }

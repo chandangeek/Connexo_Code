@@ -37,10 +37,11 @@ Ext.define('Imt.channeldata.controller.View', {
     showUsagePointChannels: function (mRID) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
+            dataStore = me.getStore('Imt.channeldata.store.Channel'),
             // TODO: Why does me.getModel() NOT work here?
             usagePoint = Ext.create('Imt.usagepointmanagement.model.UsagePoint'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
-       
+        
         pageMainContent.setLoading(true);
         var widget = Ext.widget('channel-list-setup', {router: router, mRID: mRID});
         // TODO: Should we be loading a full Usage Point model from the back-end just so that
@@ -48,10 +49,13 @@ Ext.define('Imt.channeldata.controller.View', {
         // name in the breadcrumb?  For now, just create empty model and set this one field.
         usagePoint.set('mRID', mRID);
         me.getApplication().fireEvent('usagePointLoaded', usagePoint);
-        me.getApplication().fireEvent('changecontentevent', widget);
         me.getOverviewLink().setText(mRID);
-        me.getChannelList().getSelectionModel().select(0);
-        pageMainContent.setLoading(false);
+        me.getApplication().fireEvent('changecontentevent', widget);
+        dataStore.getProxy().setUrl(mRID);
+        dataStore.load(function() {
+            me.getChannelList().getSelectionModel().select(0);
+            pageMainContent.setLoading(false);
+        });
     },
     onChannelListSelect: function (rowmodel, record, index) {
         var me = this;

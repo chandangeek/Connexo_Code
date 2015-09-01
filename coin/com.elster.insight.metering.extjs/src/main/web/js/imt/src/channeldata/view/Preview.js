@@ -27,12 +27,8 @@ Ext.define('Imt.channeldata.view.Preview', {
                         },
                         items: [
                             {
-                            	fieldLabel: Uni.I18n.translate('general.deviceName', 'IMT', 'Device name'),
-                                name: 'deviceName'
-                            },
-                            {
                             	fieldLabel: Uni.I18n.translate('general.readingTypeAlias', 'IMT', 'Reading type alias'),
-                                name: 'readingTypeAlias'
+                                name: 'readingTypeFullAliasName'
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('general.readingTypemRID', 'IMT', 'Reading type mRID'),
@@ -46,9 +42,9 @@ Ext.define('Imt.channeldata.view.Preview', {
                                     value ? res = Ext.String.htmlEncode('{count} {timeUnit}'.replace('{count}', value.count).replace('{timeUnit}', value.timeUnit)) : null;
                                     return res
                                 }
-                            },
+                            }
                         ]
-                    },
+                    }
                 ]
             }
         ];
