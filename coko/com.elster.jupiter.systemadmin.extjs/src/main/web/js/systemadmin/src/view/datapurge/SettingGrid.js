@@ -22,7 +22,7 @@ Ext.define('Sam.view.datapurge.SettingGrid', {
         },
         {
             itemId: 'data-purge-settings-grid-retained-partition-count-column',
-            header: Uni.I18n.translate('datapurge.settings.retainedPartitionCount', 'SAM', 'Purge data older than ( x 30 days)'),
+            header: Uni.I18n.translate('datapurge.settings.retainedPartitionCount', 'SAM', 'Purge data older than (x 30 days)'),
             dataIndex: 'retainedPartitionCount',
             align: 'right',
             editor: {

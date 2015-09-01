@@ -10,14 +10,14 @@ Ext.define('Sam.controller.history.Administration', {
             disabled: true,
             items: {
                 licenses: {
-                    title: 'Licenses',
+                    title: Uni.I18n.translate('general.licenses','SAM','Licenses'),
                     route: 'licenses',
                     controller: 'Sam.controller.licensing.Licenses',
                     action: 'showOverview',
                     privileges: Sam.privileges.License.view,
                     items: {
                         upload: {
-                            title: 'Upload',
+                            title: Uni.I18n.translate('general.upload','SAM','Upload'),
                             route: 'upload',
                             controller: 'Sam.controller.licensing.Upload',
                             privileges: Sam.privileges.License.upload,
