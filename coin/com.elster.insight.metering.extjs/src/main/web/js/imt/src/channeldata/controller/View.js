@@ -38,15 +38,11 @@ Ext.define('Imt.channeldata.controller.View', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             dataStore = me.getStore('Imt.channeldata.store.Channel'),
-            // TODO: Why does me.getModel() NOT work here?
             usagePoint = Ext.create('Imt.usagepointmanagement.model.UsagePoint'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
         
         pageMainContent.setLoading(true);
         var widget = Ext.widget('channel-list-setup', {router: router, mRID: mRID});
-        // TODO: Should we be loading a full Usage Point model from the back-end just so that
-        // the event can contain the mRID which is used by History.js to change the link
-        // name in the breadcrumb?  For now, just create empty model and set this one field.
         usagePoint.set('mRID', mRID);
         me.getApplication().fireEvent('usagePointLoaded', usagePoint);
         me.getOverviewLink().setText(mRID);
@@ -93,7 +89,6 @@ Ext.define('Imt.channeldata.controller.View', {
             }
         });
     },
-    // TODO: Pass channel record instead of "id"
     showUsagePointChannelGraph: function(mRID, channel) {
         var me = this,
         container = this.getUsagePointChannelGraphView(),
