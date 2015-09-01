@@ -6,7 +6,10 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -26,8 +29,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-@Component(name = "com.elster.jupiter.yellowfin.groups", service = {YellowfinGroupsService.class, InstallService.class}, property = "name=" + YellowfinGroupsService.COMPONENTNAME, immediate = true)
-public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, InstallService {
+@Component(
+        name = "com.elster.jupiter.yellowfin.groups",
+        service = {YellowfinGroupsService.class, InstallService.class, TranslationKeyProvider.class},
+        property = "name=" + YellowfinGroupsService.COMPONENTNAME,
+        immediate = true)
+public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, InstallService, TranslationKeyProvider {
 
     private static final String YELLOWFIN_LAST_DAYS = "com.elster.jupiter.yellowfin.groups.last";
     private static final int DEFAULT_LAST = 2;
@@ -61,7 +68,7 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Insta
     @Override
     public void install() {
         dataModel.install(true, true);
-        new Installer(dataModel, messageService, taskService, thesaurus).install();
+        new Installer(dataModel, messageService, taskService).install();
     }
 
     @Override
@@ -164,4 +171,18 @@ public class YellowfinGroupsServiceImpl implements YellowfinGroupsService, Insta
         cachedDeviceGroup.purgeAdHocSearch(lastDays);
     }
 
+    @Override
+    public String getComponentName() {
+        return YellowfinGroupsService.COMPONENTNAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(new SimpleTranslationKey(YellowfinGroupsService.ADHOC_SEARCH_LIFE_CYCLE_QUEUE_DEST, YellowfinGroupsService.ADHOC_SEARCH_LIFE_CYCLE_QUEUE_DEST_DISPLAYNAME));
+    }
 }

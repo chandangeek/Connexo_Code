@@ -24,13 +24,11 @@ class Installer {
     private DataModel dataModel;
     private MessageService messageService;
     private TaskService taskService;
-    private Thesaurus thesaurus;
 
-    Installer(DataModel dataModel, MessageService messageService, TaskService taskService, Thesaurus thesaurus) {
+    Installer(DataModel dataModel, MessageService messageService, TaskService taskService) {
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.taskService = taskService;
-        this.thesaurus = thesaurus;
     }
 
     void install() {
@@ -46,16 +44,7 @@ class Installer {
         return getDestination().getSubscribers().stream().findFirst().orElseGet(() -> getDestination().subscribe(YellowfinGroupsService.ADHOC_SEARCH_LIFE_CYCLE_QUEUE_DEST));
     }
 
-    private void addTranslation(String componentName, String subscriberName, String subscriberDisplayName) {
-        NlsKey statusKey = SimpleNlsKey.key(componentName, Layer.DOMAIN, subscriberName);
-        Translation statusTranslation = SimpleTranslation.translation(statusKey, Locale.ENGLISH, subscriberDisplayName);
-        List<Translation> translations = new ArrayList<>();
-        translations.add(statusTranslation);
-        thesaurus.addTranslations(translations);
-    }
-
     private void createTask() {
-        addTranslation(YellowfinGroupsService.COMPONENTNAME, YellowfinGroupsService.ADHOC_SEARCH_LIFE_CYCLE_QUEUE_DEST, YellowfinGroupsService.ADHOC_SEARCH_LIFE_CYCLE_QUEUE_DEST_DISPLAYNAME);
         if (!taskService.getRecurrentTask(YellowfinGroupsService.ADHOC_SEARCH_LIFE_CYCLE_QUEUE_TASK).isPresent()) {
             taskService.newBuilder()
                     .setName(YellowfinGroupsService.ADHOC_SEARCH_LIFE_CYCLE_QUEUE_TASK)
