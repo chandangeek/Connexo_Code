@@ -10,12 +10,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsKey;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.DataCollectionActionsFactory;
@@ -29,10 +24,7 @@ import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDesc
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionResolveEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -89,18 +81,7 @@ public class Installer {
         return issueService.createIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE, MessageSeeds.ISSUE_TYPE_DATA_COLELCTION);
     }
 
-    private void addTranslation(String componentName, String subscriberName, String subscriberDisplayName) {
-        NlsKey statusKey = SimpleNlsKey.key(componentName, Layer.DOMAIN, subscriberName);
-        Translation statusTranslation = SimpleTranslation.translation(statusKey, Locale.ENGLISH, subscriberDisplayName);
-        List<Translation> translations = new ArrayList<>();
-        translations.add(statusTranslation);
-        thesaurus.addTranslations(translations);
-    }
-
-
     private void setAQSubscriber() {
-        addTranslation(IssueDataCollectionService.COMPONENT_NAME, ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC, ModuleConstants.AQ_DATA_COLLECTION_EVENT_DISPLAYNAME);
-
         DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
         try {
             destinationSpec.subscribe(ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC, whereCorrelationId().like("com/energyict/mdc/connectiontask/%")
