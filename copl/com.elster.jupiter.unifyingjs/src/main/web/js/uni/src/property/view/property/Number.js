@@ -3,12 +3,15 @@ Ext.define('Uni.property.view.property.Number', {
 
     getNormalCmp: function () {
         var me = this;
+        var min = me.property.raw.propertyTypeInfo.predefinedPropertyValuesInfo ? me.property.raw.propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues[0] : null;
+        var minValue = (min || min === 0) ? min : -9000000000000000 ;
+        var max = null;
+        if(me.property.raw.propertyTypeInfo.predefinedPropertyValuesInfo) {
+            var range = me.property.raw.propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues;
+            max = range[range.length-1]
+        }
 
-        // quick fix. Extjs numberfield works incorrect with numbers which are not in range below.
-        // To allow usage of any number, this should be transformed to textfield. (also backend changes need to be done)
-        var minValue = -9000000000000000;
-        var maxValue = 9000000000000000;
-
+        var maxValue = (max || max === 0) ? max : 9000000000000000;
         return {
             xtype: 'numberfield',
             name: this.getName(),

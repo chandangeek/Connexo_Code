@@ -19,7 +19,7 @@ Ext.define("Ext.ux.exporter.ExporterButton", {
      * @cfg {String} text
      * The button text to be used as innerHTML (html tags are accepted).
      */
-    text: 'Download',
+    text: Uni.I18n.translate('general.download','UNI','Download'),
 
     /**
      * @cfg {String} format

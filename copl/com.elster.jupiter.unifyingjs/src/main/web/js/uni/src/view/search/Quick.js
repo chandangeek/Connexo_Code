@@ -24,7 +24,7 @@ Ext.define('Uni.view.search.Quick', {
                     xtype: 'textfield',
                     itemId: 'searchField',
                     cls: 'search-field',
-                    emptyText: 'Search'
+                    emptyText: Uni.I18n.translate('general.search','UNI','Search')
                 }
             ]
         },

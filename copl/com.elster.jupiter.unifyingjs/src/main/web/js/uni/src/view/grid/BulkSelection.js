@@ -16,7 +16,7 @@
  *         store: 'Mdc.store.ValidationRuleSetsForDeviceConfig',
  *
  *         counterTextFn: function (count) {
- *             return Uni.I18n.translatePlural(
+ *             return Uni.I18n.translatePluralxxx(
  *                 'validation.noValidationRuleSetSelected',
  *                 count,
  *                 'UNI',
