@@ -32,7 +32,7 @@ Ext.define('Mdc.controller.setup.AddLogbookTypes', {
             grid = addView.down('grid'),
             url = '/api/dtc/devicetypes/' + addView.deviceTypeId + '/logbooktypes',
             preloader = Ext.create('Ext.LoadMask', {
-                msg: "Loading...",
+                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                 target: addView
             }),
             records = grid.getSelectionModel().getSelection(),

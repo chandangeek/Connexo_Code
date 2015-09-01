@@ -106,7 +106,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                     },
                     previewComponent: {
                         xtype: 'panel',
-                        title: 'Details',
+                        title: Uni.I18n.translate('general.details','MDC','Details'),
                         name: 'details',
                         frame: true,
                         tools: [

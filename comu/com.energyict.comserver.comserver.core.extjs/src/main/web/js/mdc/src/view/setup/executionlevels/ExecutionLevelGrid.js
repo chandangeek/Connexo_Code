@@ -48,7 +48,7 @@ Ext.define('Mdc.view.setup.executionlevels.ExecutionLevelGrid', {
                 store: this.store,
                 usesExactCount: true,
                 dock: 'top',
-                displayMsg: Uni.I18n.translatePlural('executionLevel.pagingtoolbartop.displayMsg', 0 ,'MDC', '{2} privileges'),
+                displayMsg: Uni.I18n.translatePlural('executionLevel.pagingtoolbartop.displayMsg', 0, 'MDC', 'No privileges', '{0} privilege', '{0} privileges'),
                 emptyMsg: Uni.I18n.translate('executionLevel.pagingtoolbartop.emptyMsg', 'MDC', 'There are no privileges'),
                 items: [
                     {

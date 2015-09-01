@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.validation.RulesOverview', {
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
                             itemId: 'ctr-no-validation-rule-set',
-                            title: Uni.I18n.translate('validation.empty.title', 'MDC', 'No validation rule sets found'),
+                            title: Uni.I18n.translate('validation.rulesets.empty.title', 'MDC', 'No validation rule sets found'),
                             reasons: [
                                 Uni.I18n.translate('device.dataValidation.rulesSetGrid.emptyCmp.item1', 'MDC', 'No validation rule sets have been defined yet.'),
                                 Uni.I18n.translate('device.dataValidation.rulesSetGrid.emptyCmp.item2', 'MDC', 'Validation rule sets exist, but you do not have permission to view them.')

@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.registertype.RegisterTypeFilter', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.registerTypeFilter',
-    title: 'Filter',
+    title: Uni.I18n.translate('general.filter','MDC','Filter'),
     cls: 'filter-form',
 
     items: [

@@ -37,7 +37,7 @@ Ext.define('Mdc.model.ValidationResults', {
         {
             name: 'total',            
             convert: function (value, record) {			
-                return  Ext.String.format(Uni.I18n.translate('validationResults.suspects', 'MDC', '{0} suspects'), value);                                    
+                return Uni.I18n.translate('validationResults.suspects', 'MDC', '{0} suspects', [value]);
             }
         },
 		{

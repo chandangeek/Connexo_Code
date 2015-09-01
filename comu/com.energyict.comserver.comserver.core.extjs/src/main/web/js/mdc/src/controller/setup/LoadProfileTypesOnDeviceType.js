@@ -193,7 +193,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
         var form = Ext.ComponentQuery.query('loadProfileTypeOnDeviceTypeSetup loadProfileTypePreview form')[0],
             recordData = record.getData(),
             preloader = Ext.create('Ext.LoadMask', {
-                msg: "Loading...",
+                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                 target: form
             });
 

@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.property.CodeTableSelector', {
                 hidden: true,
                 ownerCt: this.ownerCt,
                 renderTo: document.body,
-                title: 'CodeTable',
+                title: Uni.I18n.translate('property.codeTable','MDC','CodeTable'),
                 height: 200,
                 html: ""
             });

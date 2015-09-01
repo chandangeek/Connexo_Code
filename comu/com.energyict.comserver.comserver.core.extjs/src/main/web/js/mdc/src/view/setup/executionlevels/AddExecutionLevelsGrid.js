@@ -5,12 +5,8 @@ Ext.define('Mdc.view.setup.executionlevels.AddExecutionLevelsGrid', {
     height: 300,
 
     counterTextFn: function (count) {
-        return Uni.I18n.translatePlural(
-            'executionlevels.selectedItems',
-            count,
-            'MDC',
-            '{0} privileges selected'
-        );
+        return Uni.I18n.translatePlural('executionlevels.selectedItems', count, 'MDC',
+            'No privileges selected', '{0} privilege selected', '{0} privileges selected');
     },
 
     columns: {

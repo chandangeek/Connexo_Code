@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
         'Uni.form.field.ReadingTypeDisplay'
     ],
 
-    title: 'Details',
+    title: Uni.I18n.translate('general.details','MDC','Details'),
 
     layout: {
         type: 'vbox',

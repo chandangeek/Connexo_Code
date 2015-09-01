@@ -163,13 +163,13 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
 
                                                 {
                                                     name: 'loadProfileCount',
-                                                    text: Uni.I18n.translate('devicetype.loadprofiles', 'MDC', 'Loadprofile types'),
+                                                    text: Uni.I18n.translate('devicetype.loadprofiles', 'MDC', 'Load profile types'),
                                                     itemId: 'deviceTypeDetailLoadProfilesLink'
                                                 },
 
                                                 {
                                                     name: 'logBookCount',
-                                                    text: Uni.I18n.translate('devicetype.logbooks', 'MDC', 'logbook types'),
+                                                    text: Uni.I18n.translate('devicetype.logbooks', 'MDC', 'Logbook types'),
                                                     itemId: 'deviceTypeDetailLogBooksLink'
                                                 }
                                             ]

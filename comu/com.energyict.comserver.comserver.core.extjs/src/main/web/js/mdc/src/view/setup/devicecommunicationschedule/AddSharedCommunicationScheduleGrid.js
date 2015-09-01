@@ -49,9 +49,9 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.AddSharedCommunicationSch
     initComponent: function(){
         this.counterTextFn = function (count) {
             return Uni.I18n.translatePlural(
-                'deviceCommunicationSchedule.BulkSelection.counterText',
-                count,
-                'MDC',
+                'general.nrOfSharedComSchedules.selected', count, 'MDC',
+                'No shared communication schedules selected',
+                '{0} shared communication schedule selected',
                 '{0} shared communication schedules selected'
             );
         };

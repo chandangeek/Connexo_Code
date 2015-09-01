@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSorting', {
     extend: 'Uni.view.panel.FilterToolbar',
     alias: 'widget.loadProfileConfigurationSorting',
-    title: 'Sort',
+    title: Uni.I18n.translate('general.short','MDC','Sort'),
     name: 'sortitemspanel',
     height: 40,
     emptyText: Uni.I18n.translate('general.none','MDC','None'),

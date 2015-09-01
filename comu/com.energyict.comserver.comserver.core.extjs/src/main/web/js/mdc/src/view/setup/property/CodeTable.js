@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.property.CodeTable', {
     extend: 'Ext.window.Window',
     alias: 'widget.codeTableSelectionWindow',
-    title: 'Select a codeTable',
+    title: Uni.I18n.translate('property.selectCodeTable','MDC','Select a codeTable'),
     layout: 'fit',
     width: 350,
     height: 400,

@@ -111,7 +111,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                     align: 'stretch'
                 },
                 defaults: {
-                    labelWidth: 150,
+                    labelWidth: 110,
                     labelAlign: 'right',
                     xtype: 'fieldcontainer',
                     layout: {
@@ -285,7 +285,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                 queryCaching: false,
                 minChars: 0,
                 forceSelection: true,
-                width: 180,
+                width: 160,
                 listeners: {
                     expand: {
                         fn: me.comboLimitNotification

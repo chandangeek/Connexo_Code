@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogPreview', 
         align: 'stretch'
     },
 
-    title: 'Details',
+    title: Uni.I18n.translate('general.details','MDC','Details'),
 
     items: [
 

@@ -378,8 +378,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                             itemId: 'values-panel',
                             frame: true,
                             items: valuesItems,
-                            layout: 'vbox',
-                            title: 'sdfsd'
+                            layout: 'vbox'
                         }
                     }
                 ]

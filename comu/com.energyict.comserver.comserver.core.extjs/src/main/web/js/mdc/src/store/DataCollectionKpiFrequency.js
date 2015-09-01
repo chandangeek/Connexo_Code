@@ -9,7 +9,7 @@ Ext.define('Mdc.store.DataCollectionKpiFrequency', {
     data: [
         {
             id: '5minutes',
-            name: 5 + ' ' + Uni.I18n.translatePlural('general.timeUnit.minutes', 5, 'MDC', 'minutes'),
+            name: Uni.I18n.translatePlural('general.timeUnit.minutes', 5, 'MDC', '{0} minutes', '{0} minute', '{0} minutes'),
             value: {
                 every: {
                     count: 5,
@@ -19,7 +19,7 @@ Ext.define('Mdc.store.DataCollectionKpiFrequency', {
         },
         {
             id: '15minutes',
-            name: 15 + ' ' + Uni.I18n.translatePlural('general.timeUnit.minutes', 15, 'MDC', 'minutes'),
+            name: Uni.I18n.translatePlural('general.timeUnit.minutes', 15, 'MDC', '{0} minutes', '{0} minute', '{0} minutes'),
             value: {
                 every: {
                     count: 15,
@@ -29,7 +29,7 @@ Ext.define('Mdc.store.DataCollectionKpiFrequency', {
         },
         {
             id: '30minutes',
-            name: 30 + ' ' + Uni.I18n.translatePlural('general.timeUnit.minutes', 30, 'MDC', 'minutes'),
+            name: Uni.I18n.translatePlural('general.timeUnit.minutes', 30, 'MDC', '{0} minutes', '{0} minute', '{0} minutes'),
             value: {
                 every: {
                     count: 30,
@@ -39,7 +39,7 @@ Ext.define('Mdc.store.DataCollectionKpiFrequency', {
         },
         {
             id: '1hours',
-            name: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.hours', 1, 'MDC', 'hour'),
+            name: Uni.I18n.translatePlural('general.timeUnit.hours', 1, 'MDC', '{0} hours', '{0} hour', '{0} hours'),
             value: {
                 every: {
                     count: 1,
@@ -50,7 +50,7 @@ Ext.define('Mdc.store.DataCollectionKpiFrequency', {
         },
         {
             id: '1days',
-            name: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.days', 1, 'MDC', 'day'),
+            name: Uni.I18n.translatePlural('general.timeUnit.days', 1, 'MDC', '{0} days', '{0} day', '{0} days'),
             value: {
                 every: {
                     count: 1,
@@ -61,7 +61,7 @@ Ext.define('Mdc.store.DataCollectionKpiFrequency', {
         },
         {
             id: '1months',
-            name: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 1, 'MDC', 'month'),
+            name: Uni.I18n.translatePlural('general.timeUnit.months', 1, 'MDC', '{0} months', '{0} month', '{0} months'),
             value: {
                 every: {
                     count: 1,

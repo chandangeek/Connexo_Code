@@ -245,11 +245,14 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     showProperties: function (connectionMethod) {
-        var propertiesArray = connectionMethod.propertiesStore.data.items;
+        var me = this,
+            propertiesArray = connectionMethod.propertiesStore.data.items;
         if (propertiesArray.length > 0) {
-            this.getDeviceConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(true);
+            me.getDeviceConnectionMethodEditView().down('#connectionDetailsTitle').setVisible(true);
             Ext.Array.each(propertiesArray, function (property) {
-                if (property.get('key') == 'host' || property.get('key') == 'portNumber') {
+                if (me.getDeviceConnectionMethodEditView().edit && (property.getPropertyValue().get('value') != property.getPropertyValue().get('inheritedValue'))) {
+                    property.getPropertyValue().set('defaultValue', property.getPropertyValue().get('inheritedValue'));
+                } else {
                     property.getPropertyValue().set('defaultValue', property.getPropertyValue().get('value'));
                 }
             });
@@ -377,18 +380,27 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                 record.propertiesStore = propertyForm.getRecord().properties();
                 var propertiesArray = record.propertiesStore.data.items;
                 if (propertiesArray.length > 0) {
+                    var connectionMethodCombo = me.getDeviceConnectionMethodEditForm().down('#deviceConnectionMethodComboBox'),
+                        connectionMethod = connectionMethodCombo.findRecordByValue(connectionMethodCombo.getValue());
+
                     Ext.Array.each(propertiesArray, function (property) {
-                        if (property.get('key') == 'host' || property.get('key') == 'portNumber') {
-                            if (property.getPropertyValue().get('value') == property.getPropertyValue().get('defaultValue') || property.getPropertyValue().get('value') == property.getPropertyValue().get('inheritedValue')) {
-                                property.getPropertyValue().set('value', '');
+                        Ext.Array.each(connectionMethod.propertiesStore.data.items, function (connectionMethodProperty) {
+                            if (property.get('key') == connectionMethodProperty.get('key')) {
+                                if (!propertyForm.down('#' + property.get('key')).down('uni-default-button').isDisabled()) {
+                                    property.getPropertyValue().set('inheritedValue', '');
+                                } else {
+                                    property.getPropertyValue().set('inheritedValue', connectionMethodProperty.getPropertyValue().get('value'));
+                                }
                             }
+                        });
+
+                        if (property.getPropertyValue().get('value') == property.getPropertyValue().get('inheritedValue')) {
+                            property.getPropertyValue().set('value', '');
                         }
                     });
                 }
             }
-
             this.saveRecord(record, isNewRecord);
-
         }
     },
 

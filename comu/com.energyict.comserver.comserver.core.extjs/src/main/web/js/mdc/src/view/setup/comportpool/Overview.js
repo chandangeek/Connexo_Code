@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.comportpool.Overview', {
             items: [
                 {
                     ui: 'large',
-                    title: 'Overview',
+                    title: Uni.I18n.translate('general.overview','MDC','Overview'),
                     flex: 1
                 },
                 {

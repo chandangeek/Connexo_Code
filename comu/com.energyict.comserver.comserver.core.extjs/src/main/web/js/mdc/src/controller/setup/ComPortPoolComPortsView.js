@@ -179,7 +179,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
             comPortPoolModel = me.getModel('Mdc.model.ComPortPool'),
             poolId = router.arguments['id'],
             preloader = Ext.create('Ext.LoadMask', {
-                msg: "Loading...",
+                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                 target: view
             }),
             messageText;

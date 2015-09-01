@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.searchitems.ContentLayout', {
                     type: 'hbox',
                     align: 'left'
                 },
-                html: '<H3>' + Uni.I18n.translate('searchItems.selectText', 'MDC', 'Enter one or more search criteria on the left and click \'Search\'.') + '</H3>'
+                html: '<H3>' + Uni.I18n.translate('searchItems.selectText', 'MDC', "Enter one or more search criteria on the left and click 'Search'.") + '</H3>'
             },
             {
                 xtype: 'preview-container',
@@ -48,7 +48,7 @@ Ext.define('Mdc.view.setup.searchitems.ContentLayout', {
                 items: [
                     {
                         xtype: 'label',
-                        html: '<H3>' + Uni.I18n.translate('searchItems.selectText', 'MDC', 'Searching ...') + '</H3>'
+                        html: '<H3>' + Uni.I18n.translate('searchItems.searching', 'MDC', 'Searching ...') + '</H3>'
                     },
                     {
                         xtype: 'button',

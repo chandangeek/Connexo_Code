@@ -9,43 +9,43 @@ Ext.define('Mdc.store.ValidationResultsDurations', {
 			id: '1years',
 			count: 1,
 			timeUnit: 'years',
-			localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 1, 'MDC', 'year')
+			localizeValue: Uni.I18n.translatePlural('general.timeUnit.years', 1, 'MDC', '{0} years', '{0} year', '{0} years')
 		},
 		{
 			id: '3months',
 			count: 3,
 			timeUnit: 'months',
-			localizeValue: 3 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 3, 'MDC', 'month')
+			localizeValue: Uni.I18n.translatePlural('general.timeUnit.months', 3, 'MDC', '{0} months', '{0} month', '{0} months')
 		},
 		{
 			id: '2months',
 			count: 2,
 			timeUnit: 'months',
-			localizeValue: 2 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 2, 'MDC', 'month')
+			localizeValue: Uni.I18n.translatePlural('general.timeUnit.months', 2, 'MDC', '{0} months', '{0} month', '{0} months')
 		},
 		{
 			id: '1months',
 			count: 1,
 			timeUnit: 'months',
-			localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 1, 'MDC', 'month')
+			localizeValue: Uni.I18n.translatePlural('general.timeUnit.months', 1, 'MDC', '{0} months', '{0} month', '{0} months')
 		},
 		{
 			id: '3weeks',
 			count: 3,
 			timeUnit: 'weeks',
-			localizeValue: 3 + ' ' + Uni.I18n.translatePlural('general.timeUnit.weeks', 3, 'MDC', 'weeks')
+			localizeValue: Uni.I18n.translatePlural('general.timeUnit.weeks', 3, 'MDC', '{0} weeks', '{0} week', '{0} weeks')
 		},
 		{
 			id: '2weeks',
 			count: 2,
 			timeUnit: 'weeks',
-			localizeValue: 2 + ' ' + Uni.I18n.translatePlural('general.timeUnit.weeks', 2, 'MDC', 'weeks')
+			localizeValue: Uni.I18n.translatePlural('general.timeUnit.weeks', 2, 'MDC', '{0} weeks', '{0} week', '{0} weeks')
 		},
 		{
 			id: '1weeks',
 			count: 1,
 			timeUnit: 'weeks',
-			localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.weeks', 1, 'MDC', 'week')
+			localizeValue: Uni.I18n.translatePlural('general.timeUnit.weeks', 1, 'MDC', '{0} weeks', '{0} week', '{0} weeks')
 		}
 	]
 });

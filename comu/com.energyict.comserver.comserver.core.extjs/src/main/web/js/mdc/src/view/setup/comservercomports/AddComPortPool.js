@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.comservercomports.AddComPortPool', {
     content: [
         {
             xtype: 'panel',
-            title: 'Add communication port pool',
+            title: Uni.I18n.translate('comportpool.addComPortPool','MDC','Add communication port pool'),
             ui: 'large',
             items: [
                 {

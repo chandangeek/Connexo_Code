@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
         align: 'stretch'
     },
 
-    title: 'Details',
+    title: Uni.I18n.translate('general.details','MDC','Details'),
 
     items: [
 

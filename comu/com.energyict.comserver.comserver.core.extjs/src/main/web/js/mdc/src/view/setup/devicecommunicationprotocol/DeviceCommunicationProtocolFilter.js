@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtocolFilter', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.deviceCommunicationProtocolFilter',
-    title: 'Filter',
+    title: Uni.I18n.translate('devicecommunication.filter','MDC','Filter'),
     cls: 'filter-form',
 
     items: [

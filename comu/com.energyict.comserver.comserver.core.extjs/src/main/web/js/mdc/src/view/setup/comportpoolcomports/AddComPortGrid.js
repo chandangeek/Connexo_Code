@@ -6,10 +6,8 @@ Ext.define('Mdc.view.setup.comportpoolcomports.AddComPortGrid', {
 
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
-            'comPortPoolComPorts.addPorts.counterText',
-            count,
-            'MDC',
-            '{0} communication ports selected'
+            'general.nrOfCommunicationPorts.selected', count, 'MDC',
+            'No communication ports selected', '{0} communication port selected', '{0} communication ports selected'
         );
     },
 

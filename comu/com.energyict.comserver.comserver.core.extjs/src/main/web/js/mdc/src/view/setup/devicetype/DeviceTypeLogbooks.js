@@ -104,7 +104,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                     previewComponent: {
                         xtype: 'panel',
                         height: 110,
-                        title: 'Details',
+                        title: Uni.I18n.translate('general.details','MDC','Details'),
                         name: 'details',
                         frame: true,
                         hidden: true,

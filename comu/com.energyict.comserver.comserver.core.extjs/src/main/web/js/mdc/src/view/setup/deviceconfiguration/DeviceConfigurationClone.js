@@ -17,9 +17,8 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationClone', {
                         xtype: 'panel',
                         ui: 'tile',
                         margin: '0 0 32 0',
-                        html: Uni.I18n.translate('cloneDeviceConfiguration.info',
-                            'MDC', "The new device configuration is based on the '{0}' and will contain the same data sources, " +
-                            "communication features and rule sets. The clone will be inactive.", [me.deviceConfigurationName])
+                        html: Uni.I18n.translate('cloneDeviceConfiguration.info', 'MDC',
+                            "The new device configuration is based on the '{0}' and will contain the same data sources, communication features and rule sets. The clone will be inactive.", [me.deviceConfigurationName])
                     },
                     {
                         xtype: 'textfield',
@@ -41,7 +40,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationClone', {
                             {
                                 xtype: 'button',
                                 itemId: 'clone-button',
-                                text: Uni.I18n.translate('general.add', 'MDC', 'Clone'),
+                                text: Uni.I18n.translate('general.clone', 'MDC', 'Clone'),
                                 ui: 'action'
                             },
                             {

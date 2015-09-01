@@ -89,7 +89,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryGrid',
                     {mRID: me.mRID},
                     {connectionId:me.connectionId}
                 ],
-                itemsPerPageMsg: Uni.I18n.translate('deviceconnectionmethod.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Connections per page'),
+                itemsPerPageMsg: Uni.I18n.translate('deviceconnectionhistory.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Connections per page'),
                 dock: 'bottom'
             }
         ];

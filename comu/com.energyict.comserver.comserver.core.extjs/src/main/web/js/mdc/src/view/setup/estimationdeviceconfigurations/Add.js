@@ -24,11 +24,8 @@ Ext.define('Mdc.view.setup.estimationdeviceconfigurations.Add', {
                             store: 'Mdc.store.EstimationDeviceConfigurationsBuffered',
 
                             counterTextFn: function (count) {
-                                return Uni.I18n.translatePlural(
-                                    'estimationDeviceConfigurations.bulk.counterText',
-                                    count,
-                                    'MDC',
-                                    '{0} device configurations selected'
+                                return Uni.I18n.translatePlural('general.nrOfDeviceConfigurations.selected', count, 'MDC',
+                                    'No device configurations selected', '{0} device configuration selected', '{0} device configurations selected'
                                 );
                             },
 
