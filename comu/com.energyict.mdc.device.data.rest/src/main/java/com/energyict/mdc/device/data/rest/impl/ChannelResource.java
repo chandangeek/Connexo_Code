@@ -271,6 +271,15 @@ public class ChannelResource {
         return Response.ok(deviceValidationStatusInfo).build();
     }
 
+    @GET
+    @Path("{channelid}/validationpreview")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    public Response getValidationStatusPreview(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+        return channelHelper.get().getChannelValidationInfo(() -> channel);
+    }
+
     @PUT
     @Path("{channelid}/validate")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
