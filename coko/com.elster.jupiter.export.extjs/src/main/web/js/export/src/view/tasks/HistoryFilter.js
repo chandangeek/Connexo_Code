@@ -18,11 +18,6 @@ Ext.define('Dxp.view.tasks.HistoryFilter', {
             dataIndexFrom: 'finishedOnFrom',
             dataIndexTo: 'finishedOnTo',
             text: Uni.I18n.translate('tasks.historyFilter.finishedBetween', 'DES', 'Finished between')
-        },
-        {
-            type: 'date',
-            dataIndex: 'exportPeriodContains',
-            emptyText: Uni.I18n.translate('tasks.historyFilter.exportPeriodContains', 'DES', 'Export period contains')
         }
     ]
 });
