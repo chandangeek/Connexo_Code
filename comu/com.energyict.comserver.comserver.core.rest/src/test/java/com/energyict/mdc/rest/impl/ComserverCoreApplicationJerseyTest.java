@@ -22,7 +22,7 @@ public class ComserverCoreApplicationJerseyTest extends FelixRestApplicationJers
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
+        return new MessageSeed[0];
     }
 
     @Override
