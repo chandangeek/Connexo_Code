@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogGrid', {
             },
             {
                 itemId: 'details',
-                text: Uni.I18n.translate('deviceconnectionhistory.decription', 'MDC', 'Description'),
+                text: Uni.I18n.translate('deviceconnectionhistory.description', 'MDC', 'Description'),
                 dataIndex: 'details',
                 flex: 3
             },
