@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.comport.ComPortEdit', {
                             {
                                 xtype: 'combobox',
                                 name: 'comPortType',
-                                fieldLabel: 'Communication port type',
+                                fieldLabel: Uni.I18n.translate('general.type','MDC','Type'),
                                 store: comporttypes,
                                 queryMode: 'local',
                                 displayField: 'comPortType',
@@ -46,19 +46,19 @@ Ext.define('Mdc.view.setup.comport.ComPortEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'description',
-                                fieldLabel: 'description'
+                                fieldLabel: Uni.I18n.translate('general.description','MDC','Description')
                             },
                             {
                                 xtype: 'numberfield',
                                 name: 'numberOfSimultaneousConnections',
-                                fieldLabel: 'numberOfSimultaneousConnections'
+                                fieldLabel: Uni.I18n.translate('comServerComPorts.form.connectionCount', 'MDC', 'Simultaneous connections')
                             },
                             {
                                 xtype: 'checkbox',
                                 inputValue: true,
                                 uncheckedValue: 'false',
                                 name: 'active',
-                                fieldLabel: 'active'
+                                fieldLabel: Uni.I18n.translate('general.active','MDC','Active')
                             }
                         ]}
                 ]
