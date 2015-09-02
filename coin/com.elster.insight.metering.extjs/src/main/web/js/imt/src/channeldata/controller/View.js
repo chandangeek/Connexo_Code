@@ -38,15 +38,11 @@ Ext.define('Imt.channeldata.controller.View', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             dataStore = me.getStore('Imt.channeldata.store.Channel'),
-            // TODO: Why does me.getModel() NOT work here?
             usagePoint = Ext.create('Imt.usagepointmanagement.model.UsagePoint'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
         
         pageMainContent.setLoading(true);
         var widget = Ext.widget('channel-list-setup', {router: router, mRID: mRID});
-        // TODO: Should we be loading a full Usage Point model from the back-end just so that
-        // the event can contain the mRID which is used by History.js to change the link
-        // name in the breadcrumb?  For now, just create empty model and set this one field.
         usagePoint.set('mRID', mRID);
         me.getApplication().fireEvent('usagePointLoaded', usagePoint);
         me.getOverviewLink().setText(mRID);
@@ -68,37 +64,37 @@ Ext.define('Imt.channeldata.controller.View', {
             previewContainer = me.getChannelListSetup().down('#previewComponentContainer');
         
         form.loadRecord(record);
-        widget.setTitle(record.get('readingTypeAlias'));
+        widget.setTitle(record.get('readingTypeFullAliasName'));
         previewContainer.removeAll();
         previewContainer.add(widget);
-    
     },
     showUsagePointChannelData: function (mRID, channel) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            // TODO: Why does me.getModel() NOT work here?
-            channelModel = Ext.create('Imt.channeldata.model.Channel'),
+            channelModel = me.getModel('Imt.channeldata.model.Channel'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
        
         pageMainContent.setLoading(true);
-        var widget = Ext.widget('channel-data-setup', {router: router, mRID: mRID, channel: channel});
-        // TODO: Should we be loading a full channel model from the back-end just so that
-        // the event can contain the alias which is used by History.js to change the link
-        // name in the breadcrumb?  For now, just create empty model and set this one field.
-        channelModel.set('readingTypeAlias', 'Bulk A+ (kWh)');
-        me.getApplication().fireEvent('channelDataLoaded', channelModel);
-        me.getApplication().fireEvent('changecontentevent', widget);
-        me.getOverviewLink().setText(mRID);
-        pageMainContent.setLoading(false);
-        me.showUsagePointChannelGraph(mRID, channel);
+        channelModel.getProxy().setUrl({mRID: mRID, channelId: channel});
+        channelModel.load(channel, {
+            success: function (record) {
+                var widget = Ext.widget('channel-data-setup', {router: router, mRID: mRID, channel: channel});
+                me.getApplication().fireEvent('channelDataLoaded', record);
+                me.getApplication().fireEvent('changecontentevent', widget);
+                me.getOverviewLink().setText(mRID);
+                me.showUsagePointChannelGraph(mRID, record);
+            },
+            callback: function () {
+                pageMainContent.setLoading(false);
+            }
+        });
     },
-    // TODO: Pass channel record instead of "id"
     showUsagePointChannelGraph: function(mRID, channel) {
         var me = this,
         container = this.getUsagePointChannelGraphView(),
         dataStore = me.getStore('Imt.channeldata.store.ChannelData'),
         zoomLevelsStore = me.getStore('Imt.store.DataIntervalAndZoomLevels'),
-        channelName = channel,
+        channelName = channel.get('readingTypeFullAliasName'),
         unitOfMeasure = 'Wh',
         seriesObject = { 
             marker: { enabled: false },
@@ -116,12 +112,8 @@ Ext.define('Imt.channeldata.controller.View', {
         series = [];
 
         seriesObject['data'] = [];
-        //TODO: Get parameter from actual channel record.
-        o=Object();
-        o.timeUnit='minutes';
-        o.count=15;
-        intervalRecord = zoomLevelsStore.getIntervalRecord(o);
-        intervalLengthInMs = zoomLevelsStore.getIntervalInMs(o);
+        intervalRecord = zoomLevelsStore.getIntervalRecord(channel.get('interval'));
+        intervalLengthInMs = zoomLevelsStore.getIntervalInMs(channel.get('interval'));
         zoomLevels = intervalRecord.get('zoomLevels');
         
 //    switch (channelRecord.get('flowUnit')) {

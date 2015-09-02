@@ -56,7 +56,6 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
 	        button.setDisabled(true);
 	        page.setLoading('Saving...');
 	        formErrorsPanel.hide();
-	        //TODO: Some way to use success: and failure: instead of callback: to clean this up?
 	        model.save({
 	            callback: function (model, operation, success) {
 	                page.setLoading(false);
@@ -79,7 +78,6 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             values = {};
         form.loadRecord(model);
         
-        //TODO: Is there some way to make this work better with nested models?!
         Ext.Object.each(data, function (key, value) {
             if (Ext.isObject(value)) {
                 Ext.Object.each(value, function (valKey, valValue) {
