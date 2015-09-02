@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<definitions id="Definition"
+             targetNamespace="http://www.omg.org/bpmn20"
+             typeLanguage="http://www.java.com/javaTypes"
+             expressionLanguage="http://www.mvel.org/2.0"
+             xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd"
+             xmlns:g="http://www.jboss.org/drools/flow/gpd"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:tns="http://www.jboss.org/drools">
+
+  <itemDefinition id="_String" structureRef="String" />
+
+  <process processType="Private" isExecutable="true" id="jupiter.SendSomeoneToInspect" name="SendSomeoneToInspect" tns:packageName="org.jbpm" tns:version="1.0" >
+
+    <!-- process variables -->
+    <property id="userName" itemSubjectRef="_String"/>
+    <property id="wsCallResult" itemSubjectRef="_String"/>
+
+    <!-- nodes -->
+    <startEvent id="processStartEvent" name=""  isInterrupting="true"/>
+    <task id="Task_1" name="Log echo" tns:taskName="Log" >
+      <ioSpecification>
+        <dataInput id="Task_1_MessageInput" name="Message" />
+        <inputSet>
+          <dataInputRefs>Task_1_MessageInput</dataInputRefs>
+        </inputSet>
+        <outputSet>
+        </outputSet>
+      </ioSpecification>
+      <dataInputAssociation>
+        <sourceRef>wsCallResult</sourceRef>
+        <targetRef>Task_1_MessageInput</targetRef>
+      </dataInputAssociation>
+    </task>
+    <task id="Task_2" name="Call echo WS" tns:taskName="WebService" >
+      <ioSpecification>
+        <dataInput id="Task_2_ParameterInput" name="Parameter" />
+        <dataInput id="Task_2_InterfaceInput" name="Interface" />
+        <dataInput id="Task_2_OperationInput" name="Operation" />
+        <dataInput id="Task_2_UrlInput" name="Url" />
+        <dataInput id="Task_2_NamespaceInput" name="Namespace" />
+        <dataOutput id="Task_2_ResultOutput" name="Result" />
+        <inputSet>
+          <dataInputRefs>Task_2_ParameterInput</dataInputRefs>
+          <dataInputRefs>Task_2_InterfaceInput</dataInputRefs>
+          <dataInputRefs>Task_2_OperationInput</dataInputRefs>
+          <dataInputRefs>Task_2_UrlInput</dataInputRefs>
+          <dataInputRefs>Task_2_NamespaceInput</dataInputRefs>
+        </inputSet>
+        <outputSet>
+          <dataOutputRefs>Task_2_ResultOutput</dataOutputRefs>
+        </outputSet>
+      </ioSpecification>
+      <dataInputAssociation>
+        <sourceRef>userName</sourceRef>
+        <targetRef>Task_2_ParameterInput</targetRef>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>Task_2_InterfaceInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">SendToInspectService</from>
+          <to xsi:type="tFormalExpression">Task_2_InterfaceInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>Task_2_OperationInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">sendToInspect</from>
+          <to xsi:type="tFormalExpression">Task_2_OperationInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>Task_2_UrlInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">http://${host}:${port}/demows/services/SendToInspectService?wsdl</from>
+          <to xsi:type="tFormalExpression">Task_2_UrlInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>Task_2_NamespaceInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">http://ws.demo</from>
+          <to xsi:type="tFormalExpression">Task_2_NamespaceInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataInputAssociation>
+        <targetRef>Task_2_ParameterInput</targetRef>
+        <assignment>
+          <from xsi:type="tFormalExpression">userName</from>
+          <to xsi:type="tFormalExpression">Task_2_ParameterInput</to>
+        </assignment>
+      </dataInputAssociation>
+      <dataOutputAssociation>
+        <sourceRef>Task_2_ResultOutput</sourceRef>
+        <targetRef>wsCallResult</targetRef>
+      </dataOutputAssociation>
+    </task>
+    <endEvent id="_D4003954-A26A-45E8-AD50-B568D1919381" name="" />
+
+    <!-- connections -->
+    <sequenceFlow id="Task_2-Task_1" sourceRef="Task_2" targetRef="Task_1" />
+    <sequenceFlow id="processStartEvent-Task_2" sourceRef="processStartEvent" targetRef="Task_2" />
+    <sequenceFlow id="Task_1-_D4003954-A26A-45E8-AD50-B568D1919381" sourceRef="Task_1" targetRef="_D4003954-A26A-45E8-AD50-B568D1919381" />
+
+  </process>
+
+  <bpmndi:BPMNDiagram>
+    <bpmndi:BPMNPlane bpmnElement="jupiter.SendSomeoneToInspect" >
+      <bpmndi:BPMNShape bpmnElement="processStartEvent" >
+        <dc:Bounds x="0" y="45" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Task_1" >
+        <dc:Bounds x="256" y="44" width="110" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="Task_2" >
+        <dc:Bounds x="100" y="44" width="110" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_D4003954-A26A-45E8-AD50-B568D1919381" >
+        <dc:Bounds x="410" y="45" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="Task_2-Task_1" >
+        <di:waypoint x="155" y="69" />
+        <di:waypoint x="230" y="69" />
+        <di:waypoint x="230" y="69" />
+        <di:waypoint x="311" y="69" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="processStartEvent-Task_2" >
+        <di:waypoint x="24" y="69" />
+        <di:waypoint x="71" y="69" />
+        <di:waypoint x="71" y="69" />
+        <di:waypoint x="155" y="69" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="Task_1-_D4003954-A26A-45E8-AD50-B568D1919381" >
+        <di:waypoint x="311" y="69" />
+        <di:waypoint x="385" y="69" />
+        <di:waypoint x="385" y="69" />
+        <di:waypoint x="434" y="69" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</definitions>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exe4j version="4.4.4" transformSequenceNumber="1">
+  <directoryPresets config="D:/repositorysvn/jupiter/com.elster.jupiter.subsystem.kore" />
+  <application name="Connexo" distributionSourceDir="D:/repositorysvn/jupiter/com.elster.jupiter.subsystem.kore/assembly">
+    <languages>
+      <principalLanguage id="en" customLocalizationFile="" />
+    </languages>
+  </application>
+  <executable name="ConnexoService" type="1" iconSet="false" iconFile="" executableDir="./bin" redirectStderr="false" stderrFile="error.log" stderrMode="overwrite" redirectStdout="false" stdoutFile="output.log" stdoutMode="overwrite" failOnStderrOutput="true" executableMode="3" changeWorkingDirectory="true" workingDirectory=".." singleInstance="false" serviceStartType="2" serviceDependencies="" serviceDescription="Connexo server" jreLocation="" executionLevel="asInvoker" checkConsoleParameter="false" globalSingleInstance="false" amd64="true">
+    <messageSet />
+    <versionInfo include="true" fileVersion="" fileDescription="" legalCopyright="" internalName="Connexo" productName="" companyName="Elster EnergyICT" productVersion="1.0.0.0" />
+  </executable>
+  <splashScreen show="false" autoOff="true" alwaysOnTop="true" width="0" height="0" bitmapFile="" java6SplashScreen="false">
+    <text>
+      <statusLine x="20" y="20" text="" font="Arial" fontSize="8" fontColor="0,0,0" fontWeight="500" />
+      <versionLine x="20" y="40" text="version %VERSION%" font="Arial" fontSize="8" fontColor="0,0,0" fontWeight="500" />
+    </text>
+  </splashScreen>
+  <java mainClass="com.elster.jupiter.launcher.ConnexoLauncher" vmParameters="" arguments="" allowVMPassthroughParameters="true" preferredVM="server" bundleRuntime="true" minVersion="1.8" maxVersion="" allowBetaVM="false" jdkOnly="false">
+    <searchSequence>
+      <envVar name="JAVA_HOME" />
+      <envVar name="JDK_HOME" />
+      <registry />
+    </searchSequence>
+    <classPath>
+      <scanDirectory location="./lib" failOnError="false" />
+    </classPath>
+    <nativeLibraryDirectories />
+  </java>
+  <includedFiles />
+  <unextractableFiles />
+</exe4j>
+
