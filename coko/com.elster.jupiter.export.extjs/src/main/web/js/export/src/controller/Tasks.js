@@ -100,6 +100,7 @@ Ext.define('Dxp.controller.Tasks', {
     destinationsArray: [],
 
     destinationToEdit: null,
+    destinationIndexToEdit: -1,
 
     init: function () {
         this.control({
@@ -357,6 +358,7 @@ Ext.define('Dxp.controller.Tasks', {
                 view.down('#destination-attachment-extension').setValue(me.destinationToEdit.get('fileExtension'));
             }
         } else {
+            me.destinationIndexToEdit = -1;
             view.down('#destination-methods-combo').setValue('FILE');
         }
     },
@@ -659,6 +661,7 @@ Ext.define('Dxp.controller.Tasks', {
                 var page = me.getAddPage(),
                     destinationsGrid = page.down('#task-destinations-grid');
                 // edit = remove + add new
+                me.destinationIndexToEdit = destinationsGrid.getStore().indexOf(menu.record);
                 destinationsGrid.getStore().remove(menu.record);
                 me.showAddDestination();
                 break;
@@ -942,6 +945,7 @@ Ext.define('Dxp.controller.Tasks', {
         if (me.destinationToEdit) {
             me.destinationsArray.push(me.destinationToEdit);
             me.destinationToEdit = null;
+            me.destinationIndexToEdit = -1;
             me.forwardToPreviousPage();
         } else {
             var page = me.getAddDestinationPage();
@@ -1300,14 +1304,22 @@ Ext.define('Dxp.controller.Tasks', {
             }
         }
 
+
+
+
+
+        Ext.each(me.destinationsArray, function (record) {
+            if (me.destinationIndexToEdit != -1) {
+                destinationsArray.splice(me.destinationIndexToEdit, 0, record);
+            } else {
+                destinationsArray.push(record);
+            }
+        });
         if (!Ext.isEmpty(destinationsArray)) {
             Ext.each(destinationsArray, function (destination) {
                 destinationsStore.add(destination);
             });
         }
-        Ext.each(me.destinationsArray, function (record) {
-            destinationsStore.add(record);
-        });
         me.destinationsArray = [];
 
         if (destinationsStore.count() > 0) {
