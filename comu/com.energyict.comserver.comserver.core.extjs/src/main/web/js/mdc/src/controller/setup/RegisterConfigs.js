@@ -344,7 +344,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
                                         widget.down('form').loadRecord(registerConfiguration);
                                         me.getApplication().fireEvent('loadRegisterConfiguration', registerConfiguration);
-                                        me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + registerConfiguration.get('readingType').fullAliasName + "'");
+                                        me.getRegisterConfigEditForm().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[registerConfiguration.get('readingType').fullAliasName]));
                                         widget.down('#registerTypeComboBox').setValue(registerConfiguration.get('registerType'));
                                         if (registerConfiguration.get('asText') === true) {
                                             widget.down('#textRadio').setValue(true);

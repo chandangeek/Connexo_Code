@@ -356,7 +356,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         }
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('connectionmethod.deleteConnectionMethod', 'MDC', 'This connection method will no longer be available.'),
-            title: Uni.I18n.translate('connectionmethod.deleteConnectionMethod.title', 'MDC', 'Remove ') + " '" + connectionMethodToDelete.get('name') + "'?",
+            title: Uni.I18n.translate('connectionmethod.deleteConnectionMethod.title', 'MDC', "Remove '{0}'?",[connectionMethodToDelete.get('name')]),
             config: {
                 connectionMethodToDelete: connectionMethodToDelete,
                 me: me
@@ -460,7 +460,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                             widget.down('form').down('#scheduleFieldContainer').setVisible(true);
                                                         }
                                                         widget.down('form').loadRecord(connectionMethod);
-                                                        var title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + connectionMethod.get('name') + "'";
+                                                        var title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[ connectionMethod.get('name')]);
                                                         widget.down('#connectionMethodEditAddTitle').setTitle(title);
                                                         widget.down('form').down('#connectionTypeComboBox').setValue(connectionMethod.get('connectionTypePluggableClass'));
                                                         connectionMethod.properties().count() ? widget.down('#connectionDetailsField').setValue('') : widget.down('#connectionDetailsField').setValue('-');

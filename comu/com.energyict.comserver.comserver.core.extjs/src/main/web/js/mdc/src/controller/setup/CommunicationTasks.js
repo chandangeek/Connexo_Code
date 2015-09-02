@@ -331,7 +331,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                                                 if (!Ext.isEmpty(communicationTask.get('comTask'))) {
                                                     comTaskName = communicationTask.get('comTask').name;
                                                 }
-                                                var title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + comTaskName + "'";
+                                                var title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[comTaskName]);
                                                 widget.down('#communicationTaskEditForm').setTitle(title);
                                                 widget.setValues(communicationTask);
                                                 widget.setLoading(false);
@@ -366,7 +366,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('communicationtasks.deleteCommunicationTask.message', 'MDC', "For this device configuration it won't be possible anymore to execute the corresponding communication task"),
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' \'' + lastSelected.get('comTask').name + '\'?',
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[lastSelected.get('comTask').name]),
             config: {
                 communicationTaskToDelete: lastSelected,
                 me: me

@@ -473,7 +473,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         }
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('deviceconnectionmethod.deleteConnectionMethod', 'MDC', 'This connection method will no longer be available.'),
-            title: Uni.I18n.translate('deviceconnectionmethod.deleteConnectionMethod.title', 'MDC', 'Remove ') + ' ' + connectionMethodToDelete.get('name') + '?',
+            title: Uni.I18n.translate('deviceconnectionmethod.deleteConnectionMethod.title', 'MDC', "Remove '{0}'?",[connectionMethodToDelete.get('name')]),
             config: {
                 connectionMethodToDelete: connectionMethodToDelete,
                 me: me
@@ -536,7 +536,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                     callback: function () {
                                         connectionStrategiesStore.load({
                                             callback: function () {
-                                                var title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + connectionMethod.get('name') + '\'';
+                                                var title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[connectionMethod.get('name')]);
                                                 widget.down('#deviceConnectionMethodEditAddTitle').setTitle(title);
                                                 me.getDeviceConnectionMethodEditView().down('#communicationPortPoolComboBox').setDisabled(false);
                                                 me.getDeviceConnectionMethodEditView().down('#allowSimultaneousConnections').setDisabled(false);

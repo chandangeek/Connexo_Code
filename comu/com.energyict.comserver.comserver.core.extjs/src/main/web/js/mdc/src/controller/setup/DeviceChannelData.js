@@ -579,8 +579,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         me.getReadingEstimationWindow().down('#error-label').show();
                         var listOfFailedReadings = [];
                         Ext.Array.each(responseText.readings, function (readingTimestamp) {
-                            listOfFailedReadings.push(Uni.DateTime.formatDateShort(new Date(readingTimestamp)) + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' ' +
-                                Uni.DateTime.formatTimeShort(new Date(readingTimestamp)));
+                            listOfFailedReadings.push( + ' ' + Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[Uni.DateTime.formatDateShort(new Date(readingTimestamp)),Uni.DateTime.formatTimeShort(new Date(readingTimestamp))]).toLowerCase());
                         });
                         me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #FF0000">' +
                             Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0} with {1}',

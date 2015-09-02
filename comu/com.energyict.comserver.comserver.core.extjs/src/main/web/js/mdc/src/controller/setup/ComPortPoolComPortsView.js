@@ -228,7 +228,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServerComPorts.deleteSuccess.msg', 'MDC', 'Communication port removed'));
             },
             failure: function (model, operation) {
-                var title = Uni.I18n.translate('comPortPoolComPorts.remove.failure', 'MDC', 'Failed to remove') + " " + record.get('name'),
+                var title = Uni.I18n.translate('comPortPoolComPorts.remove.failurex', 'MDC', "Failed to remove '{0}'",[record.get('name')]),
                     errorsArray = Ext.JSON.decode(operation.response.responseText).errors,
                     message = '';
 

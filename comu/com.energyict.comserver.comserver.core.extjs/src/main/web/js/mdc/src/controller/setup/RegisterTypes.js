@@ -129,7 +129,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('registerType.deleteRegisterType', 'MDC', 'The register type will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + registerTypeToDelete.get('name') + '?',
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[registerTypeToDelete.get('name')]),
             config: {
                 me: me,
                 registerTypeToDelete: registerTypeToDelete
@@ -177,7 +177,7 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
             success: function (registerType) {
                 me.getApplication().fireEvent('loadRegisterType', registerType);
                 widget.down('form').loadRecord(registerType);
-                widget.down('#registerTypeEditForm').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + registerType.get('readingType').fullAliasName + '\'');
+                widget.down('#registerTypeEditForm').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[registerType.get('readingType').fullAliasName]));
                 readingTypeStore = widget.down('#readingTypeCombo').getStore();
                 readingTypeStore.load({
                     callback: function () {

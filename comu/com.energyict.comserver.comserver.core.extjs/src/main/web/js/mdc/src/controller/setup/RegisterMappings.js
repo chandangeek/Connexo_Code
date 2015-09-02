@@ -194,7 +194,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
 
                 Ext.create('Uni.view.window.Confirmation').show({
                     msg: msg,
-                    title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + registerMappingToDelete.get('name') + '?',
+                    title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[registerMappingToDelete.get('name')]),
                     config: {
                         registerMappingToDelete: registerMappingToDelete,
                         deviceType: deviceType,

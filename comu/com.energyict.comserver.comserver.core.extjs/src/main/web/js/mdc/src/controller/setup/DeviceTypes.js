@@ -218,7 +218,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: msg,
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + " '" + deviceTypeToDelete.get('name') + "'?",
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[deviceTypeToDelete.get('name')]),
             config: {
                 deviceTypeToDelete: deviceTypeToDelete,
                 me: me
@@ -265,7 +265,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
                         Ext.suspendLayouts();
                         me.getDeviceTypeEditForm().loadRecord(deviceType);
-                        me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + deviceType.get('name') + "'");
+                        me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[deviceType.get('name')]));
                         me.modifyEditView(widget, confugurationStore);
                         Ext.resumeLayouts(true);
                         widget.setLoading(false);
@@ -275,7 +275,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     if (widget.rendered) {
                         Ext.suspendLayouts();
                         me.getDeviceTypeEditForm().loadRecord(deviceType);
-                        me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + deviceType.get('name') + "'");
+                        me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[deviceType.get('name')]));
                         Ext.resumeLayouts(true);
                         widget.setLoading(false);
                     }
@@ -342,7 +342,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 widget.down('#device-life-cycle-combo').hide();
                 widget.down('#no-device-life-cycles').show();
             }
-            me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'device type');
+            me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.addDeviceType', 'MDC', 'Add device type'));
             widget.setLoading(false);
         });
     },
@@ -504,7 +504,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         model.load(deviceTypeId, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
-                me.getAddLogbookPanel().setTitle(Uni.I18n.translate('general.add', 'MDC', 'Add') + ' ' + 'logbook types');
+                me.getAddLogbookPanel().setTitle(Uni.I18n.translate('general.addLogbookTypes', 'MDC', 'Add logbook types'));
                 widget.setLoading(false);
             }
         });
