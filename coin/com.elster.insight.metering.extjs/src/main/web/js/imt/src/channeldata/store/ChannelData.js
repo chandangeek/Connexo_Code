@@ -8,9 +8,12 @@ Ext.define('Imt.channeldata.store.ChannelData', {
         reader: {
             type: 'json',
             root: 'data'
-        }
-    },
-    setUrl: function (params) {
-        this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(params.mRID)).replace('{channelId}', params.channelId);
+        },
+        setUrl: function (params) {
+            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(params.mRID)).replace('{channelId}', params.channelId);
+        },
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined
     }
 });
