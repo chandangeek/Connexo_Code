@@ -206,7 +206,7 @@ Ext.define('Apr.controller.AppServers', {
             success: function (exportPath) {
                 confirmationWindow.show({
                     msg: Uni.I18n.translate('appServers.remove.msg', 'APR', 'This application server will no longer be available.'),
-                    title: Uni.I18n.translate('general.remove', 'APR', 'Remove') + ' \'' + record.data.name + '\'?',
+                    title: Uni.I18n.translate('general.remove', 'APR', "Remove '{0}'?",[record.data.name]),
                     fn: function (state) {
                         if (state === 'confirm') {
                             exportPath.destroy({
@@ -318,7 +318,7 @@ Ext.define('Apr.controller.AppServers', {
                     view.down('message-services-grid').hide();
                     view.down('#empty-text-grid').show();
                 }
-                view.down('#add-appserver-form').setTitle(Uni.I18n.translate('general.edit', 'APR', 'Edit') + " '" + appServerName + "'");
+                view.down('#add-appserver-form').setTitle(Uni.I18n.translate('general.editx', 'APR', "Edit '{0}'",[appServerName]));
                 view.down('#txt-appserver-name').setValue(appServerName);
                 view.down('#txt-appserver-name').disable();
                 unservedStore.getProxy().setUrl(appServerName);
