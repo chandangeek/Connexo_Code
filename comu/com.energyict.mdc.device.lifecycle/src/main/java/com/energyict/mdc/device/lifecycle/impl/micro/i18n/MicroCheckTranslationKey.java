@@ -67,7 +67,7 @@ public enum MicroCheckTranslationKey implements TranslationKey {
     }
 
     private static Optional<TranslationKey> findTranslation(String key){
-        return Arrays.stream(MicroActionTranslationKey.values())
+        return Arrays.stream(MicroCheckTranslationKey.values())
                 .filter(candidate -> candidate.getKey().equals(key))
                 .map(TranslationKey.class::cast)
                 .findFirst();

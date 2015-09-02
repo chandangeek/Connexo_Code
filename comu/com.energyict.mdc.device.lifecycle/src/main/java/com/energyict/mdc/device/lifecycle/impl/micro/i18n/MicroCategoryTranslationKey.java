@@ -32,7 +32,7 @@ public enum MicroCategoryTranslationKey implements TranslationKey {
     }
 
     public static Optional<TranslationKey> getCategory(MicroCategory microCategory){
-        return Arrays.stream(MicroActionTranslationKey.values())
+        return Arrays.stream(MicroCategoryTranslationKey.values())
                 .filter(candidate -> candidate.getKey().equals(Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + microCategory.name()))
                 .map(TranslationKey.class::cast)
                 .findFirst();
