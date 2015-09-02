@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobjects;
+package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @since 24/06/2015 - 14:07
  */
 @XmlRootElement
-public class RTU3MeterDetails {
+public class Beacon3100MeterDetails {
 
     private String macAddress;
     private long deviceTypeId;
@@ -26,7 +26,7 @@ public class RTU3MeterDetails {
     private String authenticationKey;
     private String encryptionKey;
 
-    public RTU3MeterDetails(String macAddress, long deviceTypeId, String deviceTimeZone, String serialNumber, String llsSecret, String authenticationKey, String encryptionKey) {
+    public Beacon3100MeterDetails(String macAddress, long deviceTypeId, String deviceTimeZone, String serialNumber, String llsSecret, String authenticationKey, String encryptionKey) {
         this.macAddress = macAddress;
         this.deviceTypeId = deviceTypeId;
         this.deviceTimeZone = deviceTimeZone;
@@ -37,7 +37,7 @@ public class RTU3MeterDetails {
     }
 
     //JSon constructor
-    private RTU3MeterDetails() {
+    private Beacon3100MeterDetails() {
     }
 
     @XmlAttribute

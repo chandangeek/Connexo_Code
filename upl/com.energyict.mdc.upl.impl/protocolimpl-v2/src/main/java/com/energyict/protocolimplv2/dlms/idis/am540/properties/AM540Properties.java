@@ -32,7 +32,7 @@ public class AM540Properties extends IDISProperties {
 
     @Override
     public boolean isUsePolling() {
-        return false;   //The AM540 protocol will run embedded in the RTU3, so avoid polling on the inputstream
+        return false;   //The AM540 protocol will run embedded in the Beacon3100, so avoid polling on the inputstream
     }
 
     @Override

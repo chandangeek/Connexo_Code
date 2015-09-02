@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages;
+package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.Password;
@@ -19,12 +19,12 @@ import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.BroadcastUpgrade;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.DeviceInfoSerializer;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
-import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.RTU3;
-import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.firmwareobjects.BroadcastUpgrade;
-import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.firmwareobjects.DeviceInfoSerializer;
-import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobjects.MasterDataSerializer;
-import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobjects.MasterDataSync;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSync;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
@@ -45,7 +45,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  * @author khe
  * @since 22/06/2015 - 9:53
  */
-public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMessageSupport {
+public class Beacon3100Messaging extends AbstractMessageExecutor implements DeviceMessageSupport {
 
     private final static List<DeviceMessageSpec> supportedMessages;
     private static final String TEMP_DIR = "java.io.tmpdir";
@@ -133,7 +133,7 @@ public class RTU3Messaging extends AbstractMessageExecutor implements DeviceMess
     private MasterDataSync masterDataSync;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor = null;
 
-    public RTU3Messaging(RTU3 protocol) {
+    public Beacon3100Messaging(Beacon3100 protocol) {
         super(protocol);
     }
 

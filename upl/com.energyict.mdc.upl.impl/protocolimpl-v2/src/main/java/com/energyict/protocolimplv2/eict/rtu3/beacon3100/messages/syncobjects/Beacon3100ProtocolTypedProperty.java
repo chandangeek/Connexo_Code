@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobjects;
+package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import com.energyict.cbo.HexString;
 import com.energyict.cbo.TimeDuration;
@@ -17,13 +17,13 @@ import java.math.BigDecimal;
  * @since 25/08/2015 - 14:18
  */
 @XmlRootElement
-public class RTU3ProtocolTypedProperty {
+public class Beacon3100ProtocolTypedProperty {
 
     private final String name;
     private final String value;
     private final PropertyType type;
 
-    public RTU3ProtocolTypedProperty(String name, Object value) {
+    public Beacon3100ProtocolTypedProperty(String name, Object value) {
         this.name = name;
 
         if (value instanceof BigDecimal) {

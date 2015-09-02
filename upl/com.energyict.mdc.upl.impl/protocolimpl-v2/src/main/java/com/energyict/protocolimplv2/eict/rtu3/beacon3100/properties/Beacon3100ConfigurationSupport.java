@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.properties;
+package com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
@@ -13,7 +13,7 @@ import java.util.List;
  * @author khe
  * @since 10/06/2015 - 10:52
  */
-public class RTU3ConfigurationSupport extends DlmsConfigurationSupport {
+public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
 
     public static final String READCACHE_PROPERTY = "ReadCache";
     public static final String MASTER_KEY = "MasterKey";

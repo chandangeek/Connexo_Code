@@ -52,7 +52,7 @@ public class ModemWatchdogConfiguration extends AbstractCosemObject {
     }
 
     /**
-     * RTU3 added an extra entry (initialDelay) in the structure
+     * Beacon3100 added an extra entry (initialDelay) in the structure
      */
     public void writeExtendedConfigParameters(int interval, int initialDelay, int pppResetThreshold, int modemResetThreshold, int deviceRebootThreshold) throws IOException {
         Structure structure = new Structure();

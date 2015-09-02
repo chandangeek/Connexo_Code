@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobjects;
+package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -16,19 +16,19 @@ import java.util.List;
  * @since 24/06/2015 - 14:13
  */
 @XmlRootElement
-public class RTU3DeviceType {
+public class Beacon3100DeviceType {
 
     private long id;
     private String name;
-    private RTU3ProtocolConfiguration protocolConfiguration;
-    private List<RTU3Schedulable> schedulables;
-    private RTU3ClockSyncConfiguration clockSyncConfiguration;
-    private RTU3MeterSerialConfiguration meterSerialConfiguration;
+    private Beacon3100ProtocolConfiguration protocolConfiguration;
+    private List<Beacon3100Schedulable> schedulables;
+    private Beacon3100ClockSyncConfiguration clockSyncConfiguration;
+    private Beacon3100MeterSerialConfiguration meterSerialConfiguration;
 
     /**
      * Note that the ID is actually the one of the device type configuration, since every new config is considered as a unique new device type in the Beacon model.
      */
-    public RTU3DeviceType(long id, String name, RTU3MeterSerialConfiguration meterSerialConfiguration, RTU3ProtocolConfiguration protocolConfiguration, List<RTU3Schedulable> schedulables, RTU3ClockSyncConfiguration clockSyncConfiguration) {
+    public Beacon3100DeviceType(long id, String name, Beacon3100MeterSerialConfiguration meterSerialConfiguration, Beacon3100ProtocolConfiguration protocolConfiguration, List<Beacon3100Schedulable> schedulables, Beacon3100ClockSyncConfiguration clockSyncConfiguration) {
         this.id = id;
         this.name = name;
         this.meterSerialConfiguration = meterSerialConfiguration;
@@ -38,7 +38,7 @@ public class RTU3DeviceType {
     }
 
     //JSon constructor
-    private RTU3DeviceType() {
+    private Beacon3100DeviceType() {
     }
 
     public Structure toStructure() {
@@ -49,8 +49,8 @@ public class RTU3DeviceType {
         structure.addDataType(getProtocolConfiguration().toStructure());
 
         final Array schedulableArray = new Array();
-        for (RTU3Schedulable rtu3Schedulable : getSchedulables()) {
-            schedulableArray.addDataType(rtu3Schedulable.toStructure());
+        for (Beacon3100Schedulable beacon3100Schedulable : getSchedulables()) {
+            schedulableArray.addDataType(beacon3100Schedulable.toStructure());
         }
         structure.addDataType(schedulableArray);
 
@@ -70,22 +70,22 @@ public class RTU3DeviceType {
     }
 
     @XmlAttribute
-    public RTU3MeterSerialConfiguration getMeterSerialConfiguration() {
+    public Beacon3100MeterSerialConfiguration getMeterSerialConfiguration() {
         return meterSerialConfiguration;
     }
 
     @XmlAttribute
-    public RTU3ProtocolConfiguration getProtocolConfiguration() {
+    public Beacon3100ProtocolConfiguration getProtocolConfiguration() {
         return protocolConfiguration;
     }
 
     @XmlAttribute
-    public List<RTU3Schedulable> getSchedulables() {
+    public List<Beacon3100Schedulable> getSchedulables() {
         return schedulables;
     }
 
     @XmlAttribute
-    public RTU3ClockSyncConfiguration getClockSyncConfiguration() {
+    public Beacon3100ClockSyncConfiguration getClockSyncConfiguration() {
         return clockSyncConfiguration;
     }
 }

@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobjects;
+package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.axrdencoding.Array;
@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @since 24/06/2015 - 14:38
  */
 @XmlRootElement
-public class RTU3ProtocolConfiguration {
+public class Beacon3100ProtocolConfiguration {
 
     private String className;
 
@@ -25,13 +25,13 @@ public class RTU3ProtocolConfiguration {
      */
     private TypedProperties properties;
 
-    public RTU3ProtocolConfiguration(String className, TypedProperties properties) {
+    public Beacon3100ProtocolConfiguration(String className, TypedProperties properties) {
         this.className = className;
         this.properties = properties;
     }
 
     //JSon constructor
-    private RTU3ProtocolConfiguration() {
+    private Beacon3100ProtocolConfiguration() {
     }
 
     public Structure toStructure() {
@@ -43,8 +43,8 @@ public class RTU3ProtocolConfiguration {
             final Object value = getProperties().getProperty(name);
 
             //Only add if the type of the value is supported
-            if (value != null && RTU3ProtocolTypedProperty.isSupportedType(value)) {
-                protocolTypedProperties.addDataType(new RTU3ProtocolTypedProperty(name, value).toStructure());
+            if (value != null && Beacon3100ProtocolTypedProperty.isSupportedType(value)) {
+                protocolTypedProperties.addDataType(new Beacon3100ProtocolTypedProperty(name, value).toStructure());
             }
         }
         structure.addDataType(protocolTypedProperties);

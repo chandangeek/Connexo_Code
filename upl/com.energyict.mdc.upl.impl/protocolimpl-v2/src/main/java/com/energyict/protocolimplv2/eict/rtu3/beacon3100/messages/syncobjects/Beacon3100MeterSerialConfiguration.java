@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobjects;
+package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -15,18 +15,18 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @since 24/06/2015 - 14:09
  */
 @XmlRootElement
-public class RTU3MeterSerialConfiguration {
+public class Beacon3100MeterSerialConfiguration {
 
     private ObisCode serialNumberObisCode;
     private int clientTypeId;
 
-    public RTU3MeterSerialConfiguration(ObisCode serialNumberObisCode, int clientTypeId) {
+    public Beacon3100MeterSerialConfiguration(ObisCode serialNumberObisCode, int clientTypeId) {
         this.serialNumberObisCode = serialNumberObisCode;
         this.clientTypeId = clientTypeId;
     }
 
     //JSon constructor
-    private RTU3MeterSerialConfiguration() {
+    private Beacon3100MeterSerialConfiguration() {
     }
 
     public Structure toStructure() {

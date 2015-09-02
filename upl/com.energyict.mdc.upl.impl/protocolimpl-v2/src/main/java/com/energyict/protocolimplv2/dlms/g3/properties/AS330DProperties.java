@@ -56,7 +56,7 @@ public class AS330DProperties extends DlmsProperties {
 
     @Override
     public boolean isUsePolling() {
-        return false;   //The AS330D protocol will run embedded in the RTU3, so avoid polling on the inputstream
+        return false;   //The AS330D protocol will run embedded in the Beacon3100, so avoid polling on the inputstream
     }
 
     /**

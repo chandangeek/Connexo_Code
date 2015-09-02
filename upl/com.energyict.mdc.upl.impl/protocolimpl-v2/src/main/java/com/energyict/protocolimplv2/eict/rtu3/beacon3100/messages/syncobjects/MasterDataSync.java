@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobjects;
+package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -11,7 +11,7 @@ import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.RTU3Messaging;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import org.json.JSONArray;
@@ -31,10 +31,10 @@ import java.util.List;
  */
 public class MasterDataSync {
 
-    private final RTU3Messaging rtu3Messaging;
+    private final Beacon3100Messaging beacon3100Messaging;
 
-    public MasterDataSync(RTU3Messaging rtu3Messaging) {
-        this.rtu3Messaging = rtu3Messaging;
+    public MasterDataSync(Beacon3100Messaging beacon3100Messaging) {
+        this.beacon3100Messaging = beacon3100Messaging;
     }
 
     /**
@@ -49,7 +49,7 @@ public class MasterDataSync {
         } catch (JSONException | IOException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setDeviceProtocolInformation(e.getMessage());
-            collectedMessage.setFailureInformation(ResultType.InCompatible, rtu3Messaging.createMessageFailedIssue(pendingMessage, e));
+            collectedMessage.setFailureInformation(ResultType.InCompatible, beacon3100Messaging.createMessageFailedIssue(pendingMessage, e));
             return collectedMessage;
         }
 
@@ -64,15 +64,15 @@ public class MasterDataSync {
      * Sync the meter details. This assumes that the relevant device types are already synced!
      */
     public CollectedMessage syncDeviceData(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        RTU3MeterDetails[] meterDetails;
+        Beacon3100MeterDetails[] meterDetails;
         try {
             final String serializedMasterData = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.dcDeviceID2AttributeName).getDeviceMessageAttributeValue();
             final JSONArray jsonObject = new JSONArray(serializedMasterData);
-            meterDetails = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), RTU3MeterDetails[].class);
+            meterDetails = ObjectMapperFactory.getObjectMapper().readValue(new StringReader(jsonObject.toString()), Beacon3100MeterDetails[].class);
         } catch (JSONException | IOException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setDeviceProtocolInformation(e.getMessage());
-            collectedMessage.setFailureInformation(ResultType.InCompatible, rtu3Messaging.createMessageFailedIssue(pendingMessage, e));
+            collectedMessage.setFailureInformation(ResultType.InCompatible, beacon3100Messaging.createMessageFailedIssue(pendingMessage, e));
             return collectedMessage;
         }
 
@@ -80,20 +80,20 @@ public class MasterDataSync {
 
         boolean cleanupUnusedMasterData = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.cleanUpUnusedDeviceTypesAttributeName).getDeviceMessageAttributeValue());
         if (cleanupUnusedMasterData) {
-            //Remove the device types in the RTU3 data that are no longer defined in EIServer
+            //Remove the device types in the Beacon3100 data that are no longer defined in EIServer
 
-            final List<Long> rtu3DeviceTypeIds = readDeviceTypesIDs();
+            final List<Long> beacon3100DeviceTypeIds = readDeviceTypesIDs();
 
             final List<Long> eiServerDeviceTypeIds = new ArrayList<>();
-            for (RTU3MeterDetails meterDetail : meterDetails) {
+            for (Beacon3100MeterDetails meterDetail : meterDetails) {
                 if (!eiServerDeviceTypeIds.contains(meterDetail.getDeviceTypeId())) {
                     eiServerDeviceTypeIds.add(meterDetail.getDeviceTypeId());
                 }
             }
 
-            for (Long rtu3DeviceTypeId : rtu3DeviceTypeIds) {
-                if (shouldBeRemoved(eiServerDeviceTypeIds, rtu3DeviceTypeId)) {
-                    getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager().removeDeviceType(rtu3DeviceTypeId);
+            for (Long beacon3100DeviceTypeId : beacon3100DeviceTypeIds) {
+                if (shouldBeRemoved(eiServerDeviceTypeIds, beacon3100DeviceTypeId)) {
+                    getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager().removeDeviceType(beacon3100DeviceTypeId);
                 }
             }
         }
@@ -101,12 +101,12 @@ public class MasterDataSync {
         return collectedMessage;
     }
 
-    private boolean shouldBeRemoved(List<Long> eiServerDeviceTypeIds, Long rtu3DeviceTypeId) {
-        return !eiServerDeviceTypeIds.contains(rtu3DeviceTypeId);
+    private boolean shouldBeRemoved(List<Long> eiServerDeviceTypeIds, Long beacon3100DeviceTypeId) {
+        return !eiServerDeviceTypeIds.contains(beacon3100DeviceTypeId);
     }
 
     /**
-     * Return a cached (read out only once) list of the IDs of all device types in the RTU3 data.
+     * Return a cached (read out only once) list of the IDs of all device types in the Beacon3100 data.
      */
     private List<Long> readDeviceTypesIDs() throws IOException {
         List<Long> deviceTypesIDs = new ArrayList<>();
@@ -120,12 +120,12 @@ public class MasterDataSync {
     }
 
     public AbstractDlmsProtocol getProtocol() {
-        return rtu3Messaging.getProtocol();
+        return beacon3100Messaging.getProtocol();
     }
 
-    private void syncDevices(RTU3MeterDetails[] allMeterDetails) throws IOException {
-        for (RTU3MeterDetails rtu3MeterDetails : allMeterDetails) {
-            getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager().assignDeviceType(rtu3MeterDetails.toStructure());
+    private void syncDevices(Beacon3100MeterDetails[] allMeterDetails) throws IOException {
+        for (Beacon3100MeterDetails beacon3100MeterDetails : allMeterDetails) {
+            getProtocol().getDlmsSession().getCosemObjectFactory().getDeviceTypeManager().assignDeviceType(beacon3100MeterDetails.toStructure());
         }
     }
 
@@ -141,7 +141,7 @@ public class MasterDataSync {
             }
         }
 
-        for (RTU3DeviceType deviceType : allMasterData.getDeviceTypes()) {
+        for (Beacon3100DeviceType deviceType : allMasterData.getDeviceTypes()) {
             if (deviceTypeIds.contains(deviceType.getId())) {
                 deviceTypeManager.updateDeviceType(deviceType.toStructure());   //TODO optimize: only update if something's different
             } else {
@@ -162,11 +162,11 @@ public class MasterDataSync {
             }
         }
 
-        for (RTU3ClientType rtu3ClientType : allMasterData.getClientTypes()) {
-            if (clientTypeIds.contains(rtu3ClientType.getId())) {
-                clientTypeManager.updateClientType(rtu3ClientType.toStructure());     //TODO optimize: only update if something's different
+        for (Beacon3100ClientType beacon3100ClientType : allMasterData.getClientTypes()) {
+            if (clientTypeIds.contains(beacon3100ClientType.getId())) {
+                clientTypeManager.updateClientType(beacon3100ClientType.toStructure());     //TODO optimize: only update if something's different
             } else {
-                clientTypeManager.addClientType(rtu3ClientType.toStructure());
+                clientTypeManager.addClientType(beacon3100ClientType.toStructure());
             }
         }
     }
@@ -183,11 +183,11 @@ public class MasterDataSync {
             }
         }
 
-        for (RTU3Schedule rtu3Schedule : allMasterData.getSchedules()) {
-            if (scheduleIds.contains(rtu3Schedule.getId())) {
-                scheduleManager.updateSchedule(rtu3Schedule.toStructure());   //TODO optimize: only update if something's different
+        for (Beacon3100Schedule beacon3100Schedule : allMasterData.getSchedules()) {
+            if (scheduleIds.contains(beacon3100Schedule.getId())) {
+                scheduleManager.updateSchedule(beacon3100Schedule.toStructure());   //TODO optimize: only update if something's different
             } else {
-                scheduleManager.addSchedule(rtu3Schedule.toStructure());
+                scheduleManager.addSchedule(beacon3100Schedule.toStructure());
             }
         }
     }

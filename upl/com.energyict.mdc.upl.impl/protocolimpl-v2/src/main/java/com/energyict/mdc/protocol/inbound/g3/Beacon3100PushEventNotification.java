@@ -7,8 +7,8 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.RTU3;
-import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.properties.RTU3ConfigurationSupport;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -17,24 +17,24 @@ import java.security.Key;
 
 /**
  * Does pretty much the same as the PushEventNotification of the G3 gateway,
- * but uses the RTU3 protocol to connect to the DC device.
+ * but uses the Beacon3100 protocol to connect to the DC device.
  * <p/>
  * Copyrights EnergyICT
  *
  * @author khe
  * @since 17/06/2015 - 11:33
  */
-public class RTU3PushEventNotification extends PushEventNotification {
+public class Beacon3100PushEventNotification extends PushEventNotification {
 
     //TODO: support events from the meter too
     //TODO junit test with trace from Alex
 
     protected DeviceProtocol newGatewayProtocol() {
-        return new RTU3();
+        return new Beacon3100();
     }
 
     protected DlmsSession getDlmsSession(DeviceProtocol gatewayProtocol) {
-        return ((RTU3) gatewayProtocol).getDlmsSession();
+        return ((Beacon3100) gatewayProtocol).getDlmsSession();
     }
 
     /**
@@ -42,16 +42,16 @@ public class RTU3PushEventNotification extends PushEventNotification {
      */
     @Override
     protected OctetString wrap(TypedProperties properties, byte[] pskBytes) {
-        final String pskEncryptionKey = properties.getStringProperty(RTU3ConfigurationSupport.PSK_ENCRYPTION_KEY);
+        final String pskEncryptionKey = properties.getStringProperty(Beacon3100ConfigurationSupport.PSK_ENCRYPTION_KEY);
 
         if (pskEncryptionKey == null || pskEncryptionKey.isEmpty()) {
-            throw MdcManager.getComServerExceptionFactory().missingProperty(RTU3ConfigurationSupport.PSK_ENCRYPTION_KEY);
+            throw MdcManager.getComServerExceptionFactory().missingProperty(Beacon3100ConfigurationSupport.PSK_ENCRYPTION_KEY);
         }
 
         final byte[] pskEncryptionKeyBytes = parseKey(pskEncryptionKey);
 
         if (pskEncryptionKeyBytes == null) {
-            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException(RTU3ConfigurationSupport.PSK_ENCRYPTION_KEY, "(hidden)", "Should be 32 hex characters");
+            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException(Beacon3100ConfigurationSupport.PSK_ENCRYPTION_KEY, "(hidden)", "Should be 32 hex characters");
         }
 
         return OctetString.fromByteArray(aesWrap(pskBytes, pskEncryptionKeyBytes));
@@ -59,7 +59,7 @@ public class RTU3PushEventNotification extends PushEventNotification {
 
     /**
      * Extension of the structure: also add the protocol java class name of the slave device.
-     * The RTU3 then uses this to read out the e-meter serial number using the public client.
+     * The Beacon3100 then uses this to read out the e-meter serial number using the public client.
      */
     @Override
     protected Structure createMacAndKeyPair(OctetString macAddressOctetString, OctetString wrappedPSKKey, DeviceIdentifier slaveDeviceIdentifier) {

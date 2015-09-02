@@ -293,7 +293,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     WEB_RTU_Z3_EMETER_V2(257, "com.energyict.protocolimplv2.eict.webrtuz3.EMeter", FamilyRule.EICT_Z3),
     TRANSPARENT_GATEWAY(258, "com.energyict.protocolimplv2.eict.gateway.TransparentGateway"),
     G3_AS330D_V2(259, "com.energyict.protocolimplv2.dlms.g3.AS330D", FamilyRule.G3_LINKY_DLMS),
-    G3_RTU3(260, "com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.RTU3", FamilyRule.G3_LINKY_DLMS),
+    G3_BEACON_3100(260, "com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100"),
     E35C(261, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E35C.E35C"),
     ELSTER_A1_THEMISPLUS(262, "com.elster.protocolimpl.dlms.A1"),
     DL230_LIS200(263, "com.elster.protocolimpl.lis200.DL230"),

@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3;
+package com.energyict.protocolimplv2.eict.rtu3.beacon3100;
 
 import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
@@ -29,11 +29,11 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
-import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.RTU3Messaging;
-import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.properties.RTU3ConfigurationSupport;
-import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.properties.RTU3Properties;
-import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.registers.RegisterFactory;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.RegisterFactory;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -52,14 +52,14 @@ import java.util.Random;
  * @author khe
  * @since 18/06/2015 - 15:07
  */
-public class RTU3 extends AbstractDlmsProtocol {    //TODO rename to Beacon 3100 ? also adjust release notes page title
+public class Beacon3100 extends AbstractDlmsProtocol {
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
     private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
     private static final String MIRROR_LOGICAL_DEVICE_PREFIX = "ELS-MIR-";
     private static final String GATEWAY_LOGICAL_DEVICE_PREFIX = "ELS-UGW-";
 
-    private RTU3Messaging rtu3Messaging;
+    private Beacon3100Messaging beacon3100Messaging;
     private G3GatewayEvents g3GatewayEvents;
     private RegisterFactory registerFactory;
 
@@ -78,7 +78,7 @@ public class RTU3 extends AbstractDlmsProtocol {    //TODO rename to Beacon 3100
     protected void readFrameCounter(ComChannel comChannel) {
         TypedProperties clone = getDlmsSessionProperties().getProperties().clone();
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
-        RTU3Properties publicClientProperties = new RTU3Properties();
+        Beacon3100Properties publicClientProperties = new Beacon3100Properties();
         publicClientProperties.addProperties(clone);
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, clone));    //SecurityLevel 0:0
 
@@ -117,7 +117,7 @@ public class RTU3 extends AbstractDlmsProtocol {    //TODO rename to Beacon 3100
 
     @Override
     public String getProtocolDescription() {
-        return "EnergyICT RTU3 G3 DLMS";
+        return "EnergyICT Beacon3100 G3 DLMS";
     }
 
     @Override
@@ -147,29 +147,29 @@ public class RTU3 extends AbstractDlmsProtocol {    //TODO rename to Beacon 3100
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return getRtu3Messaging().getSupportedMessages();
+        return getBeacon3100Messaging().getSupportedMessages();
     }
 
-    private RTU3Messaging getRtu3Messaging() {
-        if (rtu3Messaging == null) {
-            rtu3Messaging = new RTU3Messaging(this);
+    private Beacon3100Messaging getBeacon3100Messaging() {
+        if (beacon3100Messaging == null) {
+            beacon3100Messaging = new Beacon3100Messaging(this);
         }
-        return rtu3Messaging;
+        return beacon3100Messaging;
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return getRtu3Messaging().executePendingMessages(pendingMessages);
+        return getBeacon3100Messaging().executePendingMessages(pendingMessages);
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return getRtu3Messaging().updateSentMessages(sentMessages);
+        return getBeacon3100Messaging().updateSentMessages(sentMessages);
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return getRtu3Messaging().format(propertySpec, messageAttribute);
+        return getBeacon3100Messaging().format(propertySpec, messageAttribute);
     }
 
     /**
@@ -271,11 +271,11 @@ public class RTU3 extends AbstractDlmsProtocol {    //TODO rename to Beacon 3100
         }
     }
 
-    public RTU3Properties getDlmsSessionProperties() {
+    public Beacon3100Properties getDlmsSessionProperties() {
         if (dlmsProperties == null) {
-            dlmsProperties = new RTU3Properties();
+            dlmsProperties = new Beacon3100Properties();
         }
-        return (RTU3Properties) dlmsProperties;
+        return (Beacon3100Properties) dlmsProperties;
     }
 
     /**
@@ -284,7 +284,7 @@ public class RTU3 extends AbstractDlmsProtocol {    //TODO rename to Beacon 3100
      */
     protected ConfigurationSupport getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
-            dlmsConfigurationSupport = new RTU3ConfigurationSupport();
+            dlmsConfigurationSupport = new Beacon3100ConfigurationSupport();
         }
         return dlmsConfigurationSupport;
     }

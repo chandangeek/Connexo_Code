@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.registers;
+package com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
@@ -28,11 +28,7 @@ import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -43,7 +39,7 @@ import java.util.Map;
 public class RegisterFactory {
 
     private final DlmsSession dlmsSession;
-    private BeaconG3RegisterMapper beaconG3RegisterMapper;
+    private Beacon3100G3RegisterMapper beacon3100G3RegisterMapper;
 
     public RegisterFactory(DlmsSession dlmsSession) {
         this.dlmsSession = dlmsSession;
@@ -63,7 +59,7 @@ public class RegisterFactory {
 
         for (OfflineRegister register : allRegisters) {
 
-            G3Mapping g3Mapping = getBeaconG3RegisterMapper().getG3Mapping(register.getObisCode());
+            G3Mapping g3Mapping = getBeacon3100G3RegisterMapper().getG3Mapping(register.getObisCode());
             final UniversalObject universalObject;
             final ObisCode baseObisCode = g3Mapping == null ? register.getObisCode() : g3Mapping.getBaseObisCode();
             try {
@@ -127,7 +123,7 @@ public class RegisterFactory {
                 result.add(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
             } else {
 
-                G3Mapping g3Mapping = getBeaconG3RegisterMapper().getG3Mapping(offlineRegister.getObisCode());
+                G3Mapping g3Mapping = getBeacon3100G3RegisterMapper().getG3Mapping(offlineRegister.getObisCode());
                 final ObisCode baseObisCode = g3Mapping == null ? offlineRegister.getObisCode() : g3Mapping.getBaseObisCode();
                 final UniversalObject universalObject;
                 try {
@@ -207,11 +203,11 @@ public class RegisterFactory {
         return result;
     }
 
-    private BeaconG3RegisterMapper getBeaconG3RegisterMapper() {
-        if (beaconG3RegisterMapper == null) {
-            beaconG3RegisterMapper = new BeaconG3RegisterMapper(getDlmsSession().getCosemObjectFactory(), getDlmsSession().getProperties().getTimeZone(), getDlmsSession().getLogger());
+    private Beacon3100G3RegisterMapper getBeacon3100G3RegisterMapper() {
+        if (beacon3100G3RegisterMapper == null) {
+            beacon3100G3RegisterMapper = new Beacon3100G3RegisterMapper(getDlmsSession().getCosemObjectFactory(), getDlmsSession().getProperties().getTimeZone(), getDlmsSession().getLogger());
         }
-        return beaconG3RegisterMapper;
+        return beacon3100G3RegisterMapper;
     }
 
     private CollectedRegister createCollectedRegister(RegisterValue registerValue, OfflineRegister offlineRegister) {

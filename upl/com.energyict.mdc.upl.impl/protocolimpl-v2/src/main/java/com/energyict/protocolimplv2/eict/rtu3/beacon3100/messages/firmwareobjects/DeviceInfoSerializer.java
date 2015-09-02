@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.firmwareobjects;
+package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects;
 
 import com.energyict.cpo.BusinessObject;
 import com.energyict.cpo.ObjectMapperFactory;
@@ -15,7 +15,7 @@ import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.idis.am540.AM540;
-import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.RTU3;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
@@ -44,10 +44,10 @@ public class DeviceInfoSerializer {
             if (businessObject instanceof Device) {
                 final Device slaveDevice = (Device) businessObject;
 
-                //First validate that all members of the group are AM540 devices, and have an RTU3 gateway configured.
-                final Device rtu3 = slaveDevice.getGateway();
-                if (rtu3 == null || !rtu3.getDeviceProtocolPluggableClass().getJavaClassName().equals(RTU3.class.getName())) {
-                    throw invalidFormatException("'Group of devices to upgrade'", "Group with ID " + ((Group) messageAttribute).getId(), "Group members must have a gateway that has DeviceProtocol '" + RTU3.class.getName() + "'");
+                //First validate that all members of the group are AM540 devices, and have an Beacon3100 gateway configured.
+                final Device beacon3100 = slaveDevice.getGateway();
+                if (beacon3100 == null || !beacon3100.getDeviceProtocolPluggableClass().getJavaClassName().equals(Beacon3100.class.getName())) {
+                    throw invalidFormatException("'Group of devices to upgrade'", "Group with ID " + ((Group) messageAttribute).getId(), "Group members must have a gateway that has DeviceProtocol '" + Beacon3100.class.getName() + "'");
                 }
 
                 if (!slaveDevice.getDeviceProtocolPluggableClass().getJavaClassName().equals(AM540.class.getName())) {
@@ -61,9 +61,9 @@ public class DeviceInfoSerializer {
                 generalProperties.setProperty(MeterProtocol.SERIALNUMBER, slaveDevice.getSerialNumber());
                 generalProperties.setProperty(DlmsProtocolProperties.READCACHE_PROPERTY, false);
 
-                //Get the dialect properties, from the RTU3 gateway device (configured in its connection task)
+                //Get the dialect properties, from the Beacon3100 gateway device (configured in its connection task)
                 final TypedProperties dialectProperties = TypedProperties.empty();
-                final List<ProtocolDialectProperties> allProtocolDialectProperties = rtu3.getAllProtocolDialectProperties();
+                final List<ProtocolDialectProperties> allProtocolDialectProperties = beacon3100.getAllProtocolDialectProperties();
 
                 //Look for the dialect with name 'GatewayTcpDlmsDialect'
                 for (ProtocolDialectProperties protocolDialectProperties : allProtocolDialectProperties) {

@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobjects;
+package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.cpo.PropertySpec;
@@ -22,8 +22,8 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
-import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.RTU3;
-import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.properties.RTU3ConfigurationSupport;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -73,11 +73,11 @@ public class MasterDataSerializer {
             slaveDevice = devices.get(0);
         }
 
-        //Use the dialect properties of the RTU3 gateway of a device that is of the given configuration
+        //Use the dialect properties of the Beacon3100 gateway of a device that is of the given configuration
         Device gatewayDevice = null;
         for (Device device : devices) {
             final Device gateway = device.getGateway();
-            if (gateway != null && gateway.getDeviceProtocolPluggableClass().getJavaClassName().equals(RTU3.class.getName())) {
+            if (gateway != null && gateway.getDeviceProtocolPluggableClass().getJavaClassName().equals(Beacon3100.class.getName())) {
                 gatewayDevice = gateway;
                 break;
             }
@@ -113,15 +113,15 @@ public class MasterDataSerializer {
         final int deviceTypeConfigId = deviceConfiguration.getId();
         final String deviceTypeName = deviceConfiguration.getDeviceType().getName() + "_" + deviceConfiguration.getName();   //DevicTypeName_ConfigName
 
-        final RTU3ProtocolConfiguration protocolConfiguration = getProtocolConfiguration(deviceConfiguration, masterDevice, deviceConfiguration.getDeviceType());
-        final List<RTU3Schedulable> schedulables = getSchedulables(deviceConfiguration);
-        final RTU3ClockSyncConfiguration clockSyncConfiguration = getClockSyncConfiguration(deviceConfiguration);
+        final Beacon3100ProtocolConfiguration protocolConfiguration = getProtocolConfiguration(deviceConfiguration, masterDevice, deviceConfiguration.getDeviceType());
+        final List<Beacon3100Schedulable> schedulables = getSchedulables(deviceConfiguration);
+        final Beacon3100ClockSyncConfiguration clockSyncConfiguration = getClockSyncConfiguration(deviceConfiguration);
 
         //Use the security set of the first task to read out the serial number.. doesn't really matter
-        final RTU3MeterSerialConfiguration meterSerialConfiguration = new RTU3MeterSerialConfiguration(FIXED_SERIAL_NUMBER_OBISCODE, schedulables.get(0).getClientTypeId());
+        final Beacon3100MeterSerialConfiguration meterSerialConfiguration = new Beacon3100MeterSerialConfiguration(FIXED_SERIAL_NUMBER_OBISCODE, schedulables.get(0).getClientTypeId());
 
-        final RTU3DeviceType rtu3DeviceType = new RTU3DeviceType(deviceTypeConfigId, deviceTypeName, meterSerialConfiguration, protocolConfiguration, schedulables, clockSyncConfiguration);
-        allMasterData.getDeviceTypes().add(rtu3DeviceType);
+        final Beacon3100DeviceType beacon3100DeviceType = new Beacon3100DeviceType(deviceTypeConfigId, deviceTypeName, meterSerialConfiguration, protocolConfiguration, schedulables, clockSyncConfiguration);
+        allMasterData.getDeviceTypes().add(beacon3100DeviceType);
 
         //Now add all information about the comtasks (get from configuration level, so it's the same for every device of the same device type)
         for (ComTaskEnablement comTaskEnablement : deviceConfiguration.getCommunicationConfiguration().getEnabledComTasks()) {
@@ -130,7 +130,7 @@ public class MasterDataSerializer {
             if (isMeterDataTask(comTaskEnablement, schedulables)) {
                 //Don't add the security set again if it's already there (based on EIServer database ID)
                 if (!clientTypeAlreadyExists(allMasterData.getClientTypes(), getClientTypeId(comTaskEnablement))) {
-                    final RTU3ClientType clientType = getClientType(device, comTaskEnablement);
+                    final Beacon3100ClientType clientType = getClientType(device, comTaskEnablement);
                     allMasterData.getClientTypes().add(clientType);
                 }
 
@@ -138,15 +138,15 @@ public class MasterDataSerializer {
                 final NextExecutionSpecs nextExecutionSpecs = comTaskEnablement.getNextExecutionSpecs();
                 final long scheduleId = getScheduleId(nextExecutionSpecs);
                 if (scheduleId != NO_SCHEDULE && !scheduleAlreadyExists(allMasterData.getSchedules(), nextExecutionSpecs)) {
-                    final RTU3Schedule rtu3Schedule = new RTU3Schedule(scheduleId, getScheduleName(nextExecutionSpecs), CronTabStyleConverter.convert(nextExecutionSpecs));
-                    allMasterData.getSchedules().add(rtu3Schedule);
+                    final Beacon3100Schedule beacon3100Schedule = new Beacon3100Schedule(scheduleId, getScheduleName(nextExecutionSpecs), CronTabStyleConverter.convert(nextExecutionSpecs));
+                    allMasterData.getSchedules().add(beacon3100Schedule);
                 }
             }
         }
     }
 
-    private static boolean isMeterDataTask(ComTaskEnablement comTaskEnablement, List<RTU3Schedulable> schedulables) {
-        for (RTU3Schedulable schedulable : schedulables) {
+    private static boolean isMeterDataTask(ComTaskEnablement comTaskEnablement, List<Beacon3100Schedulable> schedulables) {
+        for (Beacon3100Schedulable schedulable : schedulables) {
             if (schedulable.getComTaskEnablement().getId() == comTaskEnablement.getId())
                 return true;
         }
@@ -160,19 +160,19 @@ public class MasterDataSerializer {
         }
 
         final List<Device> downstreamDevices = masterDevice.getDownstreamDevices();
-        final RTU3MeterDetails[] result = new RTU3MeterDetails[downstreamDevices.size()];
+        final Beacon3100MeterDetails[] result = new Beacon3100MeterDetails[downstreamDevices.size()];
 
         for (int index = 0; index < downstreamDevices.size(); index++) {
             Device device = downstreamDevices.get(index);
 
             //The meter details for every slave device (MAC address, timezone, security keys, device type ID)
-            final RTU3MeterDetails meterDetails = createMeterDetails(device, masterDevice);
+            final Beacon3100MeterDetails meterDetails = createMeterDetails(device, masterDevice);
             result[index] = meterDetails;
         }
         return jsonSerialize(result);
     }
 
-    private static RTU3MeterDetails createMeterDetails(Device device, Device masterDevice) {
+    private static Beacon3100MeterDetails createMeterDetails(Device device, Device masterDevice) {
         final String callHomeId = device.getProtocolProperties().getStringProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
         if (callHomeId == null || callHomeId.length() != 16) {
             throw invalidFormatException(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, (callHomeId == null ? "null" : callHomeId), "Should be 16 hex characters");
@@ -192,7 +192,7 @@ public class MasterDataSerializer {
         }
 
         //The master key is a general property on the Beacon DC device
-        final byte[] masterKey = parseKey(RTU3ConfigurationSupport.MASTER_KEY, masterDevice.getProtocolProperties().getStringProperty(RTU3ConfigurationSupport.MASTER_KEY));
+        final byte[] masterKey = parseKey(Beacon3100ConfigurationSupport.MASTER_KEY, masterDevice.getProtocolProperties().getStringProperty(Beacon3100ConfigurationSupport.MASTER_KEY));
 
         //Get the DLMS keys from the device. If they are empty, an empty OctetString will be sent to the beacon.
         final byte[] password = getSecurityKey(device, SecurityPropertySpecName.PASSWORD.toString());
@@ -203,7 +203,7 @@ public class MasterDataSerializer {
         final String wrappedAK = ak == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(ak, masterKey), "");
         final String wrappedEK = ek == null ? "" : ProtocolTools.getHexStringFromBytes(wrap(ek, masterKey), "");
 
-        return new RTU3MeterDetails(callHomeId, deviceTypeId, deviceTimeZone, device.getSerialNumber(), wrappedPassword, wrappedAK, wrappedEK);
+        return new Beacon3100MeterDetails(callHomeId, deviceTypeId, deviceTimeZone, device.getSerialNumber(), wrappedPassword, wrappedAK, wrappedEK);
     }
 
     private static MeteringWarehouse mw() {
@@ -227,8 +227,8 @@ public class MasterDataSerializer {
         return writer.toString();
     }
 
-    private static boolean scheduleAlreadyExists(List<RTU3Schedule> schedules, NextExecutionSpecs nextExecutionSpecs) {
-        for (RTU3Schedule schedule : schedules) {
+    private static boolean scheduleAlreadyExists(List<Beacon3100Schedule> schedules, NextExecutionSpecs nextExecutionSpecs) {
+        for (Beacon3100Schedule schedule : schedules) {
             if (schedule.getName().equals(getScheduleName(nextExecutionSpecs))) {
                 return true;
             }
@@ -248,7 +248,7 @@ public class MasterDataSerializer {
         }
     }
 
-    private static RTU3ClockSyncConfiguration getClockSyncConfiguration(DeviceConfiguration deviceConfiguration) {
+    private static Beacon3100ClockSyncConfiguration getClockSyncConfiguration(DeviceConfiguration deviceConfiguration) {
         boolean setClock = false;
         int min = 0;
         int max = 0xFFFF;
@@ -266,14 +266,14 @@ public class MasterDataSerializer {
                 break;
             }
         }
-        return new RTU3ClockSyncConfiguration(setClock, min, max);
+        return new Beacon3100ClockSyncConfiguration(setClock, min, max);
     }
 
     /**
      * Gather scheduling info by iterating over the comtask enablements (on config level), this will be the same for all devices of the same device type & config.
      */
-    private static List<RTU3Schedulable> getSchedulables(DeviceConfiguration deviceConfiguration) {
-        List<RTU3Schedulable> schedulables = new ArrayList<>();
+    private static List<Beacon3100Schedulable> getSchedulables(DeviceConfiguration deviceConfiguration) {
+        List<Beacon3100Schedulable> schedulables = new ArrayList<>();
         for (ComTaskEnablement comTaskEnablement : deviceConfiguration.getCommunicationConfiguration().getEnabledComTasks()) {
             final long scheduleId = getScheduleId(comTaskEnablement.getNextExecutionSpecs());
 
@@ -287,7 +287,7 @@ public class MasterDataSerializer {
                 ArrayList<ObisCode> logBookObisCodes = getLogBookObisCodesForComTask(deviceConfiguration, comTaskEnablement);
 
                 if (isReadMeterDataTask(loadProfileObisCodes, registerObisCodes, logBookObisCodes)) {
-                    final RTU3Schedulable schedulable = new RTU3Schedulable(comTaskEnablement, scheduleId, logicalDeviceId, clientTypeId, loadProfileObisCodes, registerObisCodes, logBookObisCodes);
+                    final Beacon3100Schedulable schedulable = new Beacon3100Schedulable(comTaskEnablement, scheduleId, logicalDeviceId, clientTypeId, loadProfileObisCodes, registerObisCodes, logBookObisCodes);
                     schedulables.add(schedulable);
                 }
             }
@@ -384,7 +384,7 @@ public class MasterDataSerializer {
         return new ArrayList<>(loadProfileObisCodes);
     }
 
-    private static RTU3ClientType getClientType(Device device, ComTaskEnablement comTaskEnablement) {
+    private static Beacon3100ClientType getClientType(Device device, ComTaskEnablement comTaskEnablement) {
         final int clientTypeId = getClientTypeId(comTaskEnablement);
         final SecurityPropertySet securityPropertySet = comTaskEnablement.getSecurityPropertySet();
 
@@ -419,14 +419,14 @@ public class MasterDataSerializer {
             }
         }
 
-        return new RTU3ClientType(clientTypeId, clientMacAddress.intValue(), securityPropertySet.getAuthenticationDeviceAccessLevelId(), securityPropertySet.getEncryptionDeviceAccessLevelId());
+        return new Beacon3100ClientType(clientTypeId, clientMacAddress.intValue(), securityPropertySet.getAuthenticationDeviceAccessLevelId(), securityPropertySet.getEncryptionDeviceAccessLevelId());
     }
 
     /**
      * The protocol java class name and the properties (both general & dialect).
      * Note that the properties are fetched from config level, so they are the same for every device that has the same device type.
      */
-    private static RTU3ProtocolConfiguration getProtocolConfiguration(DeviceConfiguration deviceConfiguration, Device masterDevice, DeviceType deviceType) {
+    private static Beacon3100ProtocolConfiguration getProtocolConfiguration(DeviceConfiguration deviceConfiguration, Device masterDevice, DeviceType deviceType) {
         final String javaClassName = deviceType.getDeviceProtocolPluggableClass().getJavaClassName();
 
         TypedProperties allProperties = TypedProperties.empty();
@@ -462,12 +462,12 @@ public class MasterDataSerializer {
         //Add the name of the gateway dialect. The downstream protocol talks directly to the e-meter, just like when using the gateway functionality of the beacon.
         allProperties.setProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME, DeviceProtocolDialectNameEnum.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
 
-        return new RTU3ProtocolConfiguration(javaClassName, allProperties);
+        return new Beacon3100ProtocolConfiguration(javaClassName, allProperties);
     }
 
     /**
      * For all properties who are not yet specified - but for which a default value exist - the default value will be added.
-     * Note that we specifically use the gateway TCP dialect of the RTU3 protocol for this.
+     * Note that we specifically use the gateway TCP dialect of the Beacon3100 protocol for this.
      */
     private static void addDefaultDialectValuesIfNecessary(TypedProperties dialectProperties) {
         DeviceProtocolDialect theActualDialect = new GatewayTcpDeviceProtocolDialect();
@@ -484,17 +484,17 @@ public class MasterDataSerializer {
         }
     }
 
-    private static boolean deviceTypeAlreadyExists(List<RTU3DeviceType> rtu3DeviceTypes, DeviceConfiguration deviceConfiguration) {
-        for (RTU3DeviceType rtu3DeviceType : rtu3DeviceTypes) {
-            if (rtu3DeviceType.getId() == deviceConfiguration.getId()) {
+    private static boolean deviceTypeAlreadyExists(List<Beacon3100DeviceType> beacon3100DeviceTypes, DeviceConfiguration deviceConfiguration) {
+        for (Beacon3100DeviceType beacon3100DeviceType : beacon3100DeviceTypes) {
+            if (beacon3100DeviceType.getId() == deviceConfiguration.getId()) {
                 return true;
             }
         }
         return false;
     }
 
-    private static boolean clientTypeAlreadyExists(List<RTU3ClientType> clientTypes, int clientTypeId) {
-        for (RTU3ClientType clientType : clientTypes) {
+    private static boolean clientTypeAlreadyExists(List<Beacon3100ClientType> clientTypes, int clientTypeId) {
+        for (Beacon3100ClientType clientType : clientTypes) {
             if (clientType.getId() == clientTypeId) {
                 return true;
             }

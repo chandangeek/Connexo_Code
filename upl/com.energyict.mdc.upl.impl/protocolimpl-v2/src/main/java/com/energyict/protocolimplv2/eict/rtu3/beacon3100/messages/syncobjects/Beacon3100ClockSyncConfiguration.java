@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobjects;
+package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -14,20 +14,20 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @since 24/06/2015 - 14:30
  */
 @XmlRootElement
-public class RTU3ClockSyncConfiguration {
+public class Beacon3100ClockSyncConfiguration {
 
     private boolean setClock;
     private int minTimeDiff;
     private int maxTimeDiff;
 
-    public RTU3ClockSyncConfiguration(boolean setClock, int minTimeDiff, int maxTimeDiff) {
+    public Beacon3100ClockSyncConfiguration(boolean setClock, int minTimeDiff, int maxTimeDiff) {
         this.setClock = setClock;
         this.minTimeDiff = minTimeDiff;
         this.maxTimeDiff = maxTimeDiff;
     }
 
     //JSon constructor
-    private RTU3ClockSyncConfiguration() {
+    private Beacon3100ClockSyncConfiguration() {
     }
 
     public Structure toStructure() {

@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.registers;
+package com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers;
 
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper;
@@ -12,12 +12,12 @@ import java.util.logging.Logger;
  * @author khe
  * @since 2/09/2015 - 9:16
  */
-public class BeaconG3RegisterMapper extends G3RegisterMapper {
+public class Beacon3100G3RegisterMapper extends G3RegisterMapper {
 
     /**
      * G3 register mapping, used to read data from the meter as a register value
      */
-    public BeaconG3RegisterMapper(CosemObjectFactory cosemObjectFactory, TimeZone deviceTimeZone, Logger logger) {
+    public Beacon3100G3RegisterMapper(CosemObjectFactory cosemObjectFactory, TimeZone deviceTimeZone, Logger logger) {
         super(cosemObjectFactory, deviceTimeZone, logger);
     }
 

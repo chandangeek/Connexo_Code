@@ -47,7 +47,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 /**
- * Protocol that reads out the G3 e-meter connected to an RTU3 gateway / concentrator (for the G3 international project).
+ * Protocol that reads out the G3 e-meter connected to an Beacon3100 gateway / concentrator (for the G3 international project).
  * <p/>
  * Copyrights EnergyICT
  *
@@ -271,7 +271,7 @@ public class AS330D extends AbstractDlmsProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Collections.emptyList();     //This protocol does not manage the connections, it's a physical slave for the RTU3 gateway / DC
+        return Collections.emptyList();     //This protocol does not manage the connections, it's a physical slave for the Beacon3100 gateway / DC
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobjects;
+package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import com.energyict.dlms.axrdencoding.*;
 
@@ -12,14 +12,14 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @since 24/06/2015 - 14:09
  */
 @XmlRootElement
-public class RTU3ClientType {
+public class Beacon3100ClientType {
 
     private long id;
     private int clientMacAddress;
     private int securityLevel;
     private int securityPolicy;
 
-    public RTU3ClientType(long id, int clientMacAddress, int securityLevel, int securityPolicy) {
+    public Beacon3100ClientType(long id, int clientMacAddress, int securityLevel, int securityPolicy) {
         this.id = id;
         this.clientMacAddress = clientMacAddress;
         this.securityLevel = securityLevel;
@@ -27,7 +27,7 @@ public class RTU3ClientType {
     }
 
     //JSon constructor
-    private RTU3ClientType() {
+    private Beacon3100ClientType() {
     }
 
     public Structure toStructure() {

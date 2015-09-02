@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobjects;
+package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.mdc.tasks.ComTaskEnablement;
@@ -15,7 +15,7 @@ import java.util.List;
  * @since 24/06/2015 - 14:29
  */
 @XmlRootElement
-public class RTU3Schedulable {
+public class Beacon3100Schedulable {
 
     private long scheduleId;
     private int logicalDeviceId;
@@ -29,7 +29,7 @@ public class RTU3Schedulable {
      */
     private ComTaskEnablement comTaskEnablement;
 
-    public RTU3Schedulable(ComTaskEnablement comTaskEnablement, long scheduleId, int logicalDeviceId, int clientTypeId, List<ObisCode> profiles, List<ObisCode> registers, List<ObisCode> eventLogs) {
+    public Beacon3100Schedulable(ComTaskEnablement comTaskEnablement, long scheduleId, int logicalDeviceId, int clientTypeId, List<ObisCode> profiles, List<ObisCode> registers, List<ObisCode> eventLogs) {
         this.comTaskEnablement = comTaskEnablement;
         this.scheduleId = scheduleId;
         this.logicalDeviceId = logicalDeviceId;
@@ -40,7 +40,7 @@ public class RTU3Schedulable {
     }
 
     //JSon constructor
-    private RTU3Schedulable() {
+    private Beacon3100Schedulable() {
     }
 
     public Structure toStructure() {

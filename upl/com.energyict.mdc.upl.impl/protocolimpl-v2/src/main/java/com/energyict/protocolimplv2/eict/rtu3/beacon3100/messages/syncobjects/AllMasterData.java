@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.syncobjects;
+package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -14,25 +14,25 @@ import java.util.List;
 @XmlRootElement
 public class AllMasterData {
 
-    private final List<RTU3ClientType> clientTypes = new ArrayList<>();
-    private final List<RTU3DeviceType> deviceTypes = new ArrayList<>();
-    private final List<RTU3Schedule> schedules = new ArrayList<>();
+    private final List<Beacon3100ClientType> clientTypes = new ArrayList<>();
+    private final List<Beacon3100DeviceType> deviceTypes = new ArrayList<>();
+    private final List<Beacon3100Schedule> schedules = new ArrayList<>();
 
     public AllMasterData() {
     }
 
     @XmlAttribute
-    public List<RTU3ClientType> getClientTypes() {
+    public List<Beacon3100ClientType> getClientTypes() {
         return clientTypes;
     }
 
     @XmlAttribute
-    public List<RTU3DeviceType> getDeviceTypes() {
+    public List<Beacon3100DeviceType> getDeviceTypes() {
         return deviceTypes;
     }
 
     @XmlAttribute
-    public List<RTU3Schedule> getSchedules() {
+    public List<Beacon3100Schedule> getSchedules() {
         return schedules;
     }
 }

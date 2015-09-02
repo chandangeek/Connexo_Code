@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.firmwareobjects;
+package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects;
 
 import com.energyict.cpo.ObjectMapperFactory;
 import com.energyict.cpo.TypedProperties;
@@ -22,9 +22,9 @@ import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
-import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages.RTU3Messaging;
-import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.properties.RTU3ConfigurationSupport;
-import com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.properties.RTU3Properties;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
@@ -48,10 +48,10 @@ import java.util.List;
 public class BroadcastUpgrade {
 
     private static final ObisCode AM540_BROADCAST_FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
-    private final RTU3Messaging rtu3Messaging;
+    private final Beacon3100Messaging beacon3100Messaging;
 
-    public BroadcastUpgrade(RTU3Messaging rtu3Messaging) {
-        this.rtu3Messaging = rtu3Messaging;
+    public BroadcastUpgrade(Beacon3100Messaging beacon3100Messaging) {
+        this.beacon3100Messaging = beacon3100Messaging;
     }
 
     //TODO fully test parsing & format, use NTA sim & eiserver
@@ -79,7 +79,7 @@ public class BroadcastUpgrade {
         } catch (JSONException | IOException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setDeviceProtocolInformation(e.toString());
-            collectedMessage.setFailureInformation(ResultType.InCompatible, rtu3Messaging.createMessageFailedIssue(pendingMessage, e));
+            collectedMessage.setFailureInformation(ResultType.InCompatible, beacon3100Messaging.createMessageFailedIssue(pendingMessage, e));
             return collectedMessage;
         }
 
@@ -125,14 +125,14 @@ public class BroadcastUpgrade {
         }
 
         //Now associate to the 'broadcast' logical device. It has the exact same security keys as the management logical device in the Beacon. (only the SERVER_UPPER_MAC_ADDRESS is different)
-        final DlmsSessionProperties managementProperties = rtu3Messaging.getProtocol().getDlmsSessionProperties();
-        RTU3Properties broadcastLogicalDeviceProperties = new RTU3Properties();
+        final DlmsSessionProperties managementProperties = beacon3100Messaging.getProtocol().getDlmsSessionProperties();
+        Beacon3100Properties broadcastLogicalDeviceProperties = new Beacon3100Properties();
         broadcastLogicalDeviceProperties.addProperties(managementProperties.getProperties());
         broadcastLogicalDeviceProperties.addProperties(managementProperties.getSecurityPropertySet().getSecurityProperties());
         broadcastLogicalDeviceProperties.setSecurityPropertySet(managementProperties.getSecurityPropertySet());
         broadcastLogicalDeviceProperties.getProperties().setProperty(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, broadcastLogicalDeviceId);
 
-        final DlmsSession broadcastLogicalDeviceDlmsSession = new DlmsSession(rtu3Messaging.getProtocol().getDlmsSession().getComChannel(), broadcastLogicalDeviceProperties);
+        final DlmsSession broadcastLogicalDeviceDlmsSession = new DlmsSession(beacon3100Messaging.getProtocol().getDlmsSession().getComChannel(), broadcastLogicalDeviceProperties);
         broadcastLogicalDeviceDlmsSession.connect();
 
         //TODO disconnect after cycle?
@@ -151,7 +151,7 @@ public class BroadcastUpgrade {
         blockTransferProperties.getProperties().setProperty(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID, BigDecimal.ONE);
         blockTransferProperties.getProperties().setProperty(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE);
         blockTransferProperties.getProperties().setProperty(MeterProtocol.NODEID, BigDecimal.ONE);
-        blockTransferProperties.getProperties().setProperty(RTU3ConfigurationSupport.READCACHE_PROPERTY, false);
+        blockTransferProperties.getProperties().setProperty(Beacon3100ConfigurationSupport.READCACHE_PROPERTY, false);
 
         //Note that all meters will have the same AK and broadcast EK. (this is defined in the IDIS P2 spec)
         TypedProperties securityProperties = TypedProperties.empty();
@@ -271,7 +271,7 @@ public class BroadcastUpgrade {
         am540Properties.addProperties(securityPropertySet.getSecurityProperties());
         am540Properties.setSecurityPropertySet(securityPropertySet);
 
-        return new DlmsSession(rtu3Messaging.getProtocol().getDlmsSession().getComChannel(), am540Properties);
+        return new DlmsSession(beacon3100Messaging.getProtocol().getDlmsSession().getComChannel(), am540Properties);
     }
 
     private void silentRelease(DlmsSession dlmsSession) {

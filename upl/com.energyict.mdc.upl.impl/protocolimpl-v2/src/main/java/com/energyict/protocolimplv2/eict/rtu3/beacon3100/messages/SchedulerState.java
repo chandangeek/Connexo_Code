@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.eict.rtuplusserver.rtu3.messages;
+package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
 import com.energyict.dlms.axrdencoding.TypeEnum;
 
