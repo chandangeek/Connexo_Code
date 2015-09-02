@@ -106,32 +106,38 @@ public class RegisterReadings {
 
     public void addDeviceEvent(String... mistakenArgs) {
         System.out.println("Usage : \n" +
-                "\taddDeviceEvent deviceMRID eventCode dateTime alias reason severity status type issuerId issuerTrackingId userId logBookId logBookPosition data" +
+                "\taddDeviceEvent deviceMRID eventCode dateTime mrid name alias description reason severity status type issuerId issuerTrackingId logBookId logBookPosition data" +
                 "\n" +
                 "\tdateTime : format yyyy-MM-dd@HH:mm:ss\n" +
                 "\tdata     : comma-separated properties formatted as field=value\n");
     }
 
-    public void addDeviceEvent(String deviceMRID, String eventCode, String dateTime, String alias, String reason, String severity, String status, String type, String issuerId, String issuerTrackingId, String userId, long logBookId, int logBookPosition, String data) {
-        Instant eventTime = Instant.from(parseDateFormat.parse(dateTime));
-        Optional<Device> found = this.deviceService.findByUniqueMrid(deviceMRID);
-        found.ifPresent(device -> {
-            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-            EndDeviceEventImpl endDeviceEvent = EndDeviceEventImpl.of(eventCode, eventTime);
-            endDeviceEvent.setAliasName(alias);
-            endDeviceEvent.setReason(reason);
-            endDeviceEvent.setSeverity(severity);
-            endDeviceEvent.setStatus(parseStatus(status));
-            endDeviceEvent.setType(type);
-            endDeviceEvent.setIssuerId(issuerId);
-            endDeviceEvent.setIssuerTrackingId(issuerTrackingId);
-            endDeviceEvent.setUserId(userId);
-            endDeviceEvent.setLogBookId(logBookId);
-            endDeviceEvent.setLogBookPosition(logBookPosition);
-            endDeviceEvent.setEventData(parseMap(data));
-            meterReading.addEndDeviceEvent(endDeviceEvent);
-            executeAsBatchExecutor(VoidTransaction.of(() -> device.store(meterReading)));
-        });
+    public void addDeviceEvent(String deviceMRID, String eventCode, String dateTime, String mrid, String name, String alias, String description, String reason, String severity, String status, String type, String issuerId, String issuerTrackingId, long logBookId, int logBookPosition, String data) {
+        try {
+            Instant eventTime = Instant.from(parseDateFormat.parse(dateTime));
+            Optional<Device> found = this.deviceService.findByUniqueMrid(deviceMRID);
+            found.ifPresent(device -> {
+                MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+                EndDeviceEventImpl endDeviceEvent = EndDeviceEventImpl.of(eventCode, eventTime);
+                endDeviceEvent.setMrid(mrid);
+                endDeviceEvent.setName(name);
+                endDeviceEvent.setAliasName(alias);
+                endDeviceEvent.setDescription(description);
+                endDeviceEvent.setReason(reason);
+                endDeviceEvent.setSeverity(severity);
+                endDeviceEvent.setStatus(parseStatus(status));
+                endDeviceEvent.setType(type);
+                endDeviceEvent.setIssuerId(issuerId);
+                endDeviceEvent.setIssuerTrackingId(issuerTrackingId);
+                endDeviceEvent.setLogBookId(logBookId);
+                endDeviceEvent.setLogBookPosition(logBookPosition);
+                endDeviceEvent.setEventData(parseMap(data));
+                meterReading.addEndDeviceEvent(endDeviceEvent);
+                executeAsBatchExecutor(VoidTransaction.of(() -> device.store(meterReading)));
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private Status parseStatus(String status) {
