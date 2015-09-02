@@ -35,10 +35,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -155,6 +158,8 @@ public class DeviceLifeCycleActionResource {
                     .map(microActionAndCheckInfoFactory::optional)
                     .forEach(microActions::add);
         }
+        Collections.sort(microActions, Comparator.<MicroActionAndCheckInfo, String>comparing(obj -> obj.category.name)
+                .thenComparing(Comparator.comparing(obj -> obj.name)));
         return Response.ok(PagedInfoList.fromCompleteList("microActions", microActions, queryParams)).build();
     }
 
@@ -169,7 +174,8 @@ public class DeviceLifeCycleActionResource {
             @QueryParam("toState") long toStateId,
             @BeanParam JsonQueryParameters queryParams) {
         Optional<TransitionType> defaultTransition = getDefaultTransition(deviceLifeCycleId, fromStateId, toStateId);
-        Set<MicroActionAndCheckInfo> microChecks = new HashSet<>();
+        Set<MicroActionAndCheckInfo> microChecks = new TreeSet<>(Comparator.<MicroActionAndCheckInfo, String>comparing(obj -> obj.category.name)
+                .thenComparing(Comparator.comparing(obj -> obj.name)));
         if (defaultTransition.isPresent()){
             defaultTransition.get().optionalChecks()
                     .stream()
