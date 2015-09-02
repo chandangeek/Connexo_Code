@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeGrid',
     columns: {
         items: [
             {
-                header: 'Name',
+                header: Uni.I18n.translate('general.name','MDC','Name'),
                 dataIndex: 'name',
                 flex: 3
             },
@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeGrid',
                 dataIndex: 'obisCode'
             },
             {
-                header: 'Interval',
+                header: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),
                 dataIndex: 'timeDuration',
                 renderer: function (value) {
                     var intervalRecord = this.intervalStore.getById(value.id);

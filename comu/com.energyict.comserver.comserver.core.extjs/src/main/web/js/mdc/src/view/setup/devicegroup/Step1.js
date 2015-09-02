@@ -27,7 +27,7 @@ Ext.define('Mdc.view.setup.devicegroup.Step1', {
                 },
                 {
                     xtype: 'textfield',
-                    fieldLabel: 'Name',
+                    fieldLabel: Uni.I18n.translate('general.name','MDC','Name'),
                     itemId: 'deviceGroupNameTextField',
                     required: true,
                     allowBlank: false,
@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.devicegroup.Step1', {
                     itemId: 'staticDynamicRadioButton',
                     xtype: 'radiogroup',
                     columns: 1,
-                    fieldLabel: 'Type',
+                    fieldLabel: Uni.I18n.translate('general.type','MDC','Type'),
                     required: true,
                     vertical: true,
                     defaults: {

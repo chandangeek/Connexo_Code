@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSideFilter', {
                         {
                             xtype: 'textfield',
                             name: 'name',
-                            fieldLabel: 'Name',
+                            fieldLabel: Uni.I18n.translate('general.name','MDC','Name'),
                             labelAlign: 'top'
                         },
                         {

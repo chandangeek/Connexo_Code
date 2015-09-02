@@ -12,7 +12,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurationsGrid', {
         var me = this;
         me.columns = [
             {
-                header: 'Name',
+                header: Uni.I18n.translate('general.name','MDC','Name'),
                 dataIndex: 'name',
                 flex: 4
             },

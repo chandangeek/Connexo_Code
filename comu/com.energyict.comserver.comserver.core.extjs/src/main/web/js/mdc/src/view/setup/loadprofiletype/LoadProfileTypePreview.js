@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
                 },
                 items: [
                     {
-                        fieldLabel: 'Name',
+                        fieldLabel: Uni.I18n.translate('general.name','MDC','Name'),
                         name: 'name'
                     },
                     {
@@ -44,7 +44,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
                         name: 'obisCode'
                     },
                     {
-                        fieldLabel: 'Interval',
+                        fieldLabel: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),
                         name: 'timeDuration',
                         renderer: function (value) {
                             var intervalRecord = Ext.getStore('Mdc.store.Intervals').getById(value.id);
@@ -56,7 +56,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
 
             {
                 xtype: 'fieldcontainer',
-                fieldLabel: 'Register types',
+                fieldLabel: Uni.I18n.translate('general.registerTypes', 'MDC', 'Register types'),
                 itemId: 'registerTypesArea'
             }
 
@@ -67,7 +67,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
         Ext.suspendLayouts();
         this.down('#registerTypesArea').removeAll();
         for (var i = 0; i < selectedLoadProfileType.get('registerTypes').length; i++) {
-            var fieldlabel = i > 0 ? '&nbsp' : 'Register types',
+            var fieldlabel = i > 0 ? '&nbsp' : Uni.I18n.translate('general.registerTypes', 'MDC', 'Register types'),
                 readingType = selectedLoadProfileType.get('registerTypes')[i].readingType;
 
             this.down('#registerTypesArea').add(

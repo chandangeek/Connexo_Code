@@ -155,7 +155,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypePreview', {
                                 items: [
                                     {
                                         name: 'deviceConfigurationCount',
-                                        text: Uni.I18n.translate('devicetype.deviceconfigurations', 'MDC', 'device configurations'),
+                                        text: ' ',
                                         itemId: 'deviceConfigurationsLink'
                                     }
                                 ]
