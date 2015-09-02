@@ -3,7 +3,8 @@ Ext.define('Imt.channeldata.view.DataSetup', {
     alias: 'widget.channel-data-setup',
     itemId: 'channel-data-setup',
     requires: [
-        'Imt.channeldata.view.ChannelGraph'
+        'Imt.channeldata.view.ChannelGraph',,
+        'Imt.channeldata.view.ChannelTopFilter'
     ],
     router: null,
     initComponent: function () {
@@ -45,7 +46,16 @@ Ext.define('Imt.channeldata.view.DataSetup', {
                         mRID: me.mRID,
                         router: me.router
                     }
-                ]
+                ],
+                dockedItems: [
+                    {
+                        dock: 'top',
+                        xtype: 'imt-channeldata-topfilter',
+                        itemId: 'channeldatafilterpanel',
+                        hasDefaultFilters: true,
+                        filterDefault: me.filter
+                    }
+                 ]
             }
         ];
         me.callParent(arguments);

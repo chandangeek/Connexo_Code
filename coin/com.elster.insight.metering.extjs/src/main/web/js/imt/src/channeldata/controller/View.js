@@ -7,12 +7,14 @@ Ext.define('Imt.channeldata.controller.View', {
     ],
     models: [
         'Imt.usagepointmanagement.model.UsagePoint',
-        'Imt.model.DataIntervalAndZoomLevels'
+        'Imt.model.DataIntervalAndZoomLevels',
+        'Imt.model.ChannelDataDuration'
     ],
     stores: [
              'Imt.channeldata.store.Channel',
              'Imt.channeldata.store.ChannelData',
-             'Imt.store.DataIntervalAndZoomLevels'
+             'Imt.store.DataIntervalAndZoomLevels',
+             'Imt.store.ChannelDataDurations'
     ],
     views: [
             'Imt.channeldata.view.ChannelList',
@@ -70,19 +72,43 @@ Ext.define('Imt.channeldata.controller.View', {
     },
     showUsagePointChannelData: function (mRID, channel) {
         var me = this,
+            dataStore = me.getStore('Imt.channeldata.store.ChannelData'),
             router = me.getController('Uni.controller.history.Router'),
             channelModel = me.getModel('Imt.channeldata.model.Channel'),
+            durationsStore = me.getStore('Imt.store.ChannelDataDurations'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
        
         pageMainContent.setLoading(true);
         channelModel.getProxy().setUrl({mRID: mRID, channelId: channel});
         channelModel.load(channel, {
             success: function (record) {
-                var widget = Ext.widget('channel-data-setup', {router: router, mRID: mRID, channel: channel});
+                var dataIntervalAndZoomLevels = me.getStore('Imt.store.DataIntervalAndZoomLevels').getIntervalRecord(record.get('interval')),
+                intervalStart = dataIntervalAndZoomLevels.getIntervalStart((record.get('lastReading') || new Date().getTime())),
+                all = dataIntervalAndZoomLevels.get('all');
+                durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
+                var widget = Ext.widget('channel-data-setup', {
+                        router: router, 
+                        mRID: mRID, 
+                        channel: channel,
+                        filter: {
+                            fromDate: intervalStart,
+                            duration: all.count + all.timeUnit,
+                            durationStore: durationsStore
+                        }
+                });
                 me.getApplication().fireEvent('channelDataLoaded', record);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getOverviewLink().setText(mRID);
-                me.showUsagePointChannelGraph(mRID, record);
+                dataStore.getProxy().setUrl({mRID: mRID, channelId: channel});
+                dataStore.on('load', function () {
+                    if (!widget.isDestroyed) {
+                        me.showUsagePointChannelGraph(mRID, record);                                                
+                        widget.setLoading(false);
+                        Ext.getBody().unmask();
+                    }
+                }, me);
+
+                dataStore.load();
             },
             callback: function () {
                 pageMainContent.setLoading(false);
@@ -91,11 +117,11 @@ Ext.define('Imt.channeldata.controller.View', {
     },
     showUsagePointChannelGraph: function(mRID, channel) {
         var me = this,
-        container = this.getUsagePointChannelGraphView(),
+        container = me.getUsagePointChannelGraphView(),
         dataStore = me.getStore('Imt.channeldata.store.ChannelData'),
         zoomLevelsStore = me.getStore('Imt.store.DataIntervalAndZoomLevels'),
         channelName = channel.get('readingTypeFullAliasName'),
-        unitOfMeasure = 'Wh',
+        unitOfMeasure = channel.get('readingType').unit,
         seriesObject = { 
             marker: { enabled: false },
             name: channelName
@@ -130,9 +156,9 @@ Ext.define('Imt.channeldata.controller.View', {
         if (dataStore.getCount() > 0) {
             dataStore.each(function (record) {
                 if (record.get('value')) {
-                    seriesObject['data'].unshift([record.get('interval').start, parseFloat(record.get('value'))]);
+                    seriesObject['data'].push([record.get('interval').start, parseFloat(record.get('value'))]);
                 } else {
-                    seriesObject['data'].unshift([record.get('interval').start, null]);
+                    seriesObject['data'].push([record.get('interval').start, null]);
                 }
             });
             series.push(seriesObject);

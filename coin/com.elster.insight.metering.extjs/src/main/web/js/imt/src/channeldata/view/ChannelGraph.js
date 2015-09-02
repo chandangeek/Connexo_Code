@@ -6,7 +6,6 @@ Ext.define('Imt.channeldata.view.ChannelGraph', {
     requires: [
         'Imt.view.GraphView'
     ],
-
     items: [
         {
             xtype: 'container',
@@ -24,8 +23,6 @@ Ext.define('Imt.channeldata.view.ChannelGraph', {
                 Uni.I18n.translate('deviceloadprofiles.data.empty.list.item1', 'MDC', 'No readings have been defined yet.') ]
         }
     ],
-
-
     drawGraph: function (yAxis, series, intervalLength, channelName, unitOfMeasure, zoomLevels) {
         var me = this;
 
