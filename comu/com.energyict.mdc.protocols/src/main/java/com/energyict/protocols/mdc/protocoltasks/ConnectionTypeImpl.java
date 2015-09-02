@@ -48,6 +48,10 @@ public abstract class ConnectionTypeImpl implements ServerConnectionType {
         return this.getAllProperties().getProperty(propertyName);
     }
 
+    protected Object getProperty(String propertyName, Object defaultValue) {
+        return this.getAllProperties().getProperty(propertyName, defaultValue);
+    }
+
     protected void setProperty(String propertyName, Object value) {
         this.properties.setProperty(propertyName, value);
     }
