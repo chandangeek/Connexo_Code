@@ -22,7 +22,9 @@ import javax.validation.MessageInterpolator;
 import java.security.Principal;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -370,8 +372,13 @@ public class UserServiceImpl implements UserService, InstallService, Translation
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
+        return Stream.of(
+                Arrays.stream(MessageSeeds.values()),
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
+
 
     @Override
     public String getComponentName() {
@@ -571,7 +578,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
         resources.add(createModuleResourceWithPrivileges(
                 UserService.COMPONENTNAME,
                 "userAndRole.usersAndRoles", "userAndRole.usersAndRoles.description",
-                Arrays.asList(Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE)));
+                Arrays.asList(Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE)));
 
         return resources;
     }

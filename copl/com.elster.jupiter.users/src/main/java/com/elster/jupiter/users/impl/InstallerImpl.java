@@ -73,7 +73,7 @@ public class InstallerImpl {
 	}
 
 	private void grantSystemAdministratorPrivileges(GroupImpl group){
-        Field[] fields = Privileges.class.getFields();
+        Field[] fields = Privileges.Constants.class.getFields();
         for (Field each : fields) {
             try {
                 group.grant("SYS", (String) each.get(null));
