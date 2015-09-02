@@ -30,6 +30,7 @@ import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.idis.registers.AlarmBitsRegister;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedActivityCalendar;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedClock;
@@ -64,6 +65,10 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
     private static final String ALARM_REGISTER1 = "0.0.97.98.0.255";
     private static final String ALARM_REGISTER2 = "0.0.97.98.1.255";
     private static final String ERROR_REGISTER = "0.0.97.97.0.255";
+    private static final String ACTIVE_FIRMWARE_SIGNATURE = "1.0.0.2.8.255";
+    private static final String ACTIVE_FIRMWARE_SIGNATURE_1 = "1.1.0.2.8.255";
+    private static final String ACTIVE_FIRMWARE_SIGNATURE_2 = "1.2.0.2.8.255";
+
     private final AM130 am130;
 
     public AM130RegisterFactory(AM130 am130) {
@@ -209,7 +214,9 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
 
                     RegisterValue registerValue;
                     if (dataValue.getOctetString() != null) {
-                        registerValue = new RegisterValue(offlineRegister, dataValue.getOctetString().stringValue().trim());
+                        registerValue = containsActiveFirmwareSignature(composedData)
+                                ? new RegisterValue(offlineRegister, "0x" + ProtocolTools.getHexStringFromBytes(dataValue.getOctetString().getOctetStr(), ""))
+                                : new RegisterValue(offlineRegister, dataValue.getOctetString().stringValue().trim());
                     } else if (dataValue.getBooleanObject() != null) {
                         registerValue = new RegisterValue(offlineRegister, String.valueOf(dataValue.getBooleanObject().getState()));
                     } else {
@@ -258,6 +265,12 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                 return null;
             }
         }
+    }
+
+    private boolean containsActiveFirmwareSignature(ComposedData composedData) {
+        return composedData.getDataValueAttribute().getObisCode().equals(ObisCode.fromString(ACTIVE_FIRMWARE_SIGNATURE)) ||
+                composedData.getDataValueAttribute().getObisCode().equals(ObisCode.fromString(ACTIVE_FIRMWARE_SIGNATURE_1)) ||
+                composedData.getDataValueAttribute().getObisCode().equals(ObisCode.fromString(ACTIVE_FIRMWARE_SIGNATURE_2));
     }
 
     private void filterOutAllAllBillingRegistersFromList(List<OfflineRegister> offlineRegisters) {

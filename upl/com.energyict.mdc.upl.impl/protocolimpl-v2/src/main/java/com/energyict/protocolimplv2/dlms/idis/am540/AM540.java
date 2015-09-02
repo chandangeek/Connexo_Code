@@ -164,7 +164,7 @@ public class AM540 extends AM130 {
 
         boolean readCache = getDlmsSessionProperties().isReadCache();
         if ((getDeviceCache().getObjectList() == null) || (readCache)) {
-            getLogger().info("ReadCache property is true, reading cache!");
+            getLogger().info(readCache ? "ReReadCache property is true, reading cache!" : "The cache was empty, reading out the object list!");
             readObjectList();
             getDeviceCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
         } else {
