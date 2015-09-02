@@ -5,7 +5,12 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecBuilder;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dynamicattributes.EncryptedStringFactory;
-import com.energyict.mdc.protocol.security.*;
+import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.LegacyDeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.protocol.security.SecurityProperty;
 
 import java.util.Arrays;
 import java.util.List;
@@ -56,8 +61,8 @@ public class Mtu155SecuritySupport implements LegacyDeviceProtocolSecurityCapabi
     public List<String> getLegacySecurityProperties() {
         return Arrays.asList(
                 KEY_T_LEGACY_PROPERTY,
-                KEY_T_LEGACY_PROPERTY,
-                KEY_T_LEGACY_PROPERTY,
+                KEY_C_LEGACY_PROPERTY,
+                KEY_F_LEGACY_PROPERTY,
                 SECURITY_LEVEL_PROPERTY_NAME);
     }
 
