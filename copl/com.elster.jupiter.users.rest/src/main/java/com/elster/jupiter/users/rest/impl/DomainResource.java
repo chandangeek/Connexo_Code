@@ -34,7 +34,7 @@ public class DomainResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE,Privileges.VIEW_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE})
     public DomainInfos getDomains(@Context UriInfo uriInfo) {
         return new DomainInfos(userService.getUserDirectories());
     }
@@ -42,7 +42,7 @@ public class DomainResource {
     @GET
     @Path("/{name}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE,Privileges.VIEW_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE})
     public DomainInfos getDomain(@PathParam("name") String name) {
         Optional<UserDirectory> domain = userService.findUserDirectory(name);
         if (domain.isPresent()) {

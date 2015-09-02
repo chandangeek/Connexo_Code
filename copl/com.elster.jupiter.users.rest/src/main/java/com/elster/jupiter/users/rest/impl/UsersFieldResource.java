@@ -33,7 +33,7 @@ public class UsersFieldResource {
     @GET
     @Path("/locales")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_USER_ROLE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_USER_ROLE)
     public Response getLocales() {
         List<Locale> supportedLocales = userPreferencesService.getSupportedLocales();
         Map<String, List<LocaleInfo>> infos = new HashMap<>();
