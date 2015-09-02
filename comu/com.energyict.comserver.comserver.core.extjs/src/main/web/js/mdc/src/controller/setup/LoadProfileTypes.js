@@ -242,7 +242,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 me.getModel('Mdc.model.LoadProfileType').load(id, {
                     success: function (record) {
                         Ext.suspendLayouts();
-                        editPage.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[record.get('name')]);
+                        editPage.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[record.get('name')]));
                         editPage.getLayout().setActiveItem(0);
                         Ext.resumeLayouts(true);
                     }
