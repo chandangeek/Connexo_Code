@@ -43,8 +43,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
         {
             ref: 'deviceLoadProfileChannelsOverviewForm',
             selector: '#deviceLoadProfileChannelsOverviewForm'
-        },
-
+        }
 
     ],
 
