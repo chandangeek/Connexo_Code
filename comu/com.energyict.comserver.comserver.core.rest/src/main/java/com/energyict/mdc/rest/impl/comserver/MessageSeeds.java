@@ -1,41 +1,30 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.rest.impl.MdcApplication;
-import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements TranslationKey {
 
-    MILLISECONDS(1, TimeDuration.TimeUnit.MILLISECONDS.getDescription(), "millisecond(s)"),
-    SECONDS(2, TimeDuration.TimeUnit.SECONDS.getDescription(), "second(s)"),
-    MINUTES(3, TimeDuration.TimeUnit.MINUTES.getDescription(), "minute(s)"),
-    HOURS(4, TimeDuration.TimeUnit.HOURS.getDescription(), "hour(s)"),
-    DAYS(5, TimeDuration.TimeUnit.DAYS.getDescription(), "day(s)"),
-    WEEKS(6, TimeDuration.TimeUnit.WEEKS.getDescription(), "week(s)"),
-    MONTHS(7, TimeDuration.TimeUnit.MONTHS.getDescription(), "months(s)"),
-    YEARS(8, TimeDuration.TimeUnit.YEARS.getDescription(), "year(s)"),
+    MILLISECONDS(TimeDuration.TimeUnit.MILLISECONDS.getDescription(), "millisecond(s)"),
+    SECONDS(TimeDuration.TimeUnit.SECONDS.getDescription(), "second(s)"),
+    MINUTES(TimeDuration.TimeUnit.MINUTES.getDescription(), "minute(s)"),
+    HOURS(TimeDuration.TimeUnit.HOURS.getDescription(), "hour(s)"),
+    DAYS(TimeDuration.TimeUnit.DAYS.getDescription(), "day(s)"),
+    WEEKS(TimeDuration.TimeUnit.WEEKS.getDescription(), "week(s)"),
+    MONTHS(TimeDuration.TimeUnit.MONTHS.getDescription(), "months(s)"),
+    YEARS(TimeDuration.TimeUnit.YEARS.getDescription(), "year(s)"),
+    SERVLET("SERVLET", "Servlet"),
+    TCP("TCP", "TCP"),
+    UDP("TCP", "UDP"),
+    SERIAL("SERIAL", "Serial")
     ;
 
-    private final int number;
     private final String key;
     private final String format;
 
-    private MessageSeeds(int number, String key, String format) {
-        this.number = number;
+    private MessageSeeds(String key, String format) {
         this.key = key;
         this.format = format;
-    }
-
-    @Override
-    public String getModule() {
-        return MdcApplication.COMPONENT_NAME;
-    }
-
-    @Override
-    public int getNumber() {
-        return number;
     }
 
     @Override
@@ -46,11 +35,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     @Override
     public String getDefaultFormat() {
         return format;
-    }
-
-    @Override
-    public Level getLevel() {
-        return Level.SEVERE;
     }
 
 }
