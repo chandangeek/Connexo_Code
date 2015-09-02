@@ -234,6 +234,15 @@ Ext.define('Uni.I18n', {
     translatePlural: function (key, amount, component, defaultZero, defaultOne, defaultMany) {
         var lookup, translation;
 
+        //<debug>
+        if (defaultZero === undefined || defaultOne === undefined || defaultMany === undefined) {
+            if (!this.blacklist[key + component]) {
+                var pattern = "translatePlural() is called for key '{0}' in bundle '{1}' with too little parameters";
+                console.warn(Ext.String.format(pattern, key, component));
+            }
+        }
+        //</debug>
+
         switch (amount) {
             case 0: lookup = key + '[0]'; break;
             case 1: lookup = key + '[1]'; break;
