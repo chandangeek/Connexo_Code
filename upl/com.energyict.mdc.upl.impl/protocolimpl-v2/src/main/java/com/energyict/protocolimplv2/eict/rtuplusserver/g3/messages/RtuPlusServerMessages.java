@@ -573,7 +573,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, String message) {
-        return MdcManager.getIssueCollector().addWarning(pendingMessage, "DeviceMessage.failed",
+        return MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.failed",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),
@@ -581,7 +581,7 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
     }
 
     protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) throws IOException {
-        return MdcManager.getIssueCollector().addWarning(pendingMessage, "DeviceMessage.notSupported",
+        return MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.notSupported",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());

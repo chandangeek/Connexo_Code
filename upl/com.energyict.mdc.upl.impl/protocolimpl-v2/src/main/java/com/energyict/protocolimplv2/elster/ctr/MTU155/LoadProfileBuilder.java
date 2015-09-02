@@ -184,7 +184,7 @@ public class LoadProfileBuilder {
                         channelIntervalData = profileChannel.getProfileData().getIntervalDatas();
                         collectedIntervalData = mergeChannelIntervalData(collectedIntervalData, channelIntervalData);
                     } catch (IOException e) {   // A non-blocking issue occurred during readout of this loadProfile, but it is still possible to read out the other loadProfiles.
-                        collectedLoadProfile.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXChannelYIssue", lpr.getProfileObisCode(), e));
+                        collectedLoadProfile.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(lpr, "loadProfileXChannelYIssue", lpr.getProfileObisCode(), e));
                         collectedIntervalData.clear();
                         break;
                     }
@@ -194,7 +194,7 @@ public class LoadProfileBuilder {
                 collectedLoadProfileList.add(collectedLoadProfile);
             } else {
                 CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(lpr.getLoadProfileId(), lpr.getProfileObisCode()));
-                Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
+                Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
                 collectedLoadProfileList.add(collectedLoadProfile);
             }

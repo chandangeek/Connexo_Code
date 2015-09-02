@@ -117,11 +117,11 @@ public class LogBookFactory implements DeviceLogBookSupport {
     }
 
     private void logBookNotSupported(CollectedLogBook deviceLogBook, ObisCode logBookObisCode) {
-        deviceLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(deviceLogBook, "logBookXnotsupported", logBookObisCode));
+        deviceLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(deviceLogBook, "logBookXnotsupported", logBookObisCode));
     }
 
     private void logBookParsingException(CollectedLogBook deviceLogBook) {
-        deviceLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(deviceLogBook, "CouldNotParseLogBookData"));
+        deviceLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(deviceLogBook, "CouldNotParseLogBookData"));
     }
 
     public AbstractAbntProtocol getMeterProtocol() {

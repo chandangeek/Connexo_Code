@@ -37,7 +37,12 @@ import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierById;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Copyrights EnergyICT
@@ -105,7 +110,7 @@ public class IDISProfileDataReader {
                             cal.add(Calendar.SECOND, profileGeneric.getCapturePeriod());
                             timeStamp = cal.getTime();
                         } else {
-                            Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(loadProfileReader, "loadProfileXBlockingIssue", getCorrectedLoadProfileObisCode(loadProfileReader), "Invalid interval data, timestamp should be of type OctetString or NullData");
+                            Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createProblem(loadProfileReader, "loadProfileXBlockingIssue", getCorrectedLoadProfileObisCode(loadProfileReader), "Invalid interval data, timestamp should be of type OctetString or NullData");
                             collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                             break;  //Stop parsing, move on
                         }
@@ -122,12 +127,12 @@ public class IDISProfileDataReader {
                     collectedLoadProfile.setCollectedIntervalData(intervalDatas, channelInfos);
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
-                        Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(loadProfileReader, "loadProfileXBlockingIssue", getCorrectedLoadProfileObisCode(loadProfileReader), e.getMessage());
+                        Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createProblem(loadProfileReader, "loadProfileXBlockingIssue", getCorrectedLoadProfileObisCode(loadProfileReader), e.getMessage());
                         collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }
                 }
             } else {
-                Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addWarning(loadProfileReader, "loadProfileXnotsupported", getCorrectedLoadProfileObisCode(loadProfileReader));
+                Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createWarning(loadProfileReader, "loadProfileXnotsupported", getCorrectedLoadProfileObisCode(loadProfileReader));
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
             }
 

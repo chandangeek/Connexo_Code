@@ -195,7 +195,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
     @Override
     public CollectedTopology getDeviceTopology() {
         CollectedTopology collectedTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
-        collectedTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning("Cannot read out the slave devices from the MUC Wavecell"));
+        collectedTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning("Cannot read out the slave devices from the MUC Wavecell"));
         return collectedTopology;
     }
 

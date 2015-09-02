@@ -21,7 +21,13 @@ import com.energyict.protocolimplv2.abnt.common.field.DateTimeField;
 import com.energyict.protocolimplv2.abnt.common.structure.HistoryLogResponse;
 import com.energyict.protocolimplv2.abnt.common.structure.HolidayRecords;
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParameterFields;
-import com.energyict.protocolimplv2.abnt.common.structure.field.*;
+import com.energyict.protocolimplv2.abnt.common.structure.field.AutomaticDemandResetCondition;
+import com.energyict.protocolimplv2.abnt.common.structure.field.AutomaticDemandResetConfigurationRecord;
+import com.energyict.protocolimplv2.abnt.common.structure.field.DstConfigurationRecord;
+import com.energyict.protocolimplv2.abnt.common.structure.field.DstEnablementStatus;
+import com.energyict.protocolimplv2.abnt.common.structure.field.EventField;
+import com.energyict.protocolimplv2.abnt.common.structure.field.HistoryLogRecord;
+import com.energyict.protocolimplv2.abnt.common.structure.field.HolidayRecord;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
@@ -30,7 +36,11 @@ import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -200,7 +210,7 @@ public class MessageFactory implements DeviceMessageSupport {
 
     private void messageNotSupported(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) {
         collectedMessage.setFailureInformation(ResultType.NotSupported,
-                MdcManager.getIssueCollector().addWarning(
+                MdcManager.getIssueFactory().createWarning(
                         pendingMessage, "DeviceMessage.notSupported",
                         pendingMessage.getDeviceMessageId(),
                         pendingMessage.getSpecification().getCategory().getName(),
@@ -211,7 +221,7 @@ public class MessageFactory implements DeviceMessageSupport {
 
     protected void messageFailed(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, String errorMessage) {
         collectedMessage.setFailureInformation(ResultType.InCompatible,
-                MdcManager.getIssueCollector().addWarning(
+                MdcManager.getIssueFactory().createWarning(
                         pendingMessage, "DeviceMessage.failed",
                         pendingMessage.getDeviceMessageId(),
                         pendingMessage.getSpecification().getCategory().getName(),

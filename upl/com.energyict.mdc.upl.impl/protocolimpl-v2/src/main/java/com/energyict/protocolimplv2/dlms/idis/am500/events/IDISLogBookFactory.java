@@ -6,8 +6,22 @@ import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.dlms.idis.events.*;
+import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocol.NotInObjectListException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.dlms.idis.events.AbstractEvent;
+import com.energyict.protocolimpl.dlms.idis.events.DisconnectorControlLog;
+import com.energyict.protocolimpl.dlms.idis.events.FraudDetectionLog;
+import com.energyict.protocolimpl.dlms.idis.events.MBusControlLog1;
+import com.energyict.protocolimpl.dlms.idis.events.MBusControlLog2;
+import com.energyict.protocolimpl.dlms.idis.events.MBusControlLog3;
+import com.energyict.protocolimpl.dlms.idis.events.MBusControlLog4;
+import com.energyict.protocolimpl.dlms.idis.events.MBusEventLog;
+import com.energyict.protocolimpl.dlms.idis.events.PowerFailureEventLog;
+import com.energyict.protocolimpl.dlms.idis.events.PowerQualityEventLog;
+import com.energyict.protocolimpl.dlms.idis.events.StandardEventLog;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -64,7 +78,7 @@ public class IDISLogBookFactory implements DeviceLogBookSupport {
                     profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(logBookReader.getLogBookObisCode());
                     profileGeneric.setDsmr4SelectiveAccessFormat(true);
                 } catch (NotInObjectListException e) {
-                    collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
+                    collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
                 }
 
                 if (profileGeneric != null) {
@@ -83,12 +97,12 @@ public class IDISLogBookFactory implements DeviceLogBookSupport {
                         }
                     } catch (IOException e) {
                         if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
-                            collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
+                            collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
                         }
                     }
                 }
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
             }
             result.add(collectedLogBook);
         }

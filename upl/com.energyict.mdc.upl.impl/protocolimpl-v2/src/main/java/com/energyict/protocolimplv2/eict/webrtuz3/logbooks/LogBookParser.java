@@ -9,7 +9,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.NotInObjectListException;
-import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -48,7 +47,7 @@ public class LogBookParser implements DeviceLogBookSupport {
                 protocol.getMeterTopology().getPhysicalAddress(meterSerialNumber);
             } catch (ComServerExecutionException e) {
                 //Serial number is not in meter map
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
                 result.add(collectedLogBook);
                 continue;
             }
@@ -58,7 +57,7 @@ public class LogBookParser implements DeviceLogBookSupport {
             try {
                 profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(eventLogObisCode);
             } catch (NotInObjectListException e) {
-                collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
+                collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
             }
 
             if (profileGeneric != null) {
@@ -70,7 +69,7 @@ public class LogBookParser implements DeviceLogBookSupport {
                     collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
-                        collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+                        collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
                     }
                 }
             }

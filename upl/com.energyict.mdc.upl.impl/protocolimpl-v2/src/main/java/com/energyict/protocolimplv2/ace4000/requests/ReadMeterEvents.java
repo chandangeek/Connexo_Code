@@ -49,7 +49,7 @@ public class ReadMeterEvents extends AbstractRequest<LogBookIdentifier, List<Col
             if (deviceLogBook.getCollectedMeterEvents().size() == 0) {
                 resultType = ResultType.NotSupported;
             }
-            deviceLogBook.setFailureInformation(resultType, MdcManager.getIssueCollector().addProblem(getInput(), "Requested events, meter returned NACK." + getReasonDescription(), getInput().getLogBook().getLogBookSpec().getDeviceObisCode()));
+            deviceLogBook.setFailureInformation(resultType, MdcManager.getIssueFactory().createProblem(getInput(), "Requested events, meter returned NACK." + getReasonDescription(), getInput().getLogBook().getLogBookSpec().getDeviceObisCode()));
             result.add(deviceLogBook);
             setResult(result);
         }

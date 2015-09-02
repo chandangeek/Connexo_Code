@@ -28,7 +28,7 @@ public class DeployFrame extends AbstractInboundFrame {
         String meterType = getInboundParameters().getMeterType();
         //TODO use info for topology
 
-        deviceTopology.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(deviceTopology, "protocol.deploynotsupported", getInboundParameters().getSerialNumber()));
+        deviceTopology.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(deviceTopology, "protocol.deploynotsupported", getInboundParameters().getSerialNumber()));
         getCollectedDatas().add(deviceTopology);
     }
 }

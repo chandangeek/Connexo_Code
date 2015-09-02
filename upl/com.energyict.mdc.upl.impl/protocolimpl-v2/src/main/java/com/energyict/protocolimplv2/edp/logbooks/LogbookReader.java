@@ -64,7 +64,7 @@ public class LogbookReader implements DeviceLogBookSupport {
                 try {
                     profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(logBookReader.getLogBookObisCode());
                 } catch (NotInObjectListException e) {
-                    collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
+                    collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
                 }
                 if (profileGeneric != null) {
                     Calendar fromDate = getCalendar();
@@ -74,12 +74,12 @@ public class LogbookReader implements DeviceLogBookSupport {
                         collectedLogBook.setCollectedMeterEvents(logBookParser.parseEvents(bufferData));
                     } catch (IOException e) {
                         if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
-                            collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+                            collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
                         }
                     }
                 }
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
             }
             result.add(collectedLogBook);
         }

@@ -52,11 +52,11 @@ public class RegisterReader {
                 int exchangeStatus = getWaveCard().getExchangeStatus();
                 collectedRegister.setCollectedData(new Quantity(exchangeStatus, Unit.get(BaseUnit.UNITLESS)), "");
             } else {
-                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(obisCode, "Obiscode not supported by protocol", obisCode));
+                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(obisCode, "Obiscode not supported by protocol", obisCode));
                 return collectedRegister;
             }
         } catch (WavenisParameterException e) {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(obisCode, "Parameter not supported by Wavecard: " + e.getMessage(), obisCode));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(obisCode, "Parameter not supported by Wavecard: " + e.getMessage(), obisCode));
             return collectedRegister;
         }
         collectedRegister.setReadTime(new Date());

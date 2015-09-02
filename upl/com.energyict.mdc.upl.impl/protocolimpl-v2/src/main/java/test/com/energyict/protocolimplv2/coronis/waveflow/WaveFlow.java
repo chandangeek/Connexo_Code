@@ -8,7 +8,13 @@ import com.energyict.mdc.channels.ip.socket.ServerWavenisGatewayComChannel;
 import com.energyict.mdc.channels.ip.socket.WavenisGatewayConnectionType;
 import com.energyict.mdc.channels.serial.rf.WavenisSerialConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
@@ -343,7 +349,7 @@ public abstract class WaveFlow implements DeviceProtocol {
     @Override
     public CollectedTopology getDeviceTopology() {
         CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
-        deviceTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(offlineDevice, "devicetopologynotsupported"));
+        deviceTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(offlineDevice, "devicetopologynotsupported"));
         return deviceTopology;
     }
 

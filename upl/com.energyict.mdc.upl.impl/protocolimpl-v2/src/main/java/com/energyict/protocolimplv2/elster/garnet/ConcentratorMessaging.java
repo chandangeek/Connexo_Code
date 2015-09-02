@@ -119,14 +119,14 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
             }
         } catch (NotExecutedException e) {
             if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.COMMAND_NOT_IMPLEMENTED)) {
-                collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(pendingMessage, "operationNotSupported"));
+                collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createProblem(pendingMessage, "operationNotSupported"));
             } else if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.SLAVE_DOES_NOT_EXIST)) {
-                collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addProblem(pendingMessage, "topologyMismatch", deviceProtocol.getSerialNumber()));
+                collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueFactory().createProblem(pendingMessage, "topologyMismatch", deviceProtocol.getSerialNumber()));
             } else {
-                collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(pendingMessage, "CouldNotParseMessageData", e.getMessage()));
+                collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(pendingMessage, "CouldNotParseMessageData", e.getMessage()));
             }
         } catch (GarnetException e) {
-            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(pendingMessage, "CouldNotParseMessageData", e.getMessage()));
+            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(pendingMessage, "CouldNotParseMessageData", e.getMessage()));
         }
         return collectedMessage;
     }
@@ -185,7 +185,7 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
     }
 
     protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) {
-        return MdcManager.getIssueCollector().addWarning(pendingMessage, "DeviceMessage.notSupported",
+        return MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.notSupported",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());
@@ -196,7 +196,7 @@ public class ConcentratorMessaging implements DeviceMessageSupport {
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, String message) {
-        return MdcManager.getIssueCollector().addWarning(pendingMessage, "DeviceMessage.failed",
+        return MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.failed",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),

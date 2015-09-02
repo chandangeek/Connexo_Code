@@ -9,14 +9,23 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.info.*;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.info.DeviceStatus;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.info.Diagnostics;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.info.EquipmentClassInfo;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.info.SealStatusBit;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.info.VolumeCalculationMethod;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.info.ZCalculationMethod;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -339,13 +348,13 @@ public abstract class ObisCodeMapper {
 
     protected CollectedRegister createNotSupportedCollectedRegister(ObisCode obisCode) {
         CollectedRegister failedRegister = createDeviceRegister(obisCode);
-        failedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(obisCode, "registerXnotsupported", obisCode));
+        failedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(obisCode, "registerXnotsupported", obisCode));
         return failedRegister;
     }
 
     protected CollectedRegister createIncompatibleCollectedRegister(ObisCode obisCode, String message) {
         CollectedRegister failedRegister = createDeviceRegister(obisCode);
-        failedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(obisCode, "registerXincompatible", obisCode, message));
+        failedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(obisCode, "registerXincompatible", obisCode, message));
         return failedRegister;
     }
 

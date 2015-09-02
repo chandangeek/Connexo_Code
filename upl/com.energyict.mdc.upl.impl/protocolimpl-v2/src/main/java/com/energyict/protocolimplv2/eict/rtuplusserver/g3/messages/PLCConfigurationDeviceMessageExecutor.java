@@ -26,7 +26,12 @@ import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Helper class that groups all logic related to the execution of the (standard) PLC messages. <br/>
@@ -552,7 +557,7 @@ public class PLCConfigurationDeviceMessageExecutor {
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, String message) {
-        return MdcManager.getIssueCollector().addWarning(pendingMessage, "DeviceMessage.failed",
+        return MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.failed",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),
@@ -560,7 +565,7 @@ public class PLCConfigurationDeviceMessageExecutor {
     }
 
     protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) throws IOException {
-        return MdcManager.getIssueCollector().addWarning(pendingMessage, "DeviceMessage.notSupported",
+        return MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.notSupported",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());

@@ -80,12 +80,12 @@ public class ProfileDataFactory {
                     collectedLoadProfile.setCollectedIntervalData(profileData.getIntervalDatas(), profileData.getChannelInfos());
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, dlmsSession)) {
-                        Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(loadProfileReader, "loadProfileXIssue", loadProfileReader.getProfileObisCode().toString(), e.getMessage());
+                        Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createProblem(loadProfileReader, "loadProfileXIssue", loadProfileReader.getProfileObisCode().toString(), e.getMessage());
                         collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }
                 }
             } else {
-                Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addWarning(loadProfileReader, "loadProfileXnotsupported", loadProfileReader.getProfileObisCode().toString());
+                Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createWarning(loadProfileReader, "loadProfileXnotsupported", loadProfileReader.getProfileObisCode().toString());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
             }
             result.add(collectedLoadProfile);

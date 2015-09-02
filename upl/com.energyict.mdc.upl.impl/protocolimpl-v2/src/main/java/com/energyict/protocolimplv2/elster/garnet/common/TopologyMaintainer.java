@@ -44,14 +44,14 @@ public class TopologyMaintainer implements DeviceTopologySupport {
             }
         } catch (NotExecutedException e) {
             if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.COMMAND_NOT_IMPLEMENTED)) {
-                collectedTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(getMasterDevice(), "commandNotSupported"));
+                collectedTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(getMasterDevice(), "commandNotSupported"));
             } else if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.SLAVE_DOES_NOT_EXIST)) {
-                collectedTopology.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addWarning(getMasterDevice(), "topologyMismatch"));
+                collectedTopology.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueFactory().createWarning(getMasterDevice(), "topologyMismatch"));
             } else {
-                collectedTopology.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(getMasterDevice(), "CouldNotParseTopologyData", e.getMessage()));
+                collectedTopology.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(getMasterDevice(), "CouldNotParseTopologyData", e.getMessage()));
             }
         } catch (GarnetException e) {
-            collectedTopology.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(getMasterDevice(), "CouldNotParseTopologyData", e.getMessage()));
+            collectedTopology.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(getMasterDevice(), "CouldNotParseTopologyData", e.getMessage()));
         }
         return collectedTopology;
     }

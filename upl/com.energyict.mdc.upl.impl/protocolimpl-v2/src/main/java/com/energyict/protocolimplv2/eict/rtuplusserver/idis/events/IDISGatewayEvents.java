@@ -53,11 +53,11 @@ public class IDISGatewayEvents {
                     collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, dlmsSession)) {
-                        collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
+                        collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
                     }
                 }
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
             }
             result.add(collectedLogBook);
         }

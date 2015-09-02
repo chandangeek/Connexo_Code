@@ -4,13 +4,28 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.dlms.g3.events.*;
+import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocol.NotInObjectListException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.dlms.g3.events.BreakerEventMapper;
+import com.energyict.protocolimpl.dlms.g3.events.CommunicationEventMapper;
+import com.energyict.protocolimpl.dlms.g3.events.CoverEventMapper;
+import com.energyict.protocolimpl.dlms.g3.events.EventLog;
+import com.energyict.protocolimpl.dlms.g3.events.G3BasicEventLog;
+import com.energyict.protocolimpl.dlms.g3.events.G3LqiEventLog;
+import com.energyict.protocolimpl.dlms.g3.events.MainEventMapper;
+import com.energyict.protocolimpl.dlms.g3.events.VoltageCutEventMapper;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -57,16 +72,16 @@ public class LogBookFactory {
                     List<MeterProtocolEvent> meterProtocolEvents = MeterEvent.mapMeterEventsToMeterProtocolEvents(events);
                     collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
                 } catch (NotInObjectListException e) {
-                    collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
+                    collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
                 } catch (IOException e) {
                     if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
-                        collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+                        collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
                     } else if (IOExceptionHandler.isUnexpectedResponse(e, dlmsSession)) {
-                        collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
+                        collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
                     }
                 }
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
             }
             result.add(collectedLogBook);
         }

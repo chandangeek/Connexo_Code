@@ -16,7 +16,12 @@ import com.energyict.protocolimpl.dlms.g3.registers.mapping.PLCOFDMType2PHYAndMA
 import com.energyict.protocolimpl.dlms.g3.registers.mapping.RegisterMapping;
 import com.energyict.protocolimpl.dlms.g3.registers.mapping.SixLowPanAdaptationLayerSetupMapping;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.*;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.AdditionalInfoCustomRegisterMapping;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.CustomRegisterMapping;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.FirewallSetupCustomRegisterMapping;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.G3NetworkManagementCustomRegisterMapping;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.PushEventNotificationSetupRegisterMapping;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.custom.UplinkPingSetupCustomRegisterMapping;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.registers.mapping.GprsModemSetupMapping;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -130,9 +135,9 @@ public class G3GatewayRegisters {
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
         CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments[0]));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments[0]));
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
         }
         return collectedRegister;
     }

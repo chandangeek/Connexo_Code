@@ -96,7 +96,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             getChannelInfoMap().put(reader, channelInfos);
         } catch (ParsingException e) {
             loadProfileConfig.setSupportedByMeter(false);
-            loadProfileConfig.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(reader, "CouldNotParseLoadProfileData"));
+            loadProfileConfig.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(reader, "CouldNotParseLoadProfileData"));
         }
     }
 
@@ -145,7 +145,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             List<IntervalData> intervalData = composeAndFilterIntervalDataList(reader, intervalDataMap, channelGroupsWhoShouldBeRead.size());
             collectedLoadProfile.setCollectedIntervalData(intervalData, channelInfos);
         } catch (ParsingException e) {
-            collectedLoadProfile.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(collectedLoadProfile, "CouldNotParseLoadProfileData"));
+            collectedLoadProfile.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(collectedLoadProfile, "CouldNotParseLoadProfileData"));
         }
     }
 
@@ -255,7 +255,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     }
 
     private void loadProfileNotSupported(LoadProfileReader reader, CollectedLoadProfile collectedLoadProfile) {
-        collectedLoadProfile.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(reader, "loadProfileXnotsupported", reader.getProfileObisCode()));
+        collectedLoadProfile.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(reader, "loadProfileXnotsupported", reader.getProfileObisCode()));
     }
 
     public AbstractAbntProtocol getMeterProtocol() {

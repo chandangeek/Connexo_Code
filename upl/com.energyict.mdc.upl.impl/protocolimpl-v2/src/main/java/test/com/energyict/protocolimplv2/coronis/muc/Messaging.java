@@ -59,7 +59,7 @@ public class Messaging implements DeviceMessageSupport {
                     collectedMessage = writeRadioUserTimeout(pendingMessage);
                 } else {
                     collectedMessage = createCollectedMessage(pendingMessage);
-                    collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(pendingMessage, "DeviceMessage.notSupported"));
+                    collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.notSupported"));
                 }
                 result.addCollectedMessage(collectedMessage);
             }
@@ -77,7 +77,7 @@ public class Messaging implements DeviceMessageSupport {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         } catch (WavenisParameterException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(pendingMessage, "WriteWavecardParameters.writeExchangeStatusFailed", e.getMessage()));
+            collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(pendingMessage, "WriteWavecardParameters.writeExchangeStatusFailed", e.getMessage()));
         }
         return collectedMessage;
     }
@@ -90,7 +90,7 @@ public class Messaging implements DeviceMessageSupport {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         } catch (WavenisParameterException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(pendingMessage, "WriteWavecardParameters.writeRadioAcknowledgeFailed", e.getMessage()));
+            collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(pendingMessage, "WriteWavecardParameters.writeRadioAcknowledgeFailed", e.getMessage()));
         }
         return collectedMessage;
     }
@@ -103,7 +103,7 @@ public class Messaging implements DeviceMessageSupport {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         } catch (WavenisParameterException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(pendingMessage, "WriteWavecardParameters.writeRadioUserTimeoutFailed", e.getMessage()));
+            collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(pendingMessage, "WriteWavecardParameters.writeRadioUserTimeoutFailed", e.getMessage()));
         }
         return collectedMessage;
     }

@@ -15,7 +15,14 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Builder;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
+import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 
 import java.util.ArrayList;
@@ -92,7 +99,7 @@ public class Messaging implements DeviceMessageSupport {
             }
             if (!messageFound) {
                 collectedMessage = createCollectedMessage(pendingMessage);
-                collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(pendingMessage, "DeviceMessage.notSupported",
+                collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.notSupported",
                         pendingMessage.getDeviceMessageId(),
                         pendingMessage.getSpecification().getCategory().getName(),
                         pendingMessage.getSpecification().getName()));

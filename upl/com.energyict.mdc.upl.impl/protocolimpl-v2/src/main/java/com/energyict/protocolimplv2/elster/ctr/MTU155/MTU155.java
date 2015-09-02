@@ -9,7 +9,13 @@ import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.mdc.channels.sms.OutboundProximusSmsConnectionType;
 import com.energyict.mdc.channels.sms.ServerProximusSmsComChannel;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
@@ -37,7 +43,11 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.messaging.Messaging;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.security.Mtu155SecuritySupport;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -251,7 +261,7 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public CollectedTopology getDeviceTopology() {
         final CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
-        deviceTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(getOfflineDevice(), "devicetopologynotsupported"));
+        deviceTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(getOfflineDevice(), "devicetopologynotsupported"));
         return deviceTopology;
     }
 
@@ -340,12 +350,12 @@ public class MTU155 implements DeviceProtocol {
 
                     collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
                 } catch (CTRException e) {
-                    collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(logBook, "logBookXissue", logBook.getLogBookObisCode(), e));
+                    collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(logBook, "logBookXissue", logBook.getLogBookObisCode(), e));
                 }
 
                 collectedLogBooks.add(collectedLogBook);
             } else {
-                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode()));
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode()));
                 collectedLogBooks.add(collectedLogBook);
             }
         }

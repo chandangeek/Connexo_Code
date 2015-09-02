@@ -121,7 +121,7 @@ public class CommonObisCodeMapper {
             collectedRegister.setCollectedData(new Quantity(BigDecimal.valueOf(hour), Unit.get(BaseUnit.HOUR)));
         } else if (obisCode.equals(OBISCODE_DATALOGGING_STARTMINUTE)) {
             if (waveFlow.isV1()) {
-                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(this, "The WaveFlow V1 module doesn't support the data logging start minute parameter"));
+                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(this, "The WaveFlow V1 module doesn't support the data logging start minute parameter"));
             } else {
                 int minute = waveFlow.getParameterFactory().readStartMinuteOfMeasurement();
                 collectedRegister.setCollectedData(new Quantity(BigDecimal.valueOf(minute), Unit.get(BaseUnit.MINUTE)));
@@ -291,7 +291,7 @@ public class CommonObisCodeMapper {
             PulseWeight pulseWeight = waveFlow.getPulseWeight(inputChannel - 1, true);
             collectedRegister.setCollectedData(new Quantity(new BigDecimal(pulseWeight.getWeight()), pulseWeight.getUnit()));
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(this, "Register with obiscode {0} is not supported by the protocol", obisCode.toString()));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(this, "Register with obiscode {0} is not supported by the protocol", obisCode.toString()));
         }
         return collectedRegister;
     }

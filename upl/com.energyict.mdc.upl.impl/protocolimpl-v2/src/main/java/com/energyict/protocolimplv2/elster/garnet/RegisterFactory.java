@@ -14,14 +14,27 @@ import com.energyict.protocolimplv2.elster.garnet.common.ReadingResponse;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.elster.garnet.exception.NotExecutedException;
 import com.energyict.protocolimplv2.elster.garnet.exception.UnableToExecuteException;
-import com.energyict.protocolimplv2.elster.garnet.structure.*;
+import com.energyict.protocolimplv2.elster.garnet.structure.ConcentratorStatusResponseStructure;
+import com.energyict.protocolimplv2.elster.garnet.structure.ConcentratorVersionResponseStructure;
+import com.energyict.protocolimplv2.elster.garnet.structure.DiscoverMetersResponseStructure;
+import com.energyict.protocolimplv2.elster.garnet.structure.RadioParametersResponseStructure;
+import com.energyict.protocolimplv2.elster.garnet.structure.ReadingRequestStructure;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.MeterSerialNumber;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.NotExecutedError;
 import com.energyict.protocolimplv2.elster.garnet.structure.field.RepeaterDiagnostic;
-import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.*;
+import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterInstallationStatusBitMaskField;
+import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterModel;
+import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterReadingStatus;
+import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterRelayStatus;
+import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterSensorStatus;
+import com.energyict.protocolimplv2.elster.garnet.structure.field.bitMaskField.MeterTariffStatus;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author sva
@@ -302,19 +315,19 @@ public class RegisterFactory implements DeviceRegisterSupport {
 
     private CollectedRegister createNotSupportedCollectedRegister(OfflineRegister register) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(register, "registerXnotsupported", register.getObisCode()));
+        failedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(register, "registerXnotsupported", register.getObisCode()));
         return failedRegister;
     }
 
     private CollectedRegister createTopologyMisMatchCollectedRegister(OfflineRegister register) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addWarning(register, "topologyMismatch"));
+        failedRegister.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueFactory().createWarning(register, "topologyMismatch"));
         return failedRegister;
     }
 
     private CollectedRegister createCouldNotParseCollectedRegister(OfflineRegister register, String errorMessage) {
         CollectedRegister failedRegister = createDeviceRegister(register);
-        failedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(register, "CouldNotParseRegisterData", errorMessage));
+        failedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(register, "CouldNotParseRegisterData", errorMessage));
         return failedRegister;
     }
 

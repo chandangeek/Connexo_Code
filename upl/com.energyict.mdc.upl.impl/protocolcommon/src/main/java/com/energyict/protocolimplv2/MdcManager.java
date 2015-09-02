@@ -4,8 +4,8 @@ import com.energyict.mdc.exceptions.ComServerExceptionFactory;
 import com.energyict.mdc.exceptions.ComServerExceptionFactoryProvider;
 import com.energyict.mdc.meterdata.CollectedDataFactory;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
-import com.energyict.util.IssueCollector;
-import com.energyict.util.IssueCollectorProvider;
+import com.energyict.util.IssueFactory;
+import com.energyict.util.IssueFactoryProvider;
 
 /**
  * Copyrights EnergyICT
@@ -22,7 +22,7 @@ public class MdcManager {
         return CollectedDataFactoryProvider.instance.get().getCollectedDataFactory();
     }
 
-    public static IssueCollector getIssueCollector(){
-        return IssueCollectorProvider.instance.get().getIssueCollector();
+    public static IssueFactory getIssueFactory(){
+        return IssueFactoryProvider.instance.get().getIssueFactory();
     }
 }

@@ -91,7 +91,7 @@ public abstract class AbstractMTU155Message {
             collectedMessage.setDeviceProtocolInformation(e.getMessage());
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setFailureInformation(ResultType.Other,
-                    MdcManager.getIssueCollector().addWarning(message, "DeviceMessage.failed",   //Device message ({0}, {1} - {2})) failed: {3}
+                    MdcManager.getIssueFactory().createWarning(message, "DeviceMessage.failed",   //Device message ({0}, {1} - {2})) failed: {3}
                             message.getDeviceMessageId(),
                             message.getSpecification().getCategory().getName(),
                             message.getSpecification().getName(),

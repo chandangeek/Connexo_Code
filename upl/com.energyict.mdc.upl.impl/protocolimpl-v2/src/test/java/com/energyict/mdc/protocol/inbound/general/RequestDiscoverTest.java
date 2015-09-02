@@ -20,8 +20,8 @@ import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
 import com.energyict.mdw.core.LogBookSpec;
 import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.util.IssueCollector;
-import com.energyict.util.IssueCollectorProvider;
+import com.energyict.util.IssueFactory;
+import com.energyict.util.IssueFactoryProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,9 +57,9 @@ public class RequestDiscoverTest {
     @Mock
     protected CollectedDataFactory collectedDataFactory;
     @Mock
-    protected IssueCollectorProvider issueCollectorProvider;
+    protected IssueFactoryProvider issueFactoryProvider;
     @Mock
-    protected IssueCollector issueCollector;
+    protected IssueFactory issueFactory;
     @Mock
     private CollectedRegisterList collectedRegisterList;
 
@@ -73,9 +73,9 @@ public class RequestDiscoverTest {
         when(collectedDataFactoryProvider.getCollectedDataFactory()).thenReturn(collectedDataFactory);
         CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
 
-        when(issueCollectorProvider.getIssueCollector()).thenReturn(issueCollector);
+        when(issueFactoryProvider.getIssueFactory()).thenReturn(issueFactory);
         when(collectedDataFactory.createCollectedRegisterList(any(DeviceIdentifier.class))).thenReturn(this.collectedRegisterList);
-        IssueCollectorProvider.instance.set(issueCollectorProvider);
+        IssueFactoryProvider.instance.set(issueFactoryProvider);
     }
 
     @Test

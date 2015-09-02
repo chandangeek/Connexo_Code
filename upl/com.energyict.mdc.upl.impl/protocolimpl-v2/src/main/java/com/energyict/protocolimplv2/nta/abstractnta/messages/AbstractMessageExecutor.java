@@ -1,9 +1,33 @@
 package com.energyict.protocolimplv2.nta.abstractnta.messages;
 
 import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Integer16;
+import com.energyict.dlms.axrdencoding.Integer32;
+import com.energyict.dlms.axrdencoding.Integer64;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.NullData;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.Limiter;
+import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
@@ -99,7 +123,7 @@ public abstract class AbstractMessageExecutor {
     }
 
     protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) {
-        return MdcManager.getIssueCollector().addWarning(pendingMessage, "DeviceMessage.notSupported",
+        return MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.notSupported",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());
@@ -110,7 +134,7 @@ public abstract class AbstractMessageExecutor {
     }
 
     protected Issue createMessageFailedIssue(OfflineDeviceMessage pendingMessage, String message) {
-        return MdcManager.getIssueCollector().addWarning(pendingMessage, "DeviceMessage.failed",
+        return MdcManager.getIssueFactory().createWarning(pendingMessage, "DeviceMessage.failed",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),

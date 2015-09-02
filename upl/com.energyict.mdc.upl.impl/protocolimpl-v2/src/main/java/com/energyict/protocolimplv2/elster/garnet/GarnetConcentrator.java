@@ -6,7 +6,13 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
@@ -126,7 +132,7 @@ public class GarnetConcentrator implements DeviceProtocol {
                     loadProfileReader.getMeterSerialNumber()
             );
             configuration.setSupportedByMeter(false);
-            configuration.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(loadProfileReader.getProfileObisCode(), "loadProfileXnotsupported", loadProfileReader.getProfileObisCode()));
+            configuration.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createProblem(loadProfileReader.getProfileObisCode(), "loadProfileXnotsupported", loadProfileReader.getProfileObisCode()));
             collectedLoadProfileConfigurations.add(configuration);
         }
         return collectedLoadProfileConfigurations;

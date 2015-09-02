@@ -15,12 +15,34 @@ import com.energyict.protocolimplv2.abnt.common.field.AbstractField;
 import com.energyict.protocolimplv2.abnt.common.field.BcdEncodedField;
 import com.energyict.protocolimplv2.abnt.common.field.DateTimeField;
 import com.energyict.protocolimplv2.abnt.common.field.FloatField;
-import com.energyict.protocolimplv2.abnt.common.structure.*;
-import com.energyict.protocolimplv2.abnt.common.structure.field.*;
+import com.energyict.protocolimplv2.abnt.common.structure.ChannelGroup;
+import com.energyict.protocolimplv2.abnt.common.structure.HistoryLogResponse;
+import com.energyict.protocolimplv2.abnt.common.structure.HolidayRecords;
+import com.energyict.protocolimplv2.abnt.common.structure.InstrumentationPageFields;
+import com.energyict.protocolimplv2.abnt.common.structure.InstrumentationPageResponse;
+import com.energyict.protocolimplv2.abnt.common.structure.PowerFailLogResponse;
+import com.energyict.protocolimplv2.abnt.common.structure.ReadInstallationCodeResponse;
+import com.energyict.protocolimplv2.abnt.common.structure.ReadParameterFields;
+import com.energyict.protocolimplv2.abnt.common.structure.ReadParametersResponse;
+import com.energyict.protocolimplv2.abnt.common.structure.RegisterReadFields;
+import com.energyict.protocolimplv2.abnt.common.structure.RegisterReadResponse;
+import com.energyict.protocolimplv2.abnt.common.structure.field.AutomaticDemandResetCondition;
+import com.energyict.protocolimplv2.abnt.common.structure.field.BatteryStatusField;
+import com.energyict.protocolimplv2.abnt.common.structure.field.ConnectionTypeField;
+import com.energyict.protocolimplv2.abnt.common.structure.field.DstConfigurationRecord;
+import com.energyict.protocolimplv2.abnt.common.structure.field.QuantityConversionIndicatorField;
+import com.energyict.protocolimplv2.abnt.common.structure.field.ReactivePowerCharacteristicField;
+import com.energyict.protocolimplv2.abnt.common.structure.field.SoftwareVersionField;
+import com.energyict.protocolimplv2.abnt.common.structure.field.TariffConfigurationField;
+import com.energyict.protocolimplv2.abnt.common.structure.field.UnitField;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author sva
@@ -83,7 +105,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
                 registerNotSupported(register, collectedRegister);
             }
         } catch (ParsingException e) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(collectedRegister, "CouldNotParseRegisterData", e.getMessage()));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(collectedRegister, "CouldNotParseRegisterData", e.getMessage()));
         }
     }
 
@@ -316,7 +338,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
     }
 
     private void registerNotSupported(OfflineRegister register, CollectedRegister collectedRegister) {
-        collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(register, "registerXnotsupported", register.getObisCode()));
+        collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(register, "registerXnotsupported", register.getObisCode()));
     }
 
     private boolean registerNotYetCollected(CollectedRegister collectedRegister) {
