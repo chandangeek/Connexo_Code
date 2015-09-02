@@ -386,7 +386,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
 
     @Override
     public Layer getLayer() {
-        return Layer.REST;
+        return Layer.DOMAIN;
     }
 
     @Override
@@ -439,7 +439,7 @@ public class UserServiceImpl implements UserService, InstallService, Translation
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        thesaurus = nlsService.getThesaurus(UserService.COMPONENTNAME, Layer.REST);
+        thesaurus = nlsService.getThesaurus(UserService.COMPONENTNAME, Layer.DOMAIN);
     }
 
     @Override
