@@ -196,7 +196,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                     widget.down('#dataCollectionKpiEditForm').setTitle(Uni.I18n.translate('datacollectionkpis.editDataCollectionKpi', 'MDC', 'Edit data collection KPI'));
                     kpiModel.load(id, {
                         success: function (kpiRecord) {
-                            var editTitle = Uni.I18n.translate('general.editx', 'MDC', "Edit {0}",[Ext.String.htmlEncode(kpiRecord.get('deviceGroup').name)]);
+                            var editTitle = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[Ext.String.htmlEncode(kpiRecord.get('deviceGroup').name)]);
 
                             Ext.suspendLayouts();
                             form.loadRecord(kpiRecord);

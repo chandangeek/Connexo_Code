@@ -283,20 +283,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             }
         );
 
-
-//        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
-//            success: function (deviceType) {
-//                protocolStore.load({
-//                    callback: function (store) {
-//                        widget.down('form').loadRecord(deviceType);
-//                        widget.down('#deviceTypeEditCreateTitle').update('<h1>'+Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' "' + deviceType.get('name')+'"</h1>');
-//                        widget.setLoading(false);
-//                    }
-//                })
-//            }
-//        });
-
-
     },
 
     modifyEditView: function (widget, store) {
