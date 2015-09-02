@@ -113,8 +113,10 @@ Ext.define('Est.estimationrules.view.EditForm', {
             {
                 xtype: 'property-form',
                 itemId: 'property-form',
+                width: '100%',
                 defaults: {
                     labelWidth: me.defaults.labelWidth,
+                    width: 325,
                     hasNotValueSameAsDefaultMessage: true
                 }
             },
