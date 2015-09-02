@@ -67,3 +67,6 @@
 
 # LIS100 drivers
 -keepnames class com.elster.protocolimpl.lis100.EK88
+
+-keepnames class com.energyict.protocolimplv2.messages.convertor.A1MessageConverter
+-keepnames class com.energyict.protocolimplv2.messages.convertor.EK280MessageConverter
