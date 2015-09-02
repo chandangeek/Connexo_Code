@@ -57,7 +57,9 @@ Ext.define('Dsh.controller.ConnectionOverview', {
                     } else {
                         me.getKpi().setRecord(null); // when it is group without kpi defined
                     }
-                    me.getHeader().down('#last-updated-field').setValue('Last updated at ' + Uni.DateTime.formatTimeShort(new Date()));
+                    me.getHeader().down('#last-updated-field').setValue(
+                        Uni.I18n.translate('general.lastUpdatedAt', 'DSH', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())])
+                    );
                 },
                 callback: function () {
                     me.getConnectionOverview().setLoading(false);
