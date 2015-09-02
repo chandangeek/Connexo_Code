@@ -269,7 +269,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.thesaurus).install(true);
+        new Installer(this.dataModel).install(true);
     }
 
     @Override
