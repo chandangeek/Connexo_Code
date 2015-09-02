@@ -37,7 +37,15 @@ Ext.define('InsightApp.controller.History', {
                                     title: Uni.I18n.translate('general.usagePointChannel', 'INS', 'Channel'),
                                     route: '{channelId}',
                                     controller: 'Imt.channeldata.controller.View',
-                                    action: 'showUsagePointChannelData'
+                                    action: 'showUsagePointChannelData',
+                                    callback: function (route) {
+                                        this.getApplication().on('channelDataLoaded', function (record) {
+                                            route.setTitle(record.get('readingType').fullAliasName);
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    },
                                 }
                             }
            			    },
