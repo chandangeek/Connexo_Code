@@ -44,7 +44,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.security.Principal;
-import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -66,7 +65,6 @@ import java.util.stream.Stream;
 @SuppressWarnings("unused")
 public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, TranslationKeyProvider {
 
-    private volatile Clock clock;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile PropertySpecService propertySpecService;
     private volatile ServerMicroCheckFactory microCheckFactory;
@@ -81,10 +79,9 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     // For testing purposes
     @Inject
-    public DeviceLifeCycleServiceImpl(NlsService nlsService, Clock clock, ThreadPrincipalService threadPrincipalService, PropertySpecService propertySpecService, ServerMicroCheckFactory microCheckFactory, ServerMicroActionFactory microActionFactory, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceLifeCycleServiceImpl(NlsService nlsService, ThreadPrincipalService threadPrincipalService, PropertySpecService propertySpecService, ServerMicroCheckFactory microCheckFactory, ServerMicroActionFactory microActionFactory, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         this.setNlsService(nlsService);
-        this.setClock(clock);
         this.setThreadPrincipalService(threadPrincipalService);
         this.setPropertySpecService(propertySpecService);
         this.setMicroCheckFactory(microCheckFactory);
@@ -95,11 +92,6 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceLifeCycleService.COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
     }
 
     @Reference
@@ -239,9 +231,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
      * @throws SecurityException Thrown when the user is not allowed to execute the action
      */
     private void validateUserHasExecutePrivilege(AuthorizedAction action) throws SecurityException {
-        MessageSeeds messageSeed = MessageSeeds.NOT_ALLOWED_2_EXECUTE;
         if (!this.userHasExecutePrivilege(action)) {
-            throw newSecurityException(messageSeed);
+            throw newSecurityException(MessageSeeds.NOT_ALLOWED_2_EXECUTE);
         }
     }
 
