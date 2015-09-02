@@ -210,6 +210,11 @@ Ext.define('Mdc.model.ComServerComPort', {
             name: 'serialPortConf',
             type: 'string',
             mapping: function (data) {
+                // ATTENTION: Do NOT remove this comment !!!
+                // It is used by our script to generate the needed translation strings (used by the code beneath)
+                // Uni.I18n.translatePlural('general.x.bps', 0, 'MDC', '{0} bits per second', '{0} bits per second', '{0} bits per second')
+                // Uni.I18n.translatePlural('general.x.bits', 0, 'MDC', '{0} bits', '{0} bit', '{0} bits')
+                // Uni.I18n.translatePlural('general.x.stopBits', 0, 'MDC', '{0} stop bits', '{0} stop bit', '{0} stop bits')
                 var result = '',
                     conf = [
                         {
@@ -218,8 +223,10 @@ Ext.define('Mdc.model.ComServerComPort', {
                             associatedField: 'baudRate',
                             localizedField: 'localizedValue',
                             unit: {
-                                translateKey: 'comports.preview.bitsPerSecond',
-                                defaultTranslation: 'bits per second'
+                                translateKey: 'general.x.bps',
+                                defaultTranslationZero: '{0} bits per second',
+                                defaultTranslationOne: '{0} bit per second',
+                                defaultTranslationMany: '{0} bits per second'
                             }
                         },
                         {
@@ -228,8 +235,10 @@ Ext.define('Mdc.model.ComServerComPort', {
                             associatedField: 'nrOfDataBits',
                             localizedField: 'localizedValue',
                             unit: {
-                                translateKey: 'comports.preview.bits',
-                                defaultTranslation: 'bits'
+                                translateKey: 'general.x.bits',
+                                defaultTranslationZero: '{0} bits',
+                                defaultTranslationOne: '{0} bit',
+                                defaultTranslationMany: '{0} bits'
                             }
                         },
                         {
@@ -238,8 +247,10 @@ Ext.define('Mdc.model.ComServerComPort', {
                             associatedField: 'nrOfStopBits',
                             localizedField: 'localizedValue',
                             unit: {
-                                translateKey: 'comports.preview.stopBits',
-                                defaultTranslation: 'stop bits'
+                                translateKey: 'general.x.stopBits',
+                                defaultTranslationZero: '{0} stop bits',
+                                defaultTranslationOne: '{0} stop bit',
+                                defaultTranslationMeny: '{0} stop bits'
                             }
                         },
                         {
@@ -258,23 +269,12 @@ Ext.define('Mdc.model.ComServerComPort', {
 
                 Ext.Array.each(conf, function (item) {
                     var value = data[item.field],
-                        unit = '',
-                        store,
-                        index;
+                        translatedValue = null;
 
-                    item.unit && (unit = Uni.I18n.translatePlural(item.unit.translateKey, parseInt(value), 'MDC', item.unit.defaultTranslation));
-
-                    if (value) {
-                        store = Ext.getStore(item.store);
-                        if (!store) {
-                            return false;
-                        }
-                        index = store.find(item.associatedField, value);
-                        if (index !== -1) {
-                            result += store.getAt(index).get(item.localizedField) + (unit ? ' ' + unit : '') + '<br>';
-                        } else {
-                            result += value + (unit ? ' ' + unit : '') + '<br>';
-                        }
+                    item.unit && (translatedValue = Uni.I18n.translatePlural(item.unit.translateKey, parseInt(value), 'MDC',
+                        item.unit.defaultTranslationZero, item.unit.defaultTranslationOne, item.unit.defaultTranslationMany));
+                    if (translatedValue || value) {
+                        result += (translatedValue ? translatedValue : value) + '<br>';
                     }
                 });
 
