@@ -18,7 +18,7 @@ public enum MicroAction {
      * load profiles and log books of the device.
      * Requires that the user specifies that last reading timestamp.
      */
-    SET_LAST_READING(MicroCategory.DATA_COLLECTION),
+    SET_LAST_READING(MicroCategory.COMMUNICATION),
 
     /**
      * Enables data validation on the device.
@@ -105,7 +105,7 @@ public enum MicroAction {
     /**
      * Close the <i>communication and validation</i> issues on the device with the status <i>Won't fix</i>.
      */
-    CLOSE_ALL_ISSUES(MicroCategory.ISSUES_AND_ALARMS),
+    CLOSE_ALL_ISSUES(MicroCategory.ISSUES),
 
     /**
      * Removes the device and all it's references
