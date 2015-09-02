@@ -6,7 +6,7 @@ Ext.define('Isu.view.issues.AddCommentForm', {
         itemId: 'issue-add-comment-area',
         xtype: 'textareafield',
         height: 100,
-        fieldLabel: 'Comment',
+        fieldLabel: Uni.I18n.translate('general.comment','ISU','Comment'),
         labelAlign: 'top',
         name: 'comment'
     },
