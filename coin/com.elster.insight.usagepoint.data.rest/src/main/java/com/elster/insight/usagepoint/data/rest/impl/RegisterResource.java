@@ -19,11 +19,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.elster.insight.common.services.ListPager;
-import com.elster.insight.usagepoint.data.Register;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -76,22 +76,24 @@ public class RegisterResource {
             @PathParam("rt_mrid") String rt_mrid,
             @BeanParam JsonQueryFilter filter,
             @BeanParam JsonQueryParameters queryParameters) {
-        Channel channel = registerHelper.get().findRegisterOnUsagePoint(mrid, rt_mrid);
+//        Channel channel = registerHelper.get().findRegisterOnUsagePoint(mrid, rt_mrid);
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
+        ReadingType readingType = resourceHelper.findReadingTypeByMrIdOrThrowException(rt_mrid);
 //        DeviceValidation deviceValidation = channel.getDevice().forValidation();
 //        boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.instant());
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             
             Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
-            List<ReadingRecord> registerDataInfo = channel.getRegisterReadings(range);
+            List<? extends BaseReadingRecord> registerDataInfo = usagePoint.getReadings(range, readingType);
             List<RegisterDataInfo> infos = registerDataInfo.stream().map(
-                    readingRecord -> usagePointDataInfoFactory.createRegisterDataInfo(channel, readingRecord, range, rt_mrid)).
+                    readingRecord -> usagePointDataInfoFactory.createRegisterDataInfo(readingRecord)).
                     collect(Collectors.toList());
             
             
             Collections.sort(infos, (ri1, ri2) -> ri2.readingTime.compareTo(ri1.readingTime));
             /* And fill a delta value for cumulative reading type. The delta is the difference with the previous record.
                The Delta value won't be stored in the database yet, as it has a performance impact */
-            if (channel.getMainReadingType().isCumulative()){
+            if (readingType.isCumulative()){
                 for (int i = 0; i < infos.size() - 1; i++){
                     calculateDeltaForNumericalReading(infos.get(i + 1), infos.get(i));
                 }
@@ -142,63 +144,4 @@ public class RegisterResource {
         }
     }
     
-//
-//    @PUT
-//    @Path("/{registerId}/validate")
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-//    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-//    public Response validateNow(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, TriggerValidationInfo validationInfo) {
-//        Register<?> register = doGetRegister(mRID, registerId);
-//        if (validationInfo.lastChecked == null) {
-//            throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastChecked");
-//        }
-//        Instant newDate = Instant.ofEpochMilli(validationInfo.lastChecked);
-//        Optional<Instant> lastChecked = register.getDevice().forValidation().getLastChecked(register);
-//        if (lastChecked.isPresent() && newDate.isAfter(lastChecked.get())) {
-//            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DATE, "lastChecked", lastChecked);
-//        }
-//        validateRegister(register, newDate);
-//        return Response.status(Response.Status.OK).build();
-//    }
-//
-//    private void validateRegister(Register<?> register, Instant start) {
-//    	if (start != null) {
-//    		register.getDevice().forValidation().setLastChecked(register, start);
-//    	}
-//        register.getDevice().forValidation().validateRegister(register);
-//    }
-//
-//    private Register<?> doGetRegister(String mRID, long registerId) {
-//        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-//        return resourceHelper.findRegisterOrThrowException(device, registerId);
-//    }
-//
-//    @Path("/{registerId}/data")
-//    public RegisterDataResource getRegisterDataResource() {
-//        return registerDataResourceProvider.get();
-//    }
-//
-//    @Path("{registerId}/validationstatus")
-//    @GET
-//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-//    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-//    public Response getValidationFeatureStatus(@PathParam("mRID") String mrid, @PathParam("registerId") long registerId) {
-//        Register<?> register = doGetRegister(mrid, registerId);
-//        ValidationStatusInfo validationStatusInfo = determineStatus(register);
-//        return Response.status(Response.Status.OK).entity(validationStatusInfo).build();
-//    }
-//
-//    private ValidationStatusInfo determineStatus(Register<?> register) {
-//        return new ValidationStatusInfo(isValidationActive(register), register.getDevice().forValidation().getLastChecked(register), hasData(register));
-//    }
-//
-//    private boolean isValidationActive(Register<?> register) {
-//        return register.getDevice().forValidation().isValidationActive(register, clock.instant());
-//    }
-//
-//    private boolean hasData(Register<?> register) {
-//        return register.hasData();
-//    }
-
 }
