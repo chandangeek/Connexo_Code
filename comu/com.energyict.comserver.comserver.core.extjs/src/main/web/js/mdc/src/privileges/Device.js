@@ -35,7 +35,7 @@ Ext.define('Mdc.privileges.Device', {
         );
     },
     canView:function(){
-        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.view );
+        return Uni.Auth.checkPrivileges(Mdc.privileges.Device.viewDevice );
     },
     canAdministrateDeviceData : function(){
         return Uni.Auth.checkPrivileges(Mdc.privileges.Device.administrateDeviceData );
