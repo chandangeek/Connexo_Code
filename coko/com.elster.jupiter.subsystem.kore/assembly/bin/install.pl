@@ -220,21 +220,21 @@ sub install_connexo {
 		print $FH "com.elster.jupiter.datasource.jdbcuser=$dbUserName\n";
 		print $FH "com.elster.jupiter.datasource.jdbcpassword=$dbPassword\n";
 		print $FH "\n";
-		print $FH "mail.smtp.host=\n";
-		print $FH "mail.user=\n";
-		print $FH "mail.password=\n";
-		print $FH "mail.from=\n";
+		#print $FH "mail.smtp.host=\n";
+		#print $FH "mail.user=\n";
+		#print $FH "mail.password=\n";
+		#print $FH "mail.from=\n";
 		close($FH);
 
 		print "\n\nInstalling Connexo database schema ...\n";
 		print "==========================================================================\n";
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
-			system("$SCRIPT_DIR/Connexo.exe --install");
+			system("\"$SCRIPT_DIR/Connexo.exe\" --install");
 			if ("$CONNEXO_SERVICE" eq "yes") {
-				system("$SCRIPT_DIR/ConnexoService.exe /install Connexo$SERVICE_VERSION");
+				system("\"$SCRIPT_DIR/ConnexoService.exe\" /install Connexo$SERVICE_VERSION");
 			}
 		} else {
-			my $VM_OPTIONS="-Djava.util.logging.config.file=$CONNEXO_DIR/conf/logging.properties";
+			my $VM_OPTIONS="-Djava.util.logging.config.file=\"$CONNEXO_DIR/conf/logging.properties\"";
 			my $CLASSPATH = join(":", ".", glob("$CONNEXO_DIR/lib/*.jar"));
 			system("\"$JAVA_HOME/bin/java\" $VM_OPTIONS -cp \"$CLASSPATH\" com.elster.jupiter.launcher.ConnexoLauncher --install");
 			if ("$CONNEXO_SERVICE" eq "yes") {
@@ -374,8 +374,8 @@ sub install_facts {
 		close($FH);
 
 		chdir "$CONNEXO_DIR";
-		system("\"$JAVA_HOME/bin/jar\" -uvf $CONNEXO_DIR/partners/facts/facts.jar custom.properties") == 0 or die "$JAVA_HOME/bin/jar -uvf $CONNEXO_DIR/partners/facts/facts.jar custom.properties failed: $?";
-		system("\"$JAVA_HOME/bin/java\" -jar $CONNEXO_DIR/partners/facts/facts.jar -silent") == 0 or die "$JAVA_HOME/bin/java -jar $CONNEXO_DIR/partners/facts/facts.jar -silent failed: $?";
+		system("\"$JAVA_HOME/bin/jar\" -uvf \"$CONNEXO_DIR/partners/facts/facts.jar\" custom.properties") == 0 or die "$JAVA_HOME/bin/jar -uvf \"$CONNEXO_DIR/partners/facts/facts.jar\" custom.properties failed: $?";
+		system("\"$JAVA_HOME/bin/java\" -jar \"$CONNEXO_DIR/partners/facts/facts.jar\" -silent") == 0 or die "$JAVA_HOME/bin/java -jar \"$CONNEXO_DIR/partners/facts/facts.jar\" -silent failed: $?";
 		if (!-d "$FACTS_DIR") { make_path("$FACTS_DIR"); }
 		copy("$FACTS_BASE/facts.war","$FACTS_DIR/facts.war") or die "File cannot be copied: $!";
 		chdir "$FACTS_DIR";
@@ -468,7 +468,7 @@ sub install_flow {
 		replace_in_file("$CONNEXO_DIR/SendSomeoneToInspect.bpmn",'\${host}',"localhost");
 		replace_in_file("$CONNEXO_DIR/SendSomeoneToInspect.bpmn",'\${port}',"$TOMCAT_HTTP_PORT");
 		chdir "$CONNEXO_DIR";
-		system("\"$JAVA_HOME/bin/jar\" -uvf $CATALINA_HOME/repositories/kie/org/jbpm/sendsomeone/1.0/sendsomeone-1.0.jar SendSomeoneToInspect.bpmn") == 0 or die "$JAVA_HOME/bin/jar -uvf $CATALINA_HOME/repositories/kie/org/jbpm/sendsomeone/1.0/sendsomeone-1.0.jar SendSomeoneToInspect.bpmn failed: $?";
+		system("\"$JAVA_HOME/bin/jar\" -uvf \"$CATALINA_HOME/repositories/kie/org/jbpm/sendsomeone/1.0/sendsomeone-1.0.jar\" SendSomeoneToInspect.bpmn") == 0 or die "$JAVA_HOME/bin/jar -uvf \"$CATALINA_HOME/repositories/kie/org/jbpm/sendsomeone/1.0/sendsomeone-1.0.jar\" SendSomeoneToInspect.bpmn failed: $?";
 		unlink("$CONNEXO_DIR/SendSomeoneToInspect.bpmn");
 
 		print "Connexo Flow successfully installed\n";
@@ -531,7 +531,7 @@ sub start_tomcat {
 
 		if ("$INSTALL_FACTS" eq "yes") {
 			print "\nInstalling Connexo Facts content...\n";
-			my $ENCRYPTED_PASSWORD=`"$JAVA_HOME/bin/java" -jar $CONNEXO_DIR/partners/facts/EncryptPassword.jar $dbPassword`;
+			my $ENCRYPTED_PASSWORD=`"$JAVA_HOME/bin/java" -jar \"$CONNEXO_DIR/partners/facts/EncryptPassword.jar\" $dbPassword`;
 
 			copy("$CONNEXO_DIR/partners/facts/open-reports.xml","$CONNEXO_DIR/datasource.xml");
 			replace_in_file("$CONNEXO_DIR/datasource.xml",'\${jdbc}',"$jdbcUrl");
@@ -542,7 +542,7 @@ sub start_tomcat {
 			replace_in_file("$CONNEXO_DIR/datasource.xml",'\${instance}',"$FACTS_DB_NAME");
 
 			chdir "$CONNEXO_DIR";
-			system("\"$JAVA_HOME/bin/java\" -cp $CONNEXO_DIR/partners/facts/yellowfin.installer.jar com.elster.jupiter.install.reports.OpenReports datasource.xml http://localhost:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Facts content failed: $?";
+			system("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://localhost:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Facts content failed: $?";
 			unlink("$CONNEXO_DIR/datasource.xml");
 		}
 
