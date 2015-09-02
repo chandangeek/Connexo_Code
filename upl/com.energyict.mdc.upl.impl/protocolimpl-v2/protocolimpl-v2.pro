@@ -65,6 +65,10 @@
 	public *;
 	protected *;
 }
+-keep public class com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper {
+	public *;
+	protected *;
+}
 -keep public class com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.RtuPlusServerMessages {
 	public *;
 	protected *;

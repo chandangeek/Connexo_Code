@@ -21,6 +21,7 @@ import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
@@ -42,6 +43,7 @@ import java.util.Map;
 public class RegisterFactory {
 
     private final DlmsSession dlmsSession;
+    private BeaconG3RegisterMapper beaconG3RegisterMapper;
 
     public RegisterFactory(DlmsSession dlmsSession) {
         this.dlmsSession = dlmsSession;
@@ -60,14 +62,36 @@ public class RegisterFactory {
         List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
 
         for (OfflineRegister register : allRegisters) {
+
+            G3Mapping g3Mapping = getBeaconG3RegisterMapper().getG3Mapping(register.getObisCode());
             final UniversalObject universalObject;
+            final ObisCode baseObisCode = g3Mapping == null ? register.getObisCode() : g3Mapping.getBaseObisCode();
             try {
-                universalObject = dlmsSession.getMeterConfig().findObject(register.getObisCode());
+                universalObject = dlmsSession.getMeterConfig().findObject(baseObisCode);
             } catch (NotInObjectListException e) {
                 continue;   //Move on to the next register, this one is not supported by the DC
             }
 
-            if (universalObject != null) {
+            if (g3Mapping != null) {
+                ComposedRegister composedRegister = new ComposedRegister();
+                int[] attributeNumbers = g3Mapping.getAttributeNumbers();
+                for (int index = 0; index < attributeNumbers.length; index++) {
+                    int attributeNumber = attributeNumbers[index];
+                    DLMSAttribute dlmsAttribute = new DLMSAttribute(g3Mapping.getBaseObisCode(), attributeNumber, g3Mapping.getDLMSClassId());
+                    dlmsAttributes.add(dlmsAttribute);
+
+                    //If the mapping contains more than 1 attribute, the order is always value, unit, captureTime
+                    if (index == 0) {
+                        composedRegister.setRegisterValue(dlmsAttribute);
+                    } else if (index == 1) {
+                        composedRegister.setRegisterUnit(dlmsAttribute);
+                    } else if (index == 2) {
+                        composedRegister.setRegisterCaptureTime(dlmsAttribute);
+                    }
+                }
+                composedRegisterMap.put(register.getObisCode(), composedRegister);
+            } else {
+
                 ComposedRegister composedRegister = new ComposedRegister();
 
                 if (universalObject.getClassID() == DLMSClassId.DATA.getClassId()) {
@@ -89,9 +113,7 @@ public class RegisterFactory {
                     DLMSAttribute memoryStatisticsAttribute = new DLMSAttribute(register.getObisCode(), MemoryManagementAttributes.MEMORY_STATISTICS.getAttributeNumber(), universalObject.getClassID());
                     composedRegister.setRegisterValue(memoryStatisticsAttribute);
                 }
-
                 dlmsAttributes.addAll(composedRegister.getAllAttributes());
-
                 composedRegisterMap.put(register.getObisCode(), composedRegister);
             }
         }
@@ -105,9 +127,11 @@ public class RegisterFactory {
                 result.add(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
             } else {
 
+                G3Mapping g3Mapping = getBeaconG3RegisterMapper().getG3Mapping(offlineRegister.getObisCode());
+                final ObisCode baseObisCode = g3Mapping == null ? offlineRegister.getObisCode() : g3Mapping.getBaseObisCode();
                 final UniversalObject universalObject;
                 try {
-                    universalObject = dlmsSession.getMeterConfig().findObject(offlineRegister.getObisCode());
+                    universalObject = dlmsSession.getMeterConfig().findObject(baseObisCode);
                 } catch (NotInObjectListException e) {
                     result.add(createFailureCollectedRegister(offlineRegister, ResultType.NotSupported));
                     continue;   //Move on to the next register, this one is not supported by the DC
@@ -116,7 +140,9 @@ public class RegisterFactory {
                 try {
                     RegisterValue registerValue;
 
-                    if (universalObject.getClassID() == DLMSClassId.MEMORY_MANAGEMENT.getClassId()) {
+                    if (g3Mapping != null) {
+                        registerValue = g3Mapping.parse(composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute()));
+                    } else if (universalObject.getClassID() == DLMSClassId.MEMORY_MANAGEMENT.getClassId()) {
                         AbstractDataType memoryStatisticsAttribute = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
 
                         if (!memoryStatisticsAttribute.isStructure() || memoryStatisticsAttribute.getStructure().nrOfDataTypes() != 4) {
@@ -179,6 +205,13 @@ public class RegisterFactory {
         }
 
         return result;
+    }
+
+    private BeaconG3RegisterMapper getBeaconG3RegisterMapper() {
+        if (beaconG3RegisterMapper == null) {
+            beaconG3RegisterMapper = new BeaconG3RegisterMapper(getDlmsSession().getCosemObjectFactory(), getDlmsSession().getProperties().getTimeZone(), getDlmsSession().getLogger());
+        }
+        return beaconG3RegisterMapper;
     }
 
     private CollectedRegister createCollectedRegister(RegisterValue registerValue, OfflineRegister offlineRegister) {
