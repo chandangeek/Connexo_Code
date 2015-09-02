@@ -3,6 +3,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
@@ -69,6 +70,12 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     @Override
     protected MessageSeed[] getMessageSeeds() {
         return MessageSeeds.values();
+    }
+
+    @Override
+    public void setupMocks() {
+        super.setupMocks();
+        when(thesaurus.join(any(Thesaurus.class))).thenReturn(thesaurus);
     }
 
     @Override
