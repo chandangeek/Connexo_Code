@@ -174,7 +174,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                 if (Ext.isEmpty(record.get('id'))) { //Add
                     this.setTitle(Uni.I18n.translate('deviceLifeCycleStates.add', 'DLC', 'Add state'));
                 }else{ //Edit
-                    var title = Uni.I18n.translate('general.edit', 'DLC', 'Edit') + " '" + record.get('name') + "'"
+                    var title = Uni.I18n.translate('general.editx', 'DLC', "Edit '{0}'",[record.get('name')])
                     this.setTitle(title);
 
                     var createBtn = this.down('#createEditButton');
