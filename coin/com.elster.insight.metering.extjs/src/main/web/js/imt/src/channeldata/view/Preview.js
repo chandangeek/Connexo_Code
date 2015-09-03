@@ -27,7 +27,7 @@ Ext.define('Imt.channeldata.view.Preview', {
                         },
                         items: [
                             {
-                                fieldLabel: Uni.I18n.translate('general.readingTypemRID', 'IMT', 'Reading type'),
+                                fieldLabel: Uni.I18n.translate('general.readingType', 'IMT', 'Reading type'),
                                 xtype: 'reading-type-displayfield',
                                 name: 'readingType',
                                 itemId: 'readingType',

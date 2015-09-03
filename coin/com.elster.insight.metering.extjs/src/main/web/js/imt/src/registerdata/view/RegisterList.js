@@ -31,7 +31,7 @@ Ext.define('Imt.registerdata.view.RegisterList', {
             }
         },
         {
-            header: Uni.I18n.translate('registers.title.registers', 'MDC', 'Reading Timestamp'),
+            header: Uni.I18n.translate('registers.title.readingTimestamp', 'MDC', 'Reading Timestamp'),
             flex: 1,
             dataIndex: 'utcTimestamp', 
             renderer: function(value){
@@ -42,12 +42,12 @@ Ext.define('Imt.registerdata.view.RegisterList', {
             },
         },
         {
-            header: Uni.I18n.translate('registers.title.registers', 'MDC', 'Reading Value'),
+            header: Uni.I18n.translate('registers.title.readingValue', 'MDC', 'Reading Value'),
             flex: 1,
             dataIndex: 'readingValue', 
         },
         {
-            header: Uni.I18n.translate('registers.title.registers', 'MDC', 'Recorded Timestamp'),
+            header: Uni.I18n.translate('registers.title.recordedTimestamp', 'MDC', 'Recorded Timestamp'),
             flex: 1,
             dataIndex: 'recordedTime', 
             renderer: function(value){
