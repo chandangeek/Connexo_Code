@@ -83,7 +83,7 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
                 failure: function (response) {
                     if(response.status == 400) {
                         var result = Ext.decode(response.responseText, true),
-                            errorTitle = Ext.String.format(Uni.I18n.translate('logbookconfiguration.failedToUpdate','','Failed to update {0}'),record.data.name),
+                            errorTitle = Ext.String.format(Uni.I18n.translate('logbookconfiguration.failedToUpdate','MDC','Failed to update {0}'),record.data.name),
                             errorText = Uni.I18n.translate('logbookconfiguration.configurationCouldNotBeUpdated','MDC','Logbook configuration could not be updated. There was a problem accessing the database');
 
                         if (result !== null) {
