@@ -2,7 +2,7 @@ Ext.define('Imt.channeldata.model.Channel', {
     extend: 'Ext.data.Model',
     requires: [],
     fields: [
-        {name: 'deviceName', type: 'string'},
+        {name: 'unitOfMeasure', type: 'string'},
         {name: 'readingType', type: 'auto'},
         {name: 'readingTypemRID', type: 'string', mapping: 'readingType.mRID', persist: false},
         {name: 'readingTypeFullAliasName', type: 'string', mapping: 'readingType.fullAliasName', persist: false},

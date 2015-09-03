@@ -121,7 +121,7 @@ Ext.define('Imt.channeldata.controller.View', {
         dataStore = me.getStore('Imt.channeldata.store.ChannelData'),
         zoomLevelsStore = me.getStore('Imt.store.DataIntervalAndZoomLevels'),
         channelName = channel.get('readingTypeFullAliasName'),
-        unitOfMeasure = channel.get('readingType').unit,
+        unitOfMeasure = channel.get('unitOfMeasure'),
         seriesObject = { 
             marker: { enabled: false },
             name: channelName
