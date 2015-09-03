@@ -13,7 +13,13 @@ Ext.define('Mdc.view.setup.devicehistory.LifeCycle', {
             tpl: new Ext.XTemplate(
                 '<tpl for=".">',
                 '{[xindex > 1 ? "<hr>" : ""]}',
-                '<p><b>{[(values.type == "lifeCycle" ? Uni.I18n.translate("general.deviceLifeCycle", "MDC", "Device life cycle") : Uni.I18n.translate("general.state", "MDC", "State")) + " " + (values.from ? Uni.I18n.translate("deviceHistory.changedFrom", "MDC", "changed from") + " " + this.formatHref(values, true) : Uni.I18n.translate("deviceHistory.set", "MDC", "set")) + " " + Uni.I18n.translate("general.unitTo", "MDC", "to") + " " + this.formatHref(values, false)]}</b></p>',
+                '<p><b>{[(values.type == "lifeCycle" && values.from ' +
+                    '? Uni.I18n.translate("deviceHistory.deviceLifeCycle.changed", "MDC", "Device life cycle changed from {0} to {1}",[this.formatHref(values, true), this.formatHref(values, false)], false) ' +
+                    ': values.type == "lifeCycle" ' +
+                        '? Uni.I18n.translate("deviceHistory.deviceLifeCycle.set", "MDC", "Device life cycle set to {0}", [this.formatHref(values, false)], false) ' +
+                        ': values.from ' +
+                            '? Uni.I18n.translate("deviceHistory.state.changed", "MDC", "State changed from {0} to {1}", [this.formatHref(values, true), this.formatHref(values, false)]) ' +
+                            ': Uni.I18n.translate("deviceHistory.state.set", "MDC", "State set to {0}", [this.formatHref(values, false)]) )]}</b></p>',
                 '<p>{[Uni.I18n.translate("deviceHistory.byOn", "MDC", "by {0} on {1}", [values.author.name, Uni.DateTime.formatDateTimeShort(new Date(values.modTime))])]}</br></p>',
                 '</tpl>',
                 {
