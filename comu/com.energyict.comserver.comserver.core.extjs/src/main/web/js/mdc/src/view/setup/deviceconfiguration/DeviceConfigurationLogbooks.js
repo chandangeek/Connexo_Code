@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                             },
                             items: [
                                 {
-                                    header: 'Name',
+                                    header: Uni.I18n.translate('general.name','MDC','Name'),
                                     dataIndex: 'name',
                                     flex: 5
                                 },
@@ -134,14 +134,14 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                                         items: [
                                             {
                                                 xtype: 'displayfield',
-                                                fieldLabel: 'Name',
+                                                fieldLabel: Uni.I18n.translate('general.name','MDC','Name'),
                                                 name: 'name',
                                                 labelWidth: 160
                                             },
                                             {
                                                 xtype: 'obis-displayfield',
-                                                fieldLabel: 'Overruled OBIS code',
-                                                name: 'overruledObisCode',
+                                                fieldLabel: Uni.I18n.translate('general.overruledObisCode', 'MDC', 'Overruled OBIS code'),
+                                                name: general.overruledObisCode,
                                                 labelWidth: 160
                                             }
                                         ]
@@ -150,7 +150,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                                         items: [
                                             {
                                                 xtype: 'obis-displayfield',
-                                                fieldLabel: 'Logbook OBIS code',
+                                                fieldLabel: Uni.I18n.translate('general.logbookObisCode', 'MDC', 'Logbook OBIS code'),
                                                 labelWidth: 160,
                                                 name: 'obisCode'
                                             }

@@ -106,7 +106,7 @@ Ext.define('Mdc.controller.setup.Devices', {
             callback: function (record, operation, success) {
                 if (success) {
                     me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translate('device.connection.toggle.' + connectionMethod.status, 'MDC', 'Connection status changed to ' + connectionMethod.status)
+                        Uni.I18n.translate('device.connection.toggle', 'MDC', 'Connection status changed to {0}',[connectionMethod.status])
                     );
                     me.refreshConnections();
                 }

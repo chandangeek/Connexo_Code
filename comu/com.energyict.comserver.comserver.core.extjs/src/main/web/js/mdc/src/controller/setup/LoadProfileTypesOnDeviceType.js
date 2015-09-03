@@ -58,7 +58,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
             }
         });
 
-        this.intervalStore = this.getStore('Mdc.store.Intervals').load();
+        this.intervalStore = this.getStore('Mdc.store.Intervals');
         this.store = this.getStore('LoadProfileTypesOnDeviceType');
     },
 
@@ -69,7 +69,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('loadProfileTypes.confirmWindow.removeMsgOnDeviceType', 'MDC', 'This load profile type will no longer be available on this device type.'),
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + " '" + lastSelected.get('name') + "'?",
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[ lastSelected.get('name')]),
             config: {
                 me: me
             },

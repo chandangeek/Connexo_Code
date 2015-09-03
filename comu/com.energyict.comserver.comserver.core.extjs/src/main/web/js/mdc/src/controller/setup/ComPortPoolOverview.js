@@ -107,7 +107,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolOverview', {
                     var msg = activeChange ? Uni.I18n.translate('general.activated', 'MDC', 'activated') :
                         Uni.I18n.translate('general.deactivated', 'MDC', 'deactivated');
                     form.loadRecord(model);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool') + ' ' + msg);
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.comPortPoolMsg', 'MDC', 'Communication port pool {0}',[msg]));
                 }
             });
         }

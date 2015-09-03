@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogPreview', 
                 {
                     xtype: 'displayfield',
                     name: 'details',
-                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.descriiption', 'MDC', 'Description'),
+                    fieldLabel: Uni.I18n.translate('deviceconnectionhistory.description', 'MDC', 'Description'),
                     itemId: 'details',
                     htmlEncode: false,
                     renderer: function(value,field){

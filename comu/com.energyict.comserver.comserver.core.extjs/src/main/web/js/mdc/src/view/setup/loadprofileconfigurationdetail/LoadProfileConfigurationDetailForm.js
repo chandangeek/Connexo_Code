@@ -58,7 +58,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     xtype: 'obis-field',
                     required: false,
                     name: 'overruledObisCode',
-                    fieldLabel: Uni.I18n.translate('channelConfig.channelConfigForm.overruledObisCodeLabel', 'MDC', 'Overruled OBIS code')
+                    fieldLabel: Uni.I18n.translate('general.overruledObisCode', 'MDC', 'Overruled OBIS code')
                 },
                 {
                     xtype: 'textfield',

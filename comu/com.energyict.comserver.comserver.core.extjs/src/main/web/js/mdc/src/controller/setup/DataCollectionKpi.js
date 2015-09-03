@@ -65,7 +65,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                 break;
             case 'remove':
                 Ext.create('Uni.view.window.Confirmation').show({
-                    title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' \'' + menu.record.get('deviceGroup').name + '\'?',
+                    title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[menu.record.get('deviceGroup').name]),
                     msg: Uni.I18n.translate('datacollectionkpis.deleteConfirmation.msg', 'MDC', 'This data collection KPI will no longer be available on connections &#38; communications overview.'),
                     fn: function (state) {
                         switch (state) {
@@ -196,14 +196,14 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                     widget.down('#dataCollectionKpiEditForm').setTitle(Uni.I18n.translate('datacollectionkpis.editDataCollectionKpi', 'MDC', 'Edit data collection KPI'));
                     kpiModel.load(id, {
                         success: function (kpiRecord) {
-                            var editTitle = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + Ext.String.htmlEncode(kpiRecord.get('deviceGroup').name) + "'";
+                            var editTitle = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[Ext.String.htmlEncode(kpiRecord.get('deviceGroup').name)]);
 
                             Ext.suspendLayouts();
                             form.loadRecord(kpiRecord);
                             form.down('[name=deviceGroup]').disable();
                             form.down('[name=frequency]').disable();
                             widget.down('#dataCollectionKpiEditForm').setTitle(editTitle);
-                            me.getApplication().fireEvent('loadDataCollectionKpi', Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + kpiRecord.get('deviceGroup').name + "'");
+                            me.getApplication().fireEvent('loadDataCollectionKpi', Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[kpiRecord.get('deviceGroup').name]));
                             createBtn.setText(Uni.I18n.translate('general.save', 'MDC', 'Save'));
                             createBtn.action = 'save';
                             Ext.resumeLayouts(true);

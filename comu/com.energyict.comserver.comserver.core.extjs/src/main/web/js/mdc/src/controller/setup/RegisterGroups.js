@@ -102,10 +102,10 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
             me.getRegisterTypeGrid().getStore().load({
                 callback: function (records) {
                     if (records.length > 0) {
-                        me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of') + ' ' + Ext.String.htmlEncode(registerGroups[0].get('name')));
+                        me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', "Register types of {0}",[Ext.String.htmlEncode(registerGroups[0].get('name'))]));
                         me.getRegisterTypeGrid().getSelectionModel().doSelect(0);
                     } else {
-                        me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', 'Register types of') + ' ' + Ext.String.htmlEncode(registerGroups[0].get('name')));
+                        me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', "Register types of {0}",[Ext.String.htmlEncode(registerGroups[0].get('name'))]));
                     }
                     me.getRegisterTypeEmptyGrid().setVisible(true);
                     me.getRegisterTypePreview().setVisible(true);
@@ -155,7 +155,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                         widget.setLoading(true);
                         me.getApplication().fireEvent('loadRegisterGroup', registerGroup);
                         widget.down('form').loadRecord(registerGroup);
-                        widget.down('panel').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + Ext.String.htmlEncode(registerGroup.get('name')) + '\'');
+                        widget.down('panel').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[Ext.String.htmlEncode(registerGroup.get('name'))]));
                         grid = widget.down('#editRegisterGroupGridField');
                         if (this.data.first.value.length > 0) {
                             grid.reconfigure(store);
@@ -249,7 +249,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('registerGroup.deleteRegisterGroup', 'MDC', 'The register group will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + itemToRemove.get('name') + '?',
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[itemToRemove.get('name')]),
             config: {
                 registerGroupToDelete: itemToRemove
             },

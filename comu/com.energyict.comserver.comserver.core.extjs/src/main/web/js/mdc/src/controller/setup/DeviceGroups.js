@@ -248,7 +248,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('deviceGroup.remove.msg', 'MDC', 'This device group will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + record.data.name + '?',
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[record.data.name]),
             fn: function (state) {
                 if (state === 'confirm') {
                     record.destroy({

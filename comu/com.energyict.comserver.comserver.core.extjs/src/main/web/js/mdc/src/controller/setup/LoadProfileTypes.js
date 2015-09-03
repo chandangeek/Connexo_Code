@@ -70,7 +70,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('loadProfileTypes.confirmWindow.removeMsg', 'MDC', 'This load profile type will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + " '" + lastSelected.get('name') + "'?",
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[lastSelected.get('name')]),
             config: {
                 me: me
             },
@@ -242,7 +242,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 me.getModel('Mdc.model.LoadProfileType').load(id, {
                     success: function (record) {
                         Ext.suspendLayouts();
-                        editPage.setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + record.get('name') + "'");
+                        editPage.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[record.get('name')]));
                         editPage.getLayout().setActiveItem(0);
                         Ext.resumeLayouts(true);
                     }
@@ -299,7 +299,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 callback: function (record) {
                     Ext.suspendLayouts();
                     if (router.currentRoute !== 'administration/loadprofiletypes/edit/addregistertypes') {
-                        me.getEditPage().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + record.get('name') + "'");
+                        me.getEditPage().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[record.get('name')]));
                     }
                     form.setEdit(true, returnLink, addRegisterTypesLink);
                     Ext.resumeLayouts(true);

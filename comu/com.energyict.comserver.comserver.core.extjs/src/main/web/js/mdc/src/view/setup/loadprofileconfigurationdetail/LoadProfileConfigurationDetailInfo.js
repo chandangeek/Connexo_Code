@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     items: [
         {
             xtype: 'displayfield',
-            fieldLabel: 'Device configuration',
+            fieldLabel: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
             htmlEncode: false,
             name: 'deviceConfigurationName'
         },
@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
         },
         {
             xtype: 'displayfield',
-            fieldLabel: 'Interval',
+            fieldLabel: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),
             name: 'timeDuration',
             renderer: function (value) {
                 var intervalRecord = Ext.getStore('Mdc.store.Intervals').getById(value.id);

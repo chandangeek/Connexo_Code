@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.devicegroup.DeviceGroupPreview', {
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
             iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'device-group-action-menu'

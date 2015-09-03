@@ -343,7 +343,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         var me = this;
         var widget = Ext.widget('addSchedulePopUp', {action: 'addIndividualScheduleAction'});
         var comTask = this.getOnRequestCommunicationScheduleGrid().getSelectionModel().getSelection()[0];
-        widget.setTitle(Uni.I18n.translate('deviceCommunicationSchedule.addFrequency', 'MDC', 'Add frequency to communication task ') + "'" + comTask.get('comTaskInfos')[0].name + "'");
+        widget.setTitle(Uni.I18n.translate('deviceCommunicationSchedule.addFrequencyx', 'MDC', "Add frequency to communication task '{0}'",[comTask.get('comTaskInfos')[0].name]));
         widget.show();
 
     },
@@ -352,7 +352,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         var me = this;
         var widget = Ext.widget('addSchedulePopUp', {action: 'changeIndividualScheduleAction'});
         var comTask = this.getIndividualCommunicationScheduleGrid().getSelectionModel().getSelection()[0];
-        widget.setTitle(Uni.I18n.translate('deviceCommunicationSchedule.changeFrequency', 'MDC', 'Change frequency of communication task ') + "'" + comTask.get('comTaskInfos')[0].name + "'");
+        widget.setTitle(Uni.I18n.translate('deviceCommunicationSchedule.changeFrequencyx', 'MDC', "Change frequency of communication task '{0}'",[comTask.get('comTaskInfos')[0].name]));
         widget.down('#addScheduleForm').loadRecord(comTask);
         widget.show();
     },

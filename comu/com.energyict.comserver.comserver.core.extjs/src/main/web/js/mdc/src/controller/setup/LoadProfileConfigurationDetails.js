@@ -100,7 +100,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('loadProfileConfiguration.confirmWindow.removeChannelConfiguration', 'MDC', 'This channel configuration will be removed from the load profile configuration.'),
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + " '" + lastSelected.get('readingType')['fullAliasName'] + "'?",
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[lastSelected.get('readingType')['fullAliasName']]),
             config: {me: me},
             fn: me.confirmationPanelHandler
         });

@@ -105,7 +105,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
 
                 me.getApplication().fireEvent('loadComPortPool', record);
 
-                title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + record.get('name') + '\'';
+                title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[record.get('name')]);
 
                 form.setTitle(title);
                 if (isInbound) {

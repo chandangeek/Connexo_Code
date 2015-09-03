@@ -148,7 +148,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
 
         Ext.create('Uni.view.window.Confirmation').show({
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + " '" + lastSelected.get('name') + "'?",
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[lastSelected.get('name')]),
             msg: Uni.I18n.translate('comtask.remove.confirmation.msg', 'MDC', 'This communication task will no longer be available'),
             config: {
                 me: me
@@ -391,7 +391,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             callback: function () {
                 model.load(id, {
                     success: function (record) {
-                        self.getTaskEdit().getCenterContainer().down().setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + record.get('name') + "'"  );
+                        self.getTaskEdit().getCenterContainer().down().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[record.get('name')]));
                         self.getApplication().fireEvent('loadCommunicationTask', record);
                         form.loadRecord(record);
                         Ext.Array.each(record.get('commands'), function (command) {
