@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.comserver.RemoteComServerEdit', {
                 items: [
                     {
                         xtype: 'fieldset',
-                        title: Uni.I18n.translate('general.required','required','Required'),
+                        title: Uni.I18n.translate('general.required','MDC','Required'),
                         defaults: {
                             labelWidth: 200
                         },

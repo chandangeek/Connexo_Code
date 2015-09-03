@@ -44,10 +44,10 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeSetup'
                 },
                 emptyComponent: {
                     xtype: 'no-items-found-panel',
-                    title: Uni.I18n.translate('loadprofiletypes.empty.title', 'MDC', 'No load profile types found'),
+                    title: Uni.I18n.translate('loadProfileTypes.empty.title', 'MDC', 'No load profile types found'),
                     reasons: [
-                        Uni.I18n.translate('loadprofiletypes.empty.list.item1', 'MDC', 'No load profile types are defined yet'),
-                        Uni.I18n.translate('loadprofiletypes.empty.list.item2', 'MDC', 'All load profile types are already added to the device type.')
+                        Uni.I18n.translate('loadProfileTypes.empty.list.item1', 'MDC', 'No load profile types have been defined yet.'),
+                        Uni.I18n.translate('loadProfileTypes.empty.list.item2', 'MDC', 'All load profile types are already added to the device type.')
                     ]
                 },
                 onLoad: function (store, records) {
@@ -60,7 +60,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeSetup'
                 xtype: 'container',
                 itemId: 'add-loadprofile-type-selection-error',
                 hidden: true,
-                html: '<span style="color: #eb5642">' + Uni.I18n.translate('loadprofiletypes.no.loadprofiletypes.selected', 'MDC', 'Select at least 1 load profile type') + '</span>'
+                html: '<span style="color: #eb5642">' + Uni.I18n.translate('loadProfileTypes.no.loadprofiletypes.selected', 'MDC', 'Select at least 1 load profile type') + '</span>'
             },
             {
                 xtype: 'form',
