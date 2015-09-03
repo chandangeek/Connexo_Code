@@ -136,7 +136,7 @@ Ext.define('Apr.view.appservers.PreviewForm', {
                     xtype: 'displayfield',
                     width: 800,
                     fieldLabel: undefined,
-                    value: messageService.subscriberSpec.displayName + ' (' + messageService.numberOfThreads + ' ' + Uni.I18n.translate('general.thread', 'APR', 'thread(s)') + ')'
+                    value: messageService.subscriberSpec.displayName + ' (' + Uni.I18n.translate('general.xthreads', 'APR', '{0} thread(s)',[messageService.numberOfThreads]) + ')'
                 }
             );
         }

@@ -31,7 +31,7 @@ Ext.define('Apr.controller.history.AppServer', {
                             action: 'showAddEditAppServer',
                             callback: function (route) {
                                 this.getApplication().on('appserverload', function (name) {
-                                    route.setTitle(Uni.I18n.translate('general.edit', 'APR', 'Edit') + " '" + name + "'");
+                                    route.setTitle(Uni.I18n.translate('general.editx', 'APR', "Edit '{0}'",[name]));
                                     return true;
                                 }, {single: true});
                                 return this;
