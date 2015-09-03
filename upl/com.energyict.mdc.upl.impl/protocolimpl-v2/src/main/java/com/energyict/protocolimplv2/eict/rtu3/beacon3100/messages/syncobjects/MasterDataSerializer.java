@@ -89,7 +89,6 @@ public class MasterDataSerializer {
 
     }
 
-    //TODO error handling in case of no comtasks, no security, no nothing
     public static String serializeMasterData(Object messageAttribute) {
         final Device masterDevice = mw().getDeviceFactory().find(((BigDecimal) messageAttribute).intValue());
         if (masterDevice == null) {
@@ -115,6 +114,10 @@ public class MasterDataSerializer {
 
         final Beacon3100ProtocolConfiguration protocolConfiguration = getProtocolConfiguration(deviceConfiguration, masterDevice, deviceConfiguration.getDeviceType());
         final List<Beacon3100Schedulable> schedulables = getSchedulables(deviceConfiguration);
+        if (schedulables.isEmpty()) {
+            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException("Comtask enablements on device configuration with ID " + deviceConfiguration.getId(), "empty", "Device configuration should have at least one comtask enablement that reads out meter data");
+        }
+
         final Beacon3100ClockSyncConfiguration clockSyncConfiguration = getClockSyncConfiguration(deviceConfiguration);
 
         //Use the security set of the first task to read out the serial number.. doesn't really matter
