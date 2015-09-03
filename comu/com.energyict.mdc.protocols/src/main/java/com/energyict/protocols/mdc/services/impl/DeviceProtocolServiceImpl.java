@@ -44,6 +44,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link DeviceProtocolService} interface
@@ -266,7 +269,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.thesaurus).install(true);
+        new Installer(this.dataModel).install(true);
     }
 
     @Override
@@ -286,7 +289,11 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(SDKMessageSeeds.values());
+        return Stream.of(
+                Arrays.stream(SDKMessageSeeds.values()),
+                Arrays.stream(MessageSeeds.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     private class CompositeLoadProfileFactory implements LoadProfileFactory {
