@@ -219,6 +219,8 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                                 : new RegisterValue(offlineRegister, dataValue.getOctetString().stringValue().trim());
                     } else if (dataValue.getBooleanObject() != null) {
                         registerValue = new RegisterValue(offlineRegister, String.valueOf(dataValue.getBooleanObject().getState()));
+                    } else if (dataValue.getTypeEnum() != null) {
+                        registerValue = new RegisterValue(offlineRegister, new Quantity(dataValue.getTypeEnum().getValue(), Unit.getUndefined()));
                     } else {
                         if (offlineRegister.getObisCode().equals(ObisCode.fromString(ALARM_REGISTER1)) || offlineRegister.getObisCode().equals(ObisCode.fromString(ERROR_REGISTER))) {
                             AlarmBitsRegister alarmBitsRegister = new AlarmBitsRegister(offlineRegister.getObisCode(), dataValue.longValue());
@@ -227,7 +229,7 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
                             AlarmBitsRegister2 alarmBitsRegister2 = new AlarmBitsRegister2(offlineRegister.getObisCode(), dataValue.longValue());
                             registerValue = alarmBitsRegister2.getRegisterValue();
                         } else {
-                            registerValue = new RegisterValue(offlineRegister, new Quantity(dataValue.toBigDecimal(), Unit.get("")));
+                            registerValue = new RegisterValue(offlineRegister, new Quantity(dataValue.toBigDecimal(), Unit.getUndefined()));
                         }
                     }
                     return createCollectedRegister(registerValue, offlineRegister);
