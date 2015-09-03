@@ -15,7 +15,7 @@ Ext.define('Usr.view.user.Details', {
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'USR', Uni.I18n.translate('general.actions', 'USR', 'Actions')),
+            text: Uni.I18n.translate('general.actions', 'USR', 'Actions'),
             privileges: Usr.privileges.Users.admin,
             iconCls: 'x-uni-action-iconD',
             menu: {
