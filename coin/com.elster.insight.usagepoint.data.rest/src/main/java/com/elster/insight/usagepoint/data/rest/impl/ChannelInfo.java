@@ -40,7 +40,7 @@ public class ChannelInfo {
         info.unitOfMeasure = channel.getMainReadingType().getUnit().toString();
         
         
-        info.unitOfMeasure = channel.getMainReadingType().getUnit().toString();
+        info.unitOfMeasure = channel.getMainReadingType().getMultiplier().getSymbol() + channel.getMainReadingType().getUnit().getSymbol();
         
         info.lastReadingValue = channel.getReading(channel.getLastDateTime()).get().getValue();
         info.lastValueTimestamp = channel.getLastDateTime();

@@ -45,7 +45,7 @@ public class RegisterInfo {
 //        info.name = channel.getName();
 //        info.interval = new TimeDurationInfo(channel.getInterval());
         
-        info.unitOfMeasure = channel.getMainReadingType().getUnit().toString();
+        info.unitOfMeasure = channel.getMainReadingType().getMultiplier().getSymbol() + channel.getMainReadingType().getUnit().getSymbol();
         info.timeOfUse = channel.getMainReadingType().getTou();
         
 //        info.lastReading = channel.getLastReading().orElse(null);
