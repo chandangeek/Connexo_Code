@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.Estimator;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.Thesaurus;
@@ -9,6 +10,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -42,6 +44,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,16 +66,18 @@ public class ChannelResource {
     private final Thesaurus thesaurus;
     private final Clock clock;
     private final DeviceDataInfoFactory deviceDataInfoFactory;
+    private final ValidationInfoFactory validationInfoFactory;
     private final IssueDataValidationService issueDataValidationService;
     private final EstimationHelper estimationHelper;
 
     @Inject
-    public ChannelResource(Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper) {
+    public ChannelResource(Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper) {
         this.channelHelper = channelHelper;
         this.resourceHelper = resourceHelper;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
+        this.validationInfoFactory = validationInfoFactory;
         this.issueDataValidationService = issueDataValidationService;
         this.estimationHelper = estimationHelper;
     }
@@ -165,6 +170,31 @@ public class ChannelResource {
             return Response.ok(pagedInfoList).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{channelid}/data/{epochMillis}/validation")
+    public Response getValidationData(
+            @PathParam("mRID") String mRID,
+            @PathParam("channelid") long channelId,
+            @PathParam("epochMillis") long epochMillis) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+        DeviceValidation deviceValidation = channel.getDevice().forValidation();
+        Instant to = Instant.ofEpochMilli(epochMillis);
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(to, channel.getDevice().getZone());
+        Instant from = zonedDateTime.minus(channel.getInterval().asTemporalAmount()).toInstant();
+        Optional<LoadProfileReading> loadProfileReading = channel.getChannelData(Range.openClosed(from, to)).stream().findAny();
+        Optional<DataValidationStatus> dataValidationStatus = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValidationStates().entrySet().stream().map(Map.Entry::getValue).findFirst());
+
+        Optional<VeeReadingInfo> veeReadingInfo = dataValidationStatus.map(status -> {
+            IntervalReadingRecord channelReading = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst()).orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
+            return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, status, deviceValidation, channelReading);
+        });
+        List<VeeReadingInfo> list = new ArrayList<>();
+        list.add(veeReadingInfo.orElseGet(VeeReadingInfo::new));
+        return Response.ok(veeReadingInfo.orElseGet(VeeReadingInfo::new)).build();
     }
 
     private List<ChannelDataInfo> filter(List<ChannelDataInfo> infos, JsonQueryFilter filter) {
