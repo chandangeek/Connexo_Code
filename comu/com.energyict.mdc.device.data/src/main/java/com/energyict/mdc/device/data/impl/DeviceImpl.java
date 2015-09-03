@@ -146,7 +146,6 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.EnumSet;
@@ -204,7 +203,7 @@ public class DeviceImpl implements Device, CanLock {
     private String serialNumber;
     @Size(max = 32, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String timeZoneId;
-    private TimeZone timeZone;
+    private ZoneId zoneId;
     private Integer yearOfCertification;
     @SuppressWarnings("unused")
     private String userName;
@@ -519,28 +518,39 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     public TimeZone getTimeZone() {
-        if (this.timeZone == null) {
-            if (!Checks.is(timeZoneId).empty() && Arrays.asList(TimeZone.getAvailableIDs()).contains(this.timeZoneId)) {
-                this.timeZone = TimeZone.getTimeZone(timeZoneId);
-            } else {
-                return getSystemTimeZone();
-            }
-        }
-        return this.timeZone;
-    }
-
-    private TimeZone getSystemTimeZone() {
-        return TimeZone.getDefault();
+        return TimeZone.getTimeZone(getZone());
     }
 
     @Override
+    public ZoneId getZone() {
+        if (this.zoneId == null) {
+            if (!Checks.is(timeZoneId).empty() && ZoneId.getAvailableZoneIds().contains(this.timeZoneId)) {
+                this.zoneId = ZoneId.of(timeZoneId);
+            } else {
+                return clock.getZone();
+            }
+        }
+        return this.zoneId;
+    }
+
+    /**
+     * @deprecated use setZone
+     * @param timeZone
+     */
+    @Deprecated
+    @Override
     public void setTimeZone(TimeZone timeZone) {
-        if (timeZone != null) {
-            this.timeZoneId = timeZone.getID();
+        setZone(timeZone.toZoneId());
+    }
+
+    @Override
+    public void setZone(ZoneId zone) {
+        if (zoneId != null) {
+            this.timeZoneId = zone.getId();
         } else {
             this.timeZoneId = "";
         }
-        this.timeZone = timeZone;
+        this.zoneId = zone;
     }
 
     @Override

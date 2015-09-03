@@ -41,6 +41,7 @@ import com.elster.jupiter.util.HasName;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -104,10 +105,16 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      * convert between device time and the configured collection TimeZone
      *
      * @return the receiver's collection TimeZone
+     * @deprecated use getZone()
      */
+    @Deprecated
     TimeZone getTimeZone();
 
+    ZoneId getZone();
+
     void setTimeZone(TimeZone timeZone);
+
+    void setZone(ZoneId zone);
 
     void setSerialNumber(String serialNumber);
 
