@@ -1,12 +1,15 @@
 package com.elster.jupiter.gogo;
 
 import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.QualityCodeCategory;
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -19,6 +22,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.Pair;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -38,6 +42,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Copyrights EnergyICT
@@ -55,6 +60,8 @@ import java.util.Set;
                 "osgi.command.function=storeCumulativeIntervalData",
                 "osgi.command.function=listEndDeviceEventTypes",
                 "osgi.command.function=addDeviceEvent",
+                "osgi.command.function=listReadingQualityTypes",
+                "osgi.command.function=addReadingQuality"
         }, immediate = true)
 public class MeteringCommands {
 
@@ -81,7 +88,7 @@ public class MeteringCommands {
     }
 
     @Reference
-    public void setClock(Clock clock){
+    public void setClock(Clock clock) {
         this.clock = clock;
     }
 
@@ -360,6 +367,71 @@ public class MeteringCommands {
         }
     }
 
+    public void listReadingQualityTypes(String... filter) {
+        Pattern pattern = filter.length > 0 ? Pattern.compile(filter[0], Pattern.CASE_INSENSITIVE) : Pattern.compile(".*");
+        System.out.println("|\t" + String.format("%-80s", "Name") + "\t|\t" + String.format("%-13s", "Code"));
+        Arrays.stream(QualityCodeIndex.values())
+                .filter(index -> Arrays.asList(
+                        QualityCodeCategory.DIAGNOSTICS,
+                        QualityCodeCategory.POWERQUALITY,
+                        QualityCodeCategory.TAMPER,
+                        QualityCodeCategory.DATACOLLECTION
+                ).contains(index.category()))
+                .map(index -> Pair.of(index.getTranslationKey().getDefaultFormat(), "3" + "." + index.category().ordinal() + "." + index.index()))
+                .filter(pair -> pattern.matcher(pair.getFirst()).matches() || pattern.matcher(pair.getLast()).matches())
+        .forEach(pair -> System.out.println("|\t" + String.format("%-80s", pair.getFirst()) + "\t|\t" + String.format("%-13s", pair.getLast())));
+    }
+
+    public void addReadingQuality(String mRID, String readingTypeMRID, String time, String readingQualityCode) {
+        //find meter
+        Optional<Meter> endDevice = meteringService.findMeter(mRID);
+        if (!endDevice.isPresent()) {
+            System.out.println("No meter found with id " + mRID);
+            return;
+        }
+        //find reading type
+        Optional<ReadingType> readingType = meteringService.getReadingType(readingTypeMRID);
+        if (!readingType.isPresent()) {
+            System.out.println("Unknown reading type '" + readingType + "'. Skipping.");
+            return;
+        }
+        //parse timestamp
+        ZonedDateTime timeStamp = LocalDateTime.from(DateTimeFormatter.ofPattern("yyyy-MM-dd@HH:mm:ss").parse(time)).atZone(ZoneId.systemDefault());
+        //find meter activation
+        Optional<? extends MeterActivation> meterActivation = endDevice.get().getMeterActivation(timeStamp.toInstant());
+        if (!meterActivation.isPresent()) {
+            System.out.println("No meter activation found at " + time);
+            return;
+        }
+        //find channel
+        Optional<Channel> channel = meterActivation.get().getChannels().stream().filter(ch -> ch.getReadingTypes().contains(readingType.get())).findFirst();
+        if (!channel.isPresent()) {
+            System.out.println("No channel found for reading type " + readingTypeMRID);
+            return;
+        }
+        //validate reading quality code
+        ReadingQualityType readingQualityType = new ReadingQualityType(readingQualityCode);
+        try {
+            if(!readingQualityType.system().isPresent() || !readingQualityType.category().isPresent() || !readingQualityType.qualityIndex().isPresent()) {
+                System.out.println("Reading quality code is not valid: " + readingQualityCode);
+                return;
+            }
+        } catch (Exception e) {
+            System.out.println("Reading quality code is not valid: " + readingQualityCode);
+            return;
+        }
+        //create reading quality
+        try {
+            executeTransaction(new VoidTransaction() {
+                @Override
+                protected void doPerform() {
+                    channel.get().createReadingQuality(readingQualityType, readingType.get(), timeStamp.toInstant()).save();
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private <T> T executeTransaction(Transaction<T> transaction) {
         setPrincipal();
