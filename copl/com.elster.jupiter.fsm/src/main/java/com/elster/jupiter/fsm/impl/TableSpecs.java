@@ -88,9 +88,11 @@ public enum TableSpecs {
             Table<StateChangeBusinessProcess> table = dataModel.addTable(this.name(), StateChangeBusinessProcess.class);
             table.map(StateChangeBusinessProcessImpl.class);
             Column id = table.addAutoIdColumn();
+            Column name = table.column("NAME").varChar().notNull().map(StateChangeBusinessProcessImpl.Fields.NAME.fieldName()).add();
             table.column("DEPLOYMENTID").varChar().notNull().map(StateChangeBusinessProcessImpl.Fields.DEPLOYMENT_ID.fieldName()).add();
             table.column("PROCESSID").varChar().notNull().map(StateChangeBusinessProcessImpl.Fields.PROCESS_ID.fieldName()).add();
             table.primaryKey("PK_STATE_CHANGE_PROCESS").on(id).add();
+            table.unique("UK_FSM_STATE_CHANGE_NAME").on(name).add();
         }
     },
 

@@ -45,11 +45,12 @@ public interface FiniteStateMachineService {
      * deploymentId and processId to be executed when a {@link State}
      * is entered or exited.
      *
+     * @param name of the external process
      * @param deploymentId The deployment id of the external process
      * @param processId The process id of the external process
      * @return The StateChangeBusinessProcess
      */
-    public StateChangeBusinessProcess enableAsStateChangeBusinessProcess(String deploymentId, String processId);
+    public StateChangeBusinessProcess enableAsStateChangeBusinessProcess(String name,String deploymentId, String processId);
 
     /**
      * Disables the external business process identified by the specified

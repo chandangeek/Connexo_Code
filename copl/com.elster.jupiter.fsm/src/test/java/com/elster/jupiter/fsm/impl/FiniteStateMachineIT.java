@@ -68,8 +68,8 @@ public class FiniteStateMachineIT {
         inMemoryPersistence = InMemoryPersistence.defaultPersistence();
         inMemoryPersistence.initializeDatabase(FiniteStateMachineIT.class.getSimpleName());
         try (TransactionContext context = getTransactionService().getContext()) {
-            onEntry = inMemoryPersistence.getFiniteStateMachineService().enableAsStateChangeBusinessProcess("onEntryDepId", "onEntry");
-            onExit = inMemoryPersistence.getFiniteStateMachineService().enableAsStateChangeBusinessProcess("onExitDepId", "onExit");
+            onEntry = inMemoryPersistence.getFiniteStateMachineService().enableAsStateChangeBusinessProcess("onEntryProcess", "onEntryDepId", "onEntry");
+            onExit = inMemoryPersistence.getFiniteStateMachineService().enableAsStateChangeBusinessProcess("onExitProcess", "onExitDepId", "onExit");
             context.commit();
         }
     }
@@ -100,7 +100,7 @@ public class FiniteStateMachineIT {
     @Test
     public void findStateChangeBusinessProcessAfterEnable() {
         FiniteStateMachineServiceImpl testService = this.getTestService();
-        StateChangeBusinessProcess stateChangeBusinessProcess = testService.enableAsStateChangeBusinessProcess("111", "222");
+        StateChangeBusinessProcess stateChangeBusinessProcess = testService.enableAsStateChangeBusinessProcess("AAA", "111", "222");
 
         // Business method
         List<Long> businessProcessIds = testService
@@ -128,9 +128,10 @@ public class FiniteStateMachineIT {
     @Test(expected = StateChangeBusinessProcessInUseException.class)
     public void disableStateChangeBusinessProcessThatIsInUse() {
         FiniteStateMachineServiceImpl testService = this.getTestService();
+        String name = "AAA";
         String deploymentId = "111";
         String processId = "222";
-        StateChangeBusinessProcess stateChangeBusinessProcess = testService.enableAsStateChangeBusinessProcess(deploymentId, processId);
+        StateChangeBusinessProcess stateChangeBusinessProcess = testService.enableAsStateChangeBusinessProcess(name, deploymentId, processId);
         FiniteStateMachineBuilder builder1 = testService.newFiniteStateMachine("disableStateChangeBusinessProcessThatIsInUse");
         FiniteStateMachine stateMachine = builder1.complete(builder1.newCustomState("Initial").onEntry(stateChangeBusinessProcess).complete());
         stateMachine.save();
@@ -145,7 +146,7 @@ public class FiniteStateMachineIT {
     @Test
     public void findStateChangeBusinessProcessAfterDisable() {
         FiniteStateMachineServiceImpl testService = this.getTestService();
-        StateChangeBusinessProcess stateChangeBusinessProcess = testService.enableAsStateChangeBusinessProcess("333", "444");
+        StateChangeBusinessProcess stateChangeBusinessProcess = testService.enableAsStateChangeBusinessProcess("BBB", "333", "444");
         testService.disableAsStateChangeBusinessProcess(stateChangeBusinessProcess.getDeploymentId(), stateChangeBusinessProcess.getProcessId());
 
         // Business method
@@ -162,9 +163,39 @@ public class FiniteStateMachineIT {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     @Test
+    public void enableStateChangeBusinessProcessWithNullName() {
+        // Business method
+        this.getTestService().enableAsStateChangeBusinessProcess(null, "onEntryDeploymentId", "onEntryProcessId");
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
+    @Test
+    public void enableStateChangeBusinessProcessWithEmptyName() {
+        // Business method
+        this.getTestService().enableAsStateChangeBusinessProcess("", "onEntryDeploymentId", "onEntryProcessId");
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Test
+    public void enableStateChangeBusinessProcessWithToLongName() {
+        // Business method
+        this.getTestService().enableAsStateChangeBusinessProcess(Strings.repeat("name", 200), "onEntryDeploymentId", "onEntryProcessId");
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
+    @Test
     public void enableStateChangeBusinessProcessWithNullBigDeploymentId() {
         // Business method
-        this.getTestService().enableAsStateChangeBusinessProcess(null, "onEntry");
+        this.getTestService().enableAsStateChangeBusinessProcess("aName", null, "onEntry");
 
         // Asserts: see expected constraint violation rule
     }
@@ -174,7 +205,7 @@ public class FiniteStateMachineIT {
     @Test
     public void enableStateChangeBusinessProcessWithEmptyBigDeploymentId() {
         // Business method
-        this.getTestService().enableAsStateChangeBusinessProcess("", "onEntry");
+        this.getTestService().enableAsStateChangeBusinessProcess("aName", "", "onEntry");
 
         // Asserts: see expected constraint violation rule
     }
@@ -184,7 +215,7 @@ public class FiniteStateMachineIT {
     @Test
     public void enableStateChangeBusinessProcessWithTooBigDeploymentId() {
         // Business method
-        this.getTestService().enableAsStateChangeBusinessProcess(Strings.repeat("deploymentId", 100), "onEntry");
+        this.getTestService().enableAsStateChangeBusinessProcess("aName", Strings.repeat("deploymentId", 100), "onEntry");
 
         // Asserts: see expected constraint violation rule
     }
@@ -194,7 +225,7 @@ public class FiniteStateMachineIT {
     @Test
     public void enableStateChangeBusinessProcessWithNullProcessId() {
         // Business method
-        this.getTestService().enableAsStateChangeBusinessProcess("deploymentId", null);
+        this.getTestService().enableAsStateChangeBusinessProcess("aName", "deploymentId", null);
 
         // Asserts: see expected constraint violation rule
     }
@@ -204,7 +235,7 @@ public class FiniteStateMachineIT {
     @Test
     public void enableStateChangeBusinessProcessWithEmptyProcessId() {
         // Business method
-        this.getTestService().enableAsStateChangeBusinessProcess("deploymentId", "");
+        this.getTestService().enableAsStateChangeBusinessProcess("aName", "deploymentId", "");
 
         // Asserts: see expected constraint violation rule
     }
@@ -214,7 +245,7 @@ public class FiniteStateMachineIT {
     @Test
     public void enableStateChangeBusinessProcessWithTooBigProcessId() {
         // Business method
-        this.getTestService().enableAsStateChangeBusinessProcess("deploymentId", Strings.repeat("onEntry", 100));
+        this.getTestService().enableAsStateChangeBusinessProcess("aName", "deploymentId", Strings.repeat("onEntry", 100));
 
         // Asserts: see expected constraint violation rule
     }
@@ -536,8 +567,8 @@ public class FiniteStateMachineIT {
     public void createStateMachineWithOneStateAndMultipleEntryAndExitProcesses() {
         String expectedName = "createStateMachineWithOneStateAndMultipleEntryAndExitProcesses";
         FiniteStateMachineServiceImpl testService = this.getTestService();
-        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("OnEntryDepId", "onEntry2");
-        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("OnExitDepId", "onExit2");
+        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("OnEntryB", "OnEntryDepId", "onEntry2");
+        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("OnExitB", "OnExitDepId", "onExit2");
         FiniteStateMachineBuilder builder = testService.newFiniteStateMachine(expectedName);
         String expectedStateName = "Initial";
         State initial = builder
@@ -1515,8 +1546,8 @@ public class FiniteStateMachineIT {
         String expectedName = "addBothEntryAndExitProcessesToExistingState";
         FiniteStateMachineServiceImpl testService = this.getTestService();
         FiniteStateMachineBuilder builder = testService.newFiniteStateMachine(expectedName);
-        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("OnEntryDepId", "onEntry2");
-        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("OnExitDepId", "onExit2");
+        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("doSomethingOnEntry2", "OnEntryDepId", "onEntry2");
+        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("doSomethingOnExit2", "OnExitDepId", "onExit2");
         String expectedStateName = "Initial";
         FiniteStateMachine stateMachine = builder.complete(builder.newCustomState(expectedStateName).complete());
         stateMachine.save();
@@ -1768,8 +1799,8 @@ public class FiniteStateMachineIT {
     public void removeEntryAndExitProcesses() {
         String expectedName = "removeEntryAndExitProcesses";
         FiniteStateMachineServiceImpl testService = this.getTestService();
-        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("OnEntryDepId", "onEntry2");
-        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("OnExitDepId", "onExit2");
+        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("onEntryB", "OnEntryDepId", "onEntry2");
+        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("onExitB", "OnExitDepId", "onExit2");
         FiniteStateMachineBuilder builder = testService.newFiniteStateMachine(expectedName);
         String expectedStateName = "Initial";
         State initial = builder.newCustomState(expectedStateName)
@@ -1807,8 +1838,8 @@ public class FiniteStateMachineIT {
     public void removeAllEntryAndExitProcesses() {
         String expectedName = "removeEntryAndExitProcesses";
         FiniteStateMachineServiceImpl testService = this.getTestService();
-        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("OnEntryDepId", "onEntry2");
-        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("OnExitDepId", "onExit2");
+        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("OnEntryB", "OnEntryDepId", "onEntry2");
+        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("OnExitB", "OnExitDepId", "onExit2");
         FiniteStateMachineBuilder builder = testService.newFiniteStateMachine(expectedName);
         String expectedStateName = "Initial";
         State initialState = builder.newCustomState(expectedStateName)
@@ -1971,8 +2002,8 @@ public class FiniteStateMachineIT {
     @Test
     public void cloneStateMachineWithOneStateAndMultipleEntryAndExitProcesses() {
         FiniteStateMachineServiceImpl testService = this.getTestService();
-        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("OnEntryDepId", "onEntry2");
-        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("OnExitDepId", "onExit2");
+        StateChangeBusinessProcess onEntry2 = testService.enableAsStateChangeBusinessProcess("OnEntryB", "OnEntryDepId", "onEntry2");
+        StateChangeBusinessProcess onExit2 = testService.enableAsStateChangeBusinessProcess("OnExitB", "OnExitDepId", "onExit2");
         FiniteStateMachineBuilder builder = testService.newFiniteStateMachine("cloneStateMachineWithOneStateAndMultipleEntryAndExitProcesses");
         String expectedStateName = "Initial";
         State initial = builder

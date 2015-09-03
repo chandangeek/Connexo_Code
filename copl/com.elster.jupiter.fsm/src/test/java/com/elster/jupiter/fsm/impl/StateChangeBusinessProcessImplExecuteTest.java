@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class StateChangeBusinessProcessImplExecuteTest {
 
+    private static final String NAME = "Something readable for StateChangeBusinessProcessImplExecuteTest";
     private static final String DEPLOYMENT_ID = "com.elster.jupiter.fsm.impl.test";
     private static final String PROCESS_ID = "StateChangeBusinessProcessImplExecuteTest";
 
@@ -80,7 +81,7 @@ public class StateChangeBusinessProcessImplExecuteTest {
 
     private StateChangeBusinessProcessImpl getTestInstance() {
         StateChangeBusinessProcessImpl testInstance = new StateChangeBusinessProcessImpl(this.dataModel);
-        testInstance.initialize(DEPLOYMENT_ID, PROCESS_ID);
+        testInstance.initialize(NAME, DEPLOYMENT_ID, PROCESS_ID);
         return testInstance;
     }
 
