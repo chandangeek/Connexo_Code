@@ -33,7 +33,7 @@ Ext.define('Mdc.model.DeviceDataValidationRulesSet', {
                     result = Uni.I18n.translate('validationResults.version.fromx', 'MDC', 'From {0}',[Uni.DateTime.formatDateTimeLong(new Date(startDate))])+ ' - ' +
                     Uni.I18n.translate('validationResults.version.untilx', 'MDC', 'Until {0}',[Uni.DateTime.formatDateTimeLong(new Date(endDate))]);
                 } else if (startDate) {
-                    result = Uni.I18n.translate('validationResults.version.fromx', 'MDC', 'From {0},'[Uni.DateTime.formatDateTimeLong(new Date(startDate))]);
+                    result = Uni.I18n.translate('validationResults.version.fromx', 'MDC', 'From {0}'[Uni.DateTime.formatDateTimeLong(new Date(startDate))]);
                 } else if (endDate) {
                     result = Uni.I18n.translate('validationResults.version.untilx', 'MDC', 'Until {0}',[Uni.DateTime.formatDateTimeLong(new Date(endDate))]);
                 }else {
