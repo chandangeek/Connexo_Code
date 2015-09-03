@@ -14,7 +14,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     HOURS(4, TimeDuration.TimeUnit.HOURS.getDescription(), "hour(s)"),
     DAYS(5, TimeDuration.TimeUnit.DAYS.getDescription(), "day(s)"),
     WEEKS(6, TimeDuration.TimeUnit.WEEKS.getDescription(), "week(s)"),
-    MONTHS(7, TimeDuration.TimeUnit.MONTHS.getDescription(), "months(s)"),
+    MONTHS(7, TimeDuration.TimeUnit.MONTHS.getDescription(), "month(s)"),
     YEARS(8, TimeDuration.TimeUnit.YEARS.getDescription(), "year(s)"),
     ;
 
