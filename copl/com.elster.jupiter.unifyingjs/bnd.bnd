@@ -1,4 +1,3 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package: com.elster.jupiter.unifyingjs
-Include-Resource: src/main/web;src/main/resources
