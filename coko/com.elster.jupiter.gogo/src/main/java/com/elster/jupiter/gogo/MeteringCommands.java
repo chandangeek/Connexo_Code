@@ -3,6 +3,7 @@ package com.elster.jupiter.gogo;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
@@ -377,7 +378,7 @@ public class MeteringCommands {
                         QualityCodeCategory.TAMPER,
                         QualityCodeCategory.DATACOLLECTION
                 ).contains(index.category()))
-                .map(index -> Pair.of(index.getTranslationKey().getDefaultFormat(), "3" + "." + index.category().ordinal() + "." + index.index()))
+                .map(index -> Pair.of(index.getTranslationKey().getDefaultFormat(), QualityCodeSystem.MDM.ordinal() + "." + index.category().ordinal() + "." + index.index()))
                 .filter(pair -> pattern.matcher(pair.getFirst()).matches() || pattern.matcher(pair.getLast()).matches())
         .forEach(pair -> System.out.println("|\t" + String.format("%-80s", pair.getFirst()) + "\t|\t" + String.format("%-13s", pair.getLast())));
     }
