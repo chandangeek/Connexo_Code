@@ -81,11 +81,11 @@ Ext.define('Imt.channeldata.controller.View', {
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
        
         pageMainContent.setLoading(true);
-        channelModel.getProxy().setUrl({mRID: mRID, channelId: channel});
+        channelModel.getProxy().setUrl(mRID);
         channelModel.load(channel, {
             success: function (record) {
                 var dataIntervalAndZoomLevels = me.getStore('Imt.store.DataIntervalAndZoomLevels').getIntervalRecord(record.get('interval')),
-                intervalStart = dataIntervalAndZoomLevels.getIntervalStart((record.get('lastReading') || new Date().getTime())),
+                intervalStart = dataIntervalAndZoomLevels.getIntervalStart((record.get('lastValueTimestamp') || new Date().getTime())),
                 all = dataIntervalAndZoomLevels.get('all');
                 durationsStore.loadData(dataIntervalAndZoomLevels.get('duration'));
                 var widget = Ext.widget('channel-data-setup', {

@@ -16,8 +16,8 @@ Ext.define('Imt.channeldata.model.Channel', {
         reader: {
             type: 'json'
         },
-        setUrl: function (params) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(params.mRID));
+        setUrl: function (mRID) {
+            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
         }
     }
 });
