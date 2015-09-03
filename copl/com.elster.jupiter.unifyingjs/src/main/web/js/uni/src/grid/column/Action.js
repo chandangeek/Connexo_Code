@@ -5,7 +5,7 @@ Ext.define('Uni.grid.column.Action', {
     extend: 'Ext.grid.column.Action',
     alias: 'widget.uni-actioncolumn',
 
-    header: 'Actions',
+    header: Uni.I18n.translate('general.actions', 'UNI', 'Actions'),
     width: 100,
     align: 'left',
     iconCls: ' uni-actioncolumn-gear',
