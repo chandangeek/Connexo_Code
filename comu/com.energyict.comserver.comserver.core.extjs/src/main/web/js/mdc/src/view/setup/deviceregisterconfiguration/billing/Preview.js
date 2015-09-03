@@ -43,9 +43,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
                                 name: 'timeStamp',
                                 renderer: function (value) {
                                     if (!Ext.isEmpty(value)) {
-                                        return Uni.DateTime.formatDateLong(new Date(value))
-                                            + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
-                                            + Uni.DateTime.formatTimeLong(new Date(value));
+                                        return Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))]).toLowerCase()
                                     }
 
                                     return '-';

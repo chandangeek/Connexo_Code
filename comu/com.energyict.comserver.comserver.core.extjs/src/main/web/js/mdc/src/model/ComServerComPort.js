@@ -266,7 +266,6 @@ Ext.define('Mdc.model.ComServerComPort', {
                             localizedField: 'localizedValue'
                         }
                     ];
-
                 Ext.Array.each(conf, function (item) {
                     var value = data[item.field],
                         unit = null;
