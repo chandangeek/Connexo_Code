@@ -2,25 +2,25 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.StructureMarker;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.streams.FancyJoiner;
+import com.elster.jupiter.orm.Table;
+import org.hibernate.validator.constraints.Length;
 
 import javax.inject.Inject;
-import java.io.File;
-import java.io.FilePermission;
+import javax.validation.constraints.Pattern;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.util.Map;
-import java.util.regex.Pattern;
 
+@Sandboxed(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PARENT_BREAKING_PATH + "}")
 class FileDestinationImpl extends AbstractDataExportDestination implements FileDestination {
     private static final String NON_PATH_INVALID = "\":*?<>|";
     private static final String PATH_INVALID = "\"*?<>|";
@@ -72,10 +72,15 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
 
     }
 
+    @Pattern(regexp = "[^"+NON_PATH_INVALID+"]*", groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
+    @Length(min=1,max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
     private String fileName;
+    @Pattern(regexp = "[^"+NON_PATH_INVALID+"]*", groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
+    @Length(min=1,max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
     private String fileExtension;
+    @Pattern(regexp = "[^"+PATH_INVALID+"]*", groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
+    @Length(min=1,max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
     private String fileLocation;
-
 
     @Inject
     FileDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem) {
@@ -121,36 +126,12 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
         this.fileExtension = fileExtension;
     }
 
-    // TODO add validations
-    private void verifySandboxBreaking(String path, String prefix, String extension, String property) {
-        String basedir = File.separatorChar + "xyz" + File.separatorChar; // bogus path for validation purposes, not real security
-        FilePermission sandbox = new FilePermission(basedir+"-", "write");
-        FilePermission request = new FilePermission(basedir + path + File.separatorChar + prefix + "A." + extension, "write");
-        if (!sandbox.implies(request)) {
-            throw new LocalizedFieldValidationException(MessageSeeds.PARENT_BREAKING_PATH_NOT_ALLOWED, "properties."+ property);
-        }
-    }
-
-    protected void checkInvalidChars(String value, String fieldName, String invalidCharacters) {
-        for (int i = 0; i < invalidCharacters.length(); i++) {
-            char invalidChar = invalidCharacters.charAt(i);
-            if (value.indexOf(invalidChar) != -1) {
-                throw new LocalizedFieldValidationException(MessageSeeds.INVALIDCHARS_EXCEPTION, "properties." + fieldName, asString(invalidCharacters));
-            }
-        }
-    }
-
     FileDestinationImpl init(IExportTask task, String fileLocation, String fileName, String fileExtension) {
         initTask(task);
         this.fileName = fileName;
         this.fileExtension = fileExtension;
         this.fileLocation = fileLocation;
         return this;
-    }
-
-    private String asString(String invalidCharacters) {
-        String and = ' ' + Translations.Labels.AND.translate(getThesaurus()) + ' ';
-        return Pattern.compile("").splitAsStream(invalidCharacters).collect(FancyJoiner.joining(", ", and));
     }
 
 }
