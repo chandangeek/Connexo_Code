@@ -220,7 +220,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
                 me.taskModel = record;
                 taskForm.loadRecord(record);
                 me.getApplication().fireEvent('estimationTaskLoaded', record);
-                taskForm.setTitle(Uni.I18n.translate('general.edit', 'EST', 'Edit') + " '" + Ext.String.htmlEncode( record.get('name')) + "'");
+                taskForm.setTitle(Uni.I18n.translate('general.edit', 'EST', "Edit '{0}'",[record.get('name')]));
                 deviceGroupCombo.store.load(function () {
                     if (this.getCount() === 0) {
                         deviceGroupCombo.allowBlank = true;

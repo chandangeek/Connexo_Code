@@ -85,7 +85,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksActionMenu', {
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('estimationtasks.general.runmsg', 'EST', 'The estimation task will be queued to run at the earliest possible time.'),
-            title: Uni.I18n.translate('estimationtasks.general.runestimationtask', 'EST', 'Run estimation task') + ' ' + record.get('name') + '?'
+            title: Uni.I18n.translate('estimationtasks.general.runestimationtask', 'EST', "Run estimation task '{0}'?",record.get('name'))
         });
     },
 
@@ -120,7 +120,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksActionMenu', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show({
             msg: Uni.I18n.translate('estimationtasks.general.remove.msg', 'EST', 'This estimation task will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'EST', 'Remove') + '&nbsp' + record.get('name') + '?',
+            title: Uni.I18n.translate('general.removex', 'EST', "Remove '{0}'?",[ record.get('name')]),
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {

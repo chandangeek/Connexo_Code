@@ -110,7 +110,7 @@ Ext.define('Est.estimationrules.controller.Overview', {
         switch (item.action) {
             case 'remove':
                 Ext.create('Uni.view.window.Confirmation').show({
-                    title: Uni.I18n.translate('general.remove', 'EST', 'Remove') + ' \'' + menu.record.get('name') + '\'?',
+                    title: Uni.I18n.translate('general.removex', 'EST', "Remove '{0}'?",[menu.record.get('name')]),
                     msg: Uni.I18n.translate('estimationrules.deleteConfirmation.msg', 'EST', 'This estimation rule will no longer be available.'),
                     fn: function (state) {
                         switch (state) {
