@@ -56,7 +56,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                                     'background-color': '#71adc7'
                                 },
                                 text: Uni.I18n.translate('overview.widget.headerSection.refreshBtnTxt', 'DSH', 'Refresh'),
-                                icon: '/apps/sky/resources/images/form/restore.png'
+                                icon: '/apps/sky/build/resources/images/form/restore.png'
                             }
                         ]
                     }
