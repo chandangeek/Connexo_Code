@@ -20,7 +20,7 @@ Ext.define('Imt.registerdata.view.RegisterList', {
         var me = this;
         me.columns = [
         {
-            header: Uni.I18n.translate('registers.title.registers', 'MDC', 'Registers'),
+            header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Registers'),
             flex: 1,
             dataIndex: 'readingTypeAlias', 
             renderer: function (value, b, record) {
@@ -31,7 +31,7 @@ Ext.define('Imt.registerdata.view.RegisterList', {
             }
         },
         {
-            header: Uni.I18n.translate('registers.title.readingTimestamp', 'MDC', 'Reading Timestamp'),
+            header: Uni.I18n.translate('registers.title.readingTimestamp', 'IMT', 'Reading Timestamp'),
             flex: 1,
             dataIndex: 'utcTimestamp', 
             renderer: function(value){
@@ -42,12 +42,12 @@ Ext.define('Imt.registerdata.view.RegisterList', {
             },
         },
         {
-            header: Uni.I18n.translate('registers.title.readingValue', 'MDC', 'Reading Value'),
+            header: Uni.I18n.translate('registers.title.readingValue', 'IMT', 'Reading Value'),
             flex: 1,
             dataIndex: 'readingValue', 
         },
         {
-            header: Uni.I18n.translate('registers.title.recordedTimestamp', 'MDC', 'Recorded Timestamp'),
+            header: Uni.I18n.translate('registers.title.recordedTimestamp', 'IMT', 'Recorded Timestamp'),
             flex: 1,
             dataIndex: 'recordedTime', 
             renderer: function(value){
@@ -70,9 +70,9 @@ Ext.define('Imt.registerdata.view.RegisterList', {
 //                  xtype: 'pagingtoolbartop',
 //                  store: me.store,
 //                  dock: 'top',
-//                  displayMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} registers'),
-//                  displayMoreMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} registers'),
-//                  emptyMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.emptyMsg', 'MDC', 'There are no registers')
+//                  displayMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.displayMsg', 'IMT', '{0} - {1} of {2} registers'),
+//                  displayMoreMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.displayMoreMsg', 'IMT', '{0} - {1} of more than {2} registers'),
+//                  emptyMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.emptyMsg', 'IMT', 'There are no registers')
 //              },
 //              {
 //                  xtype: 'pagingtoolbarbottom',
@@ -80,7 +80,7 @@ Ext.define('Imt.registerdata.view.RegisterList', {
 //                  params: [
 //                      {mRID: me.mRID}
 //                  ],
-//                  itemsPerPageMsg: Uni.I18n.translate('registerdata.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Register configurations per page'),
+//                  itemsPerPageMsg: Uni.I18n.translate('registerdata.pagingtoolbarbottom.itemsPerPage', 'IMT', 'Register configurations per page'),
 //                  dock: 'bottom'
 //              }
 //          ];

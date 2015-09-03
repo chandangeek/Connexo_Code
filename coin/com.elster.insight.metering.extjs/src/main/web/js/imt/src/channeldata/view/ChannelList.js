@@ -11,7 +11,7 @@ Ext.define('Imt.channeldata.view.ChannelList', {
     
     columns: [
         {
-            header: Uni.I18n.translate('channels.title.channel', 'MDC', 'Channel'),
+            header: Uni.I18n.translate('channels.title.channel', 'IMT', 'Channel'),
             flex: 1,
             dataIndex: 'readingTypeFullAliasName',
             renderer: function (value, b, record) {

@@ -3,7 +3,8 @@ Ext.define('Imt.channeldata.view.DataSetup', {
     alias: 'widget.channel-data-setup',
     itemId: 'channel-data-setup',
     requires: [
-        'Imt.channeldata.view.ChannelGraph',,
+        'Imt.channeldata.view.ChannelGraph',
+        //'Imt.channeldata.view.IntervalList',
         'Imt.channeldata.view.ChannelTopFilter'
     ],
     router: null,
@@ -31,7 +32,7 @@ Ext.define('Imt.channeldata.view.DataSetup', {
                 ui: 'large',
                 itemId: 'channelGraphSetupPanel',
                 layout: {
-                    type: 'fit',
+                    type: 'vbox',
                     align: 'stretch'
                 },
                 defaults: {
@@ -41,11 +42,15 @@ Ext.define('Imt.channeldata.view.DataSetup', {
                     }
                 },
                 items: [
-                    {
-                        xtype: 'channel-graph',
-                        mRID: me.mRID,
-                        router: me.router
-                    }
+                        {
+                            xtype: 'channel-graph',
+                            mRID: me.mRID,
+                            router: me.router
+                        }//,
+//                        {
+//                            xtype: 'interval-list',
+//                            router: me.router
+//                        }
                 ],
                 dockedItems: [
                     {

@@ -18,9 +18,9 @@ Ext.define('Imt.channeldata.view.ChannelGraph', {
             xtype: 'no-items-found-panel',
             itemId: 'ctr-graph-no-data',
             hidden: true,
-            title: Uni.I18n.translate('deviceloadprofiles.data.empty.title', 'MDC', 'No readings found'),
+            title: Uni.I18n.translate('deviceloadprofiles.data.empty.title', 'IMT', 'No readings found'),
             reasons: [
-                Uni.I18n.translate('deviceloadprofiles.data.empty.list.item1', 'MDC', 'No readings have been defined yet.') ]
+                Uni.I18n.translate('deviceloadprofiles.data.empty.list.item1', 'IMT', 'No readings have been defined yet.') ]
         }
     ],
     drawGraph: function (yAxis, series, intervalLength, channelName, unitOfMeasure, zoomLevels) {
