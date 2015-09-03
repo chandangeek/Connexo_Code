@@ -87,7 +87,7 @@ Ext.define('Usr.controller.GroupEdit', {
         me.mode = 'edit';
         Ext.ModelManager.getModel('Usr.model.Group').load(groupId, {
             success: function (group) {
-                me.showOverview(group, Uni.I18n.translate('general.edit', 'USR', 'Edit') + ' \'' + group.get('name') + '\'');
+                me.showOverview(group, Uni.I18n.translate('general.editx', 'USR', "Edit '{0}'",[group.get('name')]));
             }
         });
     },
