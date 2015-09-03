@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeCategory;
-import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.readings.ReadingQuality;
@@ -112,7 +111,7 @@ public class DeviceDataInfoFactory {
                 .filter(ReadingQualityRecord::isActual)
                 .map(ReadingQuality::getType)
                 .distinct()
-                .filter(type -> type.system().isPresent() && type.system().get() == QualityCodeSystem.MDM)
+                .filter(type -> type.system().isPresent())
                 .filter(type -> type.qualityIndex().isPresent())
                 .filter(type -> QUALITY_CODE_CATEGORIES.contains(type.category().get()))
                 .map(type -> Pair.of(type.getCode(), type.qualityIndex().get()))

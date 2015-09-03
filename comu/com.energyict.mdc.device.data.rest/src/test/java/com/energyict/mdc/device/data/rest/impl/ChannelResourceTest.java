@@ -118,8 +118,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(readingRecord.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
         when(readingRecord.getReportedDateTime()).thenReturn(LAST_READING);
         ReadingQualityRecord readingQualityPowerFail = mockReadingQuality("3.2.32");
-        ReadingQualityRecord readingQualityWrongSystem = mockReadingQuality("2.0.0");
-        ReadingQualityRecord readingQualityDataValid = mockReadingQuality("3.0.0");
+        ReadingQualityRecord readingQualityWrongSystem = mockReadingQuality("112.0.0");//should be filtered out
+        ReadingQualityRecord readingQualityDataValid = mockReadingQuality("3.0.0");//should be filtered out
         doReturn(Arrays.asList(readingQualityPowerFail, readingQualityWrongSystem, readingQualityDataValid)).when(readingRecord).getReadingQualities();
 
         when(addedloadProfileReading.getRange()).thenReturn(interval);
