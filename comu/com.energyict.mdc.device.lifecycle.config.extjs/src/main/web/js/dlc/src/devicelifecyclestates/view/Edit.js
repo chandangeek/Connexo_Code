@@ -62,7 +62,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                             padding: 0,
                             columns: [
                                 {
-                                    dataIndex: 'processId',
+                                    dataIndex: 'name',
                                     flex: 1
                                 },
                                 {
@@ -115,7 +115,7 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                             padding: 0,
                             columns: [
                                 {
-                                    dataIndex: 'processId',
+                                    dataIndex: 'name',
                                     flex: 1
                                 },
                                 {
