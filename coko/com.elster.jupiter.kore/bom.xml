@@ -136,12 +136,6 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
-                <artifactId>launcher</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
                 <artifactId>metering</artifactId>
                 <version>2.0.0-SNAPSHOT</version>
                 <scope>provided</scope>
@@ -227,12 +221,6 @@
 
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
-                <artifactId>yellowfin</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
                 <artifactId>yellowfin.groups</artifactId>
                 <version>1.1.0-SNAPSHOT</version>
                 <scope>provided</scope>
@@ -243,24 +231,7 @@
                 <version>1.1.0-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>yellowfin.app</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>yellowfin.extjs</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>yellowfin.installer</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-                <scope>provided</scope>
-            </dependency>
+
 
         </dependencies>
     </dependencyManagement>
