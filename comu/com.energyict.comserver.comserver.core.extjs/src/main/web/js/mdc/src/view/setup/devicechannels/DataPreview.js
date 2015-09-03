@@ -25,18 +25,25 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
 
         if (me.channels) {
             Ext.Array.each(me.channels, function (channel) {
-                mainValidationInfo = record.get('channelValidationData')[channel.id].mainValidationInfo;
-                bulkValidationInfo = record.get('channelValidationData')[channel.id].bulkValidationInfo;
-                me.setReadingQualities(me.down('#mainReadingQualities' + channel.id), mainValidationInfo);
-                me.setReadingQualities(me.down('#bulkReadingQualities' + channel.id), bulkValidationInfo);
-                me.down('#channelValue' + channel.id).setValue(record.get('channelData')[channel.id]);
-                me.down('#channelBulkValue' + channel.id).setValue(record.get('channelCollectedData')[channel.id]);
-                me.setGeneralReadingQualities(me.down('#generalReadingQualities'), me.up('deviceLoadProfilesData').loadProfile.get('validationInfo'));
+                if (record.get('channelValidationData')[channel.id]) {
+                    mainValidationInfo = record.get('channelValidationData')[channel.id].mainValidationInfo;
+                    bulkValidationInfo = record.get('channelValidationData')[channel.id].bulkValidationInfo;
+                    me.setReadingQualities(me.down('#mainReadingQualities' + channel.id), mainValidationInfo);
+                    me.setReadingQualities(me.down('#bulkReadingQualities' + channel.id), bulkValidationInfo);
+                    me.down('#channelValue' + channel.id).setValue(record.get('channelData')[channel.id]);
+                    me.down('#channelBulkValue' + channel.id).setValue(record.get('channelCollectedData')[channel.id]);
+                } else {
+                    me.down('#mainReadingQualities' + channel.id).hide();
+                    me.down('#bulkReadingQualities' + channel.id).hide();
+                }
             });
             Ext.Array.findBy(me.channels, function (channel) {
-                me.down('#readingDataValidated').setValue(record.get('channelValidationData')[channel.id].dataValidated);
-                return !record.get('channelValidationData')[channel.id].dataValidated;
+                if (record.get('channelValidationData')[channel.id]) {
+                    me.down('#readingDataValidated').setValue(record.get('channelValidationData')[channel.id].dataValidated);
+                    return !record.get('channelValidationData')[channel.id].dataValidated;
+                }
             });
+            me.setGeneralReadingQualities(me.down('#generalReadingQualities'), me.up('deviceLoadProfilesData').loadProfile.get('validationInfo'));
         } else {
             mainValidationInfo = record.get('validationInfo').mainValidationInfo;
             bulkValidationInfo = record.get('validationInfo').bulkValidationInfo;
@@ -165,15 +172,17 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 return item.id == channelId;
             });
             measurementType = channel.calculatedReadingType ? channel.calculatedReadingType.unit : channel.readingType.unit;
-            validationInfo = (type == 'main')
-                ? record.get('channelValidationData')[channelId].mainValidationInfo
-                : record.get('channelValidationData')[channelId].bulkValidationInfo;
+            if (record.get('channelValidationData')[channelId]) {
+                validationInfo = (type == 'main')
+                    ? record.get('channelValidationData')[channelId].mainValidationInfo
+                    : record.get('channelValidationData')[channelId].bulkValidationInfo;
+            }
         } else {
             measurementType = me.channelRecord.get('unitOfMeasure');
             validationInfo = record.get('validationInfo') ? record.get('validationInfo')[type + 'ValidationInfo'] : null;
         }
 
-        if (validationInfo.validationResult) {
+        if (validationInfo && validationInfo.validationResult) {
             switch (validationInfo.validationResult.split('.')[1]) {
                 case 'notValidated':
                     validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated') + ')' +
