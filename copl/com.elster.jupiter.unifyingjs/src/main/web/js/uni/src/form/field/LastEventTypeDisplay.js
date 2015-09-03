@@ -44,7 +44,7 @@ Ext.define('Uni.form.field.LastEventTypeDisplay', {
                 var translation = ''
                 switch(key){
                     case 'label':
-                        translation = Uni.I18n.translate('lastEventType.label', 'UNI', 'Type of last event');
+                        translation = Uni.I18n.translate('lastEventType.label', 'UNI', 'Last event type');
                         break;
                     case 'deviceType':
                         translation = Uni.I18n.translate('lastEventType.deviceType', 'UNI', 'Device type');
