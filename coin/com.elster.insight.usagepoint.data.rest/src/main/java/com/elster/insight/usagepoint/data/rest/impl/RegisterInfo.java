@@ -1,5 +1,6 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -14,12 +15,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-//@JsonSubTypes({
-//        @JsonSubTypes.Type(value = BillingRegisterInfo.class, name = "billing"),
-//        @JsonSubTypes.Type(value = NumericalRegisterInfo.class, name = "numerical"),
-//        @JsonSubTypes.Type(value = TextRegisterInfo.class, name = "text"),
-//        @JsonSubTypes.Type(value = FlagsRegisterInfo.class, name = "flags")
-//})
 public class RegisterInfo {
     @JsonProperty("id")
     public Long id;
@@ -29,10 +24,9 @@ public class RegisterInfo {
     public String unitOfMeasure;
     @JsonProperty("timeOfUse")
     public Integer timeOfUse;
-//    @JsonProperty("lastReading")
-//    public ReadingInfo lastReading;
     @JsonProperty("lastValueTimestamp")
     public Instant lastValueTimestamp;
+    public BigDecimal lastReadingValue;
     public boolean isCumulative;
 
     public RegisterInfo() {}
@@ -41,22 +35,11 @@ public class RegisterInfo {
         RegisterInfo info = new RegisterInfo();
         info.id = channel.getId();
         info.readingType = new ReadingTypeInfo(channel.getMainReadingType());
-        
-//        info.name = channel.getName();
-//        info.interval = new TimeDurationInfo(channel.getInterval());
-        
         info.unitOfMeasure = channel.getMainReadingType().getMultiplier().getSymbol() + channel.getMainReadingType().getUnit().getSymbol();
         info.timeOfUse = channel.getMainReadingType().getTou();
-        
-//        info.lastReading = channel.getLastReading().orElse(null);
         info.lastValueTimestamp = channel.getLastDateTime();
+        info.lastReadingValue = channel.getReading(channel.getLastDateTime()).get().getValue();
         info.isCumulative = channel.getMainReadingType().isCumulative();
-        
-        
-//        if (channel.getMainReadingType().isCumulative()) {
-//            channel.getMainReadingType().getCalculatedReadingType().ifPresent(
-//                    rt -> info.calculatedReadingType = new ReadingTypeInfo(rt));
-//        }
         return info;
     }
     

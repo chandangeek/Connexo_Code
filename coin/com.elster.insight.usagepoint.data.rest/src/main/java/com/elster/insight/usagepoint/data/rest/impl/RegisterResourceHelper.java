@@ -58,16 +58,12 @@ public class RegisterResourceHelper {
         List<Channel> channelsPage = ListPager.of(irregularChannels, CHANNEL_COMPARATOR_BY_NAME).from(queryParameters).find();
         
         
-//        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-//        List<Channel> channelsPage = ListPager.of(channelsProvider.apply(device), CHANNEL_COMPARATOR_BY_NAME).from(queryParameters).find();
-//
-        List<ChannelInfo> channelInfos = new ArrayList<>();
+        List<RegisterInfo> registerInfos = new ArrayList<>();
         for (Channel channel : channelsPage) {
-            ChannelInfo channelInfo = ChannelInfo.from(channel);
-//            addValidationInfo(channel, channelInfo);
-            channelInfos.add(channelInfo);
+            RegisterInfo registerInfo = RegisterInfo.from(channel);
+            registerInfos.add(registerInfo);
         }
-        return Response.ok(PagedInfoList.fromPagedList("channels", channelInfos, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("registers", registerInfos, queryParameters)).build();
     }
     
     public Channel findRegisterOnUsagePoint(String mrid, String rt_mrid) {
