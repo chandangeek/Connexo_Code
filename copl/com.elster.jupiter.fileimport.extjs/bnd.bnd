@@ -1,4 +1,5 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package: com.elster.jupiter.fileimport.extjs
+Export-Package: !com.elster.jupiter.fileimport.extjs
 -include: -../development.bnd
