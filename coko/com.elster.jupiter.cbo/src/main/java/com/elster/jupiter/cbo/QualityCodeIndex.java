@@ -1,6 +1,5 @@
 package com.elster.jupiter.cbo;
 
-import com.elster.jupiter.cbo.impl.TranslationKeys;
 import com.elster.jupiter.nls.TranslationKey;
 
 import java.util.Arrays;

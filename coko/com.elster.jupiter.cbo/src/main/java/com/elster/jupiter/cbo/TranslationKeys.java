@@ -1,4 +1,4 @@
-package com.elster.jupiter.cbo.impl;
+package com.elster.jupiter.cbo;
 
 import com.elster.jupiter.nls.TranslationKey;
 

@@ -1,6 +1,7 @@
 package com.elster.jupiter.cbo.impl;
 
 import com.elster.jupiter.cbo.MessageSeeds;
+import com.elster.jupiter.cbo.TranslationKeys;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
