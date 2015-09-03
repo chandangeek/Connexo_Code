@@ -156,9 +156,9 @@ Ext.define('Imt.channeldata.controller.View', {
         if (dataStore.getCount() > 0) {
             dataStore.each(function (record) {
                 if (record.get('value')) {
-                    seriesObject['data'].push([record.get('interval').start, parseFloat(record.get('value'))]);
+                    seriesObject['data'].unshift([record.get('interval').start, parseFloat(record.get('value'))]);
                 } else {
-                    seriesObject['data'].push([record.get('interval').start, null]);
+                    seriesObject['data'].unshift([record.get('interval').start, null]);
                 }
             });
             series.push(seriesObject);
