@@ -408,12 +408,12 @@ TODO Move this into a separate button UI.
 }
 
 .x-btn .device-flag {
-  background-image: url('/apps/sky/resources/images/shared/Not-validated.png');
+  background-image: url('/apps/sky/build/resources/images/shared/Not-validated.png');
   height: 13px;
   width: 13px;
 }
 .x-btn.x-btn-pressed .device-flag {
-  background-image: url('/apps/sky/resources/images/shared/Suspect.png');
+  background-image: url('/apps/sky/build/resources/images/shared/Suspect.png');
 }
 
 .uni-icon-arrow-up {
