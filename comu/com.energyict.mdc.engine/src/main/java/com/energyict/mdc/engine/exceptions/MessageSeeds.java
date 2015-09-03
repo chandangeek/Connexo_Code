@@ -71,7 +71,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     INBOUND_DATA_RESPONSE_FAILURE(159, "MDC.inbound.data.response.failure", "Failed to store to provide a proper result to the device", Level.SEVERE),
     INBOUND_DATA_PROCESSOR_ERROR(160, "MDC.inbound.data.processor.error", "Failed to execute the inbound device storage commands", Level.SEVERE),
     INBOUND_DUPLICATE_SERIALNUMBER_FAILURE(161, "MDC.inbound.data.duplicate.serialnumber", "Failed to process the inbound request because multiple devices were found with the same serialnumber ''{0}''", Level.SEVERE),
-    COMMUNICATION_FAILURE(122, "communicationFailure", "Communication with device failed", Level.SEVERE),
+    COMMUNICATION_FAILURE(162, "communicationFailure", "Communication with device failed", Level.SEVERE),
     ;
 
     private final int number;
