@@ -340,8 +340,8 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     }
 
     @Override
-    public TransitionBusinessProcess enableAsTransitionBusinessProcess(String deploymentId, String processId) {
-        TransitionBusinessProcessImpl businessProcess = this.dataModel.getInstance(TransitionBusinessProcessImpl.class).initialize(deploymentId, processId);
+    public TransitionBusinessProcess enableAsTransitionBusinessProcess(String name, String deploymentId, String processId) {
+        TransitionBusinessProcessImpl businessProcess = this.dataModel.getInstance(TransitionBusinessProcessImpl.class).initialize(name, deploymentId, processId);
         Save.CREATE.validate(this.dataModel, businessProcess);
         this.dataModel.persist(businessProcess);
         return businessProcess;
