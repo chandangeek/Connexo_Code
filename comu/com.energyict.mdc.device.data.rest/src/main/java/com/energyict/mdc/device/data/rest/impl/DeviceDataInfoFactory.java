@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
@@ -108,6 +109,7 @@ public class DeviceDataInfoFactory {
 
     private List<IdWithNameInfo> getReadingQualities(IntervalReadingRecord intervalReadingRecord) {
         return intervalReadingRecord.getReadingQualities().stream()
+                .filter(ReadingQualityRecord::isActual)
                 .map(ReadingQuality::getType)
                 .distinct()
                 .filter(type -> type.system().isPresent() && type.system().get() == QualityCodeSystem.MDM)

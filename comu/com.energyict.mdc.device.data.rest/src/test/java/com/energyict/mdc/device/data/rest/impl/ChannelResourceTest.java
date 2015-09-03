@@ -209,6 +209,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         ReadingQualityRecord readingQuality = mock(ReadingQualityRecord.class);
         ReadingQualityType readingQualityType = new ReadingQualityType(code);
         when(readingQuality.getType()).thenReturn(readingQualityType);
+        when(readingQuality.isActual()).thenReturn(true);
         return readingQuality;
     }
 
