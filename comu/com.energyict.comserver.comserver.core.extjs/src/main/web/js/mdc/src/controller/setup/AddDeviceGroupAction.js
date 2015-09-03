@@ -447,7 +447,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                     }
                     Ext.suspendLayouts();
                     view.down('#device-group-edit-panel').setTitle(
-                        Uni.I18n.translate('general.editX', 'MDC', "Edit '{0}'", [me.deviceGroupName])
+                        Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [me.deviceGroupName])
                     );
                     me.getNameTextField().setValue(record.get('name'));
                     isDynamic = record.get('dynamic')
