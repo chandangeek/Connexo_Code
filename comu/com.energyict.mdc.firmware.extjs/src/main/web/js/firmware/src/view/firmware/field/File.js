@@ -3,7 +3,7 @@ Ext.define('Fwc.view.firmware.field.File', {
     xtype: 'firmware-field-file',
     name: 'firmwareFile',
     required: true,
-    fieldLabel: 'Firmware file',
+    fieldLabel: Uni.I18n.translate('firmware.file.label', 'FWC', 'Firmware file'),
     allowBlank: false,
     buttonText: Uni.I18n.translate('firmware.file.select', 'FWC', 'Select file...'),
     afterBodyEl: [
