@@ -27,7 +27,7 @@ Ext.define('Sam.view.licensing.Upload', {
                             itemId: 'uploadfileField',
                             xtype: 'filefield',
                             name: 'uploadField',
-                            fieldLabel: 'License file',
+                            fieldLabel: Uni.I18n.translate('licensing.licenseFile', 'SAM', 'License file'),
                             emptyText: Uni.I18n.translate('general.chooseLicense','SAM','Choose license file *.lic'),
                             text: Uni.I18n.translate('general.browse','SAM','Browse...'),
                             msgTarget: 'side',
