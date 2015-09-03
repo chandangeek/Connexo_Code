@@ -12,12 +12,14 @@ public class TransitionBusinessProcessInfoFactory {
 
     public TransitionBusinessProcessInfo from(TransitionBusinessProcess transitionBusinessProcess){
         return new TransitionBusinessProcessInfo(transitionBusinessProcess.getId(),
+                                                transitionBusinessProcess.getName(),
                                                 transitionBusinessProcess.getDeploymentId(),
                                                 transitionBusinessProcess.getProcessId());
     }
 
     public TransitionBusinessProcessInfo from(StateChangeBusinessProcess stateChangeBusinessProcess){
         return new TransitionBusinessProcessInfo(stateChangeBusinessProcess.getId(),
+                                                stateChangeBusinessProcess.getName(),
                                                 stateChangeBusinessProcess.getDeploymentId(),
                                                 stateChangeBusinessProcess.getProcessId());
     }
