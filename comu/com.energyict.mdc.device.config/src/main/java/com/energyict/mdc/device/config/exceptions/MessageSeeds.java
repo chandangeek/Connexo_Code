@@ -65,7 +65,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     LOAD_PROFILE_SPEC_CANNOT_CHANGE_DEVICE_CONFIG(8004, "loadProfileSpec.change.configuration", "You can not change the device configuration of an existing load profile configuration", SEVERE),
     LOAD_PROFILE_SPEC_CANNOT_CHANGE_LOAD_PROFILE_TYPE(8005, "loadProfileSpec.change.loadProfileType", "You can not change the load profile type of an existing load profile configuration", SEVERE),
     LOAD_PROFILE_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG(8006, "loadProfileSpec.cannot.delete.active.config", "It is not allowed to remove a load profile configuration from an active device configuration", SEVERE),
-    LOAD_PROFILE_SPEC_CANNOT_DELETE_STILL_LINKED_CHANNEL_SPECS(8007, "loadProfileSpec.cannot.delete.linked.channel.specs", "Cannot remove load profile configuration because there are still channel specs linked", SEVERE),
     LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED(8008, Keys.LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED, "The load profile type of a load profile configuration is required", SEVERE),
     LOGBOOK_SPEC_DEVICE_CONFIG_IS_REQUIRED(9001, "logBookSpec.deviceConfig.required", "The device configuration of a logbook configuration is required", SEVERE),
     LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED(9002, Keys.LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED, "The logbook type of a logbook configuration is required", SEVERE),

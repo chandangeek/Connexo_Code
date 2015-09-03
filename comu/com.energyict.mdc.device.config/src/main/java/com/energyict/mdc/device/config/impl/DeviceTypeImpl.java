@@ -125,16 +125,11 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         // do not replace with foreach!! the deviceConfiguration will be removed from the iterator
         while (iterator.hasNext()) {
             ServerDeviceConfiguration deviceConfiguration = (ServerDeviceConfiguration) iterator.next();
-            this.notifyDelete(deviceConfiguration);
             deviceConfiguration.notifyDelete();
             deviceConfiguration.prepareDelete();
             iterator.remove();
         }
         this.getDataMapper().remove(this);
-    }
-
-    private void notifyDelete(ServerDeviceConfiguration deviceConfiguration) {
-        deviceConfiguration.notifyDelete();
     }
 
     @Override
