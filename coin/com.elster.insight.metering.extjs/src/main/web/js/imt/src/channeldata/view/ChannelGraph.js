@@ -11,7 +11,8 @@ Ext.define('Imt.channeldata.view.ChannelGraph', {
             xtype: 'container',
             itemId: 'graphContainer',
             style: {
-                width: '100%'
+                width: '100%',
+                height: 600
             }
         },
         {

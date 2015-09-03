@@ -2,6 +2,7 @@ Ext.define('Imt.channeldata.controller.View', {
     extend: 'Ext.app.Controller',
     requires: [
         'Imt.channeldata.store.Channel',
+        'Imt.channeldata.store.ChannelData',
         'Imt.channeldata.view.Setup',
         'Imt.channeldata.view.DataSetup'
     ],
@@ -23,6 +24,7 @@ Ext.define('Imt.channeldata.controller.View', {
     ],
     refs: [
         {ref: 'page', selector: 'channel-graph'},
+        {ref: 'dataGrid', selector: 'channel-data-grid'},
         {ref: 'channelList', selector: '#channelList'},
         {ref: 'overviewLink', selector: '#usage-point-overview-link'},
         {ref: 'channelListSetup', selector: '#channel-list-setup'},
@@ -89,7 +91,7 @@ Ext.define('Imt.channeldata.controller.View', {
                 var widget = Ext.widget('channel-data-setup', {
                         router: router, 
                         mRID: mRID, 
-                        channel: channel,
+                        channel: record,
                         filter: {
                             fromDate: intervalStart,
                             duration: all.count + all.timeUnit,

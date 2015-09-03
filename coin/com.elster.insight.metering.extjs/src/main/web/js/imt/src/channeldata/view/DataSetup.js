@@ -4,10 +4,11 @@ Ext.define('Imt.channeldata.view.DataSetup', {
     itemId: 'channel-data-setup',
     requires: [
         'Imt.channeldata.view.ChannelGraph',
-        //'Imt.channeldata.view.IntervalList',
+        'Imt.channeldata.view.DataGrid',
         'Imt.channeldata.view.ChannelTopFilter'
     ],
     router: null,
+    channel: null,
     initComponent: function () {
         var me = this;
 
@@ -46,11 +47,13 @@ Ext.define('Imt.channeldata.view.DataSetup', {
                             xtype: 'channel-graph',
                             mRID: me.mRID,
                             router: me.router
-                        }//,
-//                        {
-//                            xtype: 'interval-list',
-//                            router: me.router
-//                        }
+                        },
+                        {
+                            xtype: 'channel-data-grid',
+                            router: me.router,
+                            channelRecord: me.channel,
+                            height: 600
+                        }
                 ],
                 dockedItems: [
                     {
