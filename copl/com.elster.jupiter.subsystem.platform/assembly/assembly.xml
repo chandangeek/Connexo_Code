@@ -98,6 +98,11 @@
             <includes>
                 <include>com.elster.jupiter:*</include>
             </includes>
+            <excludes>
+                <exclude>com.elster.jupiter:launcher</exclude>
+                <exclude>com.elster.jupiter:yellowfin.installer</exclude>
+            </excludes>
+            <scope>provided</scope>
             <unpack>false</unpack>
             <outputFileNameMapping>
                 ${artifact.groupId}.${artifact.artifactId}-${artifact.version}${dashClassifier?}.${artifact.extension}

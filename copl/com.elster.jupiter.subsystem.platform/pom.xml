@@ -16,20 +16,7 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>com.elster.jupiter.subsystem</groupId>
-                <artifactId>third-party</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <!-- grr don't like the below dependency - should be in third-party subsystem - but if so maven barfs -->
-            <dependency>
-                <groupId>com.elster.jupiter.subsystem</groupId>
-                <artifactId>drools-integration</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-                <type>pom</type>
-            </dependency>
+
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>platform.bom</artifactId>
@@ -40,7 +27,7 @@
         </dependencies>
     </dependencyManagement>
     <dependencies>
-
+        <!-- Platform subsystem components -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>appserver</artifactId>
@@ -131,11 +118,19 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>launcher</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>loaderjs</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>login.app</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mail</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -241,13 +236,136 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>mail</artifactId>
+            <artifactId>yellowfin</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.jimfs</groupId>
-            <artifactId>jimfs</artifactId>
-            <version>1.0</version>
-            <scope>test</scope>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>yellowfin.app</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>yellowfin.extjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>yellowfin.installer</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.elster.jupiter.subsystem</groupId>
+            <artifactId>third-party</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
+            <type>zip</type>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Tomcat for Yellowfin and JBPM -->
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat</artifactId>
+            <version>7.0.59</version>
+            <type>zip</type>
+            <classifier>connexo</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <!-- WSo2 identity server-->
+        <dependency>
+            <groupId>org.wso2</groupId>
+            <artifactId>wso2is</artifactId>
+            <version>4.5.0</version>
+            <type>zip</type>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Yet Another Java Service Wrapper-->
+        <dependency>
+            <groupId>org.rzo</groupId>
+            <artifactId>yajsw</artifactId>
+            <version>11.11</version>
+            <type>zip</type>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Packaged YellowFin jar -->
+        <dependency>
+            <groupId>com.elster.jupiter.thirdparty.apps.facts</groupId>
+            <artifactId>facts</artifactId>
+            <version>10.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter.thirdparty.apps.facts</groupId>
+            <artifactId>EncryptPassword</artifactId>
+            <version>10.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Packaged jBPM stuff  -->
+        <dependency>
+            <groupId>com.elster.jupiter.thirdparty.apps.flow</groupId>
+            <artifactId>flow</artifactId>
+            <version>10.1</version>
+            <type>war</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter.thirdparty.apps.flow</groupId>
+            <artifactId>demows</artifactId>
+            <version>10.0</version>
+            <type>war</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter.thirdparty.apps.flow</groupId>
+            <artifactId>processes</artifactId>
+            <version>10.0</version>
+            <type>zip</type>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-cli</id>
+                        <goals>
+                            <goal>add-third-party</goal>
+                        </goals>
+                        <configuration>
+                            <includeTransitiveDependencies>true</includeTransitiveDependencies>
+                            <acceptPomPackaging>true</acceptPomPackaging>
+                            <thirdPartyFilename>connexo-platform-third-party.txt</thirdPartyFilename>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>connexo-platform</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <archiverConfig>
+                        <duplicateBehavior>skip</duplicateBehavior>
+                    </archiverConfig>
+
+                    <descriptors>
+                        <descriptor>assembly/assembly.xml</descriptor>
+                    </descriptors>
+
+                    <finalName>connexo-platform-v${project.version}</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
