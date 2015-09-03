@@ -22,23 +22,37 @@ Ext.define('Isu.view.issues.GroupGrid', {
     groupingType: 'default',
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            display = '',
+            displayMore = '',
+            empty = '',
+            itemsPerPage = '';
+
+
+        switch(me.groupingType){
+            case 'reason':
+                display = Uni.I18n.translate('issues.grouping.reason.displayMsg', 'ISU', '{0} - {1} of {2} reasons');
+                displayMore = Uni.I18n.translate('issues.groupingreason.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} reasons');
+                empty = Uni.I18n.translate('issues.grouping.reason.emptyMsg', 'ISU', '0 reasons');
+                itemsPerPage =  Uni.I18n.translate('issues.grouping.reason.itemsPerPageMsg', 'ISU', 'reasons per page');
+                break;
+        }
 
         me.dockedItems = [
             {
                 xtype: 'pagingtoolbartop',
                 dock: 'top',
                 store: me.store,
-                displayMsg: Uni.I18n.translate('issues.grouping.'+ me.groupingType + '.displayMsg', 'ISU', '{0} - {1} of {2} items'),
-                displayMoreMsg: Uni.I18n.translate('issues.grouping.'+ me.groupingType + '.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} items'),
-                emptyMsg: Uni.I18n.translate('issues.grouping.'+ me.groupingType + '.emptyMsg', 'ISU', '0 items')
+                displayMsg: display,
+                displayMoreMsg: displayMore,
+                emptyMsg: empty
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 dock: 'bottom',
                 store: me.store,
                 deferLoading: true,
-                itemsPerPageMsg: Uni.I18n.translate('issues.grouping.'+ me.groupingType + '.itemsPerPageMsg', 'ISU', 'Items per page'),
+                itemsPerPageMsg: itemsPerPage,
                 isSecondPagination: true
             }
         ];
@@ -52,15 +66,25 @@ Ext.define('Isu.view.issues.GroupGrid', {
             pagingToolbarBottom = me.down('pagingtoolbarbottom');
 
         me.groupingType = groupingType;
+
+        switch(me.groupingType){
+            case 'reason':
+                display = Uni.I18n.translate('issues.grouping.reason.displayMsg', 'ISU', '{0} - {1} of {2} reasons');
+                displayMore = Uni.I18n.translate('issues.groupingreason.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} reasons');
+                empty = Uni.I18n.translate('issues.grouping.reason.emptyMsg', 'ISU', '0 reasons');
+                itemsPerPage =  Uni.I18n.translate('issues.grouping.reason.itemsPerPageMsg', 'ISU', 'reasons per page');
+                break;
+        }
+
         if (!Ext.isEmpty(pagingToolbarTop)) {
-            pagingToolbarTop.displayMsg = Uni.I18n.translate('issues.grouping.'+ me.groupingType + '.displayMsg', 'ISU', '{0} - {1} of {2} items');
-            pagingToolbarTop.displayMoreMsg = Uni.I18n.translate('issues.grouping.'+ me.groupingType + '.displayMoreMsg', 'ISU', '{0} - {1} of more than {2} items');
-            pagingToolbarTop.emptyMsg = Uni.I18n.translate('issues.grouping.'+ me.groupingType + '.emptyMsg', 'ISU', '0 items');
+            pagingToolbarTop.displayMsg = display;
+            pagingToolbarTop.displayMoreMsg = displayMore;
+            pagingToolbarTop.emptyMsg = empty;
             pagingToolbarTop.updateInfo();
         }
 
         if (!Ext.isEmpty(pagingToolbarBottom)) {
-            pagingToolbarBottom.down('tbtext').setText(Uni.I18n.translate('issues.grouping.'+ me.groupingType + '.itemsPerPageMsg', 'ISU', 'Items per page'));
+            pagingToolbarBottom.down('tbtext').setText(itemsPerPage);
         }
     }
 });
