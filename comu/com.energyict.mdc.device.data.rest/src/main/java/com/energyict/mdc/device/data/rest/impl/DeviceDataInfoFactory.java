@@ -75,16 +75,18 @@ public class DeviceDataInfoFactory {
 
         Optional<DataValidationStatus> dataValidationStatus = loadProfileReading.getChannelValidationStates().entrySet().stream().map(Map.Entry::getValue).findFirst();
         dataValidationStatus.ifPresent(status -> {
-            channelIntervalInfo.validationInfo = validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, status, deviceValidation, channelReading.orElse(null));
+            channelIntervalInfo.mainValidationInfo = validationInfoFactory.createMainVeeReadingInfo(status, deviceValidation, channelReading.orElse(null));
+            channelIntervalInfo.bulkValidationInfo = validationInfoFactory.createBulkVeeReadingInfo(channel, status, deviceValidation, channelReading.orElse(null));
         });
         if (!channelReading.isPresent() && !dataValidationStatus.isPresent()) {
             // we have a reading with no data and no validation result => it's a placeholder (missing value) which hasn't validated ( = detected ) yet
-            channelIntervalInfo.validationInfo = new VeeReadingInfo();
-            channelIntervalInfo.validationInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+            channelIntervalInfo.mainValidationInfo = new MinimalVeeReadingValueInfo();
+            channelIntervalInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
             if(channelIntervalInfo.isBulk) {
-                channelIntervalInfo.validationInfo.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+                channelIntervalInfo.bulkValidationInfo = new MinimalVeeReadingValueInfo();
+                channelIntervalInfo.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
             }
-            channelIntervalInfo.validationInfo.dataValidated = false;
+            channelIntervalInfo.dataValidated = false;
         }
         return channelIntervalInfo;
     }

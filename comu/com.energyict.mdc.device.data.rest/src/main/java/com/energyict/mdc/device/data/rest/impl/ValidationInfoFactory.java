@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -211,6 +210,23 @@ public class ValidationInfoFactory {
             veeReadingInfo.bulkValidationInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getBulkReadingQualities());
         }
         return veeReadingInfo;
+    }
+
+    MinimalVeeReadingValueInfo createMainVeeReadingInfo(DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading) {
+        MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
+        veeReadingInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getReadingQualities());
+        veeReadingInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getReadingQualities());
+        return veeReadingInfo;
+    }
+
+    MinimalVeeReadingValueInfo createBulkVeeReadingInfo(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading) {
+        if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
+            MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
+            veeReadingInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getBulkReadingQualities());
+            veeReadingInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getBulkReadingQualities());
+            return veeReadingInfo;
+        }
+        return null;
     }
 
     boolean isConfirmedData(BaseReadingRecord reading, Collection<? extends ReadingQuality> qualities) {

@@ -34,8 +34,14 @@ public class ChannelDataInfo {
     @JsonProperty("validationStatus")
     public Boolean validationStatus;
 
-    @JsonProperty("validationInfo")
-    public VeeReadingInfo validationInfo;
+    @JsonProperty("dataValidated")
+    public Boolean dataValidated;
+
+    @JsonProperty("mainValidationInfo")
+    public MinimalVeeReadingValueInfo mainValidationInfo;
+
+    @JsonProperty("bulkValidationInfo")
+    public MinimalVeeReadingValueInfo bulkValidationInfo;
 
     public BaseReading createNew() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value);

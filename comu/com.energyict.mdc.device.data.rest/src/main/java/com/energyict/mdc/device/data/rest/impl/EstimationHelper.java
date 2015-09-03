@@ -8,13 +8,10 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Ranges;
-
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -131,15 +128,15 @@ public class EstimationHelper {
         ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, reading, isValidationActive, deviceValidation);
         if (!channel.getReadingType().isCumulative()) {
             channelDataInfo.value = estimatable.getEstimation();
-            channelDataInfo.validationInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+            channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
         } else {
             if (block.getReadingType().equals(channel.getReadingType())) {
                 channelDataInfo.collectedValue = estimatable.getEstimation();
-                channelDataInfo.validationInfo.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+                channelDataInfo.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
             }
             if (channel.getReadingType().getCalculatedReadingType().isPresent() && channel.getReadingType().getCalculatedReadingType().get().equals(block.getReadingType())) {
                 channelDataInfo.value = estimatable.getEstimation();
-                channelDataInfo.validationInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+                channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
             }
         }
         return channelDataInfo;

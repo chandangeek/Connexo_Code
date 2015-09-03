@@ -162,8 +162,9 @@ public class ChannelResource {
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
         boolean isValidationActive = deviceValidation.isValidationActive();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
-            List<LoadProfileReading> channelData = channel.getChannelData(Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd")));
-            List<ChannelDataInfo> infos = channelData.stream().map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReading, isValidationActive, deviceValidation)).collect(Collectors.toList());
+            Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
+            List<LoadProfileReading> channelData = channel.getChannelData(range);
+            List<ChannelDataInfo> infos = channelData.stream().parallel().map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReading, isValidationActive, deviceValidation)).collect(Collectors.toList());
             infos = filter(infos, filter);
             List<ChannelDataInfo> paginatedChannelData = ListPager.of(infos).from(queryParameters).find();
             PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("data", paginatedChannelData, queryParameters);
@@ -226,8 +227,8 @@ public class ChannelResource {
 
 
     private boolean hasSuspects(ChannelDataInfo info) {
-        return ValidationStatus.SUSPECT.equals(info.validationInfo.mainValidationInfo.validationResult) ||
-                ValidationStatus.SUSPECT.equals(info.validationInfo.bulkValidationInfo.validationResult);
+        return ValidationStatus.SUSPECT.equals(info.mainValidationInfo.validationResult) ||
+                ValidationStatus.SUSPECT.equals(info.bulkValidationInfo.validationResult);
     }
 
     private boolean hasMissingData(ChannelDataInfo info) {
@@ -273,8 +274,8 @@ public class ChannelResource {
     }
 
     private boolean isToBeConfirmed(ChannelDataInfo channelDataInfo) {
-        return ((channelDataInfo.validationInfo != null && channelDataInfo.validationInfo.mainValidationInfo != null && channelDataInfo.validationInfo.mainValidationInfo.isConfirmed) ||
-                (channelDataInfo.validationInfo != null && channelDataInfo.validationInfo.bulkValidationInfo != null && channelDataInfo.validationInfo.bulkValidationInfo.isConfirmed));
+        return ((channelDataInfo.mainValidationInfo != null && channelDataInfo.mainValidationInfo.isConfirmed) ||
+                (channelDataInfo.bulkValidationInfo != null && channelDataInfo.bulkValidationInfo.isConfirmed));
     }
 
     @POST
