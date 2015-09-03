@@ -786,7 +786,7 @@ Ext.define('Dxp.controller.Tasks', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show({
             msg: Uni.I18n.translate('general.remove.msg', 'DES', 'This data export task will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'DES', 'Remove {0}?',[record.data.name]),
+            title: Uni.I18n.translate('general.removex', 'DES', 'Remove {0}?',[record.data.name]),
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {
