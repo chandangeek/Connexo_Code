@@ -268,12 +268,27 @@ Ext.define('Mdc.model.ComServerComPort', {
                     ];
                 Ext.Array.each(conf, function (item) {
                     var value = data[item.field],
-                        translatedValue = null;
+                        unit = null;
 
-                    item.unit && (translatedValue = Uni.I18n.translatePlural(item.unit.translateKey, parseInt(value), 'MDC',
-                        item.unit.defaultTranslationZero, item.unit.defaultTranslationOne, item.unit.defaultTranslationMany));
-                    if (translatedValue || value) {
-                        result += (translatedValue ? translatedValue : value) + '<br>';
+                    if (value) {
+                        item.unit && (unit = Uni.I18n.translatePlural(item.unit.translateKey, parseInt(value), 'MDC',
+                            item.unit.defaultTranslationZero, item.unit.defaultTranslationOne, item.unit.defaultTranslationMany));
+
+                        if (unit) {
+                            result += (unit ? unit : value);
+                        } else {
+                            store = Ext.getStore(item.store);
+                            if (!store) {
+                                return false;
+                            }
+                            index = store.find(item.associatedField, value);
+                            if (index !== -1) {
+                                result += store.getAt(index).get(item.localizedField);
+                            } else {
+                                result += value;
+                            }
+                        }
+                        result += '<br>';
                     }
                 });
 
