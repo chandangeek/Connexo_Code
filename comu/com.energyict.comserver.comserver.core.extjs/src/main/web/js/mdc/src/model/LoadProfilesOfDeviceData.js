@@ -33,13 +33,9 @@ Ext.define('Mdc.model.LoadProfilesOfDeviceData', {
             persist: false,
             mapping: function (data) {
                 return data.interval
-                    ? Uni.DateTime.formatDateLong(new Date(data.interval.start))
-                + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
-                + Uni.DateTime.formatTimeLong(new Date(data.interval.start))
-                + ' - '
-                + Uni.DateTime.formatDateLong(new Date(data.interval.end))
-                + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
-                + Uni.DateTime.formatTimeLong(new Date(data.interval.end))
+                    ? Uni.I18n.translate('general.dateatime', 'MDC', '{0} At {1}',[Uni.DateTime.formatDateLong(new Date(data.interval.start)),Uni.DateTime.formatTimeLong(new Date(data.interval.start))]).toLowerCase()
+                    + ' - ' +
+                    Uni.I18n.translate('general.dateatime', 'MDC', '{0} At {1}',[Uni.DateTime.formatDateLong(new Date(data.interval.end)),Uni.DateTime.formatTimeLong(new Date(data.interval.end))]).toLowerCase()
                     : '';
             }
         },

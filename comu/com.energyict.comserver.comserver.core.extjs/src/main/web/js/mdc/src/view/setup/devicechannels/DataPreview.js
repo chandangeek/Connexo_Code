@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     updateForm: function (record) {
         var me = this,
             intervalEnd = record.get('interval_end'),
-            title = Uni.DateTime.formatDateLong(intervalEnd) + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' ' + Uni.DateTime.formatTimeLong(intervalEnd),
+            title =  Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[Uni.DateTime.formatDateLong(intervalEnd),Uni.DateTime.formatTimeLong(intervalEnd)]).toLowerCase(),
             mainValidationInfo,
             bulkValidationInfo;
 
@@ -72,7 +72,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             url = view.router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule').buildUrl({ruleSetId: estimatedRule.ruleSetId, ruleId: estimatedRule.id});
             estimatedRuleName = estimatedRule.deleted ? estimatedRule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') :
                 '<a href="' + url + '">' + estimatedRule.name + '</a>';
-            field.setValue(Uni.I18n.translate('deviceChannelData.estimatedAccordingTo', 'MDC', 'Estimated according to') + ' ' + estimatedRuleName);
+            field.setValue(Uni.I18n.translate('deviceChannelData.estimatedAccordingTo', 'MDC', 'Estimated according to {0}',[estimatedRuleName]));
         } else {
             field.hide();
         }
@@ -150,7 +150,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     } else {
                         result = Ext.String.htmlEncode(rule.key.name);
                     }
-                }   result += ' - ' + Ext.String.htmlEncode(rule.value) + ' ' + Uni.I18n.translate('general.suspects', 'MDC', 'suspects') + '<br>';
+                }   result += ' - ' + Uni.I18n.translate('general.xsuspects', 'MDC', '{0} suspects',[rule.value]) + '<br>';
             });
             field.setValue(result);
         } else {
@@ -209,7 +209,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 return !Ext.isEmpty(formatValue) ? formatValue + ' ' + measurementType + ' ' + validationResultText : '';
             }
         } else {
-            return Uni.I18n.translate('general.missing', 'MDC', 'Missing') + ' ' + validationResultText;
+            return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}',[validationResultText]);
         }
     },
 

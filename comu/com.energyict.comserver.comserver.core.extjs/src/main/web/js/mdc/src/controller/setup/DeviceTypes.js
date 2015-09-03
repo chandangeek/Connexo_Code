@@ -319,7 +319,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 cancelLink: router.getRoute('administration/devicetypes').buildUrl(),
                 deviceCommunicationProtocols: protocolStore
             });
-
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         protocolStore.load();

@@ -13,9 +13,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Grid', {
                 dataIndex: 'timeStamp',
                 renderer: function (value) {
                     return value
-                        ? Uni.DateTime.formatDateShort(new Date(value))
-                        + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
-                        + Uni.DateTime.formatTimeShort(new Date(value))
+                        ? Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[ Uni.DateTime.formatDateShort(new Date(value)),Uni.DateTime.formatTimeShort(new Date(value))]).toLowerCase()
                         : '';
                 },
                 flex: 1
