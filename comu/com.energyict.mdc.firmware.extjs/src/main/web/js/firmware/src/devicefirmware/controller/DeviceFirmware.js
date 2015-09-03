@@ -162,7 +162,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                 .replace('{id}', record.get('comTaskId')),
             callback: function (operation, success) {
                 if (success) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.' + action, 'FWC', 'The firmware version is being read. Actual firmware version information will be available as soon as the action has completed.'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade', 'FWC', 'The firmware version is being read. Actual firmware version information will be available as soon as the action has completed.'));
                     router.getRoute().forward();
                 }
 

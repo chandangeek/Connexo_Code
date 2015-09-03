@@ -6,7 +6,8 @@ Ext.define('Fwc.firmwarecampaigns.view.DynamicRadioGroup', {
     showOptions: function (options, config) {
         var me = this,
             conditionRadio,
-            singleRadio;
+            singleRadio,
+            msg = '';
 
         if (!config) {
             config = {};
@@ -17,12 +18,23 @@ Ext.define('Fwc.firmwarecampaigns.view.DynamicRadioGroup', {
             if (config.isRecord) {
                 option = option.getData();
             }
+            switch(option.id){
+                case 'install':
+                    msg = Uni.I18n.translate('firmware.campaigns.managementOption.install.description', 'FWC', 'Firmware will be uploaded to the device. The user will need to send a command afterwards in order to activate firmware.');
+                    break;
+                case 'activate':
+                    msg = Uni.I18n.translate('firmware.campaigns.managementOption.activate.description', 'FWC', 'Firmware will be activated as soon as it is uploaded to the device.');
+                    break;
+                case 'activateOnDate':
+                    msg = Uni.I18n.translate('firmware.campaigns.managementOption.activateOnDate.description', 'FWC', 'Firmware will be uploaded to the device. Firmware will be activated at date and time specified by the user.');
+                    break;
+            }
             me.add({
                 boxLabel: option.localizedValue,
                 name: me.name,
                 inputValue: option.id,
                 afterSubTpl: config.showDescription ?'<span style="color: grey;padding: 0 0 0 19px; font-style: italic">'
-                + Uni.I18n.translate('firmware.campaigns.managementOption.' + option.id + '.description', 'FWC', '')
+                + msg
                 + '</span>' : ''
             });
         });
