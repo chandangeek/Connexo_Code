@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeCategory;
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
@@ -9,7 +10,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
@@ -117,6 +117,10 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(loadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel, readingRecord));
         when(readingRecord.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
         when(readingRecord.getReportedDateTime()).thenReturn(LAST_READING);
+        ReadingQualityRecord readingQualityPowerFail = mockReadingQuality("3.2.32");
+        ReadingQualityRecord readingQualityWrongSystem = mockReadingQuality("2.0.0");
+        ReadingQualityRecord readingQualityDataValid = mockReadingQuality("3.0.0");
+        doReturn(Arrays.asList(readingQualityPowerFail, readingQualityWrongSystem, readingQualityDataValid)).when(readingRecord).getReadingQualities();
 
         when(addedloadProfileReading.getRange()).thenReturn(interval);
         when(addedloadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel, addedReadingRecord));
@@ -164,9 +168,9 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
         when(estimationRuleSet.getId()).thenReturn(15L);
         when(estimationRule.getName()).thenReturn("EstimationRule");
-        ReadingQualityType readingQualityType = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int)estimationRule.getId());
-        when(quality2.getType()).thenReturn(readingQualityType);
-        doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityType);
+        ReadingQualityType readingQualityTypeEstimatedByRule = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.ESTIMATED, (int)estimationRule.getId());
+        when(quality2.getType()).thenReturn(readingQualityTypeEstimatedByRule);
+        doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityTypeEstimatedByRule);
         //add confirm quality
         dataValidationStatus.addBulkReadingQuality(quality3, Collections.emptyList());
         when(quality3.isConfirmed()).thenReturn(true);
@@ -201,6 +205,13 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceValidation.getLastChecked(channel)).thenReturn(Optional.of(NOW));
     }
 
+    private ReadingQualityRecord mockReadingQuality(String code) {
+        ReadingQualityRecord readingQuality = mock(ReadingQualityRecord.class);
+        ReadingQualityType readingQualityType = new ReadingQualityType(code);
+        when(readingQuality.getType()).thenReturn(readingQualityType);
+        return readingQuality;
+    }
+
     private DataValidationStatus mockDataValidationStatus(ReadingQualityType readingQualityType, boolean isBulk) {
         DataValidationStatus status = mock(DataValidationStatus.class);
         ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
@@ -231,6 +242,9 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(1410828630000L);
         assertThat(jsonModel.<List<?>>get("$.data[0].intervalFlags")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[0].intervalFlags[0]")).isEqualTo(BATTERY_LOW);
+        assertThat(jsonModel.<List<?>>get("$.data[*].readingQualities[*]")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].id")).isEqualTo("3.2.32");
+        assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].name")).isEqualTo(QualityCodeIndex.POWERFAIL.getTranslationKey().getDefaultFormat());
         assertThat(jsonModel.<String>get("$.data[0].collectedValue")).isEqualTo("200.000");
         assertThat(jsonModel.<Boolean>get("$.data[0].validationInfo.dataValidated")).isTrue();
         assertThat(jsonModel.<String>get("$.data[0].validationInfo.mainValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");

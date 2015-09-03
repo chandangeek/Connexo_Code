@@ -1,12 +1,17 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeCategory;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
@@ -27,13 +32,24 @@ import com.energyict.mdc.device.data.TextRegister;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
  * Groups functionality to create info objects for different sorts of data of a device
  */
 public class DeviceDataInfoFactory {
+
+    private static final List<QualityCodeCategory> QUALITY_CODE_CATEGORIES = Arrays.asList(
+            QualityCodeCategory.DIAGNOSTICS,
+            QualityCodeCategory.POWERQUALITY,
+            QualityCodeCategory.TAMPER,
+            QualityCodeCategory.DATACOLLECTION
+    );
 
     private final ValidationInfoFactory validationInfoFactory;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
@@ -61,6 +77,7 @@ public class DeviceDataInfoFactory {
 
         channelReading.ifPresent(reading -> {
             channelIntervalInfo.value = getRoundedBigDecimal(reading.getValue(), channel);
+            channelIntervalInfo.readingQualities = getReadingQualities(reading);
             channel.getReadingType().getCalculatedReadingType().ifPresent(calculatedReadingType -> {
                 channelIntervalInfo.isBulk = true;
                 channelIntervalInfo.collectedValue = channelIntervalInfo.value;
@@ -87,6 +104,19 @@ public class DeviceDataInfoFactory {
             channelIntervalInfo.validationInfo.dataValidated = false;
         }
         return channelIntervalInfo;
+    }
+
+    private List<IdWithNameInfo> getReadingQualities(IntervalReadingRecord intervalReadingRecord) {
+        return intervalReadingRecord.getReadingQualities().stream()
+                .map(ReadingQuality::getType)
+                .distinct()
+                .filter(type -> type.system().isPresent() && type.system().get() == QualityCodeSystem.MDM)
+                .filter(type -> type.qualityIndex().isPresent())
+                .filter(type -> QUALITY_CODE_CATEGORIES.contains(type.category().get()))
+                .map(type -> Pair.of(type.getCode(), type.qualityIndex().get()))
+                .map(pair -> new IdWithNameInfo(pair.getFirst(),
+                        thesaurus.getStringBeyondComponent(pair.getLast().getTranslationKey().getKey(), pair.getLast().getTranslationKey().getDefaultFormat())))
+                .collect(Collectors.toList());
     }
 
     private static BigDecimal getRoundedBigDecimal(BigDecimal value, Channel channel) {
