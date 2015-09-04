@@ -1,7 +1,19 @@
 package com.energyict.mdc.issue.datacollection.rest.resource;
 
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
+import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
+import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
+
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.rest.request.*;
+import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
+import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
+import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
+import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
+import com.elster.jupiter.issue.rest.request.EntityReference;
+import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
@@ -10,7 +22,12 @@ import com.elster.jupiter.issue.rest.response.IssueAssigneeInfoAdapter;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -18,16 +35,18 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
-import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
-import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -37,14 +56,20 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.KEY;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.METER;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.REASON;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.STATUS;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
 import static com.elster.jupiter.util.conditions.Where.where;
-import static com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds.getString;
 
 @Path("/issue")
 public class IssueResource extends BaseResource {
-    
+
     private final DataCollectionIssueInfoFactory issuesInfoFactory;
     private final IssueResourceHelper issueResourceHelper;
 
@@ -170,7 +195,7 @@ public class IssueResource extends BaseResource {
                 issue = getIssueDataCollectionService().findHistoricalIssue(issueRef.getId()).orElse(null);
             }
             if (issue == null) {
-                bulkResult.addFail(getString(MessageSeeds.ISSUE_DOES_NOT_EXIST, getThesaurus()), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
+                bulkResult.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_DOES_NOT_EXIST).format(), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
             } else {
                 issuesForBulk.add(issue);
             }
@@ -203,7 +228,7 @@ public class IssueResource extends BaseResource {
             if (status.isPresent() && status.get().isHistorical()) {
                 for (Issue issue : issueProvider.apply(response)) {
                     if (issue.getStatus().isHistorical()) {
-                        response.addFail(getString(MessageSeeds.ISSUE_ALREADY_CLOSED, getThesaurus()), issue.getId(), issue.getTitle());
+                        response.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_ALREADY_CLOSED).format(), issue.getId(), issue.getTitle());
                     } else {
                         issue.addComment(request.comment, performer);
                         if (issue instanceof OpenIssue) {
