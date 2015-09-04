@@ -37,6 +37,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                 },
                 {
                     xtype: 'combobox',
+                    itemId: 'load-profile-type-combo',
                     required: true,
                     allowBlank: false,
                     fieldLabel: 'Load profile type',
@@ -53,6 +54,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                 },
                 {
                     xtype: 'obis-field',
+                    itemId: 'obis-code-field',
                     required: false,
                     fieldLabel: Uni.I18n.translate('general.overruledObisCode', 'MDC', 'Overruled OBIS code'),
                     name: 'overruledObisCode'
