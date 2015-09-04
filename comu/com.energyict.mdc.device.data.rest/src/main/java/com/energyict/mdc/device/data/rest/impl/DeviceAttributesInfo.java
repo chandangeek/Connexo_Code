@@ -56,23 +56,27 @@ public class DeviceAttributesInfo {
         SHIPMENT_DATE {
             @Override
             public List<DefaultState> attributeIsEditableForStates() {
-                return Arrays.asList(DefaultState.IN_STOCK);
+                return Arrays.asList(
+                        DefaultState.IN_STOCK,
+                        DefaultState.COMMISSIONING,
+                        DefaultState.ACTIVE,
+                        DefaultState.INACTIVE,
+                        DefaultState.DECOMMISSIONED);
             }
         },
         INSTALLATION_DATE {
             @Override
             public List<DefaultState> attributeIsEditableForStates() {
                 return Arrays.asList(
-                        DefaultState.COMMISSIONING,
                         DefaultState.ACTIVE,
-                        DefaultState.INACTIVE
+                        DefaultState.INACTIVE,
+                        DefaultState.DECOMMISSIONED
                 );
             }
 
             @Override
             public List<DefaultState> attributeIsAllowedForStates() {
                 return Arrays.asList(
-                        DefaultState.COMMISSIONING,
                         DefaultState.ACTIVE,
                         DefaultState.INACTIVE,
                         DefaultState.DECOMMISSIONED
@@ -82,12 +86,18 @@ public class DeviceAttributesInfo {
         DEACTIVATION_DATE {
             @Override
             public List<DefaultState> attributeIsEditableForStates() {
-                return Arrays.asList(DefaultState.INACTIVE, DefaultState.DECOMMISSIONED);
+                return Arrays.asList(
+                        DefaultState.INACTIVE,
+                        DefaultState.DECOMMISSIONED
+                );
             }
 
             @Override
             public List<DefaultState> attributeIsAllowedForStates() {
-                return Arrays.asList(DefaultState.INACTIVE, DefaultState.DECOMMISSIONED);
+                return Arrays.asList(
+                        DefaultState.INACTIVE,
+                        DefaultState.DECOMMISSIONED
+                );
             }
         },
         DECOMMISSIONING_DATE {
