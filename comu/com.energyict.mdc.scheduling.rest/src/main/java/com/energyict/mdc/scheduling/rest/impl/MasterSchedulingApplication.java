@@ -1,35 +1,37 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.json.JsonService;
 import com.google.common.collect.ImmutableSet;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.ws.rs.core.Application;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.ws.rs.core.Application;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.energyict.sch.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/scr", "app=MDC", "name=" + MasterSchedulingApplication.COMPONENT_NAME})
-public class MasterSchedulingApplication extends Application implements TranslationKeyProvider {
+@Component(name = "com.energyict.sch.rest", service = {Application.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/scr", "app=MDC", "name=" + MasterSchedulingApplication.COMPONENT_NAME})
+public class MasterSchedulingApplication extends Application implements MessageSeedProvider {
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "SCR";
 
@@ -113,19 +115,13 @@ public class MasterSchedulingApplication extends Application implements Translat
         this.license = license;
     }
 
-
-    @Override
-    public String getComponentName() {
-        return MasterSchedulingApplication.COMPONENT_NAME;
-    }
-
     @Override
     public Layer getLayer() {
         return Layer.REST;
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 
