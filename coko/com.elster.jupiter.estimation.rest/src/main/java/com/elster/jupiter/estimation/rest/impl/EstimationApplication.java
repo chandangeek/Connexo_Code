@@ -4,14 +4,14 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -26,10 +26,10 @@ import java.util.Set;
 
 @Component(
         name = "com.elster.jupiter.estimation.rest",
-        service = {Application.class, TranslationKeyProvider.class},
+        service = {Application.class, MessageSeedProvider.class},
         immediate = true,
         property = {"alias=/est", "app=SYS", "name=" + EstimationApplication.COMPONENT_NAME})
-public class EstimationApplication extends Application implements TranslationKeyProvider {
+public class EstimationApplication extends Application implements MessageSeedProvider {
     public static final String COMPONENT_NAME = "EST";
 
     private volatile EstimationService estimationService;
@@ -86,17 +86,12 @@ public class EstimationApplication extends Application implements TranslationKey
     }
 
     @Override
-    public String getComponentName() {
-        return EstimationApplication.COMPONENT_NAME;
-    }
-
-    @Override
     public Layer getLayer() {
         return Layer.REST;
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 
