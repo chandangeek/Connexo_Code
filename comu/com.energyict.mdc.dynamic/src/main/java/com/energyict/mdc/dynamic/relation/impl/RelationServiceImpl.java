@@ -9,18 +9,17 @@ import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.dynamic.relation.RelationTypeShadow;
-import com.energyict.mdc.dynamic.relation.exceptions.MessageSeeds;
 
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -44,8 +43,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-17 (10:28)
  */
-@Component(name = "com.energyict.mdc.dynamic.relation", service = {RelationService.class, InstallService.class, TranslationKeyProvider.class, DefaultAttributeTypeDetective.class}, property = "name=" + RelationService.COMPONENT_NAME, immediate = true)
-public class RelationServiceImpl implements RelationService, InstallService, TranslationKeyProvider, DefaultAttributeTypeDetective {
+@Component(name = "com.energyict.mdc.dynamic.relation", service = {RelationService.class, InstallService.class, MessageSeedProvider.class, DefaultAttributeTypeDetective.class}, property = "name=" + RelationService.COMPONENT_NAME, immediate = true)
+public class RelationServiceImpl implements RelationService, InstallService, MessageSeedProvider, DefaultAttributeTypeDetective {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -132,17 +131,12 @@ public class RelationServiceImpl implements RelationService, InstallService, Tra
     }
 
     @Override
-    public String getComponentName() {
-        return RelationService.COMPONENT_NAME;
-    }
-
-    @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 

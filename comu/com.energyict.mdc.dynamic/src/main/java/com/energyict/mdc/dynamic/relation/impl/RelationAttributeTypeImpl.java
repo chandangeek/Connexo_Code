@@ -15,7 +15,6 @@ import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.dynamic.relation.exceptions.CannotDeleteDefaultRelationAttributeException;
 import com.energyict.mdc.dynamic.relation.exceptions.DuplicateNameException;
-import com.energyict.mdc.dynamic.relation.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.relation.exceptions.NameContainsInvalidCharactersException;
 import com.energyict.mdc.dynamic.relation.exceptions.NameIsRequiredException;
 import com.energyict.mdc.dynamic.relation.exceptions.NameTooLongException;
@@ -137,7 +136,7 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
 
     protected void validateUpdate(RelationAttributeTypeShadow shadow) {
         if (this.isDefault() && shadow.getEssentialAttributesChanged()) {
-            throw new RelationAttributeHasNullValuesException(this.thesaurus, this);
+            throw new RelationAttributeHasNullValuesException(this, this.thesaurus, MessageSeeds.RELATION_ATTRIBUTE_TYPE_STORAGE_CONTAINS_NULL_VALUES);
         }
         this.validate(this.getRelationType(), shadow);
     }
@@ -145,7 +144,7 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
     @Override
     protected void validateDelete() {
         if (this.isDefault()) {
-            throw new CannotDeleteDefaultRelationAttributeException(this.thesaurus, this);
+            throw new CannotDeleteDefaultRelationAttributeException(this, this.thesaurus, MessageSeeds.RELATION_ATTRIBUTE_TYPE_CANNOT_DELETE_DEFAULT);
         }
     }
 
@@ -177,7 +176,7 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
             return;
         }
         if (isRequired && hasNullValues()) { // #eiserver-178 no longer take the ORU-table into account
-            throw new RelationAttributeHasNullValuesException(this.thesaurus, this);
+            throw new RelationAttributeHasNullValuesException(this, this.thesaurus, MessageSeeds.RELATION_ATTRIBUTE_TYPE_STORAGE_CONTAINS_NULL_VALUES);
         }
         new RelationTypeDdlGenerator(this.getDataModel(), getRelationType(), this.thesaurus, true).alterAttributeColumnRequired(RelationAttributeTypeImpl.this, isRequired);
         setRequired(isRequired);
@@ -197,7 +196,7 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
             }
         }
         catch (SQLException e) {
-            throw new RelationTypeDDLException(this.thesaurus, e, this.relationType.get().getName());
+            throw new RelationTypeDDLException(e, this.relationType.get().getName(), this.thesaurus, MessageSeeds.DDL_ERROR);
         }
     }
 
@@ -264,7 +263,7 @@ public class RelationAttributeTypeImpl extends PersistentNamedObject implements 
             }
         }
         catch (ClassNotFoundException | ClassCastException ex) {
-            throw new ValueFactoryCreationException(this.thesaurus, ex, valueFactoryClassName);
+            throw new ValueFactoryCreationException(ex, valueFactoryClassName, this.thesaurus, MessageSeeds.VALUEFACTORY_CREATION);
         }
     }
 

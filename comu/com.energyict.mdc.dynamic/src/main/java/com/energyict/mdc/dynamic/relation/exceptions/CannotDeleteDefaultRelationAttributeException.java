@@ -1,8 +1,10 @@
 package com.energyict.mdc.dynamic.relation.exceptions;
 
+import com.energyict.mdc.dynamic.relation.RelationAttributeType;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt
@@ -14,8 +16,8 @@ import com.energyict.mdc.dynamic.relation.RelationAttributeType;
  */
 public class CannotDeleteDefaultRelationAttributeException extends LocalizedException {
 
-    public CannotDeleteDefaultRelationAttributeException(Thesaurus thesaurus, RelationAttributeType rat) {
-        super(thesaurus, MessageSeeds.RELATION_ATTRIBUTE_TYPE_CANNOT_DELETE_DEFAULT, rat.getName(), rat.getRelationType().getName());
+    public CannotDeleteDefaultRelationAttributeException(RelationAttributeType rat, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, rat.getName(), rat.getRelationType().getName());
     }
 
 }
