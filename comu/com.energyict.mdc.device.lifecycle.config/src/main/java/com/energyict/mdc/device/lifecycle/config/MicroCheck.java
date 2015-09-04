@@ -37,7 +37,7 @@ public enum MicroCheck {
      * Checks that all data (in both load profiles and registers)
      * that has been collected on the device is also valid.(=No suspects)
      */
-    ALL_DATA_VALID(MicroCategory.VALIDATION_AND_ESTIMATION),
+    ALL_DATA_VALID(MicroCategory.VALIDATION),
 
     /**
      * Checks that all general protocol property values are valid,
@@ -75,20 +75,20 @@ public enum MicroCheck {
     /**
      * Checks that the device is linked to a usagepoint.
      */
-    LINKED_WITH_USAGE_POINT(MicroCategory.TOPOLOGY),
+    LINKED_WITH_USAGE_POINT(MicroCategory.INSTALLATION),
 
     /**
      * Checks that all issues and alarms that were
      * registered against the device are closed.
      */
-    ALL_ISSUES_AND_ALARMS_ARE_CLOSED(MicroCategory.ISSUES_AND_ALARMS),
+    ALL_ISSUES_AND_ALARMS_ARE_CLOSED(MicroCategory.ISSUES),
 
     /**
      * Checks if all the collected data was validated (Validation has run)
      * This holds true if the last reading is equal to
      * the last checked timestamp.
      */
-    ALL_DATA_VALIDATED(MicroCategory.VALIDATION_AND_ESTIMATION),
+    ALL_DATA_VALIDATED(MicroCategory.VALIDATION),
 
     /**
      * Check if at least one connection is available on the device with the status: "Active".
