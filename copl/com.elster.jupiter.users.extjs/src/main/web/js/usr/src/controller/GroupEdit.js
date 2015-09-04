@@ -87,14 +87,14 @@ Ext.define('Usr.controller.GroupEdit', {
         me.mode = 'edit';
         Ext.ModelManager.getModel('Usr.model.Group').load(groupId, {
             success: function (group) {
-                me.showOverview(group, Uni.I18n.translate('general.edit', 'USR', 'Edit') + ' \'' + group.get('name') + '\'');
+                me.showOverview(group, Uni.I18n.translate('general.editx', 'USR', "Edit '{0}'",[group.get('name')]));
             }
         });
     },
 
     showCreateOverview: function () {
         this.mode = 'create';
-        this.showOverview(Ext.create('Usr.model.Group'), Uni.I18n.translate('group.create', 'USR', 'Add role'));
+        this.showOverview(Ext.create('Usr.model.Group'), Uni.I18n.translate('role.create', 'USR', 'Add role'));
     },
 
     showOverview: function (record, title) {
@@ -243,10 +243,10 @@ Ext.define('Usr.controller.GroupEdit', {
                 success: function (record) {
                     var message;
                     if (me.mode == 'edit') {
-                        message = Uni.I18n.translate('group.saved', 'USR', "Role '{0}' saved.", [record.get('name')]);
+                        message = Uni.I18n.translate('role.saved', 'USR', "Role '{0}' saved.", [record.get('name')]);
                     }
                     else {
-                        message = Uni.I18n.translate('group.added', 'USR', "Role '{0}' added.", [record.get('name')]);
+                        message = Uni.I18n.translate('role.added', 'USR', "Role '{0}' added.", [record.get('name')]);
                     }
                     me.getApplication().fireEvent('acknowledge', message);
                     me.back();

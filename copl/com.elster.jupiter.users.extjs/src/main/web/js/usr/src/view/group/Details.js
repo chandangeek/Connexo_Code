@@ -18,7 +18,7 @@ Ext.define('Usr.view.group.Details', {
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'USR', Uni.I18n.translate('general.actions', 'USR', 'Actions')),
+            text: Uni.I18n.translate('general.actions', 'USR', 'Actions'),
             privileges: Usr.privileges.Users.admin,
             iconCls: 'x-uni-action-iconD',
             menu: {
@@ -58,7 +58,7 @@ Ext.define('Usr.view.group.Details', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'name',
-                                    fieldLabel: Uni.I18n.translate('group.name', 'USR', 'Role name')
+                                    fieldLabel: Uni.I18n.translate('role.name', 'USR', 'Role name')
                                 },
                                 {
                                     xtype: 'displayfield',

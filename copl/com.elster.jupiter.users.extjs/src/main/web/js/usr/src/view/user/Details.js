@@ -9,13 +9,13 @@ Ext.define('Usr.view.user.Details', {
         'Ext.button.Button',
         'Usr.view.user.UserActionMenu'
     ],
-    title: Uni.I18n.translate('users.user','USR','user'),
+    title: Uni.I18n.translate('users.user','USR','User'),
 
 
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'USR', Uni.I18n.translate('general.actions', 'USR', 'Actions')),
+            text: Uni.I18n.translate('general.actions', 'USR', 'Actions'),
             privileges: Usr.privileges.Users.admin,
             iconCls: 'x-uni-action-iconD',
             menu: {
