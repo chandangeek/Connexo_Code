@@ -35,7 +35,7 @@ Ext.define('Imt.channeldata.view.DataGrid', {
             {
                 header: Uni.I18n.translate('channels.channels.value', 'IMT', 'Value') + ' (' + measurementType + ')',
                 dataIndex: 'value',
-                align: 'right',
+                //align: 'right',
                 flex: 1
             }
         ];
