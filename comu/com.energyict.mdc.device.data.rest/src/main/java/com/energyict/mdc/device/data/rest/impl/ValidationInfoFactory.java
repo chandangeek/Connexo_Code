@@ -214,6 +214,7 @@ public class ValidationInfoFactory {
 
     MinimalVeeReadingValueInfo createMainVeeReadingInfo(DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading) {
         MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
+        veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
         veeReadingInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getReadingQualities());
         veeReadingInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getReadingQualities());
         return veeReadingInfo;
@@ -222,6 +223,7 @@ public class ValidationInfoFactory {
     MinimalVeeReadingValueInfo createBulkVeeReadingInfo(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading) {
         if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
             MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
+            veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
             veeReadingInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getBulkReadingQualities());
             veeReadingInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getBulkReadingQualities());
             return veeReadingInfo;
