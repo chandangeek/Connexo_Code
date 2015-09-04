@@ -3,9 +3,8 @@ package com.elster.jupiter.messaging.impl;
 import com.elster.jupiter.messaging.MessageSeeds;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.util.exception.MessageSeed;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.Arrays;
@@ -13,18 +12,10 @@ import java.util.List;
 
 @Component(
         name = "com.elster.jupiter.messaging.impl.TranslationInstaller",
-        service = {TranslationKeyProvider.class},
+        service = {MessageSeedProvider.class},
         property = "name=" + MessageService.COMPONENTNAME,
         immediate = true)
-public class TranslationInstaller implements TranslationKeyProvider {
-
-    public TranslationInstaller() {
-    }
-
-    @Override
-    public String getComponentName() {
-        return MessageService.COMPONENTNAME;
-    }
+public class TranslationInstaller implements MessageSeedProvider {
 
     @Override
     public Layer getLayer() {
@@ -32,7 +23,8 @@ public class TranslationInstaller implements TranslationKeyProvider {
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
+
 }
