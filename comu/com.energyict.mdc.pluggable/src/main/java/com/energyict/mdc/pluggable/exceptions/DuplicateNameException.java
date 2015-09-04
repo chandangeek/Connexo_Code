@@ -1,8 +1,10 @@
 package com.energyict.mdc.pluggable.exceptions;
 
+import com.energyict.mdc.pluggable.PluggableClassType;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.pluggable.PluggableClassType;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
@@ -14,8 +16,8 @@ import com.energyict.mdc.pluggable.PluggableClassType;
  */
 public class DuplicateNameException extends LocalizedException {
 
-    public DuplicateNameException(Thesaurus thesaurus, String name, PluggableClassType type) {
-        super(thesaurus, MessageSeeds.ALREADY_EXISTS, name, thesaurus.getString(type.name(), type.name()));
+    public DuplicateNameException(MessageSeed messageSeed, Thesaurus thesaurus, String name, PluggableClassType type) {
+        super(thesaurus, messageSeed, name, thesaurus.getString(type.name(), type.name()));
         this.set("name", name);
         this.set("pluggableClassType", type.name());
     }

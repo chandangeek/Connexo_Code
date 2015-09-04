@@ -1,22 +1,21 @@
 package com.energyict.mdc.pluggable.impl;
 
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.pluggable.PluggableService;
-import com.energyict.mdc.pluggable.exceptions.MessageSeeds;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -35,8 +34,8 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-20 (17:49)
  */
-@Component(name = "com.energyict.mdc.pluggable", service = {PluggableService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + PluggableService.COMPONENTNAME)
-public class PluggableServiceImpl implements PluggableService, InstallService, TranslationKeyProvider {
+@Component(name = "com.energyict.mdc.pluggable", service = {PluggableService.class, InstallService.class, MessageSeedProvider.class}, property = "name=" + PluggableService.COMPONENTNAME)
+public class PluggableServiceImpl implements PluggableService, InstallService, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -89,17 +88,12 @@ public class PluggableServiceImpl implements PluggableService, InstallService, T
     }
 
     @Override
-    public String getComponentName() {
-        return COMPONENTNAME;
-    }
-
-    @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 
