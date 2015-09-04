@@ -56,10 +56,6 @@ import com.elster.jupiter.util.conditions.Order;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBase;
@@ -68,7 +64,6 @@ import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
-import org.mockito.Matchers;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -78,8 +73,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.rules.*;
+import org.mockito.Matchers;
+
 import static com.elster.jupiter.util.conditions.Where.where;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 @SuppressWarnings("deprecation")
 public class BaseTest {
@@ -153,7 +156,7 @@ public class BaseTest {
             injector.getInstance(FiniteStateMachineService.class);
             issueService = injector.getInstance(IssueService.class);
             injector.getInstance(DummyIssueProvider.class);
-            ((NlsServiceImpl)injector.getInstance(NlsService.class)).addTranslationProvider((IssueServiceImpl) issueService);
+            ((NlsServiceImpl)injector.getInstance(NlsService.class)).addTranslationKeyProvider((IssueServiceImpl) issueService);
             injector.getInstance(ThreadPrincipalService.class).set(() -> "Test");
             // In OSGI container issue types will be set by separate bundle
             IssueType type = issueService.createIssueType(ISSUE_DEFAULT_TYPE_UUID, MESSAGE_SEED_DEFAULT_TRANSLATION);
@@ -198,11 +201,11 @@ public class BaseTest {
     protected ThreadPrincipalService getThreadPrincipalService() {
         return injector.getInstance(ThreadPrincipalService.class);
     }
-    
+
     protected PropertySpecService getPropertySpecService() {
         return injector.getInstance(PropertySpecService.class);
     }
-    
+
     protected IssueDefaultActionsFactory getDefaultActionsFactory() {
         return injector.getInstance(IssueDefaultActionsFactory.class);
     }
@@ -216,7 +219,7 @@ public class BaseTest {
         issue.save();
         return issue;
     }
-    
+
     private CreationRule createCreationRule(String name) {
         CreationRuleBuilder builder = getIssueCreationService().newCreationRule();
         builder.setName(name);
@@ -227,7 +230,7 @@ public class BaseTest {
         creationRule.save();
         return creationRule;
     }
-    
+
     private CreationRuleTemplate mockCreationRuleTemplate() {
         CreationRuleTemplate creationRuleTemplate = mock(CreationRuleTemplate.class);
         when(creationRuleTemplate.getPropertySpecs()).thenReturn(Collections.emptyList());
@@ -284,7 +287,7 @@ public class BaseTest {
     protected IssueAction getMockIssueAction() {
         return mock(IssueAction.class);
     }
-    
+
     protected List<IssueComment> getIssueComments(Issue issue) {
         Query<IssueComment> query = getIssueService().query(IssueComment.class, User.class);
         return query.select(where("issueId").isEqualTo(issue.getId()), Order.ascending("createTime"));

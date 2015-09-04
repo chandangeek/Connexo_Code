@@ -6,9 +6,11 @@ import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.database.groups.IssuesGroupOperation;
 import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
+import com.elster.jupiter.issue.impl.module.TranslationKeys;
 import com.elster.jupiter.issue.impl.records.IssueReasonImpl;
 import com.elster.jupiter.issue.impl.records.IssueStatusImpl;
 import com.elster.jupiter.issue.impl.records.IssueTypeImpl;
+import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueActionFactory;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
@@ -30,14 +32,12 @@ import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueGroupFilter;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -48,14 +48,14 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
-
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
@@ -67,29 +67,24 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.issue",
-    service = {IssueService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class},
+    service = {IssueService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class},
     property = {"name=" + IssueService.COMPONENT_NAME,
                 "osgi.command.scope=issue",
                 "osgi.command.function=rebuildAssignmentRules",
                 "osgi.command.function=loadAssignmentRuleFromFile"},
     immediate = true)
-public class IssueServiceImpl implements IssueService, InstallService, TranslationKeyProvider, PrivilegesProvider {
-    private static final Logger LOG = Logger.getLogger(IssueServiceImpl.class.getName());
+public class IssueServiceImpl implements IssueService, InstallService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile QueryService queryService;
@@ -100,11 +95,11 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Thesaurus thesaurus;
-    
+
     private volatile KnowledgeBuilderFactoryService knowledgeBuilderFactoryService;
     private volatile KnowledgeBaseFactoryService knowledgeBaseFactoryService;
     private volatile KieResources resourceFactoryService;
-    
+
     private volatile IssueActionService issueActionService;
     private volatile IssueAssignmentService issueAssignmentService;
     private volatile IssueCreationService issueCreationService;
@@ -143,13 +138,13 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         setResourceFactoryService(resourceFactoryService);
         setTransactionService(transactionService);
         setThreadPrincipalService(threadPrincipalService);
-        
+
         activate();
         if (!dataModel.isInstalled()) {
             install();
         }
     }
-    
+
     @Activate
     public void activate() {
         for (TableSpecs spec : TableSpecs.values()) {
@@ -195,27 +190,27 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(IssueService.COMPONENT_NAME, Layer.DOMAIN);
     }
-    
+
     @Reference
     public void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(IssueService.COMPONENT_NAME, "Issue Management");
     }
-    
+
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
-    
+
     @Reference
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
     }
-    
+
     @Reference
     public void setTaskService(TaskService taskService) {
         this.taskService = taskService;
     }
-    
+
     @Reference
     public final void setKnowledgeBuilderFactoryService(KnowledgeBuilderFactoryService knowledgeBuilderFactoryService) {
         this.knowledgeBuilderFactoryService = knowledgeBuilderFactoryService;
@@ -230,30 +225,25 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     public final void setResourceFactoryService(KieResources resourceFactoryService) {
         this.resourceFactoryService = resourceFactoryService;
     }
-    
+
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
-    
+
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
     }
-    
+
     @Override
     public void install() {
-        new Installer(dataModel, this, userService, messageService, taskService, thesaurus).install(true);
+        new Installer(dataModel, this, messageService, taskService).install(true);
     }
-    
+
     @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList("USR", "TSK", "MSG", "ORM", "NLS", "MTR");
-    }
-    
-    @Override
-    public String getComponentName() {
-        return IssueService.COMPONENT_NAME;
     }
 
     @Override
@@ -262,7 +252,17 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     }
 
     @Override
+    public String getComponentName() {
+        return IssueService.COMPONENT_NAME;
+    }
+
+    @Override
     public List<TranslationKey> getKeys() {
+        return Arrays.asList(TranslationKeys.values());
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 
@@ -280,11 +280,11 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
             issueCreationService.reReadRules();
         }
     }
-    
+
     public Map<String, CreationRuleTemplate> getCreationRuleTemplates() {
         return creationRuleTemplates;
     }
-    
+
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addIssueActionFactory(IssueActionFactory issueActionFactory) {
         issueActionFactories.put(issueActionFactory.getId(), issueActionFactory);
@@ -298,16 +298,16 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     public Map<String, IssueActionFactory> getIssueActionFactories() {
         return issueActionFactories;
     }
-    
+
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addIssueProvider(IssueProvider issueProvider) {
         issueProviders.add(issueProvider);
     }
-    
+
     public void removeIssueProvider(IssueProvider issueProvider) {
         issueProviders.remove(issueProvider);
     }
-    
+
     @Override
     public List<IssueProvider> getIssueProviders() {
         return issueProviders;
@@ -422,17 +422,17 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
             return 0;
         }
     }
-    
+
     @Override
     public IssueActionService getIssueActionService() {
         return issueActionService;
     }
-    
+
     @Override
     public IssueAssignmentService getIssueAssignmentService() {
         return issueAssignmentService;
     }
-    
+
     @Override
     public IssueCreationService getIssueCreationService() {
         return issueCreationService;
@@ -463,11 +463,11 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     public void rebuildAssignmentRules() {
         issueAssignmentService.rebuildAssignmentRules();
     }
-    
+
     public void loadAssignmentRuleFromFile(String absolutePath) {
         issueAssignmentService.loadAssignmentRuleFromFile(absolutePath);
     }
-    
+
     public DataModel getDataModel() {
         return dataModel;
     }

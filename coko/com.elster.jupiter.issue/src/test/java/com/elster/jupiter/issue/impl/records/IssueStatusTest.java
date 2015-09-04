@@ -4,20 +4,19 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.impl.records.IssueStatusImpl;
+import com.elster.jupiter.issue.impl.module.TranslationKeys;
 import com.elster.jupiter.issue.impl.service.BaseTest;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.NotUniqueKeyException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
 
+import java.util.List;
 import java.util.Optional;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,22 +41,22 @@ public class IssueStatusTest extends BaseTest{
     @Test
     @Transactional
     public void checkCreationWithTheSameTranslation(){
-        getIssueService().createStatus("some.status.key", false, MessageSeeds.ISSUE_STATUS_OPEN);
-        getIssueService().createStatus("another.status.key", false, MessageSeeds.ISSUE_STATUS_OPEN);
+        getIssueService().createStatus("some.status.key", false, TranslationKeys.ISSUE_STATUS_OPEN);
+        getIssueService().createStatus("another.status.key", false, TranslationKeys.ISSUE_STATUS_OPEN);
     }
 
     @Test(expected = NotUniqueKeyException.class)
     @Transactional
     public void checkCreationWithTheSameKey(){
-        getIssueService().createStatus("status.key.one", false, MessageSeeds.ISSUE_STATUS_OPEN);
-        getIssueService().createStatus("status.key.one", true, MessageSeeds.ISSUE_STATUS_OPEN);
+        getIssueService().createStatus("status.key.one", false, TranslationKeys.ISSUE_STATUS_OPEN);
+        getIssueService().createStatus("status.key.one", true, TranslationKeys.ISSUE_STATUS_OPEN);
     }
 
     @Test
     public void checkStatusDeletion(){
         String key = "status.key.for.deletion";
         try (TransactionContext context = getContext()) {
-            getIssueService().createStatus(key, false, MessageSeeds.ISSUE_STATUS_OPEN);
+            getIssueService().createStatus(key, false, TranslationKeys.ISSUE_STATUS_OPEN);
             context.commit();
         }
         try (TransactionContext context = getContext()) {
@@ -79,7 +78,7 @@ public class IssueStatusTest extends BaseTest{
     public void checkCreation(){
         String key = "status.key.normal";
         try (TransactionContext context = getContext()) {
-            getIssueService().createStatus(key, false, MessageSeeds.ISSUE_STATUS_OPEN);
+            getIssueService().createStatus(key, false, TranslationKeys.ISSUE_STATUS_OPEN);
             context.commit();
         }
         Optional<IssueStatus> statusRef = getIssueService().findStatus(key);
@@ -90,7 +89,7 @@ public class IssueStatusTest extends BaseTest{
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     public void checkKeyValidation(){
-        getDataModel().getInstance(IssueStatusImpl.class).init(null, false, MessageSeeds.ISSUE_STATUS_OPEN).save();
+        getDataModel().getInstance(IssueStatusImpl.class).init(null, false, TranslationKeys.ISSUE_STATUS_OPEN).save();
     }
 
     @Test
@@ -101,7 +100,7 @@ public class IssueStatusTest extends BaseTest{
         for (int i=0; i < 90; i++){
             key.append("q");
         }
-        getDataModel().getInstance(IssueStatusImpl.class).init(key.toString(), false, MessageSeeds.ISSUE_STATUS_OPEN).save();
+        getDataModel().getInstance(IssueStatusImpl.class).init(key.toString(), false, TranslationKeys.ISSUE_STATUS_OPEN).save();
     }
 
     @Test
