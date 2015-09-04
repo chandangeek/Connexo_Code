@@ -166,19 +166,11 @@
 
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>yellowfin</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>yellowfin.groups</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>yellowfin.rest</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>yellowfin.app</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
