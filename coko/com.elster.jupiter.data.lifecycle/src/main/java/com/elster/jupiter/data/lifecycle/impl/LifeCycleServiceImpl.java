@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.PurgeConfiguration;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -42,7 +43,11 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Functions.asStream;
 
-@Component(name="com.elster.jupiter.data.lifecycle", property = "name=" + LifeCycleService.COMPONENTNAME, service = {LifeCycleService.class, TranslationKeyProvider.class, InstallService.class, PrivilegesProvider.class})
+@Component(
+		name="com.elster.jupiter.data.lifecycle",
+		property = "name=" + LifeCycleService.COMPONENTNAME,
+		service = {LifeCycleService.class, TranslationKeyProvider.class, InstallService.class, PrivilegesProvider.class},
+		immediate = true)
 public class LifeCycleServiceImpl implements LifeCycleService, InstallService, TranslationKeyProvider, PrivilegesProvider{
 	
 	private volatile OrmService ormService;
@@ -77,7 +82,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 	@Override
 	public void install() {		
 		dataModel.install(true, true);
-		new Installer(dataModel, messageService, taskService, meteringService, userService, thesaurus).install();
+		new Installer(dataModel, messageService, taskService, meteringService).install();
 	}
 	
 	@Override
@@ -212,7 +217,9 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 
 	@Override
 	public List<TranslationKey> getKeys() {
-		return Arrays.asList(MessageSeeds.values());
+		List<TranslationKey> translationKeys = new ArrayList<>(Arrays.asList(MessageSeeds.values()));
+		translationKeys.add(new SimpleTranslationKey(Installer.DATA_LIFE_CYCLE_DESTINATION_NAME, Installer.DATA_LIFE_CYCLE_DISPLAY_NAME));
+		return translationKeys;
 	}
 
 	@Override

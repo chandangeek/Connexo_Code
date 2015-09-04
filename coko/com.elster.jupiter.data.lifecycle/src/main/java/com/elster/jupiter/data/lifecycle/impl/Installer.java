@@ -32,16 +32,12 @@ class Installer {
     private MessageService messageService;
     private TaskService taskService;
     private MeteringService meteringService;
-    private UserService userService;
-    private Thesaurus thesaurus;
 
-    Installer (DataModel dataModel, MessageService messageService, TaskService taskService, MeteringService meteringService, UserService userService, Thesaurus thesaurus) {
+    Installer (DataModel dataModel, MessageService messageService, TaskService taskService, MeteringService meteringService) {
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.taskService = taskService;
         this.meteringService = meteringService;
-        this.userService = userService;
-        this.thesaurus = thesaurus;
     }
 
     void install() {
@@ -68,12 +64,6 @@ class Installer {
     }
 
     private void createTask() {
-        NlsKey statusKey = SimpleNlsKey.key(LifeCycleService.COMPONENTNAME, Layer.DOMAIN, DATA_LIFE_CYCLE_DESTINATION_NAME);
-        Translation statusTranslation = SimpleTranslation.translation(statusKey, Locale.ENGLISH, DATA_LIFE_CYCLE_DISPLAY_NAME);
-        List<Translation> translations = new ArrayList<>();
-        translations.add(statusTranslation);
-        thesaurus.addTranslations(translations);
-
         if (!taskService.getRecurrentTask(DATA_LIFECYCLE_RECCURENT_TASK_NAME).isPresent()) {
             taskService.newBuilder()
                     .setName(DATA_LIFECYCLE_RECCURENT_TASK_NAME)
