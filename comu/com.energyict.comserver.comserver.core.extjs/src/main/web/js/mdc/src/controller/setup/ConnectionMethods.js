@@ -237,7 +237,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
     showScheduleField: function (combobox, objList) {
         this.getScheduleField().clear();
-        if (objList[0].get('connectionStrategy') === 'minimizeConnections') {
+        if (objList[0].get('connectionStrategy') === 'MINIMIZE_CONNECTIONS') {
             this.getScheduleFieldContainer().setVisible(true);
             this.getScheduleField().setValue({
                 every: {
@@ -305,7 +305,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
             }
             record.beginEdit();
             record.set(values);
-            if (values.connectionStrategy === 'asSoonAsPossible') {
+            if (values.connectionStrategy === 'AS_SOON_AS_POSSIBLE') {
                 record.set('temporalExpression', null);
             }
             if (!values.hasOwnProperty('comWindowStart')) {
@@ -456,7 +456,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                                                     callback: function () {
                                                         var deviceTypeName = deviceType.get('name');
                                                         var deviceConfigName = deviceConfig.get('name');
-                                                        if (connectionMethod.get('connectionStrategy') === 'minimizeConnections') {
+                                                        if (connectionMethod.get('connectionStrategy') === 'MINIMIZE_CONNECTIONS') {
                                                             widget.down('form').down('#scheduleFieldContainer').setVisible(true);
                                                         }
                                                         widget.down('form').loadRecord(connectionMethod);
@@ -506,7 +506,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         } else {
             connectionMethod.set('isDefault', true);
         }
-        if (connectionMethod.get('connectionStrategy') === 'asSoonAsPossible' || connectionMethod.get('direction') === 'Inbound') {
+        if (connectionMethod.get('connectionStrategy') === 'AS_SOON_AS_POSSIBLE' || connectionMethod.get('direction') === 'Inbound') {
             connectionMethod.set('temporalExpression', null);
         }
 
