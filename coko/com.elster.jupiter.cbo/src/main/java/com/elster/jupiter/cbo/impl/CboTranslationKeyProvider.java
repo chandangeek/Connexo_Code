@@ -1,6 +1,7 @@
 package com.elster.jupiter.cbo.impl;
 
 import com.elster.jupiter.cbo.MessageSeeds;
+import com.elster.jupiter.cbo.TranslationKeys;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -8,6 +9,9 @@ import org.osgi.service.component.annotations.Component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component(
         name = "com.elster.jupiter.cbo.impl.CboTranslationKeyProvider",
@@ -29,6 +33,9 @@ public class CboTranslationKeyProvider implements TranslationKeyProvider {
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
+        return Stream.of(
+                Arrays.stream(MessageSeeds.values()),
+                Arrays.stream(TranslationKeys.values())
+        ).flatMap(Function.identity()).collect(Collectors.toList());
     }
 }
