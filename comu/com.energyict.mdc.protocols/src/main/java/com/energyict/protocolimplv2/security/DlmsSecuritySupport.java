@@ -12,8 +12,7 @@ import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Provides general security <b>capabilities</b> for a DLMS protocol.
@@ -25,6 +24,8 @@ import java.util.List;
 public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
+    private static final String DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME = "DataTransportEncryptionKey";
+    private static final String DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME = "DataTransportAuthenticationKey";
     private final String authenticationTranslationKeyConstant = "DlmsSecuritySupport.authenticationlevel.";
     private final String encryptionTranslationKeyConstant = "DlmsSecuritySupport.encryptionlevel.";
 
@@ -49,7 +50,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         private final int accessLevel;
 
-        private AuthenticationAccessLevelIds(int accessLevel) {
+        AuthenticationAccessLevelIds(int accessLevel) {
             this.accessLevel = accessLevel;
         }
 
@@ -70,7 +71,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         private final int accessLevel;
 
-        private EncryptionAccessLevelIds(int accessLevel) {
+        EncryptionAccessLevelIds(int accessLevel) {
             this.accessLevel = accessLevel;
         }
 
@@ -140,9 +141,9 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
                     deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel() +
                             ":" +
                             deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel());
-            typedProperties.setProperty("DataTransportEncryptionKey",
+            typedProperties.setProperty(getDataTransportEncryptionKeyLegacyPropertyName(),
                     deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), ""));
-            typedProperties.setProperty("DataTransportAuthenticationKey",
+            typedProperties.setProperty(getDataTransportAuthenticationKeyLegacyPropertyname(),
                     deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), ""));
         }
         return typedProperties;
@@ -216,6 +217,14 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         }
     }
 
+    protected String getDataTransportAuthenticationKeyLegacyPropertyname() {
+   	    return DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME;
+   	}
+
+    protected String getDataTransportEncryptionKeyLegacyPropertyName() {
+        return DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME;
+    }
+
     /**
      * An encryption level where no encryption is done, no properties must be set
      */
@@ -233,7 +242,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService));
+            return Collections.singletonList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService));
         }
     }
 
@@ -330,7 +339,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService));
+            return Collections.singletonList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService));
         }
     }
 
@@ -379,7 +388,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService));
+            return Collections.singletonList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(propertySpecService));
         }
     }
 

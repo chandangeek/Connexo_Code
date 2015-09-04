@@ -25,6 +25,7 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     public static final String HOST_PROPERTY_NAME = "host";
     public static final String PORT_PROPERTY_NAME = "portNumber";
     public static final String CONNECTION_TIMEOUT_PROPERTY_NAME = "connectionTimeout";
+    private static final TimeDuration DEFAULT_CONNECTION_TIMEOUT = TimeDuration.seconds(10);
 
     private final PropertySpecService propertySpecService;
 
@@ -50,16 +51,15 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec connectionTimeOutPropertySpec() {
-        return this.getPropertySpecService().basicPropertySpec(CONNECTION_TIMEOUT_PROPERTY_NAME, false, new TimeDurationValueFactory());
+        return  this.getPropertySpecService().basicPropertySpec(CONNECTION_TIMEOUT_PROPERTY_NAME, false, new TimeDurationValueFactory());
     }
 
     protected int portNumberPropertyValue() {
-        BigDecimal value = (BigDecimal) this.getProperty(PORT_PROPERTY_NAME);
-        return this.intProperty(value);
+        return intProperty((BigDecimal) getProperty(PORT_PROPERTY_NAME));
     }
 
     protected int connectionTimeOutPropertyValue() {
-        TimeDuration value = (TimeDuration) this.getProperty(CONNECTION_TIMEOUT_PROPERTY_NAME);
+        TimeDuration value = (TimeDuration) this.getProperty(CONNECTION_TIMEOUT_PROPERTY_NAME, DEFAULT_CONNECTION_TIMEOUT);
         return this.intProperty(value);
     }
 
