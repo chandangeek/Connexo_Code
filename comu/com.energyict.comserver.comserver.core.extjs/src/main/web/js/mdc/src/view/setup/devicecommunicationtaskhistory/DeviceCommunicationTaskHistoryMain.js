@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                 ui: 'large',
                 xtype: 'panel',
                 itemId: 'deviceConnectionHistoryPanel',
-                title: Ext.String.format(Uni.I18n.translate('devicecommunicationtaskhistory.deviceCommunicationTaskHistory', 'MDC', 'History of \'{0}\''), this.comTaskName),
+                title: Uni.I18n.translate('devicecommunicationtaskhistory.deviceCommunicationTaskHistory', 'MDC', "History of '{0}'", [this.comTaskName]),
                 items: [
                     {
                         xtype: 'preview-container',

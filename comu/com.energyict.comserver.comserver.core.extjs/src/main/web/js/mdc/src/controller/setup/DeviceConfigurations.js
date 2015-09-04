@@ -673,8 +673,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-configurations #logbook-count')[0],
                         grid = Ext.ComponentQuery.query('add-logbook-configurations grid')[0];
                     numberOfLogbooksLabel.setText(
-                        Uni.I18n.translatePlural('general.nrOfLogbookConfigurations.selected', 0, 'MDC',
-                            'No logbook configurations selected', '{0} logbook configuration selected', '{0} logbook configurations selected')
+                        Uni.I18n.translatePlural('general.nrOfLogbookTypes.selected', 0, 'MDC',
+                            'No logbook types selected', '{0} logbook type selected', '{0} logbook types selected')
                     );
                 }
             }
