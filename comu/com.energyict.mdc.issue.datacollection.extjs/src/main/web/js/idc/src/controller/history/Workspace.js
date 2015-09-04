@@ -27,7 +27,7 @@ Ext.define('Idc.controller.history.Workspace', {
                             controller: 'Idc.controller.BulkChangeIssues'
                         },
                         view: {
-                            title: Uni.I18n.translate('general.issueDetails','IDC','issue details'),
+                            title: Uni.I18n.translate('general.issueDetails','IDC','Issue details'),
                             route: '{issueId}',
                             controller: 'Idc.controller.Detail',
                             privileges: Isu.privileges.Issue.viewAdminDevice,
