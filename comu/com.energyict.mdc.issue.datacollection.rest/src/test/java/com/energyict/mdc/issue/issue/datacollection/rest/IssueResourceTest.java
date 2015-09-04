@@ -1,5 +1,6 @@
 package com.energyict.mdc.issue.issue.datacollection.rest;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
@@ -11,6 +12,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import org.junit.Test;
@@ -53,15 +55,14 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
         Optional<IssueStatus> status = Optional.of(getDefaultStatus());
         when(issueService.findStatus("open")).thenReturn(status);
 
-        Query<OpenIssueDataCollection> issuesQuery = mock(Query.class);
-        when(issueDataCollectionService.query(OpenIssueDataCollection.class, OpenIssue.class, EndDevice.class, User.class, IssueReason.class, IssueStatus.class, IssueType.class))
-                .thenReturn(issuesQuery);
+        Finder<? extends IssueDataCollection> issueFinder = mock(Finder.class);
+        doReturn(issueFinder).when(issueDataCollectionService).findIssues(any(IssueDataCollectionFilter.class), anyVararg());
 
         Optional<IssueType> issueType = Optional.of(getDefaultIssueType());
         when(issueService.findIssueType("datacollection")).thenReturn(issueType);
 
-        List<OpenIssueDataCollection> issues = Arrays.asList(getDefaultIssue(), getDefaultIssue());
-        when(issuesQuery.select(Matchers.<Condition>anyObject(), Matchers.eq(1), Matchers.eq(2), Matchers.<Order>anyVararg())).thenReturn(issues);
+        List<? extends IssueDataCollection> issues = Arrays.asList(getDefaultIssue(), getDefaultIssue());
+        doReturn(issues).when(issueFinder).find();
 
         String filter = URLEncoder.encode("[{\"property\":\"status\",\"value\":[\"open\"]}]");
         Map<?, ?> map = target("/issue").queryParam(FILTER, filter).queryParam(START, "0").queryParam(LIMIT, "1").request().get(Map.class);
