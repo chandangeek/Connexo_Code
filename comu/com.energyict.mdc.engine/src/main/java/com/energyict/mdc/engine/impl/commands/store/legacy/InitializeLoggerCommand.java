@@ -1,13 +1,14 @@
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
 import com.energyict.mdc.engine.exceptions.ComCommandException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
 
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -33,7 +34,7 @@ public class InitializeLoggerCommand extends SimpleComCommand {
             Logger logger = this.newProtocolLogger(executionContext);
             ((DeviceProtocolAdapter) deviceProtocol).initializeLogger(logger);
         } else {
-            throw ComCommandException.illegalCommand(this, deviceProtocol);
+            throw ComCommandException.illegalCommand(this, deviceProtocol, MessageSeeds.ILLEGAL_COMMAND);
         }
     }
 

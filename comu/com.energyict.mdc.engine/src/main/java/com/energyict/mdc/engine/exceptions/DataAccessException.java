@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.exceptions;
 
 import com.energyict.mdc.common.ComServerRuntimeException;
 
+import com.elster.jupiter.util.exception.MessageSeed;
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -26,28 +27,28 @@ import java.util.concurrent.TimeoutException;
  */
 public class DataAccessException extends ComServerRuntimeException {
 
-    public DataAccessException (SQLException cause) {
-        super(cause, MessageSeeds.UNEXPECTED_SQL_ERROR, cause.getMessage());
+    public DataAccessException(SQLException cause, MessageSeed messageSeed) {
+        super(cause, messageSeed, cause.getMessage());
     }
 
-    public DataAccessException (JSONException cause) {
-        super(cause, MessageSeeds.UNEXPECTED_SQL_ERROR, cause.getMessage());
+    public DataAccessException(JSONException cause, MessageSeed messageSeed) {
+        super(cause, messageSeed, cause.getMessage());
     }
 
-    public DataAccessException (IOException cause) {
-        super(cause, MessageSeeds.UNEXPECTED_SQL_ERROR, cause.getMessage());
+    public DataAccessException(IOException cause, MessageSeed messageSeed) {
+        super(cause, messageSeed, cause.getMessage());
     }
 
-    public DataAccessException (InterruptedException cause) {
-        super(cause, MessageSeeds.UNEXPECTED_SQL_ERROR, cause.getMessage());
+    public DataAccessException(InterruptedException cause, MessageSeed messageSeed) {
+        super(cause, messageSeed, cause.getMessage());
     }
 
-    public DataAccessException (ExecutionException cause) {
-        super(cause, MessageSeeds.UNEXPECTED_SQL_ERROR, cause.getMessage());
+    public DataAccessException(ExecutionException cause, MessageSeed messageSeed) {
+        super(cause, messageSeed, cause.getMessage());
     }
 
-    public DataAccessException (TimeoutException cause) {
-        super(cause, MessageSeeds.UNEXPECTED_SQL_ERROR, cause.getMessage());
+    public DataAccessException(TimeoutException cause, MessageSeed messageSeed) {
+        super(cause, messageSeed, cause.getMessage());
     }
 
 }

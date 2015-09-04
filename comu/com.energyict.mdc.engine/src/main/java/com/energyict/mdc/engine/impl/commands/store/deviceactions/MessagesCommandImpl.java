@@ -4,6 +4,7 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.MessagesCommand;
@@ -46,16 +47,16 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
         super(commandRoot);
         this.comTaskExecution = comTaskExecution;
         if (messagesTask == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "messagesTask");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "messagesTask", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         if (device == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "device");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "device", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         if (commandRoot == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "commandRoot");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "commandRoot", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         if (comTaskExecution == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "comTaskExecution");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "comTaskExecution", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         this.messagesTask = messagesTask;
         this.device = device;

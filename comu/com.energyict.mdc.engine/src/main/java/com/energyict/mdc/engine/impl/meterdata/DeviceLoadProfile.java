@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLoadProfileDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
@@ -106,9 +107,9 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
     @Override
     public void setCollectedData(final List<IntervalData> collectedIntervalData, final List<ChannelInfo> deviceChannelInfo) {
         if (collectedIntervalData == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setCollectedData", "collectedIntervalData");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setCollectedData", "collectedIntervalData", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         } else if (deviceChannelInfo == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setCollectedData", "deviceChannelInfo");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setCollectedData", "deviceChannelInfo", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         this.collectedIntervalData = collectedIntervalData;
         this.collectedIntervalDataRange = this.calculateCollectedIntervalDataRange(collectedIntervalData);

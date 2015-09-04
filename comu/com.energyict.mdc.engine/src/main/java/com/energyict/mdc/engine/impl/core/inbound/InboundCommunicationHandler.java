@@ -12,9 +12,9 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
 import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
@@ -437,7 +437,7 @@ public class InboundCommunicationHandler {
         switch (this.responseType) {
             case SUCCESS: {
                 assert false : "if-test that was supposed to verify that the discovery response type was NOT success clearly failed";
-                throw CodingException.unrecognizedEnumValue(this.responseType);
+                throw CodingException.unrecognizedEnumValue(this.responseType, com.energyict.mdc.engine.impl.MessageSeeds.UNRECOGNIZED_ENUM_VALUE);
             }
             case DATA_ONLY_PARTIALLY_HANDLED: {
                 // Should not be marked as failed, but as success (the logging will mention part of the data is not handled/stored)
@@ -456,7 +456,7 @@ public class InboundCommunicationHandler {
                 return ComSession.SuccessIndicator.Broken;
             }
             default: {
-                throw CodingException.unrecognizedEnumValue(this.responseType);
+                throw CodingException.unrecognizedEnumValue(this.responseType, com.energyict.mdc.engine.impl.MessageSeeds.UNRECOGNIZED_ENUM_VALUE);
             }
         }
     }

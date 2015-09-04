@@ -1,8 +1,10 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -14,14 +16,15 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+
+import com.elster.jupiter.time.TimeDuration;
 
 import java.util.List;
 import java.util.Optional;
 
-import static com.energyict.mdc.tasks.ClockTaskType.*;
+import static com.energyict.mdc.tasks.ClockTaskType.SETCLOCK;
+import static com.energyict.mdc.tasks.ClockTaskType.SYNCHRONIZECLOCK;
 
 /**
  * Implementation of a {@link ClockCommand}.<br>
@@ -62,10 +65,10 @@ public class ClockCommandImpl extends CompositeComCommandImpl implements ClockCo
         super(commandRoot);
         this.comTaskExecution = comTaskExecution;
         if (clockTask == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "clockTask");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "clockTask", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         if (commandRoot == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "timeDifferenceCommand");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "timeDifferenceCommand", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         this.clockTask = clockTask;
         updateCommand();

@@ -2,7 +2,7 @@ package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;

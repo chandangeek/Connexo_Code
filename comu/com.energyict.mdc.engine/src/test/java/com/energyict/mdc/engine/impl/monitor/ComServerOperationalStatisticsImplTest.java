@@ -1,25 +1,21 @@
 package com.energyict.mdc.engine.impl.monitor;
 
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
+
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
-
-import java.time.Clock;
-
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
-import com.energyict.mdc.engine.impl.core.RunningComServer;
-import com.energyict.mdc.engine.config.ComServer;
-
 import org.joda.time.DateTime;
-import java.time.Instant;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.management.openmbean.CompositeData;
-
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Date;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -55,20 +51,20 @@ public class ComServerOperationalStatisticsImplTest {
 
     @Before
     public void setupThesaurus () {
-        when(this.thesaurus.getString(eq(MessageSeeds.PRETTY_PRINT_TIMEDURATION_YEAR_SINGULAR.getKey()), anyString())).thenReturn("{0} year");
-        when(this.thesaurus.getString(eq(MessageSeeds.PRETTY_PRINT_TIMEDURATION_YEAR_PLURAL.getKey()), anyString())).thenReturn("{0} years");
-        when(this.thesaurus.getString(eq(MessageSeeds.PRETTY_PRINT_TIMEDURATION_MONTH_SINGULAR.getKey()), anyString())).thenReturn("{0} month");
-        when(this.thesaurus.getString(eq(MessageSeeds.PRETTY_PRINT_TIMEDURATION_MONTH_PLURAL.getKey()), anyString())).thenReturn("{0} months");
-        when(this.thesaurus.getString(eq(MessageSeeds.PRETTY_PRINT_TIMEDURATION_DAY_SINGULAR.getKey()), anyString())).thenReturn("{0} day");
-        when(this.thesaurus.getString(eq(MessageSeeds.PRETTY_PRINT_TIMEDURATION_DAY_PLURAL.getKey()), anyString())).thenReturn("{0} days");
-        when(this.thesaurus.getString(eq(MessageSeeds.PRETTY_PRINT_TIMEDURATION_HOUR_SINGULAR.getKey()), anyString())).thenReturn("{0} hour");
-        when(this.thesaurus.getString(eq(MessageSeeds.PRETTY_PRINT_TIMEDURATION_HOUR_PLURAL.getKey()), anyString())).thenReturn("{0} hours");
-        when(this.thesaurus.getString(eq(MessageSeeds.PRETTY_PRINT_TIMEDURATION_MINUTE_SINGULAR.getKey()), anyString())).thenReturn("{0} minute");
-        when(this.thesaurus.getString(eq(MessageSeeds.PRETTY_PRINT_TIMEDURATION_MINUTE_PLURAL.getKey()), anyString())).thenReturn("{0} minutes");
-        when(this.thesaurus.getString(eq(MessageSeeds.PRETTY_PRINT_TIMEDURATION_SECOND_SINGULAR.getKey()), anyString())).thenReturn("{0} second");
-        when(this.thesaurus.getString(eq(MessageSeeds.PRETTY_PRINT_TIMEDURATION_SECOND_PLURAL.getKey()), anyString())).thenReturn("{0} seconds");
-        when(this.thesaurus.getString(eq(MessageSeeds.PRETTY_PRINT_TIMEDURATION_SEPARATOR.getKey()), anyString())).thenReturn(", ");
-        when(this.thesaurus.getString(eq(MessageSeeds.PRETTY_PRINT_TIMEDURATION_LAST_SEPARATOR.getKey()), anyString())).thenReturn(" and ");
+        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.YEAR_SINGULAR.getKey()), anyString())).thenReturn("{0} year");
+        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.YEAR_PLURAL.getKey()), anyString())).thenReturn("{0} years");
+        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.MONTH_SINGULAR.getKey()), anyString())).thenReturn("{0} month");
+        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.MONTH_PLURAL.getKey()), anyString())).thenReturn("{0} months");
+        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.DAY_SINGULAR.getKey()), anyString())).thenReturn("{0} day");
+        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.DAY_PLURAL.getKey()), anyString())).thenReturn("{0} days");
+        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.HOUR_SINGULAR.getKey()), anyString())).thenReturn("{0} hour");
+        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.HOUR_PLURAL.getKey()), anyString())).thenReturn("{0} hours");
+        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.MINUTE_SINGULAR.getKey()), anyString())).thenReturn("{0} minute");
+        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.MINUTE_PLURAL.getKey()), anyString())).thenReturn("{0} minutes");
+        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.SECOND_SINGULAR.getKey()), anyString())).thenReturn("{0} second");
+        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.SECOND_PLURAL.getKey()), anyString())).thenReturn("{0} seconds");
+        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.SEPARATOR.getKey()), anyString())).thenReturn(", ");
+        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.LAST_SEPARATOR.getKey()), anyString())).thenReturn(" and ");
     }
 
     @Test

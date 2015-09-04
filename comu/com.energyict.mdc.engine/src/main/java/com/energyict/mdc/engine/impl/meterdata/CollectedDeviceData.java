@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.meterdata;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
 
@@ -40,9 +41,9 @@ public abstract class CollectedDeviceData implements ServerCollectedData {
      */
     public void setFailureInformation(final ResultType resultType, final Issue issue) {
         if (resultType == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setFailureInformation", "resultType");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setFailureInformation", "resultType", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         } else if (issue == null){
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setFailureInformation", "issue");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setFailureInformation", "issue", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         this.resultType = resultType;
         addIssue(issue);
@@ -54,9 +55,9 @@ public abstract class CollectedDeviceData implements ServerCollectedData {
 
     public void setFailureInformation(final ResultType resultType, final List<Issue> issues) {
         if (resultType == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setFailureInformation", "resultType");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setFailureInformation", "resultType", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         } else if (issues == null || issues.isEmpty()){
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setFailureInformation", "issues");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setFailureInformation", "issues", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         this.resultType = resultType;
         addAllIssues(issues);

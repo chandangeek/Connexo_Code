@@ -5,16 +5,18 @@ import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
-import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
-import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.engine.impl.core.ComCommandJournalist;
-import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.core.ComCommandJournalist;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
@@ -22,9 +24,7 @@ import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import com.elster.jupiter.nls.Thesaurus;
 
@@ -254,10 +254,10 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
 
     private void validateArguments (DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         if (deviceProtocol == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "execute", "deviceProtocol");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "execute", "deviceProtocol", com.energyict.mdc.engine.impl.MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         if (executionContext == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "execute", "executionContext");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "execute", "executionContext", com.energyict.mdc.engine.impl.MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
     }
 
@@ -299,7 +299,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
             case ConnectionError:
                 return LogLevel.ERROR;
             default: {
-                throw CodingException.unrecognizedEnumValue(LogLevel.class, this.completionCode.ordinal());
+                throw CodingException.unrecognizedEnumValue(LogLevel.class, this.completionCode.ordinal(), com.energyict.mdc.engine.impl.MessageSeeds.UNRECOGNIZED_ENUM_VALUE);
             }
         }
     }

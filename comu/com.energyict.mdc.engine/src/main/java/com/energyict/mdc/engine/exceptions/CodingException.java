@@ -27,10 +27,11 @@ public class CodingException extends ComServerRuntimeException {
      * @param clazz      the {@link Class} where the coding error occurred
      * @param methodName the method name in the class where the null argument appeared
      * @param argument   the name of the argument which was null
+     * @param messageSeed The MessageSeed
      * @return a newly created CodingException
      */
-    public static CodingException methodArgumentCanNotBeNull(Class clazz, String methodName, String argument) {
-        return new CodingException(MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL, clazz.getName(), methodName, argument);
+    public static CodingException methodArgumentCanNotBeNull(Class clazz, String methodName, String argument, MessageSeed messageSeed) {
+        return new CodingException(messageSeed, clazz.getName(), methodName, argument);
     }
 
     /**
@@ -38,10 +39,11 @@ public class CodingException extends ComServerRuntimeException {
      * to create a logger from a class that is NOT an interface.
      *
      * @param messageClass The Class that is NOT an interface
+     * @param messageSeed The MessageSeed
      * @return The CodingException
      */
-    public static CodingException loggerFactoryRequiresInterface (Class messageClass) {
-        return new CodingException(MessageSeeds.LOGGER_FACTORY_REQUIRES_INTERFACE, messageClass.getName());
+    public static CodingException loggerFactoryRequiresInterface(Class messageClass, MessageSeed messageSeed) {
+        return new CodingException(messageSeed, messageClass.getName());
     }
 
     /**
@@ -50,14 +52,15 @@ public class CodingException extends ComServerRuntimeException {
      * that has multiple exception parameter types while only 1 is supported.
      *
      * @param method The Method that has multiple exception paramter types
+     * @param messageSeed The MessageSeed
      * @return The CodingException
      */
-    public static CodingException loggerFactorySupportsOnlyOneThrowableParameter (Method method) {
-        return new CodingException(MessageSeeds.LOGGER_FACTORY_SUPPORTS_ONLY_ONE_THROWABLE_PARAMETER, method.toString());
+    public static CodingException loggerFactorySupportsOnlyOneThrowableParameter(Method method, MessageSeed messageSeed) {
+        return new CodingException(messageSeed, method.toString());
     }
 
-    public static CodingException validationFailed (Exception cause, String businessObjectClassName, String propertyName) {
-        return new CodingException(cause, MessageSeeds.VALIDATION_FAILED, businessObjectClassName, propertyName);
+    public static CodingException validationFailed(Exception cause, String businessObjectClassName, String propertyName, MessageSeed messageSeed) {
+        return new CodingException(cause, messageSeed, businessObjectClassName, propertyName);
     }
 
     /**
@@ -67,10 +70,11 @@ public class CodingException extends ComServerRuntimeException {
      *
      * @param businessObjectClass The business object class where validation failed
      * @param propertyName The name of the property on which validation failed
+     * @param messageSeed The MessageSeed
      * @return The CodingException
      */
-    public static CodingException validationFailed (Class businessObjectClass, String propertyName) {
-        return new CodingException(MessageSeeds.VALIDATION_FAILED, businessObjectClass.getName(), propertyName);
+    public static CodingException validationFailed(Class businessObjectClass, String propertyName, MessageSeed messageSeed) {
+        return new CodingException(messageSeed, businessObjectClass.getName(), propertyName);
     }
 
     /**
@@ -78,10 +82,11 @@ public class CodingException extends ComServerRuntimeException {
      * to recognize an enum value, most likely a switch branch that is missing in the code.
      *
      * @param enumValue The unrecognized enum value
+     * @param messageSeed
      * @return The CodingException
      */
-    public static <T extends Enum> CodingException unrecognizedEnumValue (T enumValue) {
-        return new CodingException(MessageSeeds.UNRECOGNIZED_ENUM_VALUE, enumValue.getClass(), enumValue.ordinal());
+    public static <T extends Enum> CodingException unrecognizedEnumValue(T enumValue, MessageSeed messageSeed) {
+        return new CodingException(messageSeed, enumValue.getClass(), enumValue.ordinal());
     }
 
     /**
@@ -91,10 +96,11 @@ public class CodingException extends ComServerRuntimeException {
      *
      * @param enumClass The enum class
      * @param ordinalValue The ordinal value
+     * @param messageSeed The MessageSeed
      * @return The CodingException
      */
-    public static <T extends Enum> CodingException unrecognizedEnumValue (Class<T> enumClass, int ordinalValue) {
-        return new CodingException(MessageSeeds.UNRECOGNIZED_ENUM_VALUE, enumClass.getName(), ordinalValue);
+    public static <T extends Enum> CodingException unrecognizedEnumValue(Class<T> enumClass, int ordinalValue, MessageSeed messageSeed) {
+        return new CodingException(messageSeed, enumClass.getName(), ordinalValue);
     }
 
     /**
@@ -103,10 +109,11 @@ public class CodingException extends ComServerRuntimeException {
      *
      * @param expectedNumber the expected number of ComTaskExecutions
      * @param actualNumber the actual number of ComTaskExecutions
+     * @param messageSeed The MessageSeed
      * @return the CodingException
      */
-    public static CodingException incorrectNumberOfPreparedComTaskExecutions(int expectedNumber, int actualNumber){
-        return new CodingException(MessageSeeds.INCORRECT_NUMBER_OF_COMTASKS, expectedNumber, actualNumber);
+    public static CodingException incorrectNumberOfPreparedComTaskExecutions(int expectedNumber, int actualNumber, MessageSeed messageSeed){
+        return new CodingException(messageSeed, expectedNumber, actualNumber);
     }
 
     /**
@@ -114,30 +121,31 @@ public class CodingException extends ComServerRuntimeException {
      * available while one is expected because the related ComTask has effectively executed.
      *
      * @param comTaskExecution The ComTaskExecution
+     * @param messageSeed The The MessageSeed
      * @return The CodingException
      */
-    public static CodingException comTaskSessionMissing (ComTaskExecution comTaskExecution) {
-        return new CodingException(MessageSeeds.SESSION_FOR_COMTASK_MISSING, comTaskExecution.getComTasks().get(0).getName());
+    public static CodingException comTaskSessionMissing(ComTaskExecution comTaskExecution, MessageSeed messageSeed) {
+        return new CodingException(messageSeed, comTaskExecution.getComTasks().get(0).getName());
     }
 
-    public static CodingException malformedObjectName (ComServer comServer, MalformedObjectNameException e) {
-        return malformedComServerObjectName(comServer.getName(), e);
+    public static CodingException malformedObjectName(ComServer comServer, MalformedObjectNameException e, MessageSeed messageSeed) {
+        return malformedComServerObjectName(comServer.getName(), e, messageSeed);
     }
 
-    public static CodingException malformedComServerObjectName(String comServerName, MalformedObjectNameException e) {
-        return new CodingException(e, MessageSeeds.MBEAN_OBJECT_FORMAT, comServerName);
+    public static CodingException malformedComServerObjectName(String comServerName, MalformedObjectNameException e, MessageSeed messageSeed) {
+        return new CodingException(e, messageSeed, comServerName);
     }
 
-    public static CodingException malformedObjectName (ComPort comPort, MalformedObjectNameException e) {
-        return new CodingException(e, MessageSeeds.MBEAN_OBJECT_FORMAT, comPort.getName());
+    public static CodingException malformedObjectName(ComPort comPort, MalformedObjectNameException e, MessageSeed messageSeed) {
+        return new CodingException(e, messageSeed, comPort.getName());
     }
 
-    public static CodingException compositeTypeCreation (Class clazz, OpenDataException e) {
-        return new CodingException(e, MessageSeeds.COMPOSITE_TYPE_CREATION, clazz.getName());
+    public static CodingException compositeTypeCreation(Class clazz, OpenDataException e, MessageSeed messageSeed) {
+        return new CodingException(e, messageSeed, clazz.getName());
     }
 
-    public static CodingException compositeDataCreation (Class clazz, OpenDataException e) {
-        return new CodingException(e, MessageSeeds.COMPOSITE_TYPE_CREATION, clazz.getName());
+    public static CodingException compositeDataCreation(Class clazz, OpenDataException e, MessageSeed messageSeed) {
+        return new CodingException(e, messageSeed, clazz.getName());
     }
 
     protected CodingException (MessageSeed messageSeed, Object... messageArguments) {

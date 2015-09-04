@@ -6,7 +6,10 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
@@ -23,6 +26,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.OfflineDeviceForComTaskGroup;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
@@ -745,7 +749,7 @@ public abstract class JobExecution implements ScheduledJob {
                         comTaskWithSecurityAndConnectionSteps.getComTaskExecutionConnectionSteps(),
                         comTaskWithSecurityAndConnectionSteps.getDeviceProtocolSecurityPropertySet());
             } else {
-                throw CodingException.incorrectNumberOfPreparedComTaskExecutions(1, deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().size());
+                throw CodingException.incorrectNumberOfPreparedComTaskExecutions(1, deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().size(), MessageSeeds.INCORRECT_NUMBER_OF_COMTASKS);
             }
         }
 

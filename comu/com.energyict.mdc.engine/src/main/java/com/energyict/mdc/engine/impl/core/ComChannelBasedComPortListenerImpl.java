@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
 import com.energyict.mdc.io.ComChannel;
@@ -22,13 +22,13 @@ public abstract class ComChannelBasedComPortListenerImpl extends ComPortListener
 
     public interface ServiceProvider extends InboundComPortExecutorImpl.ServiceProvider {
 
-        public SocketService socketService();
+        SocketService socketService();
 
-        public ComServerDAO comServerDAO();
+        ComServerDAO comServerDAO();
 
-        public ThreadFactory threadFactory();
+        ThreadFactory threadFactory();
 
-        public InboundComPortConnectorFactory inboundComPortConnectorFactory();
+        InboundComPortConnectorFactory inboundComPortConnectorFactory();
 
     }
 
