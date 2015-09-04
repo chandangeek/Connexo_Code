@@ -4,11 +4,11 @@ import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.util.exception.MessageSeed;
-import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.SecurityContext;
+
+import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -25,11 +25,6 @@ public class FileImportOccurrenceApplicationTest extends FileImportApplicationTe
     static SecurityContext securityContext;
 
     @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return new MessageSeed[0];
-    }
-
-    @Override
     protected Application getApplication() {
         when(thesaurus.join(any(Thesaurus.class))).thenReturn(thesaurus);
 
@@ -43,4 +38,5 @@ public class FileImportOccurrenceApplicationTest extends FileImportApplicationTe
         application.setAppService(appService);
         return application;
     }
+
 }
