@@ -1,17 +1,15 @@
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.rest.FirmwareApplication;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 
-import java.text.MessageFormat;
+import com.elster.jupiter.util.exception.MessageSeed;
+
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
     // firmware versions
     VERSION_IN_USE(1, Keys.VERSION_IN_USE, "This version is in use and can''t be modified"),
     VERSION_IS_DEPRECATED(2, Keys.VERSION_IS_DEPRECATED, "This version is deprecated and can''t be modified"),
@@ -29,7 +27,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     UPGRADE_OPTION_ACTIVATE_ON_DATE(11, Keys.UPGRADE_OPTION_ACTIVATE_ON_DATE, "Upload firmware with activation date"),
     // firmware upgrade options
     UPGRADE_OPTIONS_REQUIRED(12, Keys.UPGRADE_OPTIONS_REQUIRED, "At least one option should be selected"),
-   
+
     DEVICE_TYPE_NOT_FOUND(13, Keys.DEVICE_TYPE_NOT_FOUND, "No device type with id {0} could be found"),
     DEVICE_NOT_FOUND(14, Keys.DEVICE_NOT_FOUND, "No device with id {0} could be found"),
     MAX_FILE_SIZE_EXCEEDED(15, Keys.MAX_FILE_SIZE_EXCEEDED, "File size should be less than " + FirmwareService.MAX_FIRMWARE_FILE_SIZE/1024/1024 + " Mb"),
@@ -96,13 +94,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         return format;
     }
 
-    public String format(Thesaurus thesaurus, Object... args){
-        if (thesaurus == null){
-            throw new IllegalArgumentException("Thesaurus can't be null");
-        }
-        String translated = thesaurus.getString(this.getKey(), this.getDefaultFormat());
-        return MessageFormat.format(translated, args);
-    }
     @Override
     public Level getLevel() {
         return Level.SEVERE;

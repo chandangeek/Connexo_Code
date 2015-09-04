@@ -1,27 +1,41 @@
 package com.energyict.mdc.firmware.rest;
 
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
-import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.rest.impl.*;
+import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareMessagesResource;
+import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareVersionInfoFactory;
+import com.energyict.mdc.firmware.rest.impl.DeviceFirmwareVersionResource;
+import com.energyict.mdc.firmware.rest.impl.DeviceInFirmwareCampaignInfoFactory;
+import com.energyict.mdc.firmware.rest.impl.FirmwareCampaignInfoFactory;
+import com.energyict.mdc.firmware.rest.impl.FirmwareCampaignResource;
+import com.energyict.mdc.firmware.rest.impl.FirmwareComTaskResource;
+import com.energyict.mdc.firmware.rest.impl.FirmwareFieldResource;
+import com.energyict.mdc.firmware.rest.impl.FirmwareManagementOptionsResource;
+import com.energyict.mdc.firmware.rest.impl.FirmwareMessageInfoFactory;
+import com.energyict.mdc.firmware.rest.impl.FirmwareTypesResource;
+import com.energyict.mdc.firmware.rest.impl.FirmwareVersionInfoFactory;
+import com.energyict.mdc.firmware.rest.impl.FirmwareVersionResource;
+import com.energyict.mdc.firmware.rest.impl.MessageSeeds;
+import com.energyict.mdc.firmware.rest.impl.ResourceHelper;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;
+
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -30,15 +44,14 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.firmware.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/fwc", "app=MDC", "name=" + FirmwareApplication.COMPONENT_NAME})
-public class FirmwareApplication extends Application implements TranslationKeyProvider {
-    public static final String APP_KEY = "MDC";
+@Component(name = "com.energyict.mdc.firmware.rest", service = {Application.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/fwc", "app=MDC", "name=" + FirmwareApplication.COMPONENT_NAME})
+public class FirmwareApplication extends Application implements MessageSeedProvider {
     public static final String COMPONENT_NAME = "FWR";
 
     private volatile NlsService nlsService;
@@ -52,7 +65,6 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
     private volatile TaskService taskService;
     private volatile Clock clock;
     private volatile MeteringGroupsService meteringGroupsService;
-    private volatile CommunicationTaskService communicationTaskService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -108,22 +120,13 @@ public class FirmwareApplication extends Application implements TranslationKeyPr
     }
 
     @Override
-    public String getComponentName() {
-        return COMPONENT_NAME;
-    }
-
-    @Override
     public Layer getLayer() {
         return Layer.REST;
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>();
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
-                keys.add(messageSeed);
-        }
-        return keys;
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Reference
