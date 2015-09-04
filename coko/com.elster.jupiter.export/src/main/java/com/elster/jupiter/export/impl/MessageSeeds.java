@@ -27,7 +27,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     FILE_IO(1015, "file.io.writing.failure", "Failure while doing IO on file {0} : {1}", Level.SEVERE),
     PARENT_BREAKING_PATH_NOT_ALLOWED(1016, Keys.PARENT_BREAKING_PATH, "Paths that navigate above parent are not allowed here", Level.SEVERE),
     INVALIDCHARS_EXCEPTION(1017, Keys.INVALIDCHARS_EXCEPTION, "Characters {0} are not allowed.", Level.SEVERE),
-    DUPLICATE_IMPORT_SCHEDULE(1018, Keys.DUPLICATE_EXPORT_TASK, "Duplicate name", Level.SEVERE);
+    DUPLICATE_IMPORT_SCHEDULE(1018, Keys.DUPLICATE_EXPORT_TASK, "Name must be unique", Level.SEVERE);
 
     private final int number;
     private final String key;
