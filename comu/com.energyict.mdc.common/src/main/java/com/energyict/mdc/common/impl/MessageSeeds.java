@@ -1,9 +1,10 @@
 package com.energyict.mdc.common.impl;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     INVALID_VALUE(1, "CMN.InvalidValue", "Invalid value", Level.SEVERE);
 
