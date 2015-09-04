@@ -3,14 +3,10 @@ package com.elster.jupiter.systemadmin.rest.imp;
 import com.elster.jupiter.data.lifecycle.LifeCycleService;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.systemadmin.rest.imp.resource.DataPurgeResource;
 import com.elster.jupiter.systemadmin.rest.imp.resource.LicenseResource;
@@ -18,6 +14,7 @@ import com.elster.jupiter.systemadmin.rest.imp.resource.MessageSeeds;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -35,10 +32,10 @@ import java.util.Set;
 
 @Component(
         name = "com.elster.jupiter.systemadmin.rest",
-        service = {Application.class, TranslationKeyProvider.class},
+        service = {Application.class, MessageSeedProvider.class},
         immediate = true,
         property = {"alias=/lic", "app=SYS", "name=" + LicensingApplication.COMPONENT_NAME})
-public class LicensingApplication extends Application implements TranslationKeyProvider {
+public class LicensingApplication extends Application implements MessageSeedProvider {
     public static final String COMPONENT_NAME = "LIC";
 
     private volatile TransactionService transactionService;
@@ -53,7 +50,7 @@ public class LicensingApplication extends Application implements TranslationKeyP
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(LicenseResource.class,
+        return ImmutableSet.of(LicenseResource.class,
                 DataPurgeResource.class,
                 MultiPartFeature.class);
     }
@@ -108,17 +105,12 @@ public class LicensingApplication extends Application implements TranslationKeyP
     }
 
     @Override
-    public String getComponentName() {
-        return COMPONENT_NAME;
-    }
-
-    @Override
     public Layer getLayer() {
         return Layer.REST;
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 

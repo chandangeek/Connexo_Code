@@ -1,17 +1,13 @@
 package com.elster.jupiter.systemadmin.rest.imp.resource;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.systemadmin.rest.imp.LicensingApplication;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import java.text.MessageFormat;
-import java.util.Optional;
 import java.util.logging.Level;
 
-public enum  MessageSeeds implements MessageSeed, TranslationKey {
+public enum  MessageSeeds implements MessageSeed {
 
-    PURGE_HISTORY_DOES_NOT_EXIST(1, "PurgeHostoryDoesNotExist", "The purge history record with id = '{0}' doesn't exist", Level.WARNING),
+    PURGE_HISTORY_DOES_NOT_EXIST(1, "PurgeHistoryDoesNotExist", "The purge history record with id = '{0}' doesn't exist", Level.WARNING),
     INVALID_LICENSE_FILE(2, "InvalidLicenseFile", "Invalid license file", Level.SEVERE),
     ;
 
@@ -52,19 +48,4 @@ public enum  MessageSeeds implements MessageSeed, TranslationKey {
         return this.level;
     }
 
-    public static String getString(MessageSeed messageSeed, Thesaurus thesaurus, Object... args){
-        String text = thesaurus.getString(messageSeed.getKey(), messageSeed.getDefaultFormat());
-        return MessageFormat.format(text, args);
-    }
-
-    public static Optional<MessageSeeds> getByKey(String key) {
-        if (key != null) {
-            for (MessageSeeds column : MessageSeeds.values()) {
-                if (column.getKey().equals(key)) {
-                    return Optional.of(column);
-                }
-            }
-        }
-        return Optional.empty();
-    }
 }
