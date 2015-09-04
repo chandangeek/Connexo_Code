@@ -102,6 +102,7 @@
                 <module>../com.elster.jupiter.fsm.rest</module>
                 <module>../com.elster.jupiter.http.whiteboard</module>
                 <module>../com.elster.jupiter.install</module>
+                <module>../com.elster.jupiter.launcher</module>
                 <module>../com.elster.jupiter.loaderjs</module>
                 <module>../com.elster.jupiter.login.app</module>
                 <module>../com.elster.jupiter.mail</module>
@@ -131,6 +132,9 @@
                 <module>../com.elster.jupiter.users.extjs</module>
                 <module>../com.elster.jupiter.users.rest</module>
                 <module>../com.elster.jupiter.util</module>
+                <module>../com.elster.jupiter.yellowfin</module>
+                <module>../com.elster.jupiter.yellowfin.app</module>
+                <module>../com.elster.jupiter.yellowfin.installer</module>
 
             </modules>
         </profile>
