@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -11,6 +12,11 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementPriorityMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
@@ -489,11 +495,27 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
+        List<TranslationKey> translationKeys = new ArrayList<>(Arrays.asList(MessageSeeds.values()));
+        translationKeys.add(new SimpleTranslationKey(DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME));
+        translationKeys.add(new SimpleTranslationKey(ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER, ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAY_NAME));
+        translationKeys.add(new SimpleTranslationKey(Installer.COMSCHEDULE_RECALCULATOR_MESSAGING_NAME, Installer.COMSCHEDULE_RECALCULATOR_MESSAGING_DISPLAYNAME));
+        translationKeys.add(new SimpleTranslationKey(Installer.COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME, Installer.COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_DISPLAYNAME));
+        translationKeys.add(new SimpleTranslationKey(ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME));
+        translationKeys.add(new SimpleTranslationKey(ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME));
+        translationKeys.add(new SimpleTranslationKey(ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME));
+        translationKeys.add(new SimpleTranslationKey(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_SUBSCRIBER, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DISPLAYNAME));
+        translationKeys.add(new SimpleTranslationKey(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME));
+        translationKeys.add(new SimpleTranslationKey(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER, ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DISPLAY_NAME));
+        translationKeys.add(new SimpleTranslationKey(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME));
+        translationKeys.add(new SimpleTranslationKey(ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_SUBSCRIBER, ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_DISPLAY_NAME));
+        translationKeys.add(new SimpleTranslationKey(ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_SUBSCRIBER, ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_DISPLAY_NAME));
+        translationKeys.add(new SimpleTranslationKey(SchedulingService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, SchedulingService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME));
+        translationKeys.add(new SimpleTranslationKey(SchedulingService.COM_SCHEDULER_QUEUE_SUBSCRIBER, SchedulingService.COM_SCHEDULER_QUEUE_DISPLAYNAME));
+        return translationKeys;
     }
 
     private void install(boolean exeuteDdl) {
-        new Installer(this.dataModel, this.eventService, messagingService, thesaurus).install(exeuteDdl);
+        new Installer(this.dataModel, this.eventService, messagingService).install(exeuteDdl);
     }
 
     @Override

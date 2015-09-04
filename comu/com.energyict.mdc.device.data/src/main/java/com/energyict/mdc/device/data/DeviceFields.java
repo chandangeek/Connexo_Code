@@ -15,6 +15,7 @@ public enum DeviceFields implements ImplField {
     MRID("mRID"),
     DEVICETYPE("deviceType"),
     DEVICECONFIGURATION("deviceConfiguration"),
+    COM_TASK_EXECUTIONS("comTaskExecutions")
     ;
 
     private final String javaFieldName;

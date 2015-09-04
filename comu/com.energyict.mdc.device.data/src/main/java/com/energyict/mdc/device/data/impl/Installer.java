@@ -4,14 +4,11 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
-import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementPriorityMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageHandlerFactory;
@@ -19,12 +16,8 @@ import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPro
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
 import com.energyict.mdc.scheduling.SchedulingService;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,18 +42,15 @@ public class Installer {
     private final DataModel dataModel;
     private final EventService eventService;
     private final MessageService messageService;
-    private final Thesaurus thesaurus;
 
-    public Installer(DataModel dataModel, EventService eventService, MessageService messageService, Thesaurus thesaurus) {
+    public Installer(DataModel dataModel, EventService eventService, MessageService messageService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.messageService = messageService;
-        this.thesaurus = thesaurus;
     }
 
     public void install(boolean executeDdl) {
-        addTranslations();
         try {
             this.dataModel.install(executeDdl, true);
         } catch (Exception e) {
@@ -70,24 +60,6 @@ public class Installer {
         this.createMessageHandlers();
         this.addJupiterEventSubscribers();
         this.createMasterData();
-    }
-
-    private void addTranslations() {
-        addTranslation(DeviceDataServices.COMPONENT_NAME, DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME);
-        addTranslation(DeviceDataServices.COMPONENT_NAME, ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER, ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAY_NAME);
-        addTranslation(DeviceDataServices.COMPONENT_NAME, COMSCHEDULE_RECALCULATOR_MESSAGING_NAME, COMSCHEDULE_RECALCULATOR_MESSAGING_DISPLAYNAME);
-        addTranslation(DeviceDataServices.COMPONENT_NAME, COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME, COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_DISPLAYNAME);
-        addTranslation(DeviceDataServices.COMPONENT_NAME, ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME);
-        addTranslation(DeviceDataServices.COMPONENT_NAME, ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME);
-        addTranslation(DeviceDataServices.COMPONENT_NAME, ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME);
-        addTranslation(DeviceDataServices.COMPONENT_NAME, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_SUBSCRIBER, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DISPLAYNAME);
-        addTranslation(DeviceDataServices.COMPONENT_NAME, CommunicationTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME);
-        addTranslation(DeviceDataServices.COMPONENT_NAME, ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER, ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DISPLAY_NAME);
-        addTranslation(DeviceDataServices.COMPONENT_NAME, ConnectionTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME);
-        addTranslation(DeviceDataServices.COMPONENT_NAME, ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_SUBSCRIBER, ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_DISPLAY_NAME);
-        addTranslation(DeviceDataServices.COMPONENT_NAME, ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_SUBSCRIBER, ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_DISPLAY_NAME);
-        addTranslation(DeviceDataServices.COMPONENT_NAME, SchedulingService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, SchedulingService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME);
-        addTranslation(DeviceDataServices.COMPONENT_NAME, SchedulingService.COM_SCHEDULER_QUEUE_SUBSCRIBER, SchedulingService.COM_SCHEDULER_QUEUE_DISPLAYNAME);
     }
 
     private void addJupiterEventSubscribers() {
@@ -105,14 +77,6 @@ public class Installer {
 
     private void doSubscriber(DestinationSpec jupiterEvents, Pair<String, Condition> subscriber) {
         jupiterEvents.subscribe(subscriber.getFirst(), subscriber.getLast());
-    }
-
-    private void addTranslation(String componentName, String subscriberName, String subscriberDisplayName) {
-        NlsKey statusKey = SimpleNlsKey.key(componentName, Layer.DOMAIN, subscriberName);
-        Translation statusTranslation = SimpleTranslation.translation(statusKey, Locale.ENGLISH, subscriberDisplayName);
-        List<Translation> translations = new ArrayList<>();
-        translations.add(statusTranslation);
-        thesaurus.addTranslations(translations);
     }
 
     private void createMessageHandlers() {
