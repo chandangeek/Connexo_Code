@@ -34,17 +34,17 @@ public class TypedAtModemProperties implements AtModemProperties, HasDynamicProp
     public static final String AT_MODEM_POST_DIAL_COMMANDS = "atmodem_postdial_command";     // the set of post dial commandos to launch after a physical connect
     public static final String DTR_TOGGLE_DELAY = "disconnect_line_toggle_delay";// the delay between DTR line toggles, which are used to disconnect the active connection.
 
-    private static final String DEFAULT_AT_MODEM_ADDRESS_SELECTOR = "";
-    private static final String DEFAULT_AT_MODEM_POST_DIAL_COMMANDS = "";
-    private static final String DEFAULT_AT_MODEM_GLOBAL_INIT_STRINGS = "ATS0=0E0V1";   // Auto-answer disabled: modem will not answer incoming calls
-    private static final String DEFAULT_AT_MODEM_INIT_STRINGS = "";
-    private static final BigDecimal DEFAULT_AT_COMMAND_TRIES = new BigDecimal(3);
-    private static final TimeDuration DEFAULT_AT_COMMAND_TIMEOUT = new TimeDuration(5, TimeDuration.TimeUnit.SECONDS);
-    private static final TimeDuration DEFAULT_DELAY_BEFORE_SEND = new TimeDuration(500, TimeDuration.TimeUnit.MILLISECONDS);
-    private static final TimeDuration DEFAULT_DELAY_AFTER_CONNECT = new TimeDuration(500, TimeDuration.TimeUnit.MILLISECONDS);
-    private static final TimeDuration DEFAULT_AT_CONNECT_TIMEOUT = new TimeDuration(60, TimeDuration.TimeUnit.SECONDS);
-    private static final String DEFAULT_AT_MODEM_DIAL_PREFIX = "";
-    private static final TimeDuration DEFAULT_DTR_TOGGLE_DELAY = new TimeDuration(2, TimeDuration.TimeUnit.SECONDS);
+    static final String DEFAULT_AT_MODEM_ADDRESS_SELECTOR = "";
+    static final String DEFAULT_AT_MODEM_POST_DIAL_COMMANDS = "";
+    static final String DEFAULT_AT_MODEM_GLOBAL_INIT_STRINGS = "ATS0=0E0V1";   // Auto-answer disabled: modem will not answer incoming calls
+    static final String DEFAULT_AT_MODEM_INIT_STRINGS = "";
+    static final BigDecimal DEFAULT_AT_COMMAND_TRIES = new BigDecimal(3);
+    static final TimeDuration DEFAULT_AT_COMMAND_TIMEOUT = new TimeDuration(5, TimeDuration.TimeUnit.SECONDS);
+    static final TimeDuration DEFAULT_DELAY_BEFORE_SEND = new TimeDuration(500, TimeDuration.TimeUnit.MILLISECONDS);
+    static final TimeDuration DEFAULT_DELAY_AFTER_CONNECT = new TimeDuration(500, TimeDuration.TimeUnit.MILLISECONDS);
+    static final TimeDuration DEFAULT_AT_CONNECT_TIMEOUT = new TimeDuration(60, TimeDuration.TimeUnit.SECONDS);
+    static final String DEFAULT_AT_MODEM_DIAL_PREFIX = "";
+    static final TimeDuration DEFAULT_DTR_TOGGLE_DELAY = new TimeDuration(2, TimeDuration.TimeUnit.SECONDS);
 
     private final PropertySpecService propertySpecService;
     private final List<AtPostDialCommand> postDialCommands;
@@ -102,80 +102,71 @@ public class TypedAtModemProperties implements AtModemProperties, HasDynamicProp
 
     @Override
     public String getPhoneNumber() {
-        return (String) getProperty(PHONE_NUMBER_PROPERTY_NAME);
+        return (String) properties.getProperty(PHONE_NUMBER_PROPERTY_NAME);
     }
 
     @Override
     public String getCommandPrefix() {
-        return (String) getProperty(AT_MODEM_DIAL_PREFIX);
+        return (String) properties.getProperty(AT_MODEM_DIAL_PREFIX, DEFAULT_AT_MODEM_DIAL_PREFIX);
     }
 
     @Override
     public TimeDuration getConnectTimeout() {
-        return (TimeDuration) getProperty(AT_CONNECT_TIMEOUT);
+        return (TimeDuration) properties.getProperty(AT_CONNECT_TIMEOUT, DEFAULT_AT_CONNECT_TIMEOUT );
     }
 
     @Override
     public TimeDuration getDelayAfterConnect() {
-        return (TimeDuration) getProperty(DELAY_AFTER_CONNECT);
+        return (TimeDuration) properties.getProperty(DELAY_AFTER_CONNECT, DEFAULT_DELAY_AFTER_CONNECT);
     }
 
     @Override
     public TimeDuration getDelayBeforeSend() {
-        return (TimeDuration) getProperty(DELAY_BEFORE_SEND);
+        return (TimeDuration) properties.getProperty(DELAY_BEFORE_SEND, DEFAULT_DELAY_BEFORE_SEND );
     }
 
     @Override
     public TimeDuration getCommandTimeOut() {
-        return (TimeDuration) getProperty(AT_COMMAND_TIMEOUT);
+        return (TimeDuration) properties.getProperty(AT_COMMAND_TIMEOUT, DEFAULT_AT_COMMAND_TIMEOUT );
     }
 
     @Override
     public BigDecimal getCommandTry() {
-        return (BigDecimal) getProperty(AT_COMMAND_TRIES);
+        return (BigDecimal) properties.getProperty(AT_COMMAND_TRIES, DEFAULT_AT_COMMAND_TRIES );
     }
 
     @Override
     public List<String> getGlobalModemInitStrings() {
-        Object value = getProperty(AT_MODEM_GLOBAL_INIT_STRINGS);
-        String globalInitStringSpecs = value != null ? (String) value : DEFAULT_AT_MODEM_GLOBAL_INIT_STRINGS;
+        String  globalInitStringSpecs  = (String) properties.getProperty(AT_MODEM_GLOBAL_INIT_STRINGS, DEFAULT_AT_MODEM_GLOBAL_INIT_STRINGS);
         if (!globalInitStringSpecs.isEmpty()) {
             return Arrays.asList(globalInitStringSpecs.split(AtModemComponent.SEPARATOR));
         } else {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
     }
 
     @Override
     public List<String> getModemInitStrings() {
-        String initStringSpecs = (String) getProperty(AT_MODEM_INIT_STRINGS);
+        String initStringSpecs = (String) properties.getProperty(AT_MODEM_INIT_STRINGS, DEFAULT_AT_MODEM_INIT_STRINGS);
         if (!initStringSpecs.isEmpty()) {
             return Arrays.asList(initStringSpecs.split(AtModemComponent.SEPARATOR));
         } else {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
     }
 
     @Override
     public TimeDuration getLineToggleDelay() {
-        return (TimeDuration) getProperty(DTR_TOGGLE_DELAY);
+        return (TimeDuration) properties.getProperty(DTR_TOGGLE_DELAY, DEFAULT_DTR_TOGGLE_DELAY);
     }
 
     @Override
     public String getAddressSelector() {
-        return (String) getProperty(AT_MODEM_ADDRESS_SELECTOR);
+        return (String) properties.getProperty(AT_MODEM_ADDRESS_SELECTOR, DEFAULT_AT_MODEM_ADDRESS_SELECTOR);
     }
 
     public List<AtPostDialCommand> getPostDialCommands() {
         return this.postDialCommands;
-    }
-
-    protected TypedProperties getAllProperties() {
-        return this.properties;
-    }
-
-    protected Object getProperty(String propertyName) {
-        return this.getAllProperties().getProperty(propertyName);
     }
 
     protected void setProperty(String propertyName, Object value) {
