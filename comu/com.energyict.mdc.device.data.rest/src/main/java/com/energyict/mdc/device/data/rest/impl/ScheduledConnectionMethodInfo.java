@@ -1,11 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.Device;
@@ -15,10 +12,16 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.Optional;
+
+import static com.elster.jupiter.util.Checks.is;
 
 public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<ScheduledConnectionTask> {
 
@@ -27,7 +30,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
 
     public ScheduledConnectionMethodInfo(ScheduledConnectionTask scheduledConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
         super(scheduledConnectionTask, uriInfo, mdcPropertyUtils);
-        this.connectionStrategy = scheduledConnectionTask.getConnectionStrategy();
+        this.connectionStrategy = scheduledConnectionTask.getConnectionStrategy().name();
         this.allowSimultaneousConnections = scheduledConnectionTask.isSimultaneousConnectionsAllowed();
         this.rescheduleRetryDelay = TimeDurationInfo.of(scheduledConnectionTask.getRescheduleDelay());
         if (scheduledConnectionTask.getCommunicationWindow() != null) {
@@ -42,7 +45,9 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
     protected void writeTo(ScheduledConnectionTask scheduledConnectionTask, PartialConnectionTask partialConnectionTask, EngineConfigurationService engineConfigurationService, MdcPropertyUtils mdcPropertyUtils) {
         super.writeTo(scheduledConnectionTask, partialConnectionTask, engineConfigurationService, mdcPropertyUtils);
         writeCommonFields(scheduledConnectionTask, engineConfigurationService);
-        scheduledConnectionTask.setConnectionStrategy(this.connectionStrategy);
+        if (!is(this.connectionStrategy).emptyOrOnlyWhiteSpace()) {
+            scheduledConnectionTask.setConnectionStrategy(ConnectionStrategy.valueOf(this.connectionStrategy));
+        }
         try {
             scheduledConnectionTask.setNextExecutionSpecsFrom(this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null);
         } catch (LocalizedFieldValidationException e) {
@@ -55,7 +60,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
         if (this.comWindowEnd != null && this.comWindowStart != null) {
             scheduledConnectionTask.setCommunicationWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
         }
-        if (!Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace()) {
+        if (!is(this.comPortPool).emptyOrOnlyWhiteSpace()) {
             scheduledConnectionTask.setComPortPool(engineConfigurationService.findOutboundComPortPoolByName(this.comPortPool).orElse(null));
         } else {
             scheduledConnectionTask.setComPortPool(null);
@@ -70,12 +75,14 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
 
         PartialScheduledConnectionTask partialScheduledConnectionTask = (PartialScheduledConnectionTask) partialConnectionTask;
         Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask);
-        if (!Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace()) {
+        if (!is(this.comPortPool).emptyOrOnlyWhiteSpace()) {
             engineConfigurationService
                     .findOutboundComPortPoolByName(this.comPortPool)
                     .ifPresent(scheduledConnectionTaskBuilder::setComPortPool);
         }
-        scheduledConnectionTaskBuilder.setConnectionStrategy(this.connectionStrategy);
+        if (!is(this.connectionStrategy).emptyOrOnlyWhiteSpace()) {
+            scheduledConnectionTaskBuilder.setConnectionStrategy(ConnectionStrategy.valueOf(this.connectionStrategy));
+        }
         scheduledConnectionTaskBuilder.setNextExecutionSpecsFrom(this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null);
         scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(this.status);
         scheduledConnectionTaskBuilder.setSimultaneousConnectionsAllowed(this.allowSimultaneousConnections);

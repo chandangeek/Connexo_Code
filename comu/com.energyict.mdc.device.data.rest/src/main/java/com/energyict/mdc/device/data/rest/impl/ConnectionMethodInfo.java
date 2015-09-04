@@ -1,21 +1,19 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.rest.ConnectionTaskLifecycleStateAdapter;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
+
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -43,8 +41,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     public boolean isDefault;
     public Integer comWindowStart;
     public Integer comWindowEnd;
-    @XmlJavaTypeAdapter(ConnectionStrategyAdapter.class)
-    public ConnectionStrategy connectionStrategy;
+    public String connectionStrategy;
     public List<PropertyInfo> properties;
     public boolean allowSimultaneousConnections;
     public TimeDurationInfo rescheduleRetryDelay;
@@ -54,6 +51,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     }
 
     protected ConnectionMethodInfo(ConnectionTask<?, ?> connectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
+        this();
         this.id = connectionTask.getId();
         this.name = connectionTask.getName();
         this.status = connectionTask.getStatus();

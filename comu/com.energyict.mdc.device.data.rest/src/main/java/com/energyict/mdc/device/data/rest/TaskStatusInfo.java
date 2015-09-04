@@ -1,24 +1,19 @@
 package com.energyict.mdc.device.data.rest;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 /**
  * Created by bvn on 8/12/14.
  */
 public class TaskStatusInfo {
-    private static final TaskStatusAdapter TASK_STATUS_ADAPTER = new TaskStatusAdapter();
-    @XmlJavaTypeAdapter(TaskStatusAdapter.class)
-    public TaskStatus id;
+    public String id;
     public String displayValue;
-    
+
     public TaskStatusInfo() {
     }
 
-    public TaskStatusInfo(TaskStatus taskStatus, Thesaurus thesaurus)  {
-        this.id=taskStatus;
-        this.displayValue=thesaurus.getString(TASK_STATUS_ADAPTER.marshal(taskStatus),TASK_STATUS_ADAPTER.marshal(taskStatus));
+    public TaskStatusInfo(String id, String displayValue) {
+        this();
+        this.id = id;
+        this.displayValue = displayValue;
     }
+
 }

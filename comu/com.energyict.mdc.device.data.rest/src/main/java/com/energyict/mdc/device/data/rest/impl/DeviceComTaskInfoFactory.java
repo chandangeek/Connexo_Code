@@ -1,20 +1,25 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.CollectionUtil;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.CompletionCodeInfo;
-import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.SingleComTaskComTaskExecution;
+import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
+
+import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -24,7 +29,6 @@ import java.util.stream.Collectors;
 public class DeviceComTaskInfoFactory {
     private final Thesaurus thesaurus;
     private final TopologyService topologyService;
-    private final TaskStatusAdapter taskStatusAdapter = new TaskStatusAdapter();
 
     @Inject
     public DeviceComTaskInfoFactory(Thesaurus thesaurus, TopologyService topologyService) {
@@ -61,7 +65,7 @@ public class DeviceComTaskInfoFactory {
                     setFieldsForIndividualScheduleExecution(deviceComTasksInfo, comTaskExecution);
                 } else if (comTaskExecution.isAdHoc()) {
                     setFieldsForIndividualScheduleExecution(deviceComTasksInfo, comTaskExecution);
-                    deviceComTasksInfo.scheduleType = thesaurus.getString("onRequest","On request");
+                    deviceComTasksInfo.scheduleType = thesaurus.getFormat(DefaultTranslationKey.ON_REQUEST).format();
                 }
             }
 
@@ -71,24 +75,28 @@ public class DeviceComTaskInfoFactory {
 
     private void setFieldsForIndividualScheduleExecution(DeviceComTaskInfo deviceComTasksInfo, ComTaskExecution comTaskExecution) {
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.INDIVIDUAL.name();
-        deviceComTasksInfo.scheduleType = thesaurus.getString("individualSchedule","Individual schedule");
+        deviceComTasksInfo.scheduleType = thesaurus.getFormat(DefaultTranslationKey.INDIVIDUAL_SCHEDULE).format();
         deviceComTasksInfo.protocolDialect = ((SingleComTaskComTaskExecution)comTaskExecution).getProtocolDialectConfigurationProperties().getDeviceProtocolDialect().getDisplayName();
         if (comTaskExecution.getNextExecutionSpecs().isPresent()) {
             deviceComTasksInfo.temporalExpression = TemporalExpressionInfo.from(comTaskExecution.getNextExecutionSpecs().get().getTemporalExpression());
         }
         deviceComTasksInfo.lastCommunicationStart = comTaskExecution.getLastExecutionStartTimestamp();
-        deviceComTasksInfo.latestResult = comTaskExecution.getLastSession().map(ctes -> CompletionCodeInfo.from(ctes.getHighestPriorityCompletionCode(), thesaurus)).orElse(null);
+        deviceComTasksInfo.latestResult =
+                comTaskExecution
+                        .getLastSession()
+                        .map(ComTaskExecutionSession::getHighestPriorityCompletionCode)
+                        .map(this::infoFrom)
+                        .orElse(null);
         deviceComTasksInfo.successfulFinishTime = comTaskExecution.getLastSuccessfulCompletionTimestamp();
         deviceComTasksInfo.isOnHold = comTaskExecution.isOnHold();
-        deviceComTasksInfo.status = thesaurus.getString(taskStatusAdapter.marshal(comTaskExecution.getStatus()),taskStatusAdapter.marshal(comTaskExecution.getStatus()));
+        deviceComTasksInfo.status = TaskStatusTranslationKeys.translationFor(comTaskExecution.getStatus(), thesaurus);
         if (comTaskExecution.usesDefaultConnectionTask()) {
             if (comTaskExecution.getConnectionTask().isPresent()) {
-                deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT.getKey(),MessageSeeds.DEFAULT.getKey()) +
+                deviceComTasksInfo.connectionMethod = thesaurus.getFormat(DefaultTranslationKey.DEFAULT).format() +
                         " (" + comTaskExecution.getConnectionTask().get().getName() + ")";
                 deviceComTasksInfo.connectionDefinedOnDevice = true;
             } else {
-              //  deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT_NOT_DEFINED.getKey(),MessageSeeds.DEFAULT_NOT_DEFINED.getKey());
-                deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT.getKey(),MessageSeeds.DEFAULT.getKey());
+                deviceComTasksInfo.connectionMethod = thesaurus.getFormat(DefaultTranslationKey.DEFAULT).format();
                 deviceComTasksInfo.connectionDefinedOnDevice = false;
             }
         }
@@ -102,13 +110,15 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.plannedDate = comTaskExecution.getPlannedNextExecutionTimestamp();
     }
 
+    private CompletionCodeInfo infoFrom(CompletionCode completionCode) {
+        return new CompletionCodeInfo(completionCode.name(), CompletionCodeTranslationKeys.translationFor(completionCode, thesaurus));
+    }
+
     private void setConnectionStrategy(DeviceComTaskInfo deviceComTasksInfo, ComTaskExecution comTaskExecution) {
         if (comTaskExecution.getConnectionTask().isPresent() && comTaskExecution.getConnectionTask().get() instanceof ScheduledConnectionTask) {
             ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
-            ConnectionStrategyAdapter connectionStrategyAdapter = new ConnectionStrategyAdapter();
-            String connectionStrategyValue = connectionStrategyAdapter.marshal(connectionStrategy);
-            deviceComTasksInfo.connectionStrategy = thesaurus.getString(connectionStrategyValue,connectionStrategyValue);
-            deviceComTasksInfo.connectionStrategyKey = connectionStrategyValue;
+            deviceComTasksInfo.connectionStrategy = ConnectionStrategyTranslationKeys.translationFor(connectionStrategy, thesaurus);
+            deviceComTasksInfo.connectionStrategyKey = connectionStrategy.name();
         }
     }
 
@@ -116,20 +126,24 @@ public class DeviceComTaskInfoFactory {
         deviceComTasksInfo.temporalExpression = TemporalExpressionInfo.from(((ScheduledComTaskExecution) comTaskExecution).getComSchedule().getTemporalExpression());
         deviceComTasksInfo.scheduleName = ((ScheduledComTaskExecution) comTaskExecution).getComSchedule().getName();
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.SHARED.name();
-        deviceComTasksInfo.scheduleType = thesaurus.getString("masterSchedule","Shared schedule");
+        deviceComTasksInfo.scheduleType = thesaurus.getFormat(DefaultTranslationKey.SHARED_SCHEDULE).format();
         deviceComTasksInfo.lastCommunicationStart = comTaskExecution.getLastExecutionStartTimestamp();
-        deviceComTasksInfo.latestResult = comTaskExecution.getLastSession().map(ctes -> CompletionCodeInfo.from(ctes.getHighestPriorityCompletionCode(), thesaurus)).orElse(null);
+        deviceComTasksInfo.latestResult =
+                comTaskExecution
+                        .getLastSession()
+                        .map(ComTaskExecutionSession::getHighestPriorityCompletionCode)
+                        .map(this::infoFrom)
+                        .orElse(null);
         deviceComTasksInfo.successfulFinishTime = comTaskExecution.getLastSuccessfulCompletionTimestamp();
         deviceComTasksInfo.isOnHold = comTaskExecution.isOnHold();
-        deviceComTasksInfo.status = thesaurus.getString(taskStatusAdapter.marshal(comTaskExecution.getStatus()),taskStatusAdapter.marshal(comTaskExecution.getStatus()));
+        deviceComTasksInfo.status = TaskStatusTranslationKeys.translationFor(comTaskExecution.getStatus(), thesaurus);
         if (comTaskExecution.usesDefaultConnectionTask()) {
             if (comTaskExecution.getConnectionTask().isPresent()) {
-                deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT.getKey(),MessageSeeds.DEFAULT.getKey()) +
+                deviceComTasksInfo.connectionMethod = thesaurus.getFormat(DefaultTranslationKey.DEFAULT).format() +
                         " (" + comTaskExecution.getConnectionTask().get().getName() + ")";
                 deviceComTasksInfo.connectionDefinedOnDevice = true;
             } else {
-               // deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT_NOT_DEFINED.getKey(),MessageSeeds.DEFAULT_NOT_DEFINED.getKey());
-                deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT.getKey(),MessageSeeds.DEFAULT.getKey());
+                deviceComTasksInfo.connectionMethod = thesaurus.getFormat(DefaultTranslationKey.DEFAULT).format();
                 deviceComTasksInfo.connectionDefinedOnDevice = false;
             }
             setConnectionStrategy(deviceComTasksInfo,comTaskExecution);
@@ -138,16 +152,14 @@ public class DeviceComTaskInfoFactory {
             ConnectionTask<?, ?> connectionTask = comTaskExecution.getConnectionTask().orElse(null);
             deviceComTasksInfo.connectionMethod = connectionTask.getName();
             deviceComTasksInfo.connectionDefinedOnDevice = true;
-            ConnectionStrategyAdapter connectionStrategyAdapter = new ConnectionStrategyAdapter();
             if (connectionTask instanceof ScheduledConnectionTask) {
                 ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
                 ConnectionStrategy connectionStrategy = scheduledConnectionTask.getConnectionStrategy();
-                String connectionStrategyValue = connectionStrategyAdapter.marshal(connectionStrategy);
-                deviceComTasksInfo.connectionStrategy = thesaurus.getString(connectionStrategyValue,connectionStrategyValue);
-                deviceComTasksInfo.connectionStrategyKey = connectionStrategyValue;
+                deviceComTasksInfo.connectionStrategy = ConnectionStrategyTranslationKeys.translationFor(connectionStrategy, thesaurus);
+                deviceComTasksInfo.connectionStrategyKey = connectionStrategy.name();
             }
             else {
-                deviceComTasksInfo.connectionStrategy = thesaurus.getString(MessageSeeds.CONNECTION_TYPE_STRATEGY_NOT_APPLICABLE.name(), null);
+                deviceComTasksInfo.connectionStrategy = thesaurus.getFormat(MessageSeeds.CONNECTION_TYPE_STRATEGY_NOT_APPLICABLE).format();
             }
         }
         deviceComTasksInfo.urgency = comTaskExecution.getPlannedPriority();
@@ -157,47 +169,41 @@ public class DeviceComTaskInfoFactory {
 
     private DeviceComTaskInfo from(ComTaskEnablement comTaskEnablement, Device device) {
         DeviceComTaskInfo deviceComTasksInfo = new DeviceComTaskInfo();
-        deviceComTasksInfo.scheduleType = thesaurus.getString("onRequest","On request");
+        deviceComTasksInfo.scheduleType = thesaurus.getFormat(DefaultTranslationKey.ON_REQUEST).format();
         deviceComTasksInfo.scheduleTypeKey = ScheduleTypeKey.ON_REQUEST.name();
         deviceComTasksInfo.comTask = ComTaskInfo.from(comTaskEnablement.getComTask());
-        deviceComTasksInfo.status = thesaurus.getString(taskStatusAdapter.marshal(TaskStatus.OnHold),taskStatusAdapter.marshal(TaskStatus.OnHold));
+        deviceComTasksInfo.status = thesaurus.getFormat(TaskStatusTranslationKeys.ON_HOLD).format();
         if (comTaskEnablement.usesDefaultConnectionTask()) {
             if (comTaskEnablement.getPartialConnectionTask().isPresent()) {
                 PartialConnectionTask partialConnectionTask = comTaskEnablement.getPartialConnectionTask().get();
 
                 Optional<ConnectionTask> deviceConnectionTaskOptional = findDefaultConnectionTaskInCompleteTopology(device);
                 if (deviceConnectionTaskOptional.isPresent()) {
-                    deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT.getKey(),MessageSeeds.DEFAULT.getKey()) +
+                    deviceComTasksInfo.connectionMethod = thesaurus.getFormat(DefaultTranslationKey.DEFAULT).format() +
                             " (" + deviceConnectionTaskOptional.get().getName() + ")";
                     deviceComTasksInfo.connectionDefinedOnDevice = true;
                 } else {
-                    deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT.getKey(),MessageSeeds.DEFAULT.getKey()) +
+                    deviceComTasksInfo.connectionMethod = thesaurus.getFormat(DefaultTranslationKey.DEFAULT).format() +
                             " (" + partialConnectionTask.getName() + ")";
-                           // + thesaurus.getString(MessageSeeds.NOT_DEFINED_YET.getKey(),MessageSeeds.NOT_DEFINED_YET.getKey());
                     deviceComTasksInfo.connectionDefinedOnDevice = false;
                 }
 
                 if (partialConnectionTask instanceof PartialScheduledConnectionTask) {
                     ConnectionStrategy connectionStrategy = ((PartialScheduledConnectionTask) partialConnectionTask).getConnectionStrategy();
-                    ConnectionStrategyAdapter connectionStrategyAdapter = new ConnectionStrategyAdapter();
-                    String connectionStrategyValue = connectionStrategyAdapter.marshal(connectionStrategy);
-                    deviceComTasksInfo.connectionStrategy = thesaurus.getString(connectionStrategyValue,connectionStrategyValue);
-                    deviceComTasksInfo.connectionStrategyKey = connectionStrategyValue;
+                    deviceComTasksInfo.connectionStrategy = ConnectionStrategyTranslationKeys.translationFor(connectionStrategy, thesaurus);
+                    deviceComTasksInfo.connectionStrategyKey = connectionStrategy.name();
                 }
 
             } else {
                 Optional<ConnectionTask> deviceConnectionTaskOptional = findDefaultConnectionTaskInCompleteTopology(device);
                 if (deviceConnectionTaskOptional.isPresent()) {
-                    deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT.getKey(),MessageSeeds.DEFAULT.getKey()) +
+                    deviceComTasksInfo.connectionMethod = thesaurus.getFormat(DefaultTranslationKey.DEFAULT).format() +
                             " (" + deviceConnectionTaskOptional.get().getName() + ")";
                     deviceComTasksInfo.connectionDefinedOnDevice = true;
                 } else {
-               //     deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT_NOT_DEFINED.getKey(),MessageSeeds.DEFAULT_NOT_DEFINED.getKey());
-                    deviceComTasksInfo.connectionMethod = thesaurus.getString(MessageSeeds.DEFAULT.getKey(),MessageSeeds.DEFAULT.getKey());
+                    deviceComTasksInfo.connectionMethod = thesaurus.getFormat(DefaultTranslationKey.DEFAULT).format();
                     deviceComTasksInfo.connectionDefinedOnDevice = false;
                 }
-
-
             }
         } else {
             if (comTaskEnablement.getPartialConnectionTask().isPresent()) {
@@ -207,16 +213,14 @@ public class DeviceComTaskInfoFactory {
                     deviceComTasksInfo.connectionMethod = partialConnectionTask.getName();
                     deviceComTasksInfo.connectionDefinedOnDevice = true;
                 } else {
-                    deviceComTasksInfo.connectionMethod = partialConnectionTask.getName(); // + ' ' + thesaurus.getString(MessageSeeds.NOT_DEFINED_YET.getKey(),MessageSeeds.NOT_DEFINED_YET.getKey());
+                    deviceComTasksInfo.connectionMethod = partialConnectionTask.getName();
                     deviceComTasksInfo.connectionDefinedOnDevice = false;
                 }
 
                 if (partialConnectionTask instanceof PartialScheduledConnectionTask) {
                     ConnectionStrategy connectionStrategy = ((PartialScheduledConnectionTask) partialConnectionTask).getConnectionStrategy();
-                    ConnectionStrategyAdapter connectionStrategyAdapter = new ConnectionStrategyAdapter();
-                    String connectionStrategyValue = connectionStrategyAdapter.marshal(connectionStrategy);
-                    deviceComTasksInfo.connectionStrategy = thesaurus.getString(connectionStrategyValue,connectionStrategyValue);
-                    deviceComTasksInfo.connectionStrategyKey = connectionStrategyValue;
+                    deviceComTasksInfo.connectionStrategy = ConnectionStrategyTranslationKeys.translationFor(connectionStrategy, thesaurus);
+                    deviceComTasksInfo.connectionStrategyKey = connectionStrategy.name();
                 }
             }
         }
@@ -237,4 +241,5 @@ public class DeviceComTaskInfoFactory {
         INDIVIDUAL,
         SHARED
     }
+
 }
