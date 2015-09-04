@@ -1,9 +1,11 @@
 package com.elster.jupiter.rest.util.impl;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     INVALID_VALUE(1, "RUT.InvalidValue", "Invalid value", Level.SEVERE),
     FIELD_CAN_NOT_BE_EMPTY(2, "RUT.FieldCanNotBeEmpty", "This field is required", Level.SEVERE),
