@@ -2,13 +2,12 @@ package com.elster.jupiter.users;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
     NO_DEFAULT_REALM(1001, "domain.no.default", "No default domain found.", Level.SEVERE),
     NO_REALM_FOUND(1002, "domain.not.found", "No domain found with the name {0}.", Level.SEVERE),
     FIELD_CAN_NOT_BE_EMPTY(1003, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
@@ -16,7 +15,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     ONLY_ONE_DEFAULT_KEY_PER_LOCALE_ALLOWED(1005, Keys.ONLY_ONE_DEFAULT_KEY_PER_LOCALE_ALLOWED, "Only one default key per locale is allowed", Level.SEVERE),
     DUPLICATE_GROUP_NAME(1006, Keys.DUPLICATE_GROUP_NAME, "Duplicate name", Level.SEVERE)
     ;
-    
+
     private final int number;
     private final String key;
     private final String defaultFormat;
@@ -66,7 +65,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     public enum Keys {
         ;
-        
+
         public static final String FIELD_CAN_NOT_BE_EMPTY = "FieldCanNotBeEmpty";
         public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "FieldSizeBetween1and80";
         public static final String ONLY_ONE_DEFAULT_KEY_PER_LOCALE_ALLOWED = "OnlyOneDefaultKeyPerLocaleAllowed";
