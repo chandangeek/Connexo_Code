@@ -4,13 +4,13 @@ import com.elster.jupiter.datavault.DataVault;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.datavault.LegacyDataVaultProvider;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -28,10 +28,10 @@ import java.util.List;
  */
 @Component(
         name = "com.elster.kore.datavault",
-        service = {DataVaultService.class, InstallService.class, TranslationKeyProvider.class},
+        service = {DataVaultService.class, InstallService.class, MessageSeedProvider.class},
         property = "name=" + DataVaultService.COMPONENT_NAME,
         immediate = true)
-public class DataVaultServiceImpl implements DataVaultService, InstallService, TranslationKeyProvider {
+public class DataVaultServiceImpl implements DataVaultService, InstallService, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -41,7 +41,8 @@ public class DataVaultServiceImpl implements DataVaultService, InstallService, T
     }
 
     @Inject
-    public DataVaultServiceImpl(NlsService nlsService, OrmService ormService){
+    public DataVaultServiceImpl(NlsService nlsService, OrmService ormService) {
+        this();
         setNlsService(nlsService);
         setOrmService(ormService);
         activate();
@@ -108,17 +109,13 @@ public class DataVaultServiceImpl implements DataVaultService, InstallService, T
     }
 
     @Override
-    public String getComponentName() {
-        return DataVaultService.COMPONENT_NAME;
-    }
-
-    @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
+
 }
