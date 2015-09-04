@@ -1,10 +1,12 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
+import com.energyict.mdc.device.configuration.rest.SecurityPropertySetPrivilegeTranslationKeys;
+
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.common.rest.IdWithNameInfo;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 
 import javax.inject.Inject;
 import java.util.Collection;
@@ -28,7 +30,7 @@ public class ExecutionLevelInfoFactory {
         return userActions.stream().
                         map(userAction -> new ExecutionLevelInfo(
                                 userAction.getPrivilege(),
-                                thesaurus.getString(userAction.getPrivilege(), userAction.getPrivilege()),
+                                SecurityPropertySetPrivilegeTranslationKeys.translationFor(userAction.getPrivilege(), thesaurus),
                                 allGroups.stream()
                                         .filter(group -> group.hasPrivilege("MDC", userAction.getPrivilege()))
                                         .sorted((group1, group2) -> group1.getName().compareToIgnoreCase(group2.getName()))

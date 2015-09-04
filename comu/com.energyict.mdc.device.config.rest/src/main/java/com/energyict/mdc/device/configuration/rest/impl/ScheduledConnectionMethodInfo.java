@@ -1,9 +1,8 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
@@ -14,6 +13,9 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.Checks;
+
 import javax.ws.rs.core.UriInfo;
 
 public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialScheduledConnectionTask> {
@@ -23,8 +25,10 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
 
     public ScheduledConnectionMethodInfo(PartialScheduledConnectionTask partialConnectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
         super(partialConnectionTask, uriInfo, mdcPropertyUtils);
-        this.connectionStrategy=partialConnectionTask.getConnectionStrategy();
-        this.allowSimultaneousConnections=partialConnectionTask.isSimultaneousConnectionsAllowed();
+        if (partialConnectionTask.getConnectionStrategy() != null) {
+            this.connectionStrategy = partialConnectionTask.getConnectionStrategy().name();
+        }
+        this.allowSimultaneousConnections = partialConnectionTask.isSimultaneousConnectionsAllowed();
         this.rescheduleRetryDelay = TimeDurationInfo.of(partialConnectionTask.getRescheduleDelay());
         if (partialConnectionTask.getCommunicationWindow()!=null) {
             this.comWindowStart=partialConnectionTask.getCommunicationWindow().getStart().getMillis()/1000;
@@ -47,7 +51,9 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         } else {
             partialConnectionTask.setComWindow(null);
         }
-        partialConnectionTask.setConnectionStrategy(this.connectionStrategy);
+        if (!Checks.is(this.connectionStrategy).emptyOrOnlyWhiteSpace()) {
+            partialConnectionTask.setConnectionStrategy(ConnectionStrategy.valueOf(this.connectionStrategy));
+        }
         if (!Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace()) {
             engineConfigurationService.findOutboundComPortPoolByName(this.comPortPool).ifPresent(partialConnectionTask::setComportPool);
         } else {
@@ -68,7 +74,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         TimeDuration rescheduleDelay = this.rescheduleRetryDelay == null ? null : this.rescheduleRetryDelay.asTimeDuration();
         PartialScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder =
                 deviceConfiguration
-                        .newPartialScheduledConnectionTask(this.name, connectionTypePluggableClass, rescheduleDelay, this.connectionStrategy)
+                        .newPartialScheduledConnectionTask(this.name, connectionTypePluggableClass, rescheduleDelay, ConnectionStrategy.valueOf(this.connectionStrategy))
                         .comPortPool(engineConfigurationService.findOutboundComPortPoolByName(this.comPortPool).orElse(null))
                         .asDefault(this.isDefault)
                         .allowSimultaneousConnections(this.allowSimultaneousConnections);

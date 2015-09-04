@@ -1,12 +1,5 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -18,10 +11,18 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.TaskService;
 
-import org.junit.Before;
-import org.mockito.Mock;
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.validation.ValidationService;
 
 import javax.ws.rs.core.Application;
+
+import org.junit.*;
+import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -67,12 +68,9 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     }
 
     @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
-    }
-
-    @Override
     protected Application getApplication() {
+        when(thesaurus.join(any(Thesaurus.class))).thenReturn(thesaurus);
+
         DeviceConfigurationApplication application = new DeviceConfigurationApplication();
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);

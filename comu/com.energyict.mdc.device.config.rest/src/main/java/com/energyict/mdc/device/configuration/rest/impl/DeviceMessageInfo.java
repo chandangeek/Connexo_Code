@@ -1,8 +1,9 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+
+import com.elster.jupiter.nls.Thesaurus;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
@@ -37,4 +38,5 @@ public class DeviceMessageInfo {
                 .collect(Collectors.toList());
         return info;
     }
+
 }

@@ -1,17 +1,19 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import java.util.Optional;
-import org.junit.Test;
+
+import com.elster.jupiter.time.TimeDuration;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -53,7 +55,6 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
 
     @Test
     public void testDeleteLoadProfileTypeFromDeviceType(){
-        mockNlsMessageFormat();
         DeviceType deviceType = mockDeviceType("device", 2);
         TimeDuration interval = getRandomTimeDuration();
         LoadProfileType loadProfileType = mockLoadProfileType(2, "name", interval, new ObisCode(0, 1, 2, 3, 4, 5), getChannelTypes(1, interval));
@@ -73,7 +74,6 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
     @Test
     public void testAddLoadProfileTypesForDeviceType(){
         DeviceType deviceType = mockDeviceType("device", 1);
-        mockNlsMessageFormat();
         List<Integer> ids = new ArrayList<>();
         Entity<List<Integer>> json = Entity.json(ids);
         TimeDuration interval = getRandomTimeDuration();
