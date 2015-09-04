@@ -7,8 +7,6 @@ import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.elster.jupiter.util.exception.MessageSeed;
-
 import javax.ws.rs.core.Application;
 
 import org.mockito.Mock;
@@ -29,11 +27,6 @@ public class PluggableRestApplicationJerseyTest extends com.elster.jupiter.devto
     UserFileFactory userFileFactory;
     @Mock
     FirmwareService firmwareService;
-
-    @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
-    }
 
     @Override
     protected Application getApplication() {
