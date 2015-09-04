@@ -9,7 +9,6 @@ import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.FileImporterProperty;
 import com.elster.jupiter.fileimport.ImportSchedule;
-import com.elster.jupiter.fileimport.MessageSeeds;
 import com.elster.jupiter.fileimport.MissingRequiredProperty;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
