@@ -21,7 +21,6 @@ Ext.define('Uni.override.form.field.ComboBoxOverride', {
                 return '{' + displayField  + ':htmlEncode}';
             }
         });
-        //me.getPicker() && me.getPicker().setOverflowXY('hidden', 'auto');
         this.callParent(arguments);
     }
 });
