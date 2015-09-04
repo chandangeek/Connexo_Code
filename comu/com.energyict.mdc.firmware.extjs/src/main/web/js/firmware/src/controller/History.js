@@ -86,13 +86,11 @@ Ext.define('Fwc.controller.History', {
                     action: 'showDeviceFirmwareLog',
                     callback: function (route) {
                         this.getApplication().on('loadFirmware', function (firmware) {
-                            route.setTitle(Uni.I18n.translatePlural(['deviceFirmware',  firmware.getAssociatedData().firmwareType.id, , 'log', 'title'].join('.'),
-                                firmware.get('firmwareVersion'),
-                                'FWC', 'Meter firmware upgrade log to version "{0}"'
-                            ));
+                            route.setTitle(
+                                Uni.I18n.translate('deviceFirmware.log.title', 'FWC', "Meter firmware upgrade log to version '{0}'", [firmware.get('firmwareVersion')])
+                            );
                             return true;
                         }, {single: true});
-
                         return this;
                     }
                 }
