@@ -1,6 +1,7 @@
 package com.elster.jupiter.license.impl;
 
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
@@ -10,7 +11,7 @@ import java.util.logging.Level;
  * Date: 28/03/2014
  * Time: 16:47
  */
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
     INVALID_LICENSE(0, "invalid.license", "Invalid license file", Level.SEVERE),
     ALREADY_ACTIVE(1, "license.already.active", "License is already active", Level.SEVERE),
     NEWER_LICENSE_EXISTS(2, "newer.license.active", "A newer license is already active", Level.SEVERE),

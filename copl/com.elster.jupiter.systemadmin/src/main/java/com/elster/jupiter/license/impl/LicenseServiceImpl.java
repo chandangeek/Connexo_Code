@@ -5,6 +5,9 @@ import com.elster.jupiter.license.InvalidLicenseException;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.license.security.Privileges;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -45,9 +48,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Date: 28/03/2014
  * Time: 16:28
  */
-@Component(name = "com.elster.jupiter.license", service = {InstallService.class, LicenseService.class, PrivilegesProvider.class},
-        property = {"name=" + LicenseService.COMPONENTNAME}, immediate = true)
-public class LicenseServiceImpl implements LicenseService, InstallService, PrivilegesProvider {
+@Component(
+        name = "com.elster.jupiter.license",
+        service = {InstallService.class, LicenseService.class, PrivilegesProvider.class, TranslationKeyProvider.class},
+        property = {"name=" + LicenseService.COMPONENTNAME},
+        immediate = true)
+public class LicenseServiceImpl implements LicenseService, InstallService, PrivilegesProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile OrmService ormService;
@@ -253,6 +259,21 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
 
     public void clearCache() {
         ormService.invalidateCache(COMPONENTNAME, TableSpecs.LIC_LICENSE.name());
+    }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENTNAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     class LicenseCheckTask extends TimerTask {
