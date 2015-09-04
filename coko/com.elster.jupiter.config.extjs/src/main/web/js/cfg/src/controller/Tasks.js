@@ -241,7 +241,7 @@ Ext.define('Cfg.controller.Tasks', {
                 var schedule = record.get('schedule');
                 me.taskModel = record;
                 me.getApplication().fireEvent('validationtaskload', record);
-                taskForm.setTitle(Uni.I18n.translate('general.edit', 'CFG', 'Edit') + " '" + Ext.String.htmlEncode(record.get('name')) + "'");
+                taskForm.setTitle(Uni.I18n.translate('general.editx', 'CFG', "Edit '{0}'",[record.get('name')]));
                 taskForm.loadRecord(record);
 
                 deviceGroupCombo.store.load({
@@ -418,7 +418,7 @@ Ext.define('Cfg.controller.Tasks', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show({
             msg: Uni.I18n.translate('validationTasks.general.remove.msg', 'CFG', 'This validation task will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'CFG', 'Remove') + " '" + record.data.name + "'?",
+            title: Uni.I18n.translate('general.removex', 'CFG', "Remove '{0}'",[record.data.name]),
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {
