@@ -51,9 +51,9 @@ Ext.define('Imt.registerdata.view.Setup', {
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
                         itemId: 'ctr-no-device-register-config',
-                        title: Uni.I18n.translate('deviceregisterconfiguration.empty.title', 'MDC', 'No registers found'),
+                        title: Uni.I18n.translate('deviceregisterconfiguration.empty.title', 'IMT', 'No registers found'),
                         reasons: [
-                            Uni.I18n.translate('deviceregisterconfiguration.empty.list.item1', 'MDC', 'No registers have been defined yet.')
+                            Uni.I18n.translate('deviceregisterconfiguration.empty.list.item1', 'IMT', 'No registers have been defined yet.')
                         ]
                     },
                     previewComponent: {

@@ -4,22 +4,26 @@ Ext.define('Imt.registerdata.controller.View', {
         'Imt.registerdata.store.Register',
         'Imt.registerdata.view.Setup',
         'Imt.registerdata.view.Preview',
-        'Imt.registerdata.store.Reading',
-        'Imt.registerdata.view.ReadingsSetup',
-        'Imt.registerdata.view.ReadingPreview'
+        'Imt.registerdata.store.RegisterData',
+        'Imt.registerdata.view.RegisterDataSetup',
+        'Imt.registerdata.view.RegisterDataPreview'
     ],
     models: [
         'Imt.usagepointmanagement.model.UsagePoint',
         'Imt.registerdata.model.Register',
-        'Imt.registerdata.model.Reading'
+        'Imt.registerdata.model.RegisterData',
+        'Imt.model.DataIntervalAndZoomLevels',
+        'Imt.model.ChannelDataDuration'
     ],
     stores: [
         'Imt.registerdata.store.Register',
-        'Imt.registerdata.store.Reading'
+        'Imt.registerdata.store.RegisterData',
+        'Imt.store.DataIntervalAndZoomLevels',
+        'Imt.store.ChannelDataDurations'
     ],
     views: [
         'Imt.registerdata.view.RegisterList',
-        'Imt.registerdata.view.ReadingList'
+        'Imt.registerdata.view.RegisterDataList'
     ],
     refs: [
         {ref: 'overviewLink', selector: '#usage-point-overview-link'},
@@ -27,12 +31,10 @@ Ext.define('Imt.registerdata.controller.View', {
         {ref: 'registerListSetup', selector: '#registerListSetup'},
         {ref: 'registerPreview', selector: '#registerPreview'},
         
-        {ref: 'readingOverviewLink', selector: '#reading-overview-link'},
-        {ref: 'readingList', selector: '#readingList'},
-        {ref: 'readingListSetup', selector: '#readingListSetup'},
-        {ref: 'readingPreview', selector: '#readingPreview'},
-        
-        {ref: 'stepsMenu', selector: '#stepsMenu'}
+        {ref: 'registerDataOverviewLink', selector: '#register-data-overview-link'},
+        {ref: 'registerDataList', selector: '#registerDataList'},
+        {ref: 'registerDataSetup', selector: '#registerDataSetup'},
+        {ref: 'registerDataPreview', selector: '#registerDataPreview'},
     ],
     init: function () {
         var me = this;
@@ -40,20 +42,15 @@ Ext.define('Imt.registerdata.controller.View', {
             '#registerList': {
                 select: me.onRegisterListSelect
             },
-            '#readingList': {
-                select: me.onReadingListSelect
+            '#registerDataList': {
+                select: me.onRegisterDataListSelect
             },
-            '#deviceRegisterConfigurationActionMenu': {
-                click: this.chooseAction
-            },
-            '#registerActionMenu': {
-                click: this.chooseAction
-            }
         });
     },
     showUsagePointRegisters: function (mRID) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
+            dataStore = me.getStore('Imt.registerdata.store.Register'),
             usagePoint = Ext.create('Imt.usagepointmanagement.model.UsagePoint'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
        
@@ -63,8 +60,11 @@ Ext.define('Imt.registerdata.controller.View', {
         me.getApplication().fireEvent('usagePointLoaded', usagePoint);
         me.getApplication().fireEvent('changecontentevent', widget);
         me.getOverviewLink().setText(mRID);
-        me.getRegisterList().getSelectionModel().select(0);
-        pageMainContent.setLoading(false);
+        dataStore.getProxy().setUrl(mRID);
+        dataStore.load(function() {
+        	me.getRegisterList().getSelectionModel().select(0);
+        	pageMainContent.setLoading(false);
+        })
     },
     
     onRegisterListSelect: function (rowmodel, record, index) {
@@ -79,47 +79,63 @@ Ext.define('Imt.registerdata.controller.View', {
             previewContainer = me.getRegisterListSetup().down('#previewComponentContainer');
         
         form.loadRecord(record);
-        widget.setTitle(record.get('readingTypeAlias'));
+        widget.setTitle(record.get('readingTypeFullAliasName'));
         previewContainer.removeAll();
         previewContainer.add(widget);
    	
     },
     
-    showUsagePointReading: function(mRID, readingTypemRID) {
+    showUsagePointRegisterData: function(mRID, registerId) {
 	     var me = this,
+         dataStore = me.getStore('Imt.registerdata.store.RegisterData'),
          router = me.getController('Uni.controller.history.Router'),
-         usagePoint = Ext.create('Imt.usagepointmanagement.model.UsagePoint'),
+         registerModel = me.getModel('Imt.registerdata.model.Register'),
+         durationsStore = me.getStore('Imt.registerdata.store.RegisterDataDurations'),
          pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 	     
 	     pageMainContent.setLoading(true);
-	     var widget = Ext.widget('readingListSetup', {router: router, mRID: mRID, readingTypemRID: readingTypemRID});
-	     usagePoint.set('mRID', mRID);
-	     me.getApplication().fireEvent('usagePointLoaded', usagePoint);
-	     me.getApplication().fireEvent('changecontentevent', widget);
-	     me.getOverviewLink().setText(mRID);
-	     me.getReadingList().getSelectionModel().select(0);
-	     pageMainContent.setLoading(false);
+	     registerModel.getProxy().setUrl({mRID: mRID, registerId: registerId});
+	     registerModel.load(registerId, {
+            success: function (record) {
+                var widget = Ext.widget('registerDataSetup', {
+                        router: router, 
+                        mRID: mRID, 
+                        filter: {
+                           fromDate: new Date().getTime(),
+                           duration: '1months',
+                           durationStore: durationsStore
+                        }
+                });
+                me.getApplication().fireEvent('registerDataLoaded', record);
+                me.getApplication().fireEvent('changecontentevent', widget);
+                me.getOverviewLink().setText(mRID); 
+                dataStore.getProxy().setUrl({mRID: mRID, registerId: registerId});
+	            dataStore.load(function() {
+	            	me.getRegisterDataList().getSelectionModel().select(0);
+	            	pageMainContent.setLoading(false);
+	            });
+            }
+	     });
     },
-    onReadingListSelect: function (rowmodel, record, index) {
+    onRegisterDataListSelect: function (rowmodel, record, index) {
         var me = this;
-        me.previewReadingData(record);
+        me.previewRegisterData2(record);
     },
-    previewReadingData: function (record) {
+    previewRegisterData2: function (record) {
         var me = this,
-            widget = Ext.widget('readingPreview'), 
-            form = widget.down('#readingPreviewForm'),
-            previewContainer = me.getReadingListSetup().down('#previewComponentContainer');
+            widget = Ext.widget('registerDataPreview'), 
+            form = widget.down('#registerDataPreviewForm'),
+            previewContainer = me.getRegisterDataSetup().down('#previewComponentContainer');
         
         form.loadRecord(record);
-        var datestr = Uni.DateTime.formatDateLong(new Date(record.get('utcTimestamp')))
+        var datestr = Uni.DateTime.formatDateLong(new Date(record.get('readingTime')))
         			+ ' ' + Uni.I18n.translate('general.at', 'IMT', 'At').toLowerCase() + ' '
-        				+ Uni.DateTime.formatTimeLong(new Date(record.get('utcTimestamp')));
+        				+ Uni.DateTime.formatTimeLong(new Date(record.get('readingTime')));
         widget.setTitle(datestr);
         previewContainer.removeAll();
         previewContainer.add(widget);
    	
     },
-    
     
     
 });

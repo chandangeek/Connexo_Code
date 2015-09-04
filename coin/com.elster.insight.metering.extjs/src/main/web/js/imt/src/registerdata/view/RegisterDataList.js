@@ -1,16 +1,16 @@
-Ext.define('Imt.registerdata.view.RegisterList', {
+Ext.define('Imt.registerdata.view.RegisterDataList', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.registerList',
+    alias: 'widget.registerDataList',
     requires: [
-        'Imt.registerdata.store.Register',
+        'Imt.registerdata.store.RegisterData',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Imt.registerdata.view.ActionMenu'
     ],
-    store: 'Imt.registerdata.store.Register',
+    store: 'Imt.registerdata.store.RegisterData',
     overflowY: 'auto',
-    itemId: 'registerList',
-    title: Uni.I18n.translate('registers.registerList', 'IMT', 'Registers'),
+    itemId: 'registerDataList',
+    title: Uni.I18n.translate('registers.registerDataList', 'IMT', 'Readings'),
     viewConfig: {
         style: { overflow: 'auto', overflowX: 'hidden' },
         enableTextSelection: true
@@ -20,20 +20,9 @@ Ext.define('Imt.registerdata.view.RegisterList', {
         var me = this;
         me.columns = [
         {
-            header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Registers'),
+            header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Reading timestamp'),
             flex: 1,
-            dataIndex: 'readingTypeFullAliasName', 
-            renderer: function (value, b, record) {
-                var me = this,
-                   url = me.router.getRoute('administration/usagepoint/registers/register').buildUrl({mRID: me.mRID, registerId: record.get('readingTypemRID')});//record.get('id')});
-
-                return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
-            }
-        },
-        {
-            header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Last reading timestamp'),
-            flex: 1,
-            dataIndex: 'lastValueTimestamp', 
+            dataIndex: 'readingTime', 
             renderer: function(value){
                 if(!Ext.isEmpty(value)) {
                     return Uni.DateTime.formatDateTimeLong(new Date(value));
@@ -42,17 +31,22 @@ Ext.define('Imt.registerdata.view.RegisterList', {
             },
         },
         {
-            header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Last reading value'),
+            header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Reading Value'),
             flex: 1,
-            dataIndex: 'lastReadingValue', 
+            dataIndex: 'value', 
         },
         {
-            xtype: 'uni-actioncolumn',
-            menu: {
-                xtype: 'registerActionMenu',
-                itemId: 'registerActionMenu'
-            }
-        }
+            header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Delta Value'),
+            flex: 1,
+            dataIndex: 'deltaValue', 
+        },
+//        {
+//            xtype: 'uni-actioncolumn',
+//            menu: {
+//                xtype: 'registerActionMenu',
+//                itemId: 'registerActionMenu'
+//            }
+//        }
     ];
 //        me.dockedItems = [
 //              {
@@ -69,7 +63,7 @@ Ext.define('Imt.registerdata.view.RegisterList', {
 //                  params: [
 //                      {mRID: me.mRID}
 //                  ],
-//                  itemsPerPageMsg: Uni.I18n.translate('registerdata.pagingtoolbarbottom.itemsPerPage', 'IMT', 'Register configurations per page'),
+//                  itemsPerPageMsg: Uni.I18n.translate('registerdata.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Register configurations per page'),
 //                  dock: 'bottom'
 //              }
 //          ];

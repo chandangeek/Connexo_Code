@@ -1,12 +1,13 @@
-Ext.define('Imt.registerdata.view.ReadingsSetup', {
+Ext.define('Imt.registerdata.view.RegisterDataSetup', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.readingListSetup',
-    itemId: 'readingListSetup',
+    alias: 'widget.registerDataSetup',
+    itemId: 'registerDataSetup',
     requires: [
-        'Imt.registerdata.view.RegisterList',
+//        'Imt.registerdata.view.RegisterList',
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
-        'Imt.registerdata.view.ReadingList',
+        'Imt.registerdata.view.RegisterDataList',
+        'Imt.registerdata.view.RegisterTopFilter'
     ],
     router: null,
     initComponent: function () {
@@ -21,7 +22,7 @@ Ext.define('Imt.registerdata.view.ReadingsSetup', {
                         xtype: 'usage-point-management-side-menu',
                         itemId: 'usage-point-management-side-menu',
                         router: me.router,
-                        mRID: me.mRID
+                        mRID: me.mRID,
                     }
                 ]
             }
@@ -31,7 +32,7 @@ Ext.define('Imt.registerdata.view.ReadingsSetup', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                itemId: 'readingListSetupPanel',
+                itemId: 'registerDataSetupPanel',
                 layout: {
                     type: 'fit',
                     align: 'stretch'
@@ -41,31 +42,39 @@ Ext.define('Imt.registerdata.view.ReadingsSetup', {
                         marginRight: '20px',
                         padding: '20px'
                     }
-                },
+                },       
+
                 items: [{
                     xtype: 'preview-container',    
                     grid: {
-                        xtype: 'readingList',
-                        readingtypemRID: me.readingtypemRID,
+                        xtype: 'registerDataList',
+                        router: me.router,
                         mRID: me.mRID,
-                        router: me.router
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
                         itemId: 'ctr-no-device-register-config',
-                        title: Uni.I18n.translate('deviceregisterconfiguration.empty.title', 'MDC', 'No registers found'),
+                        title: Uni.I18n.translate('deviceregisterconfiguration.empty.title', 'IMT', 'No registers found'),
                         reasons: [
-                            Uni.I18n.translate('deviceregisterconfiguration.empty.list.item1', 'MDC', 'No registers have been defined yet.')
+                            Uni.I18n.translate('deviceregisterconfiguration.empty.list.item1', 'IMT', 'No registers have been defined yet.')
                         ]
                     },
                     previewComponent: {
                         xtype: 'container',
                         itemId: 'previewComponentContainer'
                     }
-                }]
+                }],
+                dockedItems: [
+                    {
+                        dock: 'top',
+                        xtype: 'imt-registerdata-topfilter',
+                        itemId: 'registerdatafilterpanel',
+                        hasDefaultFilters: true,
+                        filterDefault: me.filter
+                    }
+                 ]
             }
         ];
         me.callParent(arguments);
-        me.down('#readingList').setTitle(me.readingTypemRID);
     }
 });
