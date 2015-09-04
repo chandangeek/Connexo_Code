@@ -4,15 +4,19 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.fileimport.*;
+import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.FileImportOccurrenceFinderBuilder;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.FileImporterFactory;
+import com.elster.jupiter.fileimport.ImportSchedule;
+import com.elster.jupiter.fileimport.ImportScheduleBuilder;
 import com.elster.jupiter.fileimport.security.Privileges;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -27,12 +31,18 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.CompositeScheduleExpressionParser;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 import com.google.inject.AbstractModule;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -40,7 +50,11 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -49,10 +63,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.fileimport",
-        service = {InstallService.class, FileImportService.class, PrivilegesProvider.class, TranslationKeyProvider.class},
+        service = {InstallService.class, FileImportService.class, PrivilegesProvider.class, MessageSeedProvider.class},
         property = {"name=" + FileImportService.COMPONENT_NAME},
         immediate = true)
-public class FileImportServiceImpl implements InstallService, FileImportService, PrivilegesProvider,TranslationKeyProvider {
+public class FileImportServiceImpl implements InstallService, FileImportService, PrivilegesProvider, MessageSeedProvider {
 
     private static final Logger LOGGER = Logger.getLogger(FileImportServiceImpl.class.getName());
     private static final String COMPONENTNAME = "FIS";
@@ -72,16 +86,15 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
 
     private List<FileImporterFactory> importerFactories = new CopyOnWriteArrayList<>();
 
-
     private CronExpressionScheduler cronExpressionScheduler;
     private Path basePath;
 
     public FileImportServiceImpl(){
-
     }
 
     @Inject
     public FileImportServiceImpl(OrmService ormService, MessageService messageService, NlsService nlsService,  QueryService queryService, Clock clock, UserService userService, JsonService jsonService, TransactionService transactionService, CronExpressionParser cronExpressionParser, FileSystem fileSystem) {
+        this();
         setOrmService(ormService);
         setMessageService(messageService);
         setNlsService(nlsService);
@@ -215,9 +228,10 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
 
     @Override
     public void schedule(ImportSchedule importSchedule) {
-        if(importSchedule.getObsoleteTime() == null)
+        if (importSchedule.getObsoleteTime() == null) {
             cronExpressionScheduler.submit(new ImportScheduleJob(path -> !Files.isDirectory(path), fileUtils, jsonService,
-                this, importSchedule.getId(), transactionService, thesaurus, cronExpressionParser, clock));
+                    this, importSchedule.getId(), transactionService, thesaurus, cronExpressionParser, clock));
+        }
     }
     @Override
     public void unSchedule(ImportSchedule importSchedule) {
@@ -277,8 +291,9 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
     @Override
     public Finder<ImportSchedule> findImportSchedules(String applicationName) {
         Condition condition = Condition.TRUE;
-        if(!"SYS".equalsIgnoreCase(applicationName))
+        if (!"SYS".equalsIgnoreCase(applicationName)) {
             condition = condition.and(Where.where("applicationName").isEqualToIgnoreCase(applicationName));
+        }
         condition = condition.and(Where.where("obsoleteTime").isNull());
         return DefaultFinder.of(ImportSchedule.class, condition, dataModel);
     }
@@ -286,18 +301,21 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
     @Override
     public Finder<ImportSchedule> findAllImportSchedules(String applicationName) {
         Condition condition = Condition.TRUE;
-        if(!"SYS".equalsIgnoreCase(applicationName))
+        if (!"SYS".equalsIgnoreCase(applicationName)) {
             condition = condition.and(Where.where("applicationName").isEqualToIgnoreCase(applicationName));
+        }
         return DefaultFinder.of(ImportSchedule.class, condition, dataModel);
     }
 
     @Override
     public FileImportOccurrenceFinderBuilder getFileImportOccurrenceFinderBuilder(String applicationName, Long importScheduleId) {
         Condition condition = Condition.TRUE;
-        if(!"SYS".equalsIgnoreCase(applicationName))
+        if (!"SYS".equalsIgnoreCase(applicationName)) {
             condition = condition.and(Where.where("importSchedule.applicationName").isEqualToIgnoreCase(applicationName));
-        if(importScheduleId != null)
+        }
+        if (importScheduleId != null) {
             condition = condition.and(Where.where("importScheduleId").isEqualTo(importScheduleId));
+        }
         return new FileImportOccurrenceFinderBuilderImpl(dataModel, condition);
     }
 
@@ -335,8 +353,9 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
 
     @Override
     public Path getBasePath() {
-        if(this.basePath == null)
+        if (this.basePath == null) {
             this.basePath = fileSystem.getPath("/");
+        }
         return this.basePath;
     }
 
@@ -355,17 +374,13 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
     }
 
     @Override
-    public String getComponentName() {
-        return COMPONENT_NAME;
-    }
-
-    @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
+
 }
