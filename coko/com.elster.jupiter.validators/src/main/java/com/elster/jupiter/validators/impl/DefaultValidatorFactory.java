@@ -2,12 +2,14 @@ package com.elster.jupiter.validators.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import org.osgi.service.component.annotations.Component;
@@ -21,10 +23,10 @@ import java.util.Map;
 
 @Component(
         name = "com.elster.jupiter.validators.impl.DefaultValidatorFactory",
-        service = {ValidatorFactory.class, TranslationKeyProvider.class},
+        service = {ValidatorFactory.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = "name=" + MessageSeeds.COMPONENT_NAME,
         immediate = true)
-public class DefaultValidatorFactory implements ValidatorFactory, TranslationKeyProvider {
+public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedProvider, TranslationKeyProvider {
 
     public static final String THRESHOLD_VALIDATOR = ThresholdValidator.class.getName();
     public static final String MISSING_VALUES_VALIDATOR = MissingValuesValidator.class.getName();
@@ -40,8 +42,10 @@ public class DefaultValidatorFactory implements ValidatorFactory, TranslationKey
 
     @Inject
     public DefaultValidatorFactory(NlsService nlsService, PropertySpecService propertySpecService, MeteringService meteringService) {
+        this();
     	setNlsService(nlsService);
     	setPropertySpecService(propertySpecService);
+        setMeteringService(meteringService);
     }
 
     @Reference
@@ -70,6 +74,11 @@ public class DefaultValidatorFactory implements ValidatorFactory, TranslationKey
     }
 
     @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
+    @Override
     public List<TranslationKey> getKeys() {
         List<TranslationKey> translationKeys = new ArrayList<>(ValidatorDefinition.values().length + MessageSeeds.values().length) ;
         for (ValidatorDefinition validatorDefinition : ValidatorDefinition.values()) {
@@ -84,7 +93,6 @@ public class DefaultValidatorFactory implements ValidatorFactory, TranslationKey
                     .map(extraTranslation -> new SimpleTranslationKey(extraTranslation.getFirst().getKey(), extraTranslation.getLast()))
                     .forEach(translationKeys::add);
         }
-        translationKeys.addAll(Arrays.asList(MessageSeeds.values()));
         return translationKeys;
     }
 
