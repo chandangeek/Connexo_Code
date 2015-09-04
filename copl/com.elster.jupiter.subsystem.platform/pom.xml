@@ -251,10 +251,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>yellowfin.extjs</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>yellowfin.installer</artifactId>
         </dependency>
 
