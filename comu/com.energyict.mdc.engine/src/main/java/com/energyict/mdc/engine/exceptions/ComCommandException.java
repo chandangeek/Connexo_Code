@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.exceptions;
 
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.common.ComServerRuntimeException;
 
