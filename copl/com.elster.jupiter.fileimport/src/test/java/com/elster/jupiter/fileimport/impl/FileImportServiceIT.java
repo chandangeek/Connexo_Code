@@ -4,7 +4,6 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.fileimport.*;
-import com.elster.jupiter.fileimport.MessageSeeds;
 import com.elster.jupiter.messaging.*;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsMessageFormat;
