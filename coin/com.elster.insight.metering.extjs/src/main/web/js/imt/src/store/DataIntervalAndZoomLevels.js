@@ -80,31 +80,31 @@ Ext.define('Imt.store.DataIntervalAndZoomLevels', {
                     id: '1days',
                     count: 1,
                     timeUnit: 'days',
-                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.days', 1, 'MDC', 'day')
+                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.days', 1, 'IMT', 'day')
                 },
                 {
                     id: '12hours',
                     count: 12,
                     timeUnit: 'hours',
-                    localizeValue: 12 + ' ' + Uni.I18n.translatePlural('general.timeUnit.hours', 12, 'MDC', 'hours')
+                    localizeValue: 12 + ' ' + Uni.I18n.translatePlural('general.timeUnit.hours', 12, 'IMT', 'hours')
                 },
                 {
                     id: '4hours',
                     count: 4,
                     timeUnit: 'hours',
-                    localizeValue: 4 + ' ' + Uni.I18n.translatePlural('general.timeUnit.hours', 4, 'MDC', 'hours')
+                    localizeValue: 4 + ' ' + Uni.I18n.translatePlural('general.timeUnit.hours', 4, 'IMT', 'hours')
                 },
                 {
                     id: '1hours',
                     count: 1,
                     timeUnit: 'hours',
-                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.hours', 1, 'MDC', 'hour')
+                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.hours', 1, 'IMT', 'hour')
                 },
                 {
                     id: '15minutes',
                     count: 15,
                     timeUnit: 'minutes',
-                    localizeValue: 15 + ' ' + Uni.I18n.translatePlural('general.timeUnit.minutes', 15, 'MDC', 'minutes')
+                    localizeValue: 15 + ' ' + Uni.I18n.translatePlural('general.timeUnit.minutes', 15, 'IMT', 'minutes')
                 }
             ]
         },
@@ -142,31 +142,31 @@ Ext.define('Imt.store.DataIntervalAndZoomLevels', {
                     id: '1weeks',
                     count: 1,
                     timeUnit: 'weeks',
-                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.weeks', 1, 'MDC', 'week')
+                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.weeks', 1, 'IMT', 'week')
                 },
                 {
                     id: '2days',
                     count: 2,
                     timeUnit: 'days',
-                    localizeValue: 2 + ' ' + Uni.I18n.translatePlural('general.timeUnit.days', 2, 'MDC', 'days')
+                    localizeValue: 2 + ' ' + Uni.I18n.translatePlural('general.timeUnit.days', 2, 'IMT', 'days')
                 },
                 {
                     id: '1days',
                     count: 1,
                     timeUnit: 'days',
-                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.days', 1, 'MDC', 'day')
+                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.days', 1, 'IMT', 'day')
                 },
                 {
                     id: '4hours',
                     count: 4,
                     timeUnit: 'hours',
-                    localizeValue: 4 + ' ' + Uni.I18n.translatePlural('general.timeUnit.hours', 4, 'MDC', 'hours')
+                    localizeValue: 4 + ' ' + Uni.I18n.translatePlural('general.timeUnit.hours', 4, 'IMT', 'hours')
                 },
                 {
                     id: '1hours',
                     count: 1,
                     timeUnit: 'hours',
-                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.hours', 1, 'MDC', 'hour')
+                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.hours', 1, 'IMT', 'hour')
                 }
             ]
         },
@@ -204,37 +204,37 @@ Ext.define('Imt.store.DataIntervalAndZoomLevels', {
                     id: '1months',
                     count: 1,
                     timeUnit: 'months',
-                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 1, 'MDC', 'month')
+                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 1, 'IMT', 'month')
                 },
                 {
                     id: '2weeks',
                     count: 2,
                     timeUnit: 'weeks',
-                    localizeValue: 2 + ' ' + Uni.I18n.translatePlural('general.timeUnit.weeks', 2, 'MDC', 'weeks')
+                    localizeValue: 2 + ' ' + Uni.I18n.translatePlural('general.timeUnit.weeks', 2, 'IMT', 'weeks')
                 },
                 {
                     id: '1weeks',
                     count: 1,
                     timeUnit: 'weeks',
-                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.weeks', 1, 'MDC', 'week')
+                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.weeks', 1, 'IMT', 'week')
                 },
                 {
                     id: '2days',
                     count: 2,
                     timeUnit: 'days',
-                    localizeValue: 2 + ' ' + Uni.I18n.translatePlural('general.timeUnit.days', 2, 'MDC', 'days')
+                    localizeValue: 2 + ' ' + Uni.I18n.translatePlural('general.timeUnit.days', 2, 'IMT', 'days')
                 },
                 {
                     id: '1days',
                     count: 1,
                     timeUnit: 'days',
-                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.days', 1, 'MDC', 'day')
+                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.days', 1, 'IMT', 'day')
                 },
                 {
                     id: '4hours',
                     count: 4,
                     timeUnit: 'hours',
-                    localizeValue: 4 + ' ' + Uni.I18n.translatePlural('general.timeUnit.hours', 4, 'MDC', 'hours')
+                    localizeValue: 4 + ' ' + Uni.I18n.translatePlural('general.timeUnit.hours', 4, 'IMT', 'hours')
                 }
             ]
         },
@@ -272,31 +272,31 @@ Ext.define('Imt.store.DataIntervalAndZoomLevels', {
                     id: '2months',
                     count: 2,
                     timeUnit: 'months',
-                    localizeValue: 2 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 2, 'MDC', 'month')
+                    localizeValue: 2 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 2, 'IMT', 'month')
                 },
                 {
                     id: '1months',
                     count: 1,
                     timeUnit: 'months',
-                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 1, 'MDC', 'month')
+                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 1, 'IMT', 'month')
                 },
                 {
                     id: '2weeks',
                     count: 2,
                     timeUnit: 'weeks',
-                    localizeValue: 2 + ' ' + Uni.I18n.translatePlural('general.timeUnit.weeks', 2, 'MDC', 'weeks')
+                    localizeValue: 2 + ' ' + Uni.I18n.translatePlural('general.timeUnit.weeks', 2, 'IMT', 'weeks')
                 },
                 {
                     id: '1weeks',
                     count: 1,
                     timeUnit: 'weeks',
-                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.weeks', 1, 'MDC', 'week')
+                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.weeks', 1, 'IMT', 'week')
                 },
                 {
                     id: '1days',
                     count: 1,
                     timeUnit: 'days',
-                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.days', 1, 'MDC', 'day')
+                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.days', 1, 'IMT', 'day')
                 }
             ]
         },
@@ -334,31 +334,31 @@ Ext.define('Imt.store.DataIntervalAndZoomLevels', {
                     id: '1years',
                     count: 1,
                     timeUnit: 'years',
-                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 1, 'MDC', 'year')
+                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 1, 'IMT', 'year')
                 },
                 {
                     id: '6months',
                     count: 6,
                     timeUnit: 'months',
-                    localizeValue: 6 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 6, 'MDC', 'months')
+                    localizeValue: 6 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 6, 'IMT', 'months')
                 },
                 {
                     id: '3months',
                     count: 3,
                     timeUnit: 'months',
-                    localizeValue: 3 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 3, 'MDC', 'months')
+                    localizeValue: 3 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 3, 'IMT', 'months')
                 },
                 {
                     id: '1months',
                     count: 1,
                     timeUnit: 'months',
-                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 1, 'MDC', 'month')
+                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 1, 'IMT', 'month')
                 },
                 {
                     id: '1weeks',
                     count: 1,
                     timeUnit: 'weeks',
-                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.weeks', 1, 'MDC', 'week')
+                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.weeks', 1, 'IMT', 'week')
                 }
             ]
         },
@@ -396,31 +396,31 @@ Ext.define('Imt.store.DataIntervalAndZoomLevels', {
                     id: '2years',
                     count: 2,
                     timeUnit: 'years',
-                    localizeValue: 2 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 2, 'MDC', 'years')
+                    localizeValue: 2 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 2, 'IMT', 'years')
                 },
                 {
                     id: '1years',
                     count: 1,
                     timeUnit: 'years',
-                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 1, 'MDC', 'year')
+                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 1, 'IMT', 'year')
                 },
                 {
                     id: '6months',
                     count: 6,
                     timeUnit: 'months',
-                    localizeValue: 6 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 6, 'MDC', 'months')
+                    localizeValue: 6 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 6, 'IMT', 'months')
                 },
                 {
                     id: '3months',
                     count: 3,
                     timeUnit: 'months',
-                    localizeValue: 3 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 3, 'MDC', 'months')
+                    localizeValue: 3 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 3, 'IMT', 'months')
                 },
                 {
                     id: '1months',
                     count: 1,
                     timeUnit: 'months',
-                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 1, 'MDC', 'month')
+                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 1, 'IMT', 'month')
                 }
             ]
         },
@@ -458,31 +458,31 @@ Ext.define('Imt.store.DataIntervalAndZoomLevels', {
                     id: '10years',
                     count: 10,
                     timeUnit: 'years',
-                    localizeValue: 10 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 10, 'MDC', 'years')
+                    localizeValue: 10 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 10, 'IMT', 'years')
                 },
                 {
                     id: '5years',
                     count: 5,
                     timeUnit: 'years',
-                    localizeValue: 5 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 5, 'MDC', 'years')
+                    localizeValue: 5 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 5, 'IMT', 'years')
                 },
                 {
                     id: '1years',
                     count: 1,
                     timeUnit: 'years',
-                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 1, 'MDC', 'year')
+                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 1, 'IMT', 'year')
                 },
                 {
                     id: '6months',
                     count: 6,
                     timeUnit: 'months',
-                    localizeValue: 6 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 6, 'MDC', 'months')
+                    localizeValue: 6 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 6, 'IMT', 'months')
                 },
                 {
                     id: '3months',
                     count: 3,
                     timeUnit: 'months',
-                    localizeValue: 3 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 3, 'MDC', 'months')
+                    localizeValue: 3 + ' ' + Uni.I18n.translatePlural('general.timeUnit.months', 3, 'IMT', 'months')
                 }
             ]
         },
@@ -515,25 +515,25 @@ Ext.define('Imt.store.DataIntervalAndZoomLevels', {
                     id: '20years',
                     count: 20,
                     timeUnit: 'years',
-                    localizeValue: 20 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 20, 'MDC', 'years')
+                    localizeValue: 20 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 20, 'IMT', 'years')
                 },
                 {
                     id: '10years',
                     count: 10,
                     timeUnit: 'years',
-                    localizeValue: 10 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 10, 'MDC', 'years')
+                    localizeValue: 10 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 10, 'IMT', 'years')
                 },
                 {
                     id: '5years',
                     count: 5,
                     timeUnit: 'years',
-                    localizeValue: 5 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 5, 'MDC', 'years')
+                    localizeValue: 5 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 5, 'IMT', 'years')
                 },
                 {
                     id: '1years',
                     count: 1,
                     timeUnit: 'years',
-                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 1, 'MDC', 'year')
+                    localizeValue: 1 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 1, 'IMT', 'year')
                 }
             ]
         },
@@ -561,19 +561,19 @@ Ext.define('Imt.store.DataIntervalAndZoomLevels', {
                     id: '20years',
                     count: 20,
                     timeUnit: 'years',
-                    localizeValue: 20 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 20, 'MDC', 'years')
+                    localizeValue: 20 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 20, 'IMT', 'years')
                 },
                 {
                     id: '10years',
                     count: 10,
                     timeUnit: 'years',
-                    localizeValue: 10 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 10, 'MDC', 'years')
+                    localizeValue: 10 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 10, 'IMT', 'years')
                 },
                 {
                     id: '5years',
                     count: 5,
                     timeUnit: 'years',
-                    localizeValue: 5 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 5, 'MDC', 'years')
+                    localizeValue: 5 + ' ' + Uni.I18n.translatePlural('general.timeUnit.years', 5, 'IMT', 'years')
                 }
             ]
         }

@@ -8,12 +8,12 @@ Ext.define('Imt.registerdata.view.ActionMenu', {
     items: [
         {
             itemId: 'viewSuspects',
-            text: Uni.I18n.translate('registerdata.menu.viewsuspects', 'MDC', 'View suspects'),
+            text: Uni.I18n.translate('registerdata.menu.viewsuspects', 'IMT', 'View suspects'),
 //            action: 'viewSuspects'
         },
         {
             itemId: 'validateNowRegister',
-            text: Uni.I18n.translate('registerdata.menu.validate', 'MDC', 'Validate now'),
+            text: Uni.I18n.translate('registerdata.menu.validate', 'IMT', 'Validate now'),
 //            privileges: Cfg.privileges.Validation.validateManual,
 //           action: 'validate'
         }
