@@ -1,12 +1,5 @@
 package com.energyict.mdc.device.lifecycle.config.rest;
 
-import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.fsm.*;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -20,10 +13,26 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.impl.DefaultLifeCycleTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
 
-import java.util.*;
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.ProcessReference;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateChangeBusinessProcess;
+import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.users.UserService;
+
 import javax.ws.rs.core.Application;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
@@ -66,11 +75,6 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         when(deviceConfigurationService.findDeviceTypesUsingDeviceLifeCycle(Matchers.any(DeviceLifeCycle.class)))
                 .thenReturn(Collections.singletonList(deviceType));
         return application;
-    }
-
-    @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
     }
 
     // Common mocks for device lifecycle configuration
