@@ -9,16 +9,16 @@ import com.elster.jupiter.events.NoSuchTopicException;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -38,10 +38,10 @@ import java.util.Optional;
 
 @Component(
         name = "com.elster.jupiter.events",
-        service = {InstallService.class, EventService.class, TranslationKeyProvider.class},
+        service = {InstallService.class, EventService.class, MessageSeedProvider.class},
         property = "name=" + EventService.COMPONENTNAME,
         immediate = true)
-public class EventServiceImpl implements EventService, InstallService, TranslationKeyProvider {
+public class EventServiceImpl implements EventService, InstallService, MessageSeedProvider {
 
     private volatile Clock clock;
     private volatile Publisher publisher;
@@ -197,17 +197,13 @@ public class EventServiceImpl implements EventService, InstallService, Translati
 
 
     @Override
-    public String getComponentName() {
-        return EventService.COMPONENTNAME;
-    }
-
-    @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
+
 }
