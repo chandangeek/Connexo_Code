@@ -70,9 +70,9 @@ public class CompositeThesaurus implements IThesaurus {
     }
 
     @Override
-    public NlsMessageFormat getSimpleFormat(TranslationKey key) {
+    public NlsMessageFormat getFormat(TranslationKey key) {
         return components.stream()
-                .map(th -> th.getSimpleFormat(key))
+                .map(th -> th.getFormat(key))
                 .findAny()
                 .orElseGet(() -> new NlsTranslationFormatImpl(this, nlsStringFor(key)));
     }

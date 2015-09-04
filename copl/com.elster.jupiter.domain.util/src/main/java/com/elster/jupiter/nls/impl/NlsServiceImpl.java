@@ -1,6 +1,7 @@
 package com.elster.jupiter.nls.impl;
 
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.SimpleTranslation;
@@ -11,11 +12,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -27,7 +28,7 @@ import javax.validation.Validation;
 import javax.validation.ValidationProviderResolver;
 import javax.validation.metadata.ConstraintDescriptor;
 import java.security.Principal;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -43,6 +44,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MessageInterpolator messageInterpolator;
     private volatile List<TranslationKeyProvider> translationKeyProviders = new CopyOnWriteArrayList<>();
+    private volatile List<MessageSeedProvider> messageSeedProviders = new CopyOnWriteArrayList<>();
     private volatile boolean installed = false;
 
     @Activate
@@ -56,12 +58,6 @@ public class NlsServiceImpl implements NlsService, InstallService {
             }
         });
         installed = dataModel.isInstalled();
-
-    }
-
-    @Deactivate
-    public void deactivate() {
-
     }
 
     public NlsServiceImpl() {
@@ -69,6 +65,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
 
     @Inject
     public NlsServiceImpl(OrmService ormService, ThreadPrincipalService threadPrincipalService, ValidationProviderResolver validationProviderResolver) {
+        this();
         setOrmService(ormService);
         setThreadPrincipalService(threadPrincipalService);
         setValidationProviderResolver(validationProviderResolver);
@@ -108,8 +105,8 @@ public class NlsServiceImpl implements NlsService, InstallService {
                 .getDefaultMessageInterpolator();
     }
 
-    @Reference(name = "ZTranslationProvider", policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
-    public synchronized void addTranslationProvider(TranslationKeyProvider provider) {
+    @Reference(name = "ZTranslationKeyProvider", policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
+    public synchronized void addTranslationKeyProvider(TranslationKeyProvider provider) {
         this.translationKeyProviders.add(provider);
         if (installed) {
             try {
@@ -123,6 +120,31 @@ public class NlsServiceImpl implements NlsService, InstallService {
 
     }
 
+    @SuppressWarnings("unused")
+    public void removeTranslationKeyProvider(TranslationKeyProvider provider) {
+        this.translationKeyProviders.remove(provider);
+    }
+
+    @SuppressWarnings("unused")
+    @Reference(name = "ZMessageSeedProvider", policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
+    public synchronized void addMessageSeedProvider(MessageSeedProvider provider) {
+        this.messageSeedProviders.add(provider);
+        if (installed) {
+            try {
+                this.setPrincipal();
+                this.doInstallProvider(provider);
+            }
+            finally {
+                this.clearPrincipal();
+            }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void removeMessageSeedProvider(MessageSeedProvider provider) {
+        this.messageSeedProviders.remove(provider);
+    }
+
     private void clearPrincipal() {
         threadPrincipalService.clear();
     }
@@ -132,17 +154,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
     }
 
     private Principal getPrincipal() {
-        return new Principal() {
-
-            @Override
-            public String getName() {
-                return "Jupiter Installer";
-            }
-        };
-    }
-
-    public void removeTranslationProvider(TranslationKeyProvider provider) {
-        this.translationKeyProviders.remove(provider);
+        return () -> "Jupiter Installer";
     }
 
     @Override
@@ -153,9 +165,8 @@ public class NlsServiceImpl implements NlsService, InstallService {
     }
 
     private void installProviders() {
-        for (TranslationKeyProvider translationKeyProvider : translationKeyProviders) {
-            doInstallProvider(translationKeyProvider);
-        }
+        translationKeyProviders.forEach(this::doInstallProvider);
+        messageSeedProviders.forEach(this::doInstallProvider);
     }
 
     private void doInstallProvider(TranslationKeyProvider provider) {
@@ -167,22 +178,36 @@ public class NlsServiceImpl implements NlsService, InstallService {
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM");
+        return Collections.singletonList("ORM");
     }
 
+    private void doInstallProvider(MessageSeedProvider provider) {
+        provider
+            .getSeeds()
+            .stream()
+            .forEach(messageSeed -> this.addTranslation(provider.getLayer(), messageSeed));
+    }
+
+    private void addTranslation(Layer layer, MessageSeed messageSeed) {
+        this.addTranslation(messageSeed.getModule(), layer.name(), messageSeed.getKey(), messageSeed.getDefaultFormat());
+    }
+
+    // Published as a gogo command so be wary when refactoring
     public void addTranslation(String componentName, String layerName, String key, String defaultMessage) {
         try {
             Layer layer = Layer.valueOf(layerName);
             Thesaurus thesaurus = getThesaurus(componentName, layer);
             SimpleNlsKey nlsKey = SimpleNlsKey.key(componentName, layer, key).defaultMessage(defaultMessage);
             Translation translation = SimpleTranslation.translation(nlsKey, Locale.ENGLISH, defaultMessage);
-            thesaurus.addTranslations(Arrays.asList(translation));
+            thesaurus.addTranslations(Collections.singletonList(translation));
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;
         }
     }
 
+    // Published as a gogo command
+    @SuppressWarnings("unused")
     public void addTranslation(Object... args) {
         System.out.println("Usage : \n\n addTranslation componentName layerName key defaultMessage");
     }
