@@ -2,15 +2,14 @@ package com.energyict.mdc.favorites.impl;
 
 import com.energyict.mdc.favorites.FavoritesService;
 
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.exception.MessageSeed;
-
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 
     CAN_NOT_BE_EMPTY(1, Constants.CAN_NOT_BE_EMPTY, "This field is required", Level.SEVERE),
     FIELD_SIZE_BETWEEN_1_AND_80(2, Constants.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
