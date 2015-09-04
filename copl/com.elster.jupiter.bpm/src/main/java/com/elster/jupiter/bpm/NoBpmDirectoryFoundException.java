@@ -1,5 +1,6 @@
 package com.elster.jupiter.bpm;
 
+import com.elster.jupiter.bpm.impl.MessageSeeds;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 

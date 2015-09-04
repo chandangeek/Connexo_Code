@@ -8,7 +8,10 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -30,10 +33,10 @@ import java.util.*;
 
 @Component(
         name = "com.elster.jupiter.bpm",
-        service = {BpmService.class, InstallService.class, PrivilegesProvider.class},
+        service = {BpmService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class},
         immediate = true,
         property = "name=" + BpmService.COMPONENTNAME)
-public class BpmServiceImpl implements BpmService, InstallService, PrivilegesProvider {
+public class BpmServiceImpl implements BpmService, InstallService, PrivilegesProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile MessageService messageService;
@@ -81,7 +84,7 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
 
     @Override
     public void install() {
-        new InstallerImpl().install(messageService, userService, thesaurus);
+        new InstallerImpl().install(messageService);
     }
 
     @Override
@@ -155,5 +158,23 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
                 Arrays.asList(
                         Privileges.VIEW_BPM, Privileges.DESIGN_BPM)));
         return resources;
+    }
+
+    @Override
+    public String getComponentName() {
+        return BpmService.COMPONENTNAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> translationKeys = new ArrayList<>();
+        translationKeys.add(new SimpleTranslationKey(BpmService.BPM_QUEUE_SUBSC, BpmService.BPM_QUEUE_DISPLAYNAME));
+        translationKeys.addAll(Arrays.asList(MessageSeeds.values()));
+        return translationKeys;
     }
 }
