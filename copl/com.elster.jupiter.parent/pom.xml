@@ -619,6 +619,7 @@
                                                 <exclude>${js.dir}/*.html</exclude>
                                                 <exclude>${js.dir}/*.js</exclude>
                                                 <exclude>${js.dir}/resources/**/*</exclude>
+                                                <exclude>${js.dir}/build/**/*</exclude>
                                             </excludes>
 
                                         </resource>
