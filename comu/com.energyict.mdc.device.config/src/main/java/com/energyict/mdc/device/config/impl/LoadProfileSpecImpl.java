@@ -5,7 +5,6 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.exceptions.CannotDeleteLoadProfileSpecLinkedChannelSpecsException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -121,15 +120,17 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
     @Override
     protected void doDelete() {
-        this.channelSpecs.clear();
-        this.getDeviceConfiguration().deleteLoadProfileSpec(this);
+        throw new UnsupportedOperationException("LoadProfileConfig is to be deleted by removing it from the device configuration");
     }
 
     @Override
+    public void prepareDelete() {
+        this.channelSpecs.clear();
+    }
+
+
+    @Override
     public void validateDelete() {
-        if (!this.getChannelSpecs().isEmpty()) {
-            throw new CannotDeleteLoadProfileSpecLinkedChannelSpecsException(this.getThesaurus());
-        }
     }
 
     @Override
