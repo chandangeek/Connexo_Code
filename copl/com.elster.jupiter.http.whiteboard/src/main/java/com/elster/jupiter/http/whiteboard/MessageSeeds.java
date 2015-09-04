@@ -1,10 +1,11 @@
 package com.elster.jupiter.http.whiteboard;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 
-enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
     NETWORK(1001, "Underlying Network logic failed");
 
     private final int number;
