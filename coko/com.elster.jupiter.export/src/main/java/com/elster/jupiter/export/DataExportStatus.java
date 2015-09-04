@@ -2,7 +2,7 @@ package com.elster.jupiter.export;
 
 import com.elster.jupiter.nls.TranslationKey;
 
-public enum DataExportStatus implements TranslationKey{
+public enum DataExportStatus implements TranslationKey {
     BUSY("Busy"),
     SUCCESS("Success"),
     WARNING("Warning"),
