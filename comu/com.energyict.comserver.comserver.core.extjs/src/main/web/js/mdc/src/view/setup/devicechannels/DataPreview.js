@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             bulkValidationInfo = record.get('validationInfo').bulkValidationInfo;
             me.setReadingQualities(me.down('#mainReadingQualities'), mainValidationInfo);
             me.setReadingQualities(me.down('#bulkReadingQualities'), bulkValidationInfo);
-            me.setGeneralReadingQualities(me.down('#generalReadingQualities'), me.up('tabbedDeviceChannelsView').channel.get('validationInfo'));
+            me.setGeneralReadingQualities(me.down('#generalReadingQualities'), record.get('readingQualities'));
             me.down('#readingDataValidated').setValue(record.get('validationInfo').dataValidated);
         }
         Ext.resumeLayouts(true);
@@ -135,8 +135,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     setGeneralReadingQualities: function (field, value) {
         var result = '',
             me = this,
-            url,
-            view = me.up('tabbedDeviceChannelsView') || me.up('deviceLoadProfilesData');
+            url;
 
         if (!Ext.isEmpty(value.suspectReason)) {
             field.show();
@@ -145,12 +144,19 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     result += Ext.String.htmlEncode(rule.key.name) + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + ' - ' + rule.value + ' ' + Uni.I18n.translate('general.suspects', 'MDC', 'suspects') + '<br>';
                 } else {
                     if (Cfg.privileges.Validation.canViewOrAdministrate()) {
-                        url = view.router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({ruleSetId: rule.key.ruleSetVersion.ruleSet.id, versionId: rule.key.ruleSetVersion.id, ruleId: rule.key.id});
+                        url = me.up('deviceLoadProfilesData').router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({ruleSetId: rule.key.ruleSetVersion.ruleSet.id, versionId: rule.key.ruleSetVersion.id, ruleId: rule.key.id});
                         result += '<a href="' + url + '"> ' + Ext.String.htmlEncode(rule.key.name) + '</a>';
                     } else {
                         result = Ext.String.htmlEncode(rule.key.name);
                     }
-                }   result += ' - ' + Uni.I18n.translate('general.xsuspects', 'MDC', '{0} suspects',[rule.value]) + '<br>';
+                }
+                result += ' - ' + Uni.I18n.translate('general.xsuspects', 'MDC', '{0} suspects',[rule.value]) + '<br>';
+            });
+            field.setValue(result);
+        } else if (!Ext.isEmpty(value)) {
+            field.show();
+            Ext.Array.each(value, function (rule) {
+                result += Ext.String.htmlEncode(rule.name) + '<br>';
             });
             field.setValue(result);
         } else {

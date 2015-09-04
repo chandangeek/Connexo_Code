@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.devicehistory.LifeCycle', {
                     formatHref: function (values, isFrom) {
                         var id = isFrom ? values.from.id : values.to.id,
                             value = isFrom ? values.from.name : values.to.name;
-                        return values.type == 'lifeCycle' ? '<a href="#/administration/devicelifecycles/' + id + '">' + value + '</a>' : value;
+                        return values.type == 'lifeCycle' ? '<a href="#/administration/devicelifecycles/' + id + '">' + Ext.String.htmlEncode(value) + '</a>' : Ext.String.htmlEncode(value);
                     }
                 }
             )

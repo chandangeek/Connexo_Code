@@ -104,7 +104,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             deviceLifeCycleLink = this.getDeviceLifeCycleLink();
 
             deviceLifeCycleLink.setHref('#/administration/devicelifecycles/' + encodeURIComponent(record[0].get('deviceLifeCycleId')));
-            deviceLifeCycleLink.setText(record[0].get('deviceLifeCycleName'));
+            deviceLifeCycleLink.setText(Ext.String.htmlEncode(record[0].get('deviceLifeCycleName')));
 
             registerLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/registertypes');
             registerLink.setText(
@@ -159,7 +159,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
 
                 deviceLifeCycleLink.setHref('#/administration/devicelifecycles/' + encodeURIComponent(deviceType.get('deviceLifeCycleId')));
-                deviceLifeCycleLink.setText(deviceType.get('deviceLifeCycleName'));
+                deviceLifeCycleLink.setText(Ext.String.htmlEncode(deviceType.get('deviceLifeCycleName')));
 
                 registersLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/registertypes');
                 registersLink.setText(
