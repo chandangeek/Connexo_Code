@@ -11,17 +11,7 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
-import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
-import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaignStatus;
-import com.energyict.mdc.firmware.FirmwareManagementOptions;
-import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.FirmwareStatus;
-import com.energyict.mdc.firmware.FirmwareType;
-import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.firmware.FirmwareVersionFilter;
-import com.energyict.mdc.firmware.PassiveFirmwareVersion;
+import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -357,6 +347,11 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     @Override
     public Optional<DeviceInFirmwareCampaign> getDeviceInFirmwareCampaignsForDevice(FirmwareCampaign firmwareCampaign, Device device) {
         return dataModel.mapper(DeviceInFirmwareCampaign.class).getUnique(DeviceInFirmwareCampaignImpl.Fields.CAMPAIGN.fieldName(), firmwareCampaign, DeviceInFirmwareCampaignImpl.Fields.DEVICE.fieldName(), device);
+    }
+
+    @Override
+    public FirmwareManagementDeviceUtils getFirmwareManagementDeviceUtilsFor(Device device) {
+        return dataModel.getInstance(FirmwareManagementDeviceUtilsImpl.class).initFor(device);
     }
 
     private boolean isItAFirmwareRelatedMessage(DeviceMessage<Device> deviceDeviceMessage) {

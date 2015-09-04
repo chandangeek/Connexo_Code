@@ -70,4 +70,12 @@ public interface FirmwareService extends ReferencePropertySpecFinderProvider {
      */
     boolean cancelFirmwareUploadForDevice(Device device);
     Optional<DeviceInFirmwareCampaign> getDeviceInFirmwareCampaignsForDevice(FirmwareCampaign firmwareCampaign, Device device);
+
+    /**
+     * Gets a utility class to manage the firmware on a single device
+     *
+     * @param device the device to manage the firmware for
+     * @return the utility class
+     */
+    FirmwareManagementDeviceUtils getFirmwareManagementDeviceUtilsFor(Device device);
 }
