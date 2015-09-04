@@ -1,6 +1,6 @@
 -classpath: target/classes
 -dsannotations: *
 Include-Resource: README.HTML
-Private-Package:
+Private-Package: com.elster.jupiter.messaging.impl
 Export-Package: com.elster.jupiter.messaging,\
 	com.elster.jupiter.messaging.subscriber
