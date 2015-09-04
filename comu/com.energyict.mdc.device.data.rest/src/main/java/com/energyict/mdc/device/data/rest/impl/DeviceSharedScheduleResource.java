@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -8,6 +10,8 @@ import com.energyict.mdc.scheduling.SchedulingService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.ConstraintViolationException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -41,7 +45,13 @@ public class DeviceSharedScheduleResource {
                 .map(schedulingService::findSchedule)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .forEach(comSchedule -> device.newScheduledComTaskExecution(comSchedule).add());
+                .forEach( comSchedule -> {
+                        try {
+                            device.newScheduledComTaskExecution(comSchedule).add();
+                        } catch (ConstraintViolationException cve) {
+                            throw new AlreadyLocalizedException(cve.getConstraintViolations().iterator().next().getMessage());
+                        }
+        });
         device.save();
         return Response.status(Response.Status.OK).build();
     }
@@ -50,6 +60,20 @@ public class DeviceSharedScheduleResource {
         public List<Long> scheduleIds;
 
         public ScheduleIdsInfo() {
+        }
+    }
+
+    private class AlreadyLocalizedException extends LocalizedException {
+        private final String message;
+
+        public AlreadyLocalizedException(String message) {
+            super(null, MessageSeeds.BAD_ACTION);
+            this.message = message;
+        }
+
+        @Override
+        public String getLocalizedMessage() {
+            return message;
         }
     }
 }
