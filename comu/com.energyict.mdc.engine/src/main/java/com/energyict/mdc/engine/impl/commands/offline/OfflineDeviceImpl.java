@@ -158,10 +158,10 @@ public class OfflineDeviceImpl implements OfflineDevice {
             setAllRegisters(convertToOfflineRegister(createCompleteRegisterList(serviceProvider.topologyService())));
         }
         if (context.needsPendingMessages()) {
-            setAllPendingMessages(createPendingMessagesList());
+            setAllPendingMessages(createOfflineMessageList(getAllPendingMessagesIncludingSlaves(device)));
         }
         if (context.needsSentMessages()) {
-            setAllSentMessages(createSentMessagesList());
+            setAllSentMessages(createOfflineMessageList(getAllSentMessagesIncludingSlaves(device)));
         }
         setDeviceCache(serviceProvider);
     }
@@ -193,12 +193,12 @@ public class OfflineDeviceImpl implements OfflineDevice {
         List<Register> registers = new ArrayList<>();
         registers.addAll(this.device.getRegisters());
         registers.addAll(
-            topologyService
-                .findPhysicalConnectedDevices(device)
-                .stream()
-                .filter(this::checkTheNeedToGoOffline)
-                .flatMap(slave -> slave.getRegisters().stream())
-                .collect(Collectors.toList()));
+                topologyService
+                        .findPhysicalConnectedDevices(device)
+                        .stream()
+                        .filter(this::checkTheNeedToGoOffline)
+                        .flatMap(slave -> slave.getRegisters().stream())
+                        .collect(Collectors.toList()));
         return registers;
     }
 
@@ -344,12 +344,40 @@ public class OfflineDeviceImpl implements OfflineDevice {
         this.allProperties.setProperty(MeterProtocol.SERIALNUMBER, getSerialNumber());
     }
 
-    private List<OfflineDeviceMessage> createPendingMessagesList() {
-        return createOfflineMessageList(this.device.getMessagesByState(DeviceMessageStatus.PENDING));
+    /**
+     * Create a list of all the pending DeviceMessages a device has,
+     * including his slave devices which have the
+     * islogicalSlave flag checked.
+     *
+     * @param device the Device to collect the pending DeviceMessages from
+     * @return a List of pending DeviceMessages
+     */
+    private List<DeviceMessage<Device>> getAllPendingMessagesIncludingSlaves(Device device) {
+        List<DeviceMessage<Device>> allDeviceMessages = new ArrayList<>();
+        allDeviceMessages.addAll(device.getMessagesByState(DeviceMessageStatus.PENDING));
+        TopologyService topologyService = serviceProvider.topologyService();
+        topologyService.findPhysicalConnectedDevices(device).stream().
+                filter(this::checkTheNeedToGoOffline).
+                forEach(slave -> allDeviceMessages.addAll(getAllPendingMessagesIncludingSlaves(slave)));
+        return allDeviceMessages;
     }
 
-    private List<OfflineDeviceMessage> createSentMessagesList() {
-        return createOfflineMessageList(this.device.getMessagesByState(DeviceMessageStatus.SENT));
+    /**
+     * Create a list of all the sent DeviceMessages a device has,
+     * including his slave devices which have the
+     * islogicalSlave flag checked.
+     *
+     * @param device the Device to collect the sent DeviceMessages from
+     * @return a List of sent DeviceMessages
+     */
+    private List<DeviceMessage<Device>> getAllSentMessagesIncludingSlaves(Device device) {
+        List<DeviceMessage<Device>> allDeviceMessages = new ArrayList<>();
+        allDeviceMessages.addAll(device.getMessagesByState(DeviceMessageStatus.PENDING));
+        TopologyService topologyService = serviceProvider.topologyService();
+        topologyService.findPhysicalConnectedDevices(device).stream().
+                filter(this::checkTheNeedToGoOffline).
+                forEach(slave -> allDeviceMessages.addAll(getAllSentMessagesIncludingSlaves(slave)));
+        return allDeviceMessages;
     }
 
     private List<OfflineDeviceMessage> createOfflineMessageList(final List<DeviceMessage<Device>> deviceMessages) {
