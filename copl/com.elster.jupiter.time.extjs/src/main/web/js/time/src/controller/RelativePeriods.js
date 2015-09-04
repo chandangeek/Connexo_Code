@@ -222,7 +222,7 @@ Ext.define('Tme.controller.RelativePeriods', {
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('relativeperiod.removeMsg', 'TME', 'This relative period will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'TME', 'Remove') + ' ' + record.data.name + ' ?',
+            title: Uni.I18n.translate('general.removex', 'TME', "Remove '{0}'?",[record.data.name]),
             fn: function (state) {
                 if (state === 'confirm') {
                     record.destroy({
