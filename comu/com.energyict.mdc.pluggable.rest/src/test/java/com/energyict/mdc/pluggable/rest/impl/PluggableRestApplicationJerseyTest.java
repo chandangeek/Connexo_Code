@@ -1,5 +1,6 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -16,7 +17,7 @@ import org.mockito.Mock;
 /**
  * Created by bvn on 9/19/14.
  */
-public class PluggableRestApplicationJerseyTest extends com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest {
+public class PluggableRestApplicationJerseyTest extends FelixRestApplicationJerseyTest {
     @Mock
     DeviceConfigurationService deviceConfigurationService;
     @Mock
