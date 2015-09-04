@@ -134,7 +134,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                 success: function (communicationSchedule) {
                     me.getApplication().fireEvent('loadCommunicationSchedule', communicationSchedule);
                     me.record = communicationSchedule;
-                    widget.down('#communicationScheduleEditForm').setTitle(Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + Ext.String.htmlEncode(communicationSchedule.get('name')) + '\'');
+                    widget.down('#communicationScheduleEditForm').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[Ext.String.htmlEncode(communicationSchedule.get('name'))]));
                     widget.down('#communicationScheduleEditForm').loadRecord(communicationSchedule);
                     widget.down('#noComTasksSelectedMsg').hide();
                     widget.down('#comTasksOnForm').show();
@@ -293,7 +293,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         var msg = Uni.I18n.translate('communicationschedule.deleteCommunicationSchedule', 'MDC', 'This schedule will no longer be available.');
         Ext.create('Uni.view.window.Confirmation').show({
             msg: msg,
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' ' + communicationSchedule.get('name') + '?',
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[communicationSchedule.get('name')]),
             config: {
                 communicationScheduleToDelete: communicationSchedule,
                 me: me

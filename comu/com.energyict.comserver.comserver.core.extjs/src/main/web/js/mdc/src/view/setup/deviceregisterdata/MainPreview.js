@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
             privileges: Mdc.privileges.Device.administrateDeviceData,
             iconCls: 'x-uni-action-iconD',
             itemId: 'gridPreviewActionMenu',

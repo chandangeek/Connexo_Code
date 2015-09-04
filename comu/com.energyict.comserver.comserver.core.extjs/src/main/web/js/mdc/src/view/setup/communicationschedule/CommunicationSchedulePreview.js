@@ -12,7 +12,7 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulePreview', 
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
             privileges: Mdc.privileges.CommunicationSchedule.admin,
             iconCls: 'x-uni-action-iconD',
             menu: {

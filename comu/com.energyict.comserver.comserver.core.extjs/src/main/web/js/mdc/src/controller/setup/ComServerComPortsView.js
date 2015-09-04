@@ -98,7 +98,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             widget,
             addMenus;
 
-
         comPortModel.getProxy().url = url;
         comPortsStore.getProxy().url = url;
         widget = Ext.widget('comServerComPortsView', {
@@ -115,9 +114,15 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             addComPortPoolsStore.removeAll();
             comServerModel.load(id, {
                 success: function (record) {
-                    widget.setLoading(false);
-                    me.getApplication().fireEvent('comServerOverviewLoad', record);
-                    widget.down('comserversidemenu #comserverLink').setText(record.get('name'));
+                    comPortsStore.load({
+                        callback: function () {
+                            widget.down('comServerComPortsGrid').reconfigure(comPortsStore);
+                            widget.setLoading(false);
+                            me.getApplication().fireEvent('comServerOverviewLoad', record);
+                            widget.down('comserversidemenu #comserverLink').setText(record.get('name'));
+                        }
+                    })
+
                 }
             });
         }, false);
@@ -231,10 +236,10 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                             record.set('active', activeChange);
                             gridView.refresh();
                             me.getComPortsGrid().fireEvent('select', gridView, record);
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortOnComServer.changeState.msg', 'MDC', 'Communication port ' + ' ' + msg));
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortOnComServer.changeState.msg', 'MDC', 'Communication port {0}',[msg]));
                         },
                         failure: function (response) {
-                            var title = Uni.I18n.translate('comServerComPorts.activation.failure', 'MDC', 'Failed to activate') + " '" + record.get('name') + "'",
+                            var title = Uni.I18n.translate('comServerComPorts.activation.failurex', 'MDC', "Failed to activate '{0}'",record.get('name')),
                                 errorsArray = Ext.JSON.decode(response.responseText).errors,
                                 message = '';
 

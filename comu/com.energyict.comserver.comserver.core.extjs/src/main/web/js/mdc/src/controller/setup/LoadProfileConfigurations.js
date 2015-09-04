@@ -119,7 +119,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('loadProfileConfigurations.confirmWindow.removeMsg', 'MDC', 'This load profile configuration will be removed from the list.'),
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + " '" + lastSelectedName + "'?",
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[lastSelectedName]),
             config: {
                 me: this
             },
@@ -396,7 +396,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
                                 widget.down('displayfield[name=loadprofiletype]').show();
                                 widget.down('[name=obisCode]').setValue(record.obisCode);
                                 widget.down('[name=overruledObisCode]').setValue(overruledObisCode);
-                                var title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + " '" + Ext.String.htmlEncode(record.name) + "'";
+                                var title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[Ext.String.htmlEncode(record.name)]);
                                 widget.down('#LoadProfileConfigurationFormId').setTitle(title);
                             }
                         });

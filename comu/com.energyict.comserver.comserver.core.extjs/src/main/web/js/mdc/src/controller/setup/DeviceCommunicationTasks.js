@@ -170,11 +170,11 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                         });
                         connectionMethodsOfDeviceStore.insert(0,Ext.create('Mdc.model.DeviceConnectionMethod', {
                             id: -1,
-                            name: Uni.I18n.translate('deviceCommunicationTask.default', 'MDC', 'Default') + ' (' + nameOfDefaultConnectionMethod + ')',
+                            name: Uni.I18n.translate('deviceCommunicationTask.defaultWithCount', 'MDC', 'Default ({0})',[nameOfDefaultConnectionMethod]),
                             isDefault: false
                         }));
                         if(comTask.get('connectionMethod').toLowerCase().indexOf('default')>-1){
-                            var initialValue = Uni.I18n.translate('deviceCommunicationTask.default', 'MDC', 'Default') + ' (' + nameOfDefaultConnectionMethod + ')';
+                            var initialValue = Uni.I18n.translate('deviceCommunicationTask.defaultWithCount', 'MDC', 'Default ({0})',[nameOfDefaultConnectionMethod]);
 
                         } else {
                             initialValue = comTask.get('connectionMethod');

@@ -385,7 +385,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                                             me.getApplication().fireEvent('loadSecuritySetting', securitySetting);
                                             var widget = Ext.widget('add-execution-levels', {deviceTypeId: deviceTypeId, deviceConfigurationId: deviceConfigId, securitySettingId: securitySettingId})
                                             me.getApplication().fireEvent('changecontentevent', widget);
-                                            me.getAddExecutionLevelPanel().setTitle(Uni.I18n.translate('executionlevels.addExecutionLevels', 'MDC', 'Add privileges'));
+                                            me.getAddExecutionLevelPanel().setTitle(Uni.I18n.translate('executionLevels.addExecutionLevels', 'MDC', 'Add privileges'));
                                             store.load(function(){
                                                 me.getExecutionLevelAddGrid().getSelectionModel().deselectAll();
                                             });
@@ -465,7 +465,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             securitySetting = securitySettingsGrid.getView().getSelectionModel().getLastSelected().getData().id;
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('executionlevel.removeExecutionLevel', 'MDC', 'The privilege will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'MDC', 'Remove') + ' \'' + lastSelected.getData().name + '\'?',
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[lastSelected.getData().name]),
             config: {
                 executionLevelToDelete: lastSelected,
                 securitySetting: securitySetting,

@@ -168,7 +168,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     revokeCommand: function (record, device) {
         var me = this,
             mRID = device.get('mRID'),
-            title = Uni.I18n.translate('deviceCommand.overview.revoke', 'MDC', 'Revoke') + " '" + record.get('command').name + "'?";
+            title = Uni.I18n.translate('deviceCommand.overview.revokex', 'MDC', "Revoke '{0}'?",[record.get('command').name]);
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('deviceCommand.overview.revoke', 'MDC', 'Revoke')
         }).show({
@@ -192,7 +192,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
 
     changeReleaseDate: function (record, device) {
         var me = this,
-            title = Uni.I18n.translate('deviceCommand.overview.changeReleaseDateHeader', 'MDC', 'Change release date of command') + " '" + record.get('command').name + "' ";
+            title = Uni.I18n.translate('deviceCommand.overview.changeReleaseDateHeader', 'MDC', "Change release date of command '{0}'",[record.get('command').name]);
         Ext.widget('device-command-change-release-date', {
             title: title,
             record: record,

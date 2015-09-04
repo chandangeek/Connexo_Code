@@ -114,7 +114,7 @@ Ext.define('Mdc.controller.setup.ComServersView', {
                             var msg = activeChange ? Uni.I18n.translate('general.activated', 'MDC', 'activated') :
                                 Uni.I18n.translate('general.deactivated', 'MDC', 'deactivated');
                             form.loadRecord(model);
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.comServer', 'MDC', 'Communication server') + ' ' + msg);
+                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.comServerMsg', 'MDC', 'Communication server {0}',[msg]));
                         }
                     });
                 },

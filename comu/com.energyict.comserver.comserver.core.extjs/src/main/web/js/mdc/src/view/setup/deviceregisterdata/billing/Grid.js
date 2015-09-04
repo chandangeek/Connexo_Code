@@ -15,9 +15,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
                 dataIndex: 'timeStamp',
                 renderer: function (value) {
                     return value
-                        ? Uni.DateTime.formatDateShort(new Date(value))
-                        + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
-                        + Uni.DateTime.formatTimeShort(new Date(value))
+                        ? Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))]).toLowerCase()
                         : '';
                 },
                 flex: 1
@@ -29,13 +27,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
                     if (!Ext.isEmpty(value)) {
                         var startDate = new Date(value.start),
                             endDate = new Date(value.end);
-                        return Uni.DateTime.formatDateShort(startDate)
-                            + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
-                            + Uni.DateTime.formatTimeShort(startDate)
+                        return  Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[Uni.DateTime.formatDateShort(startDate),Uni.DateTime.formatTimeShort(startDate)]).toLowerCase()
                             + ' - '
-                            + Uni.DateTime.formatDateShort(endDate)
-                            + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
-                            + Uni.DateTime.formatTimeShort(endDate);
+                            +Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[Uni.DateTime.formatDateShort(endDate),Uni.DateTime.formatTimeShort(endDate)]).toLowerCase()
                     }
                 },
                 flex: 2

@@ -78,16 +78,6 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                                         xtype: 'container',
                                         flex: 1
                                     },
-                                   /* {
-                                        xtype: 'button',
-                                        text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
-                                        iconCls: 'x-uni-action-iconD',
-                                        menu: {
-                                            xtype: 'device-security-setting-action-menu'
-                                        },
-                                        hidden: true,
-                                        itemId: 'device-security-setting-action-menu-in-title'
-                                    },*/
                                     {
                                         xtype: 'container',
                                         flex: 1

@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.comport.OutboundComPortEdit', {
                 items: [
                     {
                         xtype: 'fieldset',
-                        title: Uni.I18n.translate('general.required','required','Required'),
+                        title: Uni.I18n.translate('general.required','MDC','Required'),
                         defaults: {
                             labelWidth: 200
                         },
@@ -41,7 +41,7 @@ Ext.define('Mdc.view.setup.comport.OutboundComPortEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'name',
-                                fieldLabel: 'Name'
+                                fieldLabel: Uni.I18n.translate('general.name','MDC','Name')
                             },
                             {
                                 xtype: 'combobox',
@@ -55,7 +55,7 @@ Ext.define('Mdc.view.setup.comport.OutboundComPortEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'description',
-                                fieldLabel: 'description'
+                                fieldLabel: Uni.I18n.translate('general.description','MDC','Description')
                             },
                             {
                                 xtype: 'numberfield',
@@ -67,7 +67,7 @@ Ext.define('Mdc.view.setup.comport.OutboundComPortEdit', {
                                 inputValue: true,
                                 uncheckedValue: 'false',
                                 name: 'active',
-                                fieldLabel: 'active'
+                                fieldLabel: Uni.I18n.translate('general.active','MDC','Active')
                             }
                         ]}
                 ]

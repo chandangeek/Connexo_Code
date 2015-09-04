@@ -217,7 +217,7 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                         me.getApplication().fireEvent('changecontentevent', widget);
                         widget.setLoading(true);
 
-                        var title = Uni.I18n.translate('general.edit', 'MDC', 'Edit') + ' \'' + deviceSecuritySetting.get('name') + '\'';
+                        var title = Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[deviceSecuritySetting.get('name')]);
                         widget.down('#deviceSecuritySettingEditAddTitle').setTitle(title);
                         var generalForm = widget.down('#deviceSecuritySettingEditForm');
                         generalForm.loadRecord(deviceSecuritySetting);

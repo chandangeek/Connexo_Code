@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.comserver.RemoteComServerEdit', {
                 items: [
                     {
                         xtype: 'fieldset',
-                        title: Uni.I18n.translate('general.required','required','Required'),
+                        title: Uni.I18n.translate('general.required','MDC','Required'),
                         defaults: {
                             labelWidth: 200
                         },
@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.comserver.RemoteComServerEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'name',
-                                fieldLabel: 'Name'
+                                fieldLabel: Uni.I18n.translate('general.name','MDC','Name')
                             },
                             {
                                 xtype: 'checkbox',

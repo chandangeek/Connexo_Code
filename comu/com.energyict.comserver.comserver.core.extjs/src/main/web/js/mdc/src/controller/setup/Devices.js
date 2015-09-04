@@ -87,9 +87,7 @@ Ext.define('Mdc.controller.setup.Devices', {
     connectionRun: function (record) {
         var me = this;
         record.run(function () {
-            me.getApplication().fireEvent('acknowledge',
-                Uni.I18n.translate('device.connection.run.now', 'MDC', 'Run succeeded')
-            );
+            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.connection.run.now', 'MDC', 'Run succeeded'));
             record.set('nextExecution', new Date());
             me.doRefresh();
         });
@@ -108,7 +106,7 @@ Ext.define('Mdc.controller.setup.Devices', {
             callback: function (record, operation, success) {
                 if (success) {
                     me.getApplication().fireEvent('acknowledge',
-                        Uni.I18n.translate('device.connection.toggle.' + connectionMethod.status, 'MDC', 'Connection status changed to ' + connectionMethod.status)
+                        Uni.I18n.translate('device.connection.toggle', 'MDC', 'Connection status changed to {0}',[connectionMethod.status])
                     );
                     me.refreshConnections();
                 }
@@ -254,7 +252,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         var deviceConnectionsStore = device.connections();
 
         deviceConnectionsStore.getProxy().setUrl(device.get('mRID'));
-        lastUpdateField.update('Last updated at ' + Uni.DateTime.formatTimeShort(new Date()));
+        lastUpdateField.update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())]));
         deviceConnectionsStore.load(function (records) {
             if (!widget.isDestroyed) {
                 !!widget.down('#connectionslist') && widget.down('#connectionslist').setTitle(Ext.String.format(Uni.I18n.translate('device.connections.title', 'MDC', 'Connections ({0})'), records.length));
@@ -269,7 +267,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         var deviceCommunicationsStore = device.communications();
 
         deviceCommunicationsStore.getProxy().setUrl(device.get('mRID'));
-        lastUpdateField.update('Last updated at ' + Uni.DateTime.formatTimeShort(new Date()));
+        lastUpdateField.update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())]));
         deviceCommunicationsStore.load(function (records) {
             if (!widget.isDestroyed) {
                 !!widget.down('#communicationslist') && widget.down('#communicationslist').setTitle(Ext.String.format(Uni.I18n.translate('device.communicationTasks.title', 'MDC', 'Communication tasks ({0})'), records.length));

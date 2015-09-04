@@ -42,7 +42,8 @@ Ext.define('Mdc.view.setup.comservercomports.forms.SERIAL', {
                 },
                 {
                     fieldLabel: Uni.I18n.translate('comports.preview.serialPortConfiguration', 'MDC', 'Serial port configuration'),
-                    name: 'serialPortConf'
+                    name: 'serialPortConf',
+                    htmlEncode: false
                 }
             ]
         },
