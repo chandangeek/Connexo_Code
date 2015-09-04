@@ -26,8 +26,10 @@ regexesPlural = [
     ]
 
 regexes = [
-		/Uni\.I18n\.translate\(\s*'(\S*)'\s*,\s*'(.{3})'\s*,\s*'(.+?[^\\])'.*?\)/m,
-		/Uni\.I18n\.translate\(\s*'(\S*)'\s*,\s*'(.{3})'\s*,\s*"(.+?[^\\])".*?\)/m
+		/Uni\.I18n\.translate\(\s*'(\S*)'\s*,\s*'(\S*)'\s*,\s*'(.+?[^\\])'.*?\)/m,  # translate('xxx', 'xxx', 'xxx')
+		/Uni\.I18n\.translate\(\s*'(\S*)'\s*,\s*'(\S*)'\s*,\s*"(.+?[^\\])".*?\)/m,  # translate('xxx', 'xxx', "xxx")
+		/Uni\.I18n\.translate\(\s*"(\S*)"\s*,\s*"(\S*)"\s*,\s*'(.+?[^\\])'.*?\)/m,  # translate("xxx", "xxx", 'xxx')
+		/Uni\.I18n\.translate\(\s*"(\S*)"\s*,\s*"(\S*)"\s*,\s*"(.+?[^\\])".*?\)/m   # translate("xxx", "xxx", "xxx")
 	]
 
 duplicates = Hash.new
@@ -78,7 +80,7 @@ Dir.glob(folder + "/src/**/*.js") do |file|
 		contents.scan(regex) {|key, component, value|
 
 			if component != current_component
-				abort("Incorrect component: " + component + " (while " + current_component + " expected)")
+				abort("Incorrect component for key '" + key + "' : '" + component + "' (while '" + current_component + "' was expected)")
 			end
 			
 			# Check for same keys with different translations
