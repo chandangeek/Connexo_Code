@@ -1,8 +1,8 @@
 package com.energyict.protocols.mdc.services.impl;
 
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 
@@ -11,7 +11,7 @@ import java.util.logging.Level;
  * Date: 16/05/14
  * Time: 09:12
  */
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 
     ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_0(100, Keys.ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_0, "Unrestricted authentication", Level.INFO),
     ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_1(103, Keys.ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_1, "Restricted authentication", Level.INFO),

@@ -1,15 +1,15 @@
 package com.energyict.protocolimplv2.sdksample;
 
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 
 /**
  * Provides translationkeys for the SDKDeviceProtocols
  */
-public enum SDKMessageSeeds implements MessageSeed, TranslationKey {
+public enum SDKMessageSeeds implements MessageSeed {
 
     SDKSTRINGPROPERTY(1, Keys.SDKSTRINGPROPERTY, "A string property ", Level.INFO),
     SDKSTRINGPROPERTYWITHDEFAULT(2, Keys.SDKSTRINGPROPERTYWITHDEFAULT, "A string property with a default value", Level.INFO),
