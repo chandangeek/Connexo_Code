@@ -37,6 +37,22 @@
         <dependencySet>
             <outputDirectory>bundles</outputDirectory>
             <includes>
+                <!-- External bundles. -->
+                <include>com.energyict.dataconcentrator.external:*</include>
+                <include>se.joel.osgi:*</include>
+                <include>com.energyict:serialio-xmodemapi-osgi</include>
+            </includes>
+
+            <unpack>false</unpack>
+            <outputFileNameMapping>
+                ${artifact.groupId}.${artifact.artifactId}-${artifact.version}${dashClassifier?}.${artifact.extension}
+            </outputFileNameMapping>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>bundles</outputDirectory>
+            <includes>
                 <include>com.energyict:*</include>
             </includes>
             <scope>provided</scope>
