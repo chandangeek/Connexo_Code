@@ -191,10 +191,8 @@ Ext.define('Isu.view.issues.ActionMenu', {
                                 historyId: comSessionId
                             },
                             {
-                                filter: {
-                                    logLevels: ['Error', 'Warning', 'Information'],
-                                    logTypes: ['connections', 'communications']
-                                }
+                                logLevels: ['Error', 'Warning', 'Information'],
+                                communications: ['Connections', 'Communications']
                             }
                         ),
                         hrefTarget: '_blank'

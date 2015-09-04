@@ -29,7 +29,7 @@ Ext.define('Isu.view.issues.AssignForm', {
             items: [
                 {
                     xtype: 'combobox',
-                    fieldLabel: 'Assignee',
+                    fieldLabel: Uni.I18n.translate('general.assignee','ISU','Assignee'),
                     required: true,
                     queryMode: 'local',
                     valueField: 'id',
@@ -42,7 +42,7 @@ Ext.define('Isu.view.issues.AssignForm', {
                 {
                     itemId: 'commentarea',
                     xtype: 'textareafield',
-                    fieldLabel: 'Comment',
+                    fieldLabel: Uni.I18n.translate('general.comment','ISU','Comment'),
                     name: 'comment',
                     emptyText: Uni.I18n.translate('issues.provideComment','ISU','Provide a comment \r\n(optionally)'),
                     height: 150
