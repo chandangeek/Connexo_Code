@@ -10,7 +10,7 @@ Ext.define('Sam.controller.history.Administration', {
             disabled: true,
             items: {
                 licenses: {
-                    title: Uni.I18n.translate('general.license','SAM','Licenses'),
+                    title: Uni.I18n.translate('general.licenses','SAM','Licenses'),
                     route: 'licenses',
                     controller: 'Sam.controller.licensing.Licenses',
                     action: 'showOverview',
