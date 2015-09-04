@@ -55,15 +55,17 @@ Ext.define('Dsh.controller.Main', {
             router = me.getController('Uni.controller.history.Router'),
             historian = me.getController('Dsh.controller.history.Workspace'); // Forces route registration.
 
-        var route = router.getRoute('dashboard');
-        Uni.store.MenuItems.add(
-            Ext.create('Uni.model.MenuItem', {
-                text: route.title,
-                glyph: 'home',
-                portal: 'dashboard',
-                index: 0
-            })
-        );
+        if (Mdc.privileges.Device.canView()) {
+            var route = router.getRoute('dashboard');
+            Uni.store.MenuItems.add(
+                Ext.create('Uni.model.MenuItem', {
+                    text: route.title,
+                    glyph: 'home',
+                    portal: 'dashboard',
+                    index: 0
+                })
+            );
+        }
 
         if (Mdc.privileges.Device.canOperateDevice()) {
             Uni.store.MenuItems.add(
