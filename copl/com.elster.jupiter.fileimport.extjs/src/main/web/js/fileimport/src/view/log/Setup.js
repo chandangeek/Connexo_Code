@@ -68,7 +68,7 @@ Ext.define('Fim.view.log.Setup', {
                         xtype: 'no-items-found-panel',
                         title: Uni.I18n.translate('importService.log.empty.title', 'FIM', 'No logs found'),
                         reasons: [
-                            me.importService.get('name') + ' ' + Uni.I18n.translate('importService.log.startedon', 'FIM', 'started on') + ' ' + me.runStartedOn + ' ' + Uni.I18n.translate('importService.log.empty.list.item1', 'FIM', 'did not create any logs.')
+                             Uni.I18n.translate('importService.log.startedOnNoLogs', 'FIM', '{0} started on {1} did not create any logs',[me.importService.get('name'),me.runStartedOn])
                         ]
                     }
                 }
