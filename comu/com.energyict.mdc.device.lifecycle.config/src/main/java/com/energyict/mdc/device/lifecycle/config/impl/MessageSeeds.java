@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
@@ -13,7 +12,7 @@ import java.util.logging.Level;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (11:05)
  */
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 
     // Generic
     FIELD_TOO_LONG(100, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters"),
