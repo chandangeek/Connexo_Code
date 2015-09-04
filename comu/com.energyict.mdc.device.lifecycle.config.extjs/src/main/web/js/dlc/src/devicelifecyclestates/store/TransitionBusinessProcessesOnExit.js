@@ -6,7 +6,7 @@ Ext.define('Dlc.devicelifecyclestates.store.TransitionBusinessProcessesOnExit', 
     model: 'Dlc.devicelifecyclestates.model.TransitionBusinessProcess',
     autoLoad: false,
     sorters: [{
-        property: 'processId',
+        property: 'name',
         direction: 'ASC'
     }],
     modelId: -1,

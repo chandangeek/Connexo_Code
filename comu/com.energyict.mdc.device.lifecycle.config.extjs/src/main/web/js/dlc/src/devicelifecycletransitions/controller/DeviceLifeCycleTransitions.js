@@ -114,7 +114,7 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('deviceLifeCycleTransitions.remove.msg', 'DLC', 'This transition will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'DLC', 'Remove') + ' \'' + record.get('name') + '\'?',
+            title: Uni.I18n.translate('general.removex', 'DLC', "Remove '{0}'?",[record.get('name')]),
             fn: function (state) {
                 if (state === 'confirm') {
                     record.getProxy().setUrl(router.arguments);

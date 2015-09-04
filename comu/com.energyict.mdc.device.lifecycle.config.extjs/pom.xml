@@ -52,22 +52,4 @@
         </profile>
     </profiles>
 
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/web/js/dlc/build</directory>
-                <targetPath>js/dlc/build</targetPath>
-                <includes>
-                    <include>resources/**/*</include>
-                    <include>*.js</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
 </project>
