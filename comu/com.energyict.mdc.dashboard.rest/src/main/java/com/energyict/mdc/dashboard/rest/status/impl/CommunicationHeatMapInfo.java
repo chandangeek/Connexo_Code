@@ -1,12 +1,13 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
 import com.energyict.mdc.dashboard.CommunicationTaskHeatMap;
 import com.energyict.mdc.dashboard.CommunicationTaskHeatMapRow;
 import com.energyict.mdc.dashboard.Counter;
-import com.energyict.mdc.device.data.rest.CompletionCodeAdapter;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+
+import com.elster.jupiter.nls.Thesaurus;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,7 +17,6 @@ import java.util.List;
  */
 public class CommunicationHeatMapInfo {
 
-    private static final CompletionCodeAdapter completionCodeAdapter = new CompletionCodeAdapter();
     private static final CompletionCodeTaskCounterInfoComparator completionCodeTaskCounterInfoComparator = new CompletionCodeTaskCounterInfoComparator();
 
     public HeatMapBreakdownOption breakdown;
@@ -27,6 +27,7 @@ public class CommunicationHeatMapInfo {
     }
 
     public CommunicationHeatMapInfo(CommunicationTaskHeatMap heatMap, Thesaurus thesaurus) {
+        this();
         this.breakdown = HeatMapBreakdownOption.deviceTypes;
         this.alias = breakdown.filterOption();
         this.heatMap = new ArrayList<>();
@@ -45,8 +46,8 @@ public class CommunicationHeatMapInfo {
                 for (ComCommandCompletionCodeOverview counters : row) {
                     for (Counter<CompletionCode> completionCodeCounter : counters) {
                         TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
-                        taskCounterInfo.id = completionCodeAdapter.marshal(completionCodeCounter.getCountTarget());
-                        taskCounterInfo.displayName = thesaurus.getString(completionCodeAdapter.marshal(completionCodeCounter.getCountTarget()), completionCodeAdapter.marshal(completionCodeCounter.getCountTarget()));
+                        taskCounterInfo.id = completionCodeCounter.getCountTarget().name();
+                        taskCounterInfo.displayName = CompletionCodeTranslationKeys.translationFor(completionCodeCounter.getCountTarget(), thesaurus);
                         taskCounterInfo.count = completionCodeCounter.getCount();
                         heatMapRowInfo.data.add(taskCounterInfo);
                     }

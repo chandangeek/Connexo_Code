@@ -1,10 +1,9 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import java.util.List;
-
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
-import com.energyict.mdc.device.data.rest.BaseComTaskExecutionInfo;
+
+import java.util.List;
 
 public class ComTaskExecutionInfo extends BaseComTaskExecutionInfo {
 

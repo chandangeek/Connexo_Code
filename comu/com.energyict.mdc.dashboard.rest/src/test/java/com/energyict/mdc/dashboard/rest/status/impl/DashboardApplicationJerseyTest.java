@@ -1,16 +1,5 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.appserver.AppServer;
-import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.appserver.SubscriberExecutionSpec;
-import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.SubscriberSpec;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.rest.DashboardApplication;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -26,6 +15,19 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.util.json.JsonService;
+
+import javax.ws.rs.core.Application;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -33,7 +35,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.ws.rs.core.Application;
+
 import org.mockito.Mock;
 
 import static org.mockito.Mockito.doReturn;
@@ -83,12 +85,6 @@ public class DashboardApplicationJerseyTest extends FelixRestApplicationJerseyTe
     AppService appService;
     @Mock
     FirmwareService firmwareService;
-
-
-    @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
-    }
 
     @Override
     protected Application getApplication() {

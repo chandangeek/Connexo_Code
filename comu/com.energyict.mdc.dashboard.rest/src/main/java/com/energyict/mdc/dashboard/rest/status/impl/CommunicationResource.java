@@ -1,22 +1,10 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.appserver.AppServer;
-import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.QueueMessage;
-import com.energyict.mdc.device.data.rest.CompletionCodeAdapter;
-import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
@@ -28,14 +16,18 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.time.Interval;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -47,14 +39,19 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
 @Path("/communications")
 public class CommunicationResource {
-
-    private static final TaskStatusAdapter TASK_STATUS_ADAPTER = new TaskStatusAdapter();
-    private static final CompletionCodeAdapter COMPLETION_CODE_ADAPTER = new CompletionCodeAdapter();
 
     private final CommunicationTaskService communicationTaskService;
     private final SchedulingService schedulingService;
@@ -186,11 +183,21 @@ public class CommunicationResource {
 
     private ComTaskExecutionFilterSpecificationMessage substituteRestToDomainEnums(ComTaskExecutionFilterSpecificationMessage jsonQueryFilter) throws Exception {
         if (jsonQueryFilter.currentStates!=null) {
-            jsonQueryFilter.currentStates=jsonQueryFilter.currentStates.stream().map(TASK_STATUS_ADAPTER::unmarshal).map(Enum::name).collect(toSet());
+            jsonQueryFilter.currentStates =
+                    jsonQueryFilter.currentStates
+                            .stream()
+                            .map(TaskStatus::valueOf)
+                            .map(TaskStatus::name)
+                            .collect(toSet());
         }
 
         if (jsonQueryFilter.latestResults!=null) {
-            jsonQueryFilter.latestResults=jsonQueryFilter.latestResults.stream().map(COMPLETION_CODE_ADAPTER::unmarshal).map(Enum::name).collect(toSet());
+            jsonQueryFilter.latestResults =
+                    jsonQueryFilter.latestResults
+                            .stream()
+                            .map(CompletionCode::valueOf)
+                            .map(Enum::name)
+                            .collect(toSet());
         }
 
         return jsonQueryFilter;
@@ -202,13 +209,13 @@ public class CommunicationResource {
 
         filter.taskStatuses = EnumSet.noneOf(TaskStatus.class);
         if (jsonQueryFilter.hasProperty(FilterOption.currentStates.name())) {
-            List<TaskStatus> taskStatuses = jsonQueryFilter.getPropertyList(FilterOption.currentStates.name(), TASK_STATUS_ADAPTER);
+            List<TaskStatus> taskStatuses = jsonQueryFilter.getStringList(FilterOption.currentStates.name()).stream().map(TaskStatus::valueOf).collect(Collectors.toList());
             filter.taskStatuses.addAll(taskStatuses);
         }
 
         filter.latestResults = EnumSet.noneOf(CompletionCode.class);
         if (jsonQueryFilter.hasProperty(FilterOption.latestResults.name())) {
-            List<CompletionCode> latestResults = jsonQueryFilter.getPropertyList(FilterOption.latestResults.name(), COMPLETION_CODE_ADAPTER);
+            List<CompletionCode> latestResults = jsonQueryFilter.getStringList(FilterOption.latestResults.name()).stream().map(CompletionCode::valueOf).collect(Collectors.toList());
             filter.latestResults.addAll(latestResults);
         }
 

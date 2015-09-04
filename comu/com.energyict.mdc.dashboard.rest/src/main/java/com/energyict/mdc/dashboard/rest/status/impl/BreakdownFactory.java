@@ -1,9 +1,13 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounters;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.util.HasName;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +16,13 @@ import java.util.List;
  * Created by bvn on 8/29/14.
  */
 public class BreakdownFactory {
+
+    public <C extends HasName & HasId> BreakdownSummaryInfo createBreakdown(Thesaurus thesaurus, TranslationKey translationKey, TaskStatusBreakdownCounters<C> breakdownCounters, FilterOption alias) {
+        return this.createBreakdown(
+                thesaurus.getFormat(translationKey).format(),
+                breakdownCounters,
+                alias);
+    }
 
     public <C extends HasName & HasId> BreakdownSummaryInfo createBreakdown(String name, TaskStatusBreakdownCounters<C> breakdownCounters, FilterOption alias) {
         BreakdownSummaryInfo info = new BreakdownSummaryInfo();
