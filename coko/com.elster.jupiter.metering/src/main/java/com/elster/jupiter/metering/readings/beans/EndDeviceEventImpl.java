@@ -17,7 +17,8 @@ import java.util.Map;
 public class EndDeviceEventImpl implements EndDeviceEvent {
 
     private final Instant eventOccurredDate;
-    private final String mRID;
+    private final String eventTypeCode;
+    private String mrid;
     private String reason;
     private String severity;
     private Status status;
@@ -32,8 +33,8 @@ public class EndDeviceEventImpl implements EndDeviceEvent {
     private String description;
     private String name;
 
-    private EndDeviceEventImpl(String mRID, Instant eventTime) {
-        this.mRID = mRID;
+    private EndDeviceEventImpl(String eventTypeCode, Instant eventTime) {
+        this.eventTypeCode = eventTypeCode;
         this.eventOccurredDate = eventTime;
     }
     
@@ -101,7 +102,7 @@ public class EndDeviceEventImpl implements EndDeviceEvent {
 
     @Override
     public String getEventTypeCode() {
-        return this.mRID;
+        return this.eventTypeCode;
     }
 
     @Override
@@ -116,7 +117,7 @@ public class EndDeviceEventImpl implements EndDeviceEvent {
 
     @Override
     public String getMRID() {
-        return mRID;
+        return mrid;
     }
 
     @Override
@@ -174,5 +175,9 @@ public class EndDeviceEventImpl implements EndDeviceEvent {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setMrid(String mrid) {
+        this.mrid = mrid;
     }
 }
