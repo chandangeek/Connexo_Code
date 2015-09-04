@@ -95,7 +95,7 @@ Ext.define('Fwc.controller.Firmware', {
             confirmText: Uni.I18n.translate('general.deprecate', 'FWC', 'Deprecate')
         }).show({
             msg: Uni.I18n.translate('firmware.deprecate.msg', 'FWC', 'It will not be possible to upload this firmware version on devices.'),
-            title: Uni.I18n.translate('firmware.deprecate.title.' + data.id, 'FWC', 'Deprecate') + " '" + firmware.get('firmwareVersion') + "'?",
+            title: Uni.I18n.translate('firmware.deprecate.title', 'FWC', "Deprecate {0} firmware '{1}'?",[data.id,firmware.get('firmwareVersion')]),
             //icon: 'icon-question',
             fn: function (btn) {
                 if (btn === 'confirm') {
