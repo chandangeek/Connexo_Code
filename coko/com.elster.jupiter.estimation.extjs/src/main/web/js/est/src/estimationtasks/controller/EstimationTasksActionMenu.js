@@ -85,7 +85,7 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksActionMenu', {
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('estimationtasks.general.runmsg', 'EST', 'The estimation task will be queued to run at the earliest possible time.'),
-            title: Uni.I18n.translate('estimationtasks.general.runestimationtask', 'EST', "Run estimation task '{0}'?",record.get('name'))
+            title: Uni.I18n.translate('estimationtasks.general.runestimationtask', 'EST', "Run estimation task '{0}'?", [record.get('name')])
         });
     },
 
