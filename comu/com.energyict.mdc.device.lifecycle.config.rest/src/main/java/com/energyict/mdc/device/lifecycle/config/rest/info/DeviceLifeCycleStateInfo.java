@@ -43,7 +43,7 @@ public class DeviceLifeCycleStateInfo {
     private void addAllBusinessProcessInfos(List<TransitionBusinessProcessInfo> target, List<ProcessReference> source){
         source.stream()
                 .map(ProcessReference::getStateChangeBusinessProcess)
-                .map(x -> new TransitionBusinessProcessInfo(x.getId(), x.getDeploymentId(), x.getProcessId()))
+                .map(x -> new TransitionBusinessProcessInfo(x.getId(), x.getName(), x.getDeploymentId(), x.getProcessId()))
                 .forEach(target::add);
     }
 }
