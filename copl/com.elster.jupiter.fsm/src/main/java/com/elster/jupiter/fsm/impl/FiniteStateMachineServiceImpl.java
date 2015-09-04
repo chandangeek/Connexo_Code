@@ -179,8 +179,8 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     }
 
     @Override
-    public StateChangeBusinessProcess enableAsStateChangeBusinessProcess(String deploymentId, String processId) {
-        StateChangeBusinessProcessImpl businessProcess = this.dataModel.getInstance(StateChangeBusinessProcessImpl.class).initialize(deploymentId, processId);
+    public StateChangeBusinessProcess enableAsStateChangeBusinessProcess(String name, String deploymentId, String processId) {
+        StateChangeBusinessProcessImpl businessProcess = this.dataModel.getInstance(StateChangeBusinessProcessImpl.class).initialize(name, deploymentId, processId);
         Save.CREATE.validate(this.dataModel, businessProcess);
         this.dataModel.persist(businessProcess);
         return businessProcess;

@@ -128,7 +128,7 @@ public class StateImpl implements State {
         this.initial = initial;
     }
 
-    boolean isObsolete() {
+    public boolean isObsolete() {
         return this.obsoleteTimestamp != null;
     }
 

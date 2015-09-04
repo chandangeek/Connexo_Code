@@ -51,6 +51,8 @@ public interface StateChangeBusinessProcess {
 
     public long getId();
 
+    public String getName();
+
     public String getDeploymentId();
 
     public String getProcessId();

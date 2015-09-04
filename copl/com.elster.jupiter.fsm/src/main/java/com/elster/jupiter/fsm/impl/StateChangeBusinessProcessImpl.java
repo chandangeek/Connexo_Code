@@ -20,6 +20,7 @@ import javax.validation.constraints.Size;
 public class StateChangeBusinessProcessImpl implements StateChangeBusinessProcess {
 
     public enum Fields {
+        NAME("name"),
         DEPLOYMENT_ID("deploymentId"),
         PROCESS_ID("processId");
 
@@ -40,6 +41,9 @@ public class StateChangeBusinessProcessImpl implements StateChangeBusinessProces
     private long id;
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= 256, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
+    private String name;
+    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
+    @Size(max= 256, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String deploymentId;
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= 256, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
@@ -51,7 +55,8 @@ public class StateChangeBusinessProcessImpl implements StateChangeBusinessProces
         this.dataModel = dataModel;
     }
 
-    StateChangeBusinessProcessImpl initialize(String deploymentId, String processId) {
+    StateChangeBusinessProcessImpl initialize(String name, String deploymentId, String processId) {
+        this.name = name;
         this.deploymentId = deploymentId;
         this.processId = processId;
         return this;
@@ -60,6 +65,11 @@ public class StateChangeBusinessProcessImpl implements StateChangeBusinessProces
     @Override
     public long getId() {
         return this.id;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override
