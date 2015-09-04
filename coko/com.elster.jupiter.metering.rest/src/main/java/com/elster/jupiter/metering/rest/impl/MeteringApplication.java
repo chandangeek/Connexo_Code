@@ -99,14 +99,14 @@ public class MeteringApplication extends Application implements TranslationKeyPr
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>(Arrays.asList(MessageSeeds.values()));
+        List<TranslationKey> keys = new ArrayList<>(Arrays.asList(TranslationKeys.values()));
         for (int i = 1; i < TimeAttribute.values().length; i++) {
             TimeAttribute ta = TimeAttribute.values()[i];
-            keys.add(new SimpleTranslationKey(MessageSeeds.Keys.TIME_ATTRIBUTE_KEY_PREFIX + ta.getId(), ta.getDescription()));
+            keys.add(new SimpleTranslationKey(TranslationKeys.Keys.TIME_ATTRIBUTE_KEY_PREFIX + ta.getId(), ta.getDescription()));
         }
         for (int i = 1; i < MacroPeriod.values().length; i++) {
             MacroPeriod mp = MacroPeriod.values()[i];
-            keys.add(new SimpleTranslationKey(MessageSeeds.Keys.MACRO_PERIOD_KEY_PREFIX + mp.getId(), mp.getDescription()));
+            keys.add(new SimpleTranslationKey(TranslationKeys.Keys.MACRO_PERIOD_KEY_PREFIX + mp.getId(), mp.getDescription()));
         }
         return keys;
     }
