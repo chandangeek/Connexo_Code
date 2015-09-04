@@ -11,7 +11,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
  */
 public class CannotDeleteLoadProfileSpecLinkedChannelSpecsException extends LocalizedException{
 
-    public CannotDeleteLoadProfileSpecLinkedChannelSpecsException(Thesaurus thesaurus) {
-        super(thesaurus, MessageSeeds.LOAD_PROFILE_SPEC_CANNOT_DELETE_STILL_LINKED_CHANNEL_SPECS);
+    public CannotDeleteLoadProfileSpecLinkedChannelSpecsException(Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed);
     }
+
 }

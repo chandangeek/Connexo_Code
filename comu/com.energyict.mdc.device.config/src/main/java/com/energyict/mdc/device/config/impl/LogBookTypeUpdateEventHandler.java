@@ -65,7 +65,7 @@ public class LogBookTypeUpdateEventHandler implements TopicHandler {
         if (!Checks.is(logBookType.getObisCode().toString()).equalTo(oldObisCode)) {
             List<DeviceConfiguration> deviceConfigurations = this.deviceConfigurationService.findDeviceConfigurationsUsingLogBookType(logBookType);
             if (!deviceConfigurations.isEmpty()) {
-                throw new CannotUpdateObisCodeWhenLogBookTypeIsInUseException(this.getThesaurus(), logBookType);
+                throw new CannotUpdateObisCodeWhenLogBookTypeIsInUseException(this.getThesaurus(), logBookType, MessageSeeds.LOG_BOOK_TYPE_OBIS_CODE_CANNOT_BE_UPDATED);
             }
         }
     }

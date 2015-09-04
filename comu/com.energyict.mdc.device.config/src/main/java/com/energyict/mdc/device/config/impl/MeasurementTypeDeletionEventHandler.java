@@ -63,21 +63,21 @@ public class MeasurementTypeDeletionEventHandler implements TopicHandler {
     private void validateNotUsedByRegisterSpecs(MeasurementType measurementType) {
         List<RegisterSpec> registerSpecs = this.deviceConfigurationService.findRegisterSpecsByMeasurementType(measurementType);
         if (!registerSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.registerTypeIsStillInUseByRegisterSpecs(this.thesaurus, measurementType, registerSpecs);
+            throw CannotDeleteBecauseStillInUseException.registerTypeIsStillInUseByRegisterSpecs(this.thesaurus, measurementType, registerSpecs, MessageSeeds.REGISTER_TYPE_STILL_USED_BY_REGISTER_SPEC);
         }
     }
 
     private void validateNotUsedByChannelSpecs(MeasurementType measurementType) {
         List<ChannelSpec> channelSpecs = this.deviceConfigurationService.findChannelSpecsForMeasurementType(measurementType);
         if (!channelSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.channelTypeIsStillInUseByChannelSpecs(this.thesaurus, measurementType, channelSpecs);
+            throw CannotDeleteBecauseStillInUseException.channelTypeIsStillInUseByChannelSpecs(this.thesaurus, measurementType, channelSpecs, MessageSeeds.CHANNEL_TYPE_STILL_USED_BY_CHANNEL_SPEC);
         }
     }
 
     private void validateNotUsedByDeviceTypes(MeasurementType measurementType) {
         List<DeviceType> deviceTypes = this.deviceConfigurationService.findDeviceTypesUsingRegisterType(measurementType);
         if (!deviceTypes.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.registerTypeIsStillInUseByDeviceTypes(this.thesaurus, measurementType, deviceTypes);
+            throw CannotDeleteBecauseStillInUseException.registerTypeIsStillInUseByDeviceTypes(this.thesaurus, measurementType, deviceTypes, MessageSeeds.REGISTER_TYPE_STILL_USED_BY_DEVICE_TYPE);
         }
     }
 

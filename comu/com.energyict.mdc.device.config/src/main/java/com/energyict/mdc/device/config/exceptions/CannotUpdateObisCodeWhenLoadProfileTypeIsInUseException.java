@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.config.exceptions;
 
+import com.energyict.mdc.masterdata.LoadProfileType;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.masterdata.LoadProfileType;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt
@@ -14,8 +16,8 @@ import com.energyict.mdc.masterdata.LoadProfileType;
  */
 public class CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException extends LocalizedException {
 
-    public CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException(Thesaurus thesaurus, LoadProfileType loadProfileType) {
-        super(thesaurus, MessageSeeds.LOAD_PROFILE_TYPE_OBIS_CODE_CANNOT_BE_UPDATED, loadProfileType.getName());
+    public CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException(LoadProfileType loadProfileType, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, loadProfileType.getName());
         this.set("loadProfileType", loadProfileType);
     }
 

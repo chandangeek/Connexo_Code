@@ -4,9 +4,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumberOfDigitsException;
-import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFractionDigitsException;
 import com.energyict.mdc.masterdata.RegisterType;
 
 import com.elster.jupiter.domain.util.Save;

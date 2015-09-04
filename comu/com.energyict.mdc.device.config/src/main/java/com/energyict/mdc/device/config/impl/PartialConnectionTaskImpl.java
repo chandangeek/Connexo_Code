@@ -4,7 +4,6 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;

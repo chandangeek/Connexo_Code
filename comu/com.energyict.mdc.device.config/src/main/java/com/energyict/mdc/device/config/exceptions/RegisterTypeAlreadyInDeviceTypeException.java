@@ -1,9 +1,11 @@
 package com.energyict.mdc.device.config.exceptions;
 
-import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.MeasurementType;
+
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
@@ -15,8 +17,8 @@ import com.energyict.mdc.masterdata.MeasurementType;
  */
 public class RegisterTypeAlreadyInDeviceTypeException extends LocalizedException {
 
-    public RegisterTypeAlreadyInDeviceTypeException(Thesaurus thesaurus, DeviceType deviceType, MeasurementType measurementType) {
-        super(thesaurus, MessageSeeds.DUPLICATE_REGISTER_TYPE_IN_DEVICE_TYPE, measurementType.getReadingType().getAliasName(), deviceType.getName());
+    public RegisterTypeAlreadyInDeviceTypeException(DeviceType deviceType, MeasurementType measurementType, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, measurementType.getReadingType().getAliasName(), deviceType.getName());
         this.set("deviceType", deviceType);
         this.set("measurementType", measurementType);
     }

@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.nls.LocalizedException;
