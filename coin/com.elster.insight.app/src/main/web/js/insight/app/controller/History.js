@@ -57,9 +57,17 @@ Ext.define('InsightApp.controller.History', {
                             items: {
                             	register: {
                                     title: Uni.I18n.translate('general.usagePointRegister', 'INS', 'Register'),
-                                    route: '{register}',
+                                    route: '{registerId}',
                                     controller: 'Imt.registerdata.controller.View',
-                                    action: 'showUsagePointReading'
+                                    action: 'showUsagePointRegisterData',
+                                    callback: function (route) {
+                                        this.getApplication().on('registerDataLoaded', function (record) {
+                                            route.setTitle(record.get('readingType').fullAliasName);
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    },
                                 }                                    
                             }
            			    }
