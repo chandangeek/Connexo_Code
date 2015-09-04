@@ -7,7 +7,7 @@ Ext.define('Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses
     storeId: 'AvailableTransitionBusinessProcesses',
     remoteFilter: false,
     sorters: [{
-        property: 'processId',
+        property: 'name',
         direction: 'ASC'
     }],
 /*
@@ -16,9 +16,9 @@ Ext.define('Dlc.devicelifecyclestates.store.AvailableTransitionBusinessProcesses
         type: 'memory'
     },
     data: [
-         {id: 1, deploymentId: 'com.elster.mail.send', processId:'send mail'},
-         {id: 2, deploymentId: 'com.elster.print.installationAcceptance', processId: 'print installation acceptance'},
-         {id: 3, deploymentId: 'com.elster.print.defectReport', processId: 'print defect report'}
+         {id: 1, name: 'send mail', deploymentId: 'com.elster.mail.send', processId:'sendMail'},
+         {id: 2, name: 'print installation acceptance', 'com.elster.print.installationAcceptance', processId: 'printInstallationAcceptance'},
+         {id: 3, name: 'print defect report', deploymentId: 'com.elster.print.defectReport', processId: 'printDefectReport'}
     ]
 */
 

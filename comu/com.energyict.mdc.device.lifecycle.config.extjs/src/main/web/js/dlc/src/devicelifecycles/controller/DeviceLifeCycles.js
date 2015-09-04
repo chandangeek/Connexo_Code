@@ -91,7 +91,7 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('deviceLifeCycles.confirmWindow.removeMsg', 'DLC', 'This device life cycle will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'DLC', 'Remove') + " '" + record.get('name') + "'?",
+            title: Uni.I18n.translate('general.removex', 'DLC', "Remove '{0}'?",[record.get('name')]),
             config: {
                 me: me,
                 record: record,
@@ -140,7 +140,7 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
             deviceTypesList = '';
 
         Ext.suspendLayouts();
-        preview.setTitle(record.get('name'));
+        preview.setTitle(Ext.String.htmlEncode(record.get('name')));
         previewForm.loadRecord(record);
         previewForm.down('#used-by').removeAll();
         Ext.Array.each(record.get('deviceTypes'), function (deviceType) {
@@ -199,7 +199,7 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
 
         deviceLifeCycleModel.load(deviceLifeCycleId, {
             success: function (deviceLifeCycleRecord) {
-                var title = Uni.I18n.translate('general.clone', 'DLC', 'Clone') + " '" + deviceLifeCycleRecord.get('name') + "'",
+                var title = Uni.I18n.translate('general.clonex', 'DLC', "Clone '{0}'",[deviceLifeCycleRecord.get('name')]),
                     route;
 
                 me.getApplication().fireEvent('devicelifecyclecloneload', title);
