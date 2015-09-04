@@ -100,6 +100,7 @@ Ext.define('Dxp.controller.Tasks', {
     destinationsArray: [],
 
     destinationToEdit: null,
+    destinationIndexToEdit: -1,
 
     init: function () {
         this.control({
@@ -357,6 +358,7 @@ Ext.define('Dxp.controller.Tasks', {
                 view.down('#destination-attachment-extension').setValue(me.destinationToEdit.get('fileExtension'));
             }
         } else {
+            me.destinationIndexToEdit = -1;
             view.down('#destination-methods-combo').setValue('FILE');
         }
     },
@@ -524,7 +526,7 @@ Ext.define('Dxp.controller.Tasks', {
                         var schedule = record.get('schedule');
                         me.taskModel = record;
                         me.getApplication().fireEvent('dataexporttaskload', record);
-                        taskForm.setTitle(Uni.I18n.translate('general.edit', 'DES', 'Edit') + " '" + record.get('name') + "'");
+                        taskForm.setTitle(Uni.I18n.translate('general.editx', 'DES', "Edit '{0}'",[record.get('name')]));
                         if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
                             me.setFormValues(view);
                         } else {
@@ -659,6 +661,7 @@ Ext.define('Dxp.controller.Tasks', {
                 var page = me.getAddPage(),
                     destinationsGrid = page.down('#task-destinations-grid');
                 // edit = remove + add new
+                me.destinationIndexToEdit = destinationsGrid.getStore().indexOf(menu.record);
                 destinationsGrid.getStore().remove(menu.record);
                 me.showAddDestination();
                 break;
@@ -726,7 +729,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('dataExportTasks.runMsg', 'DES', 'The data export task will be queued to run at the earliest possible time.'),
-            title: Uni.I18n.translate('general.runDataExportTask', 'DES', 'Run data export task') + ' ' + record.data.name + '?'
+            title: Uni.I18n.translate('general.runDataExportTaskx', 'DES', "Run data export task {0}?",[record.data.name])
         });
     },
 
@@ -783,7 +786,7 @@ Ext.define('Dxp.controller.Tasks', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show({
             msg: Uni.I18n.translate('general.remove.msg', 'DES', 'This data export task will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'DES', 'Remove') + '&nbsp' + record.data.name + '?',
+            title: Uni.I18n.translate('general.removex', 'DES', 'Remove {0}?',[record.data.name]),
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {
@@ -942,6 +945,7 @@ Ext.define('Dxp.controller.Tasks', {
         if (me.destinationToEdit) {
             me.destinationsArray.push(me.destinationToEdit);
             me.destinationToEdit = null;
+            me.destinationIndexToEdit = -1;
             me.forwardToPreviousPage();
         } else {
             var page = me.getAddDestinationPage();
@@ -1300,14 +1304,22 @@ Ext.define('Dxp.controller.Tasks', {
             }
         }
 
+
+
+
+
+        Ext.each(me.destinationsArray, function (record) {
+            if (me.destinationIndexToEdit != -1) {
+                destinationsArray.splice(me.destinationIndexToEdit, 0, record);
+            } else {
+                destinationsArray.push(record);
+            }
+        });
         if (!Ext.isEmpty(destinationsArray)) {
             Ext.each(destinationsArray, function (destination) {
                 destinationsStore.add(destination);
             });
         }
-        Ext.each(me.destinationsArray, function (record) {
-            destinationsStore.add(record);
-        });
         me.destinationsArray = [];
 
         if (destinationsStore.count() > 0) {
