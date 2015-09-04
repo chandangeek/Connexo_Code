@@ -1,26 +1,38 @@
 package com.energyict.mdc.issue.issue.datavalidation.rest;
 
-import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.issue.share.IssueAction;
-import com.elster.jupiter.issue.share.entity.*;
-import com.elster.jupiter.issue.share.service.IssueActionService;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.*;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.rest.impl.IssueDataValidationApplication;
-import org.mockito.Mock;
+
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.issue.share.IssueAction;
+import com.elster.jupiter.issue.share.entity.IssueActionType;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 
 import javax.ws.rs.core.Application;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
 
-import static org.mockito.Mockito.*;
+import org.mockito.Mock;
+
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class IssueDataValidationApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
@@ -49,11 +61,6 @@ public class IssueDataValidationApplicationJerseyTest extends FelixRestApplicati
         application.setDeviceService(deviceService);
         application.setNlsService(nlsService);
         return application;
-    }
-
-    @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
     }
 
     protected IssueStatus mockStatus(String key, String name, boolean isFinal) {

@@ -1,8 +1,17 @@
 package com.energyict.mdc.issue.datavalidation.rest.impl;
 
+import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.rest.MessageSeeds;
-import com.elster.jupiter.issue.rest.request.*;
+import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
+import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
+import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
+import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
+import com.elster.jupiter.issue.rest.request.EntityReference;
+import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
@@ -26,13 +35,18 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Order;
-import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -191,7 +205,7 @@ public class IssueResource {
             if (issue.isPresent()) {
                 issuesForBulk.add(issue.get());
             } else {
-                bulkResult.addFail(MessageSeeds.ISSUE_DOES_NOT_EXIST.getTranslated(thesaurus), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
+                bulkResult.addFail(thesaurus.getFormat(MessageSeeds.ISSUE_DOES_NOT_EXIST).format(), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
             }
         }
         return issuesForBulk;
@@ -204,7 +218,7 @@ public class IssueResource {
             if (status.isPresent() && status.get().isHistorical()) {
                 for (Issue issue : issueProvider.apply(response)) {
                     if (issue.getStatus().isHistorical()) {
-                        response.addFail(MessageSeeds.ISSUE_ALREADY_CLOSED.getTranslated(thesaurus), issue.getId(), issue.getTitle());
+                        response.addFail(thesaurus.getFormat(MessageSeeds.ISSUE_ALREADY_CLOSED).format(), issue.getId(), issue.getTitle());
                     } else {
                         issue.addComment(request.comment, performer);
                         if (issue instanceof OpenIssue) {
