@@ -73,6 +73,10 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.protocol.pluggable</artifactId>
+        </dependency> <!-- Do we really need this dep? IntelliJ complains without it, can't explain -->
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.device.config</artifactId>
         </dependency>
         <dependency>
@@ -222,11 +226,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.lifecycle.config</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.protocol.pluggable</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
