@@ -3,4 +3,3 @@
 Bundle-Activator: com.elster.jupiter.loaderjs.Activator
 Private-Package: com.elster.jupiter.loaderjs
 Export-Package: !com.elster.jupiter.loaderjs
-Include-Resource: src/main/web
