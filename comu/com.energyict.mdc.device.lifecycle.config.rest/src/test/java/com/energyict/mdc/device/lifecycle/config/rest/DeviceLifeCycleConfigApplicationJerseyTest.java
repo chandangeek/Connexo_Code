@@ -133,8 +133,8 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
     public List<State> mockDefaultStatesWithOnEntryProcessesForDecommissioned(){
         List<State> states = new ArrayList<>(3);
         states.add(mockSimpleStateWithEntryAndExitProcesses(2, DefaultState.DECOMMISSIONED.getKey(),
-                new StateChangeBusinessProcess[]{mockStateChangeBusinessProcess(1, "deploymentIdOnEntry1", "processIdOnEntry1"),
-                        mockStateChangeBusinessProcess(2, "deploymentIdOnEntry2", "processIdOnEntry2")},
+                new StateChangeBusinessProcess[]{mockStateChangeBusinessProcess(1, "nameOnEntry1", "deploymentIdOnEntry1", "processIdOnEntry1"),
+                        mockStateChangeBusinessProcess(2, "nameOnEntry2", "deploymentIdOnEntry2", "processIdOnEntry2")},
                 null));
         states.add(mockSimpleState(1, DefaultState.COMMISSIONING.getKey()));
         states.add(mockSimpleState(3, DefaultState.IN_STOCK.getKey()));
@@ -146,9 +146,9 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         states.add(mockSimpleState(2, DefaultState.DECOMMISSIONED.getKey()));
         states.add(mockSimpleState(1, DefaultState.COMMISSIONING.getKey()));
         states.add(mockSimpleStateWithEntryAndExitProcesses(3, DefaultState.IN_STOCK.getKey(), null,
-                new StateChangeBusinessProcess[]{mockStateChangeBusinessProcess(1, "deploymentIdOnExit1", "processIdOnExit1"),
-                        mockStateChangeBusinessProcess(2, "deploymentIdOnExit2", "processIdOnExit2"),
-                        mockStateChangeBusinessProcess(3, "deploymentIdOnExit3", "processIdOnExit3")}));
+                new StateChangeBusinessProcess[]{mockStateChangeBusinessProcess(1, "nameOnExit1", "deploymentIdOnExit1", "processIdOnExit1"),
+                        mockStateChangeBusinessProcess(2, "nameOnExit2", "deploymentIdOnExit2", "processIdOnExit2"),
+                        mockStateChangeBusinessProcess(3, "nameOnExit3", "deploymentIdOnExit3", "processIdOnExit3")}));
         return states;
     }
 
@@ -157,9 +157,9 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         states.add(mockSimpleState(2, DefaultState.DECOMMISSIONED.getKey()));
         states.add(mockSimpleStateWithEntryAndExitProcesses(1,
                 DefaultState.COMMISSIONING.getKey(),
-                new StateChangeBusinessProcess[]{mockStateChangeBusinessProcess(1, "deploymentIdOnEntry1", "processIdOnEntry1"),
-                                        mockStateChangeBusinessProcess(2, "deploymentIdOnEntry2", "processIdOnEntry2")},
-                new StateChangeBusinessProcess[]{mockStateChangeBusinessProcess(3, "deploymentIdOnExit1", "processIdOnExit1")}));
+                new StateChangeBusinessProcess[]{mockStateChangeBusinessProcess(1, ",nameOnEntry1", "deploymentIdOnEntry1", "processIdOnEntry1"),
+                                        mockStateChangeBusinessProcess(2, "nameOnEntry2", "deploymentIdOnEntry2", "processIdOnEntry2")},
+                new StateChangeBusinessProcess[]{mockStateChangeBusinessProcess(3, "nameOnExit1", "deploymentIdOnExit1", "processIdOnExit1")}));
         states.add(mockSimpleState(3, DefaultState.IN_STOCK.getKey()));
         return states;
     }
@@ -198,9 +198,10 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         return actions;
     }
 
-    public StateChangeBusinessProcess mockStateChangeBusinessProcess(long id, String deploymentId, String processId){
+    public StateChangeBusinessProcess mockStateChangeBusinessProcess(long id, String name, String deploymentId, String processId){
         StateChangeBusinessProcess process = mock(StateChangeBusinessProcess.class);
         when(process.getId()).thenReturn(id);
+        when(process.getName()).thenReturn(name);
         when(process.getDeploymentId()).thenReturn(deploymentId);
         when(process.getProcessId()).thenReturn(processId);
         return process;
