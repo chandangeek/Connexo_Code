@@ -108,7 +108,12 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
                         emptyText: Uni.I18n.translate('deviceLifeCycleTransitions.add.triggerDefaultMsg', 'DLC', 'Select a trigger event...'),
                         queryMode: 'local',
                         displayField: 'name',
-                        valueField: 'symbol'
+                        valueField: 'symbol',
+                        listeners: {
+                            afterrender: function () {
+                                this.getPicker().setOverflowXY('hidden', 'auto');
+                            }
+                        }
                     },
                     {
                         xtype: 'textfield',
