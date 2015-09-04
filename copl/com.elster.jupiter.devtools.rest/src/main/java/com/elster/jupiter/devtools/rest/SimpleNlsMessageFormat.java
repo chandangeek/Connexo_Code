@@ -1,7 +1,9 @@
 package com.elster.jupiter.devtools.rest;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import java.text.MessageFormat;
 import java.util.Locale;
 
@@ -10,19 +12,24 @@ import java.util.Locale;
  */
 class SimpleNlsMessageFormat implements NlsMessageFormat {
 
-        private final MessageSeed messageSeed;
+    private final String defaultFormat;
 
-        SimpleNlsMessageFormat(MessageSeed messageSeed) {
-            this.messageSeed = messageSeed;
-        }
-
-        @Override
-        public String format(Object... args) {
-            return MessageFormat.format(messageSeed.getDefaultFormat(), args);
-        }
-
-        @Override
-        public String format(Locale locale, Object... args) {
-            return MessageFormat.format(messageSeed.getDefaultFormat(), args);
-        }
+    SimpleNlsMessageFormat(TranslationKey translationKey) {
+        this.defaultFormat = translationKey.getDefaultFormat();
     }
+
+    SimpleNlsMessageFormat(MessageSeed messageSeed) {
+        this.defaultFormat = messageSeed.getDefaultFormat();
+    }
+
+    @Override
+    public String format(Object... args) {
+        return MessageFormat.format(this.defaultFormat, args);
+    }
+
+    @Override
+    public String format(Locale locale, Object... args) {
+        return MessageFormat.format(this.defaultFormat, args);
+    }
+
+}
