@@ -6,6 +6,8 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -31,9 +33,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-@Component(name = "com.elster.jupiter.time", service = {TimeService.class, InstallService.class, PrivilegesProvider.class}, property = "name=" + TimeService.COMPONENT_NAME, immediate = true)
-public class TimeServiceImpl implements TimeService, InstallService, PrivilegesProvider {
+@Component(
+        name = "com.elster.jupiter.time",
+        service = {TimeService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class},
+        property = "name=" + TimeService.COMPONENT_NAME,
+        immediate = true)
+public class TimeServiceImpl implements TimeService, InstallService, PrivilegesProvider, TranslationKeyProvider {
     private volatile DataModel dataModel;
     private volatile QueryService queryService;
     private volatile OrmService ormService;
@@ -148,7 +157,7 @@ public class TimeServiceImpl implements TimeService, InstallService, PrivilegesP
 
     @Override
     public void install() {
-        new Installer(dataModel, this, thesaurus, userService, eventService).install(true);
+        new Installer(dataModel, this, eventService).install(true);
     }
 
     @Override
@@ -209,5 +218,24 @@ public class TimeServiceImpl implements TimeService, InstallService, PrivilegesP
 
     Thesaurus getThesaurus() {
         return thesaurus;
+    }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Stream.of(
+                Arrays.stream(MessageSeeds.values()),
+                Arrays.stream(Labels.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 }
