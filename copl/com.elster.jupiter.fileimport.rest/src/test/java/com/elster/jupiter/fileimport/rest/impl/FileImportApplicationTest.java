@@ -3,8 +3,7 @@ package com.elster.jupiter.fileimport.rest.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.fileimport.FileImportService;
-import com.elster.jupiter.fileimport.rest.impl.FileImportApplication;
-import com.elster.jupiter.fileimport.rest.impl.PropertyUtils;
+import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -12,11 +11,10 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
-import javax.ws.rs.core.SecurityContext;
-
 import java.nio.file.FileSystem;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class FileImportApplicationTest extends FelixRestApplicationJerseyTest {
@@ -28,14 +26,9 @@ public class FileImportApplicationTest extends FelixRestApplicationJerseyTest {
     @Mock
     protected CronExpressionParser cronExpressionParser;
     @Mock
-    static SecurityContext securityContext;
+    protected AppService appService;
     @Mock
     static FileSystem fileSystem;
-    @Mock
-    PropertyUtils propertyUtils;
-
-    @Mock
-    public AppService appService;
 
     @Override
     protected MessageSeed[] getMessageSeeds() {
@@ -54,7 +47,15 @@ public class FileImportApplicationTest extends FelixRestApplicationJerseyTest {
         application.setNlsService(nlsService);
         application.setFileSystem(fileSystem);
         application.setAppService(appService);
-
+        application.addApplication(mockApp("SYS", "Admin"));
+        application.addApplication(mockApp("MDC", "MultiSense"));
         return application;
+    }
+
+    private App mockApp(String key, String name) {
+        App app = mock(App.class);
+        when(app.getKey()).thenReturn(key);
+        when(app.getName()).thenReturn(name);
+        return app;
     }
 }
