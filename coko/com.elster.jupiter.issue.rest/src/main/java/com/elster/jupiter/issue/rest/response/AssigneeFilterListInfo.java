@@ -6,9 +6,9 @@ import com.elster.jupiter.users.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static com.elster.jupiter.issue.rest.MessageSeeds.ISSUE_ASSIGNEE_ME;
-import static com.elster.jupiter.issue.rest.MessageSeeds.ISSUE_ASSIGNEE_UNASSIGNED;
+import static com.elster.jupiter.issue.rest.TranslationKeys.ISSUE_ASSIGNEE_UNASSIGNED;
 
 public class AssigneeFilterListInfo {
     private List<IssueAssigneeInfo> data = new ArrayList<>();
@@ -17,15 +17,11 @@ public class AssigneeFilterListInfo {
     }
 
     public AssigneeFilterListInfo(List<User> userList) {
-        for (User user : userList) {
-            data.add(new IssueAssigneeInfo(IssueAssignee.Types.USER, user.getId(), user.getName()));
-        }
+        data.addAll(userList.stream().map(user -> new IssueAssigneeInfo(IssueAssignee.Types.USER, user.getId(), user.getName())).collect(Collectors.toList()));
     }
 
     public AssigneeFilterListInfo addData(List<User> userList) {
-        for (User user : userList) {
-            data.add(new IssueAssigneeInfo(IssueAssignee.Types.USER, user.getId(), user.getName()));
-        }
+        data.addAll(userList.stream().map(user -> new IssueAssigneeInfo(IssueAssignee.Types.USER, user.getId(), user.getName())).collect(Collectors.toList()));
         return this;
     }
 
@@ -37,18 +33,17 @@ public class AssigneeFilterListInfo {
         return data.size();
     }
 
-
-    public static AssigneeFilterListInfo defaults(User currentUser, Thesaurus thesaurus, Boolean findMe) {
+    public static AssigneeFilterListInfo defaults(User currentUser, Thesaurus thesaurus, boolean findMe) {
         AssigneeFilterListInfo info = new AssigneeFilterListInfo();
         if (currentUser != null && findMe) {
             // Adding 'Me'
-            String meText = ISSUE_ASSIGNEE_ME.getTranslated(thesaurus);
             info.data.add(new IssueAssigneeInfo(IssueAssignee.Types.USER, currentUser.getId(), currentUser.getName()));
         }  else {
             // Adding 'Unassigned'
-            String unassignedText = ISSUE_ASSIGNEE_UNASSIGNED.getTranslated(thesaurus);
+            String unassignedText = thesaurus.getFormat(ISSUE_ASSIGNEE_UNASSIGNED).format();
             info.data.add(new IssueAssigneeInfo("UnexistingType", -1L, unassignedText));
         }
         return info;
     }
+
 }

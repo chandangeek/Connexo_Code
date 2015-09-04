@@ -28,8 +28,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
-import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -43,10 +41,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.*;
+import org.mockito.Matchers;
+
 import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
 
@@ -103,6 +106,8 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
 
     @Test
     public void testGetCreationRuleById() {
+        this.mockTranslation(TranslationKeys.ISSUE_ACTION_PHASE_CREATE);
+        this.mockTranslation(TranslationKeys.ISSUE_ACTION_PHASE_CREATE_DESCRIPTION);
         List<PropertySpec> propertySpecs = mockPropertySpecs();
         CreationRuleTemplate template = mockCreationRuleTemplate("Template", "Template description", mockIssueType("issueType", "Issue Type"), propertySpecs);
 
@@ -204,6 +209,8 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         rulePropertyInfo.propertyValueInfo = new PropertyValueInfo<>("value", null);
         info.properties = Collections.singletonList(rulePropertyInfo);
         CreationRuleActionInfo actionInfo = new CreationRuleActionInfo();
+        this.mockTranslation(TranslationKeys.ISSUE_ACTION_PHASE_CREATE);
+        this.mockTranslation(TranslationKeys.ISSUE_ACTION_PHASE_CREATE_DESCRIPTION);
         actionInfo.phase = new CreationRuleActionPhaseInfo(CreationRuleActionPhase.CREATE, thesaurus);
         actionInfo.type = new IssueActionTypeInfo();
         actionInfo.type.id = 5L;
@@ -266,6 +273,8 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         rulePropertyInfo.propertyValueInfo = new PropertyValueInfo<>("value", null);
         info.properties = Collections.singletonList(rulePropertyInfo);
         CreationRuleActionInfo actionInfo = new CreationRuleActionInfo();
+        this.mockTranslation(TranslationKeys.ISSUE_ACTION_PHASE_CREATE);
+        this.mockTranslation(TranslationKeys.ISSUE_ACTION_PHASE_CREATE_DESCRIPTION);
         actionInfo.phase = new CreationRuleActionPhaseInfo(CreationRuleActionPhase.CREATE, thesaurus);
         actionInfo.type = new IssueActionTypeInfo();
         actionInfo.type.id = 5L;
@@ -296,7 +305,7 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         CreationRuleInfo info = new CreationRuleInfo();
         info.id = 13L;
         info.version = 5L;
-        
+
         Response response = target("/creationrules/13").request().method("DELETE", Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
@@ -304,7 +313,7 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         verify(rule).delete();
         verify(context).commit();
     }
-    
+
     @Test
     public void testValidateAction() {
         CreationRuleBuilder ruleBuilder = mock(CreationRuleBuilder.class);
@@ -315,9 +324,9 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         when(actionBuilder.complete()).thenReturn(action);
 
         CreationRuleActionInfo info = new CreationRuleActionInfo();
-        
+
         Response response = target("/creationrules/validateaction").request().post(Entity.json(info));
-        
+
         assertThat(response.getStatus()).isEqualTo(Status.OK.getStatusCode());
         verify(action).validate();
     }

@@ -1,28 +1,5 @@
 package com.elster.jupiter.issue.rest;
 
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.annotation.Priority;
-import javax.ws.rs.Priorities;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.ext.Provider;
-
-import org.mockito.Mock;
-
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.issue.rest.impl.IssueApplication;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
@@ -30,10 +7,8 @@ import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueInType;
-import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
-import com.elster.jupiter.issue.share.entity.IssueComment;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
@@ -45,6 +20,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
@@ -52,10 +28,31 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.MessageSeed;
+
+import javax.annotation.Priority;
+import javax.ws.rs.Priorities;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.ext.Provider;
+import java.io.IOException;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import org.mockito.Mock;
+
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTest {
-  
+
     @Mock
     IssueService issueService;
     @Mock
@@ -85,7 +82,7 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
             requestContext.setSecurityContext(securityContext);
         }
     }
-    
+
     @Override
     protected Application getApplication() {
         IssueApplication application = new IssueApplication() {
@@ -110,11 +107,6 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         application.setRestQueryService(restQueryService);
         application.setUserService(userService);
         return application;
-    }
-
-    @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
     }
 
     protected IssueStatus mockStatus(String key, String name, boolean isFinal){
@@ -161,10 +153,6 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         return meter;
     }
 
-    protected Meter getDefaultMeter(){
-        return mockMeter(1, "0.0.0.0.0.0.0.0");
-    }
-
     protected IssueAssignee mockAssignee(long id, String name, String type){
         IssueAssignee assignee = mock(IssueAssignee.class);
         when(assignee.getId()).thenReturn(id);
@@ -185,11 +173,6 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         when(rule.getVersion()).thenReturn(version);
         when(rule.getAssignee()).thenReturn(assignee);
         return rule;
-    }
-
-    protected AssignmentRule getDefaultAssignmentRule(){
-        IssueAssignee assignee = getDefaultAssignee();
-        return mockAssignmentRule(1, "Assignment Rule", "Description", 1, assignee);
     }
 
     protected CreationRuleTemplate mockCreationRuleTemplate(String name, String description, IssueType issueType, List<PropertySpec> properties){
@@ -214,20 +197,12 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         return user;
     }
 
-    protected User getDefaultUser(){
-        return mockUser(1, "Admin");
-    }
-
     protected IssueAction mockIssueAction(String name){
         IssueAction action = mock(IssueAction.class);
         when(action.getDisplayName()).thenReturn(name);
         List<PropertySpec> propertySpec = mockPropertySpecs();
         when(action.getPropertySpecs()).thenReturn(propertySpec);
         return action;
-    }
-
-    protected IssueAction getDefaultIssueAction(){
-        return mockIssueAction("Send To Inspect");
     }
 
     protected IssueActionType mockIssueActionType(long id, String name, IssueType issueType){
@@ -243,12 +218,8 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         IssueType issueType = getDefaultIssueType();
         return mockIssueActionType(1, "send", issueType);
     }
-    
-    protected Issue getDefaultIssue() {
-        return mockIssue(1L, getDefaultReason(), getDefaultStatus(), getDefaultAssignee(), getDefaultMeter());
-    }
-    
-     protected CreationRule mockCreationRule(long id, String name){
+
+    protected CreationRule mockCreationRule(long id, String name) {
         Instant instant = Instant.now();
         IssueReason reason = getDefaultReason();
         CreationRuleTemplate template = getDefaultCreationRuleTemplate();
@@ -268,38 +239,23 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         return rule;
     }
 
-    protected CreationRule getDefaultCreationRule(){
-        return mockCreationRule(1, "Rule 1");
-    }
-
-    protected Issue mockIssue(long id, IssueReason reason, IssueStatus status, IssueAssignee assingee, Meter meter) {
-        Issue issue = mock(Issue.class);
-        when(issue.getId()).thenReturn(id);
-        when(issue.getReason()).thenReturn(reason);
-        when(issue.getStatus()).thenReturn(status);
-        when(issue.getDueDate()).thenReturn(null);
-        when(issue.getAssignee()).thenReturn(assingee);
-        when(issue.getDevice()).thenReturn(meter);
-        when(issue.getCreateTime()).thenReturn(Instant.EPOCH);
-        when(issue.getVersion()).thenReturn(1L);
-        return issue;
-    }
-    
-    protected IssueComment mockComment(long id, String text, User user) {
-        IssueComment comment = mock(IssueComment.class);
-        when(comment.getId()).thenReturn(id);
-        when(comment.getComment()).thenReturn(text);
-        when(comment.getCreateTime()).thenReturn(Instant.EPOCH);
-        when(comment.getVersion()).thenReturn(1L);
-        when(comment.getUser()).thenReturn(user);
-        return comment;
-    }
-    
     protected List<PropertySpec> mockPropertySpecs() {
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn("property");
         when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
         when(propertySpec.isRequired()).thenReturn(true);
-        return Arrays.asList(propertySpec);
+        return Collections.singletonList(propertySpec);
     }
+
+    protected void mockTranslation(TranslationKeys translationKey) {
+        NlsMessageFormat nlsMessageFormat = this.mockNlsMessageFormat(translationKey.getDefaultFormat());
+        when(thesaurus.getFormat(translationKey)).thenReturn(nlsMessageFormat);
+    }
+
+    protected NlsMessageFormat mockNlsMessageFormat(String translation) {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn(translation);
+        return messageFormat;
+    }
+
 }
