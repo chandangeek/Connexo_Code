@@ -1,12 +1,11 @@
-package com.energyict.mdc.device.data.exceptions;
+package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.DeviceDataServices;
+
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.SEVERE;
 
 /**
@@ -15,7 +14,7 @@ import static java.util.logging.Level.SEVERE;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-06 (14:41)
  */
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
     LEGACY(100, "legacy.exception", "Coding: BusinessException or SQLException from legacy code that has not been ported to the jupiter ORM framework"),
     NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required"),
     CODING_RELATION_IS_ALREADY_OBSOLETE(1001, "relation.isAlreadyObsolete", "Cannot remove a property because the relation (of type ''{0}'') that holds it is already obsolete"),
@@ -69,9 +68,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     VETO_DEVICE_CONFIGURATION_DEACTIVATION(2035, Keys.VETO_DEVICE_CONFIGURATION_IN_USE_BY_DEVICES, "The device configuration {0} is still used by at least one device"),
     VETO_PROTOCOL_DIALECT_CONFIGURATION_DELETION(2036, Keys.VETO_PROTOCOL_DIALECT_CONFIGURATION_DELETION, "The properties of protocol dialect {0} cannot be deleted because they are still used by at least one device"),
     VETO_PROTOCOL_DIALECT_CONFIGURATION_VALUE_DELETION(2037, Keys.VETO_PROTOCOL_DIALECT_CONFIGURATION_VALUE_DELETION, "The property ''{0}'' of protocol dialect ''{1}'' cannot be deleted because at least one device does not specify a value for it and therefore relies on the configuration level value"),
-    CONNECTION_TASK_STATUS_INCOMPLETE(2038, Keys.CONNECTION_TASK_STATUS_INCOMPLETE, "Incomplete", INFO),
-    CONNECTION_TASK_STATUS_ACTIVE(2039, Keys.CONNECTION_TASK_STATUS_ACTIVE, "Active", INFO),
-    CONNECTION_TASK_STATUS_INACTIVE(2040, Keys.CONNECTION_TASK_STATUS_INACTIVE, "Inactive", INFO),
     VETO_COM_SCHEDULE_DELETION(2041, Keys.VETO_COM_SCHEDULE_DELETION, "The master schedule {0} cannot be removed because it is still used by at least one device"),
     CANNOT_REMOVE_COM_SCHEDULE_BECAUSE_NOT_ON_DEVICE(2042, Keys.CANNOT_REMOVE_COM_SCHEDULE_BECAUSE_NOT_ON_DEVICE, "The master schedule {0} cannot be removed from device {1} because it was not configured on that device"),
     DEVICE_CONFIGURATION_NOT_ACTIVE(2043, Keys.DEVICE_CONFIGURATION_NOT_ACTIVE, "The device configuration must be active"),
@@ -187,7 +183,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW = "outboundConnectionTask.nextExecutionSpecs.longOffsetNotWithinWindow";
         public static final String VALUE_IS_REQUIRED = "X.value.required";
         public static final String DUPLICATE_DEVICE_MRID = "deviceDuplicateMrid";
-        public static final String GATEWAY_CANT_BE_SAME_AS_ORIGIN = "gateway.not.origin";
         public static final String PHYSICAL_GATEWAY_STILL_IN_USE = "device.delete.linked.physical.gateway";
         public static final String COMMUNICATION_GATEWAY_STILL_IN_USE = "device.delete.linked.communication.gateway";
         public static final String PROPERTY_SPEC_DOESNT_EXIST = "device.property.infotype.required";
@@ -219,9 +214,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String DUPLICATE_COMTASK_SCHEDULING = "duplicateComTaskScheduling";
         public static final String COMTASK_CONFIGURATION_INCONSISTENT = "comTaskConfigurationInconsistent";
         public static final String COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION = "comTasksMustBeEnabledByConfiguration";
-        public static final String CONNECTION_TASK_STATUS_INCOMPLETE = "connectionTaskStatusIncomplete";
-        public static final String CONNECTION_TASK_STATUS_ACTIVE = "connectionTaskStatusActive";
-        public static final String CONNECTION_TASK_STATUS_INACTIVE = "connectionTaskStatusInActive";
         public static final String VETO_COM_SCHEDULE_DELETION = "comTaskExecution.comSchedule.inUse";
         public static final String CANNOT_REMOVE_COM_SCHEDULE_BECAUSE_NOT_ON_DEVICE = "cannotDeleteComScheduleFromDevice";
         public static final String DEVICE_CONFIGURATION_NOT_ACTIVE = "device.configuration.not.active";

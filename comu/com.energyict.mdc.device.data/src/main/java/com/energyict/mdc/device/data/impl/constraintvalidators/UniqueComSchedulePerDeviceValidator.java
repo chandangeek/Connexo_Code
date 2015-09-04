@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
-import com.energyict.mdc.device.data.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.DeviceFields;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;

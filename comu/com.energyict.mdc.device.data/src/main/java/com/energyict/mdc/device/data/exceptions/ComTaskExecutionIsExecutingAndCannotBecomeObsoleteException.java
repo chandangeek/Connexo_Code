@@ -1,9 +1,11 @@
 package com.energyict.mdc.device.data.exceptions;
 
-import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
+
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made to make a
@@ -15,8 +17,8 @@ import com.energyict.mdc.engine.config.ComServer;
  */
 public class ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException extends LocalizedException {
 
-    public ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(Thesaurus thesaurus, ComTaskExecution comTaskExecution, ComServer comServer) {
-        super(thesaurus, MessageSeeds.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE, comTaskExecution.getId(), comTaskExecution.getDevice().getName(), comServer.getName());
+    public ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(ComTaskExecution comTaskExecution, ComServer comServer, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, comTaskExecution.getId(), comTaskExecution.getDevice().getName(), comServer.getName());
         this.set("comTask", comTaskExecution.getId());
         this.set("device", comTaskExecution.getDevice());
         this.set("comServerName", comServer.getName());

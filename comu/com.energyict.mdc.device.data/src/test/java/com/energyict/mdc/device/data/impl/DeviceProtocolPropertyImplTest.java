@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
+
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -9,17 +13,12 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.google.common.base.Strings;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-
 import javax.validation.ConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
+
+import org.junit.*;
+import org.junit.rules.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Fail.fail;

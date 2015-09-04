@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.engine.config.ComPortPool;
 
 import com.elster.jupiter.nls.LocalizedException;

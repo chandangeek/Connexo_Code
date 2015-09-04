@@ -1,5 +1,80 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.DatabaseException;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.SqlBuilder;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.data.CIMLifecycleDates;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceEstimation;
+import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
+import com.energyict.mdc.device.data.DeviceProtocolProperty;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteComTaskExecutionWhichIsNotFromThisDevice;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
+import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
+import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
+import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
+import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
+import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
+import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
+import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.FirmwareComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
+import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.dynamic.relation.CanLock;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
+
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -49,81 +124,6 @@ import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.DatabaseException;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.SqlBuilder;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.CIMLifecycleDates;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceEstimation;
-import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileReading;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.ProtocolDialectProperties;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteComTaskExecutionWhichIsNotFromThisDevice;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
-import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
-import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
-import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
-import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
-import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.FirmwareComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.dynamic.relation.CanLock;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.DeviceMultiplier;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.ComTask;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -730,7 +730,7 @@ public class DeviceImpl implements Device, CanLock {
             dialectProperties = this.dataModel.getInstance(ProtocolDialectPropertiesImpl.class).initialize(this, configurationProperties);
             this.newDialectProperties.add(dialectProperties);
         } else {
-            throw new ProtocolDialectConfigurationPropertiesIsRequiredException();
+            throw new ProtocolDialectConfigurationPropertiesIsRequiredException(MessageSeeds.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED);
         }
         return dialectProperties;
     }
@@ -769,7 +769,7 @@ public class DeviceImpl implements Device, CanLock {
                 addDeviceProperty(name, propertyValue);
             }
         } else {
-            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(thesaurus, name, this.getDeviceProtocolPluggableClass().getDeviceProtocol(), this);
+            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass().getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
         }
     }
 
@@ -883,7 +883,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private Supplier<NoMeterActivationAt> noMeterActivationAt(Instant timestamp) {
-        return () -> new NoMeterActivationAt(thesaurus, timestamp);
+        return () -> new NoMeterActivationAt(timestamp, thesaurus, MessageSeeds.NO_METER_ACTIVATION_AT);
     }
 
     Meter createKoreMeter(AmrSystem amrSystem) {
@@ -1570,7 +1570,7 @@ public class DeviceImpl implements Device, CanLock {
             }
         }
         if (removedNone) {
-            throw new CannotDeleteConnectionTaskWhichIsNotFromThisDevice(this.thesaurus, connectionTask, this);
+            throw new CannotDeleteConnectionTaskWhichIsNotFromThisDevice(connectionTask, this, this.thesaurus, MessageSeeds.CONNECTION_TASK_CANNOT_DELETE_IF_NOT_FROM_DEVICE);
 
         }
     }
@@ -1666,7 +1666,7 @@ public class DeviceImpl implements Device, CanLock {
                 return;
             }
         }
-        throw new CannotDeleteComTaskExecutionWhichIsNotFromThisDevice(thesaurus, comTaskExecution, this);
+        throw new CannotDeleteComTaskExecutionWhichIsNotFromThisDevice(comTaskExecution, this, thesaurus, MessageSeeds.COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE);
     }
 
     @Override
@@ -1681,7 +1681,7 @@ public class DeviceImpl implements Device, CanLock {
                 return;
             }
         }
-        throw new CannotDeleteComScheduleFromDevice(this.thesaurus, comSchedule, this);
+        throw new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE);
     }
 
     @Override

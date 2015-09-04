@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.impl.identifiers;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.FindMultipleDevices;
@@ -47,7 +47,7 @@ public class DeviceIdentifierByPropertyValue implements DeviceIdentifier, FindMu
         if(this.device == null){
             fetchAllDevices();
             if (this.allDevices.isEmpty()) {
-                throw CanNotFindForIdentifier.device(this);
+                throw CanNotFindForIdentifier.device(this, MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER);
             } else {
                 if (this.allDevices.size() > 1) {
                     throw new DuplicateException(MessageSeeds.DUPLICATE_FOUND, Device.class, this.toString());

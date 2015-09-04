@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
-import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.DeviceFields;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
+
+import com.elster.jupiter.orm.associations.Reference;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

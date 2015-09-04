@@ -5,6 +5,7 @@ import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models all security violations related to {@link SecurityProperty SecurityProperties}.
@@ -14,8 +15,8 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class SecurityPropertyException extends LocalizedException {
 
-    public SecurityPropertyException(Thesaurus thesaurus, SecurityPropertySet securityPropertySet) {
-        super(thesaurus, MessageSeeds.USER_IS_NOT_ALLOWED_TO_EDIT_SECURITY_PROPERTIES, securityPropertySet.getName());
+    public SecurityPropertyException(SecurityPropertySet securityPropertySet, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, securityPropertySet.getName());
         this.set("securityPropertySetId", securityPropertySet.getId());
         this.set("securityPropertySetName", securityPropertySet.getName());
     }
