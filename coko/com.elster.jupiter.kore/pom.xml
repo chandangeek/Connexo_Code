@@ -45,7 +45,6 @@
                 <module>../com.elster.jupiter.issue.extjs</module>
                 <module>../com.elster.jupiter.issue.rest</module>
                 <module>../com.elster.jupiter.kpi</module>
-                <module>../com.elster.jupiter.launcher</module>
                 <module>../com.elster.jupiter.metering</module>
                 <module>../com.elster.jupiter.metering.cim</module>
                 <module>../com.elster.jupiter.metering.groups</module>
@@ -60,12 +59,9 @@
                 <module>../com.elster.jupiter.validation</module>
                 <module>../com.elster.jupiter.validators</module>
                 <module>../com.elster.jupiter.validation.rest</module>
-                <module>../com.elster.jupiter.yellowfin</module>
                 <module>../com.elster.jupiter.yellowfin.groups</module>
                 <module>../com.elster.jupiter.yellowfin.rest</module>
-                <module>../com.elster.jupiter.yellowfin.app</module>
                 <module>../com.elster.jupiter.yellowfin.extjs</module>
-                <module>../com.elster.jupiter.yellowfin.installer</module>
 
             </modules>
         </profile>
