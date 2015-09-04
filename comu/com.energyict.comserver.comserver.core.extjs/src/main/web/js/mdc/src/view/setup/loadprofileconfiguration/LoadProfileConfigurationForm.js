@@ -87,6 +87,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
         this.down('#LoadProfileConfigurationActionContainer').add(
             {
                 xtype: 'button',
+                itemId: 'add-load-profile-config-button',
                 name: 'loadprofileconfigurationaction',
                 action: this.loadProfileConfigurationAction,
                 text: this.loadProfileConfigurationAction,
@@ -96,6 +97,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
         this.down('#LoadProfileConfigurationCancelContainer').add(
             {
                 xtype: 'button',
+                itemId: 'cancel-load-profile-config-button',
                 text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                 href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/loadprofiles',
                 ui: 'link'
