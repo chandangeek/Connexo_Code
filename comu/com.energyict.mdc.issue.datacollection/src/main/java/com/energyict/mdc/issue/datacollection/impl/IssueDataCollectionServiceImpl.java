@@ -1,5 +1,17 @@
 package com.energyict.mdc.issue.datacollection.impl;
 
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
+import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.impl.database.TableSpecs;
+import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
+import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
+import com.energyict.mdc.issue.datacollection.impl.install.Installer;
+import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
+
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -12,6 +24,7 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
@@ -21,32 +34,21 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
-import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.impl.database.TableSpecs;
-import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-import com.energyict.mdc.issue.datacollection.impl.install.Installer;
-import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-@Component(name = "com.energyict.mdc.issue.datacollection", service = {InstallService.class, TranslationKeyProvider.class, IssueDataCollectionService.class, IssueProvider.class}, property = "name=" + IssueDataCollectionService.COMPONENT_NAME, immediate = true)
-public class IssueDataCollectionServiceImpl implements InstallService, TranslationKeyProvider, IssueDataCollectionService, IssueProvider {
+@Component(name = "com.energyict.mdc.issue.datacollection", service = {InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, IssueDataCollectionService.class, IssueProvider.class}, property = "name=" + IssueDataCollectionService.COMPONENT_NAME, immediate = true)
+public class IssueDataCollectionServiceImpl implements InstallService, TranslationKeyProvider, MessageSeedProvider, IssueDataCollectionService, IssueProvider {
     private volatile IssueService issueService;
     private volatile IssueActionService issueActionService;
     private volatile MessageService messageService;
@@ -72,6 +74,7 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
                                           TopologyService topologyService,
                                           DeviceService deviceService,
                                           EventService eventService) {
+        this();
         setMessageService(messageService);
         setIssueService(issueService);
         setNlsService(nlsService);
@@ -105,7 +108,7 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
 
     @Override
     public void install() {
-        new Installer(dataModel, issueService, issueActionService, messageService, eventService, thesaurus).install();
+        new Installer(dataModel, issueService, issueActionService, messageService, eventService).install();
     }
 
     @Override
@@ -211,9 +214,15 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> translationKeys = new ArrayList<>(Arrays.asList(MessageSeeds.values()));
+        List<TranslationKey> translationKeys = new ArrayList<>();
+        translationKeys.addAll(Arrays.asList(TranslationKeys.values()));
         translationKeys.add(new SimpleTranslationKey(ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC, ModuleConstants.AQ_DATA_COLLECTION_EVENT_DISPLAYNAME));
         return translationKeys;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
@@ -225,4 +234,5 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
     public Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue) {
         return issue instanceof HistoricalIssueDataCollection ? Optional.of(issue) : findHistoricalIssue(issue.getId());
     }
+
 }

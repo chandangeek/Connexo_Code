@@ -1,14 +1,10 @@
 package com.energyict.mdc.issue.datacollection.impl.templates;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
+import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
 
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
@@ -21,13 +17,16 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
-import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.BasicDatacollectionRuleTemplate",
            property = {"name=" + BasicDataCollectionRuleTemplate.NAME},
@@ -35,10 +34,10 @@ import com.google.common.collect.ImmutableList.Builder;
            immediate = true)
 public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTemplate {
     static final String NAME = "BasicDataCollectionRuleTemplate";
-    
+
     public static final String EVENTTYPE = NAME + ".eventType";
     public static final String AUTORESOLUTION = NAME + ".autoresolution";
-    
+
     private volatile IssueDataCollectionService issueDataCollectionService;
     private volatile IssueService issueService;
 
@@ -48,6 +47,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
 
     @Inject
     public BasicDataCollectionRuleTemplate(IssueDataCollectionService issueDataCollectionService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService) {
+        this();
         setIssueDataCollectionService(issueDataCollectionService);
         setNlsService(nlsService);
         setIssueService(issueService);
@@ -74,7 +74,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
     public final void setIssueService(IssueService issueService) {
         this.issueService = issueService;
     }
-    
+
     @Reference
     public final void setPropertySpecService(PropertySpecService propertySpecService) {
         super.setPropertySpecService(propertySpecService);
@@ -87,14 +87,14 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
 
     @Override
     public String getDescription() {
-        return MessageSeeds.BASIC_TEMPLATE_DATACOLLECTION_DESCRIPTION.getTranslated(getThesaurus());
+        return getThesaurus().getFormat(TranslationKeys.BASIC_TEMPLATE_DATACOLLECTION_DESCRIPTION).format();
     }
 
     @Override
     public String getContent() {
         return "package com.energyict.mdc.issue.datacollection\n" +
                "import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;\n" +
-               "global java.util.logging.Logger LOGGER;\n" + 
+               "global java.util.logging.Logger LOGGER;\n" +
                "global com.elster.jupiter.issue.share.service.IssueCreationService issueCreationService;\n" +
                "rule \"Basic datacollection rule @{ruleId}\"\n"+
                "when\n"+
@@ -138,12 +138,12 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
         }
         return issue;
     }
-    
+
     @Override
     public IssueType getIssueType() {
         return issueService.findIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE).get();
     }
-    
+
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
@@ -155,13 +155,14 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
                                        .finish());
         return builder.build();
     }
-    
+
     public Object[] getPossibleValuesForEventTypes() {
         return Arrays.asList(DataCollectionEventDescription.values()).stream().map(DataCollectionEventDescription::name).toArray();
     }
-    
+
     @Override
     public String getDisplayName() {
-        return MessageSeeds.BASIC_TEMPLATE_DATACOLLECTION_NAME.getTranslated(getThesaurus());
+        return getThesaurus().getFormat(TranslationKeys.BASIC_TEMPLATE_DATACOLLECTION_NAME).format();
     }
+
 }
