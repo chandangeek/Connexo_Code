@@ -1,5 +1,22 @@
 package com.energyict.mdc.device.data.importers.impl.readingsimport;
 
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
+import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
+import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
+import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
+import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.SupportedNumberFormatInfo;
+import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
@@ -26,30 +43,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
-import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
-import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
-import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.*;
-import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.google.common.collect.Range;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
@@ -66,12 +60,32 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
-import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.*;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.NUMBER_FORMAT;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
+import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT1;
+import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT2;
+import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT3;
+import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT4;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceReadingsImporterFactoryTest {
@@ -280,7 +294,7 @@ public class DeviceReadingsImporterFactoryTest {
 
         verify(logger).warning(MessageSeeds.NO_DEVICE.getTranslated(thesaurus, 2, "VPB0001"));
         verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 0, 3, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 3, 1));
     }
 
     @Test
@@ -298,7 +312,7 @@ public class DeviceReadingsImporterFactoryTest {
 
         verify(logger).warning(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE.getTranslated(thesaurus, 2, "VPB0001"));
         verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 0, 3, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 3, 1));
     }
 
     @Test
@@ -322,7 +336,7 @@ public class DeviceReadingsImporterFactoryTest {
         verify(logger).warning(MessageSeeds.READING_DATE_BEFORE_METER_ACTIVATION.getTranslated(thesaurus, 2, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(firstReadingDate)));
         verify(logger).warning(MessageSeeds.READING_DATE_AFTER_METER_ACTIVATION.getTranslated(thesaurus, 3, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(lastReadingDate)));
         verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 0, 2, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 2, 1));
     }
 
     @Test
@@ -342,7 +356,7 @@ public class DeviceReadingsImporterFactoryTest {
 
         verify(logger).warning(MessageSeeds.READING_DATE_BEFORE_METER_ACTIVATION.getTranslated(thesaurus, 2, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(readingDate)));
         verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 0, 1, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 1, 1));
     }
 
     @Test
@@ -366,7 +380,7 @@ public class DeviceReadingsImporterFactoryTest {
 
         verify(logger).warning(MessageSeeds.READING_DATE_BEFORE_METER_ACTIVATION.getTranslated(thesaurus, 2, DefaultDateTimeFormatters.shortDate().withShortTime().build().format(firstReadingDate)));
         verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 1, 1, 1, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(1, 1, 1, 1));
 
         ArgumentCaptor<MeterReading> readingArgumentCaptor = ArgumentCaptor.forClass(MeterReading.class);
         verify(device).store(readingArgumentCaptor.capture());
@@ -393,7 +407,7 @@ public class DeviceReadingsImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.NO_SUCH_READING_TYPE.getTranslated(thesaurus, 2, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 0, 2, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 2, 1));
     }
 
     @Test
@@ -412,7 +426,7 @@ public class DeviceReadingsImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.NOT_SUPPORTED_READING_TYPE.getTranslated(thesaurus, 2, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 0, 2, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 2, 1));
     }
 
     @Test
@@ -429,7 +443,7 @@ public class DeviceReadingsImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.DEVICE_DOES_NOT_SUPPORT_READING_TYPE.getTranslated(thesaurus, 2, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "VPB0001"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 0, 2, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 2, 1));
     }
 
     @Test
@@ -458,7 +472,7 @@ public class DeviceReadingsImporterFactoryTest {
         verify(logger).warning(MessageSeeds.NOT_SUPPORTED_READING_TYPE.getTranslated(thesaurus, 2, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.1"));
         verify(logger).warning(MessageSeeds.NOT_SUPPORTED_READING_TYPE.getTranslated(thesaurus, 3, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 0, 4, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 0, 4, 1));
     }
 
     @Test
@@ -476,7 +490,7 @@ public class DeviceReadingsImporterFactoryTest {
         verify(logger).info(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG.getTranslated(thesaurus, 3, "998.98"));
         verify(logger).warning(MessageSeeds.READING_VALUE_DOES_NOT_MATCH_REGISTER_CONFIG_OVERFLOW.getTranslated(thesaurus, 2, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "VPB0001"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS.getTranslated(thesaurus, 1, 1, 1, 1, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS).format(1, 1, 1, 1, 1));
     }
 
     @Test
@@ -494,7 +508,7 @@ public class DeviceReadingsImporterFactoryTest {
         verify(logger).info(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG.getTranslated(thesaurus, 3, "998.98"));
         verify(logger).warning(MessageSeeds.READING_VALUE_DOES_NOT_MATCH_CHANNEL_CONFIG_OVERFLOW.getTranslated(thesaurus, 2, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "VPB0001"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS.getTranslated(thesaurus, 1, 1, 1, 1, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS).format(1, 1, 1, 1, 1));
     }
 
     @Test
@@ -522,7 +536,7 @@ public class DeviceReadingsImporterFactoryTest {
         importer.process(importOccurrence);
 
         verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markSuccess(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 6, 3));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS).format(6, 3));
 
         ArgumentCaptor<MeterReading> readingArgumentCaptor = ArgumentCaptor.forClass(MeterReading.class);
         verify(device1).store(readingArgumentCaptor.capture());
@@ -571,7 +585,7 @@ public class DeviceReadingsImporterFactoryTest {
         importer.process(importOccurrence);
 
         verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markSuccess(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 1, 1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS).format(1, 1));
         verify(device).store(Matchers.any());
     }
 
@@ -590,7 +604,7 @@ public class DeviceReadingsImporterFactoryTest {
 
         verify(logger).severe(MessageSeeds.LINE_MISSING_VALUE_ERROR.getTranslated(thesaurus, 4, "#5"));
         verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markFailure(TranslationKeys.READINGS_IMPORT_RESULT_FAIL.getTranslated(thesaurus, 3, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_FAIL).format(3, 1));
 
         ArgumentCaptor<MeterReading> readingArgumentCaptor = ArgumentCaptor.forClass(MeterReading.class);
         verify(device).store(readingArgumentCaptor.capture());
@@ -618,7 +632,7 @@ public class DeviceReadingsImporterFactoryTest {
         verify(logger).warning(MessageSeeds.NO_SUCH_READING_TYPE.getTranslated(thesaurus, 3, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.+"));
         verify(logger).severe(MessageSeeds.LINE_FORMAT_ERROR.getTranslated(thesaurus, 4, "Reading date", "dd/MM/yyyy HH:mm"));
         verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markFailure(TranslationKeys.READINGS_IMPORT_RESULT_FAIL_WITH_ERRORS.getTranslated(thesaurus, 1, 1, 1, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_FAIL_WITH_ERRORS).format(1, 1, 1, 1));
         verify(device1).store(Matchers.any());
         verify(device2, never()).store(Matchers.any());
         verify(device3, never()).store(Matchers.any());
@@ -645,7 +659,7 @@ public class DeviceReadingsImporterFactoryTest {
         verify(logger).info(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG.getTranslated(thesaurus, 2, "100.15"));
         verify(logger).warning(MessageSeeds.NO_SUCH_READING_TYPE.getTranslated(thesaurus, 3, "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.+"));
         verify(logger).severe(MessageSeeds.LINE_FORMAT_ERROR.getTranslated(thesaurus, 4, "Reading date", "dd/MM/yyyy HH:mm"));
-        verify(importOccurrence).markFailure(TranslationKeys.READINGS_IMPORT_RESULT_FAIL_WITH_WARN_AND_ERRORS.getTranslated(thesaurus, 1, 1, 1, 1, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_FAIL_WITH_WARN_AND_ERRORS).format(1, 1, 1, 1, 1));
         verify(device1).store(Matchers.any());
         verify(device2, never()).store(Matchers.any());
         verify(device3, never()).store(Matchers.any());
@@ -672,7 +686,7 @@ public class DeviceReadingsImporterFactoryTest {
         verify(logger).info(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG.getTranslated(thesaurus, 2, "100.15"));
         verify(logger).severe(MessageSeeds.LINE_FORMAT_ERROR.getTranslated(thesaurus, 4, "Reading date", "dd/MM/yyyy HH:mm"));
         verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markFailure(TranslationKeys.READINGS_IMPORT_RESULT_FAIL_WITH_WARN.getTranslated(thesaurus, 2, 2, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_FAIL_WITH_WARN).format(2, 2, 1));
         verify(device1).store(Matchers.any());
         verify(device2).store(Matchers.any());
         verify(device3, never()).store(Matchers.any());
@@ -692,7 +706,7 @@ public class DeviceReadingsImporterFactoryTest {
 
         verify(logger).severe(MessageSeeds.LINE_FORMAT_ERROR.getTranslated(thesaurus, 2, "Reading date", "dd/MM/yyyy HH:mm"));
         verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markFailure(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED.getTranslated(thesaurus, 2, 2, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED).format(2, 2, 1));
         verify(device1, never()).store(Matchers.any());
         verify(device2, never()).store(Matchers.any());
     }
@@ -706,7 +720,7 @@ public class DeviceReadingsImporterFactoryTest {
         importer.process(importOccurrence);
 
         verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markFailure(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED.getTranslated(thesaurus, 2, 2, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_NO_READINGS_WERE_PROCESSED).format(2, 2, 1));
     }
 
     @Test
@@ -724,7 +738,7 @@ public class DeviceReadingsImporterFactoryTest {
         verify(logger).info(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG.getTranslated(thesaurus, 2, "100.13"));
         verify(logger).info(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG.getTranslated(thesaurus, 3, "100.24"));
         verifyNoMoreInteractions(logger);
-        verify(importOccurrence).markSuccess(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN.getTranslated(thesaurus, 2, 1, 2));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN).format(2, 1, 2));
         verify(device1).store(Matchers.any());
     }
 

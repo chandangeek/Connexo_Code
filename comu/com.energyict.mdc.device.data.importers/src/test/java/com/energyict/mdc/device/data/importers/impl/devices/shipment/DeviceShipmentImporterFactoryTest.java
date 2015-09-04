@@ -1,11 +1,5 @@
 package com.energyict.mdc.device.data.importers.impl.devices.shipment;
 
-import com.elster.jupiter.fileimport.FileImportOccurrence;
-import com.elster.jupiter.fileimport.FileImporter;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -17,12 +11,13 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.io.ByteArrayInputStream;
 import java.time.Instant;
@@ -33,9 +28,24 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceShipmentImporterFactoryTest {
@@ -114,7 +124,7 @@ public class DeviceShipmentImporterFactoryTest {
         when(batchService.findOrCreateBatch(Matchers.eq("batch"))).thenReturn(batch);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
@@ -131,7 +141,7 @@ public class DeviceShipmentImporterFactoryTest {
         FileImporter importer = createDeviceShipmentImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getTranslated(thesaurus));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, times(1)).severe(MessageSeeds.FILE_FORMAT_ERROR.getTranslated(thesaurus, 2, 4, 2));
@@ -145,7 +155,7 @@ public class DeviceShipmentImporterFactoryTest {
         FileImporter importer = createDeviceShipmentImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getTranslated(thesaurus));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, times(1)).severe(MessageSeeds.LINE_MISSING_VALUE_ERROR.getTranslated(thesaurus, 2, "device type"));
@@ -159,7 +169,7 @@ public class DeviceShipmentImporterFactoryTest {
         FileImporter importer = createDeviceShipmentImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getTranslated(thesaurus));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, times(1)).severe(MessageSeeds.LINE_MISSING_VALUE_ERROR.getTranslated(thesaurus, 2, "device configuration"));
@@ -173,7 +183,7 @@ public class DeviceShipmentImporterFactoryTest {
         FileImporter importer = createDeviceShipmentImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getTranslated(thesaurus));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, times(1)).severe(MessageSeeds.LINE_MISSING_VALUE_ERROR.getTranslated(thesaurus, 2, "shipment date"));
@@ -190,7 +200,7 @@ public class DeviceShipmentImporterFactoryTest {
         when(deviceConfigurationService.findDeviceTypeByName("Iskra 382")).thenReturn(Optional.empty());
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(MessageSeeds.NO_DEVICE_TYPE.getTranslated(thesaurus, 2, "Iskra 382"));
         verify(logger, never()).severe(Matchers.anyString());
@@ -209,7 +219,7 @@ public class DeviceShipmentImporterFactoryTest {
         when(deviceType.getConfigurations()).thenReturn(Collections.<DeviceConfiguration>emptyList());
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(MessageSeeds.NO_DEVICE_CONFIGURATION.getTranslated(thesaurus, 2, "Default"));
         verify(logger, never()).severe(Matchers.anyString());
@@ -231,10 +241,9 @@ public class DeviceShipmentImporterFactoryTest {
                 .newDevice(Matchers.eq(deviceConfiguration), Matchers.eq("VPB0001"), Matchers.eq("VPB0001"), Matchers.eq("batch"));
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, times(1)).warning(TranslationKeys.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE
-                .getTranslated(thesaurus, 2, "VPB0001", "Error!"));
+        verify(logger, times(1)).warning(thesaurus.getFormat(TranslationKeys.IMPORT_DEFAULT_PROCESSOR_ERROR_TEMPLATE).format(2, "VPB0001", "Error!"));
         verify(logger, never()).severe(Matchers.anyString());
     }
 
@@ -249,7 +258,7 @@ public class DeviceShipmentImporterFactoryTest {
         when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(device));
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(MessageSeeds.DEVICE_ALREADY_EXISTS.getTranslated(thesaurus, 2, "VPB0001"));
         verify(logger, never()).severe(Matchers.anyString());

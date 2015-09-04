@@ -1,5 +1,16 @@
 package com.energyict.mdc.device.data.importers.impl.attributes.security;
 
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
+import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
+import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
+import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
+
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.nls.Thesaurus;
@@ -11,22 +22,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
-import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
-import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
@@ -39,12 +34,28 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.NUMBER_FORMAT;
 import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT3;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SecurityAttributesImporterFactoryTest {
@@ -106,7 +117,7 @@ public class SecurityAttributesImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, times(1)).severe(MessageSeeds.FILE_FORMAT_ERROR.getTranslated(thesaurus, 2, 2, 0));
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getTranslated(thesaurus));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
     }
 
     @Test
@@ -121,7 +132,7 @@ public class SecurityAttributesImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.NO_DEVICE.getTranslated(thesaurus, 2, "VPB0001"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
     }
 
     @Test
@@ -139,7 +150,7 @@ public class SecurityAttributesImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.NO_SECURITY_SETTINGS_ON_DEVICE.getTranslated(thesaurus, 2, "MD5"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
     }
 
     @Test
@@ -161,7 +172,7 @@ public class SecurityAttributesImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.NO_SECURITY_SETTINGS_ON_DEVICE.getTranslated(thesaurus, 2, "set1"));
         verify(logger).severe(MessageSeeds.SECURITY_SETTINGS_NAME_IS_NOT_UNIQUE_IN_FILE.getTranslated(thesaurus, 3));
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_FAIL_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_FAIL_WITH_ERRORS).format(0, 1));
     }
 
     @Test
@@ -187,7 +198,7 @@ public class SecurityAttributesImporterFactoryTest {
         verify(logger).info(MessageSeeds.REQUIRED_SECURITY_ATTRIBUTES_MISSED.getTranslated(thesaurus, 2, "attr1, attr2"));
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN.getTranslated(thesaurus, 1, 1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN).format(1, 1));
     }
 
     @Test
@@ -224,7 +235,7 @@ public class SecurityAttributesImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
 
         verify(device).setSecurityProperties(Matchers.any(), Matchers.any());
     }
@@ -250,7 +261,7 @@ public class SecurityAttributesImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.LINE_FORMAT_ERROR.getTranslated(thesaurus, 2, "attr2", "123456789.012"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
     }
 
     @Test
@@ -276,7 +287,7 @@ public class SecurityAttributesImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.SECURITY_ATTRIBUTE_INVALID_VALUE.getTranslated(thesaurus, 2, "string", "attr1"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
     }
 
     private Device mockDevice(String mRID) {

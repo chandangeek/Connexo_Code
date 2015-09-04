@@ -1,12 +1,5 @@
 package com.energyict.mdc.device.data.importers.impl.attributes;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.ThreeStateFactory;
-import com.elster.jupiter.properties.TimeZoneFactory;
-import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.parsers.BigDecimalParser;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
@@ -19,6 +12,14 @@ import com.energyict.mdc.dynamic.LargeStringFactory;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.energyict.mdc.dynamic.TimeOfDayFactory;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.ThreeStateFactory;
+import com.elster.jupiter.properties.TimeZoneFactory;
+import com.elster.jupiter.properties.ValueFactory;
 import org.joda.time.DateTimeConstants;
 
 import java.text.ParseException;
@@ -52,7 +53,7 @@ public enum DynamicPropertyConverter {
     TIME_OF_DAY(TimeOfDayFactory.class) {
         @Override
         public String getExpectedFormat(Thesaurus thesaurus) {
-            return TranslationKeys.INTEGER_FORMAT.getTranslated(thesaurus);
+            return thesaurus.getFormat(TranslationKeys.INTEGER_FORMAT).format();
         }
     },
     EAN13(Ean13Factory.class) {
@@ -70,7 +71,7 @@ public enum DynamicPropertyConverter {
     TIME_ZONE(TimeZoneFactory.class) {
         @Override
         public String getExpectedFormat(Thesaurus thesaurus) {
-            return TranslationKeys.INTEGER_FORMAT.getTranslated(thesaurus);
+            return thesaurus.getFormat(TranslationKeys.INTEGER_FORMAT).format();
         }
     },
     THREE_STATE_FACTORY(ThreeStateFactory.class) {
@@ -87,31 +88,31 @@ public enum DynamicPropertyConverter {
 
         @Override
         public String getExpectedFormat(Thesaurus thesaurus) {
-            return TranslationKeys.BOOLEAN_FORMAT.getTranslated(thesaurus);
+            return thesaurus.getFormat(TranslationKeys.BOOLEAN_FORMAT).format();
         }
     },
     OBIS_CODE(ObisCodeValueFactory.class) {
         @Override
         public String getExpectedFormat(Thesaurus thesaurus) {
-            return TranslationKeys.OBIS_CODE_FORMAT.getTranslated(thesaurus);
+            return thesaurus.getFormat(TranslationKeys.OBIS_CODE_FORMAT).format();
         }
     },
     TIME_DURATION(TimeDurationValueFactory.class) {
         @Override
         public String getExpectedFormat(Thesaurus thesaurus) {
-            return TranslationKeys.INTEGER_FORMAT.getTranslated(thesaurus);
+            return thesaurus.getFormat(TranslationKeys.INTEGER_FORMAT).format();
         }
     },
     STRING(StringFactory.class) {
         @Override
         public String getExpectedFormat(Thesaurus thesaurus) {
-            return TranslationKeys.STRING_FORMAT.getTranslated(thesaurus);
+            return thesaurus.getFormat(TranslationKeys.STRING_FORMAT).format();
         }
     },
     LARGE_STRING(LargeStringFactory.class) {
         @Override
         public String getExpectedFormat(Thesaurus thesaurus) {
-            return TranslationKeys.STRING_FORMAT.getTranslated(thesaurus);
+            return thesaurus.getFormat(TranslationKeys.STRING_FORMAT).format();
         }
     },
     BOOLEAN(BooleanFactory.class) {
@@ -126,7 +127,7 @@ public enum DynamicPropertyConverter {
 
         @Override
         public String getExpectedFormat(Thesaurus thesaurus) {
-            return TranslationKeys.BOOLEAN_FORMAT.getTranslated(thesaurus);
+            return thesaurus.getFormat(TranslationKeys.BOOLEAN_FORMAT).format();
         }
     },
     BIG_DECIMAL(BigDecimalFactory.class) {
@@ -140,13 +141,13 @@ public enum DynamicPropertyConverter {
 
         @Override
         public String getExpectedFormat(Thesaurus thesaurus) {
-            return this.config != null ? this.config.numberFormat.getExample() : TranslationKeys.NUMBER_FORMAT.getTranslated(thesaurus);
+            return this.config != null ? this.config.numberFormat.getExample() : thesaurus.getFormat(TranslationKeys.NUMBER_FORMAT).format();
         }
     },
     HEX(HexStringFactory.class) {
         @Override
         public String getExpectedFormat(Thesaurus thesaurus) {
-            return TranslationKeys.HEX_STRING_FORMAT.getTranslated(thesaurus);
+            return thesaurus.getFormat(TranslationKeys.HEX_STRING_FORMAT).format();
         }
     };
 

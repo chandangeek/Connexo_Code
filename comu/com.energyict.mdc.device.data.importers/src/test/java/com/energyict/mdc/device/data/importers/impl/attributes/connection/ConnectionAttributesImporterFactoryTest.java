@@ -1,16 +1,5 @@
 package com.energyict.mdc.device.data.importers.impl.attributes.connection;
 
-import com.elster.jupiter.fileimport.FileImportOccurrence;
-import com.elster.jupiter.fileimport.FileImporter;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -26,31 +15,55 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.NUMBER_FORMAT;
 import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT3;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionAttributesImporterFactoryTest {
@@ -66,18 +79,21 @@ public class ConnectionAttributesImporterFactoryTest {
     @Before
     public void beforeTest() {
         reset(logger, thesaurus, deviceService);
-        when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> {
-            for (MessageSeed messageSeeds : MessageSeeds.values()) {
-                if (messageSeeds.getKey().equals(invocationOnMock.getArguments()[0])) {
-                    return messageSeeds.getDefaultFormat();
-                }
-            }
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenAnswer(invocationOnMock -> {
             for (TranslationKey translation : TranslationKeys.values()) {
                 if (translation.getKey().equals(invocationOnMock.getArguments()[0])) {
-                    return translation.getDefaultFormat();
+                    return new SimpleNlsMessageFormat(translation);
                 }
             }
-            return invocationOnMock.getArguments()[1];
+            return new SimpleNlsMessageFormat(String.valueOf(invocationOnMock.getArguments()[1]));
+        });
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenAnswer(invocationOnMock -> {
+            for (MessageSeed messageSeeds : MessageSeeds.values()) {
+                if (messageSeeds.getKey().equals(invocationOnMock.getArguments()[0])) {
+                    return new SimpleNlsMessageFormat(messageSeeds);
+                }
+            }
+            return new SimpleNlsMessageFormat(String.valueOf(invocationOnMock.getArguments()[1]));
         });
         when(thesaurus.getStringBeyondComponent(anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
         context = spy(new DeviceDataImporterContext());
@@ -112,7 +128,7 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, times(1)).severe(MessageSeeds.FILE_FORMAT_ERROR.getTranslated(thesaurus, 2, 2, 0));
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getTranslated(thesaurus));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
     }
 
     @Test
@@ -127,7 +143,7 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.NO_DEVICE.getTranslated(thesaurus, 2, "VPB0001"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
     }
 
     @Test
@@ -145,7 +161,7 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.NO_CONNECTION_METHOD_ON_DEVICE.getTranslated(thesaurus, 2, "Outbound TCP"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
     }
 
     @Test
@@ -167,7 +183,7 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.NO_CONNECTION_METHOD_ON_DEVICE.getTranslated(thesaurus, 2, "Outbound TCP1"));
         verify(logger).severe(MessageSeeds.CONNECTION_METHOD_IS_NOT_UNIQUE_IN_FILE.getTranslated(thesaurus, 3));
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_FAIL_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_FAIL_WITH_ERRORS).format(0, 1));
     }
 
     @Test
@@ -194,7 +210,7 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(logger).info(MessageSeeds.REQUIRED_CONNECTION_ATTRIBUTES_MISSED.getTranslated(thesaurus, 2, "attr1, attr2"));
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN.getTranslated(thesaurus, 1, 1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN).format(1, 1));
     }
 
     @Test
@@ -217,7 +233,7 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
 
         verify(connectionTask).setProperty("attr1", "string");
         verify(connectionTask).setProperty("attr2", new BigDecimal("100.25"));
@@ -244,7 +260,7 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.LINE_FORMAT_ERROR.getTranslated(thesaurus, 2, "attr2", "123456789.012"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
 
         verify(connectionTask).setProperty("attr1", "string");
         verify(connectionTask, never()).save();
@@ -271,7 +287,7 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.CONNECTION_ATTRIBUTE_INVALID_VALUE.getTranslated(thesaurus, 2, "string", "attr1"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
 
         verify(connectionTask, never()).save();
     }
@@ -300,7 +316,7 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
 
         verify(builder).add();
         verify(builder).setProperty("attr1", "string");
@@ -339,7 +355,7 @@ public class ConnectionAttributesImporterFactoryTest {
 
         verify(logger).info(MessageSeeds.REQUIRED_CONNECTION_ATTRIBUTES_MISSED.getTranslated(thesaurus, 2, "attr1, attr2"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN.getTranslated(thesaurus, 1, 1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN).format(1, 1));
 
         verify(builder).add();
     }
@@ -370,7 +386,7 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.CONNECTION_METHOD_NOT_CREATED.getTranslated(thesaurus, 2, "Outbound TCP", "VPB0001", "constraint violation"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
     }
 
     @Test
@@ -397,7 +413,7 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
 
         verify(builder).add();
     }
@@ -433,7 +449,7 @@ public class ConnectionAttributesImporterFactoryTest {
 
         verify(logger).info(MessageSeeds.REQUIRED_CONNECTION_ATTRIBUTES_MISSED.getTranslated(thesaurus, 2, "attr1, attr2"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN.getTranslated(thesaurus, 1, 1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN).format(1, 1));
 
         verify(builder).add();
     }
@@ -464,7 +480,7 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(logger, never()).info(Matchers.anyString());
         verify(logger).warning(MessageSeeds.CONNECTION_METHOD_NOT_CREATED.getTranslated(thesaurus, 2, "Outbound TCP", "VPB0001", "constraint violation"));
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
     }
 
     private ConstraintViolationException mockConstraintViolationException() {
@@ -521,4 +537,31 @@ public class ConnectionAttributesImporterFactoryTest {
         doReturn(valueFactory).when(propertySpec).getValueFactory();
         return propertySpec;
     }
+
+    private class SimpleNlsMessageFormat implements NlsMessageFormat {
+        private final String defaultFormat;
+
+        SimpleNlsMessageFormat(TranslationKey translationKey) {
+            this.defaultFormat = translationKey.getDefaultFormat();
+        }
+
+        SimpleNlsMessageFormat(MessageSeed messageSeed) {
+            this.defaultFormat = messageSeed.getDefaultFormat();
+        }
+
+        SimpleNlsMessageFormat(String defaultFormat) {
+            this.defaultFormat = defaultFormat;
+        }
+
+        @Override
+        public String format(Object... args) {
+            return MessageFormat.format(this.defaultFormat, args);
+        }
+
+        @Override
+        public String format(Locale locale, Object... args) {
+            return MessageFormat.format(this.defaultFormat, args);
+        }
+    }
+
 }

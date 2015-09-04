@@ -1,27 +1,27 @@
 package com.energyict.mdc.device.data.importers.impl;
 
 
+import com.energyict.mdc.device.data.importers.impl.fields.CommonField;
+import com.energyict.mdc.device.data.importers.impl.fields.FileImportField;
+import com.energyict.mdc.device.data.importers.impl.parsers.LiteralStringParser;
+
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.data.importers.impl.fields.CommonField;
-import com.energyict.mdc.device.data.importers.impl.fields.FileImportField;
-import com.energyict.mdc.device.data.importers.impl.parsers.LiteralStringParser;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static org.mockito.Matchers.anyString;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
@@ -138,7 +138,7 @@ public class FileImportDescriptionBasedParserTest {
 
         importer.process(importOccurrence);
 
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
         verify(record, times(3)).addReading(Matchers.startsWith("r"));
         verify(record, times(3)).addValue(Matchers.startsWith("v"));
     }
@@ -185,7 +185,7 @@ public class FileImportDescriptionBasedParserTest {
 
         importer.process(importOccurrence);
 
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
         verify(record, times(3)).addReading(Matchers.startsWith("r"));
         verify(record, times(3)).addValue(Matchers.startsWith("v"));
     }
@@ -226,7 +226,7 @@ public class FileImportDescriptionBasedParserTest {
 
         importer.process(importOccurrence);
 
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
         verify(record, times(1)).addReading(Matchers.startsWith("r"));
         verify(record, times(1)).addValue(Matchers.startsWith("v"));
     }
@@ -269,7 +269,7 @@ public class FileImportDescriptionBasedParserTest {
 
         importer.process(importOccurrence);
 
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
         //assert no errors
     }
 }

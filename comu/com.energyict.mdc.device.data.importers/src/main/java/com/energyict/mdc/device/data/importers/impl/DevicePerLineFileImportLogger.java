@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.importers.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 public class DevicePerLineFileImportLogger extends FileImportLoggerImpl<FileImportRecord> {
 
@@ -11,6 +12,12 @@ public class DevicePerLineFileImportLogger extends FileImportLoggerImpl<FileImpo
 
     public DevicePerLineFileImportLogger(DeviceDataImporterContext context) {
         super(context);
+    }
+
+    @Override
+    public void warning(MessageSeed message, Object... arguments) {
+        super.warning(message, arguments);
+        hasWarnings = true;
     }
 
     @Override
@@ -37,52 +44,43 @@ public class DevicePerLineFileImportLogger extends FileImportLoggerImpl<FileImpo
     protected void summarizeFailedImport() {
         if (linesWithError != 0 && linesWithWarnings == 0) {
             // Some devices were processed with errors
-            fileImportOccurrence.markFailure(TranslationKeys.IMPORT_RESULT_FAIL_WITH_ERRORS
-                    .getTranslated(this.context.getThesaurus(), linesProcessed, linesWithError));
+            fileImportOccurrence.markFailure(this.context.getThesaurus().getFormat(TranslationKeys.IMPORT_RESULT_FAIL_WITH_ERRORS).format(linesProcessed, linesWithError));
         } else if (linesWithError != 0 && linesWithWarnings != 0) {
             // Some devices were processed with errors and warnings
-            fileImportOccurrence.markFailure(TranslationKeys.IMPORT_RESULT_FAIL_WITH_WARN_AND_ERRORS
-                    .getTranslated(this.context.getThesaurus(), linesProcessed, linesWithWarnings, linesWithError));
+            fileImportOccurrence.markFailure(this.context.getThesaurus().getFormat(TranslationKeys.IMPORT_RESULT_FAIL_WITH_WARN_AND_ERRORS).format(linesProcessed, linesWithWarnings, linesWithError));
         } else if (linesWithError == 0 && linesWithWarnings != 0) {
             // Some devices were processed with warnings
-            fileImportOccurrence.markFailure(TranslationKeys.IMPORT_RESULT_FAIL_WITH_WARN
-                    .getTranslated(this.context.getThesaurus(), linesProcessed, linesWithWarnings));
+            fileImportOccurrence.markFailure(this.context.getThesaurus().getFormat(TranslationKeys.IMPORT_RESULT_FAIL_WITH_WARN).format(linesProcessed, linesWithWarnings));
         } else if (linesProcessed != 0 && linesWithError == 0 && linesWithWarnings == 0) {
             // Some devices were processed
-            fileImportOccurrence.markFailure(TranslationKeys.IMPORT_RESULT_FAIL
-                    .getTranslated(this.context.getThesaurus(), linesProcessed));
+            fileImportOccurrence.markFailure(this.context.getThesaurus().getFormat(TranslationKeys.IMPORT_RESULT_FAIL).format(linesProcessed));
         } else if (linesProcessed == 0 && linesWithError == 0 && linesWithWarnings == 0) {
             // No devices were processed (Bad column headers)
-            fileImportOccurrence.markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED
-                    .getTranslated(this.context.getThesaurus()));
+            fileImportOccurrence.markFailure(this.context.getThesaurus().getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
         }
     }
 
     protected void summarizeSuccessImport() {
         if (linesProcessed == 0 && linesWithError == 0) {
             // No devices were processed (No devices in file)
-            fileImportOccurrence.markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED
-                    .getTranslated(this.context.getThesaurus()));
+            fileImportOccurrence.markFailure(this.context.getThesaurus().getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
         } else if (linesProcessed != 0 && linesWithError == 0 && linesWithWarnings == 0) {
             // All devices were processed without warnings/errors
-            fileImportOccurrence.markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS
-                    .getTranslated(this.context.getThesaurus(), linesProcessed));
+            fileImportOccurrence.markSuccess(this.context.getThesaurus().getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(linesProcessed));
         } else if (linesWithError != 0 && linesWithWarnings == 0) {
             // All devices were processed but some of the devices failed
-            fileImportOccurrence.markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS
-                    .getTranslated(this.context.getThesaurus(), linesProcessed, linesWithError));
+            fileImportOccurrence.markSuccessWithFailures(this.context.getThesaurus().getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(linesProcessed, linesWithError));
         } else if (linesWithError != 0 && linesWithWarnings != 0) {
             // All devices were processed but part of them were processed with warnings and failures
-            fileImportOccurrence.markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS
-                    .getTranslated(this.context.getThesaurus(), linesProcessed, linesWithWarnings, linesWithError));
+            fileImportOccurrence.markSuccessWithFailures(this.context.getThesaurus()
+                    .getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS)
+                    .format(linesProcessed, linesWithWarnings, linesWithError));
         } else if (linesWithError == 0 && linesWithWarnings != 0) {
             // All devices were processed but part of them were processed with warnings
-            fileImportOccurrence.markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN
-                    .getTranslated(this.context.getThesaurus(), linesProcessed, linesWithWarnings));
+            fileImportOccurrence.markSuccess(this.context.getThesaurus().getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN).format(linesProcessed, linesWithWarnings));
         } else {
             // Fallback case
-            fileImportOccurrence.markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED
-                    .getTranslated(this.context.getThesaurus()));
+            fileImportOccurrence.markFailure(this.context.getThesaurus().getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
         }
     }
 }

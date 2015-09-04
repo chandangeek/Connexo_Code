@@ -1,14 +1,5 @@
 package com.energyict.mdc.device.data.importers.impl.readingsimport;
 
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.fileimport.FileImportOccurrence;
-import com.elster.jupiter.fileimport.FileImporter;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -27,12 +18,17 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
@@ -46,10 +42,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.NUMBER_FORMAT;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
 import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT3;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegrationTest {
@@ -117,7 +125,7 @@ public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegratio
         verify(logger).info(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG.getTranslated(thesaurus, 3, "800.45"));
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccess(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN.getTranslated(thesaurus, 4, 1, 2));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN).format(4, 1, 2));
 
         List<NumericalReading> readings = device.getRegisters().get(0).getReadings(Interval.forever());
         assertThat(readings).hasSize(2);
