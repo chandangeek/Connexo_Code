@@ -451,11 +451,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
                 "dataExportTask.dataExportTasks", "dataExportTask.dataExportTasks.description",
-                Arrays.asList(Privileges.ADMINISTRATE_DATA_EXPORT_TASK,
-                        Privileges.VIEW_DATA_EXPORT_TASK,
-                        Privileges.UPDATE_DATA_EXPORT_TASK,
-                        Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK,
-                        Privileges.RUN_DATA_EXPORT_TASK)));
+                Arrays.asList(Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK,
+                        Privileges.Constants.VIEW_DATA_EXPORT_TASK,
+                        Privileges.Constants.UPDATE_DATA_EXPORT_TASK,
+                        Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK,
+                        Privileges.Constants.RUN_DATA_EXPORT_TASK)));
         return resources;
     }
 
@@ -474,7 +474,8 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         return Stream.of(
                 Arrays.stream(MessageSeeds.values()),
                 Arrays.stream(TranslationKeys.values()),
-                Arrays.stream(DataExportStatus.values()))
+                Arrays.stream(DataExportStatus.values()),
+                Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
