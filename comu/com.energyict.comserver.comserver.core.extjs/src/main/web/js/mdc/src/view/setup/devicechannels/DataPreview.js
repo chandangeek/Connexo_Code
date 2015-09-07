@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     updateForm: function (record) {
         var me = this,
             intervalEnd = record.get('interval_end'),
-            title = Uni.DateTime.formatDateLong(intervalEnd) + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' ' + Uni.DateTime.formatTimeLong(intervalEnd),
+            title =  Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[Uni.DateTime.formatDateLong(intervalEnd),Uni.DateTime.formatTimeLong(intervalEnd)]).toLowerCase(),
             mainValidationInfo,
             bulkValidationInfo;
 
@@ -25,24 +25,31 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
 
         if (me.channels) {
             Ext.Array.each(me.channels, function (channel) {
-                mainValidationInfo = record.get('channelValidationData')[channel.id].mainValidationInfo;
-                bulkValidationInfo = record.get('channelValidationData')[channel.id].bulkValidationInfo;
-                me.setReadingQualities(me.down('#mainReadingQualities' + channel.id), mainValidationInfo);
-                me.setReadingQualities(me.down('#bulkReadingQualities' + channel.id), bulkValidationInfo);
-                me.down('#channelValue' + channel.id).setValue(record.get('channelData')[channel.id]);
-                me.down('#channelBulkValue' + channel.id).setValue(record.get('channelCollectedData')[channel.id]);
-                me.setGeneralReadingQualities(me.down('#generalReadingQualities'), me.up('deviceLoadProfilesData').loadProfile.get('validationInfo'));
+                if (record.get('channelValidationData')[channel.id]) {
+                    mainValidationInfo = record.get('channelValidationData')[channel.id].mainValidationInfo;
+                    bulkValidationInfo = record.get('channelValidationData')[channel.id].bulkValidationInfo;
+                    me.setReadingQualities(me.down('#mainReadingQualities' + channel.id), mainValidationInfo);
+                    me.setReadingQualities(me.down('#bulkReadingQualities' + channel.id), bulkValidationInfo);
+                    me.down('#channelValue' + channel.id).setValue(record.get('channelData')[channel.id]);
+                    me.down('#channelBulkValue' + channel.id).setValue(record.get('channelCollectedData')[channel.id]);
+                } else {
+                    me.down('#mainReadingQualities' + channel.id).hide();
+                    me.down('#bulkReadingQualities' + channel.id).hide();
+                }
             });
             Ext.Array.findBy(me.channels, function (channel) {
-                me.down('#readingDataValidated').setValue(record.get('channelValidationData')[channel.id].dataValidated);
-                return !record.get('channelValidationData')[channel.id].dataValidated;
+                if (record.get('channelValidationData')[channel.id]) {
+                    me.down('#readingDataValidated').setValue(record.get('channelValidationData')[channel.id].dataValidated);
+                    return !record.get('channelValidationData')[channel.id].dataValidated;
+                }
             });
+            me.setGeneralReadingQualities(me.down('#generalReadingQualities'), me.up('deviceLoadProfilesData').loadProfile.get('validationInfo'));
         } else {
             mainValidationInfo = record.get('validationInfo').mainValidationInfo;
             bulkValidationInfo = record.get('validationInfo').bulkValidationInfo;
             me.setReadingQualities(me.down('#mainReadingQualities'), mainValidationInfo);
             me.setReadingQualities(me.down('#bulkReadingQualities'), bulkValidationInfo);
-            me.setGeneralReadingQualities(me.down('#generalReadingQualities'), me.up('tabbedDeviceChannelsView').channel.get('validationInfo'));
+            me.setGeneralReadingQualities(me.down('#generalReadingQualities'), record.get('readingQualities'));
             me.down('#readingDataValidated').setValue(record.get('validationInfo').dataValidated);
         }
         Ext.resumeLayouts(true);
@@ -65,7 +72,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             url = view.router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule').buildUrl({ruleSetId: estimatedRule.ruleSetId, ruleId: estimatedRule.id});
             estimatedRuleName = estimatedRule.deleted ? estimatedRule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') :
                 '<a href="' + url + '">' + estimatedRule.name + '</a>';
-            field.setValue(Uni.I18n.translate('deviceChannelData.estimatedAccordingTo', 'MDC', 'Estimated according to') + ' ' + estimatedRuleName);
+            field.setValue(Uni.I18n.translate('deviceChannelData.estimatedAccordingTo', 'MDC', 'Estimated according to {0}',[estimatedRuleName]));
         } else {
             field.hide();
         }
@@ -128,8 +135,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     setGeneralReadingQualities: function (field, value) {
         var result = '',
             me = this,
-            url,
-            view = me.up('tabbedDeviceChannelsView') || me.up('deviceLoadProfilesData');
+            url;
 
         if (!Ext.isEmpty(value.suspectReason)) {
             field.show();
@@ -138,12 +144,19 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     result += Ext.String.htmlEncode(rule.key.name) + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + ' - ' + rule.value + ' ' + Uni.I18n.translate('general.suspects', 'MDC', 'suspects') + '<br>';
                 } else {
                     if (Cfg.privileges.Validation.canViewOrAdministrate()) {
-                        url = view.router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({ruleSetId: rule.key.ruleSetVersion.ruleSet.id, versionId: rule.key.ruleSetVersion.id, ruleId: rule.key.id});
+                        url = me.up('deviceLoadProfilesData').router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({ruleSetId: rule.key.ruleSetVersion.ruleSet.id, versionId: rule.key.ruleSetVersion.id, ruleId: rule.key.id});
                         result += '<a href="' + url + '"> ' + Ext.String.htmlEncode(rule.key.name) + '</a>';
                     } else {
                         result = Ext.String.htmlEncode(rule.key.name);
                     }
-                }   result += ' - ' + Ext.String.htmlEncode(rule.value) + ' ' + Uni.I18n.translate('general.suspects', 'MDC', 'suspects') + '<br>';
+                }
+                result += ' - ' + Uni.I18n.translate('general.xsuspects', 'MDC', '{0} suspects',[rule.value]) + '<br>';
+            });
+            field.setValue(result);
+        } else if (!Ext.isEmpty(value)) {
+            field.show();
+            Ext.Array.each(value, function (rule) {
+                result += Ext.String.htmlEncode(rule.name) + '<br>';
             });
             field.setValue(result);
         } else {
@@ -165,15 +178,17 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 return item.id == channelId;
             });
             measurementType = channel.calculatedReadingType ? channel.calculatedReadingType.unit : channel.readingType.unit;
-            validationInfo = (type == 'main')
-                ? record.get('channelValidationData')[channelId].mainValidationInfo
-                : record.get('channelValidationData')[channelId].bulkValidationInfo;
+            if (record.get('channelValidationData')[channelId]) {
+                validationInfo = (type == 'main')
+                    ? record.get('channelValidationData')[channelId].mainValidationInfo
+                    : record.get('channelValidationData')[channelId].bulkValidationInfo;
+            }
         } else {
             measurementType = me.channelRecord.get('unitOfMeasure');
             validationInfo = record.get('validationInfo') ? record.get('validationInfo')[type + 'ValidationInfo'] : null;
         }
 
-        if (validationInfo.validationResult) {
+        if (validationInfo && validationInfo.validationResult) {
             switch (validationInfo.validationResult.split('.')[1]) {
                 case 'notValidated':
                     validationResultText = '(' + Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated') + ')' +
@@ -200,7 +215,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 return !Ext.isEmpty(formatValue) ? formatValue + ' ' + measurementType + ' ' + validationResultText : '';
             }
         } else {
-            return Uni.I18n.translate('general.missing', 'MDC', 'Missing') + ' ' + validationResultText;
+            return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}',[validationResultText]);
         }
     },
 

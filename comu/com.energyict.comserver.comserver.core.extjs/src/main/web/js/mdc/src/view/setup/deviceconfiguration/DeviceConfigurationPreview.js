@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationPreview', {
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
             privileges: Mdc.privileges.DeviceType.admin,
             iconCls: 'x-uni-action-iconD',
             menu: {

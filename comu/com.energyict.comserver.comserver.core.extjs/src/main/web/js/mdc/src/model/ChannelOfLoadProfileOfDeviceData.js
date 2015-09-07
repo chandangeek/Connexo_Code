@@ -12,6 +12,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'validationInfo', type: 'auto'},
         {name: 'confirmed', type: 'auto'},
         'plotband',
+        'readingQualities',
         {
             name: 'interval_end',
             persist: false,
@@ -24,13 +25,9 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
             persist: false,
             mapping: function (data) {
                 return data.interval
-                    ? Uni.DateTime.formatDateLong(new Date(data.interval.start))
-                    + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
-                    + Uni.DateTime.formatTimeLong(new Date(data.interval.start))
+                    ? Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[ Uni.DateTime.formatDateLong(new Date(data.interval.start)),Uni.DateTime.formatTimeLong(new Date(data.interval.start))]).toLowerCase()
                     + ' - '
-                    + Uni.DateTime.formatDateLong(new Date(data.interval.end))
-                    + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
-                    + Uni.DateTime.formatTimeLong(new Date(data.interval.end))
+                    + Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[ Uni.DateTime.formatDateLong(new Date(data.interval.end)),Uni.DateTime.formatTimeLong(new Date(data.interval.end))]).toLowerCase()
                     : '';
             }
         },

@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                 },
                                 {
                                     xtype: 'button',
-                                    text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+                                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                                     iconCls: 'x-uni-action-iconD',
                                     privileges: Mdc.privileges.DeviceType.admin,
                                     menu: {
@@ -189,7 +189,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                             items: [
                                                 {
                                                     name: 'deviceConfigurationCount',
-                                                    text: Uni.I18n.translate('devicetype.deviceconfigurations', 'MDC', 'device configurations'),
+                                                    text: '',
                                                     itemId: 'deviceConfigurationsDetailLink'
                                                 }
                                             ]

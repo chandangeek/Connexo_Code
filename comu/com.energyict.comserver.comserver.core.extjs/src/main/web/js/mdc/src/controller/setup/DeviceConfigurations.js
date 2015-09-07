@@ -399,7 +399,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
                 me.getApplication().fireEvent('changecontentevent', widget);
-                widget.down('#deviceConfigurationEditCreateTitle').setTitle(Uni.I18n.translate('general.adddeviceconfiguration', 'MDC', "Add device configuration"));
+                widget.down('#deviceConfigurationEditCreateTitle').setTitle(Uni.I18n.translate('general.addDeviceConfiguration', 'MDC', "Add device configuration"));
                 me.setRadioButtons(deviceType);
             }
         });
@@ -673,8 +673,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-configurations #logbook-count')[0],
                         grid = Ext.ComponentQuery.query('add-logbook-configurations grid')[0];
                     numberOfLogbooksLabel.setText(
-                        Uni.I18n.translatePlural('general.nrOfLogbookConfigurations.selected', 0, 'MDC',
-                            'No logbook configurations selected', '{0} logbook configuration selected', '{0} logbook configurations selected')
+                        Uni.I18n.translatePlural('general.nrOfLogbookTypes.selected', 0, 'MDC',
+                            'No logbook types selected', '{0} logbook type selected', '{0} logbook types selected')
                     );
                 }
             }

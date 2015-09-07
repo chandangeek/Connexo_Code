@@ -20,7 +20,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
     tools: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', Uni.I18n.translate('general.actions', 'MDC', 'Actions')),
+            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
             itemId: 'actionsPreviewBtn',
             iconCls: 'x-uni-action-iconD',
             menu: {
@@ -36,14 +36,14 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
             tbar: [
                 {
                     xtype: 'component',
-                    html: '<h4>' + Uni.I18n.translate('devicecommunicationTask.noCommunicationTaskSelected', 'MDC', 'No communication task selected') + '</h4>'
+                    html: '<h4>' + Uni.I18n.translate('deviceCommunicationTask.noCommunicationTaskSelected', 'MDC', 'No communication task selected') + '</h4>'
                 }
             ],
             items: [
                 {
                     xtype: 'component',
                     height: '100px',
-                    html: '<h5>' + Uni.I18n.translate('devicecommunicationTask.selectCommunicationTask', 'MDC', 'Select a communication task to see its details') + '</h5>'
+                    html: '<h5>' + Uni.I18n.translate('deviceCommunicationTask.selectCommunicationTask', 'MDC', 'Select a communication task to see its details') + '</h5>'
                 }
             ]
         },
@@ -88,7 +88,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                 {
                                     xtype: 'displayfield',
                                     name: 'connectionMethod',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.connectionMethod', 'MDC', 'Connection method'),
+                                    fieldLabel: Uni.I18n.translate('deviceCommunicationTask.connectionMethod', 'MDC', 'Connection method'),
                                     renderer: function(value){
                                         if(value!==''){
                                             if(!this.up('form').getRecord().data.connectionDefinedOnDevice){
@@ -104,13 +104,13 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                 {
                                     xtype: 'displayfield',
                                     name: 'connectionStrategy',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.connectionStrategy', 'MDC', 'Connection strategy')
+                                    fieldLabel: Uni.I18n.translate('deviceCommunicationTask.connectionStrategy', 'MDC', 'Connection strategy')
 
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'nextCommunication',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.nextCommunication', 'MDC', 'Next communication'),
+                                    fieldLabel: Uni.I18n.translate('deviceCommunicationTask.nextCommunication', 'MDC', 'Next communication'),
                                     renderer: function (value) {
                                         if (value) {
                                             return Uni.DateTime.formatDateTimeLong(new Date(value));
@@ -123,7 +123,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                 {
                                     xtype: 'displayfield',
                                     name: 'lastCommunication',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.lastCommunicationStart', 'MDC', 'Last communication start'),
+                                    fieldLabel: Uni.I18n.translate('deviceCommunicationTask.lastCommunicationStart', 'MDC', 'Last communication start'),
                                     renderer: function (value) {
                                         if (value) {
                                             return Uni.DateTime.formatDateTimeLong(new Date(value));
@@ -136,22 +136,22 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                 {
                                     xtype: 'displayfield',
                                     name: 'status',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.currentStatus', 'MDC', 'Current status')
+                                    fieldLabel: Uni.I18n.translate('deviceCommunicationTask.currentStatus', 'MDC', 'Current status')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'urgency',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.urgency', 'MDC', 'Urgency')
+                                    fieldLabel: Uni.I18n.translate('deviceCommunicationTask.urgency', 'MDC', 'Urgency')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'securitySettings',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.securitySettings', 'MDC', 'Security settings')
+                                    fieldLabel: Uni.I18n.translate('deviceCommunicationTask.securitySettings', 'MDC', 'Security settings')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'protocolDialect',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.protocolDialect', 'MDC', 'Protocol dialect')
+                                    fieldLabel: Uni.I18n.translate('deviceCommunicationTask.protocolDialect', 'MDC', 'Protocol dialect')
                                 }
                             ]
                         },
@@ -172,7 +172,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                 {
                                     xtype: 'displayfield',
                                     name: 'temporalExpression',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.frequency', 'MDC', 'Frequency'),
+                                    fieldLabel: Uni.I18n.translate('deviceCommunicationTask.frequency', 'MDC', 'Frequency'),
                                     renderer: function (value) {
                                         if(value){
                                             return Mdc.util.ScheduleToStringConverter.convert(value);
@@ -184,17 +184,17 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                 {
                                     xtype: 'displayfield',
                                     name: 'scheduleType',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.scheduleType', 'MDC', 'Schedule type')
+                                    fieldLabel: Uni.I18n.translate('deviceCommunicationTask.scheduleType', 'MDC', 'Schedule type')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'scheduleName',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.scheduleName', 'MDC', 'Schedule name')
+                                    fieldLabel: Uni.I18n.translate('deviceCommunicationTask.scheduleName', 'MDC', 'Schedule name')
                                 },
                                 {
                                     xtype: 'displayfield',
                                     name: 'plannedDate',
-                                    fieldLabel: Uni.I18n.translate('devicecommunicationTask.plannedDate', 'MDC', 'Planned date'),
+                                    fieldLabel: Uni.I18n.translate('deviceCommunicationTask.plannedDate', 'MDC', 'Planned date'),
                                     renderer: function (value) {
                                         if (value) {
                                             return Uni.DateTime.formatDateTimeLong(new Date(value));

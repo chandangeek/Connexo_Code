@@ -46,7 +46,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
     init: function () {
         this.control({
             '#connectionmethodsgrid': {
-                selectionchange: this.previewConnectionMethod
+                select: this.previewConnectionMethod
             },
             '#connectionmethodsgrid menuitem[action = createOutboundConnectionMethod]': {
                 click: this.addOutboundConnectionMethodHistory
@@ -114,8 +114,12 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                         widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                         widget.down('#connectionMethodSetupPanel').setTitle(Uni.I18n.translate('general.connectionMethods', 'MDC', 'Connection methods'));
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        me.getConnectionmethodsgrid().getView().refresh();
-                        me.getConnectionmethodsgrid().getSelectionModel().doSelect(0);
+                        me.getConnectionmethodsgrid().getStore().load({
+                            callback: function(){
+                                me.getConnectionmethodsgrid().getSelectionModel().doSelect(0);
+                            }
+                        });
+
                     }
                 });
             }
@@ -326,7 +330,7 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
                     } else {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowlegment.save', 'MDC', 'Connection method saved'));
                     }
-                    me.showConnectionMethods(me.deviceTypeId, me.deviceConfigurationId);
+                   // me.showConnectionMethods(me.deviceTypeId, me.deviceConfigurationId);
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);

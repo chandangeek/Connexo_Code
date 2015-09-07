@@ -30,7 +30,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
                 dataIndex: 'overruledObisCode'
             },
             {
-                header: 'Interval',
+                header: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),
                 dataIndex: 'timeDuration',
                 renderer: function (value) {
                     var intervalRecord = Ext.getStore('Mdc.store.Intervals').getById(value.id);

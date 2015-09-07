@@ -35,7 +35,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.SchedulesSelectionGrid', {
                 header: Uni.I18n.translate('communicationschedule.plannedDate', 'MDC', 'Planned date'),
                 dataIndex: 'plannedDate',
                 renderer: function (value) {
-                    return Uni.I18n.formatDate('general.dateFormat.long', value, 'MDC', 'M d Y H:i A');
+                    return Uni.DateTime.formatDateLong(value);
                 },
                 flex: 1
             }

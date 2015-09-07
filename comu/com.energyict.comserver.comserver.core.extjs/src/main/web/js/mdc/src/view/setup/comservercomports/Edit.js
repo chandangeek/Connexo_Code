@@ -35,14 +35,14 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                 {
                     xtype: 'textfield',
                     itemId: 'txt-comport-name',
-                    fieldLabel: 'Name',
+                    fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                     required: true,
                     allowBlank: false,
                     name: 'name'
                 },
                 {
                     xtype: 'displayfield',
-                    fieldLabel: 'Direction',
+                    fieldLabel: Uni.I18n.translate('comServerComPorts.direction', 'MDC', 'Direction'),
                     hidden: true,
                     name: 'direction',
                     renderer: function (value) {
@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                 },
                 {
                     xtype: 'combobox',
-                    fieldLabel: 'Type',
+                    fieldLabel: Uni.I18n.translate('general.type', 'MDC', 'Type'),
                     required: true,
                     allowBlank: false,
                     editable: false,

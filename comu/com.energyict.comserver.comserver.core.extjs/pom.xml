@@ -54,22 +54,6 @@
 
     <profiles>
         <profile>
-            <id>extjs-dev-profile</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <build>
-                <resources>
-                    <resource>
-                        <directory>src/main/web</directory>
-                    </resource>
-                    <resource>
-                        <directory>src/main/resources</directory>
-                    </resource>
-                </resources>
-            </build>
-        </profile>
-        <profile>
             <id>sencha-build</id>
             <properties>
                 <js.dir>js/mdc</js.dir>
@@ -78,22 +62,4 @@
         </profile>
     </profiles>
 
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/web/js/mdc/build</directory>
-                <targetPath>js/mdc/build</targetPath>
-                <includes>
-                    <include>resources/**/*</include>
-                    <include>*.js</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
 </project>

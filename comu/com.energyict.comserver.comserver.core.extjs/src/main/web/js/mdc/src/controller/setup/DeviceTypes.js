@@ -104,26 +104,26 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             deviceLifeCycleLink = this.getDeviceLifeCycleLink();
 
             deviceLifeCycleLink.setHref('#/administration/devicelifecycles/' + encodeURIComponent(record[0].get('deviceLifeCycleId')));
-            deviceLifeCycleLink.setText(record[0].get('deviceLifeCycleName'));
+            deviceLifeCycleLink.setText(Ext.String.htmlEncode(record[0].get('deviceLifeCycleName')));
 
             registerLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/registertypes');
             registerLink.setText(
-                Uni.I18n.translatePlural('devicetype.registers', deviceTypes[0].get('registerCount'), 'MDC', '{0} register types', '{0} register type', '{0} register types')
+                Uni.I18n.translatePlural('devicetype.registers', deviceTypes[0].get('registerCount'), 'MDC', 'No register types', '{0} register type', '{0} register types')
             );
 
             logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/logbooktypes');
             logBookLink.setText(
-                Uni.I18n.translatePlural('devicetype.logbooks', deviceTypes[0].get('logBookCount'), 'MDC', '{0} logbook types', '{0} logbook type', '{0} logbook types')
+                Uni.I18n.translatePlural('devicetype.logbooks', deviceTypes[0].get('logBookCount'), 'MDC', 'No logbook types', '{0} logbook type', '{0} logbook types')
             );
 
             loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/loadprofiles');
             loadProfilesLink.setText(
-                Uni.I18n.translatePlural('devicetype.loadprofiles', deviceTypes[0].get('loadProfileCount'), 'MDC', '{0} load profile types', '{0} load profile type', '{0} load profile types')
+                Uni.I18n.translatePlural('devicetype.loadprofiles', deviceTypes[0].get('loadProfileCount'), 'MDC', 'No load profile types', '{0} load profile type', '{0} load profile types')
             );
 
             deviceConfigurationsLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/deviceconfigurations');
             deviceConfigurationsLink.setText(
-                Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceTypes[0].get('deviceConfigurationCount'), 'MDC', '{0} device configurations', '{0} device configuration', '{0} device configurations')
+                Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceTypes[0].get('deviceConfigurationCount'), 'MDC', 'No device configurations', '{0} device configuration', '{0} device configurations')
             );
 
             this.getDeviceTypePreviewForm().loadRecord(deviceTypes[0]);
@@ -131,7 +131,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             if(this.getDeviceTypePreview().down('device-type-action-menu'))
                 this.getDeviceTypePreview().down('device-type-action-menu').record = deviceTypes[0];
 
-            this.getDeviceTypePreview().setTitle(deviceTypes[0].get('name'));
+            this.getDeviceTypePreview().setTitle(Ext.String.htmlEncode(deviceTypes[0].get('name')));
             Ext.resumeLayouts(true);
         }
     },
@@ -159,30 +159,30 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
 
                 deviceLifeCycleLink.setHref('#/administration/devicelifecycles/' + encodeURIComponent(deviceType.get('deviceLifeCycleId')));
-                deviceLifeCycleLink.setText(deviceType.get('deviceLifeCycleName'));
+                deviceLifeCycleLink.setText(Ext.String.htmlEncode(deviceType.get('deviceLifeCycleName')));
 
                 registersLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/registertypes');
                 registersLink.setText(
                     Uni.I18n.translatePlural('devicetype.registers', deviceType.get('registerCount'), 'MDC',
-                        '{0} register types', '{0} register type', '{0} register types')
+                        'No register types', '{0} register type', '{0} register types')
                 );
 
                 logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/logbooktypes');
                 logBookLink.setText(
                     Uni.I18n.translatePlural('devicetype.logbooks', deviceType.get('logBookCount'), 'MDC',
-                        '{0} logbook types', '{0} logbook type', '{0} logbook types')
+                        'No logbook types', '{0} logbook type', '{0} logbook types')
                 );
 
                 loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/loadprofiles');
                 loadProfilesLink.setText(
                     Uni.I18n.translatePlural('devicetype.loadprofiles', deviceType.get('loadProfileCount'), 'MDC',
-                        '{0} load profile types', '{0} load profile type', '{0} load profile types')
+                        'No load profile types', '{0} load profile type', '{0} load profile types')
                 );
 
                 deviceConfigurationsLink.setHref('#/administration/devicetypes/' + encodeURIComponent(deviceTypeId) + '/deviceconfigurations');
                 deviceConfigurationsLink.setText(
                     Uni.I18n.translatePlural('devicetype.deviceconfigurations', deviceType.get('deviceConfigurationCount'), 'MDC',
-                        '{0} device configurations', '{0} device configuration', '{0} device configurations')
+                        'No device configurations', '{0} device configuration', '{0} device configurations')
                 );
 
                 widget.down('form').loadRecord(deviceType);
@@ -319,7 +319,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 cancelLink: router.getRoute('administration/devicetypes').buildUrl(),
                 deviceCommunicationProtocols: protocolStore
             });
-
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
         protocolStore.load();

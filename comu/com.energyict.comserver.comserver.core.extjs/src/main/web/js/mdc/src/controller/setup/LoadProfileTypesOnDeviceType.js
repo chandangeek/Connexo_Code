@@ -58,7 +58,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
             }
         });
 
-        this.intervalStore = this.getStore('Mdc.store.Intervals').load();
+        this.intervalStore = this.getStore('Mdc.store.Intervals');
         this.store = this.getStore('LoadProfileTypesOnDeviceType');
     },
 
