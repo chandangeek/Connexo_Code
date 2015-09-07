@@ -21,6 +21,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.MessageInterpolator;
@@ -29,9 +30,10 @@ import javax.validation.ValidationProviderResolver;
 import javax.validation.metadata.ConstraintDescriptor;
 import java.security.Principal;
 import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,9 +45,14 @@ public class NlsServiceImpl implements NlsService, InstallService {
     private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MessageInterpolator messageInterpolator;
-    private volatile List<TranslationKeyProvider> translationKeyProviders = new CopyOnWriteArrayList<>();
+    @GuardedBy("translationKeyProviderLock")
+    private final List<TranslationKeyProvider> translationKeyProviders = new ArrayList<>();
+    @GuardedBy("messageSeedProviderLock")
     private volatile List<MessageSeedProvider> messageSeedProviders = new CopyOnWriteArrayList<>();
     private volatile boolean installed = false;
+
+    private final Object translationKeyProviderLock = new Object();
+    private final Object messageSeedProviderLock = new Object();
 
     @Activate
     public final void activate() {
@@ -105,44 +112,51 @@ public class NlsServiceImpl implements NlsService, InstallService {
                 .getDefaultMessageInterpolator();
     }
 
-    @Reference(name = "ZTranslationKeyProvider", policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
-    public synchronized void addTranslationKeyProvider(TranslationKeyProvider provider) {
-        this.translationKeyProviders.add(provider);
-        if (installed) {
-            try {
-                setPrincipal();
-                threadPrincipalService.set("INSTALL-translation", provider.getComponentName());
-                doInstallProvider(provider);
-            } finally {
-                clearPrincipal();
+    @Reference(name = "ZTranslationProvider", policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
+    public synchronized void addTranslationProvider(TranslationKeyProvider provider) {
+        synchronized (translationKeyProviderLock) {
+            this.translationKeyProviders.add(provider);
+            if (installed) {
+                try {
+                    setPrincipal();
+                    threadPrincipalService.set("INSTALL-translation", provider.getComponentName());
+                    doInstallProvider(provider);
+                } finally {
+                    clearPrincipal();
+                }
             }
         }
-
     }
 
     @SuppressWarnings("unused")
     public void removeTranslationKeyProvider(TranslationKeyProvider provider) {
-        this.translationKeyProviders.remove(provider);
+        synchronized (translationKeyProviderLock) {
+            this.translationKeyProviders.remove(provider);
+        }
     }
 
     @SuppressWarnings("unused")
     @Reference(name = "ZMessageSeedProvider", policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
     public synchronized void addMessageSeedProvider(MessageSeedProvider provider) {
-        this.messageSeedProviders.add(provider);
-        if (installed) {
-            try {
-                this.setPrincipal();
-                this.doInstallProvider(provider);
-            }
-            finally {
-                this.clearPrincipal();
+        synchronized (messageSeedProviderLock) {
+            this.messageSeedProviders.add(provider);
+            if (installed) {
+                try {
+                    this.setPrincipal();
+                    this.doInstallProvider(provider);
+                }
+                finally {
+                    this.clearPrincipal();
+                }
             }
         }
     }
 
     @SuppressWarnings("unused")
     public void removeMessageSeedProvider(MessageSeedProvider provider) {
-        this.messageSeedProviders.remove(provider);
+        synchronized (messageSeedProviderLock) {
+            this.messageSeedProviders.remove(provider);
+        }
     }
 
     private void clearPrincipal() {
@@ -159,9 +173,11 @@ public class NlsServiceImpl implements NlsService, InstallService {
 
     @Override
     public synchronized void install() {
-        dataModel.install(true, true);
-        installProviders();
-        installed = true;
+        synchronized (translationKeyProviderLock, messageSeedProviderLock) {
+            dataModel.install(true, true);
+            installProviders();
+            installed = true;
+        }
     }
 
     private void installProviders() {
