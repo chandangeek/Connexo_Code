@@ -497,7 +497,7 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService, P
         return Arrays.asList(
             userService.createModuleResourceWithPrivileges(getModuleName(),
                     "reportYfn.reports", "reportYfn.reports.description",
-                    Arrays.asList(Privileges.VIEW_REPORTS, Privileges.DESIGN_REPORTS)));
+                    Arrays.asList(Privileges.Constants.VIEW_REPORTS, Privileges.Constants.DESIGN_REPORTS)));
     }
 
     @Override
