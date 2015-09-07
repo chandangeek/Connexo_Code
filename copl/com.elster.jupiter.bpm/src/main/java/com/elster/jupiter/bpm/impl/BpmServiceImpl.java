@@ -156,7 +156,7 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, "bpm.businessProcesses", "bpm.businessProcesses.description",
                 Arrays.asList(
-                        Privileges.VIEW_BPM, Privileges.DESIGN_BPM)));
+                        Privileges.Constants.VIEW_BPM, Privileges.Constants.DESIGN_BPM)));
         return resources;
     }
 
@@ -175,6 +175,7 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
         List<TranslationKey> translationKeys = new ArrayList<>();
         translationKeys.add(new SimpleTranslationKey(BpmService.BPM_QUEUE_SUBSC, BpmService.BPM_QUEUE_DISPLAYNAME));
         translationKeys.addAll(Arrays.asList(MessageSeeds.values()));
+        translationKeys.addAll(Arrays.asList(Privileges.values()));
         return translationKeys;
     }
 }
