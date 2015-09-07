@@ -1,4 +1,5 @@
--classpath: target/classes 
+-classpath: target/classes
+-dsannotations: *
 Include-Resource: README.HTML
 Private-Package: com.elster.jupiter.cbo.impl
 Export-Package: com.elster.jupiter.cbo
