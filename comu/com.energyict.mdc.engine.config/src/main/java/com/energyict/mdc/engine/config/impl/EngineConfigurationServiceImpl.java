@@ -60,11 +60,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.OFFLINE_COMSERVER_DISCRIMINATOR;
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.ONLINE_COMSERVER_DISCRIMINATOR;
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.REMOTE_COMSERVER_DISCRIMINATOR;
+
 
 @Component(name = "com.energyict.mdc.engine.config", service = {EngineConfigurationService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + EngineConfigurationService.COMPONENT_NAME)
 public class EngineConfigurationServiceImpl implements EngineConfigurationService, InstallService, TranslationKeyProvider, OrmClient, PrivilegesProvider {
@@ -114,7 +118,11 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
+        return Stream.of(
+                Arrays.stream(MessageSeeds.values()),
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Reference
@@ -500,8 +508,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(EngineConfigurationService.COMPONENT_NAME, "communicationAdministration.communicationAdministrations", "communicationAdministration.communicationAdministrations.description",
                 Arrays.asList(
-                        Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION,
-                        Privileges.VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL)));
+                        Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
+                        Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL)));
         return resources;
     }
 
