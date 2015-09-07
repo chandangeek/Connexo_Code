@@ -72,7 +72,7 @@ public class DeviceEstimationResource {
     @Path("/esimationstatus")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_COMMUNICATION)
+    @RolesAllowed(com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
     @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
     public Response toggleEstimationActivationForDevice(@PathParam("mRID") String mrid, DeviceInfo info) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);

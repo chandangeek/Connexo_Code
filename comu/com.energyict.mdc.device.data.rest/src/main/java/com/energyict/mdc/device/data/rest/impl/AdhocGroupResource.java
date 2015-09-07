@@ -46,7 +46,7 @@ public class AdhocGroupResource {
     @POST
     @Path("/adhoc")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(com.elster.jupiter.yellowfin.security.Privileges.VIEW_REPORTS)
+    @RolesAllowed(com.elster.jupiter.yellowfin.security.Privileges.Constants.VIEW_REPORTS)
     public AdhocGroupInfo cacheAdHocGroup(@BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params,  @Context UriInfo uriInfo) {
         AdhocGroupInfo groupInfo = new AdhocGroupInfo();
 

@@ -80,7 +80,7 @@ public class DeviceGroupResource {
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
     public DeviceGroupInfo getDeviceGroup(@PathParam("id") long id) {
         return deviceGroupInfoFactory.from(fetchDeviceGroup(id));
     }
@@ -88,7 +88,7 @@ public class DeviceGroupResource {
     @GET
     @Path("/{id}/devices")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({ Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL })
+    @RolesAllowed({ Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL })
     public PagedInfoList getDevices(@PathParam("id") long deviceGroupId, @BeanParam JsonQueryParameters queryParameters) {
         EndDeviceGroup endDeviceGroup = fetchDeviceGroup(deviceGroupId);
         List<? extends EndDevice> endDevices;
@@ -128,7 +128,7 @@ public class DeviceGroupResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
     @Path("/{id}")
     public Response editDeviceGroup(DeviceGroupInfo deviceGroupInfo, @PathParam("id") long id) {
         EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(id)
@@ -149,7 +149,7 @@ public class DeviceGroupResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_GROUP)
     @Path("/{id}")
     public Response removeDeviceGroup(@PathParam("id") long id) {
         EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(id)
@@ -162,7 +162,7 @@ public class DeviceGroupResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_GROUP)
     public Response createDeviceGroup(DeviceGroupInfo deviceGroupInfo) {
         if (meteringGroupsService.findEndDeviceGroupByName(deviceGroupInfo.name).isPresent()) {
             throw exceptionFactory.newException(MessageSeeds.DEVICEGROUPNAME_ALREADY_EXISTS, deviceGroupInfo.name);

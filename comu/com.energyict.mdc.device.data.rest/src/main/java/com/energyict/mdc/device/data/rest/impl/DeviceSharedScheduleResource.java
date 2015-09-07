@@ -38,7 +38,7 @@ public class DeviceSharedScheduleResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response addComScheduleOnDevice(@PathParam("mRID") String mrid, ScheduleIdsInfo info) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         info.scheduleIds.stream()
