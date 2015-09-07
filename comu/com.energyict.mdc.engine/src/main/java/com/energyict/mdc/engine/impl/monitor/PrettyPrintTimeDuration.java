@@ -5,7 +5,6 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.time.TimeDuration;
 import org.joda.time.DateTimeConstants;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -98,10 +97,10 @@ public class PrettyPrintTimeDuration {
 
         public void appendValue (int value, StringBuilder builder, Thesaurus thesaurus) {
             if (this.isPlural(value)) {
-                this.append(builder, value, thesaurus, this.plural.getKey());
+                this.append(builder, value, thesaurus, this.plural);
             }
             else {
-                this.append(builder, value, thesaurus, this.singular.getKey());
+                this.append(builder, value, thesaurus, this.singular);
             }
         }
 
@@ -109,9 +108,8 @@ public class PrettyPrintTimeDuration {
             return value == 0 || value > 1;
         }
 
-        private void append (StringBuilder builder, int value, Thesaurus thesaurus, String translationKey) {
-            String pattern = thesaurus.getString(translationKey, translationKey);
-            builder.append(MessageFormat.format(pattern, value));
+        private void append (StringBuilder builder, int value, Thesaurus thesaurus, TranslationKey translationKey) {
+            builder.append(thesaurus.getFormat(translationKey).format(value));
         }
 
     }
@@ -190,7 +188,7 @@ public class PrettyPrintTimeDuration {
         }
 
         protected void addSeparatorIfNotLast (StringBuilder builder) {
-            builder.append(thesaurus.getString(PrettyPrintTimeDurationTranslationKeys.SEPARATOR.getKey(), ", "));
+            builder.append(thesaurus.getFormat(PrettyPrintTimeDurationTranslationKeys.SEPARATOR).format());
         }
     }
 
@@ -207,7 +205,7 @@ public class PrettyPrintTimeDuration {
 
         @Override
         protected void addSeparatorIfNotLast (StringBuilder builder) {
-            builder.append(thesaurus.getString(PrettyPrintTimeDurationTranslationKeys.LAST_SEPARATOR.getKey(), " and "));
+            builder.append(thesaurus.getFormat(PrettyPrintTimeDurationTranslationKeys.LAST_SEPARATOR).format());
         }
     }
 
