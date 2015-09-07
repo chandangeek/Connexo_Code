@@ -20,7 +20,7 @@ public class IssueTypeResource extends BaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.CLOSE_ISSUE, Privileges.COMMENT_ISSUE, Privileges.ACTION_ISSUE})
+    @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public Response getIssueTypes() {
         List<IssueType> issueTypes = getIssueService().query(IssueType.class).select(Condition.TRUE);
         issueTypes.sort((it1, it2) -> it1.getName().compareToIgnoreCase(it2.getName()));

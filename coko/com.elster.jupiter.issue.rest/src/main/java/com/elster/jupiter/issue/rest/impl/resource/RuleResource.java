@@ -49,7 +49,7 @@ public class RuleResource extends BaseResource {
     @GET
     @Path("/assign")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.VIEW_ASSIGNMENT_RULE)
+    @RolesAllowed(Privileges.Constants.VIEW_ASSIGNMENT_RULE)
     public Response getAssignmentRules(){
         List<AssignmentRule> assignmentRules = issueAssignmentService.getAssignmentRuleQuery().select(Condition.TRUE);
         return entity(assignmentRules, AssignmentRuleInfo.class).build();
@@ -58,7 +58,7 @@ public class RuleResource extends BaseResource {
     @GET
     @Path("/templates")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_CREATION_RULE,Privileges.VIEW_CREATION_RULE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CREATION_RULE,Privileges.Constants.VIEW_CREATION_RULE})
     public PagedInfoList getCreationRulesTemplates(@QueryParam(value = ISSUE_TYPE) String issueType, @BeanParam JsonQueryParameters params){
         if (issueType == null ) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -74,7 +74,7 @@ public class RuleResource extends BaseResource {
     @GET
     @Path("/templates/{name}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_CREATION_RULE, Privileges.VIEW_CREATION_RULE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_CREATION_RULE, Privileges.Constants.VIEW_CREATION_RULE})
     public Response getTemplate(@PathParam("name") String name) {
         CreationRuleTemplate template = getIssueCreationService().findCreationRuleTemplate(name)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));

@@ -45,7 +45,7 @@ public class CreationRuleResource extends BaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({ Privileges.ADMINISTRATE_CREATION_RULE, Privileges.VIEW_CREATION_RULE })
+    @RolesAllowed({ Privileges.Constants.ADMINISTRATE_CREATION_RULE, Privileges.Constants.VIEW_CREATION_RULE })
     public PagedInfoList getCreationRules(@BeanParam JsonQueryParameters queryParams) {
         Query<CreationRule> query = getIssueCreationService().getCreationRuleQuery(IssueReason.class, IssueType.class);
         List<CreationRule> rules;
@@ -63,7 +63,7 @@ public class CreationRuleResource extends BaseResource {
     @GET
     @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({ Privileges.ADMINISTRATE_CREATION_RULE, Privileges.VIEW_CREATION_RULE })
+    @RolesAllowed({ Privileges.Constants.ADMINISTRATE_CREATION_RULE, Privileges.Constants.VIEW_CREATION_RULE })
     public Response getCreationRule(@PathParam(ID) long id) {
         CreationRule rule = getIssueCreationService().findCreationRuleById(id)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
@@ -74,7 +74,7 @@ public class CreationRuleResource extends BaseResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_CREATION_RULE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_CREATION_RULE)
     public Response deleteCreationRule(@PathParam("id") long id, CreationRuleInfo ruleInfo) {
         try (TransactionContext context = getTransactionService().getContext()) {
             CreationRule rule = getIssueCreationService().findAndLockCreationRuleByIdAndVersion(id, ruleInfo.version)
@@ -86,7 +86,7 @@ public class CreationRuleResource extends BaseResource {
     }
 
     @POST
-    @RolesAllowed(Privileges.ADMINISTRATE_CREATION_RULE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_CREATION_RULE)
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response addCreationRule(CreationRuleInfo rule) {
@@ -103,7 +103,7 @@ public class CreationRuleResource extends BaseResource {
 
     @PUT
     @Path("/{id}")
-    @RolesAllowed(Privileges.ADMINISTRATE_CREATION_RULE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_CREATION_RULE)
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response editCreationRule(@PathParam("id") long id, CreationRuleInfo rule){
