@@ -432,6 +432,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         channelSpecBuilder.add();
         createDefaultChannelSpec(loadProfileSpec);
     }
+
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED + "}")

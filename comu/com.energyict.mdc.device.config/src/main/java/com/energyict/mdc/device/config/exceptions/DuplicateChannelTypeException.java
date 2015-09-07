@@ -47,4 +47,5 @@ public class DuplicateChannelTypeException extends LocalizedException {
         duplicateChannelTypeException.set("channelSpec", channelSpec);
         return duplicateChannelTypeException;
     }
+
 }

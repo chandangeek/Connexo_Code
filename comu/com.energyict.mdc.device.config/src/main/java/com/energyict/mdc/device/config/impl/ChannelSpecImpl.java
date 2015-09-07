@@ -1,15 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -25,6 +15,17 @@ import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.validation.ValidationRule;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -47,8 +48,6 @@ import static com.elster.jupiter.util.Checks.is;
  * Time: 13:22
  */
 public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ChannelSpec {
-
-    private final ServerDeviceConfigurationService deviceConfigurationService;
 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED + "}")
@@ -73,9 +72,8 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     private Instant modTime;
 
     @Inject
-    public ChannelSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ServerDeviceConfigurationService deviceConfigurationService) {
+    public ChannelSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(ChannelSpec.class, dataModel, eventService, thesaurus);
-        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     private ChannelSpecImpl initialize(DeviceConfiguration deviceConfiguration, ChannelType channelType, LoadProfileSpecImpl loadProfileSpec) {
@@ -198,9 +196,14 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     }
 
     private void validateChannelSpecsForDuplicateChannelTypes() {
-        Optional<ChannelSpec> channelSpec = this.deviceConfigurationService.findChannelSpecForLoadProfileSpecAndChannelType(getLoadProfileSpec(), getChannelType());
-        if (channelSpec.isPresent() && channelSpec.get().getId() != getId()) {
-            throw DuplicateChannelTypeException.forChannelSpecInLoadProfileSpec(channelSpec.get(), getChannelType(), this.getLoadProfileSpec(), this.getThesaurus(), MessageSeeds.CHANNEL_SPEC_DUPLICATE_CHANNEL_TYPE_IN_LOAD_PROFILE_SPEC);
+        List<String> readingTypesInUseByChannelType = new ArrayList<>(2);
+        readingTypesInUseByChannelType.add(getChannelType().getReadingType().getMRID());
+        getChannelType().getReadingType().getCalculatedReadingType().ifPresent(calculatedReadingType -> readingTypesInUseByChannelType.add(calculatedReadingType.getMRID()));
+        for (ChannelSpec channelSpec : getLoadProfileSpec().getChannelSpecs()) {
+            if (   !isSameIdObject(this, channelSpec)
+                && !readingTypesAreNotUsedByChannelType(channelSpec.getChannelType(), readingTypesInUseByChannelType)){
+                throw DuplicateChannelTypeException.forChannelSpecInLoadProfileSpec(channelSpec, getChannelType(), this.getLoadProfileSpec(), this.getThesaurus(), MessageSeeds.CHANNEL_SPEC_DUPLICATE_CHANNEL_TYPE_IN_LOAD_PROFILE_SPEC);
+            }
         }
     }
 
