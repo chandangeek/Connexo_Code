@@ -34,6 +34,8 @@ public interface LoadProfileSpec extends HasId {
 
     void validateDelete();
 
+    void prepareDelete();
+
     void delete();
 
     void save();

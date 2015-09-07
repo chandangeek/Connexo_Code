@@ -328,6 +328,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     public void prepareDelete() {
         this.registerSpecs.clear();
         this.logBookSpecs.clear();
+        this.loadProfileSpecs.forEach(LoadProfileSpec::prepareDelete);
+        this.loadProfileSpecs.clear();
         this.configurationPropertiesList.clear();
         this.deviceConfValidationRuleSetUsages.clear();
         this.deviceConfigurationEstimationRuleSetUsages.clear();
@@ -641,7 +643,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         if (isActive()) {
             throw CannotDeleteFromActiveDeviceConfigurationException.forLoadProfileSpec(loadProfileSpec, this, this.getThesaurus(), MessageSeeds.LOAD_PROFILE_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG);
         }
-        loadProfileSpec.validateDelete();
+        loadProfileSpec.prepareDelete();
         removeFromHasIdList(this.loadProfileSpecs,loadProfileSpec);
         this.getEventService().postEvent(EventType.DEVICETYPE_DELETED.topic(), loadProfileSpec);
     }
