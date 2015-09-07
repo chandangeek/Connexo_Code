@@ -21,13 +21,6 @@ import java.util.List;
 @ProviderType
 public interface ChannelSpec extends HasId {
 
-    /**
-     * Returns the object's unique id
-     *
-     * @return the id
-     */
-    public long getId();
-
     ChannelType getChannelType();
 
     ObisCode getDeviceObisCode();
@@ -60,8 +53,6 @@ public interface ChannelSpec extends HasId {
 
     void setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
 
-    void setLoadProfileSpec(LoadProfileSpec loadProfileSpec);
-
     void setInterval(TimeDuration interval);
 
     ReadingType getReadingType();
@@ -73,9 +64,9 @@ public interface ChannelSpec extends HasId {
     List<ValidationRule> getValidationRules();
 
     /**
-     * Defines a Builder interface to construct a {@link ChannelSpec}
+     * Defines a Builder interface to construct a {@link ChannelSpec}.
      */
-    interface ChannelSpecBuilder extends LoadProfileSpec.BuildingCompletionListener {
+    interface ChannelSpecBuilder {
 
         ChannelSpecBuilder setOverruledObisCode(ObisCode overruledObisCode);
 
@@ -90,7 +81,7 @@ public interface ChannelSpec extends HasId {
         ChannelSpecBuilder setInterval(TimeDuration interval);
 
         /**
-         * Does final validation and <i>creates</i> the {@link ChannelSpec}
+         * Does final validation and <i>creates</i> the {@link ChannelSpec}.
          * @return the ChannelSpec
          */
         ChannelSpec add();
@@ -109,8 +100,9 @@ public interface ChannelSpec extends HasId {
         ChannelSpecUpdater setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
 
         /**
-         * Updates the ChannelSpec, preferably via his DeviceConfiguration
+         * Updates the ChannelSpec.
          */
         void update();
     }
+
 }

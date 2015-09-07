@@ -29,7 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
- * Tests the {@link LoadProfileSpecImpl} component
+ * Tests the {@link LoadProfileSpecImpl} component.
  * <p/>
  * Copyrights EnergyICT
  * Date: 17/02/14
@@ -182,19 +182,6 @@ public class LoadProfileSpecImplTest extends DeviceTypeProvidingPersistenceTest 
 
         this.getReloadedDeviceConfiguration().activate();
         this.getReloadedDeviceConfiguration().deleteLoadProfileSpec(loadProfileSpec);
-    }
-
-    @Test
-    @Transactional
-    public void buildingCompletionListenerTest() {
-        LoadProfileSpec.BuildingCompletionListener buildingCompletionListener = mock(LoadProfileSpec.BuildingCompletionListener.class);
-        LoadProfileSpec loadProfileSpec;
-        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = getReloadedDeviceConfiguration().createLoadProfileSpec(this.loadProfileType);
-        loadProfileSpecBuilder.setOverruledObisCode(overruledLoadProfileSpecObisCode);
-        loadProfileSpecBuilder.notifyOnAdd(buildingCompletionListener);
-        loadProfileSpec = loadProfileSpecBuilder.add();
-
-        verify(buildingCompletionListener).loadProfileSpecBuildingProcessCompleted(loadProfileSpec);
     }
 
     private void setupReadingTypeInExistingTransaction() {

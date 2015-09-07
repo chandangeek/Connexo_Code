@@ -53,7 +53,6 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
@@ -85,13 +84,14 @@ import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVIC
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3;
 import static com.energyict.mdc.device.config.DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
+ * Persistence integration test for the {@link SecurityPropertySetImpl} component.
+ *
  * Copyrights EnergyICT
  * Date: 10/04/2014
  * Time: 9:59
@@ -137,7 +137,7 @@ public class SecurityPropertySetImplCrudIT {
         User principal = mock(User.class);
         when(principal.getName()).thenReturn(SecurityPropertySetImplCrudIT.class.getSimpleName());
         when(principal.hasPrivilege(anyString(), anyString())).thenReturn(true);
-        Injector injector = null;
+        Injector injector;
         try {
             injector = Guice.createInjector(
                     new MockModule(),
@@ -152,7 +152,7 @@ public class SecurityPropertySetImplCrudIT {
                     new PartyModule(),
                     new UserModule(),
                     new IdsModule(),
-                    new MeteringModule(false),
+                    new MeteringModule(),
                     new InMemoryMessagingModule(),
                     new EventsModule(),
                     new OrmModule(),
@@ -418,6 +418,35 @@ public class SecurityPropertySetImplCrudIT {
 
     @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.NAME_UNIQUE + '}')
+    public void testUpdateWithDuplicateNameInSameConfiguration () {
+        DeviceConfiguration deviceConfiguration;
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
+
+        deviceConfiguration = deviceType.newConfiguration("Normal").add();
+        deviceConfiguration.save();
+
+        deviceConfiguration.createSecurityPropertySet("A")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
+        SecurityPropertySet securityPropertySet = deviceConfiguration.createSecurityPropertySet("B")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
+
+        // Business method
+        securityPropertySet.setName("A");
+        securityPropertySet.update();
+    }
+
+    @Test
+    @Transactional
     public void testCreateWithDuplicateNameInOtherConfiguration () {
         DeviceType deviceType;
         SecurityPropertySet propertySet;
@@ -436,13 +465,52 @@ public class SecurityPropertySetImplCrudIT {
         DeviceConfiguration deviceConfiguration2 = deviceType.newConfiguration("Normal-2").add();
         deviceConfiguration2.save();
 
-        // Busines method
+        // Business method
         propertySet = deviceConfiguration2.createSecurityPropertySet(expectedName)
                 .authenticationLevel(1)
                 .encryptionLevel(2)
                 .addUserAction(EDITDEVICESECURITYPROPERTIES1)
                 .addUserAction(EDITDEVICESECURITYPROPERTIES2)
                 .build();
+
+        // Asserts
+        assertThat(propertySet).isNotNull();
+        Optional<SecurityPropertySet> found = deviceConfigurationService.findSecurityPropertySet(propertySet.getId());
+        assertThat(found.isPresent()).isTrue();
+        SecurityPropertySet reloaded = found.get();
+        assertThat(reloaded.getName()).isEqualTo(expectedName);
+    }
+
+    @Test
+    @Transactional
+    public void testUpdateWithDuplicateNameInOtherConfiguration () {
+        DeviceType deviceType;
+        SecurityPropertySet propertySet;
+        String expectedName = "Name";
+        deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
+        deviceType.save();
+
+        DeviceConfiguration deviceConfiguration1 = deviceType.newConfiguration("Normal-1").add();
+        deviceConfiguration1.save();
+        deviceConfiguration1.createSecurityPropertySet(expectedName)
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
+        DeviceConfiguration deviceConfiguration2 = deviceType.newConfiguration("Normal-2").add();
+        deviceConfiguration2.save();
+
+        propertySet = deviceConfiguration2.createSecurityPropertySet("Other")
+                .authenticationLevel(1)
+                .encryptionLevel(2)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES1)
+                .addUserAction(EDITDEVICESECURITYPROPERTIES2)
+                .build();
+
+        // Business method
+        propertySet.setName(expectedName);
+        propertySet.update();
 
         // Asserts
         assertThat(propertySet).isNotNull();

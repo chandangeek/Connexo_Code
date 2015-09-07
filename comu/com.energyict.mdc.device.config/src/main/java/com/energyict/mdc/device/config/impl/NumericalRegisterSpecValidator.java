@@ -26,21 +26,21 @@ public class NumericalRegisterSpecValidator implements ConstraintValidator<Valid
     public boolean isValid(NumericalRegisterSpec registerSpec, ConstraintValidatorContext context) {
         boolean valid=true;
         NumericalRegisterSpec freshRegisterSpec = (NumericalRegisterSpec) dataModel.mapper(RegisterSpec.class).getUnique("id", registerSpec.getId()).get();
-        if (freshRegisterSpec.getNumberOfDigits()>registerSpec.getNumberOfDigits()) {
-            valid=false;
-            context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED+"}").
-                    addPropertyNode(RegisterSpecFields.NUMBER_OF_DIGITS.fieldName()).
-                    addConstraintViolation();
-        }
-        if (freshRegisterSpec.getNumberOfFractionDigits()>registerSpec.getNumberOfFractionDigits()) {
-            valid=false;
-            context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED+"}").
-                    addPropertyNode(RegisterSpecFields.NUMBER_OF_FRACTION_DIGITS.fieldName()).
-                    addConstraintViolation();
-        }
         if (freshRegisterSpec.getDeviceConfiguration().isActive()) {
+            if (freshRegisterSpec.getNumberOfDigits()>registerSpec.getNumberOfDigits()) {
+                valid=false;
+                context.disableDefaultConstraintViolation();
+                context.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED+"}").
+                        addPropertyNode(RegisterSpecFields.NUMBER_OF_DIGITS.fieldName()).
+                        addConstraintViolation();
+            }
+            if (freshRegisterSpec.getNumberOfFractionDigits()>registerSpec.getNumberOfFractionDigits()) {
+                valid=false;
+                context.disableDefaultConstraintViolation();
+                context.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED+"}").
+                        addPropertyNode(RegisterSpecFields.NUMBER_OF_FRACTION_DIGITS.fieldName()).
+                        addConstraintViolation();
+            }
             if (freshRegisterSpec.getRegisterType().getId()!=registerSpec.getRegisterType().getId()) {
                 valid=false;
                 context.disableDefaultConstraintViolation();

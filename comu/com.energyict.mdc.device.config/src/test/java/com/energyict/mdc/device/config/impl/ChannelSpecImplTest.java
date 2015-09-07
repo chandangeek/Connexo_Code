@@ -41,7 +41,7 @@ import static com.elster.jupiter.cbo.ReadingTypeUnit.WATTHOUR;
 import static org.fest.assertions.Assertions.assertThat;
 
 /**
- * Tests the {@link ChannelSpecImpl} component
+ * Tests the {@link ChannelSpecImpl} component.
  * Copyrights EnergyICT
  * Date: 17/02/14
  * Time: 15:48
@@ -50,8 +50,6 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     private static final String DEVICE_CONFIGURATION_NAME = ChannelSpecImplTest.class.getName() + "Config";
     private static final String LOAD_PROFILE_TYPE_NAME = ChannelSpecImplTest.class.getSimpleName() + "LoadProfileType";
-    private static final String CHANNEL_TYPE_NAME = ChannelSpecImplTest.class.getSimpleName() + "ChannelType";
-    private static final String DEFAULT_CHANNEL_SPEC_NAME = ChannelSpecImplTest.class.getName() + "ChannelSpec";
 
     private final ObisCode channelTypeObisCode = ObisCode.fromString("1.0.1.8.0.255");
     private final ObisCode loadProfileTypeObisCode = ObisCode.fromString("1.0.99.1.0.255");
@@ -411,7 +409,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void successfulDeleteTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec channelSpec = createDefaultChannelSpec(loadProfileSpec);
-        getReloadedDeviceConfiguration().deleteChannelSpec(channelSpec);
+        getReloadedDeviceConfiguration().removeChannelSpec(channelSpec);
 
         assertThat(getReloadedDeviceConfiguration().getChannelSpecs()).hasSize(0);
     }
@@ -422,7 +420,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec channelSpec = createDefaultChannelSpec(loadProfileSpec);
         getReloadedDeviceConfiguration().activate();
-        getReloadedDeviceConfiguration().deleteChannelSpec(channelSpec);
+        getReloadedDeviceConfiguration().removeChannelSpec(channelSpec);
     }
 
 

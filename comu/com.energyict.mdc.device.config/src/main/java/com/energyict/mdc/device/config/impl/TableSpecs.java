@@ -155,7 +155,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.column("NAME").varChar().notNull().map("name").add();
             table.column("DESCRIPTION").varChar().map("description").add();
-            Column deviceTypeId = table.column("DEVICETYPEID").number().notNull().add();
+            Column deviceType = table.column("DEVICETYPEID").number().notNull().add();
             table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
             table.column("COMMUNICATIONFUNCTIONMASK").number().conversion(ColumnConversion.NUMBER2INT).map("communicationFunctionMask").add();
             table.column("SUPPORTALLCATEGORIES").number().conversion(NUMBER2BOOLEAN).notNull().map("supportsAllProtocolMessages").add();
@@ -163,7 +163,7 @@ public enum TableSpecs {
             table.column("GATEWAY_TYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(DeviceConfigurationImpl.Fields.GATEWAY_TYPE.fieldName()).notNull().add();
             table.primaryKey("PK_DTC_DEVICECONFIG").on(id).add();
             table.foreignKey("FK_DTC_DEVCONFIG_DEVTYPE").
-                    on(deviceTypeId).
+                    on(deviceType).
                     references(DTC_DEVICETYPE.name()).
                     map("deviceType").
                     reverseMap("deviceConfigurations").
@@ -208,7 +208,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            Column channelTypeId = table.column("CHANNELTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            Column channelType = table.column("CHANNELTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
             table.column("FRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map("nbrOfFractionDigits").add();
             table.column("OVERFLOWVALUE").number().map("overflow").add();
@@ -222,12 +222,10 @@ public enum TableSpecs {
                     on(deviceConfiguration).
                     references(DTC_DEVICECONFIG.name()).
                     map("deviceConfiguration").
-                    reverseMap("channelSpecs").
-                    composition().
                     onDelete(CASCADE).
                     add();
             table.foreignKey("FK_DTC_CHANNELSPEC_REGMAP").
-                    on(channelTypeId).
+                    on(channelType).
                     references(MasterDataService.COMPONENTNAME, "MDS_MEASUREMENTTYPE").
                     map("channelType").
                     add();
@@ -235,6 +233,8 @@ public enum TableSpecs {
                     on(loadProfileSpec).
                     references(DTC_LOADPROFILESPEC.name()).
                     map("loadProfileSpec").
+                    reverseMap("channelSpecs").
+                    composition().
                     add();
         }
     },
@@ -444,7 +444,7 @@ public enum TableSpecs {
             table.map(DeviceMessageEnablementImpl.class);
             Column id = table.addAutoIdColumn();
             Column deviceConfig = table.column("DEVICECONFIG").conversion(NUMBER2LONG).number().notNull().add();
-            table.column("DEVICEMESSAGEID").number().conversion(NUMBER2ENUM).map("deviceMessageId").add();
+            table.column("DEVICEMESSAGEID").number().conversion(NUMBER2LONG).map("deviceMessageIdDbValue").notNull().add();
             table.addAuditColumns();
             table.foreignKey("FK_DTC_DME_DEVCONFIG").
                     on(deviceConfig).
@@ -482,7 +482,7 @@ public enum TableSpecs {
             Table<SecurityPropertySet> table = dataModel.addTable(name(), SecurityPropertySet.class);
             table.map(SecurityPropertySetImpl.class);
             Column id = table.addAutoIdColumn();
-            table.column("NAME").varChar().notNull().map("name").add();
+            Column name = table.column("NAME").varChar().notNull().map("name").add();
             Column deviceConfiguration = table.column("DEVICECONFIG").conversion(NUMBER2LONG).number().notNull().add();
             table.column("AUTHENTICATIONLEVEL").number().conversion(NUMBER2INT).notNull().map("authenticationLevelId").add();
             table.column("ENCRYPTIONLEVEL").number().conversion(NUMBER2INT).notNull().map("encryptionLevelId").add();
@@ -496,6 +496,7 @@ public enum TableSpecs {
                     composition().
                     add();
             table.primaryKey("PK_DTC_SECURITYPROPERTYSET").on(id).add();
+            table.unique("UK_DTC_SECPROPSET_NAME").on(deviceConfiguration, name).add();
         }
     },
     DTC_SECURITYPROPSETUSERACTION {

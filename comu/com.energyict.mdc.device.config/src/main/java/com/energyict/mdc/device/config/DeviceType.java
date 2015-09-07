@@ -27,20 +27,6 @@ import java.util.Optional;
 @ProviderType
 public interface DeviceType extends HasId, HasName {
 
-    /**
-     * Returns number that uniquely identifies this DeviceType.
-     *
-     * @return the id
-     */
-    public long getId();
-
-    /**
-     * Returns the name that uniquely identifies this DeviceType.
-     *
-     * @return the name
-     */
-    public String getName();
-
     public void setName (String newName);
 
     /**

@@ -163,7 +163,7 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void successfulDeleteTest() {
         LogBookSpec logBookSpec = createDefaultTestingLogBookSpecWithOverruledObisCode();
 
-        getReloadedDeviceConfiguration().deleteLogBookSpec(logBookSpec);
+        getReloadedDeviceConfiguration().removeLogBookSpec(logBookSpec);
     }
 
     @Test(expected = CannotDeleteFromActiveDeviceConfigurationException.class)
@@ -172,7 +172,7 @@ public class LogBookSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LogBookSpec logBookSpec = createDefaultTestingLogBookSpecWithOverruledObisCode();
 
         this.getReloadedDeviceConfiguration().activate();
-        this.getReloadedDeviceConfiguration().deleteLogBookSpec(logBookSpec);
+        this.getReloadedDeviceConfiguration().removeLogBookSpec(logBookSpec);
     }
 
     @Test

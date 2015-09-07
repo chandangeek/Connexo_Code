@@ -21,7 +21,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     VETO_DEVICEPROTOCOLPLUGGABLECLASS_DELETION(999, "deviceProtocolPluggableClass.XstillInUseByDeviceTypesY", "The device protocol pluggable class {0} is still used by the following device types: {1}", SEVERE),
     DEVICE_TYPE(1, "deviceType.with.article", "a device type", SEVERE),
     NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required", SEVERE),
-    NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "The name must be unique", SEVERE),
+    NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "Name must be unique", SEVERE),
     FIELD_TOO_LONG(1003, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters", SEVERE),
     FIELD_IS_REQUIRED(1004, Keys.FIELD_IS_REQUIRED, "This field is required", SEVERE),
     REGISTER_GROUP_NAME_IS_REQUIRED(1501, "registerGroup.name.required", "The name of a register group is required", SEVERE),
@@ -42,9 +42,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED(6002, Keys.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED, "The number of digits can not be decreased", SEVERE),
     REGISTER_SPEC_REGISTER_TYPE_IS_REQUIRED(6003, Keys.REGISTER_SPEC_REGISTER_TYPE_IS_REQUIRED,"The register type of a register configuration is required", SEVERE),
     REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED(6004, Keys.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED, "The number of fraction digits can not be decreased", SEVERE),
-    REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS(6005, "registerSpec.overflow.exceed","The provided overflow value \"{0}\" may not exceed \"{1}\" (according to the provided number of digits \"{2}\")", SEVERE),
+    REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS(6005, Keys.REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS,"The provided overflow value \"{0}\" may not exceed \"{1}\" (according to the provided number of digits \"{2}\")", SEVERE),
     REGISTER_SPEC_OVERFLOW_LARGER_THAN_ZERO(6006, "registerSpec.overflow.invalidValue","The provided overflow value must be larger then zero (0))", SEVERE),
-    REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS(6007, "registerSpec.overflow.fractionDigits","The provided overflow value \"{0}\" more fraction digits \"{1}\" than provided \"{2}\")", SEVERE),
+    REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS(6007, Keys.REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS, "The provided overflow value \"{0}\" more fraction digits \"{1}\" than provided \"{2}\"", SEVERE),
     REGISTER_SPEC_CANNOT_DELETE_FOR_ACTIVE_CONFIG(6009, "registerSpec.delete.active.config","It is not allowed to remove a register configuration from an active device configuration", SEVERE),
     REGISTER_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIG(6010, "registerSpec.add.active.config","You can not add a register configuration to an active device configuration", SEVERE),
     REGISTER_SPEC_REGISTER_TYPE_IS_NOT_ON_DEVICE_TYPE(6011, "registerSpec.not.deviceType","The register configuration contains a register type {0} which is not configured on the device type", SEVERE),
@@ -64,20 +64,19 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     LOAD_PROFILE_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION(8003, "loadProfileSpec.active.configuration", "You can not add a load profile configuration to an active device configuration", SEVERE),
     LOAD_PROFILE_SPEC_CANNOT_CHANGE_DEVICE_CONFIG(8004, "loadProfileSpec.change.configuration", "You can not change the device configuration of an existing load profile configuration", SEVERE),
     LOAD_PROFILE_SPEC_CANNOT_CHANGE_LOAD_PROFILE_TYPE(8005, "loadProfileSpec.change.loadProfileType", "You can not change the load profile type of an existing load profile configuration", SEVERE),
-    LOAD_PROFILE_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG(8006, "loadProfileSpec.cannot.delete.active.config", "You can not remove a load profile configuration \"{0}\" from an active device configuration \"{1}\"", SEVERE),
-    LOAD_PROFILE_SPEC_CANNOT_DELETE_STILL_LINKED_CHANNEL_SPECS(8007, "loadProfileSpec.cannot.delete.linked.channel.specs", "Cannot remove load profile configuration because there are still channel specs linked", SEVERE),
+    LOAD_PROFILE_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG(8006, "loadProfileSpec.cannot.delete.active.config", "It is not allowed to remove a load profile configuration from an active device configuration", SEVERE),
     LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED(8008, Keys.LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED, "The load profile type of a load profile configuration is required", SEVERE),
     LOGBOOK_SPEC_DEVICE_CONFIG_IS_REQUIRED(9001, "logBookSpec.deviceConfig.required", "The device configuration of a logbook configuration is required", SEVERE),
     LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED(9002, Keys.LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED, "The logbook type of a logbook configuration is required", SEVERE),
     LOGBOOK_SPEC_LOGBOOK_TYPE_IS_NOT_ON_DEVICE_TYPE(9003, "logBookSpec.cannotAddLogBookSpecOfTypeXBecauseDeviceTypeYDoesNotContainIt", "The logbook configuration contains a logbook type {0} which is not configured on the device type", SEVERE),
     LOGBOOK_SPEC_CANNOT_CHANGE_DEVICE_CONFIG(9004, "logBookSpec.change.configuration", "You can not change the device configuration of an existing logbook configuration", SEVERE),
     LOGBOOK_SPEC_CANNOT_CHANGE_LOGBOOK_TYPE(9005, "logBookSpec.change.logbookType", "You can not change the logbook type of an existing logbook configuration", SEVERE),
-    LOGBOOK_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG(9006, "logBookSpec.cannot.delete.active.config", "You can not remove a logbook configuration \"{0}\" from an active device configuration \"{1}\"", SEVERE),
+    LOGBOOK_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG(9006, "logBookSpec.cannot.delete.active.config", "It is not allowed to remove a logbook configuration from an active device configuration", SEVERE),
     LOGBOOK_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION(9007, "logBookSpec.cannot.add.active.config", "You can not add a logbook configuration to an active device configuration", SEVERE),
     CHANNEL_SPEC_NAME_IS_REQUIRED(11001, "channelSpec.name.required", "The name of the channel configuration is required", SEVERE),
     CHANNEL_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION(11003, "channelSpec.active.configuration", "You can not add a channel configuration to an active device configuration", SEVERE),
     CHANNEL_SPEC_LOAD_PROFILE_SPEC_IS_NOT_ON_DEVICE_CONFIGURATION(11004, "channelSpec.cannotAddChannelSpecOfTypeXBecauseDeviceConfigYDoesNotContainIt", "The channel configuration is linked to a load profile configuration \"{0}\" which is not configuration on the device type", SEVERE),
-    CHANNEL_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG(11005, "channelSpec.cannot.delete.active.config", "You can not remove a channel configuration \"{0}\" from an active device configuration \"{1}\"", SEVERE),
+    CHANNEL_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG(11005, "channelSpec.cannot.delete.active.config", "It is not allowed to remove a channel configuration from an active device configuration", SEVERE),
     CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED(11006, Keys.CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED, "The register type of a channel configuration is required", SEVERE),
     CHANNEL_SPEC_CHANNEL_TYPE_IS_NOT_IN_LOAD_PROFILE_SPEC(11007, "channelSpec.measurementType.not.configured.loadProfileSpec","The channel configuration \"{0}\" is linked to a register \"{1}\" which is not configured for the linked load profile configuration \"{2}\"", SEVERE),
     CHANNEL_SPEC_CHANNEL_TYPE_IS_NOT_ON_DEVICE_TYPE(11008, "channelSpec.measurementType.not.configured.deviceType","The channel configuration \"{0}\" is linked to a register \"{1}\" which is not configured for the device type \"{2}\"", SEVERE),
@@ -139,7 +138,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     PARTIAL_CONNECTION_TASK_ID_DOES_NOT_EXIST(15002, "partialConnectionTask.doesNotExistId", "There is no Partial Connection Task with id {0}", SEVERE),
     PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC(15003, Keys.PARTIAL_CONNECTION_TASK_PROPERTY_HAS_NO_SPEC, "There is no spec for connection type property with name {0}", SEVERE),
     PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE(15004, Keys.PARTIAL_CONNECTION_TASK_PROPERTY_VALUE_OF_WRONG_TYPE, "The value for property {0} is of the wrong type.", SEVERE),
-    CONNECTION_STRATEGY_REQUIRED(15005, Keys.CONNECTION_STRATEGY_REQUIRED, "Connection Strategy is required", SEVERE),
+    CONNECTION_STRATEGY_REQUIRED(15005, Keys.CONNECTION_STRATEGY_REQUIRED, "Connection strategy is required", SEVERE),
     NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS(15006, Keys.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS, "Next Execution Spec is required for OutboundConnectionTasks that minimize connections.", SEVERE),
     NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY(15007, Keys.NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW, "Next Execution Spec is invalid for Communication Window.", SEVERE),
     NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY(15008, Keys.NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY, "Next Execution Spec's offset is greater than its frequency.", SEVERE),
@@ -245,6 +244,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD = "incorrect.direction.connection.method";
         public static final String INCORRECT_GATEWAY_TYPE = "incorrect.gateway.type";
         public static final String DEVICE_LIFE_CYCLE_REQUIRED = "deviceType.device.life.cycle.required";
+        public static final String REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS = "registerSpec.overflow.exceed";
+        public static final String REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS = "registerSpec.overflow.fractionDigits";
     }
 
 }

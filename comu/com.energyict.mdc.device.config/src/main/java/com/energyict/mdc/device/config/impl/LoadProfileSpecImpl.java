@@ -5,7 +5,6 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.exceptions.CannotDeleteLoadProfileSpecLinkedChannelSpecsException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -25,8 +24,10 @@ import com.elster.jupiter.validation.ValidationRule;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.validation.Valid;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,7 +37,6 @@ import java.util.List;
  */
 public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> implements ServerLoadProfileSpec {
 
-    private final ServerDeviceConfigurationService deviceConfigurationService;
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED + "}")
     private final Reference<LoadProfileType> loadProfileType = ValueReference.absent();
     private String overruledObisCodeString;
@@ -50,12 +50,12 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
-    private List<ChannelSpec> channelSpecs; // Cache
+    @Valid
+    private List<ChannelSpec> channelSpecs = new ArrayList<>();
 
     @Inject
-    public LoadProfileSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ServerDeviceConfigurationService deviceConfigurationService) {
+    public LoadProfileSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(LoadProfileSpec.class, dataModel, eventService, thesaurus);
-        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     private LoadProfileSpecImpl initialize(DeviceConfiguration deviceConfiguration, LoadProfileType loadProfileType) {
@@ -120,14 +120,17 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
     @Override
     protected void doDelete() {
-        this.getDeviceConfiguration().deleteLoadProfileSpec(this);
+        throw new UnsupportedOperationException("LoadProfileConfig is to be deleted by removing it from the device configuration");
     }
 
     @Override
+    public void prepareDelete() {
+        this.channelSpecs.clear();
+    }
+
+
+    @Override
     public void validateDelete() {
-        if (!this.getChannelSpecs().isEmpty()) {
-            throw new CannotDeleteLoadProfileSpecLinkedChannelSpecsException(this.getThesaurus());
-        }
     }
 
     @Override
@@ -171,15 +174,17 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
     @Override
     public List<ChannelSpec> getChannelSpecs() {
-        if (this.channelSpecs == null) {
-            this.channelSpecs = this.deviceConfigurationService.findChannelSpecsForLoadProfileSpec(this);
-        }
-        return this.channelSpecs;
+        return Collections.unmodifiableList(this.channelSpecs);
     }
 
-    public void created(ChannelSpecImpl channelSpec) {
-        // Reset cache
-        this.channelSpecs = null;
+    @Override
+    public void addChannelSpec(ChannelSpec channelSpec) {
+        this.channelSpecs.add(channelSpec);
+    }
+
+    @Override
+    public void removeChannelSpec(ChannelSpec channelSpec) {
+        removeFromHasIdList(channelSpecs, channelSpec);
     }
 
     @Override
@@ -199,7 +204,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
         return loadProfileSpec;
     }
 
-    abstract static class LoadProfileSpecBuilder implements LoadProfileSpec.LoadProfileSpecBuilder {
+    abstract static class LoadProfileSpecBuilder implements LoadProfileSpec.LoadProfileSpecBuilder, ServerLoadProfileSpecBuilder {
 
         private final LoadProfileSpecImpl loadProfileSpec;
         private final List<BuildingCompletionListener> buildingCompletionListeners = new ArrayList<>();
@@ -208,7 +213,6 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
             this.loadProfileSpec = loadProfileSpecProvider.get().initialize(deviceConfiguration, loadProfileType);
         }
 
-        @Override
         public void notifyOnAdd(BuildingCompletionListener buildingCompletionListener) {
             this.buildingCompletionListeners.add(buildingCompletionListener);
         }

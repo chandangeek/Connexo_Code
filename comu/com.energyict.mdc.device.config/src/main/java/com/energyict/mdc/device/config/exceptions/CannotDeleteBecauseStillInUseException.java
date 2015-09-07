@@ -32,7 +32,7 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * @return The CannotDeleteBecauseStillInUseException
      */
     public static CannotDeleteBecauseStillInUseException registerTypeIsStillInUseByRegisterSpecs(Thesaurus thesaurus, MeasurementType measurementType, List<RegisterSpec> registerSpecs) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_TYPE_STILL_USED_BY_REGISTER_SPEC, measurementType.getReadingType().getName(), namesToStringListForRegisterSpecs(registerSpecs));
+        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_TYPE_STILL_USED_BY_REGISTER_SPEC, measurementType.getReadingType().getAliasName(), namesToStringListForRegisterSpecs(registerSpecs));
     }
 
     /**

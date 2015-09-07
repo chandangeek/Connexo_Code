@@ -356,8 +356,8 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public List<DeviceConfiguration> findDeviceConfigurationsUsingMeasurementType(MeasurementType measurementType) {
         return this.getDataModel().
-                query(DeviceConfiguration.class, ChannelSpec.class, RegisterSpec.class).
-                select(where("channelSpecs.channelType").isEqualTo(measurementType).
+                query(DeviceConfiguration.class, LoadProfileSpec.class, ChannelSpec.class, RegisterSpec.class).
+                select(where("loadProfileSpecs.channelSpecs.channelType").isEqualTo(measurementType).
                         or(where("registerSpecs.registerType").isEqualTo(measurementType)));
     }
 
@@ -567,7 +567,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
             List<DeviceConfiguration> deviceConfigurations = getDeviceConfigurationsFromComSchedule(comSchedule, connection);
             Collection<ComTask> comTasks;
             if (deviceConfigurations.isEmpty()) {
-                comTasks = taskService.findAllComTasks();
+                comTasks = taskService.findAllComTasks().find();
             } else {
                 comTasks = getComTasksEnabledOnAllDeviceConfigurations(deviceConfigurations);
             }
