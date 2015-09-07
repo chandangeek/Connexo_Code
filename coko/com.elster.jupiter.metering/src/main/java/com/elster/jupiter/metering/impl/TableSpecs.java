@@ -219,10 +219,11 @@ public enum TableSpecs {
             table.column("INSTALLEDDATE").number().map("installedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("REMOVEDDATE").number().map("removedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("RETIREDDATE").number().map("retiredDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
+            Column obsoleteTime = table.column("OBSOLETETIME").number().map("obsoleteTime").conversion(ColumnConversion.NUMBER2INSTANT).add();
             Column stateMachine = table.column("FSM").number().add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_METER").on(idColumn).add();
-            table.unique("MTR_U_METER").on(mRIDColumn).add();
+            table.unique("MTR_U_METER").on(mRIDColumn, obsoleteTime).add();
             table.unique("MTR_U_METERAMR").on(amrSystemIdColumn, amrIdColumn).add();
             table.foreignKey("MTR_FK_METERAMRSYSTEM").references(MTR_AMRSYSTEM.name()).onDelete(RESTRICT).map("amrSystem").on(amrSystemIdColumn).add();
             table.foreignKey("MTR_FK_ENDDEVICE_FSM")

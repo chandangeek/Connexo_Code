@@ -57,6 +57,7 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
 	private Instant removedDate;
 	private Instant retiredDate;
 	private Instant createTime;
+	private Instant obsoleteTime;
 	private Instant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
@@ -357,6 +358,22 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
 
     EventService getEventService() {
         return eventService;
+    }
+
+    @Override
+    public boolean isObsolete() {
+        return this.obsoleteTime != null;
+    }
+
+    @Override
+    public void makeObsolete() {
+        this.obsoleteTime = this.clock.instant();
+        this.dataModel.update(this, "obsoleteTime");
+    }
+
+    @Override
+    public Optional<Instant> getObsoleteTime() {
+        return Optional.ofNullable(this.obsoleteTime);
     }
 
     /**

@@ -90,7 +90,7 @@ public class EndDeviceEventTypeImplTest extends EqualsContractTest {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
-                new MeteringModule(false),
+                new MeteringModule(),
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),

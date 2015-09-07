@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering;
 
-public enum ServiceKind {
+import com.elster.jupiter.nls.TranslationKey;
+
+public enum ServiceKind implements TranslationKey {
 	ELECTRICITY ("electricity"),
 	GAS ("gas"),
 	WATER ("water"),
@@ -28,4 +30,17 @@ public enum ServiceKind {
 		return displayName;
 	}
 
+	@Override
+	public String getKey() {
+		return getTranslationKey(this);
+	}
+
+	public static String getTranslationKey(ServiceKind kind){
+		return "service.category." + kind.name().toLowerCase();
+	}
+
+	@Override
+	public String getDefaultFormat() {
+		return displayName;
+	}
 }

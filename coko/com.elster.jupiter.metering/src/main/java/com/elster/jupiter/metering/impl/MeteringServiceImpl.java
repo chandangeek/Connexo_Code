@@ -38,6 +38,10 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.validation.MessageInterpolator;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
@@ -173,8 +177,10 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Override
     public Optional<EndDevice> findEndDevice(String mRid) {
-        List<EndDevice> endDevices = dataModel.mapper(EndDevice.class).select(Operator.EQUAL.compare("mRID", mRid));
-        return endDevices.isEmpty() ? Optional.empty() : Optional.of(endDevices.get(0));
+        return dataModel.stream(EndDevice.class)
+                .filter(Operator.EQUAL.compare("mRID", mRid))
+                .filter(Operator.ISNULL.compare("obsoleteTime"))
+                .findFirst();
     }
 
     @Override
@@ -526,6 +532,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         List<TranslationKey> translationKeys = new ArrayList<>();
         Arrays.stream(MessageSeeds.values()).forEach(translationKeys::add);
         Arrays.stream(DefaultTranslationKey.values()).forEach(translationKeys::add);
+        Arrays.stream(ServiceKind.values()).forEach(translationKeys::add);
         return translationKeys;
     }
 

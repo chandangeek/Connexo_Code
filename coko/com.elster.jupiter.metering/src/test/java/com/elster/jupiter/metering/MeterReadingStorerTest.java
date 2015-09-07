@@ -10,6 +10,7 @@ import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -17,7 +18,10 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.Reading;
@@ -95,7 +99,7 @@ public class MeterReadingStorerTest {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new IdsModule(),
-                new MeteringModule(),
+                new MeteringModule("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
@@ -285,10 +289,36 @@ public class MeterReadingStorerTest {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
             Meter meter = amrSystem.newMeter("myMeter");
             meter.save();
-            String intervalReadingTypeCode = "32.12.2.4.1.9.58.0.0.0.0.0.0.0.0.0.0.0";
             Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+            String intervalReadingTypeCode = "32.12.2.4.1.9.58.0.0.0.0.0.0.0.0.0.0.0";
+            int endDeviceEventLogbookId = 95176;
+            String endDeviceEventTypeCode = "1.2.3.4";
+            String endDeviceEventSeverity = "Severity";
+            String endDeviceEventReason = "The Reason";
+            String statusValue = "A value";
+            String statusReason = "A reason";
+            String statusRemark = "A remark";
+            Status endDeviceEventStatus = new Status(statusValue, statusReason, statusRemark, instant);
+            String endDeviceEventIssuerId = "The Issuer";
+            String endDeviceEventIssuerTrackingId = "The Issuer tracking id";
+            String endDeviceEventName = "The name";
+            String endDeviceEventDescription = "The extended description";
+            String endDeviceEventAliasName = "The alias name";
+            ((ServerMeteringService) meteringService).createEndDeviceEventType(endDeviceEventTypeCode);
             Reading reading = ReadingImpl.of(intervalReadingTypeCode, BigDecimal.valueOf(1200), instant);
-            meter.store(MeterReadingImpl.of(reading));
+            MeterReadingImpl meterReading = MeterReadingImpl.of(reading);
+            EndDeviceEvent endDeviceEvent = EndDeviceEventImpl.of(endDeviceEventTypeCode, instant);
+            ((EndDeviceEventImpl)endDeviceEvent).setLogBookId(endDeviceEventLogbookId);
+            ((EndDeviceEventImpl)endDeviceEvent).setReason(endDeviceEventReason);
+            ((EndDeviceEventImpl)endDeviceEvent).setSeverity(endDeviceEventSeverity);
+            ((EndDeviceEventImpl)endDeviceEvent).setStatus(endDeviceEventStatus);
+            ((EndDeviceEventImpl)endDeviceEvent).setIssuerId(endDeviceEventIssuerId);
+            ((EndDeviceEventImpl)endDeviceEvent).setIssuerTrackingId(endDeviceEventIssuerTrackingId);
+            ((EndDeviceEventImpl)endDeviceEvent).setName(endDeviceEventName);
+            ((EndDeviceEventImpl)endDeviceEvent).setDescription(endDeviceEventDescription);
+            ((EndDeviceEventImpl)endDeviceEvent).setAliasName(endDeviceEventAliasName);
+            meterReading.addEndDeviceEvent(endDeviceEvent);
+            meter.store(meterReading);
             List<? extends BaseReadingRecord> readings = meter.getReadings(Range.all(), meteringService.getReadingType(intervalReadingTypeCode).get());
             assertThat(readings).isNotEmpty();
             Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
@@ -303,6 +333,20 @@ public class MeterReadingStorerTest {
             assertThat(readings.get(0).wasAdded()).isFalse();
             assertThat(readings.get(1).edited()).isTrue();
             assertThat(readings.get(1).wasAdded()).isTrue();
+            List<EndDeviceEventRecord> endDeviceEvents = meter.getDeviceEvents(Range.all());
+            assertThat(endDeviceEvents).isNotEmpty();
+            assertThat(endDeviceEvents.get(0).getLogBookId()).isEqualTo(endDeviceEventLogbookId);
+            assertThat(endDeviceEvents.get(0).getReason()).isEqualTo(endDeviceEventReason);
+            assertThat(endDeviceEvents.get(0).getSeverity()).isEqualTo(endDeviceEventSeverity);
+            assertThat(endDeviceEvents.get(0).getStatus().getValue()).isEqualTo(statusValue);
+            assertThat(endDeviceEvents.get(0).getStatus().getReason()).isEqualTo(statusReason);
+            assertThat(endDeviceEvents.get(0).getStatus().getRemark()).isEqualTo(statusRemark);
+            assertThat(endDeviceEvents.get(0).getStatus().getDateTime()).isEqualTo(instant);
+            assertThat(endDeviceEvents.get(0).getIssuerID()).isEqualTo(endDeviceEventIssuerId);
+            assertThat(endDeviceEvents.get(0).getIssuerTrackingID()).isEqualTo(endDeviceEventIssuerTrackingId);
+            assertThat(endDeviceEvents.get(0).getName()).isEqualTo(endDeviceEventName);
+            assertThat(endDeviceEvents.get(0).getDescription()).isEqualTo(endDeviceEventDescription);
+            assertThat(endDeviceEvents.get(0).getAliasName()).isEqualTo(endDeviceEventAliasName);
             ctx.commit();
 
         }

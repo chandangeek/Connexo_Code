@@ -18,27 +18,24 @@ import java.util.stream.Stream;
 
 public class MeteringModule extends AbstractModule {
 
-    private final boolean createReadingTypes;
+    private boolean createReadingTypes;
     private final String readingTypes;
 
     public MeteringModule() {
-        this.createReadingTypes = true;
+        this.createReadingTypes = false;
         this.readingTypes = "";
     }
 
-    public MeteringModule(boolean createReadingTypes) {
-        this.createReadingTypes = createReadingTypes;
-        this.readingTypes = "";
+    @Deprecated
+    public static MeteringModule withAllReadingTypes_AVOID_AVOID() {
+        MeteringModule meteringModule = new MeteringModule();
+        meteringModule.createReadingTypes=true;
+        return meteringModule;
     }
 
     public MeteringModule(String readingType, String... requiredReadingTypes) {
         this.readingTypes = Stream.concat(Stream.of(readingType), Stream.of(requiredReadingTypes)).collect(Collectors.joining(";"));
-        this.createReadingTypes = this.readingTypes != null && this.readingTypes.length() > 0;
-    }
-
-    public MeteringModule(boolean createAll, String readingType, String... requiredReadingTypes) {
-        this.readingTypes = Stream.concat(Stream.of(readingType), Stream.of(requiredReadingTypes)).collect(Collectors.joining(";"));
-        this.createReadingTypes = createAll;
+        this.createReadingTypes = false;
     }
 
     @Override
