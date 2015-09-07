@@ -11,7 +11,7 @@ public enum TimeDurationUnitTranslationKeys implements TranslationKey {
     HOURS(TimeDuration.TimeUnit.HOURS.getDescription(), "hour(s)"),
     DAYS(TimeDuration.TimeUnit.DAYS.getDescription(), "day(s)"),
     WEEKS(TimeDuration.TimeUnit.WEEKS.getDescription(), "week(s)"),
-    MONTHS(TimeDuration.TimeUnit.MONTHS.getDescription(), "months(s)"),
+    MONTHS(TimeDuration.TimeUnit.MONTHS.getDescription(), "month(s)"),
     YEARS(TimeDuration.TimeUnit.YEARS.getDescription(), "year(s)"),
     ;
 
