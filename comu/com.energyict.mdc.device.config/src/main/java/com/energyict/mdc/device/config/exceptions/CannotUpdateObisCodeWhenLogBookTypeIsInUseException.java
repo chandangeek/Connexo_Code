@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.config.exceptions;
 
+import com.energyict.mdc.masterdata.LogBookType;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.masterdata.LogBookType;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt
@@ -14,8 +16,8 @@ import com.energyict.mdc.masterdata.LogBookType;
  */
 public class CannotUpdateObisCodeWhenLogBookTypeIsInUseException extends LocalizedException {
 
-    public CannotUpdateObisCodeWhenLogBookTypeIsInUseException(Thesaurus thesaurus, LogBookType logBookType) {
-        super(thesaurus, MessageSeeds.LOG_BOOK_TYPE_OBIS_CODE_CANNOT_BE_UPDATED, logBookType.getName());
+    public CannotUpdateObisCodeWhenLogBookTypeIsInUseException(Thesaurus thesaurus, LogBookType logBookType, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, logBookType.getName());
         this.set("logBookType", logBookType);
     }
 

@@ -1,12 +1,11 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import java.util.List;
+
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.List;
 
 /**
  * Validates the {@link ProtocolCannotChangeWithExistingConfigurations} constraint against a {@link DeviceTypeImpl}.

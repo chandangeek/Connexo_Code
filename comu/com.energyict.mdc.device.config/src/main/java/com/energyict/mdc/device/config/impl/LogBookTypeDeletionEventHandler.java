@@ -46,7 +46,7 @@ public class LogBookTypeDeletionEventHandler implements TopicHandler {
         LogBookType logBookType = (LogBookType) event.getSource();
         List<DeviceType> deviceTypesUsingLogBookType = this.deviceConfigurationService.findDeviceTypesUsingLogBookType(logBookType);
         if (!deviceTypesUsingLogBookType.isEmpty()) {
-            throw new VetoLogBookTypeDeletionBecauseStillUsedByDeviceTypesException(this.getThesaurus(), logBookType, deviceTypesUsingLogBookType);
+            throw new VetoLogBookTypeDeletionBecauseStillUsedByDeviceTypesException(logBookType, deviceTypesUsingLogBookType, this.getThesaurus(), MessageSeeds.VETO_LOGBOOKTYPE_DELETION);
         }
     }
 

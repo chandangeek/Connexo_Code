@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.math.BigDecimal;
 
@@ -17,10 +18,11 @@ import java.math.BigDecimal;
  */
 public class OverFlowValueCanNotExceedNumberOfDigitsException extends LocalizedException {
 
-    public OverFlowValueCanNotExceedNumberOfDigitsException(Thesaurus thesaurus, BigDecimal overflow, double max, int numberOfDigits) {
-        super(thesaurus, MessageSeeds.REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS, overflow, max, numberOfDigits);
+    public OverFlowValueCanNotExceedNumberOfDigitsException(BigDecimal overflow, double max, int numberOfDigits, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, overflow, max, numberOfDigits);
         set("overflow", overflow);
         set("max", max);
         set("numberOfDigits", numberOfDigits);
     }
+
 }

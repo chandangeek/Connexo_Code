@@ -44,7 +44,7 @@ public class DeviceProtocolPluggableClassDeletionEventHandler implements TopicHa
     private void handleDeleteProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         List<DeviceType> deviceTypes = this.deviceConfigurationService.findDeviceTypesWithDeviceProtocol(deviceProtocolPluggableClass);
         if (!deviceTypes.isEmpty()) {
-            throw new VetoDeviceProtocolPluggableClassDeletionBecauseStillUsedByDeviceTypesException(this.thesaurus, deviceProtocolPluggableClass, deviceTypes);
+            throw new VetoDeviceProtocolPluggableClassDeletionBecauseStillUsedByDeviceTypesException(deviceProtocolPluggableClass, deviceTypes, this.thesaurus, MessageSeeds.VETO_DEVICEPROTOCOLPLUGGABLECLASS_DELETION);
         }
     }
 
