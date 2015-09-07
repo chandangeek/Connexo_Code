@@ -179,7 +179,7 @@ Ext.define('Dsh.controller.Connections', {
 
             preview.loadRecord(record);
             preview.setTitle(title);
-            commPanel.setTitle(Uni.I18n.translate('connection.widget.details.communicationTasksOf', 'DSH', 'Communication tasks of') + title);
+            commPanel.setTitle(Uni.I18n.translate('connection.widget.details.communicationTasksOfX', 'DSH', 'Communication tasks of {0}',[title]));
 
             if (id) {
                 commStore.setConnectionId(id);
