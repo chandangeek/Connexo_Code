@@ -331,9 +331,10 @@ public class DeviceLifeCycleIT {
         FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
         DeviceLifeCycleConfigurationService testService = this.getTestService();
+        String expectedName = "name1";
         String expectedDeploymentId = "deploymentId1";
         String expectedProcessId = "processId";
-        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedDeploymentId, expectedProcessId);
+        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedName, expectedDeploymentId, expectedProcessId);
         DeviceLifeCycleBuilder builder = testService.newDeviceLifeCycleUsing("Test", stateMachine);
 
         // Business method
@@ -368,9 +369,10 @@ public class DeviceLifeCycleIT {
         FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
         DeviceLifeCycleConfigurationService testService = this.getTestService();
+        String expectedName = "name1";
         String expectedDeploymentId = "deploymentId1";
         String expectedProcessId = "processId";
-        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedDeploymentId, expectedProcessId);
+        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedName, expectedDeploymentId, expectedProcessId);
 
         // Business method
         DeviceLifeCycleBuilder builder = testService.newDeviceLifeCycleUsing("Test", stateMachine);
@@ -391,9 +393,10 @@ public class DeviceLifeCycleIT {
         FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
         DeviceLifeCycleConfigurationService testService = this.getTestService();
+        String expectedName = "name1";
         String expectedDeploymentId = "deploymentId1";
         String expectedProcessId = "processId";
-        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedDeploymentId, expectedProcessId);
+        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedName, expectedDeploymentId, expectedProcessId);
 
         // Business method
         DeviceLifeCycleBuilder builder = testService.newDeviceLifeCycleUsing("Test", stateMachine);
@@ -414,9 +417,10 @@ public class DeviceLifeCycleIT {
         FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
         DeviceLifeCycleConfigurationService testService = this.getTestService();
+        String expectedName = "name1";
         String expectedDeploymentId = "deploymentId1";
         String expectedProcessId = "processId";
-        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedDeploymentId, expectedProcessId);
+        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedName, expectedDeploymentId, expectedProcessId);
 
         // Business method
         DeviceLifeCycleBuilder builder = testService.newDeviceLifeCycleUsing("Test", stateMachine);
@@ -436,9 +440,10 @@ public class DeviceLifeCycleIT {
         FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
         DeviceLifeCycleConfigurationService testService = this.getTestService();
+        String expectedName = "name1";
         String expectedDeploymentId = "deploymentId1";
         String expectedProcessId = "processId";
-        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedDeploymentId, expectedProcessId);
+        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedName, expectedDeploymentId, expectedProcessId);
         DeviceLifeCycleBuilder builder = testService.newDeviceLifeCycleUsing("Test", stateMachine);
         builder
             .newCustomAction(state, "custom", process)
@@ -470,9 +475,10 @@ public class DeviceLifeCycleIT {
         State active = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
         State inactive = stateMachine.getState(DefaultState.INACTIVE.getKey()).get();
         DeviceLifeCycleConfigurationService testService = this.getTestService();
+        String expectedName = "name1";
         String expectedDeploymentId = "deploymentId1";
         String expectedProcessId = "processId";
-        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedDeploymentId, expectedProcessId);
+        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedName, expectedDeploymentId, expectedProcessId);
         DeviceLifeCycleBuilder builder = testService.newDeviceLifeCycleUsing("Test", stateMachine);
         builder
             .newCustomAction(active, "custom", process)
@@ -670,9 +676,10 @@ public class DeviceLifeCycleIT {
     @Test
     public void cloneWithBusinessProcessAction() {
         DeviceLifeCycleConfigurationService testService = this.getTestService();
+        String expectedName = "name1";
         String expectedDeploymentId = "deploymentId1";
         String expectedProcessId = "processId";
-        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedDeploymentId, expectedProcessId);
+        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(expectedName, expectedDeploymentId, expectedProcessId);
         FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
         DeviceLifeCycleBuilder builder = testService.newDeviceLifeCycleUsing("Test", stateMachine);

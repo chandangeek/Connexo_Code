@@ -150,7 +150,7 @@ public interface DeviceLifeCycleConfigurationService {
      * @param processId The process id of the external process
      * @return The TransitionBusinessProcess
      */
-    public TransitionBusinessProcess enableAsTransitionBusinessProcess(String deploymentId, String processId);
+    public TransitionBusinessProcess enableAsTransitionBusinessProcess(String name, String deploymentId, String processId);
 
     /**
      * Disables the external business process identified by the specified
