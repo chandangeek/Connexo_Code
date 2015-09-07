@@ -9,6 +9,8 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_VALUE(1, "RUT.InvalidValue", "Invalid value", Level.SEVERE),
     FIELD_CAN_NOT_BE_EMPTY(2, "RUT.FieldCanNotBeEmpty", "This field is required", Level.SEVERE),
     OPTIMISTIC_LOCK_FAILED(3, "OptimisticLockFailed", "Another user or process modified this resource at the same time, please try again later", Level.SEVERE),
+    INVALID_RANGE_FROM_AFTER_TO(4, "FromAfterTo", "Invalid range: from-date should be before to-date", Level.SEVERE),
+    INVALID_RANGE(4, "InvalidRange", "Invalid range", Level.SEVERE),
     ;
 
     public static final String COMPONENT_NAME = "RUT";
