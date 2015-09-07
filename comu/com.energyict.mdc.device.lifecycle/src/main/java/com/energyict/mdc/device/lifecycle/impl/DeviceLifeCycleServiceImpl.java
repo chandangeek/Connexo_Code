@@ -55,6 +55,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import com.energyict.mdc.device.lifecycle.config.Privileges;
 
 /**
  * Provides an implementation for the {@link DeviceLifeCycleService} interface.
@@ -143,7 +144,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                 Arrays.stream(MessageSeeds.values()),
                 Arrays.stream(MicroCategoryTranslationKey.values()),
                 Arrays.stream(MicroActionTranslationKey.values()),
-                Arrays.stream(MicroCheckTranslationKey.values()))
+                Arrays.stream(MicroCheckTranslationKey.values()),
+                Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
