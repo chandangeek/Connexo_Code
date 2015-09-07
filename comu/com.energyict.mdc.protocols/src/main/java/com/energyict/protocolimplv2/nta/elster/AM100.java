@@ -40,4 +40,8 @@ public class AM100 extends WebRTUKP {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
 
+    @Override
+    public boolean supportsCommunicationFirmwareVersion() {
+        return true;
+    }
 }
