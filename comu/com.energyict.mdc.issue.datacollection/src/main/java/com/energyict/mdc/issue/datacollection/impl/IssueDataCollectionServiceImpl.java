@@ -2,6 +2,7 @@ package com.energyict.mdc.issue.datacollection.impl;
 
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
@@ -12,6 +13,8 @@ import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
 import com.energyict.mdc.issue.datacollection.impl.install.Installer;
 import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -38,6 +41,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -50,6 +55,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.energyict.mdc.issue.datacollection", service = {InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, IssueDataCollectionService.class, IssueProvider.class}, property = "name=" + IssueDataCollectionService.COMPONENT_NAME, immediate = true)
 public class IssueDataCollectionServiceImpl implements InstallService, TranslationKeyProvider, MessageSeedProvider, IssueDataCollectionService, IssueProvider {
@@ -215,7 +222,7 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
         } else {
             eagerClasses.addAll(Arrays.asList(IssueStatus.class, EndDevice.class, User.class, IssueReason.class, IssueType.class));
         }
-        return DefaultFinder.of((Class<IssueDataCollection>)eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
+        return DefaultFinder.of((Class<IssueDataCollection>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
     }
 
     private List<Class<?>> determineMainApiClass(IssueDataCollectionFilter filter) {
