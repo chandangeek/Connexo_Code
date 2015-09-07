@@ -39,7 +39,7 @@ public class BpmResource {
     @GET
     @Path("/deployments")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.VIEW_BPM)
+    @RolesAllowed(Privileges.Constants.VIEW_BPM)
     public DeploymentInfos getAllDeployments(@Context UriInfo uriInfo) {
         return getAllDeployments();
     }
@@ -47,7 +47,7 @@ public class BpmResource {
     @GET
     @Path("/startup")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.VIEW_BPM)
+    @RolesAllowed(Privileges.Constants.VIEW_BPM)
     public StartupInfo getStartup(@Context UriInfo uriInfo) {
         StartupInfo startupInfo = new StartupInfo();
         BpmServer server = bpmService.getBpmServer();
@@ -59,7 +59,7 @@ public class BpmResource {
     @GET
     @Path("/instances")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.VIEW_BPM)
+    @RolesAllowed(Privileges.Constants.VIEW_BPM)
     public ProcessInstanceInfos getAllInstances(@Context UriInfo uriInfo) {
         String jsonContent;
         JSONArray arr = null;
@@ -89,7 +89,7 @@ public class BpmResource {
     @GET
     @Path("/deployment/{deploymentId}/instance/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.VIEW_BPM)
+    @RolesAllowed(Privileges.Constants.VIEW_BPM)
     public ProcessInstanceInfo getInstance(@Context UriInfo uriInfo, @PathParam("deploymentId") String deploymentId, @PathParam("id") long instanceId) {
         JSONObject obj = null;
         String jsonContent;
@@ -110,7 +110,7 @@ public class BpmResource {
     @GET
     @Path("/deployment/{deploymentId}/instance/{id}/nodes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.VIEW_BPM)
+    @RolesAllowed(Privileges.Constants.VIEW_BPM)
     public NodeInfos getNodes(@Context UriInfo uriInfo, @PathParam("deploymentId") String deploymentId, @PathParam("id") long instanceId) {
         JSONArray arr = null;
         String jsonContent;
@@ -132,7 +132,7 @@ public class BpmResource {
     @GET
     @Path("/deployment/{deploymentId}/instance/{id}/variables")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.VIEW_BPM)
+    @RolesAllowed(Privileges.Constants.VIEW_BPM)
     public VariableInfos getVariables(@Context UriInfo uriInfo, @PathParam("deploymentId") String deploymentId, @PathParam("id") long instanceId) {
         JSONArray arr = null;
         String jsonContent;
