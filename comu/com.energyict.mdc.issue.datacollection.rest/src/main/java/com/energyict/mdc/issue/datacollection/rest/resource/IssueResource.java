@@ -1,13 +1,12 @@
 package com.energyict.mdc.issue.datacollection.rest.resource;
 
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
-import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
 import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
 
-import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
@@ -22,12 +21,13 @@ import com.elster.jupiter.issue.rest.response.IssueAssigneeInfoAdapter;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -36,7 +36,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -59,16 +59,11 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.KEY;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.METER;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.REASON;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
-import static com.elster.jupiter.issue.rest.request.RequestHelper.STATUS;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
-import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/issue")
 public class IssueResource extends BaseResource {
