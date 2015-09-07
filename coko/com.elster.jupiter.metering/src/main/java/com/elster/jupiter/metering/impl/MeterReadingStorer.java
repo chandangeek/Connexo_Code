@@ -160,6 +160,7 @@ public class MeterReadingStorer {
                 } else {
                     EndDeviceEventRecordImpl eventRecord = deviceEventFactory.get().init(meter, found.get(), sourceEvent.getCreatedDateTime());
                     eventRecord.updateProperties(sourceEvent.getEventData());
+                    eventRecord.setmRID(sourceEvent.getMRID());
                     eventRecord.setLogBookId(sourceEvent.getLogBookId());
                     eventRecord.setReason(sourceEvent.getReason());
                     eventRecord.setSeverity(sourceEvent.getSeverity());
@@ -169,6 +170,8 @@ public class MeterReadingStorer {
                     eventRecord.setName(sourceEvent.getName());
                     eventRecord.setDescription(sourceEvent.getDescription());
                     eventRecord.setAliasName(sourceEvent.getAliasName());
+                    eventRecord.setLogBookPosition(sourceEvent.getLogBookPosition());
+                    eventRecord.setDeviceEventType(sourceEvent.getType());
                     toCreate.add(eventRecord);
                 }
             } else {
