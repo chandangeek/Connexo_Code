@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component(
         name = "com.elster.jupiter.fileimport.rest",
@@ -94,6 +95,7 @@ public class FileImportApplication extends Application implements MessageSeedPro
         apps.add(app);
     }
 
+    @SuppressWarnings("unused")
     public void removeApplication(App app) {
         apps.remove(app);
     }
