@@ -10,6 +10,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.impl.i18n.MessageSeeds;
+import com.elster.jupiter.time.security.Privileges;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.collect.ImmutableSet;
@@ -23,6 +24,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component(
         name = "com.jupiter.time.rest",
@@ -92,7 +96,11 @@ public class TimeApplication extends Application implements TranslationKeyProvid
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
+        return Stream.of(
+                Arrays.stream(MessageSeeds.values()),
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
 
