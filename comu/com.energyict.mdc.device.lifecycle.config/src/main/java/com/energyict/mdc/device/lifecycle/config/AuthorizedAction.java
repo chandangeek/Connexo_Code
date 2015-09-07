@@ -32,10 +32,10 @@ import java.util.Set;
 @ProviderType
 public interface AuthorizedAction extends HasId, HasName {
     enum Level {
-        ONE(Privileges.INITIATE_ACTION_1),
-        TWO(Privileges.INITIATE_ACTION_2),
-        THREE(Privileges.INITIATE_ACTION_3),
-        FOUR(Privileges.INITIATE_ACTION_4);
+        ONE(Privileges.Constants.INITIATE_ACTION_1),
+        TWO(Privileges.Constants.INITIATE_ACTION_2),
+        THREE(Privileges.Constants.INITIATE_ACTION_3),
+        FOUR(Privileges.Constants.INITIATE_ACTION_4);
 
         public String getPrivilege() {
             return privilege;

@@ -174,7 +174,7 @@ public class DeviceLifeCycleConfigurationServiceIT {
     @Test
     public void findInitiateActionsPrivilege() {
         Stream
-            .of(Privileges.INITIATE_ACTION_1, Privileges.INITIATE_ACTION_2, Privileges.INITIATE_ACTION_3, Privileges.INITIATE_ACTION_4)
+            .of(Privileges.Constants.INITIATE_ACTION_1, Privileges.Constants.INITIATE_ACTION_2, Privileges.Constants.INITIATE_ACTION_3, Privileges.Constants.INITIATE_ACTION_4)
             .forEach(this::testFindInitiateActionPrivilege);
     }
 
@@ -182,7 +182,7 @@ public class DeviceLifeCycleConfigurationServiceIT {
     @Test
     public void findOtherPrivilege() {
         Stream
-            .of(Privileges.CONFIGURE_DEVICE_LIFE_CYCLE, Privileges.VIEW_DEVICE_LIFE_CYCLE)
+            .of(Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE, Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE)
             .forEach(this::testShouldNotFindInitiateActionPrivilege);
     }
 

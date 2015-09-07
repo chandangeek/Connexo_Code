@@ -379,13 +379,13 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
         return Arrays.asList(
                 this.userService.createModuleResourceWithPrivileges(DeviceLifeCycleConfigurationService.COMPONENT_NAME, "deviceLifeCycleAdministration.deviceLifeCycleAdministrations", "deviceLifeCycleAdministration.deviceLifeCycleAdministrations.description",
-                        Arrays.asList(Privileges.VIEW_DEVICE_LIFE_CYCLE, Privileges.CONFIGURE_DEVICE_LIFE_CYCLE)),
+                        Arrays.asList(Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE, Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE)),
                 this.userService.createModuleResourceWithPrivileges(DeviceLifeCycleConfigurationService.COMPONENT_NAME, "deviceLifeCycle.deviceLifeCycle", "deviceLifeCycle.deviceLifeCycle.description",
                         Arrays.asList(
-                                Privileges.INITIATE_ACTION_1,
-                                Privileges.INITIATE_ACTION_2,
-                                Privileges.INITIATE_ACTION_3,
-                                Privileges.INITIATE_ACTION_4))
+                                Privileges.Constants.INITIATE_ACTION_1,
+                                Privileges.Constants.INITIATE_ACTION_2,
+                                Privileges.Constants.INITIATE_ACTION_3,
+                                Privileges.Constants.INITIATE_ACTION_4))
         );
 
     }
