@@ -7,10 +7,8 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
-import com.energyict.mdc.firmware.FirmwareStatus;
-import com.energyict.mdc.firmware.FirmwareType;
-import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.*;
+import com.energyict.mdc.firmware.impl.FirmwareManagementDeviceUtilsImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -27,6 +25,8 @@ import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -137,6 +138,10 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(firmwareMessage.getStatus()).thenReturn(DeviceMessageStatus.REVOKED);
         when(firmwareMessage.getReleaseDate()).thenReturn(TIME);
         messages.add(firmwareMessage);
+
+        when(firmwareService.getFirmwareManagementDeviceUtilsFor(any(Device.class))).thenAnswer(
+                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService).initFor((Device) invocationOnMock.getArguments()[0])
+        );
     }
 
     private DeviceMessage<Device> mockFirmwareMessage() {
@@ -837,7 +842,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
      Expected: only 'Activating version ...' for communication firmware should be present
     */
     @Test
-    public void customScenarioWithUploadAndActivateLaterCase1(){
+    public void customScenarioWithUploadAndActivateLaterCase1() {
         when(deviceProtocol.supportsCommunicationFirmwareVersion()).thenReturn(true);
         // successfully uploaded meter firmware
         FirmwareVersion meterFirmwareVersion = mock(FirmwareVersion.class);
@@ -918,7 +923,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
                 and 'Activating version ...' for communication firmware
     */
     @Test
-    public void customScenarioWithUploadAndActivateLaterCase2(){
+    public void customScenarioWithUploadAndActivateLaterCase2() {
         when(deviceProtocol.supportsCommunicationFirmwareVersion()).thenReturn(true);
         // successfully uploaded meter firmware
         FirmwareVersion meterFirmwareVersion = mock(FirmwareVersion.class);

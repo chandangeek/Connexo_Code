@@ -5,6 +5,7 @@ import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.impl.FirmwareManagementDeviceUtilsImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
@@ -63,6 +65,9 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
         when(deviceMessageSpecificationService.getFirmwareCategory()).thenReturn(deviceMessageCategory);
         when(deviceMessageCategory.getId()).thenReturn(8);
         when(this.taskService.findFirmwareComTask()).thenReturn(Optional.<ComTask>empty());
+        when(firmwareService.getFirmwareManagementDeviceUtilsFor(any(Device.class))).thenAnswer(
+                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService).initFor((Device) invocationOnMock.getArguments()[0])
+        );
     }
 
     @Test
