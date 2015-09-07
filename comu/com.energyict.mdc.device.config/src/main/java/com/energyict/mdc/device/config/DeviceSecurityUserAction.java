@@ -12,49 +12,49 @@ import java.util.Optional;
  */
 public enum DeviceSecurityUserAction {
 
-    VIEWDEVICESECURITYPROPERTIES1(Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_1) {
+    VIEWDEVICESECURITYPROPERTIES1(Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1) {
         @Override
         public boolean isViewing () {
             return true;
         }
     },
-    VIEWDEVICESECURITYPROPERTIES2(Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_2) {
+    VIEWDEVICESECURITYPROPERTIES2(Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2) {
         @Override
         public boolean isViewing () {
             return true;
         }
     },
-    VIEWDEVICESECURITYPROPERTIES3(Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_3) {
+    VIEWDEVICESECURITYPROPERTIES3(Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3) {
         @Override
         public boolean isViewing () {
             return true;
         }
     },
-    VIEWDEVICESECURITYPROPERTIES4(Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_4) {
+    VIEWDEVICESECURITYPROPERTIES4(Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4) {
         @Override
         public boolean isViewing () {
             return true;
         }
     },
-    EDITDEVICESECURITYPROPERTIES1(Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_1) {
+    EDITDEVICESECURITYPROPERTIES1(Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1) {
         @Override
         public boolean isEditing () {
             return true;
         }
     },
-    EDITDEVICESECURITYPROPERTIES2(Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_2) {
+    EDITDEVICESECURITYPROPERTIES2(Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2) {
         @Override
         public boolean isEditing () {
             return true;
         }
     },
-    EDITDEVICESECURITYPROPERTIES3(Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_3) {
+    EDITDEVICESECURITYPROPERTIES3(Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3) {
         @Override
         public boolean isEditing () {
             return true;
         }
     },
-    EDITDEVICESECURITYPROPERTIES4(Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_4) {
+    EDITDEVICESECURITYPROPERTIES4(Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4) {
         @Override
         public boolean isEditing () {
             return true;
