@@ -90,7 +90,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
     openFlagWindow: function(button, flag) {
         var me = this;
         button.window = Ext.create('Ext.window.Window', {
-            title: Uni.I18n.translate('device.flag.title', 'MDC', 'Flag device {0}',[Ext.String.htmlDecode(me.router.getRoute().getTitle())], false),
+            title: Uni.I18n.translate('device.flag.title', 'MDC', 'Flag device {0}',[me.router.getRoute().getTitle()]),
             closable: false,
             height: 200,
             alignTarget: button,
@@ -165,7 +165,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         var me = this,
             panel = me.content[0];
 
-        panel.title = Ext.String.htmlDecode(me.router.getRoute().getTitle());
+        panel.title = me.router.getRoute().getTitle();
         panel.tools = [
             {
                 xtype: 'toolbar',
