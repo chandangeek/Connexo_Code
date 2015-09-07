@@ -29,11 +29,11 @@ import javax.validation.Validation;
 import javax.validation.ValidationProviderResolver;
 import javax.validation.metadata.ConstraintDescriptor;
 import java.security.Principal;
-import java.util.Collections;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,14 +45,13 @@ public class NlsServiceImpl implements NlsService, InstallService {
     private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MessageInterpolator messageInterpolator;
-    @GuardedBy("translationKeyProviderLock")
+    @GuardedBy("translationLock")
     private final List<TranslationKeyProvider> translationKeyProviders = new ArrayList<>();
-    @GuardedBy("messageSeedProviderLock")
+    @GuardedBy("translationLock")
     private volatile List<MessageSeedProvider> messageSeedProviders = new CopyOnWriteArrayList<>();
     private volatile boolean installed = false;
 
-    private final Object translationKeyProviderLock = new Object();
-    private final Object messageSeedProviderLock = new Object();
+    private final Object translationLock = new Object();
 
     @Activate
     public final void activate() {
@@ -113,8 +112,8 @@ public class NlsServiceImpl implements NlsService, InstallService {
     }
 
     @Reference(name = "ZTranslationProvider", policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
-    public synchronized void addTranslationProvider(TranslationKeyProvider provider) {
-        synchronized (translationKeyProviderLock) {
+    public synchronized void addTranslationKeyProvider(TranslationKeyProvider provider) {
+        synchronized (translationLock) {
             this.translationKeyProviders.add(provider);
             if (installed) {
                 try {
@@ -130,7 +129,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
 
     @SuppressWarnings("unused")
     public void removeTranslationKeyProvider(TranslationKeyProvider provider) {
-        synchronized (translationKeyProviderLock) {
+        synchronized (translationLock) {
             this.translationKeyProviders.remove(provider);
         }
     }
@@ -138,7 +137,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
     @SuppressWarnings("unused")
     @Reference(name = "ZMessageSeedProvider", policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
     public synchronized void addMessageSeedProvider(MessageSeedProvider provider) {
-        synchronized (messageSeedProviderLock) {
+        synchronized (translationLock) {
             this.messageSeedProviders.add(provider);
             if (installed) {
                 try {
@@ -154,7 +153,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
 
     @SuppressWarnings("unused")
     public void removeMessageSeedProvider(MessageSeedProvider provider) {
-        synchronized (messageSeedProviderLock) {
+        synchronized (translationLock) {
             this.messageSeedProviders.remove(provider);
         }
     }
@@ -173,16 +172,12 @@ public class NlsServiceImpl implements NlsService, InstallService {
 
     @Override
     public synchronized void install() {
-        synchronized (translationKeyProviderLock, messageSeedProviderLock) {
+        synchronized (translationLock) {
             dataModel.install(true, true);
-            installProviders();
+            translationKeyProviders.forEach(this::doInstallProvider);
+            messageSeedProviders.forEach(this::doInstallProvider);
             installed = true;
         }
-    }
-
-    private void installProviders() {
-        translationKeyProviders.forEach(this::doInstallProvider);
-        messageSeedProviders.forEach(this::doInstallProvider);
     }
 
     private void doInstallProvider(TranslationKeyProvider provider) {
@@ -192,16 +187,16 @@ public class NlsServiceImpl implements NlsService, InstallService {
         thesaurus.createNewTranslationKeys(provider);
     }
 
+    private void doInstallProvider(MessageSeedProvider provider) {
+        provider
+                .getSeeds()
+                .stream()
+                .forEach(messageSeed -> this.addTranslation(provider.getLayer(), messageSeed));
+    }
+
     @Override
     public List<String> getPrerequisiteModules() {
         return Collections.singletonList("ORM");
-    }
-
-    private void doInstallProvider(MessageSeedProvider provider) {
-        provider
-            .getSeeds()
-            .stream()
-            .forEach(messageSeed -> this.addTranslation(provider.getLayer(), messageSeed));
     }
 
     private void addTranslation(Layer layer, MessageSeed messageSeed) {
