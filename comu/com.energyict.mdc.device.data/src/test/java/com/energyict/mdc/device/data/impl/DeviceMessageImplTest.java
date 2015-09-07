@@ -55,10 +55,10 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         deviceProtocolPluggableClass.save();
 
         Group group = inMemoryPersistence.getUserService().createGroup("MyDefaultGroup", "just for testing");
-        group.grant("MDC", Privileges.EXECUTE_DEVICE_MESSAGE_1);
-        group.grant("MDC", Privileges.EXECUTE_DEVICE_MESSAGE_2);
-        group.grant("MDC", Privileges.EXECUTE_DEVICE_MESSAGE_3);
-        group.grant("MDC", Privileges.EXECUTE_DEVICE_MESSAGE_4);
+        group.grant("MDC", Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1);
+        group.grant("MDC", Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2);
+        group.grant("MDC", Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3);
+        group.grant("MDC", Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4);
         group.save();
         testUser = inMemoryPersistence.getUserService().createUser("TestUser", "This user is just to satisfy the foreign key ...");
         testUser.join(group);
@@ -602,7 +602,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
     private void createAndSetPrincipleForUserWithLimitedPrivileges() {
         Group group = inMemoryPersistence.getUserService().createGroup("MyPrimitiveGroup", "Useless group");
-        group.grant("MDC", Privileges.EXECUTE_DEVICE_MESSAGE_4);
+        group.grant("MDC", Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4);
         group.save();
         User primitiveUser = inMemoryPersistence.getUserService().createUser("PrimitiveUser", "User with incorrect privilege");
         primitiveUser.join(group);

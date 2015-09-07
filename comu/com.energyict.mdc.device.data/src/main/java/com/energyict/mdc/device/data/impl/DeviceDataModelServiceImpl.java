@@ -511,6 +511,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         translationKeys.add(new SimpleTranslationKey(ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_SUBSCRIBER, ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_DISPLAY_NAME));
         translationKeys.add(new SimpleTranslationKey(SchedulingService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, SchedulingService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME));
         translationKeys.add(new SimpleTranslationKey(SchedulingService.COM_SCHEDULER_QUEUE_SUBSCRIBER, SchedulingService.COM_SCHEDULER_QUEUE_DISPLAYNAME));
+        Arrays.stream(Privileges.values()).forEach(translationKeys::add);
         return translationKeys;
     }
 
@@ -605,11 +606,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     public List<ResourceDefinition> getModuleResources() {
 
         return Arrays.asList(
-                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "device.devices", "device.devices.description", Arrays.asList(Privileges.ADD_DEVICE, Privileges.VIEW_DEVICE, Privileges.REMOVE_DEVICE, Privileges.ADMINISTRATE_DEVICE_ATTRIBUTE)),
-                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceData.deviceData", "deviceData.deviceData.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)),
-                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceCommunication.deviceCommunications", "deviceCommunication.deviceCommunications.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION)),
-                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceGroup.deviceGroups", "deviceGroup.deviceGroups.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL)),
-                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "inventoryManagement.inventoryManagements", "inventoryManagement.inventoryManagements.description", Arrays.asList(Privileges.IMPORT_INVENTORY_MANAGEMENT, Privileges.REVOKE_INVENTORY_MANAGEMENT))
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "device.devices", "device.devices.description", Arrays.asList(Privileges.Constants.ADD_DEVICE, Privileges.Constants.VIEW_DEVICE, Privileges.Constants.REMOVE_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE)),
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceData.deviceData", "deviceData.deviceData.description", Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)),
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceCommunication.deviceCommunications", "deviceCommunication.deviceCommunications.description", Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION)),
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceGroup.deviceGroups", "deviceGroup.deviceGroups.description", Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL)),
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "inventoryManagement.inventoryManagements", "inventoryManagement.inventoryManagements.description", Arrays.asList(Privileges.Constants.IMPORT_INVENTORY_MANAGEMENT, Privileges.Constants.REVOKE_INVENTORY_MANAGEMENT))
         );
 
     }
