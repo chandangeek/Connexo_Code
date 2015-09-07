@@ -16,10 +16,12 @@ public enum MicroCategoryTranslationKey implements TranslationKey {
 
     TRANSITION_ACTION_CHECK_CATEGORY_COMMUNICATION(Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.COMMUNICATION, "Communication"),
     TRANSITION_ACTION_CHECK_CATEGORY_VALIDATION_AND_ESTIMATION(Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.VALIDATION_AND_ESTIMATION, "Validation and estimation"),
+    TRANSITION_ACTION_CHECK_CATEGORY_VALIDATION(Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.VALIDATION, "Validation"),
     TRANSITION_ACTION_CHECK_CATEGORY_DATA_COLLECTION(Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.DATA_COLLECTION, "Data collection"),
     TRANSITION_ACTION_CHECK_CATEGORY_TOPOLOGY(Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.TOPOLOGY, "Topology"),
     TRANSITION_ACTION_CHECK_CATEGORY_ISSUES_AND_ALARMS(Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.ISSUES_AND_ALARMS, "Issues and alarms"),
-    TRANSITION_ACTION_CHECK_CATEGORY_VALIDATION(Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.INSTALLATION, "Installation"),
+    TRANSITION_ACTION_CHECK_CATEGORY_ISSUES(Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.ISSUES, "Issues"),
+    TRANSITION_ACTION_CHECK_CATEGORY_INSTALLATION(Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.INSTALLATION, "Installation"),
     TRANSITION_ACTION_CHECK_CATEGORY_RETENTION(Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + MicroCategory.RETENTION, "Retention"),
     ;
 
@@ -31,8 +33,8 @@ public enum MicroCategoryTranslationKey implements TranslationKey {
         this.defaultFormat = defaultFormat;
     }
 
-    public static Optional<TranslationKey> getCategory(MicroCategory microCategory){
-        return Arrays.stream(MicroActionTranslationKey.values())
+    public static Optional<TranslationKey> getCategory(MicroCategory microCategory) {
+        return Arrays.stream(MicroCategoryTranslationKey.values())
                 .filter(candidate -> candidate.getKey().equals(Keys.TRANSITION_ACTION_CHECK_CATEGORY_KEY + microCategory.name()))
                 .map(TranslationKey.class::cast)
                 .findFirst();
@@ -50,7 +52,9 @@ public enum MicroCategoryTranslationKey implements TranslationKey {
 
     public static class Keys {
         public static final String TRANSITION_ACTION_CHECK_CATEGORY_KEY = "transition.category.";
-        private Keys() {}
+
+        private Keys() {
+        }
     }
 
 }
