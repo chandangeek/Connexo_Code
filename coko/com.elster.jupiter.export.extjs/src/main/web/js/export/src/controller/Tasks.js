@@ -526,7 +526,7 @@ Ext.define('Dxp.controller.Tasks', {
                         var schedule = record.get('schedule');
                         me.taskModel = record;
                         me.getApplication().fireEvent('dataexporttaskload', record);
-                        taskForm.setTitle(Uni.I18n.translate('general.edit', 'DES', 'Edit') + " '" + record.get('name') + "'");
+                        taskForm.setTitle(Uni.I18n.translate('general.editx', 'DES', "Edit '{0}'",[record.get('name')]));
                         if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
                             me.setFormValues(view);
                         } else {
@@ -731,7 +731,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('dataExportTasks.runMsg', 'DES', 'The data export task will be queued to run at the earliest possible time.'),
-            title: Uni.I18n.translate('general.runDataExportTask', 'DES', 'Run data export task') + ' ' + record.data.name + '?'
+            title: Uni.I18n.translate('general.runDataExportTaskx', 'DES', "Run data export task {0}?",[record.data.name])
         });
     },
 
@@ -788,7 +788,7 @@ Ext.define('Dxp.controller.Tasks', {
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show({
             msg: Uni.I18n.translate('general.remove.msg', 'DES', 'This data export task will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'DES', 'Remove') + '&nbsp' + record.data.name + '?',
+            title: Uni.I18n.translate('general.removex', 'DES', 'Remove {0}?',[record.data.name]),
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {
