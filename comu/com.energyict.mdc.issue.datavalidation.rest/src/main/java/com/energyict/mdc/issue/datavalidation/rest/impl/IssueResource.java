@@ -74,7 +74,7 @@ public class IssueResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.CLOSE_ISSUE, Privileges.COMMENT_ISSUE, Privileges.ACTION_ISSUE})
+    @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getDataValidationIssues(@BeanParam StandardParametersBean queryFilter, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter) {
         Finder<? extends IssueDataValidation> finder = issueDataValidationService.findAllDataValidationIssues(buildFilterFromQueryParameters(filter));
         addSorting(finder, queryFilter);
@@ -88,7 +88,7 @@ public class IssueResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.CLOSE_ISSUE, Privileges.COMMENT_ISSUE, Privileges.ACTION_ISSUE})
+    @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public Response getIssueById(@PathParam("id") long id) {
         IssueDataValidation issue = issueDataValidationService.findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         return Response.ok(issueInfoFactory.asInfo(issue, DeviceInfo.class)).build();
@@ -97,7 +97,7 @@ public class IssueResource {
     @GET
     @Path("/{id}/comments")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.CLOSE_ISSUE, Privileges.COMMENT_ISSUE, Privileges.ACTION_ISSUE})
+    @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getComments(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         IssueDataValidation issue = issueDataValidationService.findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         return PagedInfoList.fromCompleteList("comments", issueResourceHelper.getIssueComments(issue), queryParameters);
@@ -107,7 +107,7 @@ public class IssueResource {
     @Path("/{id}/comments")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.COMMENT_ISSUE)
+    @RolesAllowed(Privileges.Constants.COMMENT_ISSUE)
     public Response postComment(@PathParam("id") long id, CreateCommentRequest request, @Context SecurityContext securityContext) {
         IssueDataValidation issue = issueDataValidationService.findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         return Response.ok(issueResourceHelper.postComment(issue, request, securityContext)).status(Response.Status.CREATED).build();
@@ -117,7 +117,7 @@ public class IssueResource {
     @Path("/{id}/actions")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.CLOSE_ISSUE, Privileges.COMMENT_ISSUE, Privileges.ACTION_ISSUE})
+    @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getActions(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         IssueDataValidation issue = issueDataValidationService.findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         return PagedInfoList.fromCompleteList("issueActions", issueResourceHelper.getListOfAvailableIssueActions(issue), queryParameters);
@@ -126,7 +126,7 @@ public class IssueResource {
     @GET
     @Path("/{id}/actions/{actionId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_ISSUE, Privileges.ASSIGN_ISSUE, Privileges.CLOSE_ISSUE, Privileges.COMMENT_ISSUE, Privileges.ACTION_ISSUE})
+    @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public Response getActionTypeById(@PathParam("id") long id, @PathParam("actionId") long actionId) {
         issueDataValidationService.findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         return Response.ok(issueResourceHelper.getIssueActionById(actionId)).build();
@@ -136,7 +136,7 @@ public class IssueResource {
     @Path("/{id}/actions/{actionId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ACTION_ISSUE)
+    @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
     public Response performAction(@PathParam("id") long id, @PathParam("actionId") long actionId, PerformActionRequest request) {
         IssueDataValidation issue = issueDataValidationService.findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         request.id = actionId;
@@ -147,7 +147,7 @@ public class IssueResource {
     @Path("/assign")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ASSIGN_ISSUE)
+    @RolesAllowed(Privileges.Constants.ASSIGN_ISSUE)
     @Deprecated
     public Response assignIssues(AssignIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter/* @BeanParam StandardParametersBean params*/) {
         /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
@@ -166,7 +166,7 @@ public class IssueResource {
     @Path("/close")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.CLOSE_ISSUE)
+    @RolesAllowed(Privileges.Constants.CLOSE_ISSUE)
     @Deprecated
     public Response closeIssues(CloseIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter /*@BeanParam StandardParametersBean params*/) {
         /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
