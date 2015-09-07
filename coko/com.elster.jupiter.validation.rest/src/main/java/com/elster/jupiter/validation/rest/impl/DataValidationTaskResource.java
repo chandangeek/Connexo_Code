@@ -172,22 +172,24 @@ public class DataValidationTaskResource {
                 .setLimit(queryParameters.getLimit() + 1);
 
         if (filter.hasProperty("startedOnFrom")) {
-            if(filter.hasProperty("startedOnTo"))
-                occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"),filter.getInstant("startedOnTo")));
-            else
+            if(filter.hasProperty("startedOnTo")) {
+                occurrencesFinder.withStartDateIn(filter.getClosedRange("startedOnFrom","startedOnTo"));
+            }
+            else {
                 occurrencesFinder.withStartDateIn(Range.greaterThan(filter.getInstant("startedOnFrom")));
+            }
         } else if (filter.hasProperty("startedOnTo")) {
             occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
         }
         if (filter.hasProperty("finishedOnFrom")) {
-            if(filter.hasProperty("finishedOnTo"))
-                occurrencesFinder.withEndDateIn(Range.closed(filter.getInstant("finishedOnFrom"),filter.getInstant("finishedOnTo")));
-            else
+            if(filter.hasProperty("finishedOnTo")) {
+                occurrencesFinder.withEndDateIn(filter.getClosedRange("finishedOnFrom", "finishedOnTo"));
+            } else {
                 occurrencesFinder.withEndDateIn(Range.greaterThan(filter.getInstant("finishedOnFrom")));
+            }
         } else if (filter.hasProperty("finishedOnTo")) {
             occurrencesFinder.withEndDateIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
         }
-
         List<? extends DataValidationOccurrence> occurrences = occurrencesFinder.find();
 
         DataValidationTaskHistoryInfos infos = new DataValidationTaskHistoryInfos(task, queryParameters.clipToLimit(occurrences), thesaurus, timeService);

@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.rest;
 
+import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Query;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -9,10 +10,12 @@ import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.validation.DataValidationOccurrence;
+import com.elster.jupiter.validation.DataValidationOccurrenceFinder;
 import com.elster.jupiter.validation.DataValidationTask;
 
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +26,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
+import java.io.InputStream;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -106,6 +110,47 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
+    @Test
+    public void testHistorySearchWithInvertedStaredRange() throws Exception {
+
+        Response response = target("/validationtasks/1/history")
+                .queryParam("filter", ExtjsFilter.filter().property("startedOnFrom",1441490400000L).property("startedOnTo", 1441058400000L).create())
+                .queryParam("start", "0")
+                .queryParam("limit", "10")
+                .request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
+        assertThat(jsonModel.<Boolean>get("$.success")).isEqualTo(false);
+        assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("startedOnFrom");
+        assertThat(jsonModel.<String>get("$.errors[0].msg")).isEqualTo("Invalid range: from-date should be before to-date");
+    }
+
+    @Test
+    public void testHistorySearchWithInvertedEndedRange() throws Exception {
+
+        Response response = target("/validationtasks/1/history")
+                .queryParam("filter", ExtjsFilter.filter().property("finishedOnFrom",1441490400000L).property("finishedOnTo", 1441058400000L).create())
+                .queryParam("start", "0")
+                .queryParam("limit", "10")
+                .request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
+        assertThat(jsonModel.<Boolean>get("$.success")).isEqualTo(false);
+        assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("finishedOnFrom");
+        assertThat(jsonModel.<String>get("$.errors[0].msg")).isEqualTo("Invalid range: from-date should be before to-date");
+    }
+
+    @Test
+    public void testHistorySearchWithoutFrom() throws Exception {
+
+        Response response = target("/validationtasks/1/history")
+                .queryParam("filter", ExtjsFilter.filter().property("startedOnTo", 1441058400000L).create())
+                .queryParam("start", "0")
+                .queryParam("limit", "10")
+                .request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
     private void mockDataValidationTasks(DataValidationTask... validationTasks) {
         Query<DataValidationTask> query = mock(Query.class);
         when(validationService.findValidationTasksQuery()).thenReturn(query);
@@ -121,7 +166,10 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         when(validationTask.getName()).thenReturn("Name");
         when(validationTask.getLastRun()).thenReturn(Optional.<Instant>empty());
         when(validationTask.getEndDeviceGroup()).thenReturn(endDeviceGroup);
-
+        DataValidationOccurrenceFinder finder = mock(DataValidationOccurrenceFinder.class);
+        when(finder.setLimit(anyInt())).thenReturn(finder);
+        when(finder.setStart(anyInt())).thenReturn(finder);
+        when(validationTask.getOccurrencesFinder()).thenReturn(finder);
         when(validationTask.getLastOccurrence()).thenReturn(Optional.<DataValidationOccurrence>empty());
         doReturn(Optional.of(validationTask)).when(validationService).findValidationTask(id);
 
