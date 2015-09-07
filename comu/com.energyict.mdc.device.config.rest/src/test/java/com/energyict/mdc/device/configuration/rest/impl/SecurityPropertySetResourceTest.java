@@ -131,8 +131,8 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceConfiguration.getId()).thenReturn(456L);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
-        Group group1 = mockUserGroup(66L, "Z - user group 1", Arrays.asList(Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_1));
-        Group group2 = mockUserGroup(67L, "A - user group 2", Arrays.asList(Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_4));
+        Group group1 = mockUserGroup(66L, "Z - user group 1", Arrays.asList(Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1));
+        Group group2 = mockUserGroup(67L, "A - user group 2", Arrays.asList(Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4));
         Group group3 = mockUserGroup(68L, "O - user group 3", Collections.emptyList());
         when(userService.getGroups()).thenReturn(Arrays.asList(group2, group1, group3));
         SecurityPropertySet sps1 = mockSecurityPropertySet(101L, "Primary", 1, "Auth1", 1001, "Encrypt1", EnumSet.of(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2));

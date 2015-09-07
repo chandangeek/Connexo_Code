@@ -105,11 +105,11 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].name")).isEqualTo("Clock set time");
         assertThat(jsonModel.<Boolean>get("$.categories[0].deviceMessageEnablements[1].active")).isTrue();
         assertThat(jsonModel.<List<Object>>get("$.categories[0].deviceMessageEnablements[1].privileges")).hasSize(3);
-        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].privileges[0].privilege")).isEqualTo(Privileges.EXECUTE_DEVICE_MESSAGE_1);
+        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].privileges[0].privilege")).isEqualTo(Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1);
         assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].privileges[0].name")).isEqualTo("Level 1");
-        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].privileges[1].privilege")).isEqualTo(Privileges.EXECUTE_DEVICE_MESSAGE_2);
+        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].privileges[1].privilege")).isEqualTo(Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2);
         assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].privileges[1].name")).isEqualTo("Level 2");
-        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].privileges[2].privilege")).isEqualTo(Privileges.EXECUTE_DEVICE_MESSAGE_3);
+        assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].privileges[2].privilege")).isEqualTo(Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3);
         assertThat(jsonModel.<String>get("$.categories[0].deviceMessageEnablements[1].privileges[2].name")).isEqualTo("Level 3");
 
         assertThat(jsonModel.<String>get("$.categories[1].name")).isEqualTo("Display");
