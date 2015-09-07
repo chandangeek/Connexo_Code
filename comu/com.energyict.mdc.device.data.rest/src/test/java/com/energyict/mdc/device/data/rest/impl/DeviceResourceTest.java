@@ -23,6 +23,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
@@ -1388,5 +1389,16 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 DevicePrivileges.DEVICES_ACTIONS_FIRMWARE_MANAGEMENT,
                 DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
         );
+    }
+
+    @Test
+    public void testFindAllSerialNumbers() throws Exception {
+        Finder<Device> finder = mockFinder(Collections.emptyList());
+        when(deviceService.findAllDevices(any())).thenReturn(finder);
+        Response response = target("/devices").queryParam("mRID", "COP*").queryParam("serialNumber", "*").request().get();
+        ArgumentCaptor<Condition> conditionArgumentCaptor = ArgumentCaptor.forClass(Condition.class);
+        verify(deviceService).findAllDevices(conditionArgumentCaptor.capture());
+        System.out.println(conditionArgumentCaptor.getValue());
+
     }
 }
