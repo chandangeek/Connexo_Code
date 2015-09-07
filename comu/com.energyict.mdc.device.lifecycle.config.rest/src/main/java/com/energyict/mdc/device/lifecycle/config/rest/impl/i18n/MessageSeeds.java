@@ -16,7 +16,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_LIFECYCLE_STATE_IS_STILL_USED_BY_TRANSITIONS(6, "unable.to.remove.state.with.transitions", "This state cannot be removed from this device life cycle because it is used on transitions: {0}."),
     DEVICE_LIFECYCLE_STATE_IS_THE_LATEST_STATE(7, "unable.to.remove.latest.state", "This state cannot be removed from this device life cycle because it is the latest state. Add another state first."),
     DEVICE_LIFECYCLE_STATE_IS_THE_INITIAL_STATE(8, "unable.to.remove.initial.state", "This state cannot be removed from this device life cycle because it is the initial state. Set another state as initial state first."),
-    DEVICE_LIFECYCLE_IS_USED_BY_DEVICE_TYPE(9, "device.lifecycle.is.used.by.device.type", "This operation cannot be performed for this device life cycle because one or more devices types use this device life cycle."),
+    DEVICE_LIFECYCLE_IS_USED_BY_DEVICE_TYPE(9, "device.lifecycle.is.used.by.device.type", "This operation cannot be performed for this device life cycle because one or more device types use this device life cycle."),
     STATE_CHANGE_BUSINESS_PROCESS_NOT_FOUND(10, "device.lifecycle.state.process.not.found", "State change business process '{0} doesn't exist");
 
     private final int number;

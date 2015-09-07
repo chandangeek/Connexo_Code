@@ -9,9 +9,13 @@ import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public class AuthorizedActionInfoFactory {
@@ -48,7 +52,8 @@ public class AuthorizedActionInfoFactory {
         info.triggeredBy = new StateTransitionEventTypeFactory(thesaurus).from(action.getStateTransition().getEventType());
         Set<MicroAction> microActions = action.getActions();
         if (!microActions.isEmpty()){
-            info.microActions = new HashSet<>(microActions.size());
+            info.microActions = new TreeSet<>(Comparator.<MicroActionAndCheckInfo, String>comparing(obj -> obj.category.name)
+                    .thenComparing(Comparator.comparing(obj -> obj.name)));
             for (MicroAction microAction : microActions) {
                 MicroActionAndCheckInfo microActionInfo = microActionAndCheckInfoFactory.optional(microAction);
                 microActionInfo.checked = true;
@@ -57,7 +62,8 @@ public class AuthorizedActionInfoFactory {
         }
         Set<MicroCheck> microChecks = action.getChecks();
         if (!microChecks.isEmpty()){
-            info.microChecks = new HashSet<>(microChecks.size());
+            info.microChecks = new TreeSet<>(Comparator.<MicroActionAndCheckInfo, String>comparing(obj -> obj.category.name)
+                    .thenComparing(Comparator.comparing(obj -> obj.name)));
             for (MicroCheck microCheck : microChecks) {
                 MicroActionAndCheckInfo microActionInfo = microActionAndCheckInfoFactory.optional(microCheck);
                 microActionInfo.checked = true;
