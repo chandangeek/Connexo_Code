@@ -1,5 +1,6 @@
 package com.energyict.mdc.issue.datacollection;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -11,8 +12,8 @@ import java.util.Optional;
 
 public interface IssueDataCollectionService {
 
-    public static final String COMPONENT_NAME = "IDC";
-    public static final String DATA_COLLECTION_ISSUE = "datacollection";
+    String COMPONENT_NAME = "IDC";
+    String DATA_COLLECTION_ISSUE = "datacollection";
 
     Optional<? extends IssueDataCollection> findIssue(long id);
 
@@ -23,5 +24,7 @@ public interface IssueDataCollectionService {
     OpenIssueDataCollection createIssue(Issue baseIssue);
 
     <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers);
+
+    Finder<? extends IssueDataCollection> findIssues(IssueDataCollectionFilter filter, Class<?>... eagers);
 
 }
