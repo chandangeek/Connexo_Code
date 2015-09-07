@@ -1,11 +1,5 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.TranslatableApplicationException;
@@ -26,6 +20,13 @@ import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -43,7 +44,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -150,8 +150,7 @@ public class DeviceTypeResource {
             deviceConfigurationService.changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
         } catch (IncompatibleDeviceLifeCycleChangeException mappingEx){
             info.success = false;
-            String errorMessage = thesaurus.getString(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE.getKey(), MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE.getDefaultFormat());
-            info.message = new MessageFormat(errorMessage).format(new Object[]{targetDeviceLifeCycle.getName()}, new StringBuffer(), null).toString();
+            info.message = thesaurus.getFormat(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE).format(targetDeviceLifeCycle.getName());
             info.currentDeviceLifeCycle = new DeviceLifeCycleInfo(oldDeviceLifeCycle);
             info.targetDeviceLifeCycle = new DeviceLifeCycleInfo(targetDeviceLifeCycle);
             info.notMappableStates = mappingEx.getMissingStates()

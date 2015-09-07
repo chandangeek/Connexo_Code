@@ -178,6 +178,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
     @Override
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys = new ArrayList<>();
+        keys.addAll(Arrays.asList(TranslationKeys.values()));
         keys.addAll(Arrays.asList(ConnectionStrategyTranslationKeys.values()));
         keys.addAll(Arrays.asList(SecurityPropertySetPrivilegeTranslationKeys.values()));
         keys.addAll(Arrays.asList(DeviceMessageExecutionLevelTranslationKeys.values()));
