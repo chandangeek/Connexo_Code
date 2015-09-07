@@ -20,6 +20,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.MessageInterpolator;
@@ -27,10 +28,10 @@ import javax.validation.Validation;
 import javax.validation.ValidationProviderResolver;
 import javax.validation.metadata.ConstraintDescriptor;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,8 +43,11 @@ public class NlsServiceImpl implements NlsService, InstallService {
     private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MessageInterpolator messageInterpolator;
-    private volatile List<TranslationKeyProvider> translationKeyProviders = new CopyOnWriteArrayList<>();
+    @GuardedBy("translationKeyProviderLock")
+    private final List<TranslationKeyProvider> translationKeyProviders = new ArrayList<>();
     private volatile boolean installed = false;
+
+    private final Object translationKeyProviderLock = new Object();
 
     @Activate
     public final void activate() {
@@ -110,17 +114,18 @@ public class NlsServiceImpl implements NlsService, InstallService {
 
     @Reference(name = "ZTranslationProvider", policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
     public synchronized void addTranslationProvider(TranslationKeyProvider provider) {
-        this.translationKeyProviders.add(provider);
-        if (installed) {
-            try {
-                setPrincipal();
-                threadPrincipalService.set("INSTALL-translation", provider.getComponentName());
-                doInstallProvider(provider);
-            } finally {
-                clearPrincipal();
+        synchronized (translationKeyProviderLock) {
+            this.translationKeyProviders.add(provider);
+            if (installed) {
+                try {
+                    setPrincipal();
+                    threadPrincipalService.set("INSTALL-translation", provider.getComponentName());
+                    doInstallProvider(provider);
+                } finally {
+                    clearPrincipal();
+                }
             }
         }
-
     }
 
     private void clearPrincipal() {
@@ -142,14 +147,18 @@ public class NlsServiceImpl implements NlsService, InstallService {
     }
 
     public void removeTranslationProvider(TranslationKeyProvider provider) {
-        this.translationKeyProviders.remove(provider);
+        synchronized (translationKeyProviderLock) {
+            this.translationKeyProviders.remove(provider);
+        }
     }
 
     @Override
     public synchronized void install() {
-        dataModel.install(true, true);
-        installProviders();
-        installed = true;
+        synchronized (translationKeyProviderLock) {
+            dataModel.install(true, true);
+            installProviders();
+            installed = true;
+        }
     }
 
     private void installProviders() {
