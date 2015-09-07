@@ -38,6 +38,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Principal;
@@ -67,18 +68,21 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private volatile UserPreferencesService userPreferencesService;
     private volatile ThreadPrincipalService threadPrincipalService;
 
-    private static final String TRUSTSTORE_PATH="com.elster.jupiter.users.truststore";
-    private static final String TRUSTSTORE_PASS="com.elster.jupiter.users.truststorepass";
+    private static final String TRUSTSTORE_PATH = "com.elster.jupiter.users.truststore";
+    private static final String TRUSTSTORE_PASS = "com.elster.jupiter.users.truststorepass";
 
     private static final String JUPITER_REALM = "Local";
 
-    private volatile List<PrivilegesProvider> privilegesProviders = new CopyOnWriteArrayList<>();
+    @GuardedBy("privilegeProviderRegistrationLock")
+    private final List<PrivilegesProvider> privilegesProviders = new ArrayList<>();
 
-    private volatile List<ApplicationPrivilegesProvider> applicationPrivilegesProviders = new CopyOnWriteArrayList<>();
+    private final List<ApplicationPrivilegesProvider> applicationPrivilegesProviders = new CopyOnWriteArrayList<>();
 
     public UserServiceImpl() {
         super();
     }
+
+    private final Object priviligeProviderRegistrationLock = new Object();
 
     @Inject
     public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService) {
@@ -321,7 +325,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     public List<Privilege> getPrivileges(String applicationName) {
         List<String> applicationPrivileges = applicationPrivilegesProviders
                 .stream()
-                .filter(ap->ap.getApplicationName().equalsIgnoreCase(applicationName))
+                .filter(ap -> ap.getApplicationName().equalsIgnoreCase(applicationName))
                 .flatMap(ap -> ap.getApplicationPrivileges().stream())
                 .collect(Collectors.toList());
         return privilegeFactory()
@@ -333,7 +337,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
 
     @Override
-      public List<Privilege> getPrivileges() {
+    public List<Privilege> getPrivileges() {
         return privilegeFactory().find();
     }
 
@@ -384,14 +388,16 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         installDataModel(false);
     }
 
-    private void installDataModel(boolean inTest){
-        InstallerImpl installer = new InstallerImpl(dataModel, this);
-        installer.install(getRealm());
-        if(inTest) {
-            doInstallPrivileges(this);
+    private void installDataModel(boolean inTest) {
+        synchronized (priviligeProviderRegistrationLock) {
+            InstallerImpl installer = new InstallerImpl(dataModel, this);
+            installer.install(getRealm());
+            if (inTest) {
+                doInstallPrivileges(this);
+            }
+            installPrivileges();
+            installer.addDefaults();
         }
-        installPrivileges();
-        installer.addDefaults();
     }
 
     @Override
@@ -482,28 +488,31 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Reference(name = "ModulePrivilegesProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     @SuppressWarnings("unused")
     public void addModulePrivileges(PrivilegesProvider privilegesProvider) {
-        if (dataModel.isInstalled()) {
-            try {
-                setPrincipal();
-                threadPrincipalService.set("INSTALL-privilege", privilegesProvider.getModuleName());
-                transactionService.execute(()->{
-                    doInstallPrivileges(privilegesProvider);
-                    return null;
-                });
+        synchronized (priviligeProviderRegistrationLock) {
+            if (!dataModel.isInstalled()) {
+                try {
+                    setPrincipal();
+                    threadPrincipalService.set("INSTALL-privilege", privilegesProvider.getModuleName());
+                    transactionService.execute(() -> {
+                        doInstallPrivileges(privilegesProvider);
+                        return null;
+                    });
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                } finally {
+                    clearPrincipal();
+                }
             }
-            catch (Exception e){
-                System.out.println(e.getMessage());
-            } finally {
-                clearPrincipal();
-            }
-        }
 
-        privilegesProviders.add(privilegesProvider);
+            privilegesProviders.add(privilegesProvider);
+        }
     }
 
     @SuppressWarnings("unused")
     public void removeModulePrivileges(PrivilegesProvider privilegesProvider) {
-        privilegesProviders.remove(privilegesProvider);
+        synchronized (priviligeProviderRegistrationLock) {
+            privilegesProviders.remove(privilegesProvider);
+        }
     }
 
     @Reference(name = "ApplicationPrivilegesProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -527,7 +536,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     public void saveResourceWithPrivileges(String moduleName, String name, String description, String[] privileges) {
         Optional<Resource> found = findResource(name);
         Resource resource = found.isPresent() ? found.get() : createResource(moduleName, name, description);
-        if(!resource.getComponentName().equalsIgnoreCase(moduleName)){
+        if (!resource.getComponentName().equalsIgnoreCase(moduleName)) {
             resource.delete();
             resource = createResource(moduleName, name, description);
         }
@@ -537,7 +546,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     private void doInstallPrivileges(PrivilegesProvider privilegesProvider) {
-        for(ResourceDefinition resource:privilegesProvider.getModuleResources()){
+        for (ResourceDefinition resource : privilegesProvider.getModuleResources()) {
             saveResourceWithPrivileges(resource.getComponentName(),
                     resource.getName(),
                     resource.getDescription(),
@@ -545,29 +554,29 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         }
     }
 
-    public List<Resource> getApplicationResources(String applicationName){
+    public List<Resource> getApplicationResources(String applicationName) {
         List<String> applicationPrivileges = applicationPrivilegesProviders
-            .stream()
-            .filter(app -> app.getApplicationName().equals(applicationName))
-            .flatMap(app -> app.getApplicationPrivileges().stream())
-            .collect(Collectors.toList());
+                .stream()
+                .filter(app -> app.getApplicationName().equals(applicationName))
+                .flatMap(app -> app.getApplicationPrivileges().stream())
+                .collect(Collectors.toList());
 
         return resourceFactory().find().stream()
-            .filter(r -> r.getPrivileges()
-                    .stream()
-                    .anyMatch(p -> applicationPrivileges.contains(p.getName())))
-            .map(r -> ResourceDefinitionImpl.createApplicationResource(applicationName,
-                            applicationName,
-                            r.getName(),
-                            r.getDescription(),
-                            r.getPrivileges()
-                                    .stream()
-                                    .filter(p -> applicationPrivileges.contains(p.getName()))
-                                    .collect(Collectors.toList()))
-            ).collect(Collectors.toList());
+                .filter(r -> r.getPrivileges()
+                        .stream()
+                        .anyMatch(p -> applicationPrivileges.contains(p.getName())))
+                .map(r -> ResourceDefinitionImpl.createApplicationResource(applicationName,
+                                applicationName,
+                                r.getName(),
+                                r.getDescription(),
+                                r.getPrivileges()
+                                        .stream()
+                                        .filter(p -> applicationPrivileges.contains(p.getName()))
+                                        .collect(Collectors.toList()))
+                ).collect(Collectors.toList());
     }
 
-    public List<Resource> getApplicationResources(){
+    public List<Resource> getApplicationResources() {
         return applicationPrivilegesProviders.stream()
                 .flatMap(a -> getApplicationResources(a.getApplicationName()).stream()).collect(Collectors.toList());
     }
