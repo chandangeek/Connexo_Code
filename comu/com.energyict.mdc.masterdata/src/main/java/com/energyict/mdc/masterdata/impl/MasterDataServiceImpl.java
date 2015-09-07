@@ -42,6 +42,10 @@ import javax.validation.MessageInterpolator;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import com.energyict.mdc.masterdata.security.Privileges;
 
 /**
  * Provides an implementation for the {@link MasterDataService} interface.
@@ -229,7 +233,11 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
+        return Stream.of(
+                Arrays.stream(MessageSeeds.values()),
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Reference
