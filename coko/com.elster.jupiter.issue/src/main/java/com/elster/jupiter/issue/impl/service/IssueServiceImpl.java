@@ -77,7 +77,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -263,7 +266,11 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
+        return Stream.of(
+                Arrays.stream(MessageSeeds.values()),
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -448,14 +455,14 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(IssueService.COMPONENT_NAME, "issue.issues", "issue.issues.description",
                 Arrays.asList(
-                        Privileges.VIEW_ISSUE, Privileges.COMMENT_ISSUE,
-                        Privileges.CLOSE_ISSUE, Privileges.ASSIGN_ISSUE,
-                        Privileges.ACTION_ISSUE
+                        Privileges.Constants.VIEW_ISSUE, Privileges.Constants.COMMENT_ISSUE,
+                        Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.ASSIGN_ISSUE,
+                        Privileges.Constants.ACTION_ISSUE
                         )));
         resources.add(userService.createModuleResourceWithPrivileges(IssueService.COMPONENT_NAME, "issueConfiguration.issueConfigurations", "issueConfiguration.issueConfigurations.description",
                 Arrays.asList(
-                        Privileges.VIEW_CREATION_RULE,
-                        Privileges.ADMINISTRATE_CREATION_RULE, Privileges.VIEW_ASSIGNMENT_RULE
+                        Privileges.Constants.VIEW_CREATION_RULE,
+                        Privileges.Constants.ADMINISTRATE_CREATION_RULE, Privileges.Constants.VIEW_ASSIGNMENT_RULE
                 )));
         return resources;
     }
