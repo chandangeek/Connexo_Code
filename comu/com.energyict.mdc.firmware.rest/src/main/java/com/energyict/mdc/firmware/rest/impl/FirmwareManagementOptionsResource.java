@@ -39,7 +39,7 @@ public class FirmwareManagementOptionsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_TYPE, Privileges.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public FirmwareManagementOptionsInfo getFirmwareManagementOptions(@PathParam("deviceTypeId") long deviceTypeId) {
         DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
         return getFirmwareManagementOptions(deviceType);
@@ -62,7 +62,7 @@ public class FirmwareManagementOptionsResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public FirmwareManagementOptionsInfo editFirmwareManagementOptions(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, FirmwareManagementOptionsInfo info) {
         DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
         Optional<FirmwareManagementOptions> firmwareManagementOptions = firmwareService.getFirmwareManagementOptions(deviceType);
