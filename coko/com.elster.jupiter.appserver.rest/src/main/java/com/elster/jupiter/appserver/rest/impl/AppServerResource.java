@@ -67,7 +67,7 @@ public class AppServerResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_APPSEVER, Privileges.ADMINISTRATE_APPSEVER})
+    @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public AppServerInfos getAppservers(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<AppServer> appServers = queryAppServers(params);
@@ -79,7 +79,7 @@ public class AppServerResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{appserverName}")
-    @RolesAllowed({Privileges.VIEW_APPSEVER, Privileges.ADMINISTRATE_APPSEVER})
+    @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public AppServerInfo getAppServer(@PathParam("appserverName") String appServerName) {
         return AppServerInfo.of(fetchAppServer(appServerName), thesaurus);
     }
@@ -91,7 +91,7 @@ public class AppServerResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_APPSEVER})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response addAppServer(AppServerInfo info) {
         AppServer appServer = null;
         try(TransactionContext context = transactionService.getContext()) {
@@ -128,7 +128,7 @@ public class AppServerResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{appserverName}")
-    @RolesAllowed({Privileges.ADMINISTRATE_APPSEVER})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response updateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info) {
         AppServer appServer = fetchAppServer(appServerName);
         try(TransactionContext context = transactionService.getContext()) {
@@ -141,7 +141,7 @@ public class AppServerResource {
     @DELETE
     @Path("/{appserverName}/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_APPSEVER})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response removeAppServer(@PathParam("appserverName") String appServerName) {
         AppServer appServer = fetchAppServer(appServerName);
         try(TransactionContext context = transactionService.getContext()) {
@@ -155,7 +155,7 @@ public class AppServerResource {
     @Path("/{appserverName}/activate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_APPSEVER})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response activateAppServer(@PathParam("appserverName") String appServerName) {
         AppServer appServer = fetchAppServer(appServerName);
         if (!appServer.isActive()) {
@@ -171,7 +171,7 @@ public class AppServerResource {
     @Path("/{appserverName}/deactivate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_APPSEVER})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response deactivateAppServer(@PathParam("appserverName") String appServerName) {
         AppServer appServer = fetchAppServer(appServerName);
         if (appServer.isActive()) {
@@ -258,7 +258,7 @@ public class AppServerResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{appserverName}/unserved")
-    @RolesAllowed({Privileges.VIEW_APPSEVER, Privileges.ADMINISTRATE_APPSEVER})
+    @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public SubscriberSpecInfos getSubscribers(@PathParam("appserverName") String appServerName) {
         List<SubscriberSpec> served = appService.findAppServer(appServerName)
                 .map(AppServer::getSubscriberExecutionSpecs)
@@ -286,7 +286,7 @@ public class AppServerResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{appserverName}/servedimport")
-    @RolesAllowed({Privileges.VIEW_APPSEVER, Privileges.ADMINISTRATE_APPSEVER})
+    @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public ImportScheduleInfos getServedImportSchedules(@PathParam("appserverName") String appServerName) {
         List<ImportSchedule> served = getImportSchedulesOnAppServer(appServerName);
         for (Iterator<ImportSchedule> iterator = served.listIterator(); iterator.hasNext(); ) {
@@ -303,7 +303,7 @@ public class AppServerResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{appserverName}/unservedimport")
-    @RolesAllowed({Privileges.VIEW_APPSEVER, Privileges.ADMINISTRATE_APPSEVER})
+    @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public ImportScheduleInfos getUnservedImportSchedules(@PathParam("appserverName") String appServerName) {
         List<ImportSchedule> served = getImportSchedulesOnAppServer(appServerName);
         for (Iterator<ImportSchedule> iterator = served.listIterator(); iterator.hasNext(); ) {
