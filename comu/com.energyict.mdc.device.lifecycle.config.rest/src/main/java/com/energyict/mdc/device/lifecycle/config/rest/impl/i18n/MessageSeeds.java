@@ -2,10 +2,8 @@ package com.energyict.mdc.device.lifecycle.config.rest.impl.i18n;
 
 import com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import java.text.MessageFormat;
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
@@ -60,11 +58,6 @@ public enum MessageSeeds implements MessageSeed {
     @Override
     public Level getLevel() {
         return this.level;
-    }
-
-    public static String getString(MessageSeed messageSeed, Thesaurus thesaurus, Object... args) {
-        String text = thesaurus.getString(messageSeed.getKey(), messageSeed.getDefaultFormat());
-        return MessageFormat.format(text, args);
     }
 
 }
