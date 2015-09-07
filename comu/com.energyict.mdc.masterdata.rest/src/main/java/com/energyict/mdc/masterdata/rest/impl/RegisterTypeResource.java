@@ -52,7 +52,7 @@ public class RegisterTypeResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public PagedInfoList getRegisterTypes(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Stream<RegisterType> registerTypeStream = null;
         if (filter.hasProperty("ids")) {
@@ -74,7 +74,7 @@ public class RegisterTypeResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public RegisterTypeInfo getRegisterType(@PathParam("id") long id) {
         RegisterType registerType = this.findRegisterTypeByIdOrThrowException(id);
         return new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false);
@@ -82,7 +82,7 @@ public class RegisterTypeResource {
 
     @DELETE
     @Path("/{id}")
-    @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response deleteRegisterType(@PathParam("id") long id) {
         MeasurementType measurementType = this.findRegisterTypeByIdOrThrowException(id);
@@ -93,7 +93,7 @@ public class RegisterTypeResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
     public RegisterTypeInfo createRegisterType(RegisterTypeInfo registerTypeInfo) {
         ReadingType readingType = findReadingType(registerTypeInfo);
         MeasurementType measurementType = this.masterDataService.newRegisterType(readingType, registerTypeInfo.obisCode);
@@ -106,7 +106,7 @@ public class RegisterTypeResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
     public RegisterTypeInfo updateRegisterType(@PathParam("id") long id, RegisterTypeInfo registerTypeInfo) {
         RegisterType registerType = this.findRegisterTypeByIdOrThrowException(id);
         registerTypeInfo.writeTo(registerType, findReadingType(registerTypeInfo));

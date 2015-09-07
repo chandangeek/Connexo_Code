@@ -64,7 +64,7 @@ public class LoadProfileTypeResource {
     @GET
     @Path("/intervals")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public Response getIntervals(@BeanParam JsonQueryParameters queryParameters) {
         List<LocalizedTimeDuration.TimeDurationInfo> infos = new ArrayList<>(LocalizedTimeDuration.intervals.size());
         for (Map.Entry<Integer, LocalizedTimeDuration> timeDurationEntry : LocalizedTimeDuration.intervals.entrySet()) {
@@ -78,7 +78,7 @@ public class LoadProfileTypeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public Response getAllProfileTypes(@BeanParam JsonQueryParameters queryParameters) {
         List<LoadProfileType> allProfileTypes = masterDataService.findAllLoadProfileTypes();
 
@@ -89,7 +89,7 @@ public class LoadProfileTypeResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public Response getLoadProfileType(@PathParam("id") long loadProfileId) {
         LoadProfileType loadProfileType = findLoadProfileTypeByIdOrThrowException(loadProfileId);
         return Response.ok(LoadProfileTypeInfo.from(loadProfileType, isLoadProfileTypeAlreadyInUse(loadProfileType))).build();
@@ -98,7 +98,7 @@ public class LoadProfileTypeResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
     public Response addNewLoadProfileType(LoadProfileTypeInfo request, @Context UriInfo uriInfo) {
         boolean all = getBoolean(uriInfo, "all");
         List<RegisterType> registerTypes = Collections.emptyList();
@@ -125,7 +125,7 @@ public class LoadProfileTypeResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
     public Response editLoadProfileType(@PathParam("id") long loadProfileId, LoadProfileTypeInfo request, @Context UriInfo uriInfo) {
         LoadProfileType loadProfileType = findLoadProfileTypeByIdOrThrowException(loadProfileId);
         loadProfileType.setName(request.name);
@@ -148,7 +148,7 @@ public class LoadProfileTypeResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
     public Response deleteProfileType(@PathParam("id") long loadProfileId) {
         findLoadProfileTypeByIdOrThrowException(loadProfileId).delete();
         return Response.ok().build();
@@ -157,7 +157,7 @@ public class LoadProfileTypeResource {
     @GET
     @Path("/measurementtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
     public PagedInfoList getAvailableRegisterTypesForLoadProfileType(@BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
         List<Long> excludedRegisterTypeIds = filter.getLongList("ids");
         Stream<RegisterType> registerTypeStream = this.masterDataService.findAllRegisterTypes().stream()
@@ -176,7 +176,7 @@ public class LoadProfileTypeResource {
     @GET
     @Path("{id}/measurementtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
     public PagedInfoList getAvailableRegisterTypesForLoadProfileTypeById(@BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters, @PathParam("id") long loadProfileId) {
         LoadProfileType loadProfileType = this.findLoadProfileTypeByIdOrThrowException(loadProfileId);
         List<Long> excludedRegisterTypeIds = filter.getLongList("ids");
