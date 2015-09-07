@@ -203,9 +203,13 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
             try {
                 doExecute(deviceProtocol, executionContext);
                 success = true;
-            } catch (CommunicationException e) {
+            } catch (ConnectionCommunicationException e){
                 setCompletionCode(ConnectionError);
                 throw e;
+            } catch (CommunicationException e) {
+                setCompletionCode(ProtocolError);
+                addIssue(getIssueService().newProblem(deviceProtocol, "deviceprotocol.protocol.issue", StackTracePrinter.print(e)), ProtocolError);
+                throw new ConnectionCommunicationException(MessageSeeds.COMMUNICATION_FAILURE, e);
             } catch (LegacyProtocolException e) {
                 if (isExceptionCausedByALegacyTimeout(e)) {
                     setCompletionCode(ConnectionError);

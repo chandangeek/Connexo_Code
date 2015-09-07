@@ -53,7 +53,7 @@ public class PreStoreLogBook {
             Instant lastLogbook = null;
             Instant currentDate = this.clock.instant();
             for (EndDeviceEvent endDeviceEvent : MeterDataFactory.createEndDeviceEventsFor(deviceLogBook, offlineLogBook.get().getLogBookId())) {
-                if(uniqueCheck.add(new UniqueDuo<>(endDeviceEvent.getMRID(), endDeviceEvent.getCreatedDateTime()))) {
+                if(uniqueCheck.add(new UniqueDuo<>(endDeviceEvent.getEventTypeCode(), endDeviceEvent.getCreatedDateTime()))) {
                     if (!endDeviceEvent.getCreatedDateTime().isAfter(currentDate)) {
                         filteredEndDeviceEvents.add(endDeviceEvent);
                         if (lastLogbook == null || endDeviceEvent.getCreatedDateTime().isAfter(lastLogbook)) {
