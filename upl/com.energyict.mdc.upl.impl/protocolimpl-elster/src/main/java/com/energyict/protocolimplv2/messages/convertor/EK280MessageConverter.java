@@ -5,6 +5,7 @@ import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.Code;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
@@ -96,6 +97,9 @@ public class EK280MessageConverter extends AbstractMessageConverter {
             return messageAttribute instanceof Code ? CodeTableBase64Builder.getXmlStringFromCodeTable((Code) messageAttribute) : messageAttribute.toString();
         } else if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return dateFormat.format((Date) messageAttribute);
+        } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
+            UserFile userFile = (UserFile) messageAttribute;
+            return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
         } else {
             return messageAttribute.toString();
         }

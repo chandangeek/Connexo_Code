@@ -5,7 +5,6 @@ import com.energyict.cbo.TimeOfDay;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
@@ -111,8 +110,9 @@ public class A1MessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(StartOfGasDayAttributeName)) {
             TimeOfDay timeOfDay = (TimeOfDay) messageAttribute;
             return String.format("%02d", timeOfDay.getHoursPart()) + ":" + String.format("%02d", timeOfDay.getMinutesPart()) + ":" + String.format("%02d", timeOfDay.getSecondsPart());
-        } else if (propertySpec.getName().equals(XmlUserFileAttributeName)) {
-            return ProtocolTools.getAsciiFromBytes(((UserFile) messageAttribute).loadFileInByteArray());
+        } else if (propertySpec.getName().equals(XmlUserFileAttributeName) || propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
+            UserFile userFile = (UserFile) messageAttribute;
+            return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
         } else {
             return messageAttribute.toString();
         }
