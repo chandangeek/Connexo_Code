@@ -332,7 +332,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private SecurityException newSecurityException(MessageSeeds messageSeed) {
-        return new SecurityException(this.thesaurus.getString(messageSeed.getKey(), messageSeed.getDefaultFormat()));
+        return new SecurityException(this.thesaurus.getFormat(messageSeed).format());
     }
 
     private void triggerExecution(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) throws DeviceLifeCycleActionViolationException {

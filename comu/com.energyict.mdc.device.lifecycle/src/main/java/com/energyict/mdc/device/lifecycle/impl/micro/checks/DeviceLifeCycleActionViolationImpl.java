@@ -32,7 +32,7 @@ public class DeviceLifeCycleActionViolationImpl implements DeviceLifeCycleAction
 
     @Override
     public String getLocalizedMessage() {
-        return this.thesaurus.getString(this.messageSeed.getKey(), this.messageSeed.getDefaultFormat());
+        return this.thesaurus.getFormat(this.messageSeed).format();
     }
 
 }
