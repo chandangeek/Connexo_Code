@@ -46,7 +46,7 @@ public class ComServerResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getComServers(@BeanParam JsonQueryParameters queryParameters) {
         List<ComServerInfo<?>> comServers = new ArrayList<>();
         List<ComServer> allComServers = this.getSortedComServers(queryParameters);
@@ -74,7 +74,7 @@ public class ComServerResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public ComServerInfo<?> getComServer(@PathParam("id") long id) {
         Optional<ComServer> comServer = findComServerOrThrowException(id);
         return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts(), engineConfigurationService);
@@ -83,7 +83,7 @@ public class ComServerResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public Response deleteComServer(@PathParam("id") long id) {
         try {
             Optional<ComServer> comServer = engineConfigurationService.findComServer(id);
@@ -100,7 +100,7 @@ public class ComServerResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public Response createComServer(ComServerInfo<ComServer> comServerInfo) {
         ComServer comServer = comServerInfo.createNew(engineConfigurationService);
         comServerInfo.writeTo(comServer, engineConfigurationService);
@@ -126,7 +126,7 @@ public class ComServerResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public ComServerInfo updateComServer(@PathParam("id") long id, ComServerInfo<ComServer> comServerInfo) {
         Optional<ComServer> comServer = findComServerOrThrowException(id);
 
@@ -152,7 +152,7 @@ public class ComServerResource {
     @Path("/{id}/status")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public ComServerInfo updateComServerStatus(@PathParam("id") long id, ComServerStatusInfo comServerStatusInfo) {
         Optional<ComServer> comServer = findComServerOrThrowException(id);
         if(comServerStatusInfo.active != null){
