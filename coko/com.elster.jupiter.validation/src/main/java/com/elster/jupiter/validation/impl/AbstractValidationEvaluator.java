@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractValidationEvaluator implements ValidationEvaluator {
 
+    public static final ReadingQualityType VALIDATED_AND_OK = new ReadingQualityType(ReadingQualityType.MDM_VALIDATED_OK_CODE);
+
     public boolean isAllDataValid(MeterActivation meterActivation){
         ReadingQualityType suspect = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT);
         return meterActivation.getChannels().stream()
@@ -48,29 +50,27 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
 
         Set<Instant> timesWithReadings = new HashSet<>();
 
-        ReadingQualityType validatedAndOk = new ReadingQualityType(ReadingQualityType.MDM_VALIDATED_OK_CODE);
         for (BaseReading reading : readings) {
             boolean containsKey = readingQualities.containsKey(reading.getTimeStamp());
             List<ReadingQualityRecord> qualities = (containsKey ? new ArrayList<>(readingQualities.get(reading.getTimeStamp())) : new ArrayList<>());
             timesWithReadings.add(reading.getTimeStamp());
-            if (configured && wasValidated(lastChecked, reading.getTimeStamp()) && qualities.stream().noneMatch(ReadingQualityRecord::isSuspect)) {
-                qualities.add(channel.createReadingQuality(validatedAndOk, reading.getTimeStamp()));
+            boolean fullyValidated = configured && wasValidated(lastChecked, reading.getTimeStamp());
+            if (fullyValidated) {
+                addValidatedAndOkReadingQuality(reading.getTimeStamp(), channel, qualities);
             }
-            boolean fullyValidated = false;
-            if (configured) {
-                fullyValidated = (wasValidated(lastChecked, reading.getTimeStamp()));
-            }
-            result.add(createDataValidationStatusListFor(reading.getTimeStamp(), fullyValidated, qualities, Collections.<ReadingQualityRecord>emptyList(), validationRuleMap, null));
+            result.add(createDataValidationStatusListFor(reading.getTimeStamp(), fullyValidated, qualities, Collections.emptyList(), validationRuleMap, null));
         }
 
         Set<Instant> timesWithoutReadings = new HashSet<>(readingQualities.keySet());
         timesWithoutReadings.removeAll(timesWithReadings);
 
         timesWithoutReadings.forEach(readingTimestamp -> {
-            List<ReadingQuality> qualities = new ArrayList<>(readingQualities.get(readingTimestamp));
-            boolean wasValidated = wasValidated(lastChecked, readingTimestamp);
-            boolean fullyValidated = configured && wasValidated;
-            result.add(createDataValidationStatusListFor(readingTimestamp, fullyValidated, qualities, Collections.<ReadingQualityRecord>emptyList(), validationRuleMap, null));
+            List<ReadingQualityRecord> qualities = new ArrayList<>(readingQualities.get(readingTimestamp));
+            boolean fullyValidated = configured && wasValidated(lastChecked, readingTimestamp);
+            if (fullyValidated) {
+                addValidatedAndOkReadingQuality(readingTimestamp, channel, qualities);
+            }
+            result.add(createDataValidationStatusListFor(readingTimestamp, fullyValidated, qualities, Collections.emptyList(), validationRuleMap, null));
         });
 //        result.sort(Comparator.comparing(DataValidationStatus::getReadingTimestamp));
         return result;
@@ -98,39 +98,42 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
 
         Set<Instant> timesWithReadings = new HashSet<>();
 
-        ReadingQualityType validatedAndOk = new ReadingQualityType(ReadingQualityType.MDM_VALIDATED_OK_CODE);
         for (BaseReading reading : readings) {
             boolean containsKey = readingQualities.containsKey(reading.getTimeStamp());
             List<ReadingQualityRecord> qualities = (containsKey ? new ArrayList<>(readingQualities.get(reading.getTimeStamp())) : new ArrayList<>());
             boolean bulkContainsKey = bulkReadingQualities.containsKey(reading.getTimeStamp());
             List<ReadingQualityRecord> bulkQualities = (bulkContainsKey ? new ArrayList<>(bulkReadingQualities.get(reading.getTimeStamp())) : new ArrayList<>());
             timesWithReadings.add(reading.getTimeStamp());
-            if (configured && wasValidated(lastChecked, reading.getTimeStamp())) {
-                if (qualities.stream().noneMatch(ReadingQualityRecord::isSuspect)) {
-                    qualities.add(mainChannel.createReadingQuality(validatedAndOk, reading.getTimeStamp()));
-                }
-                if (bulkQualities.stream().noneMatch(ReadingQualityRecord::isSuspect)) {
-                    bulkQualities.add(bulkChannel.createReadingQuality(validatedAndOk, reading.getTimeStamp()));
-                }
-            }
-            boolean fullyValidated = false;
-            if (configured) {
-                fullyValidated = (wasValidated(lastChecked, reading.getTimeStamp()));
+            boolean fullyValidated = configured && wasValidated(lastChecked, reading.getTimeStamp());
+            if (fullyValidated) {
+                addValidatedAndOkReadingQuality(reading.getTimeStamp(), mainChannel, qualities);
+                addValidatedAndOkReadingQuality(reading.getTimeStamp(), bulkChannel, bulkQualities);
             }
             result.add(createDataValidationStatusListFor(reading.getTimeStamp(), fullyValidated, qualities, bulkQualities, validationRuleMap, bulkValidationRuleMap));
         }
 
-        Set<Instant> timesWithoutReadings = new HashSet<>(readingQualities.keySet());
+        Set<Instant> timesWithoutReadings = new HashSet<>();
+        timesWithoutReadings.addAll(readingQualities.keySet());
+        timesWithoutReadings.addAll(bulkReadingQualities.keySet());
         timesWithoutReadings.removeAll(timesWithReadings);
 
         timesWithoutReadings.forEach(readingTimestamp -> {
-            List<ReadingQuality> qualities = new ArrayList<>(readingQualities.get(readingTimestamp));
-            List<ReadingQuality> bulkQualities = new ArrayList<>(bulkReadingQualities.get(readingTimestamp));
-            boolean wasValidated = wasValidated(lastChecked, readingTimestamp);
-            boolean fullyValidated = configured && wasValidated;
+            List<ReadingQualityRecord> qualities = readingQualities.containsKey(readingTimestamp) ? new ArrayList<>(readingQualities.get(readingTimestamp)) : new ArrayList();
+            List<ReadingQualityRecord> bulkQualities = bulkReadingQualities.containsKey(readingTimestamp) ? new ArrayList<>(bulkReadingQualities.get(readingTimestamp)): new ArrayList<>();
+            boolean fullyValidated = configured && wasValidated(lastChecked, readingTimestamp);
+            if (fullyValidated) {
+                addValidatedAndOkReadingQuality(readingTimestamp, mainChannel, qualities);
+                addValidatedAndOkReadingQuality(readingTimestamp, bulkChannel, bulkQualities);
+            }
             result.add(createDataValidationStatusListFor(readingTimestamp, fullyValidated, qualities, bulkQualities, validationRuleMap, bulkValidationRuleMap));
         });
         return result;
+    }
+
+    private void addValidatedAndOkReadingQuality(Instant readingTimeStamp, CimChannel channel, List<ReadingQualityRecord> qualities) {
+        if (qualities.stream().noneMatch(ReadingQualityRecord::isSuspect)) {
+            qualities.add(channel.createReadingQuality(VALIDATED_AND_OK, readingTimeStamp));
+        }
     }
 
     protected ListMultimap<Instant, ReadingQualityRecord> getActualReadingQualities(CimChannel channel, Range<Instant> interval) {

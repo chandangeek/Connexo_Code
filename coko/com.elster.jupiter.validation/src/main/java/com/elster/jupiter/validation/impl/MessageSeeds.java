@@ -1,13 +1,14 @@
-package com.elster.jupiter.validation;
+package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.nls.*;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.validation.ValidationService;
 
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public enum MessageSeeds implements MessageSeed {
+public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     CAN_NOT_BE_EMPTY(2, Constants.NAME_REQUIRED_KEY, "This field is required", Level.SEVERE),
 
@@ -19,7 +20,7 @@ public enum MessageSeeds implements MessageSeed {
 
     DUPLICATE_VALIDATION_TASK(104, Constants.DUPLICATE_VALIDATION_TASK, "Name must be unique", Level.SEVERE),
     CANNOT_DELETE_WHILE_RUNNING(105, Constants.CANNOT_DELETE_WHILE_RUNNING, "Cannot delete a validation task (id = {0}) while it is running.", Level.SEVERE),
-    TASK_VALIDATED_SUCCESFULLY(107, Constants.TASK_VALIDATED_SUCCESFULLY, "Device {0} validated succesfully on {1}", Level.INFO),
+    TASK_VALIDATED_SUCCESFULLY(107, Constants.TASK_VALIDATED_SUCCESFULLY, "Device {0} validated successfully on {1}", Level.INFO),
 
     NO_SUCH_VALIDATOR(1001, Constants.NO_SUCH_VALIDATOR, "Validator {0} does not exist.", Level.SEVERE),
     NO_SUCH_READINGTYPE(1002, Constants.NO_SUCH_READINGTYPE, "Reading type {0} does not exist.", Level.SEVERE),
@@ -95,31 +96,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String TASK_VALIDATED_SUCCESFULLY = "TaskValidatedSuccesfully";
         public static final String OVERLAPPED_PERIOD = "OverlappedPeriod";
 
-    }
-
-    public enum Labels {
-        SCHEDULED("validationtask.occurrence.scheduled", "Scheduled"),
-        ON_REQUEST("validationtask.occurrence.onrequest", "On Request");
-
-        private final String key;
-        private final String defaultTranslation;
-
-        Labels(String key, String defaultTranslation) {
-            this.key = key;
-            this.defaultTranslation = defaultTranslation;
-        }
-
-        public Translation toDefaultTransation() {
-            return SimpleTranslation.translation(SimpleNlsKey.key(ValidationService.COMPONENTNAME, Layer.REST, key), Locale.ENGLISH, defaultTranslation);
-        }
-
-        public String translate(Thesaurus thesaurus) {
-            return thesaurus.getString(key, defaultTranslation);
-        }
-
-        public String translate(Thesaurus thesaurus, Locale locale) {
-            return thesaurus.getString(locale, key, defaultTranslation);
-        }
     }
 }
 

@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 
@@ -65,7 +66,7 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
     @Override
     public void setValue(Object value) {
         if (BigDecimal.class.equals(getPropertySpec().getValueFactory().getValueType())) {
-            this.stringValue = toStringValue(new BigDecimal(value.toString()));
+            this.stringValue = value != null ? toStringValue(new BigDecimal(value.toString())) : null;
             return;
         }
         this.stringValue = toStringValue(value);

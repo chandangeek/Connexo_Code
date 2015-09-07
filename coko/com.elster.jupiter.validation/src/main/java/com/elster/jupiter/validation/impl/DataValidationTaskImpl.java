@@ -24,8 +24,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;

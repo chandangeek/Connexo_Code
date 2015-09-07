@@ -26,7 +26,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
- 
+
+import static com.elster.jupiter.util.streams.Predicates.either;
+
 class ChannelValidator {
 
     private final Channel channel;
@@ -35,30 +37,30 @@ class ChannelValidator {
     private IValidationRule rule;
     private final List<? extends ReadingRecord> registerReadings;
     private final List<? extends IntervalReadingRecord> intervalReadings;
-    
+
 
     ChannelValidator(Channel channel, Range<Instant> range) {
         this.channel = channel;
         this.range = range;
         this.existingReadingQualities = getExistingReadingQualities();
         if (channel.isRegular()) {
-        	intervalReadings = channel.getIntervalReadings(range);
-        	registerReadings = null;
+            intervalReadings = channel.getIntervalReadings(range);
+            registerReadings = null;
         } else {
-        	intervalReadings = null;
-        	registerReadings = channel.getRegisterReadings(range);
+            intervalReadings = null;
+            registerReadings = channel.getRegisterReadings(range);
         }
     }
-    
+
     Instant validateRule(IValidationRule rule) {
-    	this.rule = rule;
+        this.rule = rule;
         return channel.getReadingTypes().stream()
                 .filter(r -> rule.getReadingTypes().contains(r))
                 .map(this::validateReadings)
                 .max(Comparator.naturalOrder())
                 .orElse(range.upperEndpoint());
     }
-    
+
     private Instant validateReadings(ReadingType readingType) {
         Accumulator<Instant, ValidatedResult> lastChecked = new Accumulator<>(range.lowerEndpoint(), (d, v) -> determineLastChecked(v, d));
 
@@ -83,7 +85,7 @@ class ChannelValidator {
     private Stream<ValidatedResult> validatedResults(Validator validator, ReadingType channelReadingType) {
         if (channel.isRegular()) {
             return intervalReadings.stream()
-    			.map(intervalReading -> new ReadingTarget(intervalReading, validator.validate(intervalReading), channelReadingType));
+                    .map(intervalReading -> new ReadingTarget(intervalReading, validator.validate(intervalReading), channelReadingType));
         }
         return registerReadings.stream()
                 .map(readingRecord -> new ReadingTarget(readingRecord, validator.validate(readingRecord), channelReadingType));
@@ -110,9 +112,11 @@ class ChannelValidator {
     }
 
     private void handleRuleFailed(ValidatedResult target) {
-        setValidationQuality(target);
-        if (ValidationAction.FAIL.equals(rule.getAction())) {
-            setSuspectQuality(target);
+        if (!isEditedConfirmedOrEstimated(target.getTimestamp())) {
+            setValidationQuality(target);
+            if (ValidationAction.FAIL.equals(rule.getAction())) {
+                setSuspectQuality(target);
+            }
         }
     }
 
@@ -152,6 +156,15 @@ class ChannelValidator {
                 .findFirst();
     }
 
+    private boolean isEditedConfirmedOrEstimated(Instant timeStamp) {
+        return existingReadingQualities.get(timeStamp).stream()
+                .filter(ReadingQualityRecord::isActual)
+                .anyMatch(
+                        either(ReadingQualityRecord::isConfirmed)
+                                .or(ReadingQualityRecord::hasEstimatedCategory)
+                );
+    }
+
     private Instant determineLastChecked(ValidatedResult target, Instant lastChecked) {
         if (!ValidationResult.NOT_VALIDATED.equals(target.getResult())) {
             return Ordering.natural().max(lastChecked, target.getTimestamp());
@@ -163,7 +176,7 @@ class ChannelValidator {
         ReadingQualityRecord readingQuality = target.getReadingRecord().map(r -> channel.createReadingQuality(readingQualityType, target.getReadingType(), r))
                 .orElseGet(() -> channel.createReadingQuality(readingQualityType, target.getReadingType(), target.getTimestamp()));
         readingQuality.save();
-        existingReadingQualities.put(readingQuality.getReadingTimestamp(),  readingQuality);
+        existingReadingQualities.put(readingQuality.getReadingTimestamp(), readingQuality);
         return readingQuality;
     }
 
@@ -245,5 +258,5 @@ class ChannelValidator {
             return validationResult;
         }
     }
-    
+
 }
