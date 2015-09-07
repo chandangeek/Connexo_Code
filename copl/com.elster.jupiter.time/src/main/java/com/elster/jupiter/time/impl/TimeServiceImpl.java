@@ -179,7 +179,7 @@ public class TimeServiceImpl implements TimeService, InstallService, PrivilegesP
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(TimeService.COMPONENT_NAME, "period.periods", "period.periods.description",
-                Arrays.asList(Privileges.VIEW_RELATIVE_PERIOD, Privileges.ADMINISTRATE_RELATIVE_PERIOD)));
+                Arrays.asList(Privileges.Constants.VIEW_RELATIVE_PERIOD, Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD)));
         return resources;
     }
 
