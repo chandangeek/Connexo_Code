@@ -7,6 +7,8 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.masterdata.MeasurementType;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * Models the exceptional situation that occurs when an attempt is made
  * to create an entity while there already exists an entity with that specific
@@ -36,8 +38,8 @@ public class DuplicateChannelTypeException extends LocalizedException {
      * @param loadProfileSpec the LoadProfileSpec
      * @return the newly created DuplicateChannelTypeException
      */
-    public static DuplicateChannelTypeException forChannelSpecInLoadProfileSpec(Thesaurus thesaurus, ChannelSpec channelSpec, MeasurementType measurementType, LoadProfileSpec loadProfileSpec) {
-        DuplicateChannelTypeException duplicateChannelTypeException = new DuplicateChannelTypeException(thesaurus, MessageSeeds.CHANNEL_SPEC_DUPLICATE_CHANNEL_TYPE_IN_LOAD_PROFILE_SPEC, loadProfileSpec, channelSpec, measurementType);
+    public static DuplicateChannelTypeException forChannelSpecInLoadProfileSpec(Thesaurus thesaurus, @NotNull ChannelSpec channelSpec, @NotNull MeasurementType measurementType, @NotNull LoadProfileSpec loadProfileSpec) {
+        DuplicateChannelTypeException duplicateChannelTypeException = new DuplicateChannelTypeException(thesaurus, MessageSeeds.CHANNEL_SPEC_DUPLICATE_CHANNEL_TYPE_IN_LOAD_PROFILE_SPEC, loadProfileSpec, channelSpec, measurementType.getReadingType().getAliasName());
         duplicateChannelTypeException.set("loadProfileSpec", loadProfileSpec);
         duplicateChannelTypeException.set("measurementType", measurementType);
         duplicateChannelTypeException.set("channelSpec", channelSpec);

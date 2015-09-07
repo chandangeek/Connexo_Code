@@ -1,5 +1,15 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -17,24 +27,16 @@ import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.protocol.api.device.ReadingMethod;
 import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.validation.ValidationRule;
-
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -197,10 +199,27 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     }
 
     private void validateChannelSpecsForDuplicateChannelTypes() {
-        Optional<ChannelSpec> channelSpec = this.deviceConfigurationService.findChannelSpecForLoadProfileSpecAndChannelType(getLoadProfileSpec(), getChannelType());
-        if (channelSpec.isPresent() && channelSpec.get().getId() != getId()) {
-            throw DuplicateChannelTypeException.forChannelSpecInLoadProfileSpec(this.getThesaurus(), channelSpec.get(), getChannelType(), this.getLoadProfileSpec());
+        List<String> readingTypesInUseByChannelType = new ArrayList<>(2);
+        readingTypesInUseByChannelType.add(getChannelType().getReadingType().getMRID());
+        getChannelType().getReadingType().getCalculatedReadingType().ifPresent(calculatedReadingType -> {
+            readingTypesInUseByChannelType.add(calculatedReadingType.getMRID());
+        });
+        for (ChannelSpec channelSpec : getLoadProfileSpec().getChannelSpecs()) {
+            if (!isSameIdObject(this, channelSpec)
+                    && !readingTypesAreNotUsedByChannelType(channelSpec.getChannelType(), readingTypesInUseByChannelType)){
+                throw DuplicateChannelTypeException.forChannelSpecInLoadProfileSpec(this.getThesaurus(), channelSpec, getChannelType(), this.getLoadProfileSpec());
+            }
         }
+    }
+
+    private boolean readingTypesAreNotUsedByChannelType(ChannelType candidate, Collection<String> readingTypeMrids){
+        Objects.requireNonNull(candidate);
+        Objects.requireNonNull(readingTypeMrids);
+        if (!readingTypeMrids.contains(candidate.getReadingType().getMRID())){
+            Optional<ReadingType> calculatedReadingType = candidate.getReadingType().getCalculatedReadingType();
+            return !calculatedReadingType.isPresent() || !readingTypeMrids.contains(calculatedReadingType.get().getMRID());
+        }
+        return false;
     }
 
     private void validateDeviceTypeContainsChannelType() {
@@ -255,7 +274,7 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
 
     @Override
     public String toString() {
-        return getDeviceConfiguration().getDeviceType() + "/" + getDeviceConfiguration() + "/" + getReadingType().getAliasName();
+        return getDeviceConfiguration().getDeviceType().getName() + "/" + getDeviceConfiguration().getName() + "/" + getReadingType().getAliasName();
     }
 
     @Override
