@@ -63,8 +63,8 @@ public class ValidationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION,
-            Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
+            Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getValidationRuleSets(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<ValidationRuleSet> list = queryRuleSets(params);
@@ -78,7 +78,7 @@ public class ValidationResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response createValidationRuleSet(final ValidationRuleSetInfo info) {
         return Response.status(Response.Status.CREATED)
                 .entity(new ValidationRuleSetInfo(transactionService.execute(
@@ -88,7 +88,7 @@ public class ValidationResource {
     @PUT
     @Path("/{ruleSetId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public ValidationRuleSetInfo updateValidationRuleSet(@PathParam("ruleSetId") long ruleSetId, final ValidationRuleSetInfo info, @Context SecurityContext securityContext) {
         transactionService.execute(new VoidTransaction() {
             @Override
@@ -110,7 +110,7 @@ public class ValidationResource {
     @GET
     @Path("/{ruleSetId}/usage")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public Response getValidationRuleSetUsage(@PathParam("ruleSetId") final long ruleSetId, @Context final SecurityContext securityContext) {
         ValidationRuleSet validationRuleSet = fetchValidationRuleSet(ruleSetId, securityContext);
         RuleSetUsageInfo info = new RuleSetUsageInfo();
@@ -121,7 +121,7 @@ public class ValidationResource {
     @DELETE
     @Path("/{ruleSetId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response deleteValidationRuleSet(@PathParam("ruleSetId") final long ruleSetId, @Context final SecurityContext securityContext) {
         transactionService.execute(new VoidTransaction() {
             @Override
@@ -145,8 +145,8 @@ public class ValidationResource {
     @GET
     @Path("/{ruleSetId}/versions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION,
-            Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
+            Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getRuleSetVersions(@PathParam("ruleSetId") long ruleSetId, @Context UriInfo uriInfo, @Context SecurityContext securityContext) {
 
         ValidationRuleSet ruleSet = validationService.getValidationRuleSet(ruleSetId).orElseThrow(
@@ -170,7 +170,7 @@ public class ValidationResource {
     @Path("/{ruleSetId}/versions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response createRuleSetVersion(@PathParam("ruleSetId") long ruleSetId, ValidationRuleSetVersionInfo info) {
 
         ValidationRuleSetVersionInfo result =
@@ -188,7 +188,7 @@ public class ValidationResource {
     @DELETE
     @Path("/{ruleSetId}/versions/{ruleSetVersionId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response deleteRuleSetVersion(@PathParam("ruleSetId") long ruleSetId, @PathParam("ruleSetVersionId") final long ruleSetVersionId, @Context final SecurityContext securityContext) {
 
         transactionService.execute(() -> {
@@ -208,7 +208,7 @@ public class ValidationResource {
     @Path("/{ruleSetId}/versions/{ruleSetVersionId}/clone")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response cloneRuleSetVersion(@PathParam("ruleSetId") long ruleSetId,
                                         @PathParam("ruleSetVersionId") final long ruleSetVersionId,
                                         ValidationRuleSetVersionInfo info) {
@@ -228,7 +228,7 @@ public class ValidationResource {
     @PUT
     @Path("/{ruleSetId}/versions/{ruleSetVersionId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response updateRuleSetVersion(@PathParam("ruleSetId") long ruleSetId,
                                          @PathParam("ruleSetVersionId") long ruleSetVersionId, ValidationRuleSetVersionInfo info) {
 
@@ -248,8 +248,8 @@ public class ValidationResource {
     @GET
     @Path("/{ruleSetId}/versions/{ruleSetVersionId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION,
-            Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
+            Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getValidationRule(@PathParam("ruleSetId") long ruleSetId,
                                       @PathParam("ruleSetVersionId") final long ruleSetVersionId) {
 
@@ -265,8 +265,8 @@ public class ValidationResource {
     @GET
     @Path("/{ruleSetId}/versions/{ruleSetVersionId}/rules")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION,
-            Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
+            Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getValidationRules(@PathParam("ruleSetId") long ruleSetId
             , @PathParam("ruleSetVersionId") final long ruleSetVersionId, @Context UriInfo uriInfo) {
 
@@ -291,7 +291,7 @@ public class ValidationResource {
     @POST
     @Path("/{ruleSetId}/versions/{ruleSetVersionId}/rules")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response addRule(@PathParam("ruleSetId") final long ruleSetId,
                             @PathParam("ruleSetVersionId") final long ruleSetVersionId,
                             final ValidationRuleInfo info, @Context SecurityContext securityContext) {
@@ -324,7 +324,7 @@ public class ValidationResource {
     @PUT
     @Path("/{ruleSetId}/versions/{ruleSetVersionId}/rules/{ruleId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response editRule(@PathParam("ruleSetId") final long ruleSetId,
                                         @PathParam("ruleSetVersionId") final long ruleSetVersionId,
                                         @PathParam("ruleId") final long ruleId,
@@ -370,7 +370,7 @@ public class ValidationResource {
     @GET
     @Path("/{ruleSetId}/versions/{ruleSetVersionId}/rules/{ruleId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response getRule(@PathParam("ruleSetId") final long ruleSetId,
                             @PathParam("ruleSetVersionId") final long ruleSetVersionId,
                             @PathParam("ruleId") final long ruleId) {
@@ -389,7 +389,7 @@ public class ValidationResource {
     @DELETE
     @Path("/{ruleSetId}/versions/{ruleSetVersionId}/rules/{ruleId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response removeRule(@PathParam("ruleSetId") final long ruleSetId,
                                @PathParam("ruleSetVersionId") final long ruleSetVersionId,
                                @PathParam("ruleId") final long ruleId) {
@@ -411,7 +411,7 @@ public class ValidationResource {
     @GET
     @Path("/{ruleSetId}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public ValidationRuleSetInfo getValidationRuleSet(@PathParam("ruleSetId") long ruleSetId, @Context SecurityContext securityContext) {
         ValidationRuleSet validationRuleSet = fetchValidationRuleSet(ruleSetId, securityContext);
         return new ValidationRuleSetInfo(validationRuleSet);
@@ -425,7 +425,7 @@ public class ValidationResource {
     @GET
     @Path("/actions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public ValidationActionInfos getAvailableValidationActions(@Context UriInfo uriInfo) {
         ValidationActionInfos infos = new ValidationActionInfos();
         ValidationAction[] actions = ValidationAction.values();
@@ -439,7 +439,7 @@ public class ValidationResource {
     @GET
     @Path("/{ruleSetId}/versions/{ruleSetVersionId}/rules/{ruleId}/readingtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public ReadingTypeInfos getReadingTypesForRule(@PathParam("ruleSetId") final long ruleSetId,
                                                    @PathParam("ruleSetVersionId") final long ruleSetVersionId,
                                                    @PathParam("ruleId") long ruleId, @Context SecurityContext securityContext) {
@@ -463,7 +463,7 @@ public class ValidationResource {
     @GET
     @Path("/validators")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public ValidatorInfos getAvailableValidators(@Context UriInfo uriInfo) {
 
         List<Validator> toAdd = validationService.getAvailableValidators();
