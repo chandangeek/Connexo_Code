@@ -12,6 +12,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -28,8 +30,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.energyict.mds.rest", service = {Application.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/mds", "app=MDC", "name=" + MasterDataApplication.COMPONENT_NAME})
-public class MasterDataApplication extends Application implements MessageSeedProvider {
+@Component(name = "com.energyict.mds.rest", service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/mds", "app=MDC", "name=" + MasterDataApplication.COMPONENT_NAME})
+public class MasterDataApplication extends Application implements TranslationKeyProvider,MessageSeedProvider {
 
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "MDR";
@@ -98,6 +100,16 @@ public class MasterDataApplication extends Application implements MessageSeedPro
     @Override
     public Layer getLayer() {
         return Layer.REST;
+    }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(TranslationKeys.values());
     }
 
     @Override
