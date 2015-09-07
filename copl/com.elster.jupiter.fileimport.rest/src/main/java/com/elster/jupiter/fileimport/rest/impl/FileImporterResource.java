@@ -32,7 +32,7 @@ public class FileImporterResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES})
     public PagedInfoList getImporters(@BeanParam JsonQueryParameters queryParameters, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
         List<FileImporterFactory> importers = fileImportService.getAvailableImporters(applicationName);
         return PagedInfoList.fromCompleteList("fileImporters", importers.stream().map(fileImporterInfoFactory::asInfo).collect(toList()), queryParameters);

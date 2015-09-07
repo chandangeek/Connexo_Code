@@ -70,7 +70,7 @@ public class FileImportScheduleResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES})
     public PagedInfoList getImportSchedules(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
         List<FileImportScheduleInfo> importScheduleInfos = fileImportService.findImportSchedules(applicationName).from(queryParameters).stream()
                 .map(fileImportScheduleInfoFactory::asInfo).collect(Collectors.toList());
@@ -80,7 +80,7 @@ public class FileImportScheduleResource {
     @GET
     @Path("/list/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES})
     public PagedInfoList getImportSchedulesList(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
         List<ImportSchedule> list = fileImportService.findAllImportSchedules(applicationName).from(queryParameters).find();
         List<ImportServiceNameInfo> data = list.stream().map(each -> new ImportServiceNameInfo(each, thesaurus)).collect(Collectors.toList());
@@ -90,7 +90,7 @@ public class FileImportScheduleResource {
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES})
     public FileImportScheduleInfo getImportSchedule(@PathParam("id") long id, @Context SecurityContext securityContext) {
         return fileImportScheduleInfoFactory.asInfo(fetchImportSchedule(id));
     }
@@ -98,7 +98,7 @@ public class FileImportScheduleResource {
     @GET
     @Path("/list/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES})
     public FileImportScheduleInfo getImportScheduleIncludeDeleted(@PathParam("id") long id, @Context SecurityContext securityContext) {
         return fileImportScheduleInfoFactory.asInfo(fetchImportScheduleIncludeDeleted(id));
     }
@@ -106,7 +106,7 @@ public class FileImportScheduleResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES})
     public Response addImportSchedule(FileImportScheduleInfo info) {
         if (info.scanFrequency < 0) {
             info.scanFrequency = 1;
@@ -140,7 +140,7 @@ public class FileImportScheduleResource {
     @DELETE
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES})
     public Response removeImportSchedule(@PathParam("id") long id, @Context SecurityContext securityContext) {
         ImportSchedule importSchedule = fetchImportSchedule(id);
         try (TransactionContext context = transactionService.getContext()) {
@@ -155,7 +155,7 @@ public class FileImportScheduleResource {
     @PUT
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES})
     public Response updateImportSchedule(@PathParam("id") long id, FileImportScheduleInfo info) {
         if (info.scanFrequency < 0) {
             info.scanFrequency = 1;
@@ -186,7 +186,7 @@ public class FileImportScheduleResource {
     @GET
     @Path("/{id}/history")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES})
     public PagedInfoList getImportScheduleOccurrences(@BeanParam JsonQueryParameters queryParameters,
                                                       @BeanParam JsonQueryFilter filter,
                                                       @PathParam("id") long importServiceId,
@@ -200,7 +200,7 @@ public class FileImportScheduleResource {
     @GET
     @Path("/history")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES})
     public PagedInfoList geAllImportOccurrencesOccurrences(@BeanParam JsonQueryParameters queryParameters,
                                                            @BeanParam JsonQueryFilter filter,
                                                            @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
@@ -248,7 +248,7 @@ public class FileImportScheduleResource {
     @GET
     @Path("/history/{occurrenceId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES})
     public FileImportOccurrenceInfo geFileImportOccurence(@BeanParam JsonQueryParameters queryParameters,
                                                           @BeanParam JsonQueryFilter filter,
                                                           @PathParam("occurrenceId") long occurrenceId,
@@ -261,7 +261,7 @@ public class FileImportScheduleResource {
     @GET
     @Path("/history/{occurrenceId}/logs")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES})
     public PagedInfoList geFileImportOccurrenceLogEntries(@BeanParam JsonQueryParameters queryParameters,
                                                           @BeanParam JsonQueryFilter filter,
                                                           @PathParam("occurrenceId") long occurrenceId,
