@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
+import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
@@ -26,6 +27,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -36,7 +38,6 @@ import java.util.logging.Logger;
 
 import org.junit.*;
 import org.junit.runner.*;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -71,20 +72,10 @@ public class SecurityAttributesImporterFactoryTest {
     @Before
     public void beforeTest() {
         reset(logger, thesaurus, deviceService);
-        when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> {
-            for (MessageSeed messageSeeds : MessageSeeds.values()) {
-                if (messageSeeds.getKey().equals(invocationOnMock.getArguments()[0])) {
-                    return messageSeeds.getDefaultFormat();
-                }
-            }
-            for (TranslationKey translation : TranslationKeys.values()) {
-                if (translation.getKey().equals(invocationOnMock.getArguments()[0])) {
-                    return translation.getDefaultFormat();
-                }
-            }
-            return invocationOnMock.getArguments()[1];
-        });
-        when(thesaurus.getStringBeyondComponent(anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
+        when(thesaurus.getFormat(any(TranslationKey.class)))
+                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
+        when(thesaurus.getFormat(any(MessageSeed.class)))
+                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
         context = spy(new DeviceDataImporterContext());
         context.setDeviceService(deviceService);
         when(context.getThesaurus()).thenReturn(thesaurus);
@@ -114,9 +105,9 @@ public class SecurityAttributesImporterFactoryTest {
 
         importer.process(importOccurrence);
 
-        verify(logger, never()).info(Matchers.anyString());
-        verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(MessageSeeds.FILE_FORMAT_ERROR.getTranslated(thesaurus, 2, 2, 0));
+        verify(logger, never()).info(anyString());
+        verify(logger, never()).warning(anyString());
+        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.FILE_FORMAT_ERROR).format(2, 2, 0));
         verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
     }
 
@@ -129,9 +120,9 @@ public class SecurityAttributesImporterFactoryTest {
 
         createSecurityAttributesImporter().process(importOccurrence);
 
-        verify(logger, never()).info(Matchers.anyString());
-        verify(logger).warning(MessageSeeds.NO_DEVICE.getTranslated(thesaurus, 2, "VPB0001"));
-        verify(logger, never()).severe(Matchers.anyString());
+        verify(logger, never()).info(anyString());
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.NO_DEVICE).format(2, "VPB0001"));
+        verify(logger, never()).severe(anyString());
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
     }
 
@@ -147,9 +138,9 @@ public class SecurityAttributesImporterFactoryTest {
 
         createSecurityAttributesImporter().process(importOccurrence);
 
-        verify(logger, never()).info(Matchers.anyString());
-        verify(logger).warning(MessageSeeds.NO_SECURITY_SETTINGS_ON_DEVICE.getTranslated(thesaurus, 2, "MD5"));
-        verify(logger, never()).severe(Matchers.anyString());
+        verify(logger, never()).info(anyString());
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.NO_SECURITY_SETTINGS_ON_DEVICE).format(2, "MD5"));
+        verify(logger, never()).severe(anyString());
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
     }
 
@@ -169,9 +160,9 @@ public class SecurityAttributesImporterFactoryTest {
 
         createSecurityAttributesImporter().process(importOccurrence);
 
-        verify(logger, never()).info(Matchers.anyString());
-        verify(logger).warning(MessageSeeds.NO_SECURITY_SETTINGS_ON_DEVICE.getTranslated(thesaurus, 2, "set1"));
-        verify(logger).severe(MessageSeeds.SECURITY_SETTINGS_NAME_IS_NOT_UNIQUE_IN_FILE.getTranslated(thesaurus, 3));
+        verify(logger, never()).info(anyString());
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.NO_SECURITY_SETTINGS_ON_DEVICE).format(2, "set1"));
+        verify(logger).severe(thesaurus.getFormat(MessageSeeds.SECURITY_SETTINGS_NAME_IS_NOT_UNIQUE_IN_FILE).format(3));
         verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_FAIL_WITH_ERRORS).format(0, 1));
     }
 
@@ -189,15 +180,15 @@ public class SecurityAttributesImporterFactoryTest {
                 mockPropertySpec("attr2", new BigDecimalFactory(), true),
                 mockPropertySpec("attr3", new BooleanFactory(), false)));
         SecurityPropertySet securityPropertySet = mockSecurityPropertySet("MD5", propertySpecs);
-        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
-        List<SecurityProperty> properties = Arrays.asList(mockSecurityProperty("attr1", null));
+        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet));
+        List<SecurityProperty> properties = Collections.singletonList(mockSecurityProperty("attr1", null));
         when(device.getSecurityProperties(securityPropertySet)).thenReturn(properties);
 
         createSecurityAttributesImporter().process(importOccurrence);
 
-        verify(logger).info(MessageSeeds.REQUIRED_SECURITY_ATTRIBUTES_MISSED.getTranslated(thesaurus, 2, "attr1, attr2"));
-        verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, never()).severe(Matchers.anyString());
+        verify(logger).info(thesaurus.getFormat(MessageSeeds.REQUIRED_SECURITY_ATTRIBUTES_MISSED).format(2, "attr1, attr2"));
+        verify(logger, never()).warning(anyString());
+        verify(logger, never()).severe(anyString());
         verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN).format(1, 1));
     }
 
@@ -215,7 +206,7 @@ public class SecurityAttributesImporterFactoryTest {
                 mockPropertySpec("attr2", new BigDecimalFactory(), true),
                 mockPropertySpec("attr3", new BooleanFactory(), false)));
         SecurityPropertySet securityPropertySet = mockSecurityPropertySet("MD5", propertySpecs);
-        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
+        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet));
         List<SecurityProperty> properties = Arrays.asList(
                 mockSecurityProperty("attr1", "value"),
                 mockSecurityProperty("attr2", BigDecimal.valueOf(100.25)),
@@ -232,12 +223,12 @@ public class SecurityAttributesImporterFactoryTest {
 
         createSecurityAttributesImporter().process(importOccurrence);
 
-        verify(logger, never()).info(Matchers.anyString());
-        verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, never()).severe(Matchers.anyString());
+        verify(logger, never()).info(anyString());
+        verify(logger, never()).warning(anyString());
+        verify(logger, never()).severe(anyString());
         verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
 
-        verify(device).setSecurityProperties(Matchers.any(), Matchers.any());
+        verify(device).setSecurityProperties(any(), any());
     }
 
     @Test
@@ -254,13 +245,13 @@ public class SecurityAttributesImporterFactoryTest {
                 mockPropertySpec("attr2", new BigDecimalFactory(), true),
                 mockPropertySpec("attr3", new BooleanFactory(), false)));
         SecurityPropertySet securityPropertySet = mockSecurityPropertySet("MD5", propertySpecs);
-        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
+        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet));
 
         createSecurityAttributesImporter().process(importOccurrence);
 
-        verify(logger, never()).info(Matchers.anyString());
-        verify(logger).warning(MessageSeeds.LINE_FORMAT_ERROR.getTranslated(thesaurus, 2, "attr2", "123456789.012"));
-        verify(logger, never()).severe(Matchers.anyString());
+        verify(logger, never()).info(anyString());
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.LINE_FORMAT_ERROR).format(2, "attr2", "123456789.012"));
+        verify(logger, never()).severe(anyString());
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
     }
 
@@ -280,13 +271,13 @@ public class SecurityAttributesImporterFactoryTest {
         InvalidValueException exception = mock(InvalidValueException.class);
         doThrow(exception).when(propertySpecs.iterator().next()).validateValue(any());
         SecurityPropertySet securityPropertySet = mockSecurityPropertySet("MD5", propertySpecs);
-        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
+        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet));
 
         createSecurityAttributesImporter().process(importOccurrence);
 
-        verify(logger, never()).info(Matchers.anyString());
-        verify(logger).warning(MessageSeeds.SECURITY_ATTRIBUTE_INVALID_VALUE.getTranslated(thesaurus, 2, "string", "attr1"));
-        verify(logger, never()).severe(Matchers.anyString());
+        verify(logger, never()).info(anyString());
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.SECURITY_ATTRIBUTE_INVALID_VALUE).format(2, "string", "attr1"));
+        verify(logger, never()).severe(anyString());
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
     }
 
@@ -319,4 +310,5 @@ public class SecurityAttributesImporterFactoryTest {
         doReturn(valueFactory).when(propertySpec).getValueFactory();
         return propertySpec;
     }
+
 }

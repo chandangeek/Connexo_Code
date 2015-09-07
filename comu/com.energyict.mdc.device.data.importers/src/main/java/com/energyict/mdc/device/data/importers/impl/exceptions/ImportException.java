@@ -28,7 +28,7 @@ public abstract class ImportException extends RuntimeException {
     }
 
     public String getLocalizedMessage(Thesaurus thesaurus) {
-        String translated = thesaurus.getString(message.getKey(), message.getDefaultFormat());
-        return getFormattedMessage(translated);
+        return thesaurus.getFormat(message).format(this.args);
     }
+
 }

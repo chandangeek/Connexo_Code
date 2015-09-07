@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
+import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 
 import com.elster.jupiter.fileimport.FileImportOccurrence;
@@ -37,7 +38,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -67,19 +68,10 @@ public class DeviceShipmentImporterFactoryTest {
     @Before
     public void beforeTest() {
         reset(logger, thesaurus, deviceConfigurationService, deviceService, batchService);
-        when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> {
-            for (MessageSeed messageSeeds : MessageSeeds.values()) {
-                if (messageSeeds.getKey().equals(invocationOnMock.getArguments()[0])) {
-                    return messageSeeds.getDefaultFormat();
-                }
-            }
-            for (TranslationKey translation : TranslationKeys.values()) {
-                if (translation.getKey().equals(invocationOnMock.getArguments()[0])) {
-                    return translation.getDefaultFormat();
-                }
-            }
-            return invocationOnMock.getArguments()[1];
-        });
+        when(thesaurus.getFormat(any(TranslationKey.class)))
+                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
+        when(thesaurus.getFormat(any(MessageSeed.class)))
+                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
         context = spy(new DeviceDataImporterContext());
         context.setDeviceService(deviceService);
         context.setDeviceConfigurationService(deviceConfigurationService);
@@ -144,7 +136,7 @@ public class DeviceShipmentImporterFactoryTest {
         verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(MessageSeeds.FILE_FORMAT_ERROR.getTranslated(thesaurus, 2, 4, 2));
+        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.FILE_FORMAT_ERROR).format(2, 4, 2));
     }
 
     @Test
@@ -158,7 +150,7 @@ public class DeviceShipmentImporterFactoryTest {
         verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(MessageSeeds.LINE_MISSING_VALUE_ERROR.getTranslated(thesaurus, 2, "device type"));
+        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.LINE_MISSING_VALUE_ERROR).format(2, "device type"));
     }
 
     @Test
@@ -172,7 +164,7 @@ public class DeviceShipmentImporterFactoryTest {
         verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(MessageSeeds.LINE_MISSING_VALUE_ERROR.getTranslated(thesaurus, 2, "device configuration"));
+        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.LINE_MISSING_VALUE_ERROR).format(2, "device configuration"));
     }
 
     @Test
@@ -186,7 +178,7 @@ public class DeviceShipmentImporterFactoryTest {
         verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(MessageSeeds.LINE_MISSING_VALUE_ERROR.getTranslated(thesaurus, 2, "shipment date"));
+        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.LINE_MISSING_VALUE_ERROR).format(2, "shipment date"));
     }
 
     @Test
@@ -202,7 +194,7 @@ public class DeviceShipmentImporterFactoryTest {
         importer.process(importOccurrence);
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, times(1)).warning(MessageSeeds.NO_DEVICE_TYPE.getTranslated(thesaurus, 2, "Iskra 382"));
+        verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.NO_DEVICE_TYPE).format(2, "Iskra 382"));
         verify(logger, never()).severe(Matchers.anyString());
     }
 
@@ -221,7 +213,7 @@ public class DeviceShipmentImporterFactoryTest {
         importer.process(importOccurrence);
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, times(1)).warning(MessageSeeds.NO_DEVICE_CONFIGURATION.getTranslated(thesaurus, 2, "Default"));
+        verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.NO_DEVICE_CONFIGURATION).format(2, "Default"));
         verify(logger, never()).severe(Matchers.anyString());
     }
     @Test
@@ -260,7 +252,7 @@ public class DeviceShipmentImporterFactoryTest {
         importer.process(importOccurrence);
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, times(1)).warning(MessageSeeds.DEVICE_ALREADY_EXISTS.getTranslated(thesaurus, 2, "VPB0001"));
+        verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.DEVICE_ALREADY_EXISTS).format(2, "VPB0001"));
         verify(logger, never()).severe(Matchers.anyString());
     }
 }

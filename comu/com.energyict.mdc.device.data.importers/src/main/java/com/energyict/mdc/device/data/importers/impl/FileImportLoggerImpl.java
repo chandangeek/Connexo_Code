@@ -22,7 +22,7 @@ public abstract class FileImportLoggerImpl<T extends FileImportRecord> implement
 
     @Override
     public void warning(MessageSeed message, Object... arguments) {
-        fileImportOccurrence.getLogger().warning(context.getThesaurus().getFormat(message).format(arguments));
+        fileImportOccurrence.getLogger().info(context.getThesaurus().getFormat(message).format(arguments));
     }
 
     @Override

@@ -2,14 +2,13 @@ package com.energyict.mdc.device.data.importers.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.transaction.TransactionService;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
+
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
+import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public abstract class PersistenceIntegrationTest {
@@ -22,7 +21,7 @@ public abstract class PersistenceIntegrationTest {
     @BeforeClass
     public static void initialize() throws SQLException {
         inMemoryPersistence = new InMemoryIntegrationPersistence();
-        inMemoryPersistence.initializeDatabase("PersistenceIntegrationTest.mdc.device.data.importers", false);
+        inMemoryPersistence.initializeDatabase(false);
     }
 
     @AfterClass

@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.data.importers.impl.devices;
 
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
@@ -17,6 +15,9 @@ import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,7 +71,9 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
 
         List<DefaultState> sourceStates = getSourceStates(data);
         if (!sourceStates.stream().anyMatch(state -> state.getKey().equals(device.getState().getName()))) {
-            throw new ProcessorException(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER, data.getLineNumber(),
+            throw new ProcessorException(
+                    MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER,
+                    data.getLineNumber(),
                     translate(targetStateName), translate(device.getState().getName()),
                     sourceStates.stream().map(DefaultState::getKey).map(this::translate).collect(Collectors.joining(", ")));
         }

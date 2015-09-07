@@ -20,7 +20,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -37,7 +37,7 @@ public class DeviceDataCsvImporterTest {
 
         private int line;
 
-        public CSVLineMatcher(int lineNumber) {
+        CSVLineMatcher(int lineNumber) {
             this.line = lineNumber;
         }
 
@@ -56,7 +56,7 @@ public class DeviceDataCsvImporterTest {
 
         private int line;
 
-        public RecordLineMatcher(int lineNumber) {
+        RecordLineMatcher(int lineNumber) {
             this.line = lineNumber;
         }
 
@@ -79,19 +79,10 @@ public class DeviceDataCsvImporterTest {
     @Before
     public void beforeTest() {
         reset(logger, context, thesaurus);
-        when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> {
-            for (MessageSeed messageSeeds : MessageSeeds.values()) {
-                if (messageSeeds.getKey().equals(invocationOnMock.getArguments()[0])) {
-                    return messageSeeds.getDefaultFormat();
-                }
-            }
-            for (TranslationKey translation : TranslationKeys.values()) {
-                if (translation.getKey().equals(invocationOnMock.getArguments()[0])) {
-                    return translation.getDefaultFormat();
-                }
-            }
-            return invocationOnMock.getArguments()[1];
-        });
+        when(thesaurus.getFormat(any(TranslationKey.class)))
+                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
+        when(thesaurus.getFormat(any(MessageSeed.class)))
+                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
         when(context.getThesaurus()).thenReturn(thesaurus);
     }
 

@@ -21,7 +21,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
@@ -42,17 +42,9 @@ public class FileImportDescriptionBasedParserTest {
         private List<String> readings;
         private List<String> values;
 
-        public RepetitiveRecord() {
+        private RepetitiveRecord() {
             this.readings = new ArrayList<>();
             this.values = new ArrayList<>();
-        }
-
-        public List<String> getReadings() {
-            return readings;
-        }
-
-        public List<String> getValues() {
-            return values;
         }
 
         public void addReading(String reading) {
@@ -68,7 +60,7 @@ public class FileImportDescriptionBasedParserTest {
 
         private final RepetitiveRecord record;
 
-        public RepetitiveDescription(RepetitiveRecord record) {
+        private RepetitiveDescription(RepetitiveRecord record) {
             this.record = record;
         }
 
@@ -103,19 +95,10 @@ public class FileImportDescriptionBasedParserTest {
     @Before
     public void beforeTest() {
         reset(logger, context, thesaurus);
-        when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> {
-            for (MessageSeed messageSeeds : MessageSeeds.values()) {
-                if (messageSeeds.getKey().equals(invocationOnMock.getArguments()[0])) {
-                    return messageSeeds.getDefaultFormat();
-                }
-            }
-            for (TranslationKey translation : TranslationKeys.values()) {
-                if (translation.getKey().equals(invocationOnMock.getArguments()[0])) {
-                    return translation.getDefaultFormat();
-                }
-            }
-            return invocationOnMock.getArguments()[1];
-        });
+        when(thesaurus.getFormat(any(TranslationKey.class)))
+                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
+        when(thesaurus.getFormat(any(MessageSeed.class)))
+                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
         when(context.getThesaurus()).thenReturn(thesaurus);
     }
 
@@ -127,7 +110,7 @@ public class FileImportDescriptionBasedParserTest {
     }
 
     @Test
-    public void testProcessRepetitiveColumns() throws Exception {
+    public void testProcessRepetitiveColumns() throws IllegalStateException {
         String csv = "Device MRID;Reading1;Value1;Reading2;Value2;Reading3;Value3\n"
                 + "SPE001;r1;v1;r2;v2;r3;v3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -144,7 +127,7 @@ public class FileImportDescriptionBasedParserTest {
     }
 
     @Test
-    public void testProcessRepetitiveColumnsDeviceReadingsCase() throws Exception {
+    public void testProcessRepetitiveColumnsDeviceReadingsCase() throws IllegalStateException {
         String csv = "Device MRID;Reading date;Reading1;Value1;Reading2;Value2;Reading3;Value3\n"
                 + "SPE001;28/07/2015 09:14;r1;v1;r2;v2;r3;v3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -191,7 +174,7 @@ public class FileImportDescriptionBasedParserTest {
     }
 
     @Test
-    public void testProcessRepetitiveColumnsWithoutDescriptionSupport() throws Exception {
+    public void testProcessRepetitiveColumnsWithoutDescriptionSupport() throws IllegalStateException {
         String csv = "Device MRID;Reading1;Value1;Reading2;Value2;Reading3;Value3\n"
                 + "SPE001;r1;v1;r2;v2;r3;v3";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -272,4 +255,5 @@ public class FileImportDescriptionBasedParserTest {
         verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
         //assert no errors
     }
+
 }
