@@ -8,11 +8,13 @@ Ext.define('Dxp.view.tasks.Add', {
         'Uni.property.form.Property',
         'Uni.property.form.GroupedPropertyForm',
         'Uni.util.FormErrorMessage',
-        'Uni.grid.column.ReadingType'
+        'Uni.grid.column.ReadingType',
+        'Dxp.view.tasks.DestinationsGrid'
     ],
 
     edit: false,
     returnLink: null,
+    router: null,
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
@@ -298,7 +300,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                             {
                                                 xtype: 'button',
                                                 itemId: 'addReadingTypeButton',
-                                                text: Uni.I18n.translate('general.addReadngTypes', 'CFG', 'Add reading types'),
+                                                text: Uni.I18n.translate('general.addReadngTypes', 'DES', 'Add reading types'),
                                                 margin: '0 0 0 10'
                                             }
                                         ]
@@ -623,6 +625,51 @@ Ext.define('Dxp.view.tasks.Add', {
                     {
                         xtype: 'grouped-property-form'
                     },
+
+                    {
+                        title: Uni.I18n.translate('general.destinations', 'DES', 'Destinations'),
+                        ui: 'medium'
+                    },
+
+                    {
+                        xtype: 'fieldcontainer',
+                        itemId: 'destinationsFieldcontainer',
+                        required: true,
+                        fieldLabel: Uni.I18n.translate('general.destinations', 'DES', 'Destinations'),
+                        layout: 'hbox',
+                        items: [
+
+                            {
+                                xtype: 'label',
+                                text: Uni.I18n.translate('dataExport.noDestinations','DES','There are no destinations added yet'),
+                                itemId: 'noDestinationsLabel'
+
+                            },
+                            {
+                                xtype: 'dxp-tasks-destinations-grid',
+                                itemId: 'task-destinations-grid',
+                                hidden: true,
+                                width: 500
+                            },
+                            {
+                                xtype: 'button',
+                                itemId: 'add-destination-button',
+                                text: Uni.I18n.translate('dataExport.addDestination', 'DES', 'Add destination'),
+                                margin: '0 0 0 10'
+                            }
+
+                        ]
+                    },
+
+                    {
+                         xtype: 'label',
+                         text: Uni.I18n.translate('dataExport.requiredField','DES','This field is required'),
+                         cls: 'x-form-invalid-under',
+                         itemId: 'noDestinationsErrorLabel',
+                         hidden: true,
+                         margin: '0 0 00 266'
+                     },
+
                     {
                         xtype: 'fieldcontainer',
                         ui: 'actions',

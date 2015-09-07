@@ -59,6 +59,7 @@ Ext.define('Dxp.controller.Tasks', {
 
     ],
 
+
     refs: [
         {
             ref: 'page',
@@ -67,6 +68,10 @@ Ext.define('Dxp.controller.Tasks', {
         {
             ref: 'addPage',
             selector: 'data-export-tasks-add'
+        },
+        {
+            ref: 'addDestinationPage',
+            selector: 'data-export-add-destination'
         },
         {
             ref: 'detailsPage',
@@ -92,6 +97,10 @@ Ext.define('Dxp.controller.Tasks', {
     taskId: null,
 
     readingTypesArray: null,
+    destinationsArray: [],
+
+    destinationToEdit: null,
+    destinationIndexToEdit: -1,
 
     init: function () {
         this.control({
@@ -119,11 +128,23 @@ Ext.define('Dxp.controller.Tasks', {
             'data-export-tasks-add #add-export-task-button': {
                 click: this.addTask
             },
+            'data-export-tasks-add #add-destination-button': {
+                click: this.showAddDestination
+            },
+            'data-export-add-destination #save-destination-button': {
+                click: this.addDestinationToGrid
+            },
+            'data-export-add-destination #cancel-add-destination-link': {
+                click: this.cancelAddDestination
+            },
             'data-export-tasks-add #file-formatter-combo': {
                 change: this.updateProperties
             },
             'data-export-tasks-add #data-selector-combo': {
                 change: this.updateDataSelectorProperties
+            },
+            'data-export-add-destination #destination-methods-combo': {
+                change: this.updateDestinationAttributes
             },
             'data-export-tasks-add #addReadingTypeButton': {
                 click: this.showAddReadingGrid
@@ -134,6 +155,7 @@ Ext.define('Dxp.controller.Tasks', {
             '#AddReadingTypesToTaskSetup button[name=add]': {
                 click: this.addSelectedReadingTypes
             },
+
             'data-export-tasks-setup dxp-tasks-grid': {
                 select: this.showPreview
             },
@@ -143,6 +165,9 @@ Ext.define('Dxp.controller.Tasks', {
             'dxp-tasks-action-menu': {
                 click: this.chooseAction
             },
+            'dxp-tasks-destination-action-menu': {
+                click: this.chooseDestinationAction
+            },
             'tasks-history-action-menu': {
                 click: this.chooseAction
             },
@@ -150,6 +175,17 @@ Ext.define('Dxp.controller.Tasks', {
                 selectionchange: this.onSelectionChange
             }
         });
+    },
+
+    cancelAddDestination: function () {
+        if (!this.destinationToEdit) {
+            //cancel "add destination"
+            this.forwardToPreviousPage();
+        } else {
+            //cancel "edit" destination
+            //add the old one again, it was removed before the edit (edit = remove + add new)
+            this.doAddDestinationToGrid();
+        }
     },
 
     showDataExportTasks: function () {
@@ -275,7 +311,6 @@ Ext.define('Dxp.controller.Tasks', {
             } else {
                 previewForm.down('#reason-field').hide();
             }
-
             previewForm.loadRecord(record);
 
             if (record.data.properties && record.data.properties.length) {
@@ -286,15 +321,124 @@ Ext.define('Dxp.controller.Tasks', {
         }
     },
 
+    showAddReadingGrid: function () {
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
+            page = this.getAddPage(),
+            readingTypesStore = page.down('#readingTypesGridPanel').getStore(),
+            addReadingTypesRoute = router.currentRoute + '/readingtypes';
+
+        // Prepare the already assigned reading types (for method addReadingTypes())
+        me.readingTypesArray = [];
+        readingTypesStore.each(function (record) {
+            me.readingTypesArray.push(record.getData());
+        });
+
+        me.saveFormValues();
+        router.getRoute(addReadingTypesRoute).forward();
+    },
+
+    showAddDestination: function (button) {
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
+            addDestinationRoute = router.currentRoute + '/destination';
+        me.destinationsArray = [];
+        me.saveFormValues();
+        router.getRoute(addDestinationRoute).forward();
+
+    },
+
+    addDestination: function () {
+        var me = this,
+            view = Ext.create('Dxp.view.tasks.AddDestination');
+        me.getApplication().fireEvent('changecontentevent', view);
+
+        if (me.destinationToEdit) {
+            view.down('#save-destination-button').setText(Uni.I18n.translate('general.save', 'DES', 'Save'));
+            view.down('#add-destination-form').setTitle(Uni.I18n.translate('dataExport.editDestination', 'DES', 'Edit destination'));
+            me.showAllDestinationAttributes(false);
+            var type = me.destinationToEdit.get('type');
+            if (type == 'FILE') {
+                me.showFileDestinationAttributes(true);
+                view.down('#destination-methods-combo').setValue('FILE');
+                view.down('#destination-file-name').setValue(me.destinationToEdit.get('fileName'));
+                view.down('#destination-file-extension').setValue(me.destinationToEdit.get('fileExtension'));
+                view.down('#destination-file-location').setValue(me.destinationToEdit.get('fileLocation'));
+            } else if (type == 'EMAIL') {
+                me.showMailDestinationAttributes(true);
+                view.down('#destination-methods-combo').setValue('EMAIL');
+                view.down('#destination-recipients').setValue(me.destinationToEdit.get('recipients'));
+                view.down('#destination-subject').setValue(me.destinationToEdit.get('subject'));
+                view.down('#destination-attachment-name').setValue(me.destinationToEdit.get('fileName'));
+                view.down('#destination-attachment-extension').setValue(me.destinationToEdit.get('fileExtension'));
+            }
+        } else {
+            me.destinationIndexToEdit = -1;
+            view.down('#destination-methods-combo').setValue('FILE');
+        }
+    },
+
+
+    showAllDestinationAttributes: function (visible) {
+        this.showFileDestinationAttributes(visible);
+        this.showMailDestinationAttributes(visible);
+    },
+
+    showFileDestinationAttributes: function (visible) {
+        var me = this,
+            page = me.getAddDestinationPage();
+        page.down('#destination-file-name').setVisible(visible);
+        page.down('#destination-file-extension').setVisible(visible);
+        page.down('#destination-file-location').setVisible(visible);
+
+        page.down('#destination-file-name').disabled = !visible;
+        page.down('#destination-file-extension').disabled = !visible;
+        page.down('#destination-file-location').disabled = !visible;
+    },
+
+    showMailDestinationAttributes: function (visible) {
+        var me = this,
+            page = me.getAddDestinationPage();
+        page.down('#destination-recipients').setVisible(visible);
+        page.down('#destination-subject').setVisible(visible);
+        page.down('#destination-attachment-name').setVisible(visible);
+        page.down('#destination-attachment-extension').setVisible(visible);
+
+        page.down('#destination-recipients').disabled = !visible;
+        page.down('#destination-subject').disabled = !visible;
+        page.down('#destination-attachment-name').disabled = !visible;
+        page.down('#destination-attachment-extension').disabled = !visible;
+    },
+
+    updateDestinationAttributes: function () {
+        var me = this,
+            page = me.getAddDestinationPage();
+        var method = page.down('#destination-methods-combo').getValue();
+        me.showAllDestinationAttributes(false);
+        if (method === 'FILE') {
+            me.showFileDestinationAttributes(true);
+        }
+        if (method === 'EMAIL') {
+            me.showMailDestinationAttributes(true);
+        }
+
+    },
+
     showAddExportTask: function () {
         var me = this,
             view = Ext.create('Dxp.view.tasks.Add'),
-            //fileFormatterCombo = view.down('#file-formatter-combo'),
+        //fileFormatterCombo = view.down('#file-formatter-combo'),
             dataSelectorCombo = view.down('#data-selector-combo'),
             deviceGroupCombo = view.down('#device-group-combo'),
             exportPeriodCombo = view.down('#export-period-combo'),
             recurrenceTypeCombo = view.down('#recurrence-type');
         readingTypesStore = view.down('#readingTypesGridPanel').getStore();
+            destinationsStore = view.down('#task-destinations-grid').getStore(),
+            recurrenceTypeCombo = view.down('#recurrence-type'),
+            readingTypesStore = view.down('#readingTypesGridPanel').getStore();
+
+        //me.destinationsArray = [];
+
         me.getApplication().fireEvent('changecontentevent', view);
 
         Ext.util.History.on('change', this.checkRoute, this);
@@ -303,6 +447,7 @@ Ext.define('Dxp.controller.Tasks', {
         me.fromEdit = false;
 
         readingTypesStore.removeAll();
+        destinationsStore.removeAll();
         exportPeriodCombo.store.load({
             params: {
                 category: 'relativeperiod.category.dataExport'
@@ -319,18 +464,21 @@ Ext.define('Dxp.controller.Tasks', {
 
 
         dataSelectorCombo.store.load(function () {
+            recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.findRecord('name','months'));
             if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
                 me.setFormValues(view);
             }
-            recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
         });
+
     },
 
     showEditExportTask: function (taskId) {
 
         var me = this,
+
             router = me.getController('Uni.controller.history.Router'),
             view;
+        //me.destinationsArray = [];
         if (me.fromDetails) {
             view = Ext.create('Dxp.view.tasks.Add', {
                 edit: true,
@@ -349,6 +497,11 @@ Ext.define('Dxp.controller.Tasks', {
             deviceGroupCombo = view.down('#device-group-combo'),
             exportPeriodCombo = view.down('#export-period-combo'),
             dataSelectorCombo = view.down('#data-selector-combo'),
+            emptyDestinationsLabel = view.down('#noDestinationsLabel'),
+            destinationsGrid = view.down('#task-destinations-grid'),
+            destinationsStore = view.down('#task-destinations-grid').getStore(),
+            readingTypesStore = view.down('#readingTypesGridPanel').getStore(),
+            recurrenceTypeCombo = view.down('#recurrence-type');
             recurrenceTypeCombo = view.down('#recurrence-type'),
             missingData = view.down('#data-selector-export-complete'),
             updatedDataRadioGroup = view.down('#updated-data-trigger'),
@@ -357,15 +510,33 @@ Ext.define('Dxp.controller.Tasks', {
             timeFrameRadioGroup = view.down('#export-updated'),
             continuousDataRadioGroup =  view.down('#continuous-data-radiogroup');
 
+        //readingTypesStore.removeAll();
+        destinationsStore.removeAll();
+
         dataSelectorCombo.disabled = true;
         me.fromEdit = true;
         me.taskId = taskId;
         Ext.util.History.on('change', this.checkRoute, this);
 
+
         fileFormatterCombo.store.load({
             callback: function () {
                 taskModel.load(taskId, {
                     success: function (record) {
+
+                        var destinations = record.get('destinations');
+                        if (record.destinationsStore.count() > 0) {
+                            emptyDestinationsLabel.hide();
+                            destinationsGrid.store.add(record.destinations().data.items);
+
+                            /*Ext.each(record.destinations().data.items, function (record) {
+                             me.destinationsArray.push(record);
+                             });*/
+
+                            destinationsGrid.show();
+                        }
+
+
                         var dataSelector = record.get('dataSelector');
 
                         dataSelectorCombo.store.load({
@@ -379,7 +550,7 @@ Ext.define('Dxp.controller.Tasks', {
                         var schedule = record.get('schedule');
                         me.taskModel = record;
                         me.getApplication().fireEvent('dataexporttaskload', record);
-                        taskForm.setTitle(Uni.I18n.translate('general.edit', 'DES', 'Edit') + " '" + record.get('name') + "'");
+                        taskForm.setTitle(Uni.I18n.translate('general.editx', 'DES', "Edit '{0}'",[record.get('name')]));
                         if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
                             me.setFormValues(view);
                         } else {
@@ -412,7 +583,7 @@ Ext.define('Dxp.controller.Tasks', {
                                             view.down('#no-device').show();
                                         }
                                         deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.getStandardDataSelector().data.deviceGroup.id));
-                                    }
+                                    },
                                 });
                                 missingData.setValue({exportComplete: record.getStandardDataSelector().get('exportComplete')});
                                 updatedDataRadioGroup.setValue({exportUpdate: record.getStandardDataSelector().get('exportUpdate')});
@@ -423,7 +594,8 @@ Ext.define('Dxp.controller.Tasks', {
                                 }
                                 continuousDataRadioGroup.setValue({exportContinuousData: record.getStandardDataSelector().get('exportContinuousData')});
 
-                            } /*else {
+                            } 
+                            /*else {
                              taskForm.down('#data-selector-properties').loadRecord(record.getDataSelector());
                              }*/
                             fileFormatterCombo.setValue(fileFormatterCombo.store.getById(record.data.dataProcessor.name));
@@ -438,6 +610,8 @@ Ext.define('Dxp.controller.Tasks', {
                             if (record.properties() && record.properties().count()) {
                                 taskForm.down('grouped-property-form').loadRecord(record);
                             }
+
+
                         }
                         view.setLoading(false);
                     }
@@ -514,6 +688,27 @@ Ext.define('Dxp.controller.Tasks', {
         Ext.resumeLayouts();
     },
 
+    chooseDestinationAction: function (menu, item) {
+        var me = this;
+        switch (item.action) {
+            case 'removeDestination':
+                var page = me.getAddPage(),
+                    destinationsGrid = page.down('#task-destinations-grid');
+                destinationsGrid.getStore().remove(menu.record);
+                break;
+            case 'editDestination':
+                me.destinationToEdit = menu.record;
+                var page = me.getAddPage(),
+                    destinationsGrid = page.down('#task-destinations-grid');
+                // edit = remove + add new
+                me.destinationIndexToEdit = destinationsGrid.getStore().indexOf(menu.record);
+                destinationsGrid.getStore().remove(menu.record);
+                me.showAddDestination();
+                break;
+        }
+
+    },
+
     chooseAction: function (menu, item) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
@@ -574,7 +769,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('dataExportTasks.runMsg', 'DES', 'The data export task will be queued to run at the earliest possible time.'),
-            title: Uni.I18n.translate('general.runDataExportTask', 'DES', 'Run data export task') + ' ' + record.data.name + '?'
+            title: Uni.I18n.translate('general.runDataExportTaskx', 'DES', "Run data export task {0}?",[record.data.name])
         });
     },
 
@@ -616,7 +811,7 @@ Ext.define('Dxp.controller.Tasks', {
                         }
                     });
                 }
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataExportTasks.run', 'DXP', 'Data export task run'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataExportTasks.run', 'DES', 'Data export task run'));
             },
             failure: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
@@ -630,8 +825,8 @@ Ext.define('Dxp.controller.Tasks', {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation');
         confirmationWindow.show({
-            msg: Uni.I18n.translate('general.remove.msg', 'DXP', 'This data export task will no longer be available.'),
-            title: Uni.I18n.translate('general.remove', 'DXP', 'Remove') + '&nbsp' + record.data.name + '?',
+            msg: Uni.I18n.translate('general.remove.msg', 'DES', 'This data export task will no longer be available.'),
+            title: Uni.I18n.translate('general.removex', 'DES', 'Remove {0}?',[record.data.name]),
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {
@@ -655,15 +850,15 @@ Ext.define('Dxp.controller.Tasks', {
                 } else {
                     me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').forward();
                 }
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.remove.confirm.msg', 'DXP', 'Data export task removed'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.remove.confirm.msg', 'DES', 'Data export task removed'));
             },
             failure: function (object, operation) {
                 var json = Ext.decode(operation.response.responseText, true);
-                var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
+                var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'DES', 'Unknown error occurred');
                 if (json && json.errors) {
                     errorText = json.errors[0].msg;
                 }
-                //me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('general.remove.error.msg', 'DXP', 'Remove operation failed'), errorText);
+                //me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('general.remove.error.msg', 'DES', 'Remove operation failed'), errorText);
                 if (!Ext.ComponentQuery.query('#remove-error-messagebox')[0]) {
                     Ext.widget('messagebox', {
                         itemId: 'remove-error-messagebox',
@@ -687,7 +882,7 @@ Ext.define('Dxp.controller.Tasks', {
                         ]
                     }).show({
                         ui: 'notification-error',
-                        title: Uni.I18n.translate('general.remove.error.msg', 'DXP', 'Remove operation failed'),
+                        title: Uni.I18n.translate('general.remove.error.msg', 'DES', 'Remove operation failed'),
                         msg: errorText,
                         modal: false,
                         icon: Ext.MessageBox.ERROR
@@ -737,7 +932,7 @@ Ext.define('Dxp.controller.Tasks', {
         }
     },
 
-    hideDefaultDataSelectorProperties: function(hidden) {
+    hideDefaultDataSelectorProperties: function (hidden) {
         var me = this;
         var page = me.getAddPage();
         page.down('#device-group-container').setVisible(!hidden);
@@ -766,6 +961,81 @@ Ext.define('Dxp.controller.Tasks', {
         }
     },
 
+    addSelectedReadingTypes: function () {
+        var me = this,
+            widget = this.getAddReadingTypesSetup(),
+            grid = widget.down('#addReadingTypesGrid'),
+            selection = grid.getView().getSelectionModel().getSelection();
+
+        if (selection.length > 0) {
+            Ext.each(selection, function (record) {
+                me.readingTypesArray.push({readingType: record.get('readingType')});
+            });
+        }
+
+        me.forwardToPreviousPage();
+    },
+
+    addDestinationToGrid: function (button) {
+        var me = this;
+        me.destinationToEdit = null;
+        me.doAddDestinationToGrid(button);
+    },
+
+
+    doAddDestinationToGrid: function (button) {
+        var me = this;
+        //edit destination was cancelled, add the old one again
+        if (me.destinationToEdit) {
+            me.destinationsArray.push(me.destinationToEdit);
+            me.destinationToEdit = null;
+            me.destinationIndexToEdit = -1;
+            me.forwardToPreviousPage();
+        } else {
+            var page = me.getAddDestinationPage();
+            var form = page.down('#add-destination-form');
+            var formErrorsPanel = form.down('#form-errors');
+            var destinationModel;
+            if (form.isValid()) {
+                var formValues = form.getForm().getValues();
+                if (formValues['method'] === 'FILE') {
+                    //tooltip & method duplicated from destination model, have not found another way!
+                    destinationModel = Ext.create('Dxp.model.Destination', {
+                        type: 'FILE',
+                        fileName: formValues['fileName'],
+                        fileExtension: formValues['fileExtension'],
+                        fileLocation: formValues['fileLocation'],
+                        method: Uni.I18n.translate('general.saveFile', 'DES', 'Save file'),
+                        destination: formValues['fileLocation'] + '/' + formValues['fileName'] + '.' + formValues['fileExtension'],
+                        tooltiptext: Uni.I18n.translate('general.fileLocation', 'DES', 'File location') + ': ' + formValues['fileLocation'] + '&lt;br/&gt;' +
+                        Uni.I18n.translate('general.fileName', 'DES', 'File name') + ': ' + formValues['fileName'] + '&lt;br/&gt;' +
+                        Uni.I18n.translate('general.fileExtension', 'DES', 'File extension') + ': ' + formValues['fileExtension']
+                    })
+                } else if (formValues['method'] === 'EMAIL') {
+                    destinationModel = Ext.create('Dxp.model.Destination', {
+                        type: 'EMAIL',
+                        fileName: formValues['attachmentName'],
+                        fileExtension: formValues['attachmentExtension'],
+                        recipients: formValues['recipients'],
+                        subject: formValues['subject'],
+                        method: Uni.I18n.translate('dataExportdestinations.email', 'DES', 'Email'),
+                        destination: formValues['recipients'],
+                        tooltiptext: Uni.I18n.translate('dataExportdestinations.recipients', 'DES', 'Recipients') + ': ' + formValues['recipients'] + '&lt;br/&gt;' +
+                        Uni.I18n.translate('general.subject', 'DES', 'Subject') + ': ' + formValues['subject'] + '&lt;br/&gt;' +
+                        Uni.I18n.translate('general.fileName', 'DES', 'File name') + ': ' + formValues['attachmentName'] + '&lt;br/&gt;' +
+                        Uni.I18n.translate('general.fileExtension', 'DES', 'File extension') + ': ' + formValues['attachmentExtension']
+                    })
+                }
+                me.destinationsArray.push(destinationModel);
+                me.forwardToPreviousPage();
+            }
+            else {
+                formErrorsPanel.show();
+            }
+        }
+    },
+
+
     addTask: function (button) {
         var me = this,
             page = me.getAddPage(),
@@ -784,7 +1054,7 @@ Ext.define('Dxp.controller.Tasks', {
 
 
         var dataSelectorCombo = form.down('#data-selector-combo');
-        var selectedDataSelector = dataSelectorCombo.findRecord(dataSelectorCombo.valueField , dataSelectorCombo.getValue());
+        var selectedDataSelector = dataSelectorCombo.findRecord(dataSelectorCombo.valueField, dataSelectorCombo.getValue());
         if ((selectedDataSelector) && (!selectedDataSelector.get('isDefault'))) {
             form.down('#export-period-combo').allowBlank = true;
             form.down('#device-group-combo').allowBlank = true;
@@ -804,7 +1074,22 @@ Ext.define('Dxp.controller.Tasks', {
             formErrorsPanel.show();
         }
 
-        if ((form.isValid()) && (!emptyReadingTypes)) {
+        var emptyDestinations = page.down('#task-destinations-grid').getStore().data.items.length == 0;
+        if (emptyDestinations) {
+            //form.down('#destinationsFieldcontainer').addCls('error-border');
+            //form.down('#destinationsFieldcontainer').setActiveError('This field is required');
+            form.down('#noDestinationsErrorLabel').show();
+
+            form.getForm().markInvalid(
+                Ext.create('Object', {
+                    id: 'destinationsFieldcontainer',
+                    msg: 'This field is required'
+                }));
+
+            formErrorsPanel.show();
+        }
+
+        if ((form.isValid()) && (!emptyReadingTypes) && (!emptyDestinations)) {
             var record = me.taskModel || Ext.create('Dxp.model.DataExportTask'),
                 readingTypesStore = page.down('#readingTypesGridPanel').getStore(),
                 arrReadingTypes = [];
@@ -898,7 +1183,7 @@ Ext.define('Dxp.controller.Tasks', {
             })
             record.setDataSelector(selectorModel);
 
-            var selectedDataSelector = dataSelectorCombo.findRecord(dataSelectorCombo.valueField , dataSelectorCombo.getValue());
+            var selectedDataSelector = dataSelectorCombo.findRecord(dataSelectorCombo.valueField, dataSelectorCombo.getValue());
 
 
             if (selectedDataSelector.get('isDefault')) {
@@ -940,12 +1225,14 @@ Ext.define('Dxp.controller.Tasks', {
                 record.propertiesStore.add(selectorPropertyForm.getRecord().properties().data.items)
             }
             record.destinations();
-            record.destinationsStore.add([Ext.create('Dxp.model.Destination', {
-                fileName: 'test',
-                fileExtension: 'csv',
-                fileLocation: '.',
-                type: 'FILE',
-            })]);
+            record.destinationsStore.removeAll();
+            record.destinationsStore.add(page.down('#task-destinations-grid').getStore().data.items);
+            /*record.destinationsStore.add([Ext.create('Dxp.model.Destination', {
+             fileName: 'test',
+             fileExtension: 'csv',
+             fileLocation: '.',
+             type: 'FILE',
+             })]);*/
 
 
             record.endEdit();
@@ -975,22 +1262,6 @@ Ext.define('Dxp.controller.Tasks', {
         }
     },
 
-    showAddReadingGrid: function () {
-        var me = this,
-            router = this.getController('Uni.controller.history.Router'),
-            page = this.getAddPage(),
-            readingTypesStore = page.down('#readingTypesGridPanel').getStore(),
-            addReadingTypesRoute = router.currentRoute + '/readingtypes';
-
-        // Prepare the already assigned reading types (for method addReadingTypes())
-        me.readingTypesArray = [];
-        readingTypesStore.each(function (record) {
-            me.readingTypesArray.push(record.getData());
-        });
-
-        me.saveFormValues();
-        router.getRoute(addReadingTypesRoute).forward();
-    },
 
     forwardToPreviousPage: function () {
         var router = this.getController('Uni.controller.history.Router'),
@@ -1011,20 +1282,6 @@ Ext.define('Dxp.controller.Tasks', {
         this.loadReadingTypes();
     },
 
-    addSelectedReadingTypes: function () {
-        var me = this,
-            widget = this.getAddReadingTypesSetup(),
-            grid = widget.down('#addReadingTypesGrid'),
-            selection = grid.getView().getSelectionModel().getSelection();
-
-        if (selection.length > 0) {
-            Ext.each(selection, function (record) {
-                me.readingTypesArray.push({readingType: record.get('readingType')});
-            });
-        }
-
-        me.forwardToPreviousPage();
-    },
 
     loadReadingTypes: function () {
         var me = this,
@@ -1041,7 +1298,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         readingTypeStore.on('beforeload', function () {
             me.setAddBtnDisabled(true);
-        }, { single: true });
+        }, {single: true});
         readingTypeStore.load();
     },
 
@@ -1049,7 +1306,7 @@ Ext.define('Dxp.controller.Tasks', {
         this.setAddBtnDisabled(Ext.isEmpty(selection));
     },
 
-    setAddBtnDisabled: function(disabled) {
+    setAddBtnDisabled: function (disabled) {
         this.getAddReadingTypesSetup().down('#buttonsContainer button[name=add]').setDisabled(disabled);
     },
 
@@ -1059,11 +1316,19 @@ Ext.define('Dxp.controller.Tasks', {
             form = page.down('#add-data-export-task-form'),
             formValues = form.getValues(),
             readingTypesStore = page.down('#readingTypesGridPanel').getStore(),
+            destinationsStore = page.down('#task-destinations-grid').getStore(),
+            storeDestinations = [],
             arrReadingTypes = [];
         readingTypesStore.each(function (record) {
             arrReadingTypes.push(record.getData());
         });
+
+        destinationsStore.each(function (record) {
+            storeDestinations.push(record);
+        });
+
         formValues.readingTypes = arrReadingTypes;
+        formValues.destinations = storeDestinations;
         me.getStore('Dxp.store.Clipboard').set('addDataExportTaskValues', formValues);
 
     },
@@ -1073,10 +1338,15 @@ Ext.define('Dxp.controller.Tasks', {
             obj = me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues'),
             page = me.getAddPage(),
             readingTypesArray = obj.readingTypes,
+            destinationsArray = obj.destinations,
             readingTypesGrid = page.down('#readingTypesGridPanel'),
+            destinationsGrid = page.down('#task-destinations-grid'),
+            emptyDestinationsLabel = page.down('#noDestinationsLabel'),
+            destinationsStore = destinationsGrid.getStore(),
             gridStore = readingTypesGrid.getStore();
 
         gridStore.removeAll();
+        destinationsStore.removeAll();
 
         if (me.readingTypesArray) {
             Ext.each(me.readingTypesArray, function (record) {
@@ -1089,6 +1359,29 @@ Ext.define('Dxp.controller.Tasks', {
                     gridStore.add(readingType);
                 });
             }
+        }
+
+
+
+
+
+        Ext.each(me.destinationsArray, function (record) {
+            if (me.destinationIndexToEdit != -1) {
+                destinationsArray.splice(me.destinationIndexToEdit, 0, record);
+            } else {
+                destinationsArray.push(record);
+            }
+        });
+        if (!Ext.isEmpty(destinationsArray)) {
+            Ext.each(destinationsArray, function (destination) {
+                destinationsStore.add(destination);
+            });
+        }
+        me.destinationsArray = [];
+
+        if (destinationsStore.count() > 0) {
+            emptyDestinationsLabel.hide();
+            destinationsGrid.show();
         }
 
         var formModel = Ext.create('Dxp.model.AddDataExportTaskForm', obj);
@@ -1113,23 +1406,27 @@ Ext.define('Dxp.controller.Tasks', {
         }
         view.down('#continuous-data-radiogroup').setValue({exportContinuousData:formModel.get('exportContinuousData')});
 
+
         Ext.suspendLayouts();
         Ext.Array.each(view.down('grouped-property-form').query('[isFormField=true]'), function (formItem) {
             if (formItem.name in obj) {
                 formItem.setValue(obj[formItem.name]);
             }
         });
+        //view.down('#recurrence-values numberfield').setValue({recurrence: formModel.get('recurrence-number')});
+        //view.down('#recurrence-values combobox').setValue({recurrence: formModel.get('recurrence-type')});
         Ext.resumeLayouts(true);
     },
 
     checkRoute: function (token) {
         var me = this,
             relativeRegexp = /administration\/relativeperiods\/add/,
+            destinationRegexp = /administration\/dataexporttasks\/(.*)\/destination/,
             readingRegexp = /administration\/dataexporttasks\/(.*)\/readingtypes/;
 
         Ext.util.History.un('change', this.checkRoute, this);
 
-        if (token.search(relativeRegexp) == -1 && token.search(readingRegexp) == -1) {
+        if (token.search(relativeRegexp) == -1 && token.search(readingRegexp) == -1 && token.search(destinationRegexp) == -1) {
             me.getStore('Dxp.store.Clipboard').clear('addDataExportTaskValues');
         }
     },
@@ -1197,7 +1494,27 @@ Ext.define('Dxp.controller.Tasks', {
                 } else {
                     me.populatePreview(i,scheduleRecords,response1);
                 }
+            }
+        });
+    },
 
+    showDataSources: function (currentTaskId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            taskModel = me.getModel('Dxp.model.DataExportTask'),
+            store = me.getStore('Dxp.store.DataSources'),
+            view;
+
+        store.getProxy().setUrl(router.arguments);
+        view = Ext.widget('data-sources-setup', {
+            router: router,
+            taskId: currentTaskId
+        });
+        me.getApplication().fireEvent('changecontentevent', view);
+        taskModel.load(currentTaskId, {
+            success: function (record) {
+                me.getApplication().fireEvent('dataexporttaskload', record);
+                view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
             }
         });
     },

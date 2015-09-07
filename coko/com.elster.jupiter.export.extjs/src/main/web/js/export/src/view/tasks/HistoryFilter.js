@@ -10,19 +10,14 @@ Ext.define('Dxp.view.tasks.HistoryFilter', {
             dataIndex: 'startedBetween',
             dataIndexFrom: 'startedOnFrom',
             dataIndexTo: 'startedOnTo',
-            text: Uni.I18n.translate('tasks.historyFilter.startedBetween', 'DXP', 'Started between')
+            text: Uni.I18n.translate('tasks.historyFilter.startedBetween', 'DES', 'Started between')
         },
         {
             type: 'interval',
             dataIndex: 'finishedBetween',
             dataIndexFrom: 'finishedOnFrom',
             dataIndexTo: 'finishedOnTo',
-            text: Uni.I18n.translate('tasks.historyFilter.finishedBetween', 'DXP', 'Finished between')
-        },
-        {
-            type: 'date',
-            dataIndex: 'exportPeriodContains',
-            emptyText: Uni.I18n.translate('tasks.historyFilter.exportPeriodContains', 'DXP', 'Export period contains')
+            text: Uni.I18n.translate('tasks.historyFilter.finishedBetween', 'DES', 'Finished between')
         }
     ]
 });

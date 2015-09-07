@@ -30,6 +30,14 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>install</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>unifyingjs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>time.extjs</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -37,26 +45,9 @@
             <id>sencha-build</id>
             <properties>
                 <js.dir>js/export</js.dir>
+                <package.name>com.elster.jupiter.export.extjs</package.name>
             </properties>
         </profile>
     </profiles>
 
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/web/js/export/build</directory>
-                <targetPath>js/export/build</targetPath>
-                <includes>
-                    <include>resources/**/*</include>
-                    <include>*.js</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
 </project>

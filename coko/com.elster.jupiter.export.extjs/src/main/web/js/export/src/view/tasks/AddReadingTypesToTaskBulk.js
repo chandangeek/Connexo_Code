@@ -11,11 +11,8 @@ Ext.define('Dxp.view.tasks.AddReadingTypesToTaskBulk', {
     },
 
     counterTextFn: function (count) {
-        return Uni.I18n.translatePlural(
-            'validation.readingTypes.counterText',
-            count,
-            'CFG',
-            '{0} reading types selected'
+        return Uni.I18n.translatePlural('general.nrOfReadingTypes.selected', count, 'DES',
+            'No reading types selected', '{0} reading type selected', '{0} reading types selected'
         );
     },
 

@@ -17,7 +17,7 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('general.startedOn', 'DES', 'Started On'),
+                header: Uni.I18n.translate('general.startedOn', 'DES', 'Started on'),
                 dataIndex: 'startedOn',
                 flex: 2,
                 renderer: function (value, metaData, record) {
@@ -38,11 +38,6 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
                 dataIndex: 'status',
                 textAlign: 'center',
                 flex: 1
-            },
-            {
-                header: Uni.I18n.translate('general.exportPeriod', 'DES', 'Export period'),
-                dataIndex: 'exportPeriod_range',
-                width: 400
             },
             {
                 xtype: 'uni-actioncolumn',

@@ -9,7 +9,7 @@ Ext.define('Dxp.model.DataExportTask', {
     fields: [
         'id', 'name', 'dataProcessor', 'dataSelector', 'standardDataSelector', 'schedule', 'properties', 'destinations', 'nextRun', 'lastRun','exportComplete','validatedDataOption',
         {
-            name: 'lastExportOccurence',
+            name: 'lastExportOccurrence',
             persist: false
         },
         {
@@ -137,8 +137,8 @@ Ext.define('Dxp.model.DataExportTask', {
             name: 'status',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence && data.lastExportOccurence.status) {
-                    return data.lastExportOccurence.status;
+                if (data.lastExportOccurrence && data.lastExportOccurrence.status) {
+                    return data.lastExportOccurrence.status;
                 } else {
                     return Uni.I18n.translate('general.notPerformed', 'DES', 'Not performed yet');
                 }
@@ -148,10 +148,10 @@ Ext.define('Dxp.model.DataExportTask', {
             name: 'statusOnDate',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence && data.lastExportOccurence.statusDate && data.lastExportOccurence.statusDate != 0) {
-                    return data.lastExportOccurence.statusPrefix + ' ' + moment(data.lastExportOccurence.statusDate).format('ddd, DD MMM YYYY HH:mm:ss');
-                } else if (data.lastExportOccurence) {
-                    return data.lastExportOccurence.statusPrefix
+                if (data.lastExportOccurrence && data.lastExportOccurrence.statusDate && data.lastExportOccurrence.statusDate != 0) {
+                    return data.lastExportOccurrence.statusPrefix + ' ' + moment(data.lastExportOccurrence.statusDate).format('ddd, DD MMM YYYY HH:mm:ss');
+                } else if (data.lastExportOccurrence) {
+                    return data.lastExportOccurrence.statusPrefix
                 } else {
                     return Uni.I18n.translate('general.notPerformed', 'DES', 'Not performed yet');
                 }
@@ -161,8 +161,8 @@ Ext.define('Dxp.model.DataExportTask', {
             name: 'reason',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence && data.lastExportOccurence.reason) {
-                    return data.lastExportOccurence.reason;
+                if (data.lastExportOccurrence && data.lastExportOccurrence.reason) {
+                    return data.lastExportOccurrence.reason;
                 } else {
                     return '';
                 }
@@ -172,8 +172,8 @@ Ext.define('Dxp.model.DataExportTask', {
             name: 'trigger',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence && data.lastExportOccurence.trigger) {
-                    return data.lastExportOccurence.trigger;
+                if (data.lastExportOccurrence && data.lastExportOccurrence.trigger) {
+                    return data.lastExportOccurrence.trigger;
                 } else {
                     return '-'
                 }
@@ -183,8 +183,8 @@ Ext.define('Dxp.model.DataExportTask', {
             name: 'startedOn',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence && data.lastExportOccurence.startedOn) {
-                    return Uni.DateTime.formatDateTimeLong(new Date(data.lastExportOccurence.startedOn));
+                if (data.lastExportOccurrence && data.lastExportOccurrence.startedOn) {
+                    return Uni.DateTime.formatDateTimeLong(new Date(data.lastExportOccurrence.startedOn));
                 } else {
                     return '-';
                 }
@@ -194,8 +194,8 @@ Ext.define('Dxp.model.DataExportTask', {
             name: 'finishedOn',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence && data.lastExportOccurence.finishedOn) {
-                    return Uni.DateTime.formatDateTimeLong(new Date(data.lastExportOccurence.finishedOn));
+                if (data.lastExportOccurrence && data.lastExportOccurrence.finishedOn) {
+                    return Uni.DateTime.formatDateTimeLong(new Date(data.lastExportOccurrence.finishedOn));
                 } else {
                     return '-';
                 }
@@ -205,8 +205,8 @@ Ext.define('Dxp.model.DataExportTask', {
             name: 'duration',
             persist: false,
             mapping: function (data) {
-                if (data.lastExportOccurence && data.lastExportOccurence.duration) {
-                    return data.lastExportOccurence.duration;
+                if (data.lastExportOccurrence && data.lastExportOccurrence.duration) {
+                    return data.lastExportOccurrence.duration;
                 } else {
                     return '-';
                 }

@@ -33,7 +33,7 @@ Ext.define('Dxp.controller.Main', {
     initMenu: function () {
         if (Dxp.privileges.DataExport.canView()) {
             var menuItem = Ext.create('Uni.model.MenuItem', {
-                text: Uni.I18n.translate('general.administration', 'UNI', 'Administration'),
+                text: Uni.I18n.translate('general.administration', 'DES', 'Administration'),
                 portal: 'administration',
                 glyph: 'settings',
                 index: 10
@@ -46,7 +46,7 @@ Ext.define('Dxp.controller.Main', {
                 portal: 'administration',
                 items: [
                     {
-                        text: Uni.I18n.translate('general.dataexporttasks', 'DES', 'Data export tasks'),
+                        text: Uni.I18n.translate('general.dataExportTasks', 'DES', 'Data export tasks'),
                         href: '#/administration/dataexporttasks',
                         route: 'dataexporttasks'
                     }
