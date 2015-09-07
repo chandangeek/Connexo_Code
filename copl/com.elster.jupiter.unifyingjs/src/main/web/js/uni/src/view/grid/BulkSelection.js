@@ -201,6 +201,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
             items: [
                 {
                     name: me.radioGroupName,
+                    itemId: 'bulkselection-radiobtn-all',
                     boxLabel: '<b>' + me.allLabel + '</b>',
                     afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + me.allDescription + '</span>',
                     inputValue: me.allInputValue,
@@ -208,6 +209,7 @@ Ext.define('Uni.view.grid.BulkSelection', {
                 },
                 {
                     name: me.radioGroupName,
+                    itemId: 'bulkselection-radiobtn-selected',
                     boxLabel: '<b>' + me.selectedLabel + '</b>',
                     afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + me.selectedDescription + '</span>',
                     inputValue: me.selectedInputValue,
