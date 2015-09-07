@@ -44,6 +44,10 @@ import javax.validation.MessageInterpolator;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import com.elster.jupiter.fsm.MessageSeeds;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.not;
@@ -92,9 +96,12 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         new Installer(this.dataModel, this.userService, eventService).install(true);
     }
 
-    @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(com.elster.jupiter.fsm.MessageSeeds.values());
+        return Stream.of(
+                Arrays.stream(MessageSeeds.values()),
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -432,7 +439,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(FiniteStateMachineService.COMPONENT_NAME, "finiteStateMachineAdministration.finiteStateMachineAdministrations", "finiteStateMachineAdministration.finiteStateMachineAdministrations.description",
                 Arrays.asList(
-                        Privileges.CONFIGURE_FINITE_STATE_MACHINES, Privileges.VIEW_FINITE_STATE_MACHINES)));
+                        Privileges.Constants.CONFIGURE_FINITE_STATE_MACHINES, Privileges.Constants.VIEW_FINITE_STATE_MACHINES)));
         return resources;
     }
 
