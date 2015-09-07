@@ -30,6 +30,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.TableView', {
 
         me.previewComponent = {
             xtype: 'deviceLoadProfileChannelDataPreview',
+            router: me.router,
             channels: me.channels
         };
 

@@ -4,6 +4,7 @@ Ext.define('Mdc.view.setup.devicechannels.Overview', {
     itemId: 'deviceLoadProfileChannelOverview',
 
     requires: [
+        'Mdc.view.setup.devicechannels.PreviewForm',
         'Mdc.view.setup.devicechannels.ValidationOverview',
         'Mdc.view.setup.devicechannels.ActionMenu'
     ],

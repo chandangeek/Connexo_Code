@@ -48,7 +48,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
             persist: false,
             mapping: function (data) {
                 var value = data.interval,
-                    timeUnitsStore = Ext.getStore('TimeUnits'),
+                    timeUnitsStore = Ext.getStore('Mdc.store.TimeUnits'),
                     result = '',
                     timeUnit,
                     index;

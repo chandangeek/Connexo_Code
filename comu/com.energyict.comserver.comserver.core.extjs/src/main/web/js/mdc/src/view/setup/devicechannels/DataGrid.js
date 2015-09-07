@@ -41,7 +41,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval'),
                 dataIndex: 'interval_end',
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateShort(value) + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' ' + Uni.DateTime.formatTimeShort(value) : '';
+                    return  value ? Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[
+                        Uni.DateTime.formatDateShort(value),
+                        Uni.DateTime.formatTimeShort(value)
+                    ]).toLowerCase() : '';
                 },
                 flex: 1
             },
@@ -50,7 +53,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dataIndex: 'value',
                 align: 'right',
                 renderer: function (v, metaData, record) {
-                    return me.formatColumn(v, metaData, record, record.data.validationInfo.mainValidationInfo);
+                    return me.formatColumn(v, metaData, record, record.get('mainValidationInfo'));
                 },
                 editor: {
                     xtype: 'textfield',
@@ -67,7 +70,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dataIndex: 'value',
                 align: 'right',
                 renderer: function (v, metaData, record) {
-                    return me.formatColumn(v, metaData, record, record.data.validationInfo.mainValidationInfo);
+                    return me.formatColumn(v, metaData, record, record.get('mainValidationInfo'));
                 },
                 hidden: Mdc.dynamicprivileges.DeviceState.canEditData(),
                 width: 200
@@ -86,7 +89,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 align: 'right',
                 hidden: Ext.isEmpty(calculatedReadingType),
                 renderer: function (v, metaData, record) {
-                    return me.formatColumn(v, metaData, record, record.data.validationInfo.bulkValidationInfo);
+                    return me.formatColumn(v, metaData, record, record.get('bulkValidationInfo'));
                 }
             },
             {

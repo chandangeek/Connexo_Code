@@ -47,10 +47,12 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
             items: [
                 {
                     xtype: 'deviceLoadProfilesTableView',
+                    router: me.router,
                     channels: me.channels
                 },
                 {
-                    xtype: 'deviceLoadProfilesGraphView'
+                    xtype: 'deviceLoadProfilesGraphView',
+                    router: me.router
                 }
             ]
         };

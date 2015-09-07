@@ -242,10 +242,9 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
 
         me.store.each(function (record) {
             var point = {},
-                validationInfo = record.get('validationInfo'),
                 interval = record.get('interval'),
-                mainValidationInfo = validationInfo.mainValidationInfo,
-                bulkValidationInfo = validationInfo.bulkValidationInfo,
+                mainValidationInfo = record.get('mainValidationInfo'),
+                bulkValidationInfo = record.get('bulkValidationInfo'),
                 properties = record.get('readingProperties');
 
             point.x = interval.start;
