@@ -2,20 +2,32 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.impl.DataModelImpl;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorFactory;
+import javax.validation.MessageInterpolator;
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.file.FileSystem;
@@ -24,6 +36,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Clock;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
@@ -60,6 +73,9 @@ public class FileDestinationTest {
     private DataExportService dataExportService;
     @Mock
     DataModel dataModel;
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+
 
     private FileSystem fileSystem;
     private Path file1, file2;
@@ -80,6 +96,14 @@ public class FileDestinationTest {
             writer.write(DATA3);
             writer.write(DATA4);
         }
+        MessageInterpolator messageInterpolator = getMessageInterpolator();
+        ValidatorFactory validatorFactory = Validation.byDefaultProvider()
+                .configure()
+                .constraintValidatorFactory(getConstraintValidatorFactory())
+                .messageInterpolator(messageInterpolator)
+                .buildValidatorFactory();
+
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
     }
 
     @Test
@@ -104,7 +128,7 @@ public class FileDestinationTest {
 
     private String getContent(Path file) {
         try {
-            StringBuilder content = new StringBuilder();
+            StringBuffer content = new StringBuffer();
             List<String> lines = Files.readAllLines(file);
             for (String line : lines) {
                 content.append(line);
@@ -113,6 +137,94 @@ public class FileDestinationTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Test
+    public void testCreateDestinationWithValidPath() throws Exception {
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        fileDestination.init(null, "A/C", FILENAME, EXTENSION);
+        fileDestination.save();
+    }
+
+    @Test
+    public void testCreateDestinationWithValidFileExtension() throws Exception {
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        fileDestination.init(null, RELATIVE_DIR, FILENAME, "EXE");
+        fileDestination.save();
+    }
+
+
+
+    @Test
+    @ExpectedConstraintViolation(property = "fileLocation", messageId="{InvalidChars}")
+    public void testCreateDestinationWithInvalidPath() throws Exception {
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        fileDestination.init(null, "A < C", FILENAME, EXTENSION);
+        fileDestination.save();
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "fileName", messageId="{InvalidChars}")
+    public void testCreateDestinationWithInvalidFileNameQuote() throws Exception {
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        fileDestination.init(null, RELATIVE_DIR, "A\"A", EXTENSION);
+        fileDestination.save();
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}")
+    public void testCreateDestinationWithInvalidFileExtensionAstrix() throws Exception {
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        fileDestination.init(null, RELATIVE_DIR, FILENAME, "EX*E");
+        fileDestination.save();
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}")
+    public void testCreateDestinationWithInvalidFileExtensionQuotedAstrix() throws Exception {
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        fileDestination.init(null, RELATIVE_DIR, FILENAME, "EX\\*E");
+        fileDestination.save();
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}")
+    public void testCreateDestinationWithInvalidFileExtensionQuote() throws Exception {
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        fileDestination.init(null, RELATIVE_DIR, FILENAME, "E\"XE");
+        fileDestination.save();
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}")
+    public void testCreateDestinationWithInvalidFileExtensionColon() throws Exception {
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        fileDestination.init(null, RELATIVE_DIR, FILENAME, "E:XE");
+        fileDestination.save();
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}")
+    public void testCreateDestinationWithInvalidFileExtensionSmaller() throws Exception {
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        fileDestination.init(null, RELATIVE_DIR, FILENAME, "E<XE");
+        fileDestination.save();
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}")
+    public void testCreateDestinationWithInvalidFileExtensionLarger() throws Exception {
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        fileDestination.init(null, RELATIVE_DIR, FILENAME, "E>XE");
+        fileDestination.save();
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "fileExtension", messageId="{FieldSizeBetweenMinAndMax}")
+    public void testCreateDestinationWithInvalidFileExtensionTooLong() throws Exception {
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        fileDestination.init(null, RELATIVE_DIR, FILENAME, "EXE98765432109876543210987654321098765432109876543210987654321098765432109876543210");
+        fileDestination.save();
     }
 
     @Test
@@ -130,6 +242,51 @@ public class FileDestinationTest {
         assertThat(fileSystem.getPath("/appserver/export/a/b/exportfile1.txt")).exists();
     }
 
+    private String getContent(Path file) {
+        try {
+            StringBuffer content = new StringBuffer();
+            List<String> lines = Files.readAllLines(file);
+            for (String line : lines) {
+                content.append(line);
+            }
+            return content.toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private ConstraintValidatorFactory getConstraintValidatorFactory() {
+        return new ConstraintValidatorFactory() {
+
+            @Override
+            public void releaseInstance(ConstraintValidator<?, ?> arg0) {
+            }
+
+            @Override
+            public <T extends ConstraintValidator<?, ?>> T getInstance(Class<T> arg0) {
+                try {
+                    return arg0.newInstance();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            };
+        };
+    }
+
+    private MessageInterpolator getMessageInterpolator() {
+        return new MessageInterpolator() {
+            @Override
+            public String interpolate(String messageTemplate, Context context) {
+                return messageTemplate;
+            }
+
+            @Override
+            public String interpolate(String messageTemplate, Context context, Locale locale) {
+                return messageTemplate;
+            }
+        };
+    }
 
 }
 

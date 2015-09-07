@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_EXPORT_TASK + "}")
 class ExportTaskImpl implements IExportTask {
     private final TaskService taskService;
     private final DataModel dataModel;
@@ -52,7 +53,7 @@ class ExportTaskImpl implements IExportTask {
     private final Thesaurus thesaurus;
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
     protected String name;
     @NotNull
     @IsExistingFormatter
@@ -73,6 +74,7 @@ class ExportTaskImpl implements IExportTask {
     private String userName;
     @Valid
     private Reference<IReadingTypeDataSelector> readingTypeDataSelector = Reference.empty();
+    @Valid
     private List<IDataExportDestination> destinations = new ArrayList<>();
 
     @Inject

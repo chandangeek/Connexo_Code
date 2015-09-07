@@ -35,6 +35,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.util.Checks.is;
+
 class DataExportTaskExecutor implements TaskExecutor {
 
     private final IDataExportService dataExportService;
@@ -61,14 +63,23 @@ class DataExportTaskExecutor implements TaskExecutor {
         IDataExportOccurrence dataExportOccurrence = findOccurrence(occurrence);
         boolean success = false;
         String errorMessage = null;
+        Exception thrown = null;
+        Logger occurrenceLogger = getLogger(occurrence);
         try {
-            doExecute(dataExportOccurrence, getLogger(occurrence));
+            doExecute(dataExportOccurrence, occurrenceLogger);
             success = true;
         } catch (Exception ex) {
+            thrown = ex;
             errorMessage = ex.getMessage();
+            if (is(errorMessage).emptyOrOnlyWhiteSpace()) {
+                errorMessage = ex.toString();
+            }
             throw ex;
         } finally {
             try (TransactionContext transactionContext = transactionService.getContext()) {
+                if (thrown != null) {
+                    occurrenceLogger.log(Level.SEVERE, errorMessage, thrown);
+                }
                 dataExportOccurrence.end(success ? DataExportStatus.SUCCESS : DataExportStatus.FAILED, errorMessage);
                 dataExportOccurrence.update();
                 transactionContext.commit();

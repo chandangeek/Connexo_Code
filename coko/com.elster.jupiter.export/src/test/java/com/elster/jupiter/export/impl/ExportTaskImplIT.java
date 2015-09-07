@@ -182,10 +182,7 @@ public class ExportTaskImplIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new FiniteStateMachineModule(),
-                    new MeteringModule(false,
-                            "0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
-                            "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"
-                    ),
+                    new MeteringModule("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"),
                     new PartyModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
@@ -553,7 +550,8 @@ public class ExportTaskImplIT {
         List<? extends DataExportOccurrence> occurrences = task.getOccurrences(/*Range.atLeast(Instant.EPOCH)*/);
         assertThat(occurrences).hasSize(1);
         DataExportOccurrence occ = occurrences.get(0);
-        assertThat(occ.getExportedDataInterval()).isNotNull();
+        assertThat(occ.getDefaultSelectorOccurrence()).isPresent();
+        assertThat(occ.getDefaultSelectorOccurrence().get().getExportedDataInterval()).isNotNull();
     }
 
     @Test

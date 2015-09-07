@@ -26,8 +26,10 @@ import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.nls.impl.NlsServiceImpl;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -35,6 +37,7 @@ import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
@@ -47,6 +50,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.common.collect.ImmutableMap;
@@ -92,7 +96,6 @@ public class DataExportServiceImplIT {
 
         @Override
         protected void configure() {
-            bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LogService.class).toInstance(logService);
@@ -135,8 +138,6 @@ public class DataExportServiceImplIT {
     private FileImportService fileImportService;
     @Mock
     private Thesaurus thesaurus;
-    @Mock
-    private User user;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private DataExportServiceImpl dataExportService;
@@ -171,7 +172,6 @@ public class DataExportServiceImplIT {
 
     @Before
     public void setUp() throws SQLException {
-        when(userService.createUser(any(), any())).thenReturn(user);
         try {
             injector = Guice.createInjector(
                     new MockModule(),
@@ -179,10 +179,7 @@ public class DataExportServiceImplIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new FiniteStateMachineModule(),
-                    new MeteringModule(false,
-                            "0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
-                            "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"
-                            ),
+                    new MeteringModule("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"),
                     new PartyModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
@@ -202,7 +199,8 @@ public class DataExportServiceImplIT {
                     new ValidationModule(),
                     new BpmModule(),
                     new DataVaultModule(),
-                    new FtpModule()
+                    new FtpModule(),
+                    new UserModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -213,6 +211,7 @@ public class DataExportServiceImplIT {
             timeService = injector.getInstance(TimeService.class);
             meteringService = injector.getInstance(MeteringService.class);
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+            ((NlsServiceImpl)(injector.getInstance(NlsService.class))).addTranslationProvider(dataExportService);
             return null;
         });
         readingType = meteringService.getReadingType("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
@@ -222,6 +221,7 @@ public class DataExportServiceImplIT {
         when(dataFormatterFactory.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         when(propertySpec.getName()).thenReturn("propy");
         when(propertySpec.getValueFactory()).thenReturn(new BigDecimalFactory());
+        injector.getInstance(ThreadPrincipalService.class).set(() -> "test");
         try (TransactionContext context = transactionService.getContext()) {
             lastYear = timeService.createRelativePeriod("last year", startOfLastYear, startOfThisYear, Collections.<RelativePeriodCategory>emptyList());
             oneYearBeforeLastYear = timeService.createRelativePeriod("the year before last year", startOfTheYearBeforeLastYear, startOfLastYear, Collections.emptyList());

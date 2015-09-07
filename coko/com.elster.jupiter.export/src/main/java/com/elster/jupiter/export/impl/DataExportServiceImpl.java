@@ -5,14 +5,15 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.ftpclient.FtpClientService;
+import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.mail.MailService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -21,6 +22,8 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -62,12 +65,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Operator.EQUAL;
 
-@Component(name = "com.elster.jupiter.export", service = {DataExportService.class, IDataExportService.class, InstallService.class,PrivilegesProvider.class}, property = "name=" + DataExportService.COMPONENTNAME, immediate = true)
-public class DataExportServiceImpl implements IDataExportService, InstallService,PrivilegesProvider {
+@Component(
+        name = "com.elster.jupiter.export",
+        service = {DataExportService.class, IDataExportService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class},
+        property = "name=" + DataExportService.COMPONENTNAME,
+        immediate = true)
+public class DataExportServiceImpl implements IDataExportService, InstallService, PrivilegesProvider, TranslationKeyProvider {
 
     public static final String DESTINATION_NAME = "DataExport";
     public static final String SUBSCRIBER_NAME = "DataExport";
@@ -188,7 +197,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public void install() {
-        Installer installer = new Installer(dataModel, messageService, timeService, thesaurus, userService);
+        Installer installer = new Installer(dataModel, messageService, timeService);
         installer.install();
     }
 
@@ -476,5 +485,25 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                         Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK,
                         Privileges.RUN_DATA_EXPORT_TASK)));
         return resources;
+    }
+
+    @Override
+    public String getComponentName() {
+        return COMPONENTNAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Stream.of(
+                Arrays.stream(MessageSeeds.values()),
+                Arrays.stream(TranslationKeys.values()),
+                Arrays.stream(DataExportStatus.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 }

@@ -1,17 +1,9 @@
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataExportStatus;
-import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsKey;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
@@ -19,12 +11,15 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
 
-import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.*;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.LAST_7_DAYS;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.PREVIOUS_MONTH;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.PREVIOUS_WEEK;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_MONTH;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.THIS_WEEK;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.TODAY;
+import static com.elster.jupiter.time.DefaultRelativePeriodDefinition.YESTERDAY;
 
 class Installer {
 
@@ -35,17 +30,13 @@ class Installer {
     private final DataModel dataModel;
     private final MessageService messageService;
     private final TimeService timeService;
-    private final Thesaurus thesaurus;
-    private final UserService userService;
 
     private DestinationSpec destinationSpec;
 
-    Installer(DataModel dataModel, MessageService messageService, TimeService timeService, Thesaurus thesaurus, UserService userService) {
+    Installer(DataModel dataModel, MessageService messageService, TimeService timeService) {
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.timeService = timeService;
-        this.thesaurus = thesaurus;
-        this.userService = userService;
     }
 
     public DestinationSpec getDestinationSpec() {
@@ -57,33 +48,9 @@ class Installer {
                 this::installDataModel,
                 this::createDestinationAndSubscriber,
                 this::createRelativePeriodCategory,
-                this::createTranslations,
                 this::createRelativePeriods
         ).andHandleExceptionsWith(Throwable::printStackTrace)
                 .execute();
-    }
-
-    private void createTranslations() {
-        List<Translation> translations = new ArrayList<>(/*MessageSeeds.values().length*/);
-        NlsKey categoryKey = SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, RELATIVE_PERIOD_CATEGORY);
-        Translation translation = SimpleTranslation.translation(categoryKey, Locale.ENGLISH, "Data Export");
-        translations.add(translation);
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            NlsKey nlsKey = SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, messageSeed.getKey()).defaultMessage(messageSeed.getDefaultFormat());
-            translations.add(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, messageSeed.getDefaultFormat()));
-        }
-        for (DataExportStatus status : DataExportStatus.values()) {
-            NlsKey statusKey = SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, status.toString());
-            Translation statusTranslation = SimpleTranslation.translation(statusKey, Locale.ENGLISH, status.toString());
-            translations.add(statusTranslation);
-        }
-        translations.add(SimpleTranslation.translation(SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, StandardDataSelectorFactory.class.getName()), Locale.ENGLISH, DataExportService.STANDARD_DATA_SELECTOR));
-
-        NlsKey statusKey = SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, SUBSCRIBER_NAME);
-        Translation statusTranslation = SimpleTranslation.translation(statusKey, Locale.ENGLISH, DataExportServiceImpl.SUBSCRIBER_DISPLAYNAME);
-        translations.add(statusTranslation);
-
-        thesaurus.addTranslations(translations);
     }
 
     private void createRelativePeriodCategory() {
@@ -114,7 +81,5 @@ class Installer {
                     RelativePeriod relativePeriod = timeService.findRelativePeriodByName(definition.getPeriodName()).orElseThrow(IllegalArgumentException::new);
                     relativePeriod.addRelativePeriodCategory(category);
                 });
-
     }
-
 }

@@ -8,6 +8,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
+import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
@@ -77,7 +78,7 @@ public class ReadingTypeDataSelectorTest {
     private IDataExportService dataExportService;
     @Mock
     private TaskOccurrence occurrence;
-    @Mock
+    @Mock(extraInterfaces = DefaultSelectorOccurrence.class)
     private IDataExportOccurrence dataExportOccurrence;
     @Mock
     private IExportTask task;
@@ -149,7 +150,8 @@ public class ReadingTypeDataSelectorTest {
         when(dataExportService.getDataFormatterFactory("CSV")).thenReturn(Optional.of(dataFormatterFactory));
         when(dataExportService.getDataSelectorFactory(DataExportService.STANDARD_DATA_SELECTOR)).thenReturn(Optional.of(new StandardDataSelectorFactory(transactionService, meteringService, thesaurus)));
         when(dataExportOccurrence.getTask()).thenReturn(task);
-        when(dataExportOccurrence.getExportedDataInterval()).thenReturn(exportPeriod);
+        when(dataExportOccurrence.getDefaultSelectorOccurrence()).thenReturn(Optional.of((DefaultSelectorOccurrence) dataExportOccurrence));
+        when(((DefaultSelectorOccurrence) dataExportOccurrence).getExportedDataInterval()).thenReturn(exportPeriod);
         when(dataExportOccurrence.getTriggerTime()).thenReturn(triggerTime.toInstant());
         when(task.getDataFormatter()).thenReturn("CSV");
         when(task.getDataSelector()).thenReturn(DataExportService.STANDARD_DATA_SELECTOR);

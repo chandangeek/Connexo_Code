@@ -184,7 +184,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
         return occurrence.getTask().getReadingTypeDataSelector()
                 .map(IReadingTypeDataSelector.class::cast)
                 .map(selector -> selector.adjustedExportPeriod(occurrence, item))
-                .orElse(occurrence.getExportedDataInterval());
+                .orElse(Range.all());
     }
 
     private Range<Instant> determineUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {

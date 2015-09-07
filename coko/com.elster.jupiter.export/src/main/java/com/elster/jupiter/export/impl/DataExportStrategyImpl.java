@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
+import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.time.RelativePeriod;
@@ -82,7 +83,9 @@ class DataExportStrategyImpl implements DataExportStrategy {
         }, REQUESTED {
             @Override
             Range<Instant> adjustedExportPeriod(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
-                return occurrence.getExportedDataInterval();
+                return occurrence.getDefaultSelectorOccurrence()
+                        .map(DefaultSelectorOccurrence::getExportedDataInterval)
+                        .orElse(Range.all());
             }
         };
 
