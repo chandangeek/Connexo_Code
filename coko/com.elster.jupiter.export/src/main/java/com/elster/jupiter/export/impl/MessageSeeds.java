@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 public enum MessageSeeds implements MessageSeed {
     NO_SUCH_READINGTYPE(1001, Keys.NO_SUCH_READINGTYPE, "Reading type {0} does not exist."),
     FIELD_CAN_NOT_BE_EMPTY(1002, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty"),
-    FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH(1003, Keys.FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH, "Field's text length should be between 1 and " + Table.NAME_LENGTH + " symbols"),
+    FIELD_SIZE_BETWEEN_MIN_AND_MAX(1003, Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX, "Field should be between {min} and {max} characters"),
     NO_SUCH_FORMATTER(1004, Keys.NO_SUCH_FORMATTER, "Formatter {0} does not exist."),
     NAME_MUST_BE_UNIQUE(1005, Keys.NAME_MUST_BE_UNIQUE, "Data export task with such name already exists"),
     ITEM_FAILED(1006, "dataexport.item.failed", "Item {0}:{1} failed to export", Level.WARNING),
@@ -26,7 +26,7 @@ public enum MessageSeeds implements MessageSeed {
     FILE_IO(1015, "file.io.writing.failure", "Failure while doing IO on file {0} : {1}"),
     PARENT_BREAKING_PATH_NOT_ALLOWED(1016, Keys.PARENT_BREAKING_PATH, "Paths that navigate above parent are not allowed here"),
     INVALIDCHARS_EXCEPTION(1017, Keys.INVALIDCHARS_EXCEPTION, "Characters {0} are not allowed."),
-    DUPLICATE_IMPORT_SCHEDULE(1018, Keys.DUPLICATE_EXPORT_TASK, "Duplicate name");
+    DUPLICATE_IMPORT_SCHEDULE(1018, Keys.DUPLICATE_EXPORT_TASK, "Name must be unique");
 
     private final int number;
     private final String key;
@@ -84,7 +84,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_SUCH_READINGTYPE = "NoSuchReadingType";
         public static final String FIELD_CAN_NOT_BE_EMPTY = "FieldCanNotBeEmpty";
         public static final String MUST_SELECT_AT_LEAST_ONE_READING_TYPE = "MustHaveReadingTypes";
-        public static final String FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH = "FieldSizeBetween1and80";
+        public static final String FIELD_SIZE_BETWEEN_MIN_AND_MAX = "FieldSizeBetweenMinAndMax";
         public static final String NO_SUCH_FORMATTER = "NoSuchFormatter";
         public static final String NAME_MUST_BE_UNIQUE = "NameMustBeUnique";
         public static final String NO_SUCH_SELECTOR = "NoSuchSelector";
