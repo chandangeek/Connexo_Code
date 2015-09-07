@@ -199,11 +199,8 @@ public class DataExportTaskResource {
         try (TransactionContext context = transactionService.getContext()) {
             task.setName(info.name);
             task.setScheduleExpression(getScheduleExpression(info));
-            if (Never.NEVER.equals(task.getScheduleExpression())) {
-                task.setNextExecution(null);
-            } else {
-                task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
-            }
+            task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
+
             if (info.standardDataSelector != null) {
                 ReadingTypeDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
                 selector.setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod));
