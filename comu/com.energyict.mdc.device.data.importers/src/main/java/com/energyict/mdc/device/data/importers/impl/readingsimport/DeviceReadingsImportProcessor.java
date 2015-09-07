@@ -104,7 +104,7 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
 
     private void validateDeviceState(DeviceReadingsImportRecord data, Device device) {
         if (device.getState().getName().equals(DefaultState.DECOMMISSIONED.getKey())
-                && !((User)context.getThreadPrincipalService().getPrincipal()).hasPrivilege("MDC", Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)) {
+                && !((User)context.getThreadPrincipalService().getPrincipal()).hasPrivilege("MDC", Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)) {
             throw new ProcessorException(MessageSeeds.READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE, data.getLineNumber(), device.getmRID());
         }
     }

@@ -565,7 +565,7 @@ public class DeviceReadingsImporterFactoryTest {
         mockChannel(device, "11.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0");
         User user = mockUser("batch executor");
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
-        when(user.hasPrivilege("MDC", Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)).thenReturn(true);
+        when(user.hasPrivilege("MDC", Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)).thenReturn(true);
 
         FileImporter importer = createDeviceReadingsImporter();
         importer.process(importOccurrence);
