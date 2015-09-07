@@ -68,9 +68,13 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     }
 
     @Override
-    protected Application getApplication() {
+    public void setupMocks() {
+        super.setupMocks();
         when(thesaurus.join(any(Thesaurus.class))).thenReturn(thesaurus);
+    }
 
+    @Override
+    protected Application getApplication() {
         DeviceConfigurationApplication application = new DeviceConfigurationApplication();
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
