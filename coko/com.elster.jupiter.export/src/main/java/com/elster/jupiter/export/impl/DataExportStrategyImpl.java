@@ -74,11 +74,11 @@ class DataExportStrategyImpl implements DataExportStrategy {
                         .filter(Range::hasUpperBound)
                         .map(Range::upperEndpoint)
                         .filter(instant -> {
-                            Range<Instant> exportedDataInterval = occurrence.getExportedDataInterval();
+                            Range<Instant> exportedDataInterval = ((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();
                             return exportedDataInterval.hasLowerBound() && exportedDataInterval.lowerEndpoint().isAfter(instant);
                         })
-                        .map(instant -> copy(occurrence.getExportedDataInterval()).withOpenLowerBound(instant))
-                        .orElse(occurrence.getExportedDataInterval());
+                        .map(instant -> copy(((DefaultSelectorOccurrence) occurrence).getExportedDataInterval()).withOpenLowerBound(instant))
+                        .orElse(((DefaultSelectorOccurrence) occurrence).getExportedDataInterval());
             }
         }, REQUESTED {
             @Override

@@ -131,11 +131,11 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     }
 
     private Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
-        return getEndDeviceGroup()
+        return decorate(getEndDeviceGroup()
                 .getMembers(occurrence.getDefaultSelectorOccurrence()
                         .map(DefaultSelectorOccurrence::getExportedDataInterval)
                         .orElse(Range.<Instant>all()))
-                .stream()
+                .stream())
                 .map(EndDeviceMembership::getEndDevice)
                 .filterSubType(Meter.class)
                 .flatMap(this::readingTypeDataExportItems)

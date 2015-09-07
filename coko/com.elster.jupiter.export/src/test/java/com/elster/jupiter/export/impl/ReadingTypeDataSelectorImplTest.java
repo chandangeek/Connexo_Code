@@ -5,10 +5,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
-import com.elster.jupiter.export.DataExportOccurrence;
-import com.elster.jupiter.export.ExportData;
-import com.elster.jupiter.export.MeterReadingData;
-import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.export.*;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -79,7 +76,7 @@ public class ReadingTypeDataSelectorImplTest {
     private MeteringService meteringService;
     @Mock
     private DataModel dataModel;
-    @Mock
+    @Mock(extraInterfaces = DefaultSelectorOccurrence.class)
     private DataExportOccurrence occurrence;
     @Mock
     private IExportTask task;
@@ -122,7 +119,7 @@ public class ReadingTypeDataSelectorImplTest {
         doReturn(validatorFactory).when(dataModel).getValidatorFactory();
         doReturn(validator).when(validatorFactory).getValidator();
 
-        doReturn(EXPORTED_INTERVAL).when(occurrence).getExportedDataInterval();
+        doReturn(EXPORTED_INTERVAL).when((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();
         doReturn(Arrays.asList(membership1, membership2)).when(endDeviceGroup).getMembers(EXPORTED_INTERVAL);
         doReturn(meter1).when(membership1).getEndDevice();
         doReturn(meter2).when(membership2).getEndDevice();

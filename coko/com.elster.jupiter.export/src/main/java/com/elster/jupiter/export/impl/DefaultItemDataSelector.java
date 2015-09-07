@@ -2,12 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.export.DataExportOccurrence;
-import com.elster.jupiter.export.DataExportStrategy;
-import com.elster.jupiter.export.MeterReadingData;
-import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
-import com.elster.jupiter.export.StructureMarker;
+import com.elster.jupiter.export.*;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
@@ -191,7 +186,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
         TreeRangeSet<Instant> base = TreeRangeSet.create();
         Range<Instant> baseRange = determineBaseUpdateInterval(occurrence, item);
         base.add(baseRange);
-        base.remove(occurrence.getExportedDataInterval());
+        base.remove(((DefaultSelectorOccurrence) occurrence).getExportedDataInterval());
         return base.asRanges().stream().findFirst().orElse(baseRange);
     }
 

@@ -242,19 +242,6 @@ public class FileDestinationTest {
         assertThat(fileSystem.getPath("/appserver/export/a/b/exportfile1.txt")).exists();
     }
 
-    private String getContent(Path file) {
-        try {
-            StringBuffer content = new StringBuffer();
-            List<String> lines = Files.readAllLines(file);
-            for (String line : lines) {
-                content.append(line);
-            }
-            return content.toString();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private ConstraintValidatorFactory getConstraintValidatorFactory() {
         return new ConstraintValidatorFactory() {
 
