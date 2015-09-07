@@ -147,7 +147,6 @@ public class DeviceTypeResource {
     private ChangeDeviceLifeCycleInfo getChangeDeviceLifeCycleFailInfo(IncompatibleDeviceLifeCycleChangeException lifeCycleChangeError, DeviceLifeCycle currentDeviceLifeCycle, DeviceLifeCycle targetDeviceLifeCycle) {
         ChangeDeviceLifeCycleInfo info = new ChangeDeviceLifeCycleInfo();
         info.success = false;
-        String errorMessage = ;
         info.message = thesaurus.getFormat(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE).format(targetDeviceLifeCycle.getName());
         info.currentDeviceLifeCycle = new DeviceLifeCycleInfo(currentDeviceLifeCycle);
         info.targetDeviceLifeCycle = new DeviceLifeCycleInfo(targetDeviceLifeCycle);
