@@ -1,8 +1,45 @@
 package com.elster.jupiter.license.security;
 
-public interface Privileges {
+import com.elster.jupiter.nls.TranslationKey;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
-    String VIEW_LICENSE = "privilege.view.license";
-    String UPLOAD_LICENSE = "privilege.upload.license";
+public enum Privileges implements TranslationKey {
 
+    VIEW_LICENSE(Constants.VIEW_LICENSE, "View"),
+    UPLOAD_LICENSE(Constants.UPLOAD_LICENSE, "Upload");
+
+    private final String key;
+    private final String description;
+
+    Privileges(String key, String description) {
+        this.key = key;
+        this.description = description;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    @Override
+    public String getDefaultFormat() {
+        return getDescription();
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public static String[] keys() {
+        return Arrays.stream(Privileges.values())
+                .map(Privileges::getKey)
+                .collect(Collectors.toList())
+                .toArray(new String[Privileges.values().length]);
+    }
+
+    public interface Constants {
+        String VIEW_LICENSE = "privilege.view.license";
+        String UPLOAD_LICENSE = "privilege.upload.license";
+    }
 }
+

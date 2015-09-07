@@ -42,6 +42,9 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Copyrights EnergyICT
@@ -108,7 +111,7 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(LicenseService.COMPONENTNAME, "license.license", "license.license.description",
                 Arrays.asList(
-                        Privileges.VIEW_LICENSE, Privileges.UPLOAD_LICENSE)));
+                        Privileges.Constants.VIEW_LICENSE, Privileges.Constants.UPLOAD_LICENSE)));
         return resources;
     }
 
@@ -273,7 +276,11 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
+        return Stream.of(
+                Arrays.stream(MessageSeeds.values()),
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     class LicenseCheckTask extends TimerTask {
