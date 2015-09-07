@@ -511,8 +511,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.PRIVILEGE_USAGE_POINT_NAME.getKey(), DefaultTranslationKey.PRIVILEGE_USAGE_POINT_DESCRIPTION.getKey(),
                 Arrays.asList(
-                        Privileges.BROWSE_ANY, Privileges.ADMIN_ANY,
-                        Privileges.BROWSE_OWN, Privileges.ADMIN_OWN)));
+                        Privileges.Constants.BROWSE_ANY, Privileges.Constants.ADMIN_ANY,
+                        Privileges.Constants.BROWSE_OWN, Privileges.Constants.ADMIN_OWN)));
 
         return resources;
     }
@@ -533,6 +533,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         Arrays.stream(MessageSeeds.values()).forEach(translationKeys::add);
         Arrays.stream(DefaultTranslationKey.values()).forEach(translationKeys::add);
         Arrays.stream(ServiceKind.values()).forEach(translationKeys::add);
+        Arrays.stream(Privileges.values()).forEach(translationKeys::add);
         return translationKeys;
     }
 
