@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 
 import static com.energyict.mdc.device.data.tasks.history.CompletionCode.ConnectionError;
 import static com.energyict.mdc.device.data.tasks.history.CompletionCode.Ok;
+import static com.energyict.mdc.device.data.tasks.history.CompletionCode.ProtocolError;
 import static com.energyict.mdc.device.data.tasks.history.CompletionCode.UnexpectedError;
 import static com.energyict.mdc.device.data.tasks.history.CompletionCode.forResultType;
 
@@ -203,7 +204,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
             try {
                 doExecute(deviceProtocol, executionContext);
                 success = true;
-            } catch (ConnectionCommunicationException e){
+            } catch (ConnectionCommunicationException e) {
                 setCompletionCode(ConnectionError);
                 throw e;
             } catch (CommunicationException e) {

@@ -18,8 +18,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 /**
@@ -51,20 +49,20 @@ public class ComServerOperationalStatisticsImplTest {
 
     @Before
     public void setupThesaurus () {
-        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.YEAR_SINGULAR.getKey()), anyString())).thenReturn("{0} year");
-        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.YEAR_PLURAL.getKey()), anyString())).thenReturn("{0} years");
-        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.MONTH_SINGULAR.getKey()), anyString())).thenReturn("{0} month");
-        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.MONTH_PLURAL.getKey()), anyString())).thenReturn("{0} months");
-        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.DAY_SINGULAR.getKey()), anyString())).thenReturn("{0} day");
-        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.DAY_PLURAL.getKey()), anyString())).thenReturn("{0} days");
-        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.HOUR_SINGULAR.getKey()), anyString())).thenReturn("{0} hour");
-        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.HOUR_PLURAL.getKey()), anyString())).thenReturn("{0} hours");
-        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.MINUTE_SINGULAR.getKey()), anyString())).thenReturn("{0} minute");
-        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.MINUTE_PLURAL.getKey()), anyString())).thenReturn("{0} minutes");
-        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.SECOND_SINGULAR.getKey()), anyString())).thenReturn("{0} second");
-        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.SECOND_PLURAL.getKey()), anyString())).thenReturn("{0} seconds");
-        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.SEPARATOR.getKey()), anyString())).thenReturn(", ");
-        when(this.thesaurus.getString(eq(PrettyPrintTimeDurationTranslationKeys.LAST_SEPARATOR.getKey()), anyString())).thenReturn(" and ");
+        when(this.thesaurus.getFormat(PrettyPrintTimeDurationTranslationKeys.YEAR_SINGULAR)).thenReturn(new SimpleNlsMessageFormat(PrettyPrintTimeDurationTranslationKeys.YEAR_SINGULAR));
+        when(this.thesaurus.getFormat(PrettyPrintTimeDurationTranslationKeys.YEAR_PLURAL)).thenReturn(new SimpleNlsMessageFormat(PrettyPrintTimeDurationTranslationKeys.YEAR_PLURAL));
+        when(this.thesaurus.getFormat(PrettyPrintTimeDurationTranslationKeys.MONTH_SINGULAR)).thenReturn(new SimpleNlsMessageFormat(PrettyPrintTimeDurationTranslationKeys.MONTH_SINGULAR));
+        when(this.thesaurus.getFormat(PrettyPrintTimeDurationTranslationKeys.MONTH_PLURAL)).thenReturn(new SimpleNlsMessageFormat(PrettyPrintTimeDurationTranslationKeys.MONTH_PLURAL));
+        when(this.thesaurus.getFormat(PrettyPrintTimeDurationTranslationKeys.DAY_SINGULAR)).thenReturn(new SimpleNlsMessageFormat(PrettyPrintTimeDurationTranslationKeys.DAY_SINGULAR));
+        when(this.thesaurus.getFormat(PrettyPrintTimeDurationTranslationKeys.DAY_PLURAL)).thenReturn(new SimpleNlsMessageFormat(PrettyPrintTimeDurationTranslationKeys.DAY_PLURAL));
+        when(this.thesaurus.getFormat(PrettyPrintTimeDurationTranslationKeys.HOUR_SINGULAR)).thenReturn(new SimpleNlsMessageFormat(PrettyPrintTimeDurationTranslationKeys.HOUR_SINGULAR));
+        when(this.thesaurus.getFormat(PrettyPrintTimeDurationTranslationKeys.HOUR_PLURAL)).thenReturn(new SimpleNlsMessageFormat(PrettyPrintTimeDurationTranslationKeys.HOUR_PLURAL));
+        when(this.thesaurus.getFormat(PrettyPrintTimeDurationTranslationKeys.MINUTE_SINGULAR)).thenReturn(new SimpleNlsMessageFormat(PrettyPrintTimeDurationTranslationKeys.MINUTE_SINGULAR));
+        when(this.thesaurus.getFormat(PrettyPrintTimeDurationTranslationKeys.MINUTE_PLURAL)).thenReturn(new SimpleNlsMessageFormat(PrettyPrintTimeDurationTranslationKeys.MINUTE_PLURAL));
+        when(this.thesaurus.getFormat(PrettyPrintTimeDurationTranslationKeys.SECOND_SINGULAR)).thenReturn(new SimpleNlsMessageFormat(PrettyPrintTimeDurationTranslationKeys.SECOND_SINGULAR));
+        when(this.thesaurus.getFormat(PrettyPrintTimeDurationTranslationKeys.SECOND_PLURAL)).thenReturn(new SimpleNlsMessageFormat(PrettyPrintTimeDurationTranslationKeys.SECOND_PLURAL));
+        when(this.thesaurus.getFormat(PrettyPrintTimeDurationTranslationKeys.SEPARATOR)).thenReturn(new SimpleNlsMessageFormat(PrettyPrintTimeDurationTranslationKeys.SEPARATOR));
+        when(this.thesaurus.getFormat(PrettyPrintTimeDurationTranslationKeys.LAST_SEPARATOR)).thenReturn(new SimpleNlsMessageFormat(PrettyPrintTimeDurationTranslationKeys.LAST_SEPARATOR));
     }
 
     @Test

@@ -33,16 +33,16 @@ public enum MessageSeeds implements MessageSeed {
     LOGGER_FACTORY_REQUIRES_INTERFACE(5017, "loggerFactoryRequiresInterface", "Can only produce loggers for interface classes {0}"),
     LOGGER_FACTORY_SUPPORTS_ONLY_ONE_THROWABLE_PARAMETER(5018, "loggerFactorySupportOnly1ThrowableParameter", "Only one Throwable message parameter supported but method {0} has multiple"),
     FW_DISCOVERED_NEW_GHOST(5019, Keys.FW_DISCOVERED_NEW_GHOST, "Discovered a new ghost firmware version ''{0}''"),
-    FW_DISCOVERED_EXISTING_GHOST(5020, Keys.FW_DISCOVERED_EXISTING_GHOST, "Discovered an existing ghost firmware version ''{0}''"),
-    FW_DISCOVERED_DEPRECATE(5021, Keys.FW_DISCOVERED_DEPRECATE, "Discovered a deprecate firmware version"),
-    FW_DISCOVERED_EMPTY_WAS_GHOST(5022, Keys.FW_DISCOVERED_EMPTY_WAS_GHOST, "Discovered an EMPTY firmware version, while it previously was a ghost version ''{0}''"),
-    FW_DISCOVERED_EMPTY_WAS_TEST(5023, Keys.FW_DISCOVERED_EMPTY_WAS_TEST, "Discovered an EMPTY firmware version, while it previously was a test version ''{0}''"),
-    FW_DISCOVERED_EMPTY_WAS_FINAL(5024, Keys.FW_DISCOVERED_EMPTY_WAS_FINAL, "Discovered an EMPTY firmware version, while it previously was a final version ''{0}''"),
-    FW_DISCOVERED_EMPTY_WAS_DEPRECATE(5025, Keys.FW_DISCOVERED_EMPTY_WAS_DEPRECATE, "Discovered an EMPTY firmware version, while it previously was a deprecate version ''{0}''"),
-    FW_DISCOVERED_NEW_GHOST_WAS_FINAL(5026, Keys.FW_DISCOVERED_NEW_GHOST_WAS_FINAL, "Discovered a new ghost firmware version ''{0}'', while it previously was a final version ''{1}''"),
-    FW_DISCOVERED_EXISTING_GHOST_WAS_FINAL(5027, Keys.FW_DISCOVERED_EXISTING_GHOST_WAS_FINAL, "Discovered an existing ghost firmware version ''{0}'', while it previously was a final version ''{1}''"),
-    FW_DISCOVERED_DEPRECATE_WAS_FINAL(5028, Keys.FW_DISCOVERED_DEPRECATE_WAS_FINAL, "Discovered a deprecate firmware version ''{0}'', while it previously was a final version ''{1}'''"),
-    FW_UNKNOWN(5029, "DDC.device.firmware.unknown", "Unknown firmware version transition..."),
+    FW_DISCOVERED_EXISTING_GHOST(5020, Keys.FW_DISCOVERED_EXISTING_GHOST, "Discovered an existing ghost firmware version ''{0}''", Level.INFO),
+    FW_DISCOVERED_DEPRECATE(5021, Keys.FW_DISCOVERED_DEPRECATE, "Discovered a deprecate firmware version", Level.INFO),
+    FW_DISCOVERED_EMPTY_WAS_GHOST(5022, Keys.FW_DISCOVERED_EMPTY_WAS_GHOST, "Discovered an EMPTY firmware version, while it previously was a ghost version ''{0}''", Level.INFO),
+    FW_DISCOVERED_EMPTY_WAS_TEST(5023, Keys.FW_DISCOVERED_EMPTY_WAS_TEST, "Discovered an EMPTY firmware version, while it previously was a test version ''{0}''", Level.INFO),
+    FW_DISCOVERED_EMPTY_WAS_FINAL(5024, Keys.FW_DISCOVERED_EMPTY_WAS_FINAL, "Discovered an EMPTY firmware version, while it previously was a final version ''{0}''", Level.INFO),
+    FW_DISCOVERED_EMPTY_WAS_DEPRECATE(5025, Keys.FW_DISCOVERED_EMPTY_WAS_DEPRECATE, "Discovered an EMPTY firmware version, while it previously was a deprecate version ''{0}''", Level.INFO),
+    FW_DISCOVERED_NEW_GHOST_WAS_FINAL(5026, Keys.FW_DISCOVERED_NEW_GHOST_WAS_FINAL, "Discovered a new ghost firmware version ''{0}'', while it previously was a final version ''{1}''", Level.INFO),
+    FW_DISCOVERED_EXISTING_GHOST_WAS_FINAL(5027, Keys.FW_DISCOVERED_EXISTING_GHOST_WAS_FINAL, "Discovered an existing ghost firmware version ''{0}'', while it previously was a final version ''{1}''", Level.INFO),
+    FW_DISCOVERED_DEPRECATE_WAS_FINAL(5028, Keys.FW_DISCOVERED_DEPRECATE_WAS_FINAL, "Discovered a deprecate firmware version ''{0}'', while it previously was a final version ''{1}'''", Level.INFO),
+    FW_UNKNOWN(5029, "DDC.device.firmware.unknown", "Unknown firmware version transition...", Level.INFO),
     INBOUND_DATA_STORAGE_FAILURE(5030, "MDC.inbound.data.storage.failure", "Failed to store the data for inbound communication"),
     INBOUND_DATA_RESPONSE_FAILURE(5031, "MDC.inbound.data.response.failure", "Failed to store to provide a proper result to the device"),
     INBOUND_DATA_PROCESSOR_ERROR(5032, "MDC.inbound.data.processor.error", "Failed to execute the inbound device storage commands"),
@@ -53,19 +53,26 @@ public enum MessageSeeds implements MessageSeed {
     INCORRECT_NUMBER_OF_COMTASKS(5037, "incorrectNbrOfComTasks", "Incorrect number of PreparedComTaskExecutions. Expected {0} but got {1}"),
     SESSION_FOR_COMTASK_MISSING(5038, "comTaskSessionMissing", "Expected session for ComTask {0} was not found in ComSessionShadow"),
     CONNECTION_FAILURE(5039, "connectionFailure", "Failure to connect to device"),
-    UNEXPECTED_IO_EXCEPTION(124, "unexpectedIOException", "Exception occurred while communication with a device"),
     UNEXPECTED_INBOUND_COMMUNICATION_EXCEPTION(5040, "unexpectedInboundCommException", "Unexpected inbound communication exception, see stacktrace for more details"),
     MODEM_COULD_NOT_ESTABLISH_CONNECTION(5041, "modemConnectError", "Failed to establish a connection between modem on COM port {0} and its receiver within timeout [{1} ms]"),
+    UNEXPECTED_IO_EXCEPTION(5042, "unexpectedIOException", "Exception occurred while communication with a device"),
+    COMMUNICATION_FAILURE(5043, "communicationFailure", "Communication with device failed", Level.SEVERE),
     ;
 
     private final int number;
     private final String key;
     private final String defaultFormat;
+    private final Level level;
 
     MessageSeeds(int number, String key, String defaultFormat) {
+        this(number, key, defaultFormat, Level.SEVERE);
+    }
+
+    MessageSeeds(int number, String key, String defaultFormat, Level level) {
         this.number = number;
         this.key = key;
         this.defaultFormat = defaultFormat;
+        this.level = level;
     }
 
     @Override
@@ -85,7 +92,7 @@ public enum MessageSeeds implements MessageSeed {
 
     @Override
     public Level getLevel() {
-        return Level.INFO;
+        return this.level;
     }
 
     @Override
