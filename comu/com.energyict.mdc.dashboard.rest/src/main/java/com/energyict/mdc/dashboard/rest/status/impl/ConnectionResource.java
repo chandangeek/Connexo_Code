@@ -112,7 +112,7 @@ public class ConnectionResource {
     @GET
     @Path("/connectiontypepluggableclasses")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getConnectionTypeValues() {
         List<IdWithNameInfo> names = new ArrayList<>();
         for (ConnectionTypePluggableClass connectionTypePluggableClass : this.protocolPluggableService.findAllConnectionTypePluggableClasses()) {
@@ -126,7 +126,7 @@ public class ConnectionResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response getConnections(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) throws Exception {
         ConnectionTaskFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
         if (!queryParameters.getStart().isPresent() || !queryParameters.getLimit().isPresent()) {
@@ -244,7 +244,7 @@ public class ConnectionResource {
     @GET
     @Path("/{connectionId}/latestcommunications")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public PagedInfoList getCommunications(@PathParam("connectionId") long connectionId, @BeanParam JsonQueryParameters queryParameters) {
         ConnectionTask connectionTask =
                 connectionTaskService
@@ -263,7 +263,7 @@ public class ConnectionResource {
     @Path("/{connectionId}/run")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     // TODO Would be better if this method moved to ConnectionResource in device.data.rest
     public Response runConnectionTask(@PathParam("connectionId") long connectionId, @Context UriInfo uriInfo) {
         ConnectionTask connectionTask =
@@ -289,7 +289,7 @@ public class ConnectionResource {
     @Path("/run")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runConnectionTask(ConnectionsBulkRequestInfo connectionsBulkRequestInfo) throws Exception {
         if (!verifyAppServerExists(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION) || !verifyAppServerExists(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
@@ -318,7 +318,7 @@ public class ConnectionResource {
     @Path("/properties")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response getCommonConnectionTaskProperties(@QueryParam("filter") String filterQueryParam, @QueryParam("connections") String connectionsQueryParam) throws Exception {
         ConnectionTypePluggableClass connectionType = getConnectionTypePluggableClassFromQueryParameters(filterQueryParam, connectionsQueryParam);
         List<PropertySpec> propertySpecs = connectionType.getPropertySpecs();
@@ -332,7 +332,7 @@ public class ConnectionResource {
     @Path("/properties")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response updateCommonConnectionTaskProperties(PropertiesBulkRequestInfo propertiesBulkRequestInfo) throws Exception {
         if (!verifyAppServerExists(ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_DESTINATION) || !verifyAppServerExists(ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);

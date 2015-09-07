@@ -84,7 +84,7 @@ public class CommunicationResource {
     @GET
     @Consumes("application/json")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response getCommunications(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) throws Exception {
         ComTaskExecutionFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
         if (!queryParameters.getStart().isPresent() || !queryParameters.getLimit().isPresent()) {
@@ -109,7 +109,7 @@ public class CommunicationResource {
     @Path("/{comTaskExecId}/run")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunication(@PathParam("comTaskExecId") long comTaskExecId) {
         ComTaskExecution comTaskExecution = communicationTaskService.findComTaskExecution(comTaskExecId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_COMMUNICATION_TASK, comTaskExecId));
@@ -121,7 +121,7 @@ public class CommunicationResource {
     @Path("/{comTaskExecId}/runnow")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunicationNow(@PathParam("comTaskExecId") long comTaskExecId) {
         ComTaskExecution comTaskExecution = communicationTaskService.findComTaskExecution(comTaskExecId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_COMMUNICATION_TASK, comTaskExecId));
@@ -133,7 +133,7 @@ public class CommunicationResource {
     @Path("/run")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunicationTask(CommunicationsBulkRequestInfo communicationsBulkRequestInfo) throws Exception {
         if (!verifyAppServerExists(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION) || !verifyAppServerExists(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
@@ -145,7 +145,7 @@ public class CommunicationResource {
     @Path("/runnow")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunicationTaskNow(CommunicationsBulkRequestInfo communicationsBulkRequestInfo) throws Exception {
         if (!verifyAppServerExists(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION) || !verifyAppServerExists(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);

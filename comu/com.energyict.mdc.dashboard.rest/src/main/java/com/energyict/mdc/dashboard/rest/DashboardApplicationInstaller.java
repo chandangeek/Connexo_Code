@@ -51,7 +51,7 @@ public class DashboardApplicationInstaller implements InstallService {
 
     private Group createComServerAccessGroup() {
         Group group = userService.createGroup(ComServerStatusSummaryResource.COM_SERVER_INTERNAL_USER_GROUP, "<INTERNAL> Regulates dashboard's inter-comserver communication");
-        group.grant("MDC", Privileges.VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL);
+        group.grant("MDC", Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL);
         group.save();
         return group;
     }
