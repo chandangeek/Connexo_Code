@@ -1,12 +1,5 @@
 package com.energyict.mdc.device.lifecycle.config.rest;
 
-import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.fsm.*;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -20,6 +13,7 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.impl.DefaultLifeCycleTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication;
+import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCheckTranslationKey;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.events.EventService;
@@ -40,7 +34,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
-import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
@@ -99,7 +92,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
             if (EnumSet.of(MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID).contains(microCheck)){
+                    MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID).contains(microCheck)) {
                 return MicroCheckTranslationKey.MICRO_CHECK_NAME_MANDATORY_COMMUNICATION_ATTRIBUTES_AVAILABLE.getKey();
             }
             return microCheck.name();
