@@ -67,29 +67,29 @@ public class MdcAppInstaller implements InstallService {
 
     private String[] getPrivilegesReportViewer() {
         return new String[]{
-                com.elster.jupiter.yellowfin.security.Privileges.VIEW_REPORTS
+                com.elster.jupiter.yellowfin.security.Privileges.Constants.VIEW_REPORTS
         };
     }
 
     private String[] getPrivilegesMeterOperator(){
         return new String[] {
-                com.elster.jupiter.export.security.Privileges.RUN_DATA_EXPORT_TASK,
-                com.elster.jupiter.export.security.Privileges.VIEW_DATA_EXPORT_TASK,
-                com.energyict.mdc.engine.config.security.Privileges.VIEW_COMMUNICATION_ADMINISTRATION,
-                com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE,
-                com.energyict.mdc.device.data.security.Privileges.OPERATE_DEVICE_COMMUNICATION,
-                com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_DATA,
-                com.energyict.mdc.device.config.security.Privileges.VIEW_DEVICE_TYPE,
-                com.elster.jupiter.issue.security.Privileges.ACTION_ISSUE,
-                com.elster.jupiter.issue.security.Privileges.ASSIGN_ISSUE,
-                com.elster.jupiter.issue.security.Privileges.CLOSE_ISSUE,
-                com.elster.jupiter.issue.security.Privileges.COMMENT_ISSUE,
-                com.elster.jupiter.issue.security.Privileges.VIEW_ISSUE,
-                com.energyict.mdc.device.config.security.Privileges.VIEW_MASTER_DATA,
-                com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION,
-                com.energyict.mdc.device.lifecycle.config.Privileges.INITIATE_ACTION_1,
-                com.energyict.mdc.device.lifecycle.config.Privileges.INITIATE_ACTION_2,
-                com.energyict.mdc.device.lifecycle.config.Privileges.INITIATE_ACTION_3
+                com.elster.jupiter.export.security.Privileges.Constants.RUN_DATA_EXPORT_TASK,
+                com.elster.jupiter.export.security.Privileges.Constants.VIEW_DATA_EXPORT_TASK,
+                com.energyict.mdc.engine.config.security.Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
+                com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE,
+                com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION,
+                com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
+                com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE,
+                com.elster.jupiter.issue.security.Privileges.Constants.ACTION_ISSUE,
+                com.elster.jupiter.issue.security.Privileges.Constants.ASSIGN_ISSUE,
+                com.elster.jupiter.issue.security.Privileges.Constants.CLOSE_ISSUE,
+                com.elster.jupiter.issue.security.Privileges.Constants.COMMENT_ISSUE,
+                com.elster.jupiter.issue.security.Privileges.Constants.VIEW_ISSUE,
+                com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_MASTER_DATA,
+                com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
+                com.energyict.mdc.device.lifecycle.config.Privileges.Constants.INITIATE_ACTION_1,
+                com.energyict.mdc.device.lifecycle.config.Privileges.Constants.INITIATE_ACTION_2,
+                com.energyict.mdc.device.lifecycle.config.Privileges.Constants.INITIATE_ACTION_3
         };
     }
     
