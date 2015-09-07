@@ -70,7 +70,7 @@ public class DataPurgeResource {
 
     @GET
     @Path("/lifecycle/categories")
-    @RolesAllowed({Privileges.ADMINISTRATE_DATA_PURGE, Privileges.VIEW_DATA_PURGE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DATA_PURGE, Privileges.Constants.VIEW_DATA_PURGE})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getLifeCycleCategories() {
         return Response.ok(ListInfo.from(lifeCycleService.getCategories(),  getCategoryInfoMapper())).build();
@@ -78,7 +78,7 @@ public class DataPurgeResource {
 
     @PUT
     @Path("/lifecycle/categories")
-    @RolesAllowed(Privileges.ADMINISTRATE_DATA_PURGE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DATA_PURGE)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response updateLifeCycleCategories(ListInfo<LifeCycleCategoryInfo> updatedCategories) {
         if (updatedCategories != null) {
@@ -96,7 +96,7 @@ public class DataPurgeResource {
 
     @PUT
     @Path("/lifecycle/categories/{key}")
-    @RolesAllowed(Privileges.ADMINISTRATE_DATA_PURGE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DATA_PURGE)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response updateLifeCycleCategory(LifeCycleCategoryInfo updatedCategory) {
         try (TransactionContext context = transactionService.getContext()) {
@@ -113,7 +113,7 @@ public class DataPurgeResource {
 
     @GET
     @Path("/history")
-    @RolesAllowed({Privileges.ADMINISTRATE_DATA_PURGE, Privileges.VIEW_DATA_PURGE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DATA_PURGE, Privileges.Constants.VIEW_DATA_PURGE})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getPurgeHistory(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
@@ -133,7 +133,7 @@ public class DataPurgeResource {
 
     @GET
     @Path("/history/{id}")
-    @RolesAllowed({Privileges.ADMINISTRATE_DATA_PURGE, Privileges.VIEW_DATA_PURGE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DATA_PURGE, Privileges.Constants.VIEW_DATA_PURGE})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getPurgeHistoryRecord(@PathParam("id") long id) {
         TaskOccurrence occurrence = getTaskOccurenceOrThrowException(id);
@@ -142,7 +142,7 @@ public class DataPurgeResource {
 
     @GET
     @Path("/history/{id}/categories")
-    @RolesAllowed({Privileges.ADMINISTRATE_DATA_PURGE, Privileges.VIEW_DATA_PURGE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DATA_PURGE, Privileges.Constants.VIEW_DATA_PURGE})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getPurgeHistory(@PathParam("id") long id) {
         Instant triggerTime = getTaskOccurenceOrThrowException(id).getTriggerTime();
@@ -151,7 +151,7 @@ public class DataPurgeResource {
 
     @GET
     @Path("/history/{id}/logs")
-    @RolesAllowed({Privileges.ADMINISTRATE_DATA_PURGE, Privileges.VIEW_DATA_PURGE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DATA_PURGE, Privileges.Constants.VIEW_DATA_PURGE})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getPurgeLogForOccurence(@PathParam("id") long id, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());

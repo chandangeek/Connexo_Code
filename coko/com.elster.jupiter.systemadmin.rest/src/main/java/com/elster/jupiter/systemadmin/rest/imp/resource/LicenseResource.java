@@ -44,7 +44,7 @@ public class LicenseResource extends BaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.VIEW_LICENSE)
+    @RolesAllowed(Privileges.Constants.VIEW_LICENSE)
     public LicenseListInfo getLicenseList() {
         List<License> resultList = new ArrayList<>();
         List<String> applKeyList = getLicenseService().getLicensedApplicationKeys();
@@ -60,7 +60,7 @@ public class LicenseResource extends BaseResource {
     @GET
     @Path("/{applicationkey}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.VIEW_LICENSE)
+    @RolesAllowed(Privileges.Constants.VIEW_LICENSE)
     public RootEntity getLicenseById(@PathParam("applicationkey") String tag) {
         Optional<License> licenseRef = getLicenseService().getLicenseForApplication(tag);
         LicenseInfo info = new LicenseInfo();
@@ -76,7 +76,7 @@ public class LicenseResource extends BaseResource {
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_PLAIN)
-    @RolesAllowed(Privileges.UPLOAD_LICENSE)
+    @RolesAllowed(Privileges.Constants.UPLOAD_LICENSE)
     public Response uploadLicense(@FormDataParam("uploadField") InputStream fileInputStream,
                                   @FormDataParam("uploadField") FormDataContentDisposition contentDispositionHeader) {
         SignedObject signedObject = null;
