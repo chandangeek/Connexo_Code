@@ -32,7 +32,7 @@ public class YellowfinDeviceGroupsResource {
     @POST
     @Path("/dynamic")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.VIEW_REPORTS)
+    @RolesAllowed(Privileges.Constants.VIEW_REPORTS)
     public void cacheDynamicGroup(YellowfinDeviceGroupInfos groupInfos) {
         try(TransactionContext context = transactionService.getContext()){
             for(YellowfinDeviceGroupInfo group : groupInfos.groups){
@@ -45,7 +45,7 @@ public class YellowfinDeviceGroupsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.VIEW_REPORTS)
+    @RolesAllowed(Privileges.Constants.VIEW_REPORTS)
     @Path("/list")
     public YellowfinDeviceGroupInfos getDeviceGroups() {
 

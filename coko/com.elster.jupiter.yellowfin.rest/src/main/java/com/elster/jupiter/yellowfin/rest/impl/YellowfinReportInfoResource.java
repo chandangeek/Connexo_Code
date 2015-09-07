@@ -32,7 +32,7 @@ public class YellowfinReportInfoResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/info")
-    @RolesAllowed(Privileges.VIEW_REPORTS)
+    @RolesAllowed(Privileges.Constants.VIEW_REPORTS)
     public ReportInfos getReportsInfo(@QueryParam("category") String category,
                                       @QueryParam("subCategory") String subCategory,
                                       @QueryParam("reportUUID") String reportUUID,
@@ -50,7 +50,7 @@ public class YellowfinReportInfoResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/filter")
-    @RolesAllowed(Privileges.VIEW_REPORTS)
+    @RolesAllowed(Privileges.Constants.VIEW_REPORTS)
     public FilterInfos getFiltersInfo(@QueryParam("reportId") int reportId,
                                       @QueryParam("reportUUID") String reportUUID,
                                       @QueryParam("listAll") boolean listAll,
@@ -83,7 +83,7 @@ public class YellowfinReportInfoResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/filterlistitems")
-    @RolesAllowed(Privileges.VIEW_REPORTS)
+    @RolesAllowed(Privileges.Constants.VIEW_REPORTS)
     public FilterListItemInfos getFiltersInfo(@QueryParam("reportId") int reportId,
                                       @QueryParam("reportUUID") String reportUUID,
                                       @QueryParam("filterId") String filterId,
