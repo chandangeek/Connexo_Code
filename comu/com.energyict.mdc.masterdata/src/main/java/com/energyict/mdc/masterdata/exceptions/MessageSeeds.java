@@ -1,8 +1,8 @@
 package com.energyict.mdc.masterdata.exceptions;
 
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.masterdata.MasterDataService;
+
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 
@@ -14,7 +14,7 @@ import static java.util.logging.Level.SEVERE;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-11 (16:49)
  */
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 
     NAME_IS_REQUIRED(1000, Keys.NAME_REQUIRED, "The name is required", SEVERE),
     NAME_IS_UNIQUE(1001, Keys.NAME_UNIQUE, "Name must be unique", SEVERE),
