@@ -20,6 +20,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -39,6 +40,7 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
@@ -73,10 +75,10 @@ import static com.elster.jupiter.util.conditions.Operator.EQUAL;
 
 @Component(
         name = "com.elster.jupiter.export",
-        service = {DataExportService.class, IDataExportService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class},
+        service = {DataExportService.class, IDataExportService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = "name=" + DataExportService.COMPONENTNAME,
         immediate = true)
-public class DataExportServiceImpl implements IDataExportService, InstallService, PrivilegesProvider, TranslationKeyProvider {
+public class DataExportServiceImpl implements IDataExportService, InstallService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
 
     public static final String DESTINATION_NAME = "DataExport";
     public static final String SUBSCRIBER_NAME = "DataExport";
@@ -500,10 +502,15 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Arrays.stream(MessageSeeds.values()),
-                Arrays.stream(TranslationKeys.values()),
-                Arrays.stream(DataExportStatus.values()))
+                Stream.of(TranslationKeys.values()),
+                Stream.of(DataExportStatus.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
 }
