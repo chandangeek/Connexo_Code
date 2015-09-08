@@ -569,10 +569,12 @@ Ext.define('Dxp.controller.Tasks', {
                              }*/
                             fileFormatterCombo.setValue(fileFormatterCombo.store.getById(record.data.dataProcessor.name));
                             if (record.data.nextRun && (record.data.nextRun !== 0)) {
+                                view.down('#start-on').setValue(record.data.nextRun);
+                            }
+                            if (schedule) {
                                 view.down('#recurrence-trigger').setValue({recurrence: true});
                                 view.down('#recurrence-number').setValue(schedule.count);
                                 recurrenceTypeCombo.setValue(schedule.timeUnit);
-                                view.down('#start-on').setValue(record.data.nextRun);
                             } else {
                                 recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
                             }
@@ -1061,8 +1063,9 @@ Ext.define('Dxp.controller.Tasks', {
             }
             record.set('name', form.down('#task-name').getValue());
 
+            startOnDate = moment(form.down('#start-on').getValue()).valueOf();
+
             if (form.down('#recurrence-trigger').getValue().recurrence) {
-                startOnDate = moment(form.down('#start-on').getValue()).valueOf();
                 timeUnitValue = form.down('#recurrence-type').getValue();
                 dayOfMonth = moment(startOnDate).date();
                 if (dayOfMonth >= 29) {
@@ -1124,10 +1127,10 @@ Ext.define('Dxp.controller.Tasks', {
                         });
                         break;
                 }
-                record.set('nextRun', startOnDate);
             } else {
                 record.set('schedule', null);
             }
+            record.set('nextRun', startOnDate);
             record.set('dataProcessor', {
                 name: form.down('#file-formatter-combo').getValue()
             });
