@@ -42,45 +42,53 @@ public class DeviceConfigChangeEngine {
         Set<Long> matchedDestinations = new HashSet<>();
         Set<Long> matchedOrigins = new HashSet<>();
         Set<Long> conflictOrigins = new HashSet<>();
-
-        DeviceConfiguration originDeviceConfig = deviceConfigChangeItem.getOriginDeviceConfig();
-        DeviceConfiguration destinationDeviceConfig = deviceConfigChangeItem.getDestinationDeviceConfig();
         /*
         Need to do the loops in separate streams in order to get the exact matches FIRST, then the CONFLICTS, then the rest
         */
-
         // 1 - First find exact match
-        deviceConfigChangeItem.getOriginItems().forEach(
-                originItem -> {
-                    Optional<T> exactMatch = deviceConfigChangeItem.getDestinationItems().stream().filter(deviceConfigChangeItem.exactSameItem(originItem)).findFirst();
-                    exactMatch.ifPresent(destinationItem -> {
-                        this.createExactMatchAction(originDeviceConfig, destinationDeviceConfig, originItem, destinationItem);
-                        matchedDestinations.add(destinationItem.getId());
-                        matchedOrigins.add(originItem.getId());
-                    });
-                }
-        );
+        findAndCreateExactMatchDeviceConfigChangeActions(deviceConfigChangeItem, matchedDestinations, matchedOrigins);
         // 2 - Find match on name or type to create a conflict
+        findAndCreateConflictDeviceConfigChangeActions(deviceConfigChangeItem, matchedDestinations, matchedOrigins, conflictOrigins);
+        // 3 - Add all others (create Remove for inverse change)
+        findAndCreateAddOrRemoveDeviceConfigChangeActions(deviceConfigChangeItem, matchedOrigins, conflictOrigins);
+    }
+
+    private <T extends HasId> void findAndCreateAddOrRemoveDeviceConfigChangeActions(DeviceConfigChangeItem<T> deviceConfigChangeItem, Set<Long> matchedOrigins, Set<Long> conflictOrigins) {
+        deviceConfigChangeItem.getOriginItems().stream()
+                .filter(isItAlreadyAHandledItem(matchedOrigins).negate())
+                .filter(isItAlreadyAHandledItem(conflictOrigins).negate())
+                .forEach(originItem -> {
+                    createRemoveAction(deviceConfigChangeItem.getOriginDeviceConfig(), deviceConfigChangeItem.getDestinationDeviceConfig(), originItem);
+                    createAddAction(deviceConfigChangeItem.getDestinationDeviceConfig(), deviceConfigChangeItem.getOriginDeviceConfig(), originItem);
+                });
+    }
+
+    private <T extends HasId> void findAndCreateConflictDeviceConfigChangeActions(DeviceConfigChangeItem<T> deviceConfigChangeItem, Set<Long> matchedDestinations, Set<Long> matchedOrigins, Set<Long> conflictOrigins) {
         deviceConfigChangeItem.getOriginItems().stream().filter(isItAlreadyAHandledItem(matchedOrigins).negate())
                 .forEach(originItem -> {
                             deviceConfigChangeItem.getDestinationItems().stream()
                                     .filter(isItAlreadyAHandledItem(matchedDestinations).negate())
                                     .filter(deviceConfigChangeItem.isItAConflict(originItem))
                                     .forEach(destinationItem -> {
-                                                createConflictAction(originDeviceConfig, destinationDeviceConfig, originItem, destinationItem);
+                                                createConflictAction(deviceConfigChangeItem.getOriginDeviceConfig(), deviceConfigChangeItem.getDestinationDeviceConfig(), originItem, destinationItem);
                                                 conflictOrigins.add(originItem.getId());
                                             }
                                     );
                         }
                 );
-        // 3 - Add all others (create Remove for inverse change)
-        deviceConfigChangeItem.getOriginItems().stream()
-                .filter(isItAlreadyAHandledItem(matchedOrigins).negate())
-                .filter(isItAlreadyAHandledItem(conflictOrigins).negate())
-                .forEach(originItem -> {
-                    createRemoveAction(originDeviceConfig, destinationDeviceConfig, originItem);
-                    createAddAction(destinationDeviceConfig, originDeviceConfig, originItem);
-                });
+    }
+
+    private <T extends HasId> void findAndCreateExactMatchDeviceConfigChangeActions(DeviceConfigChangeItem<T> deviceConfigChangeItem, Set<Long> matchedDestinations, Set<Long> matchedOrigins) {
+        deviceConfigChangeItem.getOriginItems().forEach(
+                originItem -> {
+                    Optional<T> exactMatch = deviceConfigChangeItem.getDestinationItems().stream().filter(deviceConfigChangeItem.exactSameItem(originItem)).findFirst();
+                    exactMatch.ifPresent(destinationItem -> {
+                        this.createExactMatchAction(deviceConfigChangeItem.getOriginDeviceConfig(), deviceConfigChangeItem.getDestinationDeviceConfig(), originItem, destinationItem);
+                        matchedDestinations.add(destinationItem.getId());
+                        matchedOrigins.add(originItem.getId());
+                    });
+                }
+        );
     }
 
     private <T extends HasId> Predicate<T> isItAlreadyAHandledItem(Set<Long> matches) {

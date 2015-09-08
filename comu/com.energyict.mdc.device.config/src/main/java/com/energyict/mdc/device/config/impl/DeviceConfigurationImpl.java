@@ -733,12 +733,14 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     public void activate() {
         this.active = true;
         super.save();
+        this.getEventService().postEvent(EventType.DEVICECONFIGURATION_ACTIVATED.topic(), this);
     }
 
     public void deactivate() {
         this.getEventService().postEvent(EventType.DEVICECONFIGURATION_VALIDATEDEACTIVATE.topic(), this);
         this.active = false;
         super.save();
+        this.getEventService().postEvent(EventType.DEVICECONFIGURATION_DEACTIVATED.topic(), this);
     }
 
     @Override

@@ -41,11 +41,11 @@ class DeviceConfigChangeConnectionTaskItem implements DeviceConfigChangeItem<Par
 
     @Override
     public Predicate<PartialConnectionTask> exactSameItem(PartialConnectionTask originConnectionTask) {
-        return partialConnectionTask -> partialConnectionTask.getName().equals(originConnectionTask.getName()) && partialConnectionTask.getConnectionType().equals(originConnectionTask.getConnectionType());
+        return partialConnectionTask -> partialConnectionTask.getName().equals(originConnectionTask.getName()) && partialConnectionTask.getPluggableClass().getId() == originConnectionTask.getPluggableClass().getId();
     }
 
     @Override
     public Predicate<PartialConnectionTask> isItAConflict(PartialConnectionTask originConnectionTask) {
-        return partialConnectionTask -> !partialConnectionTask.getName().equals(originConnectionTask.getName()) && partialConnectionTask.getConnectionType().equals(originConnectionTask.getConnectionType());
+        return partialConnectionTask -> !partialConnectionTask.getName().equals(originConnectionTask.getName()) && partialConnectionTask.getPluggableClass().getId() == originConnectionTask.getPluggableClass().getId();
     }
 }

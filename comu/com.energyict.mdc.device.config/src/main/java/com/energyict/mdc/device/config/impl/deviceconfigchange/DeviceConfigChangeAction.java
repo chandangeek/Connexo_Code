@@ -11,8 +11,8 @@ public class DeviceConfigChangeAction<T extends HasId> {
 
     private final DeviceConfiguration originDeviceConfig;
     private final DeviceConfiguration destinationDeviceConfig;
-    private T originConnectionTask;
-    private T destinationConnectionTask;
+    private T originDataSource;
+    private T destinationDataSource;
     private DeviceConfigChangeActionType actionType;
 
     public DeviceConfigChangeAction(DeviceConfiguration originDeviceConfig, DeviceConfiguration destinationDeviceConfig) {
@@ -21,23 +21,23 @@ public class DeviceConfigChangeAction<T extends HasId> {
     }
 
     public T getOrigin() {
-        return originConnectionTask;
+        return originDataSource;
     }
 
     public T getDestination() {
-        return destinationConnectionTask;
+        return destinationDataSource;
     }
 
     public DeviceConfigChangeActionType getActionType() {
         return actionType;
     }
 
-    public void setOrigin(T originConnectionTask) {
-        this.originConnectionTask = originConnectionTask;
+    public void setOrigin(T originDataSource) {
+        this.originDataSource = originDataSource;
     }
 
-    public void setDestination(T destinationConnectionTask) {
-        this.destinationConnectionTask = destinationConnectionTask;
+    public void setDestination(T destinationDataSource) {
+        this.destinationDataSource = destinationDataSource;
     }
 
     public void setActionType(DeviceConfigChangeActionType actionType) {
