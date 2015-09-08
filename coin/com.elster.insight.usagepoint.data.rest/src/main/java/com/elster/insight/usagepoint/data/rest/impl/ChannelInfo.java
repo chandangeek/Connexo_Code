@@ -17,7 +17,6 @@ import com.elster.jupiter.time.TimeDuration.TimeUnit;
 
 /**
  * JSON representation of a channel
- * Created by bvn on 8/6/14.
  */
 public class ChannelInfo {
     public long id;
@@ -28,9 +27,6 @@ public class ChannelInfo {
     public Instant lastValueTimestamp;
     public ReadingTypeInfo readingType;
     public ReadingTypeInfo calculatedReadingType;
-
-    // optionally filled if requesting details
-    public DetailedValidationInfo validationInfo;
 
     public static ChannelInfo from(Channel channel) {
         ChannelInfo info = new ChannelInfo();

@@ -16,7 +16,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.elster.insight.common.rest.ExceptionFactory;
-import com.elster.insight.usagepoint.data.Register;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -28,7 +27,6 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.google.common.collect.ImmutableSet;
 
 @Component(name = "com.elster.insight.udr.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/udr", "app=INS", "name=" + UsagePointApplication.COMPONENT_NAME})
@@ -56,34 +54,6 @@ public class UsagePointApplication extends Application implements TranslationKey
                         UsagePointResource.class,
                         RegisterResource.class,
                         DeviceResource.class
-//                        DeviceResource.class,
-//                        ProtocolDialectResource.class,
-//                        RegisterResource.class,
-//                        RegisterDataResource.class,
-//                        DeviceValidationResource.class,
-//                        LoadProfileResource.class,
-//                        BulkScheduleResource.class,
-//                        DeviceScheduleResource.class,
-//                        DeviceSharedScheduleResource.class,
-//                        DeviceComTaskResource.class,
-//                        LogBookResource.class,
-//                        DeviceFieldResource.class,
-//                        ChannelResource.class,
-//                        ChannelResource.class,
-//                        DeviceGroupResource.class,
-//                        SecurityPropertySetResource.class,
-//                        ConnectionMethodResource.class,
-//                        ComSessionResource.class,
-//                        DeviceMessageResource.class,
-//                        DeviceLabelResource.class,
-//                        ConnectionResource.class,
-//                        DeviceProtocolPropertyResource.class,
-//                        KpiResource.class,
-//                        AdhocGroupResource.class,
-//                        DeviceEstimationResource.class,
-//                        DeviceHistoryResource.class,
-//                        DeviceLifeCycleActionResource.class,
-//                        DeviceStateAccessFeature.class
         );
     }
 
@@ -175,11 +145,8 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(meteringService).to(MeteringService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(clock).to(Clock.class);
-            bind(ValidationInfoFactory.class).to(ValidationInfoFactory.class);
-            bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
             bind(UsagePointDataInfoFactory.class).to(UsagePointDataInfoFactory.class);
             bind(com.elster.jupiter.validation.rest.PropertyUtils.class).to(com.elster.jupiter.validation.rest.PropertyUtils.class);
-            bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
             bind(messageService).to(MessageService.class);
         }
     }

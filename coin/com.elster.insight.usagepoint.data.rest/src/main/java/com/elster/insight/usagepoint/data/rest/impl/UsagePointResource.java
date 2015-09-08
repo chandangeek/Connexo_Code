@@ -129,48 +129,6 @@ public class UsagePointResource {
         return new MeterActivationInfos(usagePoint.getMeterActivations());
     }
 
-//    @GET
-//    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-//    @Path("/{id}/meteractivations/{activationId}/channels")
-//    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-//    public ChannelInfos getChannels(@PathParam("id") long id, @PathParam("activationId") long activationId, @Context SecurityContext securityContext) {
-//        UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
-//        MeterActivation meterActivation = fetchMeterActivation(usagePoint, activationId);
-//        return new ChannelInfos(meterActivation.getChannels());
-//    }
-
-    private MeterActivation fetchMeterActivation(UsagePoint usagePoint, long activationId) {
-        for (MeterActivation meterActivation : usagePoint.getMeterActivations()) {
-            if (meterActivation.getId() == activationId) {
-                return meterActivation;
-            }
-        }
-        throw new WebApplicationException(Response.Status.NOT_FOUND);
-    }
-
-//    @GET
-//    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-//    @Path("/{id}/meteractivations/{activationId}/channels/{channelId}/intervalreadings")
-//    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-//    public ReadingInfos getIntervalReadings(@PathParam("id") long id, @PathParam("activationId") long activationId, @PathParam("channelId") long channelId, @QueryParam("from") long from, @QueryParam("to") long to, @Context SecurityContext securityContext) {
-//        if (from == 0 || to == 0) {
-//            throw new WebApplicationException(Response.Status.BAD_REQUEST);
-//        }
-//        Range<Instant> range = Range.openClosed(Instant.ofEpochMilli(from), Instant.ofEpochMilli(to));
-//        return doGetIntervalreadings(id, activationId, channelId, securityContext, range);
-//    }
-//
-//    private ReadingInfos doGetIntervalreadings(long id, long activationId, long channelId, SecurityContext securityContext, Range<Instant> range) {
-//        UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
-//        MeterActivation meterActivation = fetchMeterActivation(usagePoint, activationId);
-//        for (Channel channel : meterActivation.getChannels()) {
-//            if (channel.getId() == channelId) {
-//                List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(range);
-//                return new ReadingInfos(intervalReadings);
-//            }
-//        }
-//        throw new WebApplicationException(Response.Status.NOT_FOUND);
-//    }
 
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
@@ -181,12 +139,12 @@ public class UsagePointResource {
         return new ReadingTypeInfos(collectReadingTypes(usagePoint));
     }
 
-    @GET
-    @Path("/readingtypes")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public ReadingTypeInfos getReadingTypes(@Context UriInfo uriInfo) {
-        return new ReadingTypeInfos(meteringService.getAvailableReadingTypes());
-    }
+//    @GET
+//    @Path("/readingtypes")
+//    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+//    public ReadingTypeInfos getReadingTypes(@Context UriInfo uriInfo) {
+//        return new ReadingTypeInfos(meteringService.getAvailableReadingTypes());
+//    }
     
     @Path("/{mrid}/channels")
     public ChannelResource getChannelResource() {
@@ -197,32 +155,6 @@ public class UsagePointResource {
     public RegisterResource getRegisterResource() {
         return registersOnUsagePointResourceProvider.get();
     }
-
-//    @GET
-//    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-//    @Path("/{id}/readingtypes/{mrid}/readings")
-//    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-//    public ReadingInfos getReadingTypeReadings(@PathParam("id") long id, @PathParam("mrid") String mRID, @QueryParam("from") long from, @QueryParam("to") long to, @Context SecurityContext securityContext) {
-//        if (from == 0 || to == 0) {
-//            throw new WebApplicationException(Response.Status.BAD_REQUEST);
-//        }
-//        Range<Instant> range = Range.openClosed(Instant.ofEpochMilli(from), Instant.ofEpochMilli(to));
-//        return doGetReadingTypeReadings(id, mRID, range, securityContext);
-//    }
-//
-//    private ReadingInfos doGetReadingTypeReadings(long id, String mRID, Range<Instant> range, SecurityContext securityContext) {
-//        ReadingType readingType = null;
-//        List<IntervalReadingRecord> readings = new ArrayList<>();
-//        for (MeterActivation meterActivation : meterActivationsForReadingTypeWithMRID(id, mRID, securityContext)) {
-//            if (readingType == null) {
-//                readingType = FluentIterable.from(meterActivation.getReadingTypes()).firstMatch(new MRIDMatcher(mRID)).get();
-//            }
-//            for (Channel channel : meterActivation.getChannels()) {
-//                readings.addAll(channel.getIntervalReadings(readingType, range));
-//            }
-//        }
-//        return new ReadingInfos(readings);
-//    }
 
     private FluentIterable<? extends MeterActivation> meterActivationsForReadingTypeWithMRID(long id, String mRID, SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);

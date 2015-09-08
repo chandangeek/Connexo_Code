@@ -5,7 +5,6 @@ import java.util.Comparator;
 import com.elster.jupiter.metering.Channel;
 
 /**
- * Created by bvn on 8/7/14.
  */
 public class ChannelComparator implements Comparator<Channel> {
 

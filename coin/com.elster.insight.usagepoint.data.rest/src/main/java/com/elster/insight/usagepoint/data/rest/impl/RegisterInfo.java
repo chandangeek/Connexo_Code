@@ -4,12 +4,9 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.elster.insight.common.rest.UnitAdapter;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
-import com.elster.jupiter.metering.rest.impl.ReadingInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 

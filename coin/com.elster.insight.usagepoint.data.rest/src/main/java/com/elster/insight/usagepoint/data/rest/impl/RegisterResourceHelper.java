@@ -30,7 +30,7 @@ public class RegisterResourceHelper {
     private final Clock clock;
 
     @Inject
-    public RegisterResourceHelper(ResourceHelper resourceHelper, Clock clock, ValidationInfoFactory validationInfoFactory) {
+    public RegisterResourceHelper(ResourceHelper resourceHelper, Clock clock) {
         this.resourceHelper = resourceHelper;
         this.clock = clock;
     }

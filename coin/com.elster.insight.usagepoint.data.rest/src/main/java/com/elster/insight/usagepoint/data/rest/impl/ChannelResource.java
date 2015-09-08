@@ -56,23 +56,12 @@ public class ChannelResource {
         this.usagePointDataInfoFactory = usagePointDataInfoFactory;
         this.thesaurus = thesaurus;
         this.clock = clock;
-//        this.issueDataValidationService = issueDataValidationService;
-//        this.estimationHelper = estimationHelper;
     }
     
-//    @GET
-//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-////    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION})
-//    public Response getAllChannels(@PathParam("mrid") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
-////        return channelHelper.get().getChannels(mRID, (d -> this.getFilteredChannels(d, filter)), queryParameters);
-//        return channelHelper.get().getChannels("Jeff", queryParameters);
-//    }
-
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 //    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION})
     public Response getChannels(@PathParam("mrid") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
-//        return channelHelper.get().getChannels(mRID, (d -> this.getFilteredChannels(d, filter)), queryParameters);
         return channelHelper.get().getChannels(mRID, queryParameters);
     }
 
@@ -83,57 +72,6 @@ public class ChannelResource {
     public Response getChannel(@PathParam("mrid") String mrid, @PathParam("rt_mrid") String rt_mrid) {
         Channel channel = channelHelper.get().findCurrentChannelOnUsagePoint(mrid, rt_mrid); 
         return channelHelper.get().getChannel(() -> channel);
-    }
-
-//    private List<Channel> getFilteredChannels(Meter device, JsonQueryFilter filter){
-//        Predicate<String> filterByLoadProfileName = getStringListFilterIfAvailable("loadProfileName", filter);
-//        Predicate<String> filterByChannelName = getStringFilterIfAvailable("channelName", filter);
-//        return device.getLoadProfiles().stream()
-//                .filter(l -> filterByLoadProfileName.test(l.getLoadProfileSpec().getLoadProfileType().getName()))
-//                .flatMap(l -> l.getChannels().stream())
-//                .filter(c -> filterByChannelName.test(channelHelper.get().getChannelName(c)))
-//                .collect(Collectors.toList());
-//    }
-
-    private Predicate<String> getStringFilterIfAvailable(String name, JsonQueryFilter filter){
-        if (filter.hasProperty(name)){
-            Pattern pattern = getFilterPattern(filter.getString(name));
-            if (pattern != null){
-                return s -> pattern.matcher(s).matches();
-            }
-        }
-        return s -> true;
-    }
-
-    private Predicate<String> getStringListFilterIfAvailable(String name, JsonQueryFilter filter){
-        if (filter.hasProperty(name)){
-            List<String> entries = filter.getStringList(name);
-            List<Pattern> patterns = new ArrayList<>();
-            for (String entry : entries) {
-                patterns.add(getFilterPattern(entry));
-            }
-            if (!patterns.isEmpty()){
-                return s -> {
-                    boolean match = false;
-                    for (Pattern pattern : patterns) {
-                        match = match || pattern.matcher(s).matches();
-                        if (match) {
-                            break;
-                        }
-                    }
-                    return match;
-                };
-            }
-        }
-        return s -> true;
-    }
-
-    private Pattern getFilterPattern(String filter){
-        if (filter != null){
-            filter = Pattern.quote(filter.replace('%', '*'));
-            return Pattern.compile(filter.replaceAll("([*?])", "\\\\E\\.$1\\\\Q"));
-        }
-        return null;
     }
 
     @GET
@@ -196,150 +134,8 @@ public class ChannelResource {
         return filter.hasProperty(key) && filter.getBoolean(key);
     }
 
-
-//    private boolean hasSuspects(ChannelDataInfo info) {
-//        return ValidationStatus.SUSPECT.equals(info.validationInfo.mainValidationInfo.validationResult) ||
-//                ValidationStatus.SUSPECT.equals(info.validationInfo.bulkValidationInfo.validationResult);
-//    }
-
     private boolean hasMissingData(ChannelDataInfo info) {
         return info.value == null;
     }
 
-//    @PUT
-//    @Path("/{channelid}/data")
-//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-//    @Consumes(MediaType.APPLICATION_JSON)
-////    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
-//    public Response editChannelData(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, @BeanParam JsonQueryParameters queryParameters, List<ChannelDataInfo> channelDataInfos) {
-//        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-//        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-//        List<BaseReading> editedReadings = new ArrayList<>();
-//        List<BaseReading> editedBulkReadings = new ArrayList<>();
-//        List<BaseReading> confirmedReadings = new ArrayList<>();
-//        List<Instant> removeCandidates = new ArrayList<>();
-//        channelDataInfos.forEach((channelDataInfo) -> {
-//            if (!(isToBeConfirmed(channelDataInfo)) && channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
-//                removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
-//            }
-//            else {
-//                if (channelDataInfo.value != null) {
-//                    editedReadings.add(channelDataInfo.createNew());
-//                }
-//                if (channelDataInfo.collectedValue != null) {
-//                    editedBulkReadings.add(channelDataInfo.createNewBulk());
-//                }
-//                if (isToBeConfirmed(channelDataInfo)) {
-//                    confirmedReadings.add(channelDataInfo.createConfirm());
-//                }
-//            }
-//        });
-//        channel.startEditingData()
-//                .removeChannelData(removeCandidates)
-//                .editChannelData(editedReadings)
-//                .editBulkChannelData(editedBulkReadings)
-//                .confirmChannelData(confirmedReadings)
-//                .complete();
-//
-//        return Response.status(Response.Status.OK).build();
-//    }
-
-//    private boolean isToBeConfirmed(ChannelDataInfo channelDataInfo) {
-//        return ((channelDataInfo.validationInfo != null && channelDataInfo.validationInfo.mainValidationInfo != null && channelDataInfo.validationInfo.mainValidationInfo.isConfirmed) ||
-//                (channelDataInfo.validationInfo != null && channelDataInfo.validationInfo.bulkValidationInfo != null && channelDataInfo.validationInfo.bulkValidationInfo.isConfirmed));
-//    }
-
-//    @POST
-//    @Path("/{channelid}/data/estimate")
-//    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-//    @Consumes(MediaType.APPLICATION_JSON)
-////    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_DATA})
-//    public List<ChannelDataInfo> previewEstimateChannelData(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, EstimateChannelDataInfo estimateChannelDataInfo) {
-//        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-//        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-//        return previewEstimate(device, channel, estimateChannelDataInfo);
-//    }
-
-//    private List<ChannelDataInfo> previewEstimate(Device device, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
-//        Estimator estimator = estimationHelper.getEstimator(estimateChannelDataInfo);
-//        ReadingType readingType = channel.getReadingType();
-//        List<EstimationResult> results = new ArrayList<>();
-//        List<Range<Instant>> ranges = new ArrayList<>();
-//        for (IntervalInfo info : estimateChannelDataInfo.intervals) {
-//            ranges.add(Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)));
-//        }
-//
-//        if (!estimateChannelDataInfo.estimateBulk && channel.getReadingType().isCumulative() && channel.getReadingType().getCalculatedReadingType().isPresent()) {
-//            readingType = channel.getReadingType().getCalculatedReadingType().get();
-//        }
-//
-//        for (Range<Instant> range : ranges) {
-//            results.add(estimationHelper.previewEstimate(device, readingType, range, estimator));
-//        }
-//        return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results);
-//    }
-
-//    @GET
-//    @Path("{channelid}/validationstatus")
-//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-////    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-//    public Response getValidationFeatureStatus(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
-//        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
-//        ValidationStatusInfo deviceValidationStatusInfo = channelHelper.get().determineStatus(channel);
-//        return Response.ok(deviceValidationStatusInfo).build();
-//    }
-
-//    @PUT
-//    @Path("{channelid}/validate")
-//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-////    @RolesAllowed(com.elster.jupiter.validation.security.Privileges.VALIDATE_MANUAL)
-//    public Response validateDeviceData(TriggerValidationInfo validationInfo, @PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
-//        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-//        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-//        DeviceValidation deviceValidation = device.forValidation();
-//        if (validationInfo.lastChecked != null) {
-//            deviceValidation.setLastChecked(channel, Instant.ofEpochMilli(validationInfo.lastChecked));
-//        }
-//        deviceValidation.validateChannel(channel);
-//        return Response.ok().build();
-//    }
-
-//    @GET
-//    @Path("{channelid}/datavalidationissues/{issueid}/validationblocks")
-//    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-////    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA})
-//    public PagedInfoList getValidationBlocksOfIssue(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, @PathParam("issueid") long issueId, @BeanParam JsonQueryParameters parameters) {
-//        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-//        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-//        IssueDataValidation issue = issueDataValidationService.findIssue(issueId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-//
-//        Map<ReadingType, List<NotEstimatedBlock>> groupedBlocks = issue.getNotEstimatedBlocks().stream().collect(Collectors.groupingBy(NotEstimatedBlock::getReadingType));
-//        ReadingType mainReadingType = channel.getReadingType();
-//        List<NotEstimatedBlock> allNotEstimatedBlocks = new ArrayList<>();
-//        if (groupedBlocks.containsKey(mainReadingType)) {
-//            allNotEstimatedBlocks.addAll(groupedBlocks.get(mainReadingType));
-//        }
-//        Optional<ReadingType> calculatedReadingType = mainReadingType.getCalculatedReadingType();
-//        if (calculatedReadingType.isPresent() && groupedBlocks.containsKey(calculatedReadingType.get())) {
-//            allNotEstimatedBlocks.addAll(groupedBlocks.get(calculatedReadingType.get()));
-//        }
-//        List<Range<Instant>> result = new ArrayList<>();
-//        allNotEstimatedBlocks.stream()
-//                .map(block -> Range.closedOpen(block.getStartTime(), block.getEndTime()))
-//                .sorted((range1, range2) -> range1.lowerEndpoint().compareTo(range2.lowerEndpoint()))
-//                .reduce((range1, range2) -> {
-//                    if (range1.isConnected(range2)) {
-//                        return range1.span(range2);
-//                    }
-//                    result.add(range1);
-//                    return range2;
-//                }).ifPresent(result::add);
-//        List<Map<?, ?>> validationBlocksInfo = result.stream().map(block -> {
-//            Map<String, Object> info = new HashMap<>();
-//            info.put("startTime", block.lowerEndpoint());
-//            info.put("endTime", block.upperEndpoint());
-//            return info;
-//        }).collect(Collectors.toList());
-//        return PagedInfoList.fromCompleteList("validationBlocks", validationBlocksInfo, parameters);
-//    }
 }
