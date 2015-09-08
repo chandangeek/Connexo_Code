@@ -15,7 +15,6 @@ import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.dynamic.relation.exceptions.CannotDeleteDefaultRelationConstraintException;
 import com.energyict.mdc.dynamic.relation.exceptions.DuplicateNameException;
 import com.energyict.mdc.dynamic.relation.exceptions.EmptyConstraintException;
-import com.energyict.mdc.dynamic.relation.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.relation.exceptions.MultipleNonRejectConstraintsNotAllowedException;
 import com.energyict.mdc.dynamic.relation.exceptions.NameIsRequiredException;
 import com.energyict.mdc.dynamic.relation.impl.legacy.PersistentNamedObject;
@@ -114,7 +113,7 @@ public class ConstraintImpl extends PersistentNamedObject implements Constraint 
     @Override
     protected void validateDelete() {
         if (isDefault()) {
-            throw new CannotDeleteDefaultRelationConstraintException(this.thesaurus);
+            throw new CannotDeleteDefaultRelationConstraintException(this.thesaurus, MessageSeeds.CONSTRAINT_CANNOT_DELETE_DEFAULT);
         }
     }
 
@@ -135,7 +134,7 @@ public class ConstraintImpl extends PersistentNamedObject implements Constraint 
         if (!shadow.isRejectViolations()) {
             for (Constraint each : relationType.getConstraints()) {
                 if (!each.isRejectViolations() && (each.getId() != this.getId())) {
-                    throw new MultipleNonRejectConstraintsNotAllowedException(this.thesaurus);
+                    throw new MultipleNonRejectConstraintsNotAllowedException(this.thesaurus, MessageSeeds.CONSTRAINT_MULTIPLE_NON_REJECT_NOT_ALLOWED);
                 }
             }
         }
@@ -143,7 +142,7 @@ public class ConstraintImpl extends PersistentNamedObject implements Constraint 
             throw new NameIsRequiredException(this.thesaurus, MessageSeeds.CONSTRAINT_NAME_IS_REQUIRED);
         }
         if (shadow.getAttributeTypeShadows().isEmpty()) {
-            throw new EmptyConstraintException(this.thesaurus, this);
+            throw new EmptyConstraintException(this.thesaurus, this, MessageSeeds.CONSTRAINT_WITHOUT_ATTRIBUTES);
         }
     }
 
