@@ -140,7 +140,7 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
             deviceTypesList = '';
 
         Ext.suspendLayouts();
-        preview.setTitle(record.get('name'));
+        preview.setTitle(Ext.String.htmlEncode(record.get('name')));
         previewForm.loadRecord(record);
         previewForm.down('#used-by').removeAll();
         Ext.Array.each(record.get('deviceTypes'), function (deviceType) {
