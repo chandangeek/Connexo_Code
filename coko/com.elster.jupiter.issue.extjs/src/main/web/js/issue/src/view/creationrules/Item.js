@@ -53,7 +53,26 @@ Ext.define('Isu.view.creationrules.Item', {
 
                     {
                         fieldLabel: Uni.I18n.translate('general.title.dueIn', 'ISU', 'Due in'),
-                        name: 'due_in'
+                        name: 'dueIn',
+                        renderer: function (value) {
+                            var result = '';
+
+                            if (value && value.number) {
+                                switch (value.type) {
+                                    case 'days':
+                                        result =   Uni.I18n.translatePlural('general.timeUnit.days', value.number, 'ISU', '{0} days', '{0} day', '{0} days');
+                                        break;
+                                    case 'weeks':
+                                        result =   Uni.I18n.translatePlural('general.timeUnit.weeks', value.number, 'ISU', '{0} weeks', '{0} week', '{0} weeks');
+                                        break;
+                                    case 'months':
+                                        result =   Uni.I18n.translatePlural('general.timeUnit.months', value.number, 'ISU', '{0} months', '{0} month', '{0} months');
+                                        break;
+                                }
+                            }
+
+                            return result;
+                        }
                     }
                 ]
             },

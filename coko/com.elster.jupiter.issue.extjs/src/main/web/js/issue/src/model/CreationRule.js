@@ -61,19 +61,6 @@ Ext.define('Isu.model.CreationRule', {
             name: 'template_name',
             persist: false,
             mapping: 'template.displayName'
-        },
-        {
-            name: 'due_in',
-            persist: false,
-            mapping: function (data) {
-                var dueIn = '';
-
-                if (data.dueIn && data.dueIn.number) {
-                    dueIn =   Uni.I18n.translatePlural('general.period.' + data.dueIn.type, data.dueIn.number, 'ISU', '{0} ' + data.dueIn.type);
-                }
-
-                return dueIn;
-            }
         }
     ],
 
