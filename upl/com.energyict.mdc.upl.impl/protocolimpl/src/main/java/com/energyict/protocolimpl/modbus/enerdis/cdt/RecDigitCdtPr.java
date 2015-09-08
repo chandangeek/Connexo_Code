@@ -361,7 +361,7 @@ public class RecDigitCdtPr extends RecDigitCdt {
     
     private List newChannelInfo( ){
         ArrayList result = new ArrayList();
-        result.add( new ChannelInfo(0, "Active Power Stream", kWh) ); 
+        result.add( new ChannelInfo(0, "0.1.128.0.0.255", kWh) );		//Active Power Stream
         return result;
     }
     

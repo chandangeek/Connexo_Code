@@ -105,10 +105,10 @@ public class A40Test {
 	 */
 	private List<ChannelInfo> createExpectedChannelInfos(){
 		List<ChannelInfo> result = new ArrayList<ChannelInfo>();
-		result.add(new ChannelInfo(0,0,"Active Energy plus", Unit.get(BaseUnit.WATT, -1)));
-		result.add(new ChannelInfo(1,1,"Active Energy minus", Unit.get(BaseUnit.WATT, -1)));
-		result.add(new ChannelInfo(2,2,"Reactive Energy plus", Unit.get(BaseUnit.VOLTAMPEREREACTIVE, -1)));
-		result.add(new ChannelInfo(3,3,"Reactive Energy minus", Unit.get(BaseUnit.VOLTAMPEREREACTIVE, -1)));
+		result.add(new ChannelInfo(0,0,"0.1.128.0.0.255", Unit.get(BaseUnit.WATT, -1)));
+		result.add(new ChannelInfo(1,1,"0.2.128.0.0.255", Unit.get(BaseUnit.WATT, -1)));
+		result.add(new ChannelInfo(2,2,"0.3.128.0.0.255", Unit.get(BaseUnit.VOLTAMPEREREACTIVE, -1)));
+		result.add(new ChannelInfo(3,3,"0.4.128.0.0.255", Unit.get(BaseUnit.VOLTAMPEREREACTIVE, -1)));
 		return result;
 	}
 	

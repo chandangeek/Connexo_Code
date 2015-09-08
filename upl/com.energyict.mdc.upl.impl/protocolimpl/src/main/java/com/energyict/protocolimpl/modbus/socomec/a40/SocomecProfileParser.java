@@ -31,8 +31,9 @@ public class SocomecProfileParser {
 	private static final int powerDown = 3;
 
 	/** ChannelInfoNames to construct the ChannelInfo List */
-	private static String[] channelInfoNames = new String[]{"Active Energy plus", "Active Energy minus", 
-															"Reactive Energy plus", "Reactive Energy minus"};
+	//"Active Energy plus", "Active Energy minus", "Reactive Energy plus", "Reactive Energy minus"
+	private static String[] channelInfoNames = new String[]{"0.1.128.0.0.255", "0.2.128.0.0.255",
+															"0.3.128.0.0.255", "0.4.128.0.0.255"};
 	
 	/** ChannelInfoUnits to construct the ChannelInfo List */
 	private static Unit[] channelInfoUnits = new Unit[]{Unit.get(BaseUnit.WATT, -1), Unit.get(BaseUnit.WATT, -1),

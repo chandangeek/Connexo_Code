@@ -403,8 +403,8 @@ public class RecDigitPower extends Modbus {
     
     private List newChannelInfo( ){
         ArrayList result = new ArrayList();
-        result.add( new ChannelInfo(0, "Active Power Stream", kWh) ); 
-        result.add( new ChannelInfo(1, "Reactive Power Stream", kVAr) );
+        result.add( new ChannelInfo(0, "0.1.128.0.0.255", kWh) ); 		//Active Power Stream
+        result.add( new ChannelInfo(1, "0.2.128.0.0.255", kVAr) );		//Reactive Power Stream
         return result;
     }
     

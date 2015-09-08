@@ -43,14 +43,14 @@ public class Profile {
 	public List getChannelInfos() {
 		List channelInfos = new ArrayList(0);
 
-		channelInfos.add(new ChannelInfo(0, 0, "P+", Unit.get("kW")));
-		channelInfos.add(new ChannelInfo(1, 1, "P-", Unit.get("kW")));
-		channelInfos.add(new ChannelInfo(2, 2, "S+", Unit.get("kVA")));
-		channelInfos.add(new ChannelInfo(3, 3, "S-", Unit.get("kVA")));
-		channelInfos.add(new ChannelInfo(4, 4, "Q1", Unit.get("kvar")));
-		channelInfos.add(new ChannelInfo(5, 5, "Q2", Unit.get("kvar")));
-		channelInfos.add(new ChannelInfo(6, 6, "Q3", Unit.get("kvar")));
-		channelInfos.add(new ChannelInfo(7, 7, "Q4", Unit.get("kvar")));
+		channelInfos.add(new ChannelInfo(0, 0, "0.1.128.0.0.255", Unit.get("kW")));			//P+
+		channelInfos.add(new ChannelInfo(1, 1, "0.2.128.0.0.255", Unit.get("kW")));			//P-
+		channelInfos.add(new ChannelInfo(2, 2, "0.3.128.0.0.255", Unit.get("kVA")));		//S+
+		channelInfos.add(new ChannelInfo(3, 3, "0.4.128.0.0.255", Unit.get("kVA")));		//S-
+		channelInfos.add(new ChannelInfo(4, 4, "0.5.128.0.0.255", Unit.get("kvar")));		//Q1
+		channelInfos.add(new ChannelInfo(5, 5, "0.6.128.0.0.255", Unit.get("kvar")));		//Q4
+		channelInfos.add(new ChannelInfo(6, 6, "0.7.128.0.0.255", Unit.get("kvar")));		//Q2
+		channelInfos.add(new ChannelInfo(7, 7, "0.8.128.0.0.255", Unit.get("kvar")));		//Q3
 		
 		return channelInfos;
 	}

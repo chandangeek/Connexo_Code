@@ -2,16 +2,7 @@ package com.energyict.protocolimpl.modbus.enerdis.recdigitcct;
 
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.iec1107.Channel;
@@ -21,14 +12,11 @@ import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /** 
  * RecDigit Cct meter is a pulse counter. 
@@ -549,26 +537,27 @@ public class RecDigitCct extends Modbus {
         
 //        Unit u = Unit.get(BaseUnit.UNITLESS);
     	Unit u;
-        ArrayList result = new ArrayList();
+        ArrayList<ChannelInfo> result = new ArrayList<ChannelInfo>();
         int count = 0;
-        
-        for (int i = 0; i < channelMap.getNrOfChannels(); i++) {
-            
-            Channel channel = channelMap.getChannel(i);
-        
-            if( ! "0".equals( channel.getRegister() ) ) {
-            	
-            	int unitCode = getUnit(i);
-            	int unitScale = unitCode % 10;
-            	
-            	u = Unit.get(unitCode/10, unitScale);
-            	
-                result.add( new ChannelInfo(count++, "Entry " + i, u) );
-            }
-        
-        }
-        
-        return result;
+
+		final ObisCode baseObisCode = ObisCode.fromString("0.0.128.0.0.255");
+		for (int i = 0; i < channelMap.getNrOfChannels(); i++) {
+
+			Channel channel = channelMap.getChannel(i);
+
+			if (!"0".equals(channel.getRegister())) {
+
+				int unitCode = getUnit(i);
+				int unitScale = unitCode % 10;
+
+				u = Unit.get(unitCode / 10, unitScale);
+
+				result.add(new ChannelInfo(count++, ProtocolTools.setObisCodeField(baseObisCode, 1, (byte) (i + 1)).toString(), u));
+			}
+
+		}
+
+		return result;
         
     }
 

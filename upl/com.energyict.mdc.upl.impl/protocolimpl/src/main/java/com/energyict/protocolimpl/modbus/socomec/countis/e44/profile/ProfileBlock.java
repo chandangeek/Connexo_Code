@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class ProfileBlock {
 
-    private static final String CHANNEL_OBIS = "1.0.1.8.0.255";
+    private static final String CHANNEL_OBIS = "0.1.128.0.0.255";
     private ProfileHeader profileHeader;
     private ProfileRecords profileRecords;
 

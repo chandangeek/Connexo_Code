@@ -12,11 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.profile.loadprofile.UNIFLO1200ProfileInfo;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200HoldingRegister;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200RegisterFactory;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register.UNIFLO1200Registers;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 /**
  * @author jme
@@ -103,13 +105,13 @@ public class UNIFLO1200ProfileInfoParser {
 		List channelInfos = new ArrayList();
 		int numberOfChannels = getNumberOfChannels();
 		ChannelInfo ci;
-		
+
+		final ObisCode baseObisCode = ObisCode.fromString("0.0.128.0.0.255");
 		for (int channelIndex = 0; channelIndex < numberOfChannels; channelIndex++) {
 			int channelRegisterID = logInfoValue[channelIndex] & 0x000000FF;
-			String channelName = "CH" + channelIndex + " [" + getUNIFLO1200Registers().getAddressName(channelRegisterID) + "]";
 			Unit channelUnit = Unit.get(getUNIFLO1200Registers().getUnitString(channelRegisterID));
 			if (channelUnit == null) channelUnit = Unit.get("");
-			ci = new ChannelInfo(channelIndex, channelName, channelUnit);
+			ci = new ChannelInfo(channelIndex, ProtocolTools.setObisCodeField(baseObisCode, 1, (byte) (channelIndex + 1)).toString(), channelUnit);
 			if(getUNIFLO1200Registers().isCumulative(channelRegisterID)){
 				ci.setCumulativeWrapValue(new BigDecimal(getUNIFLO1200Registers().getCumulativeWrapValue(channelRegisterID)));
 			}
