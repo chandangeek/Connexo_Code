@@ -3,13 +3,12 @@ package com.elster.jupiter.export.processor.impl;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
     INVALIDCHARS_EXCEPTION(1001, Keys.INVALIDCHARS_EXCEPTION, "Characters {0} are not allowed.", Level.SEVERE),
     INVALID_READING_CONTAINER(1002, Keys.INVALID_READING_CONTAINER, "Reading container is not a Meter", Level.WARNING),
     FILE_IO(1003, Keys.FILE_IO, "Failure while doing IO on file {0}", Level.SEVERE),
