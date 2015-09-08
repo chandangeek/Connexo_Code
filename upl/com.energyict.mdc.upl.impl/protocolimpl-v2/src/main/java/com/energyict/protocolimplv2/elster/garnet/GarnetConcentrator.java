@@ -251,7 +251,7 @@ public class GarnetConcentrator implements DeviceProtocol {
     }
 
     /**
-     * The version date
+     * The protocol version date
      */
     @Override
     public String getVersion() {
