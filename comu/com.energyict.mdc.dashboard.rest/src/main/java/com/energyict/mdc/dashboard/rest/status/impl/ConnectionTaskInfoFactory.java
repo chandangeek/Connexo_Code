@@ -8,7 +8,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.rest.SuccessIndicatorInfo;
 import com.energyict.mdc.device.data.rest.TaskStatusInfo;
-import com.energyict.mdc.device.data.rest.impl.DefaultTranslationKey;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -77,7 +76,7 @@ public class ConnectionTaskInfoFactory {
                     (communicationWindow.getStart().getMillis()!=0 || communicationWindow.getEnd().getMillis()!=0)) {
                 info.window = communicationWindow.getStart() + " - " + communicationWindow.getEnd();
             } else {
-                info.window = thesaurus.getFormat(DefaultTranslationKey.NO_RESTRICTIONS).format();
+                info.window = thesaurus.getFormat(TranslationKeys.NO_RESTRICTIONS).format();
             }
             info.nextExecution=scheduledConnectionTask.getNextExecutionTimestamp();
         }

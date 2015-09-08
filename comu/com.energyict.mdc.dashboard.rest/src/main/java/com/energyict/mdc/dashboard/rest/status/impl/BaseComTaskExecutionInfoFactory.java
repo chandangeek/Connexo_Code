@@ -1,6 +1,5 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.device.data.rest.impl.DefaultTranslationKey;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
@@ -48,7 +47,7 @@ public abstract class BaseComTaskExecutionInfoFactory <T extends BaseComTaskExec
         } else {
             if (comTaskExecution instanceof ManuallyScheduledComTaskExecution) {
                 Optional<NextExecutionSpecs> nextExecutionSpecs = comTaskExecution.getNextExecutionSpecs();
-                info.comScheduleName = thesaurus.getFormat(DefaultTranslationKey.INDIVIDUAL).format();
+                info.comScheduleName = thesaurus.getFormat(TranslationKeys.INDIVIDUAL).format();
                 if (nextExecutionSpecs.isPresent()) {
                     info.comScheduleFrequency = TemporalExpressionInfo.from(nextExecutionSpecs.get().getTemporalExpression());
                 }

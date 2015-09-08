@@ -41,6 +41,7 @@ public enum TranslationKeys implements TranslationKey {
     MOBILE("Mobile", "Mobile"),
     ONGOING("Ongoing", "Ongoing" ),
     TARGET("Target", "Target"),
+
     ;
 
     private String key;
