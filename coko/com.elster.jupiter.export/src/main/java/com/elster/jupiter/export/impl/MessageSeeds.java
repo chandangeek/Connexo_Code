@@ -26,8 +26,8 @@ public enum MessageSeeds implements MessageSeed {
     FILE_IO(1015, "file.io.writing.failure", "Failure while doing IO on file {0} : {1}"),
     PARENT_BREAKING_PATH_NOT_ALLOWED(1016, Keys.PARENT_BREAKING_PATH, "Paths that navigate above parent are not allowed here"),
     INVALIDCHARS_EXCEPTION(1017, Keys.INVALIDCHARS_EXCEPTION, "Characters {0} are not allowed."),
-    DUPLICATE_IMPORT_SCHEDULE(1018, Keys.DUPLICATE_EXPORT_TASK, "Name must be unique");
-    FTP_IO(1019, "ftp.io.writing.failure", "Failure while doing IO on ftp server {0}, port {1}.", Level.SEVERE);
+    DUPLICATE_IMPORT_SCHEDULE(1018, Keys.DUPLICATE_EXPORT_TASK, "Name must be unique"),
+    FTP_IO(1019, Keys.FTP_FAILURE, "Failure while doing IO on ftp server {0}, port {1}.");
     
     private final int number;
     private final String key;
@@ -92,6 +92,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String PARENT_BREAKING_PATH = "path.parent.breaking.disallowed";
         public static final String INVALIDCHARS_EXCEPTION = "InvalidChars";
         public static final String DUPLICATE_EXPORT_TASK = "exporttask.duplicate.name";
+        public static final String FTP_FAILURE = "ftp.io.writing.failure";
     }
 }
 
