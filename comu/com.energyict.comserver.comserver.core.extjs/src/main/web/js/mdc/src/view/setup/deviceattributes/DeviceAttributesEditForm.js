@@ -7,11 +7,6 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
         'Mdc.view.setup.deviceattributes.form.DateFieldEdited'
     ],
 
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
-
     defaults: {
         labelWidth: 150,
         xtype: 'displayfield',

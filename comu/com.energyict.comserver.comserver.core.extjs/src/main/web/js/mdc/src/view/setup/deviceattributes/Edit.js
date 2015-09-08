@@ -12,10 +12,6 @@ Ext.define('Mdc.view.setup.deviceattributes.Edit', {
             xtype: 'panel',
             ui: 'large',
             title: Uni.I18n.translate('deviceconfiguration.deviceAttributes.edit', 'MDC', 'Edit device attributes'),
-            layout: {
-                type: 'hbox',
-                align: 'stretch'
-            },
             items: [
                 {
                     margin: '40 0 0 0',
