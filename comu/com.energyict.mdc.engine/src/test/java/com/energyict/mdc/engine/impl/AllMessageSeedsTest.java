@@ -1,5 +1,8 @@
 package com.energyict.mdc.engine.impl;
 
+import com.energyict.mdc.engine.impl.monitor.PrettyPrintTimeDurationTranslationKeys;
+
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.ArrayList;
@@ -31,11 +34,38 @@ public class AllMessageSeedsTest {
         }
     }
 
+    @Test
+    public void testAllMessageSeedsHaveUniqueKey () {
+        Set<String> uniqueKeys = new HashSet<>();
+        for (MessageSeed messageSeed : allMessageSeeds()) {
+            assertThat(uniqueKeys)
+                    .as(messageSeed.toString() + " does not have a unique key")
+                    .doesNotContain(messageSeed.getKey());
+            uniqueKeys.add(messageSeed.getKey());
+        }
+    }
+
+    @Test
+    public void testAllTranslationKeysHaveUniqueKey () {
+        Set<String> uniqueKeys = new HashSet<>();
+        for (TranslationKey translationKey : allTranslationKeys()) {
+            assertThat(uniqueKeys)
+                    .as(translationKey.toString() + " does not have a unique key")
+                    .doesNotContain(translationKey.getKey());
+            uniqueKeys.add(translationKey.getKey());
+        }
+    }
+
     private List<MessageSeed> allMessageSeeds() {
         List<MessageSeed> all = new ArrayList<>();
-        Collections.addAll(all, com.energyict.mdc.engine.exceptions.MessageSeeds.values());
-        Collections.addAll(all, com.energyict.mdc.engine.impl.commands.store.MessageSeeds.values());
-        Collections.addAll(all, com.energyict.mdc.engine.impl.monitor.MessageSeeds.values());
+        Collections.addAll(all, MessageSeeds.values());
+        Collections.addAll(all, com.energyict.mdc.engine.impl.commands.MessageSeeds.values());
+        return all;
+    }
+
+    private List<TranslationKey> allTranslationKeys() {
+        List<TranslationKey> all = new ArrayList<>();
+        Collections.addAll(all, PrettyPrintTimeDurationTranslationKeys.values());
         return all;
     }
 

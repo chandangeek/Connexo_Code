@@ -5,8 +5,9 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.issues.Issue;
 
 import java.time.Clock;
@@ -63,7 +64,7 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
         if (found.isPresent()) {
             return found.get();
         }
-        throw CodingException.comTaskSessionMissing(comTaskExecution);
+        throw CodingException.comTaskSessionMissing(comTaskExecution, MessageSeeds.SESSION_FOR_COMTASK_MISSING);
     }
 
     private void logFailure(String errorMessage, ComTaskExecutionSessionBuilder builder){

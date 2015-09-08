@@ -1,15 +1,10 @@
 package com.energyict.mdc.engine.impl.core.devices;
 
-import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
-import com.elster.jupiter.devtools.tests.rules.Using;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
@@ -18,15 +13,14 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ComServerThreadFactory;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+
+import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
+import com.elster.jupiter.devtools.tests.rules.Using;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import org.joda.time.DateTimeConstants;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.time.Clock;
@@ -37,9 +31,22 @@ import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadFactory;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Answers;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link DeviceCommandExecutorImpl} component.
@@ -956,7 +963,7 @@ public class DeviceCommandExecutorImplTest {
         @Override
         protected void doExecute() {
             super.doExecute();
-            throw new DataAccessException(new SQLException(this.getClass().getName() + " - For unit testing purposes only"));
+            throw new DataAccessException(new SQLException(this.getClass().getName() + " - For unit testing purposes only"), MessageSeeds.UNEXPECTED_SQL_ERROR);
         }
 
     }

@@ -4,6 +4,7 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
@@ -78,13 +79,13 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     public LoadProfileCommandImpl(final LoadProfilesTask loadProfilesTask, final OfflineDevice device, final CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
         super(commandRoot);
         if (loadProfilesTask == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "loadProfilesTask");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "loadProfilesTask", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         if (device == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "device");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "device", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         if (commandRoot == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "commandRoot");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "commandRoot", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         this.loadProfilesTask = loadProfilesTask;
         this.device = device;

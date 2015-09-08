@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.logging;
 
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 
 import javassist.CannotCompileException;
 import javassist.ClassClassPath;
@@ -148,7 +149,7 @@ public final class LoggerFactory {
 
     private static <MI> MI getLoggerFor (Class<MI> messageInterfaceClass, LogLevel logLevel, Context<MI> context) {
         if (!messageInterfaceClass.isInterface()) {
-            throw CodingException.loggerFactoryRequiresInterface(messageInterfaceClass);
+            throw CodingException.loggerFactoryRequiresInterface(messageInterfaceClass, MessageSeeds.LOGGER_FACTORY_REQUIRES_INTERFACE);
         }
         try {
             Class<MI> subClass = context.findOrGenerateImplementationClass(messageInterfaceClass, logLevel);
@@ -371,7 +372,7 @@ public final class LoggerFactory {
                 for (int i = 0; i < parameterTypes.length; i++) {
                     if (isThrowable(parameterTypes[i])) {
                         if (throwableParameterIndex != -1) {
-                            throw CodingException.loggerFactorySupportsOnlyOneThrowableParameter(method);
+                            throw CodingException.loggerFactorySupportsOnlyOneThrowableParameter(method, MessageSeeds.LOGGER_FACTORY_SUPPORTS_ONLY_ONE_THROWABLE_PARAMETER);
                         }
                         throwableParameterIndex = i;
                     }

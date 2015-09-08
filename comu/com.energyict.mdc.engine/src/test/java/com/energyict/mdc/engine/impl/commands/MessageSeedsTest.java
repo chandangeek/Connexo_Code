@@ -1,7 +1,6 @@
-package com.energyict.mdc.engine.impl.commands.store;
+package com.energyict.mdc.engine.impl.commands;
 
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.impl.commands.store.MessageSeeds;
 
 import java.util.HashSet;
 import java.util.Set;

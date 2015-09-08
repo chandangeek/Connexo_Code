@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.legacy;
 
 import com.energyict.mdc.engine.exceptions.ComCommandException;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
@@ -9,12 +9,11 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.io.ConnectionCommunicationException;
+import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
 import com.energyict.mdc.protocol.api.OpticalDriver;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
-
-import com.energyict.mdc.io.SerialComChannel;
 
 /**
  * Command to enable the HandHeldUnit controller for legacy protocols.
@@ -43,7 +42,7 @@ public class HandHeldUnitEnablerCommand extends SimpleComCommand {
                         ((DeviceProtocolAdapter) deviceProtocol).enableHHUSignOn(serialCommunicationChannel);
                     }
                 } else {
-                    throw ComCommandException.illegalCommand(this, deviceProtocol);
+                    throw ComCommandException.illegalCommand(this, deviceProtocol, com.energyict.mdc.engine.impl.MessageSeeds.ILLEGAL_COMMAND);
                 }
             } catch (ConnectionException e) {
                 throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, e);

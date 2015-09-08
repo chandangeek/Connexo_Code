@@ -1,15 +1,16 @@
 package com.energyict.mdc.engine.impl.web;
 
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -53,7 +54,7 @@ public final class DefaultEmbeddedWebServerFactory implements EmbeddedWebServerF
                 comServerClassName = "RemoteComServerImpl";
                 propertyName = "remoteComServer.eventRegistrationURI";
             }
-            throw CodingException.validationFailed(e, comServerClassName, propertyName);
+            throw CodingException.validationFailed(e, comServerClassName, propertyName, MessageSeeds.VALIDATION_FAILED);
         }
     }
 
@@ -68,7 +69,7 @@ public final class DefaultEmbeddedWebServerFactory implements EmbeddedWebServerF
             return new VoidEmbeddedWebServer();
         }
         catch (URISyntaxException e) {
-            throw CodingException.validationFailed(e, "OnlineComServerImpl", "onlineComServer.queryAPIPostURI");
+            throw CodingException.validationFailed(e, "OnlineComServerImpl", "onlineComServer.queryAPIPostURI", MessageSeeds.VALIDATION_FAILED);
         }
     }
 

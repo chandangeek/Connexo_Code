@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLogBookDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
@@ -65,7 +66,7 @@ public class DeviceLogBook extends CollectedDeviceData implements CollectedLogBo
     @Override
     public void setMeterEvents(List<MeterProtocolEvent> meterEvents) {
         if(meterEvents == null){
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setMeterEvents", "meterEvents");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setMeterEvents", "meterEvents", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         this.meterEvents = meterEvents;
     }

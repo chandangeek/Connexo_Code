@@ -1,10 +1,11 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.elster.jupiter.time.TimeDuration;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,7 +32,7 @@ public class TimeDurationParser {
             return wrapper.timeDuration;
         }
         catch (IOException e) {
-            throw new DataAccessException(e);
+            throw new DataAccessException(e, MessageSeeds.UNEXPECTED_SQL_ERROR);
         }
     }
 

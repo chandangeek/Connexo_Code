@@ -1,8 +1,9 @@
 package com.energyict.mdc.engine.impl.monitor;
 
-import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.engine.impl.tools.JmxStatistics;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
+import com.energyict.mdc.engine.impl.tools.JmxStatistics;
 
 import javax.management.openmbean.CompositeType;
 import javax.management.openmbean.OpenDataException;
@@ -110,7 +111,7 @@ public class QueryAPIStatisticsImpl extends CanConvertToCompositeDataSupport imp
                             JmxStatistics.doGetCompositeType()});
         }
         catch (OpenDataException e) {
-            throw CodingException.compositeTypeCreation(targetClass, e);
+            throw CodingException.compositeTypeCreation(targetClass, e, MessageSeeds.COMPOSITE_TYPE_CREATION);
         }
     }
 
@@ -138,7 +139,7 @@ public class QueryAPIStatisticsImpl extends CanConvertToCompositeDataSupport imp
                             return getCallStatistics().getSupport();
                         }
                         catch (OpenDataException e) {
-                            throw CodingException.compositeDataCreation(JmxStatistics.class, e);
+                            throw CodingException.compositeDataCreation(JmxStatistics.class, e, MessageSeeds.COMPOSITE_TYPE_CREATION);
                         }
                     }
                 }));

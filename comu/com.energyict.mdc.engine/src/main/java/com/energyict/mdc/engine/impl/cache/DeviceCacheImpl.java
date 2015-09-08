@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.cache;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 

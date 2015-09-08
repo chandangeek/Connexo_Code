@@ -1,7 +1,8 @@
 package com.energyict.mdc.engine.exceptions;
 
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComServerRuntimeException;
+
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.concurrent.ExecutionException;
 
@@ -14,7 +15,8 @@ public class DeviceCommandException extends ComServerRuntimeException {
         super(messageSeed, messageArguments);
     }
 
-    public static DeviceCommandException errorDuringFutureGetCall(ExecutionException e) {
-        return new DeviceCommandException(MessageSeeds.INBOUND_DATA_PROCESSOR_ERROR, e);
+    public static DeviceCommandException errorDuringFutureGetCall(ExecutionException e, MessageSeed messageSeed) {
+        return new DeviceCommandException(messageSeed, e);
     }
+
 }
