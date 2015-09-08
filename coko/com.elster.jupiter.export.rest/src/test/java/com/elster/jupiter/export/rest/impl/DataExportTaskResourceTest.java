@@ -61,6 +61,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         fileDestinationInfo.fileName = "file";
         fileDestinationInfo.fileExtension = "txt";
         info.destinations.add(fileDestinationInfo);
+
         DestinationInfo emailDestinationInfo = new DestinationInfo();
         emailDestinationInfo.type = DestinationType.EMAIL;
         emailDestinationInfo.fileName = "attachment";
@@ -68,6 +69,16 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         emailDestinationInfo.recipients="user1@elster.com,user2@elster.com";
         emailDestinationInfo.subject="daily report";
         info.destinations.add(emailDestinationInfo);
+
+        DestinationInfo ftpDestinationInfo = new DestinationInfo();
+        ftpDestinationInfo.type = DestinationType.FTP;
+        ftpDestinationInfo.fileLocation = "";
+        ftpDestinationInfo.fileName = "ftpfile";
+        ftpDestinationInfo.fileExtension = "ftptxt";
+        ftpDestinationInfo.server = "ftpserver";
+        ftpDestinationInfo.password = "ftppassword";
+        ftpDestinationInfo.user = "ftpuser";
+        info.destinations.add(ftpDestinationInfo);
 
         Entity<DataExportTaskInfo> json = Entity.json(info);
 
@@ -77,6 +88,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
 
         verify(exportTask).addFileDestination("", "file", "txt");
         verify(exportTask).addEmailDestination("user1@elster.com,user2@elster.com", "daily report", "attachment", "csv");
+        verify(exportTask).addFtpDestination("", "ftpfile", "ftptxt", "ftpserver", "ftppassword", "ftpuser");
     }
 
     @Test

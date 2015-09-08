@@ -16,5 +16,10 @@ public class DestinationInfo {
     public String recipients;
     public String subject;
 
+    //ftp
+    public String server;
+    public String user;
+    public String password;
+
 
 }

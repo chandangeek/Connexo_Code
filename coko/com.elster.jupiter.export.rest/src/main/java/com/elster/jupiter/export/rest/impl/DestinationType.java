@@ -5,7 +5,8 @@ import com.elster.jupiter.export.ExportTask;
 
 public enum DestinationType implements DestinationInfoFactory {
     FILE(new FileDestinationInfoFactory()),
-    EMAIL(new EmailDestinationInfoFactory());
+    EMAIL(new EmailDestinationInfoFactory()),
+    FTP(new FtpDestinationInfoFactory());
 
     private final DestinationInfoFactory factory;
 
