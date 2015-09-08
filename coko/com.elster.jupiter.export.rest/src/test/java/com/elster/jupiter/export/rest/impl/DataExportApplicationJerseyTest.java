@@ -21,11 +21,7 @@ import com.elster.jupiter.time.RelativeField;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Never;
-import org.junit.Before;
-import org.mockito.Answers;
-import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.lang.reflect.InvocationHandler;
@@ -34,6 +30,10 @@ import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+
+import org.junit.*;
+import org.mockito.Answers;
+import org.mockito.Mock;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
@@ -91,11 +91,6 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
             private Supplier<DataExportTaskBuilder> builderGetter = () -> builder;
         });
         return (DataExportTaskBuilder) proxyInstance;
-    }
-
-    @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
     }
 
     @Override
