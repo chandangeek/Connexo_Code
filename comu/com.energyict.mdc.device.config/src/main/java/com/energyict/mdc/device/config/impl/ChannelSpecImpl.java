@@ -199,18 +199,18 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         List<String> readingTypesInUseByChannelType = new ArrayList<>(2);
         readingTypesInUseByChannelType.add(getChannelType().getReadingType().getMRID());
         getChannelType().getReadingType().getCalculatedReadingType().ifPresent(calculatedReadingType -> readingTypesInUseByChannelType.add(calculatedReadingType.getMRID()));
-        for (ChannelSpec channelSpec : getLoadProfileSpec().getChannelSpecs()) {
-            if (   !isSameIdObject(this, channelSpec)
-                && !readingTypesAreNotUsedByChannelType(channelSpec.getChannelType(), readingTypesInUseByChannelType)){
-                throw DuplicateChannelTypeException.forChannelSpecInLoadProfileSpec(channelSpec, getChannelType(), this.getLoadProfileSpec(), this.getThesaurus(), MessageSeeds.CHANNEL_SPEC_DUPLICATE_CHANNEL_TYPE_IN_LOAD_PROFILE_SPEC);
+        for (ChannelSpec channelSpec : getDeviceConfiguration().getChannelSpecs()) {
+            if (!isSameIdObject(this, channelSpec)
+                    && !readingTypesAreNotUsedByChannelType(channelSpec.getChannelType(), readingTypesInUseByChannelType)) {
+                throw DuplicateChannelTypeException.forChannelSpecInLoadProfileSpec(channelSpec, getChannelType(), channelSpec.getLoadProfileSpec(), this.getThesaurus(), MessageSeeds.CHANNEL_SPEC_DUPLICATE_CHANNEL_TYPE_IN_LOAD_PROFILE_SPEC);
             }
         }
     }
 
-    private boolean readingTypesAreNotUsedByChannelType(ChannelType candidate, Collection<String> readingTypeMrids){
+    private boolean readingTypesAreNotUsedByChannelType(ChannelType candidate, Collection<String> readingTypeMrids) {
         Objects.requireNonNull(candidate);
         Objects.requireNonNull(readingTypeMrids);
-        if (!readingTypeMrids.contains(candidate.getReadingType().getMRID())){
+        if (!readingTypeMrids.contains(candidate.getReadingType().getMRID())) {
             Optional<ReadingType> calculatedReadingType = candidate.getReadingType().getCalculatedReadingType();
             return !calculatedReadingType.isPresent() || !readingTypeMrids.contains(calculatedReadingType.get().getMRID());
         }

@@ -41,7 +41,7 @@ public class DuplicateChannelTypeException extends LocalizedException {
      * @return the newly created DuplicateChannelTypeException
      */
     public static DuplicateChannelTypeException forChannelSpecInLoadProfileSpec(@NotNull ChannelSpec channelSpec, @NotNull MeasurementType measurementType, LoadProfileSpec loadProfileSpec, Thesaurus thesaurus, MessageSeed messageSeed) {
-        DuplicateChannelTypeException duplicateChannelTypeException = new DuplicateChannelTypeException(thesaurus, messageSeed, loadProfileSpec, channelSpec, measurementType);
+        DuplicateChannelTypeException duplicateChannelTypeException = new DuplicateChannelTypeException(thesaurus, messageSeed, loadProfileSpec, channelSpec, measurementType.getReadingType().getAliasName());
         duplicateChannelTypeException.set("loadProfileSpec", loadProfileSpec);
         duplicateChannelTypeException.set("measurementType", measurementType);
         duplicateChannelTypeException.set("channelSpec", channelSpec);

@@ -433,6 +433,21 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         createDefaultChannelSpec(loadProfileSpec);
     }
 
+    @Test(expected = DuplicateChannelTypeException.class)
+    @Transactional
+    public void createWithReadingTypeInUseByAnotherLoadProfileSpec() {
+        LoadProfileType loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "2", ObisCode.fromString("1.0.99.9.0.255"), interval, Arrays.asList(registerType));
+        loadProfileType.save();
+        deviceType.addLoadProfileType(loadProfileType);
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+        createDefaultChannelSpec(loadProfileSpec);
+
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = getReloadedDeviceConfiguration().createLoadProfileSpec(loadProfileType);
+        loadProfileSpecBuilder.setOverruledObisCode(ObisCode.fromString("1.0.1.9.2.255"));
+        loadProfileSpec = loadProfileSpecBuilder.add();
+        createDefaultChannelSpec(loadProfileSpec);
+    }
+
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED + "}")
