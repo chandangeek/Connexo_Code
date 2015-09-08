@@ -1,8 +1,30 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl;
 
+import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.TransactionWrapper;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.ConflictGroupTranslationKey;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.DefaultLifeCycleTranslationKey;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleActionResource;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleResource;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleStateResource;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.ResourceHelper;
+import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.TransitionBusinessProcessResource;
+import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfoFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCyclePrivilegeFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.info.MicroActionAndCheckInfoFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.info.StateTransitionEventTypeFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.info.TransitionBusinessProcessInfoFactory;
+
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -12,41 +34,27 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.common.rest.TransactionWrapper;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.ConflictGroupTranslationKey;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.DefaultLifeCycleTranslationKey;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.*;
-import com.energyict.mdc.device.lifecycle.config.rest.info.*;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleActionResource;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleResource;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.DeviceLifeCycleStateResource;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.resource.ResourceHelper;
-import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfoFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCyclePrivilegeFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.info.MicroActionAndCheckInfoFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.info.StateTransitionEventTypeFactory;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableSet;
-
-import java.util.*;
-import javax.validation.MessageInterpolator;
-import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.validation.MessageInterpolator;
+import javax.ws.rs.core.Application;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Component(
         name = "com.energyict.mdc.device.lifecycle.config.rest",
-        service = {Application.class, TranslationKeyProvider.class},
+        service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = {"alias=/dld", "app=MDC", "name=" + DeviceLifeCycleConfigApplication.DEVICE_CONFIG_LIFECYCLE_COMPONENT},
         immediate = true)
-public class DeviceLifeCycleConfigApplication extends Application implements TranslationKeyProvider {
+public class DeviceLifeCycleConfigApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
     public static final String DEVICE_CONFIG_LIFECYCLE_COMPONENT = "DLR";
 
     private volatile TransactionService transactionService;
@@ -63,7 +71,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(
+        return ImmutableSet.of(
                 TransactionWrapper.class,
                 DeviceLifeCycleResource.class,
                 DeviceLifeCycleStateResource.class,
@@ -131,10 +139,14 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>(Arrays.<TranslationKey>asList(MessageSeeds.values()));
-        keys.addAll(Arrays.<TranslationKey>asList(DefaultLifeCycleTranslationKey.values()));
-        keys.addAll(Arrays.<TranslationKey>asList(ConflictGroupTranslationKey.values()));
+        List<TranslationKey> keys = new ArrayList<>(Arrays.asList(DefaultLifeCycleTranslationKey.values()));
+        keys.addAll(Arrays.asList(ConflictGroupTranslationKey.values()));
         return keys;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
@@ -172,4 +184,5 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
             bind(deviceLifeCycleService).to(DeviceLifeCycleService.class);
         }
     }
+
 }
