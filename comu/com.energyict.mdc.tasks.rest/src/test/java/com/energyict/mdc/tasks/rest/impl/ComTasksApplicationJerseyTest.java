@@ -1,13 +1,14 @@
 package com.energyict.mdc.tasks.rest.impl;
 
-import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;
-import org.mockito.Mock;
+
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 
 import javax.ws.rs.core.Application;
+
+import org.mockito.Mock;
 
 /**
  * Created by gde on 4/05/2015.
@@ -20,11 +21,6 @@ public class ComTasksApplicationJerseyTest extends FelixRestApplicationJerseyTes
     MasterDataService masterDataService;
     @Mock
     DeviceMessageSpecificationService deviceMessageSpecificationService;
-
-    @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
-    }
 
     @Override
     protected Application getApplication() {

@@ -1,21 +1,18 @@
 package com.energyict.mdc.tasks.rest.impl;
 
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
-import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;
+
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -28,8 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.tasks.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/cts", "app=MDC", "name=" + ComTasksApplication.COMPONENT_NAME})
-public class ComTasksApplication extends Application implements TranslationKeyProvider {
+@Component(name = "com.energyict.mdc.tasks.rest", service = {Application.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/cts", "app=MDC", "name=" + ComTasksApplication.COMPONENT_NAME})
+public class ComTasksApplication extends Application implements MessageSeedProvider {
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "CTS";
 
@@ -101,17 +98,12 @@ public class ComTasksApplication extends Application implements TranslationKeyPr
     }
 
     @Override
-    public String getComponentName() {
-        return ComTasksApplication.COMPONENT_NAME;
-    }
-
-    @Override
     public Layer getLayer() {
         return Layer.REST;
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 }
