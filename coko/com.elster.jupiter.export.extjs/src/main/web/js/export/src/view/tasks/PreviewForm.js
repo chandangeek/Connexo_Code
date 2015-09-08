@@ -142,7 +142,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                         }
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('general.exportPeriod', 'DES', 'Export period'),
+                        fieldLabel: Uni.I18n.translate('general.exportWindow', 'DES', 'Export window'),
                         name: 'exportPeriod',
                         hidden: true,
                         itemId: 'data-selector-exportPeriod-preview',
@@ -181,7 +181,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                         renderer: function (value) {
                             if (value) {
                                 if(value==='INCLUDE_ALL'){
-                                    return Uni.I18n.translate('general.exportAll', 'DES', 'Export all data (including suspect/not validated data');
+                                    return Uni.I18n.translate('general.exportAll', 'DES', 'Export all data (including suspect/not validated data)');
                                 } else if (value === 'EXCLUDE_INTERVAL'){
                                     return Uni.I18n.translate('general.skipSuspectOrNotValidated', 'DES', 'Skip intervals with suspect/not validated data');
                                 } else if (value === 'EXCLUDE_ITEM') {

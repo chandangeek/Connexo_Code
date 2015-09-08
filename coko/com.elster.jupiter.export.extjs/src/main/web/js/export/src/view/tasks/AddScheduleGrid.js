@@ -34,12 +34,12 @@ Ext.define('Dxp.view.tasks.AddScheduleGrid', {
             },
             {
                 itemId: 'startPeriod',
-                header: Uni.I18n.translate('general.startExportPeriod', 'DES', 'Start export period'),
+                header: Uni.I18n.translate('general.startExportWindow', 'DES', 'Start export window'),
                 dataIndex: 'start'
             },
             {
                 itemId: 'endPeriod',
-                header: Uni.I18n.translate('general.endExportPeriod', 'DES', 'End export period'),
+                header: Uni.I18n.translate('general.endExportWindow', 'DES', 'End export window'),
                 dataIndex: 'end'
             },
             {

@@ -320,7 +320,7 @@ Ext.define('Dxp.view.tasks.Add', {
                     {
                         xtype: 'fieldcontainer',
                         itemId: 'export-periods-container',
-                        fieldLabel: Uni.I18n.translate('general.exportPeriod', 'DES', 'Export period'),
+                        fieldLabel: Uni.I18n.translate('general.exportWindow', 'DES', 'Export window'),
                         hidden: true,
                         required: true,
                         layout: 'hbox',
@@ -336,7 +336,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 editable: false,
                                 disabled: false,
                                 //allowBlank: false,
-                                emptyText: Uni.I18n.translate('addDataExportTask.exportPeriodPrompt', 'DES', 'Select an export period...'),
+                                emptyText: Uni.I18n.translate('addDataExportTask.exportWindowPrompt', 'DES', 'Select an export window...'),
                                 displayField: 'name',
                                 valueField: 'id'
                             }
@@ -564,7 +564,7 @@ Ext.define('Dxp.view.tasks.Add', {
                         items: [
                             {
                                 xtype: 'radiofield',
-                                boxLabel: Uni.I18n.translate('general.exportAll', 'DES', 'Export all data (including suspect/not validated data'),
+                                boxLabel: Uni.I18n.translate('general.exportAll', 'DES', 'Export all data (including suspect/not validated data)'),
                                 name: 'validatedDataOption',
                                 checked: true,
                                 inputValue: 'INCLUDE_ALL'
