@@ -8,7 +8,9 @@ Ext.define('Imt.registerdata.view.RegisterList', {
         'Imt.registerdata.view.ActionMenu'
     ],
     store: 'Imt.registerdata.store.Register',
-    overflowY: 'auto',
+    mRID: null,
+    scroll: false,
+ //   overflowY: 'auto',
     itemId: 'registerList',
     title: Uni.I18n.translate('registers.registerList', 'IMT', 'Registers'),
     viewConfig: {

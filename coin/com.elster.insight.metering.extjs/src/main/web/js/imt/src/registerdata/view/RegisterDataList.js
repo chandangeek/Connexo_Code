@@ -48,25 +48,29 @@ Ext.define('Imt.registerdata.view.RegisterDataList', {
 //            }
 //        }
     ];
-//        me.dockedItems = [
-//              {
-//                  xtype: 'pagingtoolbartop',
-//                  store: me.store,
-//                  dock: 'top',
+        me.dockedItems = [
+              {
+                  xtype: 'pagingtoolbartop',
+                  store: me.store,
+                  dock: 'top',
+                  isFullTotalCount: true,
+                  noBottomPaging: true,
+                  displayMsg: '{2} reading(s)',
 //                  displayMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.displayMsg', 'IMT', '{0} - {1} of {2} registers'),
+//                  displayMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.displayMsg', 'IMT', '{2} register readings'),
 //                  displayMoreMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.displayMoreMsg', 'IMT', '{0} - {1} of more than {2} registers'),
-//                  emptyMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.emptyMsg', 'IMT', 'There are no registers')
-//              },
+//                  emptyMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.emptyMsg', 'IMT', 'There are no register readings')
+              },
 //              {
 //                  xtype: 'pagingtoolbarbottom',
 //                  store: me.store,
-//                  params: [
-//                      {mRID: me.mRID}
-//                  ],
-//                  itemsPerPageMsg: Uni.I18n.translate('registerdata.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Register configurations per page'),
+////                  params: [
+////                          {mRID: me.mRID}
+////                  ],
+//                  itemsPerPageMsg: Uni.I18n.translate('registerdata.pagingtoolbarbottom.itemsPerPage', 'IMT', 'Register readings per page'),
 //                  dock: 'bottom'
 //              }
-//          ];
+          ];
         me.callParent(arguments);
     }
 });

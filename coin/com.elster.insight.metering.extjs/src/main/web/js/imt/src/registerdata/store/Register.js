@@ -11,7 +11,10 @@ Ext.define('Imt.registerdata.store.Register', {
 	    },
 	    setUrl: function (mRID) {
 	        this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
-	    }
+	    },
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined
 	}
 
 });

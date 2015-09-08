@@ -65,9 +65,9 @@ Ext.define('Imt.registerdata.controller.View', {
         	me.getRegisterList().getSelectionModel().select(0);
         	pageMainContent.setLoading(false);
         })
+
     },
-    
-    onRegisterListSelect: function (rowmodel, record, index) {
+     onRegisterListSelect: function (rowmodel, record, index) {
         var me = this;
         me.previewRegisterData(record);
     },
@@ -100,6 +100,7 @@ Ext.define('Imt.registerdata.controller.View', {
                 var widget = Ext.widget('registerDataSetup', {
                         router: router, 
                         mRID: mRID, 
+                        registerid: registerId,
                         filter: {
                            fromDate: new Date().getTime(),
                            duration: '1months',
