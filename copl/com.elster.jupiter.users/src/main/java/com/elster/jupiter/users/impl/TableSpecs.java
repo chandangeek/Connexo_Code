@@ -58,6 +58,7 @@ public enum TableSpecs {
             Column domain = table.column("DOMAIN").type("varchar(128)").notNull().map("domain").add();
             table.addDiscriminatorColumn("DIRECTORY_TYPE", "char(3)");
             table.column("IS_DEFAULT").bool().map("isDefault").add();
+			table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
             table.column("GROUPS_INTERNAL").type("char(1)").conversion(CHAR2BOOLEAN).map("manageGroupsInternal").add();
             table.column("DIRECTORY_USER").type("varchar(4000)").map("directoryUser").add();
             table.column("PASSWORD").type("varchar(128)").map("password").add();
@@ -80,6 +81,7 @@ public enum TableSpecs {
 			table.column("HA1").type("varchar2(32)").map("ha1").add();
             table.column("LANGUAGETAG").type("varchar2(64)").map("languageTag").add();
             Column userDirColumn = table.column("USER_DIRECTORY").varChar(128).notNull().add();
+			table.column("Active").type("char(1)").conversion(CHAR2BOOLEAN).map("status").add();
             table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addModTimeColumn("MODTIME", "modTime");

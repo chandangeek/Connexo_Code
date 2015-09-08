@@ -27,6 +27,7 @@ public class UserImpl implements User {
     private String description;
     private String ha1;
     private long version;
+    private boolean status;
     private Instant createTime;
     private Instant modTime;
     private String languageTag;

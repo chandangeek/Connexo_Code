@@ -10,6 +10,7 @@ import java.util.Hashtable;
 public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImpl implements LdapUserDirectory{
     private String directoryUser;
     private String password;
+    private String description;
     private String url;
     private String backupurl;
     private String security;
@@ -57,8 +58,18 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     }
 
     @Override
+    public String getDescription(){
+        return description;
+    }
+
+    @Override
     public void setSecurity(String security){
         this.security = security;
+    }
+
+    @Override
+    public void setDescription(String description){
+        this.description = description;
     }
 
     @Override

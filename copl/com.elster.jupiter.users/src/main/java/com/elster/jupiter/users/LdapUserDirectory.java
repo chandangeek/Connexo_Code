@@ -14,7 +14,11 @@ public interface LdapUserDirectory extends UserDirectory {
 
     String getBackupUrl();
 
+    String getDescription();
+
     void setBackupUrl(String backupUrl);
+
+    void setDescription(String description);
 
     void setUrl(String url);
 
