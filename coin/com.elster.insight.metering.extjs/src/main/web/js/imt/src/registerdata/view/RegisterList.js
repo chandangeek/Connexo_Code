@@ -8,7 +8,9 @@ Ext.define('Imt.registerdata.view.RegisterList', {
         'Imt.registerdata.view.ActionMenu'
     ],
     store: 'Imt.registerdata.store.Register',
-    overflowY: 'auto',
+    mRID: null,
+    scroll: false,
+ //   overflowY: 'auto',
     itemId: 'registerList',
     title: Uni.I18n.translate('registers.registerList', 'IMT', 'Registers'),
     viewConfig: {
@@ -22,18 +24,18 @@ Ext.define('Imt.registerdata.view.RegisterList', {
         {
             header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Registers'),
             flex: 1,
-            dataIndex: 'readingTypeAlias', 
+            dataIndex: 'readingTypeFullAliasName', 
             renderer: function (value, b, record) {
                 var me = this,
-                    url = me.router.getRoute('administration/usagepoint/register').buildUrl({mRID: me.mRID, register: record.get('readingTypemRID')});//record.get('id')});
+                   url = me.router.getRoute('administration/usagepoint/registers/register').buildUrl({mRID: me.mRID, registerId: record.get('readingTypemRID')});//record.get('id')});
 
                 return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
             }
         },
         {
-            header: Uni.I18n.translate('registers.title.readingTimestamp', 'IMT', 'Reading Timestamp'),
+            header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Last reading timestamp'),
             flex: 1,
-            dataIndex: 'utcTimestamp', 
+            dataIndex: 'lastValueTimestamp', 
             renderer: function(value){
                 if(!Ext.isEmpty(value)) {
                     return Uni.DateTime.formatDateTimeLong(new Date(value));
@@ -42,28 +44,17 @@ Ext.define('Imt.registerdata.view.RegisterList', {
             },
         },
         {
-            header: Uni.I18n.translate('registers.title.readingValue', 'IMT', 'Reading Value'),
+            header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Last reading value'),
             flex: 1,
-            dataIndex: 'readingValue', 
+            dataIndex: 'lastReadingValue', 
         },
         {
-            header: Uni.I18n.translate('registers.title.recordedTimestamp', 'IMT', 'Recorded Timestamp'),
-            flex: 1,
-            dataIndex: 'recordedTime', 
-            renderer: function(value){
-                if(!Ext.isEmpty(value)) {
-                    return Uni.DateTime.formatDateTimeLong(new Date(value));
-                }
-                return '-';
-            },
-        },
-//        {
-//            xtype: 'uni-actioncolumn',
-//            menu: {
-//                xtype: 'registerActionMenu',
-//                itemId: 'registerActionMenu'
-//            }
-//        }
+            xtype: 'uni-actioncolumn',
+            menu: {
+                xtype: 'registerActionMenu',
+                itemId: 'registerActionMenu'
+            }
+        }
     ];
 //        me.dockedItems = [
 //              {

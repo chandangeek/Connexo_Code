@@ -2,11 +2,21 @@ Ext.define('Imt.registerdata.model.Register', {
     extend: 'Ext.data.Model',
     requires: [],
     fields: [
-        {name: 'deviceName', type: 'string'},
-        {name: 'readingTypemRID', type: 'string'},
-        {name: 'readingTypeAlias', type: 'string'},
-        {name: 'utcTimestamp', type: 'number'},
-        {name: 'recordedTime', type: 'number'},
-        {name: 'readingValue', type: 'number'},
-    ],
+             {name: 'readingType', type: 'auto'},
+             {name: 'readingTypemRID', type: 'string', mapping: 'readingType.mRID', persist: false},
+             {name: 'readingTypeFullAliasName', type: 'string', mapping: 'readingType.fullAliasName', persist: false},
+             {name: 'lastReadingValue', type: 'auto'},
+             {name: 'lastValueTimestamp', type: 'auto'}
+         ],
+         proxy: {
+             type: 'rest',
+             urlTpl: '/api/udr/usagepoints/{mRID}/registers/',
+             timeout: 240000,
+             reader: {
+                 type: 'json'
+             },
+             setUrl: function (params) {
+                 this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(params.mRID));
+             }
+         }
 });

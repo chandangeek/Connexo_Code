@@ -3,23 +3,38 @@ Ext.define('Imt.registerdata.controller.View', {
     requires: [
         'Imt.registerdata.store.Register',
         'Imt.registerdata.view.Setup',
-        'Imt.registerdata.view.Preview'
+        'Imt.registerdata.view.Preview',
+        'Imt.registerdata.store.RegisterData',
+        'Imt.registerdata.view.RegisterDataSetup',
+        'Imt.registerdata.view.RegisterDataPreview'
     ],
     models: [
-        'Imt.usagepointmanagement.model.UsagePoint'
+        'Imt.usagepointmanagement.model.UsagePoint',
+        'Imt.registerdata.model.Register',
+        'Imt.registerdata.model.RegisterData',
+        'Imt.model.DataIntervalAndZoomLevels',
+        'Imt.model.ChannelDataDuration'
     ],
     stores: [
-        'Imt.registerdata.store.Register'
+        'Imt.registerdata.store.Register',
+        'Imt.registerdata.store.RegisterData',
+        'Imt.store.DataIntervalAndZoomLevels',
+        'Imt.store.ChannelDataDurations'
     ],
     views: [
-        'Imt.registerdata.view.RegisterList'
+        'Imt.registerdata.view.RegisterList',
+        'Imt.registerdata.view.RegisterDataList'
     ],
     refs: [
         {ref: 'overviewLink', selector: '#usage-point-overview-link'},
         {ref: 'registerList', selector: '#registerList'},
         {ref: 'registerListSetup', selector: '#registerListSetup'},
         {ref: 'registerPreview', selector: '#registerPreview'},
-        {ref: 'stepsMenu', selector: '#stepsMenu'}
+        
+        {ref: 'registerDataOverviewLink', selector: '#register-data-overview-link'},
+        {ref: 'registerDataList', selector: '#registerDataList'},
+        {ref: 'registerDataSetup', selector: '#registerDataSetup'},
+        {ref: 'registerDataPreview', selector: '#registerDataPreview'},
     ],
     init: function () {
         var me = this;
@@ -27,17 +42,15 @@ Ext.define('Imt.registerdata.controller.View', {
             '#registerList': {
                 select: me.onRegisterListSelect
             },
-            '#deviceRegisterConfigurationActionMenu': {
-                click: this.chooseAction
+            '#registerDataList': {
+                select: me.onRegisterDataListSelect
             },
-            '#registerActionMenu': {
-                click: this.chooseAction
-            }
         });
     },
     showUsagePointRegisters: function (mRID) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
+            dataStore = me.getStore('Imt.registerdata.store.Register'),
             usagePoint = Ext.create('Imt.usagepointmanagement.model.UsagePoint'),
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
        
@@ -47,11 +60,14 @@ Ext.define('Imt.registerdata.controller.View', {
         me.getApplication().fireEvent('usagePointLoaded', usagePoint);
         me.getApplication().fireEvent('changecontentevent', widget);
         me.getOverviewLink().setText(mRID);
-        me.getRegisterList().getSelectionModel().select(0);
-        pageMainContent.setLoading(false);
+        dataStore.getProxy().setUrl(mRID);
+        dataStore.load(function() {
+        	me.getRegisterList().getSelectionModel().select(0);
+        	pageMainContent.setLoading(false);
+        })
+
     },
-    
-    onRegisterListSelect: function (rowmodel, record, index) {
+     onRegisterListSelect: function (rowmodel, record, index) {
         var me = this;
         me.previewRegisterData(record);
     },
@@ -63,17 +79,64 @@ Ext.define('Imt.registerdata.controller.View', {
             previewContainer = me.getRegisterListSetup().down('#previewComponentContainer');
         
         form.loadRecord(record);
-        widget.setTitle(record.get('readingTypeAlias'));
+        widget.setTitle(record.get('readingTypeFullAliasName'));
         previewContainer.removeAll();
         previewContainer.add(widget);
    	
     },
     
-    showUsagePointRegister: function(mRID, id) {
-        
+    showUsagePointRegisterData: function(mRID, registerId) {
+	     var me = this,
+         dataStore = me.getStore('Imt.registerdata.store.RegisterData'),
+         router = me.getController('Uni.controller.history.Router'),
+         registerModel = me.getModel('Imt.registerdata.model.Register'),
+         durationsStore = me.getStore('Imt.registerdata.store.RegisterDataDurations'),
+         pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+	     
+	     pageMainContent.setLoading(true);
+	     registerModel.getProxy().setUrl({mRID: mRID, registerId: registerId});
+	     registerModel.load(registerId, {
+            success: function (record) {
+                var widget = Ext.widget('registerDataSetup', {
+                        router: router, 
+                        mRID: mRID, 
+                        registerid: registerId,
+                        filter: {
+                           fromDate: new Date().getTime(),
+                           duration: '1months',
+                           durationStore: durationsStore
+                        }
+                });
+                me.getApplication().fireEvent('registerDataLoaded', record);
+                me.getApplication().fireEvent('changecontentevent', widget);
+                me.getOverviewLink().setText(mRID); 
+                dataStore.getProxy().setUrl({mRID: mRID, registerId: registerId});
+	            dataStore.load(function() {
+	            	me.getRegisterDataList().getSelectionModel().select(0);
+	            	pageMainContent.setLoading(false);
+	            });
+            }
+	     });
     },
-    
-    
+    onRegisterDataListSelect: function (rowmodel, record, index) {
+        var me = this;
+        me.previewRegisterData2(record);
+    },
+    previewRegisterData2: function (record) {
+        var me = this,
+            widget = Ext.widget('registerDataPreview'), 
+            form = widget.down('#registerDataPreviewForm'),
+            previewContainer = me.getRegisterDataSetup().down('#previewComponentContainer');
+        
+        form.loadRecord(record);
+        var datestr = Uni.DateTime.formatDateLong(new Date(record.get('readingTime')))
+        			+ ' ' + Uni.I18n.translate('general.at', 'IMT', 'At').toLowerCase() + ' '
+        				+ Uni.DateTime.formatTimeLong(new Date(record.get('readingTime')));
+        widget.setTitle(datestr);
+        previewContainer.removeAll();
+        previewContainer.add(widget);
+   	
+    },
     
     
 });

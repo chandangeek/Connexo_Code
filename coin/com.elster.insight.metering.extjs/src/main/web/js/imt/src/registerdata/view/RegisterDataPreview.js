@@ -1,7 +1,7 @@
-Ext.define('Imt.registerdata.view.Preview', {
+Ext.define('Imt.registerdata.view.RegisterDataPreview', {
     extend: 'Imt.registerdata.view.GeneralPreview',
-    alias: 'widget.registerPreview',
-    itemId: 'registerPreview',
+    alias: 'widget.registerDataPreview',
+    itemId: 'registerDataPreview',
     record: null,
 
     requires: [
@@ -14,7 +14,7 @@ Ext.define('Imt.registerdata.view.Preview', {
         me.items = [
             {
                 xtype: 'form',
-                itemId: 'registerPreviewForm',
+                itemId: 'registerDataPreviewForm',
                 layout: 'form',
                 items: [
                     {
@@ -27,21 +27,14 @@ Ext.define('Imt.registerdata.view.Preview', {
                             labelWidth: 200
                         },
                         items: [
-							{
-                                fieldLabel: Uni.I18n.translate('general.readingTypemRID', 'IMT', 'Reading type'),
-                                xtype: 'reading-type-displayfield',
-                                name: 'readingType',
-                                itemId: 'readingType',
-                                showTimeAttribute: false
-							},
-                            {
+                                  {
                                 xtype: 'fieldcontainer',
-                                fieldLabel: Uni.I18n.translate('general.lastReading', 'IMT', 'Last reading timestamp'),
+                                fieldLabel: Uni.I18n.translate('general.lastReading', 'IMT', 'Last reading time'),
                                 layout: 'hbox',
                                 items: [
                                     {
                                         xtype: 'displayfield',
-                                        name: 'lastValueTimestamp',
+                                        name: 'readingTime',
                                         renderer: function (value) {
                                             if (!Ext.isEmpty(value)) {
                                                 return Uni.DateTime.formatDateLong(new Date(value))
@@ -56,7 +49,11 @@ Ext.define('Imt.registerdata.view.Preview', {
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('general.lastValue', 'IMT', 'Last value'),
-                                name: 'lastReadingValue'
+                                name: 'value'
+                            },
+                            {
+                                fieldLabel: Uni.I18n.translate('general.lastValue', 'IMT', 'Delta value'),
+                                name: 'deltaValue'
                             },
                         ]
                     },
