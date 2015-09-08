@@ -46,12 +46,6 @@
     
     <dependencies>
         <dependency>
-            <groupId>com.elster</groupId>
-            <artifactId>insight.usagepoint.data</artifactId>
-        </dependency>
-<!-- should be able to remove the below dependency as it comes from the
-     above dependency but it's not working... -->
-        <dependency>
           <groupId>com.elster</groupId>
           <artifactId>insight.common</artifactId>
         </dependency>
