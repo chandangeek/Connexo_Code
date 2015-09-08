@@ -60,7 +60,16 @@ Ext.define('Dsh.controller.Connections', {
         {
             ref: 'communicationPreviewActionMenu',
             selector: '#communicationPreviewActionMenu'
+        },
+        {
+            ref: 'latestStatusFilter',
+            selector: 'dsh-view-widget-connectionstopfilter #latest-state-filter'
+        },
+        {
+            ref: 'finishedBetweenFilter',
+            selector: 'dsh-view-widget-connectionstopfilter #finish-interval-filter'
         }
+
     ],
 
     init: function () {
@@ -85,6 +94,15 @@ Ext.define('Dsh.controller.Connections', {
                 run: this.connectionRun,
                 viewLog: this.viewLog,
                 viewHistory: this.viewHistory
+            },
+            // disable the finished between filter if in the latest status filter "Not applicable" is selected:
+            'dsh-view-widget-connectionstopfilter #latest-state-filter': {
+                change: this.updateFinishedBetweenFilter
+            },
+            // Remove the option "Not applicable" from the latest status filter if the finished between filter is used:
+            'dsh-view-widget-connectionstopfilter #finish-interval-filter': {
+                filterupdate: this.updateLatestStatusFilter,
+                filtervaluechange: this.updateLatestStatusFilter
             }
 
         });
@@ -295,5 +313,35 @@ Ext.define('Dsh.controller.Connections', {
 
     navigateToBulk: function () {
         location.href = '#/workspace/connections/details/bulk?' + Uni.util.QueryString.getQueryString();
+    },
+
+    updateFinishedBetweenFilter: function(combo, newValue) {
+        this.getFinishedBetweenFilter().getChooseIntervalButton().setDisabled(Ext.isArray(newValue) && _.contains(newValue, 'NotApplicable'));
+    },
+
+    updateLatestStatusFilter: function() {
+        var me = this;
+        if (me.getLatestStatusFilter()) {
+            var filterStore = me.getLatestStatusFilter().getStore();
+            if (me.getFinishedBetweenFilter().getParamValue() !== undefined) {
+                filterStore.filterBy(me.doFilterLatestStatus);
+                me.getLatestStatusFilter(); // Apparently, needed to visually see the filtering active in the combo box
+            } else {
+                filterStore.clearFilter();
+            }
+        } else {
+            // Retry until you can perform the above
+            Ext.TaskManager.start({
+                run: me.updateLatestStatusFilter,
+                interval: 200,
+                repeat: 1,
+                scope: me
+            });
+        }
+    },
+
+    doFilterLatestStatus: function(record, id) {
+        return record.get('successIndicator') !== 'NotApplicable';
     }
+
 });
