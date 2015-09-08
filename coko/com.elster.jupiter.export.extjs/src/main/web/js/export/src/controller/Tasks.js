@@ -456,7 +456,6 @@ Ext.define('Dxp.controller.Tasks', {
     },
 
     showEditExportTask: function (taskId) {
-
         var me = this,
 
             router = me.getController('Uni.controller.history.Router'),
@@ -538,10 +537,10 @@ Ext.define('Dxp.controller.Tasks', {
                                     readingTypesGrid = view.down('#readingTypesGridPanel');
 
                                 readingTypesGrid.getStore().removeAll();
-
                                 Ext.each(taskReadingTypes, function (readingType) {
                                     readingTypesGrid.getStore().add({readingType: readingType})
                                 });
+                                view.updateReadingTypesGrid();
 
                                 exportPeriodCombo.store.load({
                                     params: {
@@ -653,8 +652,14 @@ Ext.define('Dxp.controller.Tasks', {
         switch (item.action) {
             case 'removeDestination':
                 var page = me.getAddPage(),
-                    destinationsGrid = page.down('#task-destinations-grid');
-                destinationsGrid.getStore().remove(menu.record);
+                    destinationsGrid = page.down('#task-destinations-grid'),
+                    destinationsStore = destinationsGrid.getStore(),
+                    emptyDestinationsLabel = page.down('#noDestinationsLabel');
+                destinationsStore.remove(menu.record);
+                if (destinationsStore.count() === 0) {
+                    emptyDestinationsLabel.show();
+                    destinationsGrid.hide();
+                }
                 break;
             case 'editDestination':
                 me.destinationToEdit = menu.record;
@@ -1008,7 +1013,6 @@ Ext.define('Dxp.controller.Tasks', {
 
         propertyForm.updateRecord();
 
-
         var dataSelectorCombo = form.down('#data-selector-combo');
         var selectedDataSelector = dataSelectorCombo.findRecord(dataSelectorCombo.valueField, dataSelectorCombo.getValue());
         if ((selectedDataSelector) && (!selectedDataSelector.get('isDefault'))) {
@@ -1018,13 +1022,12 @@ Ext.define('Dxp.controller.Tasks', {
 
         var emptyReadingTypes = (selectedDataSelector) && (selectedDataSelector.get('isDefault')) && (page.down('#readingTypesGridPanel').getStore().data.items.length == 0);
         if (emptyReadingTypes) {
-            form.down('#readingTypesGridPanel').addCls('error-border');
-            form.down('#readingTypesFieldContainer').setActiveError('This field is required');
+            form.down('#readingTypesFieldContainer').setActiveError(Uni.I18n.translate('dataExport.requiredField','DES','This field is required'));
 
             form.getForm().markInvalid(
                 Ext.create('Object', {
                     id: 'readingTypeDataSelector.value.readingTypes',
-                    msg: 'This field is required'
+                    msg: Uni.I18n.translate('dataExport.requiredField','DES','This field is required')
                 }));
 
             formErrorsPanel.show();
@@ -1032,14 +1035,12 @@ Ext.define('Dxp.controller.Tasks', {
 
         var emptyDestinations = page.down('#task-destinations-grid').getStore().data.items.length == 0;
         if (emptyDestinations) {
-            //form.down('#destinationsFieldcontainer').addCls('error-border');
-            //form.down('#destinationsFieldcontainer').setActiveError('This field is required');
-            form.down('#noDestinationsErrorLabel').show();
+            form.down('#destinationsFieldcontainer').setActiveError(Uni.I18n.translate('dataExport.requiredField','DES','This field is required'));
 
             form.getForm().markInvalid(
                 Ext.create('Object', {
                     id: 'destinationsFieldcontainer',
-                    msg: 'This field is required'
+                    msg: Uni.I18n.translate('dataExport.requiredField','DES','This field is required')
                 }));
 
             formErrorsPanel.show();
@@ -1285,6 +1286,7 @@ Ext.define('Dxp.controller.Tasks', {
             readingTypesGrid = page.down('#readingTypesGridPanel'),
             destinationsGrid = page.down('#task-destinations-grid'),
             emptyDestinationsLabel = page.down('#noDestinationsLabel'),
+            emptyReadingTypesLabel = page.down('#noReadingTypesLabel'),
             destinationsStore = destinationsGrid.getStore(),
             gridStore = readingTypesGrid.getStore();
 
@@ -1304,9 +1306,10 @@ Ext.define('Dxp.controller.Tasks', {
             }
         }
 
-
-
-
+        if (gridStore.count() > 0) {
+            emptyReadingTypesLabel.hide();
+            readingTypesGrid.show();
+        }
 
         Ext.each(me.destinationsArray, function (record) {
             if (me.destinationIndexToEdit != -1) {

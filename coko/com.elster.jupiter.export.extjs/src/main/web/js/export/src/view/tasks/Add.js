@@ -192,14 +192,12 @@ Ext.define('Dxp.view.tasks.Add', {
                                 xtype: 'combobox',
                                 itemId: 'data-selector-combo',
                                 allowBlank: false,
-                                //required: true,
                                 name: 'readingTypeDataSelector.value.dataSelector',
                                 width: 235,
                                 queryMode: 'local',
                                 store: 'Dxp.store.DataSelectors',
                                 editable: false,
                                 disabled: false,
-                                allowBlank: false,
                                 emptyText: Uni.I18n.translate('addDataExportTask.dataSelectorPrompt', 'DES', 'Select a data selector...'),
                                 displayField: 'displayName',
                                 valueField: 'name'
@@ -258,64 +256,60 @@ Ext.define('Dxp.view.tasks.Add', {
                         hidden: true,
                         itemId: 'readingTypesFieldContainer',
                         required: true,
+                        layout: 'hbox',
                         msgTarget: 'under',
-                        width: 1200,
                         items: [
                             {
-                                xtype: 'panel',
-                                width: 800,
-                                items: [
+                                xtype: 'component',
+                                html: Uni.I18n.translate('dataExport.noReadingTypes','DES','No reading types have been added'),
+                                itemId: 'noReadingTypesLabel',
+                                style: {
+                                    'font': 'italic 13px/17px Lato',
+                                    'color': '#686868',
+                                    'margin-top': '6px',
+                                    'margin-right': '10px'
+                                }
+                            },
+                            {
+                                xtype: 'gridpanel',
+                                itemId: 'readingTypesGridPanel',
+                                store: 'Dxp.store.ReadingTypesForTask',
+                                hideHeaders: true,
+                                padding: 0,
+                                hidden: true,
+                                columns: [
                                     {
-                                        xtype: 'gridpanel',
-                                        itemId: 'readingTypesGridPanel',
-                                        store: 'Dxp.store.ReadingTypesForTask',
-                                        hideHeaders: true,
-                                        padding: 0,
-                                        columns: [
-                                            {
-                                                xtype: 'reading-type-column',
-                                                dataIndex: 'readingType',
-                                                flex: 1
-                                            },
-                                            {
-                                                xtype: 'actioncolumn',
-                                                align: 'right',
-                                                items: [
-                                                    {
-                                                        iconCls: 'uni-icon-delete',
-                                                        handler: function (grid, rowIndex) {
-                                                            grid.getStore().removeAt(rowIndex);
-                                                        }
-                                                    }
-                                                ]
-                                            }
-                                        ],
-                                        height: 220
-                                    }
-                                ],
-                                rbar: [
+                                        xtype: 'reading-type-column',
+                                        dataIndex: 'readingType',
+                                        flex: 1
+                                    },
                                     {
-                                        xtype: 'container',
+                                        xtype: 'actioncolumn',
+                                        align: 'right',
                                         items: [
                                             {
-                                                xtype: 'button',
-                                                itemId: 'addReadingTypeButton',
-                                                text: Uni.I18n.translate('general.addReadngTypes', 'DES', 'Add reading types'),
-                                                margin: '0 0 0 10'
+                                                iconCls: 'uni-icon-delete',
+                                                handler: function (grid, rowIndex) {
+                                                    grid.getStore().removeAt(rowIndex);
+                                                    if (grid.getStore().count() === 0) {
+                                                        me.updateReadingTypesGrid();
+                                                    }
+                                                }
                                             }
                                         ]
                                     }
-                                ]
+                                ],
+                                width: 500,
+                                height: 220
+                            },
+                            {
+                                xtype: 'button',
+                                itemId: 'addReadingTypeButton',
+                                text: Uni.I18n.translate('general.addReadngTypes', 'DES', 'Add reading types'),
+                                margin: '0 0 0 10'
                             }
                         ]
                     },
-
-                    /*{
-                     xtype: 'label',
-                     cls: 'x-form-invalid-under',
-                     itemId: 'readingTypesForTaskErrorLabel',
-                     margin: '0 0 00 266'
-                     },*/
 
                     {
                         xtype: 'fieldcontainer',
@@ -384,8 +378,21 @@ Ext.define('Dxp.view.tasks.Add', {
                             },
                             {
                                 xtype: 'button',
-                                tooltip: 'The export file contains 5 columns:<br><div style="text-indent: 40px">Interval timestamp (yyyy-mm-dd hh:mm:ss)</div><div style="text-indent: 40px">MRID (text)</div><div style="text-indent: 40px">Reading type (text)</div><div style="text-indent: 40px">Value (number)</div><div style="text-indent: 40px">Validation result (text)</div>',
-                                iconCls: 'icon-info-small',
+                                tooltip: Ext.String.format(
+                                    Uni.I18n.translate('addDataExportTask.formatter.tooltip', 'DES', 'The export file contains 5 columns')
+                                    + ':<br>'
+                                    + '<div style="text-indent: 40px">{0}</div>'
+                                    + '<div style="text-indent: 40px">{1}</div>'
+                                    + '<div style="text-indent: 40px">{2}</div>'
+                                    + '<div style="text-indent: 40px">{3}</div>'
+                                    + '<div style="text-indent: 40px">{4}</div>',
+                                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col1', 'DES', 'Interval timestamp (yyyy-mm-dd hh:mm:ss)'),
+                                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col2', 'DES', 'MRID (text)'),
+                                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col3', 'DES', 'Reading type (text)'),
+                                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col4', 'DES', 'Value (number)'),
+                                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col5', 'DES', 'Validation result (text)')
+                                ),
+                                iconCls: 'uni-icon-info-small',
                                 ui: 'blank',
                                 itemId: 'file-formatter-info',
                                 shadow: false,
@@ -409,13 +416,19 @@ Ext.define('Dxp.view.tasks.Add', {
                         required: true,
                         fieldLabel: Uni.I18n.translate('general.destinations', 'DES', 'Destinations'),
                         layout: 'hbox',
+                        msgTarget: 'under',
                         items: [
 
                             {
-                                xtype: 'label',
-                                text: Uni.I18n.translate('dataExport.noDestinations','DES','There are no destinations added yet'),
-                                itemId: 'noDestinationsLabel'
-
+                                xtype: 'component',
+                                html: Uni.I18n.translate('dataExport.noDestinations','DES','No destinations have been added'),
+                                itemId: 'noDestinationsLabel',
+                                style: {
+                                    'font': 'italic 13px/17px Lato',
+                                    'color': '#686868',
+                                    'margin-top': '6px',
+                                    'margin-right': '10px'
+                                }
                             },
                             {
                                 xtype: 'dxp-tasks-destinations-grid',
@@ -432,15 +445,6 @@ Ext.define('Dxp.view.tasks.Add', {
 
                         ]
                     },
-
-                    {
-                         xtype: 'label',
-                         text: Uni.I18n.translate('dataExport.requiredField','DES','This field is required'),
-                         cls: 'x-form-invalid-under',
-                         itemId: 'noDestinationsErrorLabel',
-                         hidden: true,
-                         margin: '0 0 00 266'
-                     },
 
                     {
                         xtype: 'fieldcontainer',
@@ -469,11 +473,25 @@ Ext.define('Dxp.view.tasks.Add', {
         me.callParent(arguments);
         me.setEdit(me.edit);
     },
+
     recurrenceNumberFieldValidation: function (field) {
         var value = field.getValue();
 
         if (Ext.isEmpty(value) || value < field.minValue) {
             field.setValue(field.minValue);
+        }
+    },
+
+    updateReadingTypesGrid: function() {
+        var me = this,
+            readingTypesGrid = me.down('#readingTypesGridPanel'),
+            emptyReadingTypesLabel = me.down('#noReadingTypesLabel');
+        if (readingTypesGrid.getStore().count() === 0) {
+            emptyReadingTypesLabel.show();
+            readingTypesGrid.hide();
+        } else {
+            emptyReadingTypesLabel.hide();
+            readingTypesGrid.show();
         }
     }
 });
