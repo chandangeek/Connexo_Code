@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
@@ -24,11 +25,14 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 /**
  * Copyrights EnergyICT
@@ -217,6 +221,13 @@ public class ValidationInfoFactory {
         veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
         veeReadingInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getReadingQualities());
         veeReadingInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getReadingQualities());
+        veeReadingInfo.action = decorate(dataValidationStatus.getReadingQualities()
+                .stream())
+                .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
+                .map(quality -> quality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
+                .sorted(Comparator.<ValidationAction>reverseOrder())
+                .findFirst()
+                .orElse(null);
         return veeReadingInfo;
     }
 
@@ -226,6 +237,13 @@ public class ValidationInfoFactory {
             veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
             veeReadingInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getBulkReadingQualities());
             veeReadingInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getBulkReadingQualities());
+            veeReadingInfo.action = decorate(dataValidationStatus.getBulkReadingQualities()
+                    .stream())
+                    .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
+                    .map(quality -> quality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
+                    .sorted(Comparator.<ValidationAction>reverseOrder())
+                    .findFirst()
+                    .orElse(null);
             return veeReadingInfo;
         }
         return null;

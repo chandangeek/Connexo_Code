@@ -25,7 +25,7 @@ class MinimalVeeReadingValueInfo {
     public ValidationStatus validationResult;
 
     @JsonProperty("action")
-    public ValidationAction action = ValidationAction.FAIL;
+    public ValidationAction action;
 
     @JsonProperty("estimatedByRule")
     public Boolean estimatedByRule;
