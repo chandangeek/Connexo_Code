@@ -88,7 +88,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
 
         verify(exportTask).addFileDestination("", "file", "txt");
         verify(exportTask).addEmailDestination("user1@elster.com,user2@elster.com", "daily report", "attachment", "csv");
-        verify(exportTask).addFtpDestination("", "ftpfile", "ftptxt", "ftpserver", "ftppassword", "ftpuser");
+        verify(exportTask).addFtpDestination("ftpserver", "ftpuser", "ftppassword", "", "ftpfile", "ftptxt");
     }
 
     @Test
