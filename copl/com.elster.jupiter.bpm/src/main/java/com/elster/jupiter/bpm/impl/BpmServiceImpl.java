@@ -7,6 +7,7 @@ import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
@@ -15,10 +16,10 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -29,14 +30,19 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Component(
         name = "com.elster.jupiter.bpm",
-        service = {BpmService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class},
+        service = {BpmService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         immediate = true,
         property = "name=" + BpmService.COMPONENTNAME)
-public class BpmServiceImpl implements BpmService, InstallService, PrivilegesProvider, TranslationKeyProvider {
+public class BpmServiceImpl implements BpmService, InstallService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile MessageService messageService;
@@ -50,6 +56,7 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
 
     @Inject
     public BpmServiceImpl(OrmService ormService, MessageService messageService, JsonService jsonService, NlsService nlsService, UserService userService) {
+        this();
         setOrmService(ormService);
         setMessageService(messageService);
         setJsonService(jsonService);
@@ -172,9 +179,12 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> translationKeys = new ArrayList<>();
-        translationKeys.add(new SimpleTranslationKey(BpmService.BPM_QUEUE_SUBSC, BpmService.BPM_QUEUE_DISPLAYNAME));
-        translationKeys.addAll(Arrays.asList(MessageSeeds.values()));
-        return translationKeys;
+        return Collections.singletonList(new SimpleTranslationKey(BpmService.BPM_QUEUE_SUBSC, BpmService.BPM_QUEUE_DISPLAYNAME));
     }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
 }
