@@ -92,4 +92,45 @@ public final class ReadingQualityType {
     public String toString() {
     	return "Quality Reading Type " + code;
     }
+
+    public boolean hasEstimatedCategory() {
+        return hasQualityCodeCategory(QualityCodeCategory.ESTIMATED);
+    }
+
+    public boolean isConfirmed() {
+        return hasQualityIndex(QualityCodeIndex.ACCEPTED);
+    }
+
+    public boolean hasEditCategory() {
+        return hasQualityCodeCategory(QualityCodeCategory.EDITED);
+    }
+
+    public boolean hasReasonabilityCategory() {
+        return hasQualityCodeCategory(QualityCodeCategory.REASONABILITY);
+    }
+
+    public boolean hasValidationCategory() {
+        return hasQualityCodeCategory(QualityCodeCategory.VALIDATION);
+    }
+
+    public boolean isSuspect() {
+        return hasQualityIndex(QualityCodeIndex.SUSPECT);
+    }
+
+    public boolean isMissing() {
+        return hasQualityIndex(QualityCodeIndex.KNOWNMISSINGREAD);
+    }
+
+    public boolean isError() {
+        return hasQualityIndex(QualityCodeIndex.ERRORCODE);
+    }
+
+    private boolean hasQualityCodeCategory(QualityCodeCategory cat) {
+        return category().filter(category -> category.equals(cat)).isPresent();
+    }
+
+    private boolean hasQualityIndex(QualityCodeIndex index) {
+        return qualityIndex().filter(qualityIndex -> qualityIndex.equals(index)).isPresent();
+    }
+
 }

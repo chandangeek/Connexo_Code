@@ -1,7 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.cbo.QualityCodeCategory;
-import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
@@ -169,39 +167,31 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     
     @Override
     public boolean hasEditCategory() {
-    	return hasQualityCodeCategory(QualityCodeCategory.EDITED);
+    	return getType().hasEditCategory();
     }
     
     @Override
     public boolean hasReasonabilityCategory() {
-    	return hasQualityCodeCategory(QualityCodeCategory.REASONABILITY);
+    	return getType().hasReasonabilityCategory();
     }
     @Override
     public boolean hasValidationCategory() {
-    	return hasQualityCodeCategory(QualityCodeCategory.VALIDATION);
+    	return getType().hasValidationCategory();
     }
     
     @Override
     public boolean isSuspect() {
-    	return hasQualityIndex(QualityCodeIndex.SUSPECT);
+    	return getType().isSuspect();
     }
     
     @Override
     public boolean isMissing() {
-    	return hasQualityIndex(QualityCodeIndex.KNOWNMISSINGREAD);
+    	return getType().isMissing();
     }
     
     @Override
     public boolean isError() {
-    	return hasQualityIndex(QualityCodeIndex.ERRORCODE);
-    }
-    
-    private boolean hasQualityCodeCategory(QualityCodeCategory cat) {
-    	return getType().category().filter(category -> category.equals(cat)).isPresent();
-    }
-    
-    private boolean hasQualityIndex(QualityCodeIndex index) {
-    	return getType().qualityIndex().filter(qualityIndex -> qualityIndex.equals(index)).isPresent();
+    	return getType().isError();
     }
     
     @Override
@@ -223,12 +213,12 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
     @Override
     public boolean hasEstimatedCategory() {
-        return hasQualityCodeCategory(QualityCodeCategory.ESTIMATED);
+        return getType().hasEstimatedCategory();
     }
 
     @Override
     public boolean isConfirmed() {
-        return hasQualityIndex(QualityCodeIndex.ACCEPTED);
+        return getType().isConfirmed();
     }
 
     public class LocalEventSource {
