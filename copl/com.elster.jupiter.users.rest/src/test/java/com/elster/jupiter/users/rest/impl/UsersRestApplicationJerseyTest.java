@@ -1,13 +1,13 @@
 package com.elster.jupiter.users.rest.impl;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserPreferencesService;
+import com.elster.jupiter.users.UserService;
 
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
@@ -16,21 +16,19 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import org.mockito.Mock;
 
-import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.UserPreferencesService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.MessageSeed;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
 
 public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTest {
-    
+
     @Mock
     RestQueryService restQueryService;
     @Mock
@@ -45,7 +43,7 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     NlsService nlsService;
     @Mock
     Thesaurus thesaurus;
-    
+
     @Provider
     @Priority(Priorities.AUTHORIZATION)
     private static class SecurityRequestFilter implements ContainerRequestFilter {
@@ -58,7 +56,7 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     @Override
     protected Application getApplication() {
         UsersApplication application = new UsersApplication() {
-            
+
             @Override
             public Set<Class<?>> getClasses() {
                 Set<Class<?>> classes = new HashSet<>();
@@ -66,7 +64,7 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
                 classes.add(SecurityRequestFilter.class);
                 return classes;
             }
-            
+
             @Override
             public Set<Object> getSingletons() {
                 Set<Object> hashSet = new HashSet<>();
@@ -85,8 +83,4 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         return application;
     }
 
-    @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return new MessageSeed[0];
-    }
 }
