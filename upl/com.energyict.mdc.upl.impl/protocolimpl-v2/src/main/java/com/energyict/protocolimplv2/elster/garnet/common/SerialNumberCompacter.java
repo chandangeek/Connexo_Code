@@ -102,7 +102,7 @@ public class SerialNumberCompacter {
         for (byte packedSerialNumberByte : packedSerialNumberBytes) {
             int b = packedSerialNumberByte & 0xFF;
             if (b <= 0x99) {    // The byte can be considered as plain BCD
-                serialNumber += Integer.toString(getIntFromBCD(new byte[]{(byte) b}, 0, 1));
+                serialNumber += String.format("%02d", getIntFromBCD(new byte[]{(byte) b}, 0, 1));
             } else {            // Subtract 0x80 and consider as ASCII
                 b -= 0x80;
                 if (b != 0x7F) { // 0x7F can be ignored
