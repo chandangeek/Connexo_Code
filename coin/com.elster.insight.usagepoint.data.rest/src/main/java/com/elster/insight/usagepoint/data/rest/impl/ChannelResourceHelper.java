@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
+import com.elster.insight.common.rest.ExceptionFactory;
 import com.elster.insight.common.services.ListPager;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
@@ -22,11 +23,13 @@ public class ChannelResourceHelper {
     private static final Comparator<Channel> CHANNEL_COMPARATOR_BY_NAME = new ChannelComparator();
 
     private final ResourceHelper resourceHelper;
+    private final ExceptionFactory exceptionFactory;
     private final Clock clock;
 
     @Inject
-    public ChannelResourceHelper(ResourceHelper resourceHelper, Clock clock) {
+    public ChannelResourceHelper(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Clock clock) {
         this.resourceHelper = resourceHelper;
+        this.exceptionFactory = exceptionFactory;
         this.clock = clock;
     }
 
@@ -34,21 +37,12 @@ public class ChannelResourceHelper {
         List<Channel> regularChannels = new ArrayList<Channel>();
 
         UsagePoint usagepoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
-
-        Optional<? extends MeterActivation> currentActivation = usagepoint.getCurrentMeterActivation();
-        if (currentActivation.isPresent()) {
-            List<Channel> channelCandidates = currentActivation.get().getChannels();
-            for (Channel channel : channelCandidates) {
-                if (channel.isRegular())
-                    regularChannels.add(channel);
-            }
-
-        } else {
-
-            //TODO: no activation, throw exception?
-            return null;
+        MeterActivation currentActivation = usagepoint.getCurrentMeterActivation().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_CURRENT_ACTIVATION_FOR_USAGE_POINT_FOR_MRID, mrid));
+        List<Channel> channelCandidates = currentActivation.getChannels();
+        for (Channel channel : channelCandidates) {
+            if (channel.isRegular())
+                regularChannels.add(channel);
         }
-
         List<Channel> channelsPage = ListPager.of(regularChannels, CHANNEL_COMPARATOR_BY_NAME).from(queryParameters).find();
 
         List<ChannelInfo> channelInfos = new ArrayList<>();
@@ -59,25 +53,16 @@ public class ChannelResourceHelper {
         return Response.ok(PagedInfoList.fromPagedList("channels", channelInfos, queryParameters)).build();
     }
 
-    public Channel findCurrentChannelOnUsagePoint(String mrid, String rt_mrid) {
+    public Optional<Channel> findCurrentChannelOnUsagePoint(String mrid, String rt_mrid) {
         UsagePoint usagepoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
-        Optional<? extends MeterActivation> currentActivation = usagepoint.getCurrentMeterActivation();
-        if (currentActivation.isPresent()) {
-            List<Channel> channelCandidates = currentActivation.get().getChannels();
-            for (Channel channel : channelCandidates) {
-                if (rt_mrid.equals(channel.getMainReadingType().getMRID())) {
-                    return channel;
-                }
+        MeterActivation currentActivation = usagepoint.getCurrentMeterActivation().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_CURRENT_ACTIVATION_FOR_USAGE_POINT_FOR_MRID, mrid));
+        List<Channel> channelCandidates = currentActivation.getChannels();
+        for (Channel channel : channelCandidates) {
+            if (rt_mrid.equals(channel.getMainReadingType().getMRID())) {
+                return Optional.of(channel);
             }
-
-        } else {
-
-            //TODO: no activation, throw exception?
-            return null;
         }
-
-        return null;
-
+        return Optional.empty();
     }
 
     public Response getChannel(Supplier<Channel> channelSupplier) {

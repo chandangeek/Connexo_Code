@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
@@ -18,12 +19,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.elster.insight.common.rest.ExceptionFactory;
 import com.elster.insight.common.services.ListPager;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -36,24 +39,23 @@ public class RegisterResource {
     private final Provider<RegisterResourceHelper> registerHelper;
     private final MeteringService meteringService;
     private final ResourceHelper resourceHelper;
-//    private final Provider<RegisterDataResource> registerDataResourceProvider;
-//    private final ValidationInfoHelper validationInfoHelper;
     private final UsagePointDataInfoFactory usagePointDataInfoFactory;
     private final Clock clock;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public RegisterResource(Provider<RegisterResourceHelper> registerHelper, ResourceHelper resourceHelper, MeteringService meteringService, Clock clock, UsagePointDataInfoFactory usagePointDataInfoFactory) {
+    public RegisterResource(Provider<RegisterResourceHelper> registerHelper, ResourceHelper resourceHelper, MeteringService meteringService, ExceptionFactory exceptionFactory, Clock clock, UsagePointDataInfoFactory usagePointDataInfoFactory) {
         this.registerHelper = registerHelper;
         this.resourceHelper = resourceHelper;
         this.meteringService = meteringService;
+        this.exceptionFactory = exceptionFactory;
         this.clock = clock;
-//        this.validationInfoHelper = validationInfoHelper;
         this.usagePointDataInfoFactory = usagePointDataInfoFactory;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-////    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
+    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     public Response getRegisters(@PathParam("mrid") String mrid, @BeanParam JsonQueryParameters queryParameters) {
         return registerHelper.get().getRegisters(mrid, queryParameters);
     }
@@ -61,26 +63,23 @@ public class RegisterResource {
     @GET
     @Path("/{rt_mrid}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-//    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
+    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     public Response getRegister(@PathParam("mrid") String mrid, @PathParam("rt_mrid") String rt_mrid) {
-        Channel channel = registerHelper.get().findRegisterOnUsagePoint(mrid, rt_mrid); 
+        Channel channel = registerHelper.get().findRegisterOnUsagePoint(mrid, rt_mrid).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_REGISTER_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid)); 
         return registerHelper.get().getRegister(() -> channel);
     }
     
     @GET
     @Path("/{rt_mrid}/data")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-//    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
+    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     public Response getRegisterData(
             @PathParam("mrid") String mrid,
             @PathParam("rt_mrid") String rt_mrid,
             @BeanParam JsonQueryFilter filter,
             @BeanParam JsonQueryParameters queryParameters) {
-//        Channel channel = registerHelper.get().findRegisterOnUsagePoint(mrid, rt_mrid);
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
         ReadingType readingType = resourceHelper.findReadingTypeByMrIdOrThrowException(rt_mrid);
-//        DeviceValidation deviceValidation = channel.getDevice().forValidation();
-//        boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.instant());
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             
             Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
@@ -124,9 +123,6 @@ public class RegisterResource {
 //                    list.add(not(this::hasSuspects));
 //                }
 //            }
-        }
-        if (filterActive(filter, "hideMissing")) {
-//            list.add(this::hasMissingData);
         }
         return cdi -> list.build().stream().allMatch(p -> p.test(cdi));
     }

@@ -5,9 +5,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
@@ -18,12 +18,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.elster.insight.common.rest.ExceptionFactory;
 import com.elster.insight.common.services.ListPager;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -45,14 +47,14 @@ public class ChannelResource {
     private final Thesaurus thesaurus;
     private final Clock clock;
     private final UsagePointDataInfoFactory usagePointDataInfoFactory;
-//    private final IssueDataValidationService issueDataValidationService;
-//    private final EstimationHelper estimationHelper;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public ChannelResource(Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, MeteringService meteringService, UsagePointDataInfoFactory usagePointDataInfoFactory, Thesaurus thesaurus, Clock clock) {
+    public ChannelResource(Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, MeteringService meteringService, ExceptionFactory exceptionFactory, UsagePointDataInfoFactory usagePointDataInfoFactory, Thesaurus thesaurus, Clock clock) {
         this.channelHelper = channelHelper;
         this.resourceHelper = resourceHelper;
         this.meteringService = meteringService;
+        this.exceptionFactory = exceptionFactory;
         this.usagePointDataInfoFactory = usagePointDataInfoFactory;
         this.thesaurus = thesaurus;
         this.clock = clock;
@@ -60,7 +62,7 @@ public class ChannelResource {
     
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-//    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION})
+    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     public Response getChannels(@PathParam("mrid") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         return channelHelper.get().getChannels(mRID, queryParameters);
     }
@@ -68,16 +70,16 @@ public class ChannelResource {
     @GET
     @Path("/{rt_mrid}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-//    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION})
+    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     public Response getChannel(@PathParam("mrid") String mrid, @PathParam("rt_mrid") String rt_mrid) {
-        Channel channel = channelHelper.get().findCurrentChannelOnUsagePoint(mrid, rt_mrid); 
+        Channel channel = channelHelper.get().findCurrentChannelOnUsagePoint(mrid, rt_mrid).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_CHANNEL_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
         return channelHelper.get().getChannel(() -> channel);
     }
 
     @GET
     @Path("/{rt_mrid}/data")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-//    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
+    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     public Response getChannelData(
             @PathParam("mrid") String mrid,
             @PathParam("rt_mrid") String rt_mrid,
