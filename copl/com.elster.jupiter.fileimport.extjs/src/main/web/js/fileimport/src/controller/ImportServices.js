@@ -489,12 +489,12 @@ Ext.define('Fim.controller.ImportServices', {
                     xtype: 'container',
                     html: Uni.I18n.translate('importService.filePatternInfo.title', 'FIM', 'Pattern to filter which files will be imported, based on file name and/or extension.') + '<br><br>' +
                     Uni.I18n.translate('importService.filePatternInfo.example', 'FIM', 'Here are some examples of pattern syntax:') + '<br><ul>' +
-                    '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex1', 'FIM', '*.csv – Matches all strings that end in .csv') + '</li>' + '<br>' +
-                    '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex2', 'FIM', '??? – Matches all strings with exactly three letters or digits') + '</li>' + '<br>' +
-                    '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex3', 'FIM', '*[0-9]* – Matches all strings containing a numeric value') + '</li>' + '<br>' +
-                    '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex4', 'FIM', '*.{txt,csv,xlsx} – Matches any string ending with .txt, .csv or.xlsx') + '</li>' + '<br>' +
-                    '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex5', 'FIM', 'a?*.csv – Matches any string beginning with a, followed by at least one letter or digit, and ending with .csv') + '</li>' + '<br>' +
-                    '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex6', 'FIM', '{foo*,*[0-9]*} – Matches any string beginning with foo or any string containing a numeric value') + '</li>' + '<br></ul>'
+                    '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex1', 'FIM', '*.csv - Matches all strings that end in .csv') + '</li>' + '<br>' +
+                    '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex2', 'FIM', '??? - Matches all strings with exactly three letters or digits') + '</li>' + '<br>' +
+                    '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex3', 'FIM', '*[0-9]* - Matches all strings containing a numeric value') + '</li>' + '<br>' +
+                    '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex4', 'FIM', '*.{txt,csv,xlsx} - Matches any string ending with .txt, .csv or.xlsx') + '</li>' + '<br>' +
+                    '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex5', 'FIM', 'a?*.csv - Matches any string beginning with a, followed by at least one letter or digit, and ending with .csv') + '</li>' + '<br>' +
+                    '<li>' + '&nbsp' + Uni.I18n.translate('importService.filePatternInfo.ex6', 'FIM', '{foo*,*[0-9]*} - Matches any string beginning with foo or any string containing a numeric value') + '</li>' + '<br></ul>'
                 }
             ]
         });
