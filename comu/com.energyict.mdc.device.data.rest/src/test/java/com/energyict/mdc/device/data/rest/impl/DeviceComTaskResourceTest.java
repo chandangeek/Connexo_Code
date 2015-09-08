@@ -610,17 +610,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(jsonModel.<Integer>get("$.comTaskExecutionSessions[0].comSession.comTaskCount.numberOfIncompleteTasks")).isEqualTo(1002);
     }
 
-    private <T> Finder<T> mockFinder(List<T> list) {
-        Finder<T> finder = mock(Finder.class);
-
-        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
-        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
-        when(finder.from(any(JsonQueryParameters.class))).thenReturn(finder);
-        when(finder.find()).thenReturn(list);
-        when(finder.stream()).thenReturn(list.stream());
-        return finder;
-    }
-
     @Test
     public void canNotRunFirmwareComTaskTest() throws IOException {
         Response response = target("/devices/1/comtasks/" + firmwareComTaskId + "/run").request().put(Entity.json(""));

@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
+
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -28,9 +30,9 @@ public class DeviceMessageInfo {
     public DeviceMessageInfo() {
     }
 
+    static class StatusInfo {
+        public String displayValue;
+        public String value;
+    }
 }
 
-class StatusInfo {
-    public String displayValue;
-    public String value;
-}

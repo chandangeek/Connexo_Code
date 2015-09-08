@@ -1,21 +1,23 @@
 package com.energyict.mdc.device.data.rest;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
+import com.energyict.mdc.device.data.rest.impl.DefaultTranslationKey;
 import com.energyict.mdc.device.data.rest.impl.SecurityPropertySetInfo;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import java.util.ArrayList;
-import java.util.List;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.PrivilegePresence.WITH_PRIVILEGES;
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.HIDE_VALUES;
@@ -31,15 +33,15 @@ public class SecurityPropertySetInfoFactory {
     private final Thesaurus thesaurus;
 
     enum CompletionState {
-        COMPLETE(MessageSeeds.COMPLETE), INCOMPLETE(MessageSeeds.INCOMPLETE);
-        private final MessageSeeds seed;
+        COMPLETE(DefaultTranslationKey.COMPLETE), INCOMPLETE(DefaultTranslationKey.INCOMPLETE);
+        private final DefaultTranslationKey translationKey;
 
-        CompletionState(MessageSeeds seed) {
-            this.seed = seed;
+        CompletionState(DefaultTranslationKey translationKey) {
+            this.translationKey = translationKey;
         }
 
         public String getTranslation(Thesaurus thesaurus) {
-            return thesaurus.getString(this.seed.getKey(), this.seed.getDefaultFormat());
+            return thesaurus.getFormat(this.translationKey).format();
         }
     }
 

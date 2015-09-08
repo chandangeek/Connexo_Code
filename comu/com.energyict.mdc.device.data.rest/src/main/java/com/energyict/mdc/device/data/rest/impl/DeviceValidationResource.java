@@ -1,19 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
-import com.elster.jupiter.validation.security.Privileges;
 import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
@@ -23,18 +10,42 @@ import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
+import com.elster.jupiter.validation.security.Privileges;
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DeviceValidationResource {
@@ -319,23 +330,9 @@ public class DeviceValidationResource {
             }
         }
         catch (InvalidLastCheckedException e) {
-            throw new LocalizedFieldValidationException(this.toMessageSeed(e), "lastChecked", device.forValidation().getLastChecked());
+            throw new LocalizedFieldValidationException(e.getMessageSeed(), "lastChecked", device.forValidation().getLastChecked());
         }
         return Response.status(Response.Status.OK).build();
-    }
-
-    private MessageSeed toMessageSeed(InvalidLastCheckedException e) {
-        switch (e.getReason()) {
-            case NULL: {
-                return MessageSeeds.NULL_DATE;
-            }
-            case AFTER_CURRENT_LAST_CHECKED: {
-                return MessageSeeds.INVALID_DATE;
-            }
-            default: {
-                return MessageSeeds.INVALID_DATE;
-            }
-        }
     }
 
     @Path("/validate")

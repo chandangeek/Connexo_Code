@@ -1,5 +1,11 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfileReading;
+
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
@@ -8,18 +14,10 @@ import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Ranges;
-
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfileReading;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -65,13 +63,13 @@ public class EstimationHelper {
                 propertySpec.validateValue(value);
                 propertyMap.put(propertySpec.getName(), value);
             } catch (Exception ex) {
-                invalidProperties.put(propertySpec.getName(), thesaurus.getSimpleFormat(MessageSeeds.INVALID_ESTIMATOR_PROPERTY_VALUE).format());
+                invalidProperties.put(propertySpec.getName(), thesaurus.getFormat(MessageSeeds.INVALID_ESTIMATOR_PROPERTY_VALUE).format());
             }
         }
         try {
             estimator.validateProperties(propertyMap);
         } catch (LocalizedFieldValidationException ex) {
-            invalidProperties.put(ex.getViolatingProperty(), thesaurus.getSimpleFormat(MessageSeeds.INVALID_ESTIMATOR_PROPERTY_VALUE).format());
+            invalidProperties.put(ex.getViolatingProperty(), thesaurus.getFormat(MessageSeeds.INVALID_ESTIMATOR_PROPERTY_VALUE).format());
         }
         if(!invalidProperties.isEmpty()) {
             throw new EstimatorPropertiesException(invalidProperties);

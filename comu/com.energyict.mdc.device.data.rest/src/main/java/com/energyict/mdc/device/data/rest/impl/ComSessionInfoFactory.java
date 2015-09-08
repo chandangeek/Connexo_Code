@@ -1,17 +1,19 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.rest.SuccessIndicatorInfo;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 
+import com.elster.jupiter.nls.Thesaurus;
+
+import javax.inject.Inject;
 import java.time.Duration;
 import java.time.temporal.ChronoField;
-import javax.inject.Inject;
 
 /**
  * Created by bvn on 10/3/14.
@@ -44,12 +46,16 @@ public class ComSessionInfoFactory {
         String direction = partialConnectionTask.getConnectionType().getDirection().name();
         info.direction = thesaurus.getString(direction, direction);
         info.connectionType = partialConnectionTask.getPluggableClass().getName();
-        info.status = comSession.getSuccessIndicator().equals(ComSession.SuccessIndicator.Success)
+        ComSession.SuccessIndicator successIndicator = comSession.getSuccessIndicator();
+        info.status = successIndicator.equals(ComSession.SuccessIndicator.Success)
                 && comSession.getComTaskExecutionSessions().stream().allMatch(comTaskExecutionSession -> comTaskExecutionSession.getSuccessIndicator().equals(ComTaskExecutionSession.SuccessIndicator.Success))?
-                thesaurus.getString(MessageSeeds.SUCCESS.getKey(), "Success"):
-                thesaurus.getString(MessageSeeds.FAILURE.getKey(), "Failure");
+                thesaurus.getFormat(ComSessionSuccessIndicatorTranslationKeys.SUCCESS).format():
+                thesaurus.getFormat(DefaultTranslationKey.FAILURE).format();
 
-        info.result = new SuccessIndicatorInfo(comSession.getSuccessIndicator(), connectionTask, thesaurus);
+        info.result = new SuccessIndicatorInfo(successIndicator.name(), ComSessionSuccessIndicatorTranslationKeys.translationFor(successIndicator, thesaurus));
+        if (!successIndicator.equals(ComSession.SuccessIndicator.Success) && connectionTask instanceof OutboundConnectionTask) {
+            info.result.retries = ((OutboundConnectionTask)connectionTask).getCurrentTryCount();
+        }
         info.comTaskCount = new ComTaskCountInfo();
         info.comTaskCount.numberOfSuccessfulTasks = comSession.getNumberOfSuccessFulTasks();
         info.comTaskCount.numberOfFailedTasks = comSession.getNumberOfFailedTasks();
@@ -58,5 +64,3 @@ public class ComSessionInfoFactory {
     }
 
 }
-
-

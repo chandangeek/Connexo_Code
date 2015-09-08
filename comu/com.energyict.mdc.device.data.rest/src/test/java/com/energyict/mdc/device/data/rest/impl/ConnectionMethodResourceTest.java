@@ -1,11 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.properties.BasicPropertySpec;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
@@ -28,11 +22,14 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.ConnectionType.Direction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
+
+import com.elster.jupiter.properties.BasicPropertySpec;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -45,8 +42,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -86,7 +91,7 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         assertThat(jsonModel.<String>get("$.connectionMethods[0].name")).isEqualTo("it's me");
         assertThat(jsonModel.<String>get("$.connectionMethods[0].status")).isEqualTo("connectionTaskStatusActive");
         assertThat(jsonModel.<String>get("$.connectionMethods[0].connectionType")).isEqualTo("Pluggable class");
-        assertThat(jsonModel.<String>get("$.connectionMethods[0].connectionStrategy")).isEqualTo("asSoonAsPossible");
+        assertThat(jsonModel.<String>get("$.connectionMethods[0].connectionStrategy")).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name());
         assertThat(jsonModel.<String>get("$.connectionMethods[0].comPortPool")).isEqualTo("com port pool");
         assertThat(jsonModel.<List>get("$.connectionMethods[0].properties")).isEmpty();
     }

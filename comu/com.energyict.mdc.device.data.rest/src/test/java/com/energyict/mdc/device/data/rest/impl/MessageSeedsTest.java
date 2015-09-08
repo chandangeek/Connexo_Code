@@ -1,19 +1,14 @@
-package com.energyict.mdc.device.data.rest;
-
-
-import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.device.data.rest.impl.DeviceApplication;
-import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
-import org.junit.Test;
+package com.energyict.mdc.device.data.rest.impl;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static junit.framework.TestCase.fail;
+import org.junit.*;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests the {@link com.energyict.mdc.device.data.exceptions.MessageSeeds} component.
+ * Tests the {@link MessageSeeds} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-06 (14:44)
@@ -48,15 +43,4 @@ public class MessageSeedsTest {
         }
     }
 
-    @Test
-    public void testTranslationKeysAreUnique() throws Exception {
-        Set<String> uniqueKeys = new HashSet<>();
-        for (TranslationKey translationKey : new DeviceApplication().getKeys()) {
-            if (!uniqueKeys.add(translationKey.getKey())) {
-                fail("Duplicated translation key:"+translationKey.getKey());
-            }
-        }
-
-
-    }
 }
