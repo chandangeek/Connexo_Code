@@ -18,11 +18,16 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
+import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCategoryTranslationKey;
+import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCheckTranslationKey;
 
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -33,18 +38,14 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.Functions;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
-import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCategoryTranslationKey;
-import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCheckTranslationKey;
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.security.Principal;
-import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -62,11 +63,10 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-20 (15:57)
  */
-@Component(name = "com.energyict.device.lifecycle", service = {DeviceLifeCycleService.class, TranslationKeyProvider.class}, property = "name=" + DeviceLifeCycleService.COMPONENT_NAME)
+@Component(name = "com.energyict.device.lifecycle", service = {DeviceLifeCycleService.class, TranslationKeyProvider.class, MessageSeedProvider.class}, property = "name=" + DeviceLifeCycleService.COMPONENT_NAME)
 @SuppressWarnings("unused")
-public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, TranslationKeyProvider {
+public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, TranslationKeyProvider, MessageSeedProvider {
 
-    private volatile Clock clock;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile PropertySpecService propertySpecService;
     private volatile ServerMicroCheckFactory microCheckFactory;
@@ -81,10 +81,9 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     // For testing purposes
     @Inject
-    public DeviceLifeCycleServiceImpl(NlsService nlsService, Clock clock, ThreadPrincipalService threadPrincipalService, PropertySpecService propertySpecService, ServerMicroCheckFactory microCheckFactory, ServerMicroActionFactory microActionFactory, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceLifeCycleServiceImpl(NlsService nlsService, ThreadPrincipalService threadPrincipalService, PropertySpecService propertySpecService, ServerMicroCheckFactory microCheckFactory, ServerMicroActionFactory microActionFactory, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         this.setNlsService(nlsService);
-        this.setClock(clock);
         this.setThreadPrincipalService(threadPrincipalService);
         this.setPropertySpecService(propertySpecService);
         this.setMicroCheckFactory(microCheckFactory);
@@ -95,11 +94,6 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceLifeCycleService.COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
     }
 
     @Reference
@@ -140,12 +134,16 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Arrays.stream(MessageSeeds.values()),
                 Arrays.stream(MicroCategoryTranslationKey.values()),
                 Arrays.stream(MicroActionTranslationKey.values()),
                 Arrays.stream(MicroCheckTranslationKey.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
@@ -239,9 +237,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
      * @throws SecurityException Thrown when the user is not allowed to execute the action
      */
     private void validateUserHasExecutePrivilege(AuthorizedAction action) throws SecurityException {
-        MessageSeeds messageSeed = MessageSeeds.NOT_ALLOWED_2_EXECUTE;
         if (!this.userHasExecutePrivilege(action)) {
-            throw newSecurityException(messageSeed);
+            throw newSecurityException(MessageSeeds.NOT_ALLOWED_2_EXECUTE);
         }
     }
 
@@ -335,7 +332,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private SecurityException newSecurityException(MessageSeeds messageSeed) {
-        return new SecurityException(this.thesaurus.getString(messageSeed.getKey(), messageSeed.getDefaultFormat()));
+        return new SecurityException(this.thesaurus.getFormat(messageSeed).format());
     }
 
     private void triggerExecution(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) throws DeviceLifeCycleActionViolationException {
