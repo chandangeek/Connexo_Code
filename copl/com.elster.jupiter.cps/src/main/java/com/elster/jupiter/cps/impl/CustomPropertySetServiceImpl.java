@@ -62,13 +62,13 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     /**
      * Holds the {@link CustomPropertySet}s that were published on the whiteboard.
      */
-    private volatile List<CustomPropertySet> publishedPropertySets = new CopyOnWriteArrayList<>();
+    private List<CustomPropertySet> publishedPropertySets = new CopyOnWriteArrayList<>();
     /**
      * Holds the {@link CustomPropertySet} that were taken from the whiteboard,
      * registered if that was not the case yet and then wrapping it in an {@link ActiveCustomPropertySet}.
      * Registereing a CustomPropertySet involves creating a DataModel and a Table for it.
      */
-    private volatile List<ActiveCustomPropertySet> activePropertySets = new CopyOnWriteArrayList<>();
+    private List<ActiveCustomPropertySet> activePropertySets = new CopyOnWriteArrayList<>();
 
     // For OSGi purposes
     public CustomPropertySetServiceImpl() {
@@ -155,7 +155,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         if (!this.publishedPropertySets.isEmpty()) {
             /* Service is already installed
              * therefore any new CustomPropertySet that is published
-             * on the whiteboard will registere immediately instead
+             * on the whiteboard will register immediately instead
              * of being added to the List of published CustomPropertySet.
              * As a consequence, it is safe to clear the List after all have been registered. */
             this.publishedPropertySets.forEach(this::registerCustomPropertySet);
@@ -381,6 +381,10 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             return underConstruction;
         }
 
+        CustomPropertySet customPropertySet() {
+            return customPropertySet;
+        }
+
         Table build() {
             this.initializeUnderConstruction();
             this.addColumns();
@@ -406,7 +410,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             primaryKeyColumns.add(this.customPropertySetReference);
         }
 
-        private void initializeUnderConstruction() {
+        void initializeUnderConstruction() {
             this.underConstruction =
                     this.dataModel.addTable(
                             this.tableNameFor(this.customPropertySet),
@@ -517,6 +521,12 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             super.addPrimaryKeyColumns();
             List<Column> intervalColumns = this.underConstruction().addIntervalColumns(HardCodedFieldNames.INTERVAL.javaName());
             this.effectivityStartColumn = intervalColumns.get(0);
+        }
+
+        @Override
+        void initializeUnderConstruction() {
+            super.initializeUnderConstruction();
+            this.underConstruction().setJournalTableName(this.customPropertySet().getPersistenceSupport().tableName() + "JRNL");
         }
 
         @Override

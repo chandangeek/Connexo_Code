@@ -320,9 +320,10 @@ public class CustomPropertySetServiceImplTest {
         verify(this.versionedCustomPropertySet, never()).defaultViewPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
         verify(this.versionedCustomPropertySet, never()).defaultEditPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
         verify(this.ormService).newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString());
-        verify(this.versionedPersistenceSupport).tableName();
+        verify(this.versionedPersistenceSupport, atLeastOnce()).tableName();
         verify(this.versionedCustomPropertySetDataModel).addTable(VERSIONED_TABLE_NAME, VersionedDomainExtensionForTestingPurposes.class);
         verify(this.versionedPersistenceSupport).domainColumnName();
+        verify(this.versionedTable).setJournalTableName(anyString());
         verify(this.versionedTable).column(DOMAIN_COLUMN_NAME);
         verify(this.domainColumnBuilder).add();
         verify(this.versionedPersistenceSupport).domainForeignKeyName();
@@ -365,9 +366,10 @@ public class CustomPropertySetServiceImplTest {
         verify(this.versionedCustomPropertySet, never()).defaultViewPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
         verify(this.versionedCustomPropertySet, never()).defaultEditPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
         verify(this.ormService).newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString());
-        verify(this.versionedPersistenceSupport).tableName();
+        verify(this.versionedPersistenceSupport, atLeastOnce()).tableName();
         verify(this.versionedCustomPropertySetDataModel).addTable(VERSIONED_TABLE_NAME, VersionedDomainExtensionForTestingPurposes.class);
         verify(this.versionedPersistenceSupport).domainColumnName();
+        verify(this.versionedTable).setJournalTableName(anyString());
         verify(this.versionedTable).column(DOMAIN_COLUMN_NAME);
         verify(this.domainColumnBuilder).add();
         verify(this.versionedPersistenceSupport).domainForeignKeyName();
