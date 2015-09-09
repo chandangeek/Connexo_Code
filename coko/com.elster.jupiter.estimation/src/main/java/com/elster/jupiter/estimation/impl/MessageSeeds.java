@@ -3,13 +3,12 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
     NO_SUCH_ESTIMATOR(1001, Constants.NO_SUCH_ESTIMATOR, "Estimator {0} does not exist.", Level.SEVERE),
     MISSING_PROPERTY(1002, "property.missing", "Required property with key ''{0}'' was not found.", Level.SEVERE),
 

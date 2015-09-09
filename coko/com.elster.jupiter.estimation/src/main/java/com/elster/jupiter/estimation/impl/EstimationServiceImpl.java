@@ -26,6 +26,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -35,15 +36,15 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.tasks.TaskStatus;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.util.UpdatableHolder;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.google.common.collect.Range;
@@ -59,7 +60,14 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.validation.MessageInterpolator;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -70,8 +78,8 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-@Component(name = "com.elster.jupiter.estimation", service = {InstallService.class, EstimationService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + EstimationService.COMPONENTNAME, immediate = true)
-public class EstimationServiceImpl implements IEstimationService, InstallService, TranslationKeyProvider, PrivilegesProvider {
+@Component(name = "com.elster.jupiter.estimation", service = {InstallService.class, EstimationService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = "name=" + EstimationService.COMPONENTNAME, immediate = true)
+public class EstimationServiceImpl implements IEstimationService, InstallService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
 
     static final String DESTINATION_NAME = "EstimationTask";
     static final String SUBSCRIBER_NAME = "EstimationTask";
@@ -99,6 +107,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     @Inject
     EstimationServiceImpl(MeteringService meteringService, OrmService ormService, QueryService queryService, NlsService nlsService, EventService eventService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, TimeService timeService, UserService userService) {
+        this();
         setMeteringService(meteringService);
         setOrmService(ormService);
         setQueryService(queryService);
@@ -180,8 +189,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     @Override
     public Query<? extends EstimationTask> getEstimationTaskQuery() {
-        Query<IEstimationTask> estimationTaskQuery = queryService.wrap(dataModel.query(IEstimationTask.class));
-        return estimationTaskQuery;
+        return queryService.wrap(dataModel.query(IEstimationTask.class));
     }
 
     @Override
@@ -249,14 +257,12 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
         String message = "{0} blocks estimated.\nSuccessful estimations {1}, failed estimations {2}\nPeriod of estimation from {3} until {4}";
         LoggingContext.get().info(logger, message, estimated + notEstimated, estimated, notEstimated, from, to);
     }
-    
+
     private void postEvents(EstimationReportImpl report) {
         report.getResults().values().stream()
                 .map(EstimationResult::remainingToBeEstimated)
                 .flatMap(Collection::stream)
-                .forEach(estimationBlock -> {
-                    eventService.postEvent(EventType.ESTIMATIONBLOCK_FAILURE.topic(), EstimationBlockEventInfo.forFailure(estimationBlock));
-                });
+                .forEach(estimationBlock -> eventService.postEvent(EventType.ESTIMATIONBLOCK_FAILURE.topic(), EstimationBlockEventInfo.forFailure(estimationBlock)));
     }
 
     @Override
@@ -486,11 +492,15 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Arrays.stream(MessageSeeds.values()),
                 Arrays.stream(Privileges.values()),
                 Arrays.stream(TranslationKeys.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
