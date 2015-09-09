@@ -342,13 +342,28 @@ Ext.define('Dxp.controller.Tasks', {
     },
 
     showAddDestination: function (button) {
+        this.doShowAddOrEditDestination(false);
+    },
+
+    showEditDestination: function() {
+        this.doShowAddOrEditDestination(true);
+    },
+
+    doShowAddOrEditDestination: function(edit) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
-            addDestinationRoute = router.currentRoute + '/destination';
+            addDestinationRoute = router.currentRoute + '/destination',
+            route;
+
         me.destinationsArray = [];
         me.saveFormValues();
-        router.getRoute(addDestinationRoute).forward();
-
+        route = router.getRoute(addDestinationRoute);
+        if (edit) {
+            route.setTitle(Uni.I18n.translate('dataExport.editDestination', 'DES', 'Edit destination'));
+        } else {
+            route.setTitle(Uni.I18n.translate('dataExport.addDestination', 'DES', 'Add destination'));
+        }
+        route.forward();
     },
 
     addDestination: function () {
@@ -403,13 +418,13 @@ Ext.define('Dxp.controller.Tasks', {
     showFileDestinationAttributes: function (visible) {
         var me = this,
             page = me.getAddDestinationPage();
-        page.down('#destination-file-name').setVisible(visible);
+        page.down('#dxp-file-name-container').setVisible(visible);
         page.down('#destination-file-extension').setVisible(visible);
-        page.down('#destination-file-location').setVisible(visible);
+        page.down('#dxp-file-location-container').setVisible(visible);
 
-        page.down('#destination-file-name').disabled = !visible;
+        page.down('#dxp-file-name-container').disabled = !visible;
         page.down('#destination-file-extension').disabled = !visible;
-        page.down('#destination-file-location').disabled = !visible;
+        page.down('#dxp-file-location-container').disabled = !visible;
     },
 
     showMailDestinationAttributes: function (visible) {
@@ -755,7 +770,7 @@ Ext.define('Dxp.controller.Tasks', {
                 // edit = remove + add new
                 me.destinationIndexToEdit = destinationsGrid.getStore().indexOf(menu.record);
                 destinationsGrid.getStore().remove(menu.record);
-                me.showAddDestination();
+                me.showEditDestination();
                 break;
         }
 

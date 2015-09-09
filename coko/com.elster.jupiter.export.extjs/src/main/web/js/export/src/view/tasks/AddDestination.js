@@ -4,6 +4,9 @@ Ext.define('Dxp.view.tasks.AddDestination', {
     edit: false,
     returnLink: null,
     router: null,
+    requires: [
+        'Dxp.view.common.ExportTagsInfoButton'
+    ],
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
@@ -100,15 +103,25 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                     },
 
                     {
-                        xtype: 'textfield',
-                        name: 'fileName',
-                        itemId: 'destination-file-name',
-                        width: 500,
-                        required: true,
+                        xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.fileName', 'DES', 'File name'),
-                        allowBlank: false,
-                        enforceMaxLength: true,
-                        maxLength: 80
+                        layout: 'hbox',
+                        required: true,
+                        itemId: 'dxp-file-name-container',
+                        items: [
+                            {
+                                xtype: 'textfield',
+                                name: 'fileName',
+                                itemId: 'destination-file-name',
+                                width: 236,
+                                allowBlank: false,
+                                enforceMaxLength: true,
+                                maxLength: 80
+                            },
+                            {
+                                xtype: 'dxp-export-tags-info-button'
+                            }
+                        ]
                     },
 
                     {
@@ -124,15 +137,25 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                     },
 
                     {
-                        xtype: 'textfield',
-                        name: 'fileLocation',
-                        itemId: 'destination-file-location',
-                        width: 500,
-                        required: true,
+                        xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.fileLocation', 'DES', 'File location'),
-                        allowBlank: false,
-                        enforceMaxLength: true,
-                        maxLength: 80
+                        layout: 'hbox',
+                        required: true,
+                        itemId: 'dxp-file-location-container',
+                        items: [
+                            {
+                                xtype: 'textfield',
+                                name: 'fileLocation',
+                                itemId: 'destination-file-location',
+                                width: 236,
+                                allowBlank: false,
+                                enforceMaxLength: true,
+                                maxLength: 80
+                            },
+                            {
+                                xtype: 'dxp-export-tags-info-button'
+                            }
+                        ]
                     },
 
                     {
