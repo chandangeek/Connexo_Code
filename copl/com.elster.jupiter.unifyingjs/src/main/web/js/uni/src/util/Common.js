@@ -73,5 +73,38 @@ Ext.define('Uni.util.Common', {
                 //</debug>
             }
         });
+    },
+
+    translateTimeUnit: function (amount, timeunit) {
+        var translation = '';
+
+        switch (timeunit) {
+            case 'milliseconds':
+                translation = Uni.I18n.translatePlural('validationResults.last.milliseconds', amount, 'UNI', '{0} milliseconds', '{0} millisecond', '{0} milliseconds');
+                break;
+            case 'seconds':
+                translation = Uni.I18n.translatePlural('validationResults.last.seconds', amount, 'UNI', '{0} seconds', '{0} second', '{0} seconds');
+                break;
+            case 'minutes':
+                translation = Uni.I18n.translatePlural('validationResults.last.minutes', amount, 'UNI', '{0} minutes', '{0} minute', '{0} minutes');
+                break;
+            case 'hours':
+                translation = Uni.I18n.translatePlural('validationResults.last.hours', amount, 'UNI', '{0} hours', '{0} hour', '{0} hours');
+                break;
+            case 'days':
+                translation = Uni.I18n.translatePlural('validationResults.last.days', amount, 'UNI', '{0} days', '{0} day', '{0} days');
+                break;
+            case 'weeks':
+                translation = Uni.I18n.translatePlural('validationResults.last.weeks', amount, 'UNI', '{0} weeks', '{0} week', '{0} weeks');
+                break;
+            case 'months':
+                translation = Uni.I18n.translatePlural('validationResults.last.months', amount, 'UNI', '{0} months', '{0} month', '{0} months');
+                break;
+            case 'years':
+                translation = Uni.I18n.translatePlural('validationResults.last.years', amount, 'UNI', '{0} years', '{0} year', '{0} years');
+                break;
+        }
+
+        return translation;
     }
 });
