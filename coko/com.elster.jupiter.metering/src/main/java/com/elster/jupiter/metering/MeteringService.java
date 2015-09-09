@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
@@ -8,6 +9,7 @@ import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
 
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -106,4 +108,6 @@ public interface MeteringService {
     List<ReadingType> getAvailableEquidistantReadingTypes();
 
     List<ReadingType> getAvailableNonEquidistantReadingTypes();
+
+    Finder<UsagePoint> getUsagePoints(@NotNull UsagePointFilter filter);
 }
