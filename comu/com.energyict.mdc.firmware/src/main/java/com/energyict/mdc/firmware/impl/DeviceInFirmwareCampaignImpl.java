@@ -10,13 +10,7 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
-import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
-import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareCampaign;
-import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
-import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
-import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -24,7 +18,6 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
@@ -33,7 +26,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.logging.Logger;
 
 public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
 
@@ -76,16 +68,14 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     private final FirmwareService firmwareService;
     private final TaskService taskService;
     private final EventService eventService;
-    private final Provider<FirmwareManagementDeviceUtils.Factory> helperProvider;
     private final Clock clock;
 
     @Inject
-    public DeviceInFirmwareCampaignImpl(DataModel dataModel, FirmwareService firmwareService, TaskService taskService, EventService eventService, Provider<FirmwareManagementDeviceUtils.Factory> helperProvider, Clock clock) {
+    public DeviceInFirmwareCampaignImpl(DataModel dataModel, FirmwareService firmwareService, TaskService taskService, EventService eventService, Clock clock) {
         this.dataModel = dataModel;
         this.firmwareService = firmwareService;
         this.taskService = taskService;
         this.eventService = eventService;
-        this.helperProvider = helperProvider;
         this.clock = clock;
     }
 
@@ -146,7 +136,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     public FirmwareManagementDeviceStatus updateStatus(FirmwareComTaskExecution comTaskExecution) {
         FirmwareManagementDeviceStatus currentStatus = getStatus();
         if (currentStatus == null || NON_FINAL_STATUSES.contains(currentStatus.key())) {
-            FirmwareManagementDeviceUtils helper = helperProvider.get().onDevice(comTaskExecution.getDevice(), comTaskExecution);
+            FirmwareManagementDeviceUtils helper = firmwareService.getFirmwareManagementDeviceUtilsFor(comTaskExecution.getDevice());
             Optional<DeviceMessage<Device>> firmwareMessage = helper.getFirmwareMessages()
                     .stream()
                     .filter(candidate -> candidate.getId() == firmwareMessageId)
@@ -212,7 +202,7 @@ public class DeviceInFirmwareCampaignImpl implements DeviceInFirmwareCampaign {
     }
 
     private boolean cancelPendingFirmwareUpdates() {
-        FirmwareManagementDeviceUtils helper = helperProvider.get().onDevice(getDevice());
+        FirmwareManagementDeviceUtils helper = this.firmwareService.getFirmwareManagementDeviceUtilsFor(getDevice());
         return helper.cancelPendingFirmwareUpdates(getFirmwareCampaign().getFirmwareType());
     }
 
