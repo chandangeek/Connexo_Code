@@ -49,7 +49,7 @@ public class PublicRestApplication extends Application implements TranslationKey
     private final Logger logger = Logger.getLogger(PublicRestApplication.class.getName());
 
     public static final String APP_KEY = "MDC";
-    public static final String COMPONENT_NAME = "DDA";
+    public static final String COMPONENT_NAME = "MRA"; // Mdc Rest Api
 
     private volatile DeviceService deviceService;
     private volatile BatchService batchService;
