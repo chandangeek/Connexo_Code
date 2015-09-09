@@ -412,10 +412,9 @@ public class TransitionTypeTest {
     }
     @Test
     public void testMandatoryPreTransitionActionsCommission(){
-        assertThat(TransitionType.COMMISSION.requiredActions()).hasSize(3);
+        assertThat(TransitionType.COMMISSION.requiredActions()).hasSize(2);
         assertThat(TransitionType.COMMISSION.requiredActions()).contains(MicroAction.CREATE_METER_ACTIVATION);
         assertThat(TransitionType.COMMISSION.requiredActions()).contains(MicroAction.SET_LAST_READING);
-        assertThat(TransitionType.COMMISSION.requiredActions()).contains(MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
     }
     @Test
     public void testOptionalPreTransitionActionsCommission(){

@@ -56,7 +56,7 @@ public class DeviceLifeCycleTranslationsIT {
     public void installerUsedCorrectTranslationsForTransitions() {
         DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
         NlsServiceImpl nlsService = inMemoryPersistence.getService(NlsServiceImpl.class);
-        nlsService.addTranslationProvider(service);
+        nlsService.addTranslationKeyProvider(service);
 
         // Business method: actually the business method is the install method of the DeviceLifeCycleServiceImpl component
         DeviceLifeCycle defaultDeviceLifeCycle = service.findDefaultDeviceLifeCycle().get();

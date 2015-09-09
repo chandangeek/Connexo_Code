@@ -39,8 +39,7 @@ public enum TransitionType {
         public Set<MicroAction> requiredActions() {
             return EnumSet.of(
                     MicroAction.CREATE_METER_ACTIVATION,
-                    MicroAction.SET_LAST_READING,
-                    MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
+                    MicroAction.SET_LAST_READING);
         }
         @Override
         public Set<MicroAction> optionalActions() {

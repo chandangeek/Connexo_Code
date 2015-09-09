@@ -1,5 +1,17 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.Privileges;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessInUseException;
+import com.energyict.mdc.device.lifecycle.config.UnknownTransitionBusinessProcessException;
+
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
@@ -13,6 +25,7 @@ import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -28,17 +41,7 @@ import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.Privileges;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessInUseException;
-import com.energyict.mdc.device.lifecycle.config.UnknownTransitionBusinessProcessException;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -47,7 +50,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -59,7 +61,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -69,9 +70,9 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (10:44)
  */
-@Component(name = "com.energyict.device.lifecycle.config", service = {DeviceLifeCycleConfigurationService.class, InstallService.class, TranslationKeyProvider.class, IssueCreationValidator.class, PrivilegesProvider.class}, property = "name=" + DeviceLifeCycleConfigurationService.COMPONENT_NAME)
+@Component(name = "com.energyict.device.lifecycle.config", service = {DeviceLifeCycleConfigurationService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, IssueCreationValidator.class, PrivilegesProvider.class}, property = "name=" + DeviceLifeCycleConfigurationService.COMPONENT_NAME)
 @SuppressWarnings("unused")
-public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleConfigurationService, InstallService, TranslationKeyProvider, IssueCreationValidator, PrivilegesProvider {
+public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleConfigurationService, InstallService, TranslationKeyProvider, MessageSeedProvider, IssueCreationValidator, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile NlsService nlsService;
@@ -103,7 +104,8 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     private void initializeTestPrivileges() {
         this.getModuleResources().stream()
                 .filter(Objects::nonNull)
-                .forEach(resource -> this.userService.saveResourceWithPrivileges(resource.getComponentName(), resource.getName(), resource.getDescription(), resource.getPrivilegeNames().toArray(new String[resource.getPrivilegeNames().size()])));
+                .forEach(resource -> this.userService.saveResourceWithPrivileges(resource.getComponentName(), resource.getName(), resource.getDescription(), resource.getPrivilegeNames()
+                        .toArray(new String[resource.getPrivilegeNames().size()])));
         this.initializePrivileges();
     }
 
@@ -118,10 +120,12 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>();
-        Stream.of(MessageSeeds.values()).forEach(keys::add);
-        Stream.of(DefaultLifeCycleTranslationKey.values()).forEach(keys::add);
-        return keys;
+        return Arrays.asList(DefaultLifeCycleTranslationKey.values());
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
