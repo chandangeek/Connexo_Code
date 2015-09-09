@@ -1,5 +1,12 @@
 package com.energyict.mdc.master.data.rest.impl;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.masterdata.ChannelType;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
+
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.Commodity;
@@ -13,18 +20,8 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Test;
-import org.mockito.Matchers;
 
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -37,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
@@ -76,9 +75,6 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
     @Test
     public void testGetUnexistingLoadProfileType() throws Exception {
         when(masterDataService.findLoadProfileType(9999)).thenReturn(Optional.empty());
-
-        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
-        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
 
         Response response = target("/loadprofiles/9999").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());

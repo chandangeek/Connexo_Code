@@ -1,17 +1,17 @@
 package com.energyict.mdc.master.data.rest.impl;
 
-import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.impl.MasterDataApplication;
-import com.energyict.mdc.masterdata.rest.impl.MessageSeeds;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import org.mockito.Mock;
+
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.util.json.JsonService;
 
 import javax.ws.rs.core.Application;
+
+import org.mockito.Mock;
 
 /**
  * Created by bvn on 9/19/14.
@@ -27,11 +27,6 @@ public class MasterDataApplicationJerseyTest extends FelixRestApplicationJerseyT
     MeteringService meteringService;
     @Mock
     MdcReadingTypeUtilService mdcReadingTypeUtilService;
-
-    @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
-    }
 
     @Override
     protected Application getApplication() {
