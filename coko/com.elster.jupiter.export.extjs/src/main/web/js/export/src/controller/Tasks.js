@@ -16,7 +16,8 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.view.datasources.Setup',
         'Dxp.view.tasks.AddReadingTypesToTaskSetup',
         'Dxp.view.tasks.AddReadingTypesToTaskBulk',
-        'Uni.form.field.DateTime'
+        'Uni.form.field.DateTime',
+        'Dxp.view.tasks.AddDestination'
     ],
 
     stores: [
@@ -348,12 +349,13 @@ Ext.define('Dxp.controller.Tasks', {
         me.destinationsArray = [];
         me.saveFormValues();
         router.getRoute(addDestinationRoute).forward();
+        this.addDestination();
 
     },
 
     addDestination: function () {
         var me = this,
-            view = Ext.create('Dxp.view.tasks.AddDestination');
+            view = Ext.widget('data-export-add-destination');
         me.getApplication().fireEvent('changecontentevent', view);
 
         if (me.destinationToEdit) {
@@ -1056,7 +1058,7 @@ Ext.define('Dxp.controller.Tasks', {
                 if (formValues['method'] === 'FILE') {
                     //tooltip & method duplicated from destination model, have not found another way!
                     destinationModel = Ext.create('Dxp.model.Destination', {
-                        id: id?id:0,
+                        id: id?id:undefined,
                         type: 'FILE',
                         fileName: formValues['fileName'],
                         fileExtension: formValues['fileExtension'],
@@ -1069,7 +1071,7 @@ Ext.define('Dxp.controller.Tasks', {
                     })
                 } else if (formValues['method'] === 'EMAIL') {
                     destinationModel = Ext.create('Dxp.model.Destination', {
-                        id: id?id:0,
+                        id: id?id:undefined,
                         type: 'EMAIL',
                         fileName: formValues['attachmentName'],
                         fileExtension: formValues['attachmentExtension'],
@@ -1084,7 +1086,7 @@ Ext.define('Dxp.controller.Tasks', {
                     })
                 } else if (formValues['method'] === 'FTP') {
                     destinationModel = Ext.create('Dxp.model.Destination', {
-                        id: id?id:0,
+                        id: id?id:undefined,
                         type: 'FTP',
                         server: formValues['server'],
                         user: formValues['user'],
