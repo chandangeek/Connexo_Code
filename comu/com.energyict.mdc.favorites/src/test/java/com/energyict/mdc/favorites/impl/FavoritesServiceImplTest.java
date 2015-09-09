@@ -1,6 +1,5 @@
 package com.energyict.mdc.favorites.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -47,6 +46,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -249,11 +249,10 @@ public class FavoritesServiceImplTest {
     }
 
     @Test
-    public void testTranslationKeys() {
+    public void testMessageSeeds() {
         FavoritesServiceImpl favoritesServiceImpl = (FavoritesServiceImpl) favoritesService;
         assertThat(favoritesServiceImpl.getLayer()).isEqualTo(Layer.DOMAIN);
-        assertThat(favoritesServiceImpl.getComponentName()).isEqualTo("FAV");
-        assertThat(favoritesServiceImpl.getKeys()).containsExactly(MessageSeeds.values());
+        assertThat(favoritesServiceImpl.getSeeds()).containsExactly(MessageSeeds.values());
     }
 
     @Test
