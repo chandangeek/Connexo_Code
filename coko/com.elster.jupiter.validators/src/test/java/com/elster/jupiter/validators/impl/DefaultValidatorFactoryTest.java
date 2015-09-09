@@ -7,14 +7,15 @@ import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.Validator;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.junit.*;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DefaultValidatorFactoryTest {
     public static final Quantity MINIMUM = Quantity.create(BigDecimal.valueOf(1000L), 1, "Wh");
@@ -48,7 +49,7 @@ public class DefaultValidatorFactoryTest {
 
         assertThat(validator).isNotNull().isInstanceOf(ThresholdValidator.class);
     }
-    
+
     @Test
     public void testCreateRegisterIncreaseValidator() {
         ImmutableMap<String, Object> properties = ImmutableMap.of(RegisterIncreaseValidator.FAIL_EQUAL_DATA, (Object) true);
@@ -97,7 +98,7 @@ public class DefaultValidatorFactoryTest {
             expectedTranslations += ((IValidator)validator).getExtraTranslations().size();
         }
 
-        assertThat(validatorFactory.getKeys()).hasSize(expectedTranslations + MessageSeeds.values().length);
+        assertThat(validatorFactory.getKeys()).hasSize(expectedTranslations);
     }
 
 }
