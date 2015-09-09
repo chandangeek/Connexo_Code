@@ -1,6 +1,5 @@
 package com.elster.jupiter.fileimport.rest.impl;
 
-import com.elster.jupiter.fileimport.ImportLogEntry;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.logging.LogEntry;
 
@@ -20,5 +19,4 @@ public class ImportLogEntryInfo {
         this.loglevel = logEntry.getLogLevel().getName();
         this.message = logEntry.getMessage();
     }
-
 }
