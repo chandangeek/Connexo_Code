@@ -1,14 +1,10 @@
 package com.energyict.mdc.issue.datacollection.impl.templates;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
+import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
 
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
@@ -21,13 +17,16 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
-import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.BasicDatacollectionRuleTemplate",
            property = {"name=" + BasicDataCollectionRuleTemplate.NAME},
@@ -48,6 +47,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
 
     @Inject
     public BasicDataCollectionRuleTemplate(IssueDataCollectionService issueDataCollectionService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService) {
+        this();
         setIssueDataCollectionService(issueDataCollectionService);
         setNlsService(nlsService);
         setIssueService(issueService);
@@ -87,7 +87,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
 
     @Override
     public String getDescription() {
-        return MessageSeeds.BASIC_TEMPLATE_DATACOLLECTION_DESCRIPTION.getTranslated(getThesaurus());
+        return getThesaurus().getFormat(TranslationKeys.BASIC_TEMPLATE_DATACOLLECTION_DESCRIPTION).format();
     }
 
     @Override
@@ -162,6 +162,7 @@ public class BasicDataCollectionRuleTemplate extends AbstractDataCollectionTempl
 
     @Override
     public String getDisplayName() {
-        return MessageSeeds.BASIC_TEMPLATE_DATACOLLECTION_NAME.getTranslated(getThesaurus());
+        return getThesaurus().getFormat(TranslationKeys.BASIC_TEMPLATE_DATACOLLECTION_NAME).format();
     }
+
 }

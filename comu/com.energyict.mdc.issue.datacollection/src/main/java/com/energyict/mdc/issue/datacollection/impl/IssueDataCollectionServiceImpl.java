@@ -1,5 +1,20 @@
 package com.energyict.mdc.issue.datacollection.impl;
 
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
+import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.impl.database.TableSpecs;
+import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
+import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
+import com.energyict.mdc.issue.datacollection.impl.install.Installer;
+import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
+
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -7,11 +22,16 @@ import com.elster.jupiter.issue.share.IssueProvider;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
@@ -21,32 +41,25 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
-import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.impl.database.TableSpecs;
-import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-import com.energyict.mdc.issue.datacollection.impl.install.Installer;
-import com.energyict.mdc.issue.datacollection.impl.records.OpenIssueDataCollectionImpl;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-@Component(name = "com.energyict.mdc.issue.datacollection", service = {InstallService.class, TranslationKeyProvider.class, IssueDataCollectionService.class, IssueProvider.class}, property = "name=" + IssueDataCollectionService.COMPONENT_NAME, immediate = true)
-public class IssueDataCollectionServiceImpl implements InstallService, TranslationKeyProvider, IssueDataCollectionService, IssueProvider {
+import static com.elster.jupiter.util.conditions.Where.where;
+
+@Component(name = "com.energyict.mdc.issue.datacollection", service = {InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, IssueDataCollectionService.class, IssueProvider.class}, property = "name=" + IssueDataCollectionService.COMPONENT_NAME, immediate = true)
+public class IssueDataCollectionServiceImpl implements InstallService, TranslationKeyProvider, MessageSeedProvider, IssueDataCollectionService, IssueProvider {
     private volatile IssueService issueService;
     private volatile IssueActionService issueActionService;
     private volatile MessageService messageService;
@@ -72,6 +85,7 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
                                           TopologyService topologyService,
                                           DeviceService deviceService,
                                           EventService eventService) {
+        this();
         setMessageService(messageService);
         setIssueService(issueService);
         setNlsService(nlsService);
@@ -105,7 +119,7 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
 
     @Override
     public void install() {
-        new Installer(dataModel, issueService, issueActionService, messageService, eventService, thesaurus).install();
+        new Installer(dataModel, issueService, issueActionService, messageService, eventService).install();
     }
 
     @Override
@@ -200,6 +214,60 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
     }
 
     @Override
+    public Finder<? extends IssueDataCollection> findIssues(IssueDataCollectionFilter filter, Class<?>... eagers) {
+        Condition condition = buildConditionFromFilter(filter);
+        List<Class<?>> eagerClasses = determineMainApiClass(filter);
+        if (eagers == null) {
+            eagerClasses.addAll(Arrays.asList(eagers));
+        } else {
+            eagerClasses.addAll(Arrays.asList(IssueStatus.class, EndDevice.class, User.class, IssueReason.class, IssueType.class));
+        }
+        return DefaultFinder.of((Class<IssueDataCollection>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
+    }
+
+    private List<Class<?>> determineMainApiClass(IssueDataCollectionFilter filter) {
+        List<Class<?>> eagerClasses = new ArrayList<>();
+        List<IssueStatus> statuses = filter.getStatuses();
+        if (!statuses.isEmpty() && statuses.stream().allMatch(status -> !status.isHistorical())) {
+            eagerClasses.add(OpenIssueDataCollection.class);
+            eagerClasses.add(OpenIssue.class);
+        } else if (!statuses.isEmpty() && statuses.stream().allMatch(IssueStatus::isHistorical)) {
+            eagerClasses.add(HistoricalIssueDataCollection.class);
+            eagerClasses.add(HistoricalIssue.class);
+        } else {
+            eagerClasses.add(IssueDataCollection.class);
+            eagerClasses.add(Issue.class);
+        }
+        return eagerClasses;
+    }
+
+    private Condition buildConditionFromFilter(IssueDataCollectionFilter filter) {
+        Condition condition = Condition.TRUE;
+        //filter by assignee
+        Condition assigneeCondition = Condition.TRUE;
+        if (filter.getAssignee().isPresent()) {
+            assigneeCondition = where("baseIssue.user").isEqualTo(filter.getAssignee().get());
+        }
+        if (filter.isUnassignedOnly()) {
+            assigneeCondition = where("baseIssue.user").isNull();
+        }
+        condition = condition.and(assigneeCondition);
+        //filter by reason
+        if (!filter.getIssueReasons().isEmpty()) {
+            condition = condition.and(where("baseIssue.reason").in(filter.getIssueReasons()));
+        }
+        //filter by device
+        if (!filter.getDevices().isEmpty()) {
+            condition = condition.and(where("baseIssue.device").in(filter.getDevices()));
+        }
+        //filter by statuses
+        if (!filter.getStatuses().isEmpty()) {
+            condition = condition.and(where("baseIssue.status").in(filter.getStatuses()));
+        }
+        return condition;
+    }
+
+    @Override
     public String getComponentName() {
         return COMPONENT_NAME;
     }
@@ -211,9 +279,15 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> translationKeys = new ArrayList<>(Arrays.asList(MessageSeeds.values()));
+        List<TranslationKey> translationKeys = new ArrayList<>();
+        translationKeys.addAll(Arrays.asList(TranslationKeys.values()));
         translationKeys.add(new SimpleTranslationKey(ModuleConstants.AQ_DATA_COLLECTION_EVENT_SUBSC, ModuleConstants.AQ_DATA_COLLECTION_EVENT_DISPLAYNAME));
         return translationKeys;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
@@ -225,4 +299,5 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
     public Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue) {
         return issue instanceof HistoricalIssueDataCollection ? Optional.of(issue) : findHistoricalIssue(issue.getId());
     }
+
 }

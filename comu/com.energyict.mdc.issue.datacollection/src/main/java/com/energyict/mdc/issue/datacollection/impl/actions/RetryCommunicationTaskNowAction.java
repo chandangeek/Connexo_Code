@@ -1,9 +1,12 @@
 package com.energyict.mdc.issue.datacollection.impl.actions;
 
-import java.util.Collections;
-import java.util.List;
-
-import javax.inject.Inject;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
+import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
+import com.energyict.mdc.protocol.api.ConnectionType;
 
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
@@ -14,13 +17,10 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
-import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
-import com.energyict.mdc.protocol.api.ConnectionType;
+
+import javax.inject.Inject;
+import java.util.Collections;
+import java.util.List;
 
 public class RetryCommunicationTaskNowAction extends AbstractIssueAction {
     private IssueService issueService;
@@ -39,7 +39,7 @@ public class RetryCommunicationTaskNowAction extends AbstractIssueAction {
             issue.save();
             ComTaskExecution comTaskExecution = ((IssueDataCollection) issue).getCommunicationTask().get();
             comTaskExecution.runNow();
-            result.success(MessageSeeds.ACTION_RETRY_COM_TASK_SUCCESS.getTranslated(getThesaurus()));
+            result.success(getThesaurus().getFormat(TranslationKeys.ACTION_RETRY_COM_TASK_SUCCESS).format());
         }
         return result;
     }
@@ -56,12 +56,12 @@ public class RetryCommunicationTaskNowAction extends AbstractIssueAction {
         }
         return false;
     }
-    
+
     @Override
     public String getDisplayName() {
-        return  MessageSeeds.ACTION_RETRY_NOW.getTranslated(getThesaurus());
+        return getThesaurus().getFormat(TranslationKeys.ACTION_RETRY_NOW).format();
     }
-    
+
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Collections.emptyList();

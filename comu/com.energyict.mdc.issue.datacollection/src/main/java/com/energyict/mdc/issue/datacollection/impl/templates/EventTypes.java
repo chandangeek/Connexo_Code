@@ -1,12 +1,13 @@
 package com.energyict.mdc.issue.datacollection.impl.templates;
 
-import java.util.Arrays;
-import java.util.Optional;
+import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.CanFindByStringKey;
 import com.elster.jupiter.properties.HasIdAndName;
-import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
+
+import java.util.Arrays;
+import java.util.Optional;
 
 public class EventTypes implements CanFindByStringKey<EventTypes.EventType> {
 
@@ -32,7 +33,7 @@ public class EventTypes implements CanFindByStringKey<EventTypes.EventType> {
     public Class<EventType> valueDomain() {
         return EventType.class;
     }
-    
+
     public EventType[] getEventTypes() {
         return eventTypes;
     }
@@ -52,7 +53,7 @@ public class EventTypes implements CanFindByStringKey<EventTypes.EventType> {
 
         @Override
         public String getName() {
-            return event.getTitle().getTranslated(thesaurus);
+            return thesaurus.getFormat(event.getTitle()).format();
         }
     }
 }

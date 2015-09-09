@@ -1,18 +1,9 @@
 package com.energyict.mdc.issue.datacollection.impl.templates;
 
-import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.CONNECTION_LOST;
-import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.DEVICE_COMMUNICATION_FAILURE;
-import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.UNABLE_TO_CONNECT;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.LongStream;
-
-import javax.inject.Inject;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
 
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
@@ -22,22 +13,30 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.LongStream;
+
+import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.CONNECTION_LOST;
+import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.DEVICE_COMMUNICATION_FAILURE;
+import static com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription.UNABLE_TO_CONNECT;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.EventAggregationRuleTemplate",
         property = {"name=" + EventAggregationRuleTemplate.NAME},
         service = CreationRuleTemplate.class, immediate = true)
 public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate {
-    
+
     public static final String NAME = "EventAggregationRuleTemplate";
     public static final String THRESHOLD = NAME + ".threshold";
     public static final String EVENTTYPE = NAME + ".eventType";
-    
+
     private volatile IssueService issueService;
     private volatile IssueDataCollectionService issueDataCollectionService;
 
@@ -47,6 +46,7 @@ public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate
 
     @Inject
     public EventAggregationRuleTemplate(NlsService nlsService, IssueService issueSerivce, IssueDataCollectionService issueDataCollectionService, PropertySpecService propertySpecService){
+        this();
         setNlsService(nlsService);
         setIssueService(issueSerivce);
         setIssueDataCollectionService(issueDataCollectionService);
@@ -62,12 +62,12 @@ public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate
     public final void setNlsService(NlsService nlsService) {
         setThesaurus(nlsService.getThesaurus(IssueDataCollectionService.COMPONENT_NAME, Layer.DOMAIN));
     }
-    
+
     @Reference
     public final void setIssueService(IssueService issueService) {
         this.issueService = issueService;
     }
-    
+
     @Reference
     public void setIssueDataCollectionService(IssueDataCollectionService issueDataCollectionService) {
         this.issueDataCollectionService = issueDataCollectionService;
@@ -77,7 +77,7 @@ public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate
     public final void setPropertySpecService(PropertySpecService propertySpecService) {
         super.setPropertySpecService(propertySpecService);
     }
-    
+
     @Override
     public String getContent() {
         return "package com.energyict.mdc.issue.datacollection\n" +
@@ -101,12 +101,12 @@ public class EventAggregationRuleTemplate extends AbstractDataCollectionTemplate
 
     @Override
     public String getDisplayName() {
-        return MessageSeeds.TEMPLATE_EVT_AGGREGATION_NAME.getTranslated(getThesaurus());
+        return getThesaurus().getFormat(TranslationKeys.TEMPLATE_EVT_AGGREGATION_NAME).format();
     }
 
     @Override
     public String getDescription() {
-        return MessageSeeds.TEMPLATE_EVT_AGGREGATION_DESCRIPTION.getTranslated(getThesaurus());
+        return getThesaurus().getFormat(TranslationKeys.TEMPLATE_EVT_AGGREGATION_DESCRIPTION).format();
     }
 
     @Override

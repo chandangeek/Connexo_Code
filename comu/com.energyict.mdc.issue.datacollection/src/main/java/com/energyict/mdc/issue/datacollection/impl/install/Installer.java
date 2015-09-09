@@ -1,17 +1,5 @@
 package com.energyict.mdc.issue.datacollection.impl.install;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.EventType;
-import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueType;
-import com.elster.jupiter.issue.share.service.IssueActionService;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.DataCollectionActionsFactory;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
@@ -22,7 +10,19 @@ import com.energyict.mdc.issue.datacollection.impl.actions.RetryConnectionTaskAc
 import com.energyict.mdc.issue.datacollection.impl.database.CreateIssueViewOperation;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventDescription;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionResolveEventDescription;
-import com.energyict.mdc.issue.datacollection.impl.i18n.MessageSeeds;
+import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.EventType;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.service.IssueActionService;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.orm.DataModel;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -38,15 +38,13 @@ public class Installer {
     private final IssueActionService issueActionService;
     private final DataModel dataModel;
     private final EventService eventService;
-    private final Thesaurus thesaurus;
 
-    public Installer(DataModel dataModel, IssueService issueService, IssueActionService issueActionService, MessageService messageService, EventService eventService, Thesaurus thesaurus) {
+    public Installer(DataModel dataModel, IssueService issueService, IssueActionService issueActionService, MessageService messageService, EventService eventService) {
         this.issueService = issueService;
         this.issueActionService = issueActionService;
         this.messageService = messageService;
         this.dataModel = dataModel;
         this.eventService = eventService;
-        this.thesaurus = thesaurus;
     }
 
     public void install() {
@@ -78,7 +76,7 @@ public class Installer {
     }
 
     private IssueType setSupportedIssueType() {
-        return issueService.createIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE, MessageSeeds.ISSUE_TYPE_DATA_COLELCTION);
+        return issueService.createIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE, TranslationKeys.ISSUE_TYPE_DATA_COLLECTION);
     }
 
     private void setAQSubscriber() {
@@ -95,27 +93,27 @@ public class Installer {
 
     private void setDataCollectionReasons(IssueType issueType) {
         issueService.createReason(ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE, issueType,
-                MessageSeeds.ISSUE_REASON_UNKNOWN_INBOUND_DEVICE, MessageSeeds.ISSUE_REASON_DESCRIPTION_UNKNOWN_INBOUND_DEVICE);
+                TranslationKeys.ISSUE_REASON_UNKNOWN_INBOUND_DEVICE, TranslationKeys.ISSUE_REASON_DESCRIPTION_UNKNOWN_INBOUND_DEVICE);
         issueService.createReason(ModuleConstants.REASON_UNKNOWN_OUTBOUND_DEVICE, issueType,
-                MessageSeeds.ISSUE_REASON_UNKNOWN_OUTBOUND_DEVICE, MessageSeeds.ISSUE_REASON_DESCRIPTION_UNKNOWN_OUTBOUND_DEVICE);
+                TranslationKeys.ISSUE_REASON_UNKNOWN_OUTBOUND_DEVICE, TranslationKeys.ISSUE_REASON_DESCRIPTION_UNKNOWN_OUTBOUND_DEVICE);
 
         IssueReason failedToCommunicateReason = issueService.createReason(ModuleConstants.REASON_FAILED_TO_COMMUNICATE, issueType,
-                MessageSeeds.ISSUE_REASON_FAILED_TO_COMMUNICATE, MessageSeeds.ISSUE_REASON_DESCRIPTION_FAILED_TO_COMMUNICATE);
+                TranslationKeys.ISSUE_REASON_FAILED_TO_COMMUNICATE, TranslationKeys.ISSUE_REASON_DESCRIPTION_FAILED_TO_COMMUNICATE);
         issueActionService.createActionType(DataCollectionActionsFactory.ID, RetryCommunicationTaskAction.class.getName(), failedToCommunicateReason);
 
         IssueReason connectionSetupFailedReason = issueService.createReason(ModuleConstants.REASON_CONNECTION_SETUP_FAILED, issueType,
-                MessageSeeds.ISSUE_REASON_CONNECTION_SETUP_FAILED, MessageSeeds.ISSUE_REASON_DESCRIPTION_CONNECTION_SETUP_FAILED);
+                TranslationKeys.ISSUE_REASON_CONNECTION_SETUP_FAILED, TranslationKeys.ISSUE_REASON_DESCRIPTION_CONNECTION_SETUP_FAILED);
         issueActionService.createActionType(DataCollectionActionsFactory.ID, RetryCommunicationTaskNowAction.class.getName(), failedToCommunicateReason);
 
         IssueReason connectionFailedReason = issueService.createReason(ModuleConstants.REASON_CONNECTION_FAILED, issueType,
-                MessageSeeds.ISSUE_REASON_CONNECTION_FAILED, MessageSeeds.ISSUE_REASON_DESCRIPTION_CONNECTION_FAILED);
+                TranslationKeys.ISSUE_REASON_CONNECTION_FAILED, TranslationKeys.ISSUE_REASON_DESCRIPTION_CONNECTION_FAILED);
         issueActionService.createActionType(DataCollectionActionsFactory.ID, RetryConnectionTaskAction.class.getName(), connectionSetupFailedReason);
         issueActionService.createActionType(DataCollectionActionsFactory.ID, RetryConnectionTaskAction.class.getName(), connectionFailedReason);
 
         issueService.createReason(ModuleConstants.REASON_POWER_OUTAGE, issueType,
-                MessageSeeds.ISSUE_REASON_POWER_OUTAGE, MessageSeeds.ISSUE_REASON_DESCRIPTION_POWER_OUTAGE);
+                TranslationKeys.ISSUE_REASON_POWER_OUTAGE, TranslationKeys.ISSUE_REASON_DESCRIPTION_POWER_OUTAGE);
         issueService.createReason(ModuleConstants.REASON_TYME_SYNC_FAILED, issueType,
-                MessageSeeds.ISSUE_REASON_TIME_SYNC_FAILED, MessageSeeds.ISSUE_REASON_DESCRIPTION_TIME_SYNC_FAILED);
+                TranslationKeys.ISSUE_REASON_TIME_SYNC_FAILED, TranslationKeys.ISSUE_REASON_DESCRIPTION_TIME_SYNC_FAILED);
         issueActionService.createActionType(DataCollectionActionsFactory.ID, CloseIssueAction.class.getName(), issueType, CreationRuleActionPhase.OVERDUE);
     }
 
@@ -128,4 +126,3 @@ public class Installer {
     }
 
 }
-
