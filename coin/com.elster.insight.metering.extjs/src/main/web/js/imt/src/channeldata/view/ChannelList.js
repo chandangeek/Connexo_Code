@@ -16,7 +16,7 @@ Ext.define('Imt.channeldata.view.ChannelList', {
             dataIndex: 'readingTypeFullAliasName',
             renderer: function (value, b, record) {
                 var me = this,
-                    url = me.router.getRoute('administration/usagepoint/channels/channel').buildUrl({mRID: me.mRID, channelId: record.get('readingTypemRID')});
+                    url = me.router.getRoute('usagepoints/view/channels/channel').buildUrl({mRID: me.mRID, channelId: record.get('readingTypemRID')});
 
                 return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
             }

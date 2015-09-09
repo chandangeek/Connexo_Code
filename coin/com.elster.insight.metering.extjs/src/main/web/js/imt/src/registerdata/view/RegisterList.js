@@ -27,7 +27,7 @@ Ext.define('Imt.registerdata.view.RegisterList', {
             dataIndex: 'readingTypeFullAliasName', 
             renderer: function (value, b, record) {
                 var me = this,
-                   url = me.router.getRoute('administration/usagepoint/registers/register').buildUrl({mRID: me.mRID, registerId: record.get('readingTypemRID')});//record.get('id')});
+                   url = me.router.getRoute('usagepoints/view/registers/register').buildUrl({mRID: me.mRID, registerId: record.get('readingTypemRID')});//record.get('id')});
 
                 return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
             }

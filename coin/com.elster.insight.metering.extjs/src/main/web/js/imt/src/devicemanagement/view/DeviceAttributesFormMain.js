@@ -122,7 +122,7 @@ Ext.define('Imt.devicemanagement.view.DeviceAttributesFormMain', {
                         fieldLabel: Uni.I18n.translate('deviceManagement.generalAttributes.usagePointName', 'IMT', 'Usage Point'),
                         renderer: function (value) {
                        		if (value) {
-                       		    var url = me.router.getRoute('administration/usagepoint').buildUrl({mRID: value});
+                       		    var url = me.router.getRoute('usagepoints/view').buildUrl({mRID: value});
                    				return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
                       		} else {
                        			return '-';

@@ -10,7 +10,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
             {
                 text: Uni.I18n.translate('usagePointManagement.overview', 'IMT', 'Overview'),
                 itemId: 'usage-point-overview-link',
-                href: me.router.getRoute('administration/usagepoint').buildUrl({mRID: me.mRID})
+                href: me.router.getRoute('usagepoints/view').buildUrl({mRID: me.mRID})
             },
             {
                 title: 'Data sources',
@@ -19,12 +19,12 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
                     {
                         text: Uni.I18n.translate('usagePointManagement.channelList', 'IMT', 'Channels'),
                         itemId: 'usage-point-channels-link',
-                        href: me.router.getRoute('administration/usagepoint/channels').buildUrl({mRID: me.mRID})
+                        href: me.router.getRoute('usagepoints/view/channels').buildUrl({mRID: me.mRID})
                     },
                     {
                         text: Uni.I18n.translate('usagePointManagement.registerList', 'IMT', 'Registers'),
                         itemId: 'usage-point-registers-link',
-                        href: me.router.getRoute('administration/usagepoint/registers').buildUrl({mRID: me.mRID})
+                        href: me.router.getRoute('usagepoints/view/registers').buildUrl({mRID: me.mRID})
                     },
                 ]
             }
