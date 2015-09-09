@@ -362,14 +362,14 @@ Ext.define('Dxp.controller.Tasks', {
             if (type === 'FILE') {
                 me.showFileDestinationAttributes(true);
                 view.down('#destination-methods-combo').setValue('FILE');
-                view.down('#destination-methods-combo').setDisabled(true);
+                view.down('#destination-methods-combo').setReadOnly(true);
                 view.down('#destination-file-name').setValue(me.destinationToEdit.get('fileName'));
                 view.down('#destination-file-extension').setValue(me.destinationToEdit.get('fileExtension'));
                 view.down('#destination-file-location').setValue(me.destinationToEdit.get('fileLocation'));
             } else if (type === 'EMAIL') {
                 me.showMailDestinationAttributes(true);
                 view.down('#destination-methods-combo').setValue('EMAIL');
-                view.down('#destination-methods-combo').setDisabled(true);
+                view.down('#destination-methods-combo').setReadOnly(true);
                 view.down('#destination-recipients').setValue(me.destinationToEdit.get('recipients'));
                 view.down('#destination-subject').setValue(me.destinationToEdit.get('subject'));
                 view.down('#destination-attachment-name').setValue(me.destinationToEdit.get('fileName'));
@@ -377,7 +377,7 @@ Ext.define('Dxp.controller.Tasks', {
             } else if (type === 'FTP'){
                 me.showFtpDestinationAttributes(true);
                 view.down('#destination-methods-combo').setValue('FTP');
-                view.down('#destination-methods-combo').setDisabled(true);
+                view.down('#destination-methods-combo').setReadOnly(true);
                 view.down('#destination-file-name').setValue(me.destinationToEdit.get('fileName'));
                 view.down('#destination-file-extension').setValue(me.destinationToEdit.get('fileExtension'));
                 view.down('#destination-file-location').setValue(me.destinationToEdit.get('fileLocation'));
@@ -1017,6 +1017,7 @@ Ext.define('Dxp.controller.Tasks', {
     doAddDestinationToGrid: function (button) {
         var me = this;
         //edit destination was cancelled, add the old one again
+        debugger;
         if (me.destinationToEdit) {
             me.destinationsArray.push(me.destinationToEdit);
             me.destinationToEdit = null;
