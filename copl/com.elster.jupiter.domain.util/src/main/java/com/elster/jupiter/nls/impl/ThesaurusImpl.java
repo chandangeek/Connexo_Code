@@ -15,19 +15,18 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
-
 import java.text.MessageFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,7 +44,7 @@ class ThesaurusImpl implements IThesaurus {
     private String component;
 
     @Inject
-    public ThesaurusImpl(DataModel dataModel, ThreadPrincipalService threadPrincipalService, Provider<NlsKeyImpl> nlsKeyProvider) {
+    ThesaurusImpl(DataModel dataModel, ThreadPrincipalService threadPrincipalService, Provider<NlsKeyImpl> nlsKeyProvider) {
         this.dataModel = dataModel;
         this.threadPrincipalService = threadPrincipalService;
         this.nlsKeyProvider = nlsKeyProvider;
@@ -126,7 +125,7 @@ class ThesaurusImpl implements IThesaurus {
         Map<NlsKey, List<Translation>> map = new HashMap<>();
         for (Translation translation : translations) {
             if (!map.containsKey(translation.getNlsKey())) {
-                map.put(translation.getNlsKey(), new ArrayList<Translation>());
+                map.put(translation.getNlsKey(), new ArrayList<>());
             }
             map.get(translation.getNlsKey()).add(translation);
         }
@@ -153,7 +152,7 @@ class ThesaurusImpl implements IThesaurus {
         if (!newKeys.isEmpty()) {
             // remove duplicate keys
             Set<String> uniqueIds = new HashSet<>();
-            List<NlsKey> uniqueKeys = new ArrayList<NlsKey>();
+            List<NlsKey> uniqueKeys = new ArrayList<>();
 
             for (NlsKey key : newKeys) {
                 if (uniqueIds.add(key.getKey())) {
@@ -180,7 +179,7 @@ class ThesaurusImpl implements IThesaurus {
     }
 
     @Override
-    public NlsMessageFormat getSimpleFormat(TranslationKey key) {
+    public NlsMessageFormat getFormat(TranslationKey key) {
         return new NlsTranslationFormatImpl(this, nlsStringFor(key));
     }
 
