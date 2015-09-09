@@ -33,14 +33,17 @@ import com.energyict.protocolimplv2.nta.IOExceptionHandler;
  */
 public class G3GatewayEvents {
 
-    public static final ObisCode OBIS_CODE = ObisCode.fromString("0.0.99.98.0.255");
+	/** The OBIS code for the standard event log. */
+	public static final ObisCode OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.1.255");
+	
     private final DlmsSession dlmsSession;
 
     public G3GatewayEvents(DlmsSession dlmsSession) {
         this.dlmsSession = dlmsSession;
     }
 
-    public List<CollectedLogBook> readEvents(List<LogBookReader> logBooks) {
+    @SuppressWarnings("unchecked")
+	public List<CollectedLogBook> readEvents(List<LogBookReader> logBooks) {
         List<CollectedLogBook> result = new ArrayList<>();
         for (LogBookReader logBook : logBooks) {
             CollectedLogBook collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
@@ -59,7 +62,9 @@ public class G3GatewayEvents {
                 
                 collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
             } catch (IOException e) {
-                if (IOExceptionHandler.isUnexpectedResponse(e, dlmsSession)) {
+            	if (IOExceptionHandler.isAuthorizationProblem(e)) {
+            		collectedLogBook.setFailureInformation(ResultType.ConfigurationError, MdcManager.getIssueFactory().createWarning(logBook, "logBookXissue", logBook.getLogBookObisCode(), e.getMessage()));
+            	} else if (IOExceptionHandler.isUnexpectedResponse(e, dlmsSession)) {
                     collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
                 }
             }

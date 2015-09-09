@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.nta;
 
 import com.energyict.cbo.NestedIOException;
+import com.energyict.dlms.cosem.DataAccessResultCode;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
@@ -30,7 +31,7 @@ public class IOExceptionHandler {
      * Throw the proper ComServer runtime exception
      */
     public static ComServerExecutionException handle(IOException e, DlmsSession dlmsSession) {
-        if (isUnexpectedResponse(e, dlmsSession)) {
+    	if (isUnexpectedResponse(e, dlmsSession)) {
             //Unexpected problem or response, but we can still communicate with the device
             return MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
         } else {
@@ -73,6 +74,31 @@ public class IOExceptionHandler {
             return true;
         }
         return false;
+    }
+    
+    /**
+     * Checks whether the returned error is an authorization error (basically an R/W denied).
+     * 
+     * @param 		e		The IO error.
+     * 
+     * @return		<code>true</code> if this concerns an authorization problem, <code>false</code> if not.
+     */
+    public static final boolean isAuthorizationProblem(final IOException e) {
+    	Throwable t = e;
+    	
+    	while (t != null) {
+	    	if (t instanceof DataAccessResultException) {
+	    		final DataAccessResultException dataAccessResultException = (DataAccessResultException)t;
+	    		
+	    		if (dataAccessResultException.getCode() == DataAccessResultCode.RW_DENIED) {
+	    			return true;
+	    		}
+	    	}
+	    	
+	    	t = t.getCause();
+    	}
+    	
+    	return false;
     }
 
     private static ComServerExecutionException connectionCommunicationException(IOException e, DlmsSession dlmsSession) {

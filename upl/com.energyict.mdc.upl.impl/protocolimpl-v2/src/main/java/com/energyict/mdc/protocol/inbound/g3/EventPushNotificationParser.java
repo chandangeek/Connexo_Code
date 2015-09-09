@@ -224,7 +224,7 @@ public class EventPushNotificationParser {
 
         List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
         meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(new MeterEvent(dateTime, eiCode, protocolCode, description)));
-        collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, G3GatewayEvents.OBIS_CODE));
+        collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, G3GatewayEvents.OBIS_STANDARD_EVENT_LOG));
         collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
     }
 
