@@ -1,6 +1,5 @@
 package com.energyict.protocols.mdc.services.impl;
 
-import com.elster.jupiter.nls.*;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
@@ -21,10 +20,15 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.protocolimplv2.sdksample.SDKMessageSeeds;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
@@ -56,8 +60,8 @@ import java.util.stream.Stream;
  * Date: 06/11/13
  * Time: 11:03
  */
-@Component(name = "com.energyict.mdc.service.deviceprotocols", service = {DeviceProtocolService.class, InstallService.class, TranslationKeyProvider.class}, immediate = true, property = "name=" + DeviceProtocolService.COMPONENT_NAME)
-public class DeviceProtocolServiceImpl implements DeviceProtocolService, InstallService, TranslationKeyProvider {
+@Component(name = "com.energyict.mdc.service.deviceprotocols", service = {DeviceProtocolService.class, InstallService.class, MessageSeedProvider.class}, immediate = true, property = "name=" + DeviceProtocolService.COMPONENT_NAME)
+public class DeviceProtocolServiceImpl implements DeviceProtocolService, InstallService, MessageSeedProvider {
 
     /* Services required by one of the actual protocol classes in this bundle
      * and therefore must be available in the Module provided to the guice injector. */
@@ -278,17 +282,12 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     }
 
     @Override
-    public String getComponentName() {
-        return COMPONENT_NAME;
-    }
-
-    @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
+    public List<MessageSeed> getSeeds() {
         return Stream.of(
                 Arrays.stream(SDKMessageSeeds.values()),
                 Arrays.stream(MessageSeeds.values()))
