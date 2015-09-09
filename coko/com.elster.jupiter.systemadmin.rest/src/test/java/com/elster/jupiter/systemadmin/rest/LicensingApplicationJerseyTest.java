@@ -5,14 +5,13 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.systemadmin.rest.imp.LicensingApplication;
-import com.elster.jupiter.systemadmin.rest.imp.resource.MessageSeeds;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
-import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
+
+import org.mockito.Mock;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
@@ -30,11 +29,6 @@ public class LicensingApplicationJerseyTest extends FelixRestApplicationJerseyTe
     TaskService taskService;
     @Mock
     JsonService jsonService;
-
-    @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
-    }
 
     @Override
     public void setupMocks() {
