@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.data.exceptions;
 
+import com.energyict.mdc.common.BusinessException;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.BusinessException;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.sql.SQLException;
 
@@ -15,13 +17,13 @@ import java.sql.SQLException;
  */
 public class NestedRelationTransactionException extends LocalizedException {
 
-    public NestedRelationTransactionException(Thesaurus thesaurus, BusinessException e, String relationTypeName) {
-        super(thesaurus, MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR, e);
+    public NestedRelationTransactionException(BusinessException e, String relationTypeName, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, e);
         this.set("relationTypeName", relationTypeName);
     }
 
-    public NestedRelationTransactionException(Thesaurus thesaurus, SQLException e, String relationTypeName) {
-        super(thesaurus, MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR, e);
+    public NestedRelationTransactionException(Thesaurus thesaurus, SQLException e, String relationTypeName, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, e);
         this.set("relationTypeName", relationTypeName);
     }
 

@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -10,10 +14,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;

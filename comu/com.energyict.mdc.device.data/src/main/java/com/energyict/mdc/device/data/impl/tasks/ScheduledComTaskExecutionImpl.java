@@ -1,14 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import java.time.Clock;import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ComTasksInComScheduleMustHaveSameConfigurationSettings;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComSchedulePerDevice;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -20,11 +13,20 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-import java.util.Optional;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @UniqueComSchedulePerDevice(groups = {Save.Create.class, Save.Update.class})
 @ComTasksInComScheduleMustHaveSameConfigurationSettings(groups = {Save.Create.class, Save.Update.class})

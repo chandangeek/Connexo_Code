@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when
@@ -26,8 +27,8 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class IncompatiblePartialConnectionTaskException extends LocalizedException {
 
-    public <T extends PartialConnectionTask> IncompatiblePartialConnectionTaskException(Thesaurus thesaurus, PartialConnectionTask partialConnectionTask, Class<T> expectedPartialConnectionTaskType) {
-        super(thesaurus, MessageSeeds.CONNECTION_TASK_INCOMPATIBLE_PARTIAL, partialConnectionTask.getClass().getName(), expectedPartialConnectionTaskType.getName());
+    public <T extends PartialConnectionTask> IncompatiblePartialConnectionTaskException(PartialConnectionTask partialConnectionTask, Class<T> expectedPartialConnectionTaskType, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, partialConnectionTask.getClass().getName(), expectedPartialConnectionTaskType.getName());
         this.set("partialConnectionTaskType", partialConnectionTask.getClass().getName());
         this.set("expectedPartialConnectionTaskType", expectedPartialConnectionTaskType.getName());
     }

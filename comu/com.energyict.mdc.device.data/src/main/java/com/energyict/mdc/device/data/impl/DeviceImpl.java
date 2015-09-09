@@ -84,7 +84,6 @@ import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevic
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComTaskExecutionWhichIsNotFromThisDevice;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
@@ -730,7 +729,7 @@ public class DeviceImpl implements Device, CanLock {
             dialectProperties = this.dataModel.getInstance(ProtocolDialectPropertiesImpl.class).initialize(this, configurationProperties);
             this.newDialectProperties.add(dialectProperties);
         } else {
-            throw new ProtocolDialectConfigurationPropertiesIsRequiredException();
+            throw new ProtocolDialectConfigurationPropertiesIsRequiredException(MessageSeeds.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED);
         }
         return dialectProperties;
     }
@@ -769,7 +768,7 @@ public class DeviceImpl implements Device, CanLock {
                 addDeviceProperty(name, propertyValue);
             }
         } else {
-            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(thesaurus, name, this.getDeviceProtocolPluggableClass().getDeviceProtocol(), this);
+            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass().getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
         }
     }
 
@@ -883,7 +882,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private Supplier<NoMeterActivationAt> noMeterActivationAt(Instant timestamp) {
-        return () -> new NoMeterActivationAt(thesaurus, timestamp);
+        return () -> new NoMeterActivationAt(timestamp, thesaurus, MessageSeeds.NO_METER_ACTIVATION_AT);
     }
 
     Meter createKoreMeter(AmrSystem amrSystem) {
@@ -1570,7 +1569,7 @@ public class DeviceImpl implements Device, CanLock {
             }
         }
         if (removedNone) {
-            throw new CannotDeleteConnectionTaskWhichIsNotFromThisDevice(this.thesaurus, connectionTask, this);
+            throw new CannotDeleteConnectionTaskWhichIsNotFromThisDevice(connectionTask, this, this.thesaurus, MessageSeeds.CONNECTION_TASK_CANNOT_DELETE_IF_NOT_FROM_DEVICE);
 
         }
     }
@@ -1666,7 +1665,7 @@ public class DeviceImpl implements Device, CanLock {
                 return;
             }
         }
-        throw new CannotDeleteComTaskExecutionWhichIsNotFromThisDevice(thesaurus, comTaskExecution, this);
+        throw new CannotDeleteComTaskExecutionWhichIsNotFromThisDevice(comTaskExecution, this, thesaurus, MessageSeeds.COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE);
     }
 
     @Override
@@ -1681,7 +1680,7 @@ public class DeviceImpl implements Device, CanLock {
                 return;
             }
         }
-        throw new CannotDeleteComScheduleFromDevice(this.thesaurus, comSchedule, this);
+        throw new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE);
     }
 
     @Override

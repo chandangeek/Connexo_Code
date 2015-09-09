@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl.identifiers;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifierType;
 
@@ -39,7 +40,7 @@ public final class DeviceIdentifierByMRID implements DeviceIdentifier<Device> {
     public Device findDevice() {
         // lazyload the device
         if (this.device == null) {
-            this.device = this.deviceService.findByUniqueMrid(this.mrid).orElseThrow(() -> CanNotFindForIdentifier.device(this));
+            this.device = this.deviceService.findByUniqueMrid(this.mrid).orElseThrow(() -> CanNotFindForIdentifier.device(this, MessageSeeds.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER));
         }
         return this.device;
     }

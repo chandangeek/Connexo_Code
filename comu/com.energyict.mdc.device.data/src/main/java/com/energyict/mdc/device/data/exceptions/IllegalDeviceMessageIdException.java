@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when a DeviceMessageId.dbValue is not known by the
@@ -13,8 +14,9 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class IllegalDeviceMessageIdException extends LocalizedException {
 
-    public IllegalDeviceMessageIdException(Thesaurus thesaurus, long deviceMessageId) {
-        super(thesaurus, MessageSeeds.DEVICE_MESSAGE_ID_NOT_SUPPORTED, deviceMessageId);
+    public IllegalDeviceMessageIdException(long deviceMessageId, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, deviceMessageId);
         this.set("deviceMessageId.dbValue", deviceMessageId);
     }
+
 }

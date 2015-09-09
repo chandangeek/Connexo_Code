@@ -1,11 +1,11 @@
 package com.energyict.mdc.device.data.exceptions;
 
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt was made to delete a
@@ -16,8 +16,8 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class CannotDeleteComScheduleFromDevice extends LocalizedException {
 
-    public CannotDeleteComScheduleFromDevice(Thesaurus thesaurus, ComSchedule comTaskExecution, Device device) {
-        super(thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE, comTaskExecution.getName());
+    public CannotDeleteComScheduleFromDevice(ComSchedule comTaskExecution, Device device, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, comTaskExecution.getName());
         this.set("comTask", comTaskExecution.getId());
         this.set("device", device.getName());
     }

@@ -1,11 +1,6 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.SqlBuilder;
@@ -20,8 +15,8 @@ import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTa
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsExecutingAndCannotBecomeObsoleteException;
 import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -35,7 +30,15 @@ import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionException;
+
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.google.common.collect.Range;
+import org.joda.time.DateTimeConstants;
+
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
@@ -44,9 +47,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
-import org.joda.time.DateTimeConstants;
-import org.junit.After;
-import org.junit.Test;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

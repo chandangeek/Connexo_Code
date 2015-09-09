@@ -1,10 +1,11 @@
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
+import com.energyict.mdc.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.device.data.impl.DeviceMessageImpl;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
+
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.device.config.DeviceMessageEnablement;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.device.data.impl.DeviceMessageImpl;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;

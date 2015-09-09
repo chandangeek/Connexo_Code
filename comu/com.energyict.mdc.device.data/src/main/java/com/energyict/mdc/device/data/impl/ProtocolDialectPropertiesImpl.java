@@ -1,23 +1,11 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.properties.PropertySpec;
-import com.google.common.collect.Range;
-
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.exceptions.DuplicateNameException;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.NestedRelationTransactionException;
 import com.energyict.mdc.device.data.exceptions.RelationIsAlreadyObsoleteException;
 import com.energyict.mdc.dynamic.relation.CanLock;
@@ -33,6 +21,17 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectProperty;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.properties.PropertySpec;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -175,7 +174,7 @@ public class ProtocolDialectPropertiesImpl
                 relation.makeObsolete();
             }
             catch (BusinessException | SQLException e) {
-                throw new RelationIsAlreadyObsoleteException(this.getThesaurus(), relation.getRelationType().getName());
+                throw new RelationIsAlreadyObsoleteException(relation.getRelationType().getName(), this.getThesaurus(), MessageSeeds.CODING_RELATION_IS_ALREADY_OBSOLETE);
             }
         }
     }
@@ -284,11 +283,11 @@ public class ProtocolDialectPropertiesImpl
                 relation.makeObsolete();
             }
             catch (BusinessException e) {
-                throw new NestedRelationTransactionException(this.getThesaurus(), e, this.findRelationType().getName());
+                throw new NestedRelationTransactionException(e, this.findRelationType().getName(), this.getThesaurus(), MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
             }
             // Cannot collapse catch blocks because of the constructor
             catch (SQLException e) {
-                throw new NestedRelationTransactionException(this.getThesaurus(), e, this.findRelationType().getName());
+                throw new NestedRelationTransactionException(this.getThesaurus(), e, this.findRelationType().getName(), MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
             }
         }
     }

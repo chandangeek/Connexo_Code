@@ -49,7 +49,7 @@ public class DeviceProtocolPropertyImpl implements DeviceProtocolProperty, Seria
         if (propertySpecName != null) {
             this.propertySpec = propertySpecName;
         } else {
-            throw DeviceProtocolPropertyException.propertySpecTypeDoesNotExist(thesaurus, stringValue);
+            throw DeviceProtocolPropertyException.propertySpecTypeDoesNotExist(stringValue, thesaurus, MessageSeeds.DEVICE_PROPERTY_HAS_NO_SPEC);
         }
         this.propertyValue = stringValue;
         return this;
