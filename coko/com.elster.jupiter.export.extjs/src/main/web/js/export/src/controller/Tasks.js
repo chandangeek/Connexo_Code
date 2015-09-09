@@ -2,7 +2,8 @@ Ext.define('Dxp.controller.Tasks', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Dxp.privileges.DataExport'
+        'Dxp.privileges.DataExport',
+        'Uni.form.field.Password'
     ],
 
     views: [
@@ -358,19 +359,28 @@ Ext.define('Dxp.controller.Tasks', {
             view.down('#add-destination-form').setTitle(Uni.I18n.translate('dataExport.editDestination', 'DES', 'Edit destination'));
             me.showAllDestinationAttributes(false);
             var type = me.destinationToEdit.get('type');
-            if (type == 'FILE') {
+            if (type === 'FILE') {
                 me.showFileDestinationAttributes(true);
                 view.down('#destination-methods-combo').setValue('FILE');
                 view.down('#destination-file-name').setValue(me.destinationToEdit.get('fileName'));
                 view.down('#destination-file-extension').setValue(me.destinationToEdit.get('fileExtension'));
                 view.down('#destination-file-location').setValue(me.destinationToEdit.get('fileLocation'));
-            } else if (type == 'EMAIL') {
+            } else if (type === 'EMAIL') {
                 me.showMailDestinationAttributes(true);
                 view.down('#destination-methods-combo').setValue('EMAIL');
                 view.down('#destination-recipients').setValue(me.destinationToEdit.get('recipients'));
                 view.down('#destination-subject').setValue(me.destinationToEdit.get('subject'));
                 view.down('#destination-attachment-name').setValue(me.destinationToEdit.get('fileName'));
                 view.down('#destination-attachment-extension').setValue(me.destinationToEdit.get('fileExtension'));
+            } else if (type === 'FTP'){
+                me.showFtpDestinationAttributes(true);
+                view.down('#destination-methods-combo').setValue('FTP');
+                view.down('#destination-file-name').setValue(me.destinationToEdit.get('fileName'));
+                view.down('#destination-file-extension').setValue(me.destinationToEdit.get('fileExtension'));
+                view.down('#destination-file-location').setValue(me.destinationToEdit.get('fileLocation'));
+                view.down('#ftp-server').setValue(me.destinationToEdit.get('server'));
+                view.down('#user-field').setValue(me.destinationToEdit.get('user'));
+                view.down('#password-field').setValue(me.destinationToEdit.get('password'));
             }
         } else {
             me.destinationIndexToEdit = -1;
@@ -382,6 +392,7 @@ Ext.define('Dxp.controller.Tasks', {
     showAllDestinationAttributes: function (visible) {
         this.showFileDestinationAttributes(visible);
         this.showMailDestinationAttributes(visible);
+        this.showFtpDestinationAttributes(visible);
     },
 
     showFileDestinationAttributes: function (visible) {
@@ -410,6 +421,24 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('#destination-attachment-extension').disabled = !visible;
     },
 
+    showFtpDestinationAttributes: function (visible){
+        var me = this,
+            page = me.getAddDestinationPage();
+        page.down('#destination-file-name').setVisible(visible);
+        page.down('#destination-file-extension').setVisible(visible);
+        page.down('#destination-file-location').setVisible(visible);
+        page.down('#ftp-server').setVisible(visible);
+        page.down('#user-field').setVisible(visible);
+        page.down('#password-field').setVisible(visible);
+
+        page.down('#destination-file-name').disabled = !visible;
+        page.down('#destination-file-extension').disabled = !visible;
+        page.down('#destination-file-location').disabled = !visible;
+        page.down('#ftp-server').disabled = !visible;
+        page.down('#user-field').disabled = !visible;
+        page.down('#password-field').disabled = !visible;
+    },
+
     updateDestinationAttributes: function () {
         var me = this,
             page = me.getAddDestinationPage();
@@ -417,9 +446,10 @@ Ext.define('Dxp.controller.Tasks', {
         me.showAllDestinationAttributes(false);
         if (method === 'FILE') {
             me.showFileDestinationAttributes(true);
-        }
-        if (method === 'EMAIL') {
+        } else if (method === 'EMAIL') {
             me.showMailDestinationAttributes(true);
+        } else if (method === 'FTP') {
+            me.showFtpDestinationAttributes(true);
         }
 
     },
@@ -431,10 +461,8 @@ Ext.define('Dxp.controller.Tasks', {
             dataSelectorCombo = view.down('#data-selector-combo'),
             deviceGroupCombo = view.down('#device-group-combo'),
             exportPeriodCombo = view.down('#export-period-combo'),
-            recurrenceTypeCombo = view.down('#recurrence-type');
-        readingTypesStore = view.down('#readingTypesGridPanel').getStore();
-            destinationsStore = view.down('#task-destinations-grid').getStore(),
             recurrenceTypeCombo = view.down('#recurrence-type'),
+            destinationsStore = view.down('#task-destinations-grid').getStore(),
             readingTypesStore = view.down('#readingTypesGridPanel').getStore();
 
         //me.destinationsArray = [];
@@ -1024,6 +1052,24 @@ Ext.define('Dxp.controller.Tasks', {
                         Uni.I18n.translate('general.subject', 'DES', 'Subject') + ': ' + formValues['subject'] + '&lt;br/&gt;' +
                         Uni.I18n.translate('general.fileName', 'DES', 'File name') + ': ' + formValues['attachmentName'] + '&lt;br/&gt;' +
                         Uni.I18n.translate('general.fileExtension', 'DES', 'File extension') + ': ' + formValues['attachmentExtension']
+                    })
+                } else if (formValues['method'] === 'FTP') {
+                    destinationModel = Ext.create('Dxp.model.Destination', {
+                        type: 'FTP',
+                        server: formValues['server'],
+                        user: formValues['user'],
+                        password: formValues['password'],
+                        fileName: formValues['fileName'],
+                        fileExtension: formValues['fileExtension'],
+                        fileLocation: formValues['fileLocation'],
+                        method: Uni.I18n.translate('dataExportdestinations.ftp', 'DES', 'FTP'),
+                        destination: formValues['server'],
+                        tooltiptext: Uni.I18n.translate('dataExportdestinations.ftpServer', 'DES', 'FTP server') + ': ' + formValues['server'] + '&lt;br/&gt;' +
+                        Uni.I18n.translate('general.user', 'DES', 'User') + ': ' + formValues['user'] + '&lt;br/&gt;' +
+                        Uni.I18n.translate('general.fileName', 'DES', 'File name') + ': ' + formValues['fileName'] + '&lt;br/&gt;' +
+                        Uni.I18n.translate('general.fileExtension', 'DES', 'File extension') + ': ' + formValues['fileExtension'] + '&lt;br/&gt;' +
+                        Uni.I18n.translate('general.fileLocation', 'DES', 'File location') + ': ' + formValues['fileLocation']
+
                     })
                 }
                 me.destinationsArray.push(destinationModel);
