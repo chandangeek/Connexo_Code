@@ -1,14 +1,14 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 
-import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 
     CAN_NOT_BE_EMPTY(2, Constants.NAME_REQUIRED_KEY, "This field is required", Level.SEVERE),
 
@@ -78,7 +78,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         logger.log(getLevel(), format.format(args), t);
     }
 
-
     public enum Constants {
         ;
         public static final String DUPLICATE_VALIDATION_RULE_SET = "DuplicateValidationRuleSet";
@@ -95,7 +94,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String CANNOT_DELETE_WHILE_RUNNING = "CannotDeleteValidationTask";
         public static final String TASK_VALIDATED_SUCCESFULLY = "TaskValidatedSuccesfully";
         public static final String OVERLAPPED_PERIOD = "OverlappedPeriod";
-
     }
 }
 
