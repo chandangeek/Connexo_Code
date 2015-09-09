@@ -1,12 +1,11 @@
 package com.elster.jupiter.cbo;
 
-import com.elster.jupiter.cbo.impl.CboTranslationKeyProvider;
-import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.cbo.impl.CboTranslationProvider;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
     ILLEGAL_ENUM_VALUE(1001, "{0} is not a value matching an instance of enum {1}");
 
     private final int number;
@@ -19,7 +18,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     @Override
     public String getModule() {
-        return CboTranslationKeyProvider.COMPONENT_NAME;
+        return CboTranslationProvider.COMPONENT_NAME;
     }
 
     @Override
@@ -41,4 +40,5 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     public Level getLevel() {
         return Level.SEVERE;
     }
+
 }
