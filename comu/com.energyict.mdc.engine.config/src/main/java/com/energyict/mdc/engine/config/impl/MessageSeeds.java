@@ -1,11 +1,12 @@
 package com.energyict.mdc.engine.config.impl;
 
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+
+import com.elster.jupiter.util.exception.MessageSeed;
+
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
     SHOULD_BE_AT_LEAST(1, Keys.MDC_VALUE_TOO_SMALL, "Minimal acceptable value is {value} seconds.", Level.SEVERE),
     CAN_NOT_BE_EMPTY(2, Keys.MDC_CAN_NOT_BE_EMPTY, "This field is required", Level.SEVERE),
     VALUE_NOT_IN_RANGE(3, Keys.MDC_VALUE_NOT_IN_RANGE, "Value not in range {min} to {max}", Level.SEVERE),
