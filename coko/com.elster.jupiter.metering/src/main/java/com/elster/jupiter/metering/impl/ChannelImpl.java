@@ -501,7 +501,10 @@ public final class ChannelImpl implements ChannelContract {
         	.filter(quality -> readingTimes.contains(quality.getReadingTimestamp()))
             .forEach(ReadingQualityRecord::delete);
         ReadingQualityType rejected = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED);
-        readingTimes.forEach(readingTime -> createReadingQuality(rejected, mainReadingType.get(), readingTime).save());
+        readingTimes.forEach(readingTime -> {
+            createReadingQuality(rejected, mainReadingType.get(), readingTime).save();
+            getBulkQuantityReadingType().ifPresent(bulkReadingType -> createReadingQuality(rejected, bulkReadingType, readingTime).save());
+        });
         eventService.postEvent(EventType.READINGS_DELETED.topic(), new ReadingsDeletedEventImpl(this,readingTimes));
     }
     
