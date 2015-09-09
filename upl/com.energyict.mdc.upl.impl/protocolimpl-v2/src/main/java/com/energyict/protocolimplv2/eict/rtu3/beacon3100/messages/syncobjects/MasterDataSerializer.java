@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.security.SecurityPropertySet;
 import com.energyict.mdc.protocol.tasks.*;
 import com.energyict.mdc.tasks.*;
 import com.energyict.mdw.amr.RegisterGroup;
+import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.amr.RegisterSpec;
 import com.energyict.mdw.core.*;
 import com.energyict.mdwswing.decorators.mdc.NextExecutionSpecsShadowDecorator;
@@ -353,9 +354,15 @@ public class MasterDataSerializer {
                     } else {
                         for (RegisterSpec register : deviceConfiguration.getRegisterSpecs()) {
                             for (RegisterGroup registerGroup : registerGroups) {
-                                if (register.getRegisterMapping().getRtuRegisterGroup().getId() == registerGroup.getId()) {
-                                    registerObisCodes.add(register.getDeviceObisCode());
-                                    break;
+                                RegisterMapping registerMapping = register.getRegisterMapping();
+                                if (registerMapping != null) {
+                                    RegisterGroup rtuRegisterGroup = registerMapping.getRtuRegisterGroup();
+                                    if (rtuRegisterGroup != null) {
+                                        if (rtuRegisterGroup.getId() == registerGroup.getId()) {
+                                            registerObisCodes.add(register.getDeviceObisCode());
+                                            break;
+                                        }
+                                    }
                                 }
                             }
                         }
