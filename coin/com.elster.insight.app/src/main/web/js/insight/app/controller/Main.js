@@ -13,7 +13,7 @@ Ext.define('InsightApp.controller.Main', {
 
     applicationTitle: 'Connexo Insight',
     applicationKey: 'INS',
-    defaultToken: '/administration',
+    defaultToken: '/usagepoints',
     searchEnabled: true,
     onlineHelpEnabled: false,
 
@@ -41,21 +41,21 @@ Ext.define('InsightApp.controller.Main', {
 
     initMenu: function () {
         var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: Uni.I18n.translate('general.administration', 'INS', 'Administration'),
-            href: 'administration',
-            portal: 'administration',
-            glyph: 'settings'
+            text: Uni.I18n.translate('general.usagepoints', 'INS', 'Usage Points'),
+            href: 'usagepoints',
+            portal: 'usagepoints',
+            glyph: 'devices'
         });
 
         Uni.store.MenuItems.add(menuItem);
 
         var portalItem1 = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('general.UsagePoints', 'IMT', 'Usage Points'),
-            portal: 'administration',
+            title: Uni.I18n.translate('general.administration', 'IMT', 'Administration'),
+            portal: 'usagepoints',
             items: [
                 {
                     text: Uni.I18n.translate('general.usagePointAdd', 'IMT', 'Add Usage Point'),
-                    href: '#/administration/usagepoints/add',
+                    href: '#/usagepoints/add',
                     itemId: 'add-usagepoints'
                 }
             ]
