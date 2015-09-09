@@ -1,11 +1,11 @@
 package com.elster.jupiter.datavault.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 
     ENCRYPTION_FAILED(1, "EncryptionFailed", "Encryption failed: {0}"),
     KEYSTORE_CREATION_FAILED(2, "KeystoreCreationFailed", "Failed to create KeyStore: {0}"),
@@ -19,7 +19,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     private final String key;
     private final String format;
 
-    private MessageSeeds(int number, String key, String format) {
+    MessageSeeds(int number, String key, String format) {
         this.number = number;
         this.key = key;
         this.format = format;
