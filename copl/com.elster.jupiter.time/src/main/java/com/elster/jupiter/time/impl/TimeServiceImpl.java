@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -18,9 +19,10 @@ import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.RelativePeriodCategoryUsage;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.security.Privileges;
+import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -33,16 +35,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component(
         name = "com.elster.jupiter.time",
-        service = {TimeService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class},
+        service = {TimeService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = "name=" + TimeService.COMPONENT_NAME,
         immediate = true)
-public class TimeServiceImpl implements TimeService, InstallService, PrivilegesProvider, TranslationKeyProvider {
+public class TimeServiceImpl implements TimeService, InstallService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
     private volatile DataModel dataModel;
     private volatile QueryService queryService;
     private volatile OrmService ormService;
@@ -55,6 +54,7 @@ public class TimeServiceImpl implements TimeService, InstallService, PrivilegesP
 
     @Inject
     public TimeServiceImpl(QueryService queryService, OrmService ormService, NlsService nlsService, UserService userService, EventService eventService) {
+        this();
         this.setQueryService(queryService);
         this.setOrmService(ormService);
         this.setThesaurus(nlsService);
@@ -232,10 +232,12 @@ public class TimeServiceImpl implements TimeService, InstallService, PrivilegesP
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Stream.of(
-                Arrays.stream(MessageSeeds.values()),
-                Arrays.stream(Labels.values()))
-                .flatMap(Function.identity())
-                .collect(Collectors.toList());
+        return Arrays.asList(Labels.values());
     }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
 }
