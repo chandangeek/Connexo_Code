@@ -45,10 +45,10 @@ enum MacroPeriodMapping {
     }
 
     public static MacroPeriod getMacroPeriodFor(ObisCode obisCode, TimeDuration timeDuration) {
-        if(timeDuration == null){
+        if (timeDuration == null) {
             timeDuration = new TimeDuration(0);
         }
-        if(obisCode != null){
+        if (obisCode != null) {
             for (MacroPeriodMapping macroPeriodMapping : values()) {
                 if(macroPeriodMapping.timeDurationMatcher.match(timeDuration.getSeconds())
                         && macroPeriodMapping.eFieldMatcher.match(obisCode.getE())
@@ -75,4 +75,5 @@ enum MacroPeriodMapping {
     Matcher<Integer> getfFieldMatcher() {
         return fFieldMatcher;
     }
+
 }
