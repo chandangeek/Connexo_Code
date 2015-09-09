@@ -23,19 +23,13 @@ Ext.define('Mdc.view.setup.devicevalidationresults.LoadProfileList', {
                 sortable: false,
                 fixed: true,
                 renderer: function (value, meta, record) {
-                    if (record.get('interval') == null) {
-                        return Ext.String.format(Uni.I18n.translate('validationResults.last', 'MDC', 'Last {0} {1}'),
-                            record.get('intervalRecord').get('all').count,
-                            Uni.I18n.translatePlural('general.' + record.get('intervalRecord').get('all').timeUnit, record.get('intervalRecord').get('all').count, 'MDC', record.get('intervalRecord').get('all').timeUnit));
-                    }
-                    else if (record.get('intervalEnd') && record.get('intervalInMs')) {
+                    var interval = record.get('intervalRecord').get('all');
 
-                        return Ext.String.format(Uni.I18n.translate('validationResults.starting', 'MDC', ' {0} {1} starting {2}'),
-                            record.get('intervalRecord').get('all').count,
-                            Uni.I18n.translatePlural('general.' + record.get('intervalRecord').get('all').timeUnit, record.get('intervalRecord').get('all').count, 'MDC', record.get('intervalRecord').get('all').timeUnit),
-                            Uni.DateTime.formatDateTimeLong(new Date(record.get('intervalStart'))));
+                    if (record.get('interval') == null) {
+                        return Uni.I18n.translate('validationResults.last', 'MDC', 'Last {0}', [Uni.util.Common.translateTimeUnit(interval.count, interval.timeUnit)]);
+                    } else if (record.get('intervalEnd') && record.get('intervalInMs')) {
+                        return Uni.I18n.translate('validationResults.starting', 'MDC', '{0} starting {2}', [Uni.util.Common.translateTimeUnit(interval.count, interval.timeUnit), Uni.DateTime.formatDateTimeLong(new Date(record.get('intervalStart')))], false);
                     }
-                    return '';
                 }
             },
 
