@@ -208,7 +208,7 @@ public class IF2Connection implements DLMSConnection {
                 this.hhuSignOn.signOn("", this.meterId, NORMAL_BAUDRATE);
             }
 
-            if2LinkLayer.write(IF2Packet.createAckPowerUp());
+//            if2LinkLayer.write(IF2Packet.createAckPowerUp());
 
             delay(500);
 
