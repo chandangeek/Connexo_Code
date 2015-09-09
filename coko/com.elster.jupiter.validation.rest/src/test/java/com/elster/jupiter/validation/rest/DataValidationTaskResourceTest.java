@@ -2,9 +2,7 @@ package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Query;
-
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.util.conditions.Order;
@@ -12,37 +10,31 @@ import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationOccurrenceFinder;
 import com.elster.jupiter.validation.DataValidationTask;
-
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
-import com.elster.jupiter.validation.ValidationRuleSet;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-
 import java.io.InputStream;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
-    public static final ZonedDateTime NEXT_EXECUTION = ZonedDateTime.of(2015, 1, 13, 0, 0, 0, 0, ZoneId.systemDefault());
     public static final int TASK_ID = 750;
-
-
 
     @Mock
     protected EndDeviceGroup endDeviceGroup;
