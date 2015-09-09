@@ -1,12 +1,13 @@
 package com.energyict.mdc.device.data.importers.impl.properties;
 
+import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
+
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpecPossibleValuesImpl;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 
 import java.time.Clock;
 import java.time.format.DateTimeFormatter;
@@ -44,7 +45,7 @@ public class TimeZonePropertySpec extends BasicPropertySpec {
             try {
                 format.parse(value);
             } catch (DateTimeParseException e) {
-                throw new InvalidValueException(MessageSeeds.TIME_ZONE_IS_NOT_VALID.getTranslated(thesaurus),
+                throw new InvalidValueException(thesaurus.getFormat(MessageSeeds.TIME_ZONE_IS_NOT_VALID).format(),
                         MessageSeeds.TIME_ZONE_IS_NOT_VALID.getDefaultFormat(),
                         getName());
             }

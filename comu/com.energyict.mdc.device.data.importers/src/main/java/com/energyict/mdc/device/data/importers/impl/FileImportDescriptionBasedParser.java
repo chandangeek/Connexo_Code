@@ -1,17 +1,19 @@
 package com.energyict.mdc.device.data.importers.impl;
 
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportParserException;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ValueParserException;
 import com.energyict.mdc.device.data.importers.impl.fields.FieldSetter;
 import com.energyict.mdc.device.data.importers.impl.fields.FileImportField;
 import com.energyict.mdc.device.data.importers.impl.parsers.FieldParser;
+
+import com.elster.jupiter.util.Checks;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class FileImportDescriptionBasedParser<T extends FileImportRecord> implements FileImportParser<T> {
@@ -64,7 +66,7 @@ public class FileImportDescriptionBasedParser<T extends FileImportRecord> implem
                 .stream()
                 .filter(entry -> entry.getKey() != null && !entry.getKey().isEmpty() && entry.getValue() != null)
                 .sorted((e1, e2) -> e1.getValue().compareTo(e2.getValue()))
-                .map(entry -> entry.getKey())
+                .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
         long numberOfMandatoryColumns = getNumberOfMandatoryColumns();
         if (headers.size() < numberOfMandatoryColumns) {

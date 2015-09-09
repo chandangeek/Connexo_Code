@@ -1,5 +1,21 @@
 package com.energyict.mdc.device.data.importers.impl.devices.install;
 
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
+import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
+import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
+import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
+import com.energyict.mdc.device.data.importers.impl.devices.installation.DeviceInstallationImporterFactory;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.topology.TopologyService;
+
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
@@ -15,26 +31,6 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
-import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
-import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
-import com.energyict.mdc.device.data.importers.impl.devices.installation.DeviceInstallationImporterFactory;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.device.lifecycle.ExecutableAction;
-import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.topology.TopologyService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.time.Clock;
@@ -47,9 +43,16 @@ import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -85,19 +88,10 @@ public class DeviceInstallationImporterFactoryTest {
     @Before
     public void beforeTest() {
         reset(logger, thesaurus, deviceService, topologyService, meteringService, deviceLifeCycleService, finiteStateMachineService);
-        when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> {
-            for (MessageSeed messageSeeds : MessageSeeds.values()) {
-                if (messageSeeds.getKey().equals(invocationOnMock.getArguments()[0])) {
-                    return messageSeeds.getDefaultFormat();
-                }
-            }
-            for (TranslationKey translation : TranslationKeys.values()) {
-                if (translation.getKey().equals(invocationOnMock.getArguments()[0])) {
-                    return translation.getDefaultFormat();
-                }
-            }
-            return invocationOnMock.getArguments()[1];
-        });
+        when(thesaurus.getFormat(any(TranslationKey.class)))
+                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
+        when(thesaurus.getFormat(any(MessageSeed.class)))
+                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
         when(thesaurus.getStringBeyondComponent(anyString(), anyString()))
                 .thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
         context = spy(new DeviceDataImporterContext());
@@ -159,7 +153,7 @@ public class DeviceInstallationImporterFactoryTest {
 
         importer.process(importOccurrence);
 
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
@@ -174,10 +168,10 @@ public class DeviceInstallationImporterFactoryTest {
         FileImporter importer = createDeviceInstallImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getTranslated(thesaurus));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(MessageSeeds.FILE_FORMAT_ERROR.getTranslated(thesaurus, 2, 2, 1));
+        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.FILE_FORMAT_ERROR).format(2, 2, 1));
     }
 
     @Test
@@ -188,10 +182,10 @@ public class DeviceInstallationImporterFactoryTest {
         FileImporter importer = createDeviceInstallImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getTranslated(thesaurus));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(MessageSeeds.LINE_MISSING_VALUE_ERROR.getTranslated(thesaurus, 2, "mrid"));
+        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.LINE_MISSING_VALUE_ERROR).format(2, "mrid"));
     }
 
     @Test
@@ -202,10 +196,10 @@ public class DeviceInstallationImporterFactoryTest {
         FileImporter importer = createDeviceInstallImporter();
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED.getTranslated(thesaurus));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_NO_DEVICES_WERE_PROCESSED).format());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
-        verify(logger, times(1)).severe(MessageSeeds.LINE_MISSING_VALUE_ERROR.getTranslated(thesaurus, 2, "installation date"));
+        verify(logger, times(1)).severe(thesaurus.getFormat(MessageSeeds.LINE_MISSING_VALUE_ERROR).format(2, "installation date"));
     }
 
     @Test
@@ -218,9 +212,9 @@ public class DeviceInstallationImporterFactoryTest {
         when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.empty());
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, times(1)).warning(MessageSeeds.NO_DEVICE.getTranslated(thesaurus, 2, "VPB0002"));
+        verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.NO_DEVICE).format(2, "VPB0002"));
         verify(logger, never()).severe(Matchers.anyString());
     }
 
@@ -256,7 +250,7 @@ public class DeviceInstallationImporterFactoryTest {
         when(amrSystem.findMeter("1")).thenReturn(Optional.of(meter));
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
@@ -297,8 +291,8 @@ public class DeviceInstallationImporterFactoryTest {
         when(amrSystem.findMeter("1")).thenReturn(Optional.of(meter));
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN.getTranslated(thesaurus, 1, 1));
-        verify(logger, times(1)).info(TranslationKeys.MASTER_WILL_BE_OVERRIDDEN.getTranslated(thesaurus, 2, "VPB0000", "VPB0001"));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN).format(1, 1));
+        verify(logger, times(1)).info(thesaurus.getFormat(TranslationKeys.MASTER_WILL_BE_OVERRIDDEN).format(2, "VPB0000", "VPB0001"));
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
         verify(topologyService, times(1)).setPhysicalGateway(device, masterDevice);
@@ -325,9 +319,9 @@ public class DeviceInstallationImporterFactoryTest {
         when(executableAction.getAction()).thenReturn(authorizedAction);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, times(1)).warning(MessageSeeds.NO_MASTER_DEVICE.getTranslated(thesaurus, 2, "VPB0001"));
+        verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.NO_MASTER_DEVICE).format(2, "VPB0001"));
         verify(logger, never()).severe(Matchers.anyString());
     }
 
@@ -358,7 +352,7 @@ public class DeviceInstallationImporterFactoryTest {
 
         importer.process(importOccurrence);
 
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
@@ -401,8 +395,8 @@ public class DeviceInstallationImporterFactoryTest {
 
         importer.process(importOccurrence);
 
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN.getTranslated(thesaurus, 1, 1));
-        verify(logger, times(1)).info(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED.getTranslated(thesaurus, 2, "Usage MRID"));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN).format(1, 1));
+        verify(logger, times(1)).info(thesaurus.getFormat(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED).format(2, "Usage MRID"));
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
     }
@@ -439,10 +433,10 @@ public class DeviceInstallationImporterFactoryTest {
 
         importer.process(importOccurrence);
 
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
-        verify(logger, times(1)).info(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED.getTranslated(thesaurus, 2, "Usage MRID"));
-        verify(logger, times(1)).warning(MessageSeeds.NO_USAGE_POINT.getTranslated(thesaurus, 2, "Usage MRID",
-                Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(logger, times(1)).info(thesaurus.getFormat(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED).format(2, "Usage MRID"));
+        verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.NO_USAGE_POINT)
+                .format(2, "Usage MRID", Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))));
         verify(logger, never()).severe(Matchers.anyString());
     }
 
@@ -478,10 +472,10 @@ public class DeviceInstallationImporterFactoryTest {
 
         importer.process(importOccurrence);
 
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
-        verify(logger, times(1)).info(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED.getTranslated(thesaurus, 2, "Usage MRID"));
-        verify(logger, times(1)).warning(MessageSeeds.NO_USAGE_POINT.getTranslated(thesaurus, 2, "Usage MRID",
-                Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(logger, times(1)).info(thesaurus.getFormat(TranslationKeys.NEW_USAGE_POINT_WILL_BE_CREATED).format(2, "Usage MRID"));
+        verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.NO_USAGE_POINT)
+                .format(2, "Usage MRID", Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))));
         verify(logger, never()).severe(Matchers.anyString());
     }
 
@@ -507,7 +501,7 @@ public class DeviceInstallationImporterFactoryTest {
 
         importer.process(importOccurrence);
 
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
@@ -530,10 +524,9 @@ public class DeviceInstallationImporterFactoryTest {
         when(deviceLifeCycleService.getExecutableActions(device, transitionEventType)).thenReturn(Optional.empty());
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, times(1)).warning(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE.getTranslated(thesaurus, 2,
-                DefaultState.ACTIVE.getKey(), DefaultState.IN_STOCK.getKey()));
+        verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE).format(2, DefaultState.ACTIVE.getKey(), DefaultState.IN_STOCK.getKey()));
         verify(logger, never()).severe(Matchers.anyString());
     }
 
@@ -551,9 +544,9 @@ public class DeviceInstallationImporterFactoryTest {
         when(deviceState.getName()).thenReturn(DefaultState.ACTIVE.getKey());
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger, times(1)).warning(MessageSeeds.DEVICE_ALREADY_IN_THAT_STATE.getTranslated(thesaurus, 2, DefaultState.ACTIVE.getKey()));
+        verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.DEVICE_ALREADY_IN_THAT_STATE).format(2, DefaultState.ACTIVE.getKey()));
         verify(logger, never()).severe(Matchers.anyString());
     }
 
@@ -579,7 +572,7 @@ public class DeviceInstallationImporterFactoryTest {
                 .when(executableAction).execute(Matchers.any(Instant.class), Matchers.anyList());
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(Matchers.startsWith("Can't process line 2: Pre-transition check(s) failed: "));
         verify(logger, never()).severe(Matchers.anyString());
@@ -604,9 +597,10 @@ public class DeviceInstallationImporterFactoryTest {
         when(deviceLifeCycleService.getExecutableActions(device, transitionEventType)).thenReturn(Optional.of(executableAction));
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
-        verify(logger).warning(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER.getTranslated(thesaurus, 2, DefaultState.ACTIVE.getKey(), DefaultState.INACTIVE.getKey(), DefaultState.IN_STOCK.getKey() + ", " + DefaultState.COMMISSIONING.getKey()));
+        verify(logger).warning(thesaurus.getFormat(MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER)
+                .format(2, DefaultState.ACTIVE.getKey(), DefaultState.INACTIVE.getKey(), DefaultState.IN_STOCK.getKey() + ", " + DefaultState.COMMISSIONING.getKey()));
         verify(logger, never()).severe(Matchers.anyString());
     }
 }
