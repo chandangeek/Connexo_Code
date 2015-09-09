@@ -17,8 +17,8 @@ import java.util.function.Supplier;
 /**
  * Straightforward implementation of a ConflictingConnectionMethodSolution
  */
+//TODO validate that if a MAP is defined as action, you actually have a mapped object
 public class ConflictingConnectionMethodSolutionImpl extends AbstractConflictSolution<PartialConnectionTask> implements ConflictingConnectionMethodSolution {
-
 
     enum Fields {
         CONFLICTINGMAPPING("conflictingMapping"),
@@ -56,6 +56,11 @@ public class ConflictingConnectionMethodSolutionImpl extends AbstractConflictSol
     @Override
     public PartialConnectionTask getDestinationDataSource() {
         return destinationConnectionMethod.orElseThrow(destinationConnectionMethodIsEmpty());
+    }
+
+    @Override
+    void setMappedDataSource(PartialConnectionTask dataSource) {
+        this.destinationConnectionMethod.set(dataSource);
     }
 
     public ConflictingConnectionMethodSolutionImpl initialize(DeviceConfigConflictMappingImpl deviceConfigConflictMapping, PartialConnectionTask origin, PartialConnectionTask destination) {

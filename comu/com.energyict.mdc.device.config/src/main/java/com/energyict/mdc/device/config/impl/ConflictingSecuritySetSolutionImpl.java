@@ -59,6 +59,11 @@ public class ConflictingSecuritySetSolutionImpl extends AbstractConflictSolution
         return destinationSecurityPropertySet.orElseThrow(destinationSecurityPropertySetIsEmpty());
     }
 
+    @Override
+    void setMappedDataSource(SecurityPropertySet dataSource) {
+        this.destinationSecurityPropertySet.set(dataSource);
+    }
+
     public ConflictingSecuritySetSolution initialize(DeviceConfigConflictMappingImpl deviceConfigConflictMapping, SecurityPropertySet origin, SecurityPropertySet destination) {
         setConflictingMapping(deviceConfigConflictMapping);
         this.originSecurityPropertySet.set(origin);

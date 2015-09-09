@@ -29,7 +29,14 @@ public abstract class AbstractConflictSolution<S extends HasId> implements Confl
         this.dataModel = dataModel;
     }
 
-    public void update(){
+    /**
+     * Sets the dataSource to map when the action is set to {@link DeviceConfigConflictMapping.ConflictingMappingAction#NOT_DETERMINED_YET}
+     *
+     * @param dataSource the DataSource to map
+     */
+    abstract void setMappedDataSource(S dataSource);
+
+    public void update() {
         Save.UPDATE.save(dataModel, this);
     }
 
@@ -43,8 +50,14 @@ public abstract class AbstractConflictSolution<S extends HasId> implements Confl
     }
 
     @Override
-    public void setConflictingMappingAction(DeviceConfigConflictMapping.ConflictingMappingAction action) {
+    public void setSolution(DeviceConfigConflictMapping.ConflictingMappingAction action) {
         this.action = action;
         this.conflictingMapping.get().recalculateSolvedState(this);
+    }
+
+    @Override
+    public void setSolution(DeviceConfigConflictMapping.ConflictingMappingAction action, S dataSource) {
+        setMappedDataSource(dataSource);
+        setSolution(action);
     }
 }

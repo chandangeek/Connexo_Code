@@ -38,7 +38,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
@@ -1040,11 +1039,11 @@ public class PartialOutboundConnectionTaskCrudIT {
         assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2); // what is in here is checked in another test
         DeviceConfigConflictMapping deviceConfigConflictMapping1 = deviceType.getDeviceConfigConflictMappings().get(0);
         ConflictingConnectionMethodSolution conflictingConnectionMethodSolution1 = deviceConfigConflictMapping1.getConflictingConnectionMethodSolutions().get(0);
-        conflictingConnectionMethodSolution1.setConflictingMappingAction(DeviceConfigConflictMapping.ConflictingMappingAction.ADD);
+        conflictingConnectionMethodSolution1.setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.ADD);
 
         DeviceConfigConflictMapping deviceConfigConflictMapping2 = deviceType.getDeviceConfigConflictMappings().get(1);
         ConflictingConnectionMethodSolution conflictingConnectionMethodSolution3 = deviceConfigConflictMapping2.getConflictingConnectionMethodSolutions().get(0);
-        conflictingConnectionMethodSolution3.setConflictingMappingAction(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE);
+        conflictingConnectionMethodSolution3.setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE);
 
         DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
         assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).hasSize(2);

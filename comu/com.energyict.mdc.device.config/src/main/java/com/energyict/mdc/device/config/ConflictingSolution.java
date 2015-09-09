@@ -17,5 +17,12 @@ public interface ConflictingSolution<S extends HasId> {
      * Set the new action on this solution. The result will automatically be saved.
      * @param action the new action
      */
-    void setConflictingMappingAction(DeviceConfigConflictMapping.ConflictingMappingAction action);
+    void setSolution(DeviceConfigConflictMapping.ConflictingMappingAction action);
+
+    /**
+     * Set the new action on this solution. The result will automatically be saved.
+     * @param action the new action
+     * @param dataSource the destination DataSource to map
+     */
+    void setSolution(DeviceConfigConflictMapping.ConflictingMappingAction action, S dataSource);
 }

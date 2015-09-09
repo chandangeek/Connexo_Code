@@ -18,8 +18,7 @@ public interface DeviceConfigConflictMapping extends HasId {
         ADD,
         REMOVE,
         MAP,
-        NOT_DETERMINED_YET;
-
+        NOT_DETERMINED_YET
     }
 
     DeviceConfiguration getOriginDeviceConfiguration();
@@ -27,7 +26,6 @@ public interface DeviceConfigConflictMapping extends HasId {
     List<ConflictingConnectionMethodSolution> getConflictingConnectionMethodSolutions();
     List<ConflictingSecuritySetSolution> getConflictingSecuritySetSolutions();
 
-    // TODO determine whether solved must be persistent ...
     boolean isSolved();
 
     void newConflictingConnectionMethods(PartialConnectionTask origin, PartialConnectionTask destination);
