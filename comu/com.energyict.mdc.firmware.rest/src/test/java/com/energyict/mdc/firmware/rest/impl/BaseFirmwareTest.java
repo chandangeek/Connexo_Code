@@ -1,11 +1,5 @@
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
@@ -14,13 +8,20 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.rest.FirmwareApplication;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;
-import org.mockito.Mock;
+
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.RestQueryService;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -48,11 +49,6 @@ public class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
     Clock clock;
     @Mock
     MeteringGroupsService meteringGroupsService;
-
-    @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
-    }
 
     @Override
     protected Application getApplication() {
