@@ -35,7 +35,9 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.store.TimeOfUse',
         'Dxp.store.Intervals',
         'Dxp.store.Clipboard',
-        'Dxp.store.DataSelectors'
+        'Dxp.store.DataSelectors',
+        'Dxp.store.UpdateWindows',
+        'Dxp.store.UpdateTimeframes'
     ],
 
     models: [
@@ -464,6 +466,8 @@ Ext.define('Dxp.controller.Tasks', {
             dataSelectorCombo = view.down('#data-selector-combo'),
             deviceGroupCombo = view.down('#device-group-combo'),
             exportPeriodCombo = view.down('#export-period-combo'),
+            updateWindowCombo = view.down('#update-window'),
+            timeframeCombo = view.down('#timeFrame'),
             recurrenceTypeCombo = view.down('#recurrence-type'),
             destinationsStore = view.down('#task-destinations-grid').getStore(),
             readingTypesStore = view.down('#readingTypesGridPanel').getStore();
@@ -482,6 +486,16 @@ Ext.define('Dxp.controller.Tasks', {
         exportPeriodCombo.store.load({
             params: {
                 category: 'relativeperiod.category.dataExport'
+            }
+        });
+        updateWindowCombo.store.load({
+            params: {
+                category: 'relativeperiod.category.updateWindow'
+            }
+        });
+        timeframeCombo.store.load({
+            params: {
+                category: 'relativeperiod.category.updateTimeframe'
             }
         });
 

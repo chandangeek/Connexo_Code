@@ -415,7 +415,8 @@ Ext.define('Dxp.view.tasks.Add', {
                                         itemId: 'update-window',
                                         xtype: 'combobox',
                                         name: 'updateWindow',
-                                        store: 'Dxp.store.ExportPeriods',
+                                        store: 'Dxp.store.UpdateWindows',
+
                                         queryMode: 'local',
                                         displayField: 'name',
                                         valueField: 'id',
@@ -478,7 +479,8 @@ Ext.define('Dxp.view.tasks.Add', {
                                         xtype: 'combobox',
                                         name: 'updatePeriod',
                                         //     store: 'Dxp.store.DaysWeeksMonths',
-                                        store: 'Dxp.store.ExportPeriods',
+                                        store: 'Dxp.store.UpdateTimeframes',
+
                                         queryMode: 'local',
                                         displayField: 'name',
                                         valueField: 'id',
