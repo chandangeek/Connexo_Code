@@ -3,8 +3,8 @@ package com.energyict.mdc.io.impl;
 import com.energyict.mdc.io.SerialComponentService;
 
 import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.util.exception.MessageSeed;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.Arrays;
@@ -16,13 +16,8 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-11-03 (17:42)
  */
-@Component(name = "com.energyict.mdc.io.nls.installer", service = TranslationKeyProvider.class, property = {"name=" + SerialComponentService.COMPONENT_NAME})
-public class MessageSeedsInstaller implements TranslationKeyProvider {
-
-    @Override
-    public String getComponentName() {
-        return SerialComponentService.COMPONENT_NAME;
-    }
+@Component(name = "com.energyict.mdc.io.nls.installer", service = MessageSeedProvider.class, property = {"name=" + SerialComponentService.COMPONENT_NAME})
+public class MessageSeedsInstaller implements MessageSeedProvider {
 
     @Override
     public Layer getLayer() {
@@ -30,7 +25,7 @@ public class MessageSeedsInstaller implements TranslationKeyProvider {
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 
