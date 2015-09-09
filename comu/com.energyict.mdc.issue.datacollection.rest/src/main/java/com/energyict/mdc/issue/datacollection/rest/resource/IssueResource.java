@@ -1,7 +1,18 @@
 package com.energyict.mdc.issue.datacollection.rest.resource;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.rest.request.*;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
+import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
+import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
+
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
+import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
+import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
+import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
+import com.elster.jupiter.issue.rest.request.EntityReference;
+import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
@@ -10,24 +21,34 @@ import com.elster.jupiter.issue.rest.response.IssueAssigneeInfoAdapter;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
-import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
-import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -36,20 +57,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.KEY;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
-import static com.elster.jupiter.util.conditions.Where.where;
-import static com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds.getString;
 
 @Path("/issue")
 public class IssueResource extends BaseResource {
-    
+
+    private final IssueService issueService;
+    private final MeteringService meteringService;
+    private final UserService userService;
+    private final IssueDataCollectionService issueDataCollectionService;
     private final DataCollectionIssueInfoFactory issuesInfoFactory;
     private final IssueResourceHelper issueResourceHelper;
 
     @Inject
-    public IssueResource(DataCollectionIssueInfoFactory dataCollectionIssuesInfoFactory, IssueResourceHelper issueResourceHelper) {
+    public IssueResource(IssueService issueService, MeteringService meteringService, UserService userService, IssueDataCollectionService issueDataCollectionService, DataCollectionIssueInfoFactory dataCollectionIssuesInfoFactory, IssueResourceHelper issueResourceHelper) {
+        this.issueService = issueService;
+        this.meteringService = meteringService;
+        this.userService = userService;
+        this.issueDataCollectionService = issueDataCollectionService;
         this.issuesInfoFactory = dataCollectionIssuesInfoFactory;
         this.issueResourceHelper = issueResourceHelper;
     }
@@ -59,29 +90,18 @@ public class IssueResource extends BaseResource {
     @RolesAllowed({Privileges.VIEW_ISSUE,Privileges.ASSIGN_ISSUE,Privileges.CLOSE_ISSUE,Privileges.COMMENT_ISSUE,Privileges.ACTION_ISSUE})
     public PagedInfoList getAllIssues(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter) {
         validateMandatory(params, START, LIMIT);
-        List<? extends IssueDataCollection> list = getFilteredIssues(params, filter);
-        return PagedInfoList.fromPagedList("data", issuesInfoFactory.asInfos(list), queryParams);
-    }
-
-    private List<? extends IssueDataCollection> getFilteredIssues(StandardParametersBean params, JsonQueryFilter filter) {
-        Class<? extends IssueDataCollection> apiClass = getQueryApiClass(filter);
-        Class<? extends Issue> eagerClass = getEagerApiClass(apiClass);
-        Query<? extends IssueDataCollection> query = getIssueDataCollectionService().query(apiClass, eagerClass, EndDevice.class, User.class, IssueReason.class,
+        Finder<? extends IssueDataCollection> finder = issueDataCollectionService.findIssues(buildFilterFromQueryParameters(filter), EndDevice.class, User.class, IssueReason.class,
                 IssueStatus.class, IssueType.class);
-        Condition condition = getQueryCondition(filter);
-        return query.select(condition, params.getFrom(), params.getTo(), params.getOrder("baseIssue."));
+        addSorting(finder, params);
+        if (queryParams.getStart().isPresent() && queryParams.getLimit().isPresent()) {
+            finder.paged(queryParams.getStart().get(), queryParams.getLimit().get());
+        }
+        return PagedInfoList.fromPagedList("data", issuesInfoFactory.asInfos(finder.find()), queryParams);
     }
 
     private List<? extends IssueDataCollection> getIssuesForBulk(JsonQueryFilter filter) {
-        Condition condition = getQueryCondition(filter);
-        Query<OpenIssueDataCollection> openQuery = getIssueDataCollectionService().query(OpenIssueDataCollection.class, OpenIssue.class, EndDevice.class, User.class, IssueReason.class,
-                IssueStatus.class, IssueType.class);
-        Query<HistoricalIssueDataCollection> closeQuery = getIssueDataCollectionService().query(HistoricalIssueDataCollection.class, HistoricalIssue.class, EndDevice.class, User.class, IssueReason.class,
-                IssueStatus.class, IssueType.class);
-        List<IssueDataCollection> issues = new ArrayList<>();
-        issues.addAll(openQuery.select(condition));
-        issues.addAll(closeQuery.select(condition));
-        return issues;
+        return issueDataCollectionService.findIssues(buildFilterFromQueryParameters(filter), EndDevice.class, User.class, IssueReason.class,
+                IssueStatus.class, IssueType.class).find();
     }
 
     @GET
@@ -170,7 +190,7 @@ public class IssueResource extends BaseResource {
                 issue = getIssueDataCollectionService().findHistoricalIssue(issueRef.getId()).orElse(null);
             }
             if (issue == null) {
-                bulkResult.addFail(getString(MessageSeeds.ISSUE_DOES_NOT_EXIST, getThesaurus()), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
+                bulkResult.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_DOES_NOT_EXIST).format(), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
             } else {
                 issuesForBulk.add(issue);
             }
@@ -203,7 +223,7 @@ public class IssueResource extends BaseResource {
             if (status.isPresent() && status.get().isHistorical()) {
                 for (Issue issue : issueProvider.apply(response)) {
                     if (issue.getStatus().isHistorical()) {
-                        response.addFail(getString(MessageSeeds.ISSUE_ALREADY_CLOSED, getThesaurus()), issue.getId(), issue.getTitle());
+                        response.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_ALREADY_CLOSED).format(), issue.getId(), issue.getTitle());
                     } else {
                         issue.addComment(request.comment, performer);
                         if (issue instanceof OpenIssue) {
@@ -225,91 +245,36 @@ public class IssueResource extends BaseResource {
         return response;
     }
 
-    private Class<? extends IssueDataCollection> getQueryApiClass(JsonQueryFilter filter) {
-        boolean isHistorical = false;
-        boolean isActual = false;
+    private IssueDataCollectionFilter buildFilterFromQueryParameters(JsonQueryFilter jsonFilter) {
+        IssueDataCollectionFilter filter = new IssueDataCollectionFilter();
+        jsonFilter.getStringList("status").stream()
+                .flatMap(s -> issueService.findStatus(s).map(Stream::of).orElse(Stream.empty()))
+                .forEach(filter::addStatus);
+        if (jsonFilter.hasProperty("reason") && issueService.findReason(jsonFilter.getString("reason")).isPresent()) {
+            filter.setIssueReason(issueService.findReason(jsonFilter.getString("reason")).get());
+        }
+        if (jsonFilter.hasProperty("meter") && meteringService.findEndDevice(jsonFilter.getString("meter")).isPresent()) {
+            filter.addDevice(meteringService.findEndDevice(jsonFilter.getString("meter")).get());
+        }
+        IssueAssigneeInfo issueAssigneeInfo = jsonFilter.getProperty("assignee", new IssueAssigneeInfoAdapter());
+        String assigneeType = issueAssigneeInfo.getType();
+        Long assigneeId = issueAssigneeInfo.getId();
 
-        for (String status : filter.getStringList(STATUS)/* params.get(STATUS)*/) {
-            Optional<IssueStatus> issueStatusRef = getIssueService().findStatus(status);
-            if (issueStatusRef.isPresent()) {
-                if (issueStatusRef.get().isHistorical()) {
-                    isHistorical = true;
-                } else {
-                    isActual = true;
-                }
+        if (assigneeId != null && assigneeId > 0) {
+            if (IssueAssignee.Types.USER.equals(assigneeType)) {
+                userService.getUser(assigneeId).ifPresent(filter::setAssignee);
             }
+        } else if (assigneeId != null && assigneeId != 0) {
+            filter.setUnassignedOnly();
         }
-
-        Class<? extends IssueDataCollection> apiClass = IssueDataCollection.class;
-        if (isActual && !isHistorical) {
-            apiClass = OpenIssueDataCollection.class;
-        } else if (isHistorical && !isActual) {
-            apiClass = HistoricalIssueDataCollection.class;
-        }
-        return apiClass;
+        return filter;
     }
 
-    private Class<? extends Issue> getEagerApiClass(Class<? extends Issue> queryApi) {
-        if (OpenIssueDataCollection.class.equals(queryApi)) {
-            return OpenIssue.class;
-        } else if (HistoricalIssueDataCollection.class.equals(queryApi)) {
-            return HistoricalIssue.class;
+    private Finder<? extends IssueDataCollection> addSorting(Finder<? extends IssueDataCollection> finder, StandardParametersBean parameters) {
+        Order[] orders = parameters.getOrder("baseIssue.");
+        for(Order order : orders) {
+            finder.sorted(order.getName(), order.ascending());
         }
-        return Issue.class;
-    }
-
-
-    private Condition getQueryCondition( JsonQueryFilter filter) {
-        Condition condition = Condition.TRUE;
-        if (filter.hasFilters()) {
-            condition = condition.and(addAssigneeQueryCondition(filter));
-            condition = condition.and(addReasonQueryCondition(filter));
-            condition = condition.and(addStatusQueryCondition(filter));
-            condition = condition.and(addMeterQueryCondition(filter));
-        }
-        return condition;
-    }
-
-    private Condition addAssigneeQueryCondition(JsonQueryFilter filter) {
-        Condition conditionAssignee = Condition.TRUE;
-        if (filter.hasProperty(ASSIGNEE)) {
-            IssueAssigneeInfo assignee = filter.getProperty(ASSIGNEE, new IssueAssigneeInfoAdapter());
-            if (assignee.getId() != null && assignee.getId() > 0) {
-                if (getIssueService().checkIssueAssigneeType(assignee.getType())) {
-                    conditionAssignee = where("baseIssue." + assignee.getType().toLowerCase() + ".id").isEqualTo(assignee.getId());
-                }
-            } else { // Filter by unassigned
-                conditionAssignee = where("baseIssue.assigneeType").isNull();
-            }
-        }
-        return conditionAssignee;
-    }
-
-    private Condition addReasonQueryCondition(JsonQueryFilter filter) {
-        Condition conditionReason = Condition.TRUE;
-        if (filter.hasProperty(REASON)) {
-            conditionReason = conditionReason.and(where("baseIssue.reason.key").isEqualTo(filter.getString(REASON)));
-        }
-        final Condition finalConditionReason = conditionReason;
-        return getIssueService()
-                .findIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE)
-                .map(it -> finalConditionReason.and(where("baseIssue.reason.issueType").isEqualTo(it))).get();
-    }
-
-    private Condition addStatusQueryCondition(JsonQueryFilter filter) {
-        Condition conditionStatus = Condition.FALSE;
-        for (String status : filter.getStringList(STATUS)) {
-            conditionStatus = conditionStatus.or(where("baseIssue.status.key").isEqualTo(status));
-        }
-        conditionStatus = conditionStatus == Condition.FALSE ? Condition.TRUE : conditionStatus;
-        return conditionStatus;
-    }
-
-    private Condition addMeterQueryCondition(JsonQueryFilter filter) {
-        Condition conditionMeter = Condition.TRUE;
-        if (filter.hasProperty(METER)) {
-            conditionMeter = conditionMeter.and(where("baseIssue.device.mRID").isEqualTo(filter.getString(METER)));
-        }
-        return conditionMeter;
+        return finder;
     }
 }
