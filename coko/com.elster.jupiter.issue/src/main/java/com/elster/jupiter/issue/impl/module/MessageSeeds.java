@@ -1,19 +1,15 @@
 package com.elster.jupiter.issue.impl.module;
 
-import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
-import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import java.text.MessageFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 // 0001 - 1000 General validation messages
     FIELD_CAN_NOT_BE_EMPTY (1, Keys.FIELD_CAN_NOT_BE_EMPTY, "This field is required", Level.SEVERE),
 
@@ -28,27 +24,12 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     ISSUE_COMMENT_COMMENT_SIZE(1001, Keys.ISSUE_COMMENT_COMMENT_SIZE, "Comment length should be more than 1 symbol", Level.SEVERE),
     ACTION_TYPE_DESCRIPTION_SIZE(1002, Keys.ACTION_TYPE_DESCRIPTION_SIZE, "Description length should be less than 256 symbol", Level.SEVERE),
 
-// Status translations
-    ISSUE_STATUS_OPEN(2001, "issue.status.open", "Open", Level.INFO),
-    ISSUE_STATUS_RESOLVED(2002, "issue.status.resolved", "Resolved", Level.INFO),
-    ISSUE_STATUS_WONT_FIX(2003, "issue.status.wont.fix", "Won't fix", Level.INFO),
-    ISSUE_STATUS_IN_PROGRESS(2004, "issue.status.in.progress", "In progress", Level.INFO),
-
 // 4001 - 4999 Issue actions
-    ACTION_ASSIGN_ISSUE(4002, "issue.action.assignIssue", "Assign issue", Level.INFO),
-    ACTION_COMMENT_ISSUE(4003, "issue.action.commentIssue", "Comment issue", Level.INFO),
-
     ACTION_INCORRECT_PARAMETERS(4501, "action.incorrect.parameters", "Incorrect parameters for action" , Level.INFO),
     ACTION_WRONG_COMMENT(4504, "action.issue.comment", "Please provide a correct comment" , Level.INFO),
     ACTION_WRONG_ASSIGNEE(4505, "action.issue.wrong.assignee", "Wrong assignee" , Level.INFO),
     ACTION_ISSUE_WAS_ASSIGNED(4506, "action.issue.was.assigned", "Issue was assigned to {0}" , Level.INFO),
     ACTION_ISSUE_WAS_COMMENTED(4508, "action.issue.was.commented", "Issue was commented" , Level.INFO),
-
-// 5001 - 5999 Issue action properties
-
-    ASSIGNACTION_PROPERTY_ASSIGNEE(5001, AssignIssueAction.ASSIGNEE, "Assignee", Level.INFO),
-    ASSIGNEACTION_PROPERTY_COMMENT(5002, AssignIssueAction.COMMENT, "Comment", Level.INFO),
-    COMMENTACTION_PROPERTY_COMMENT(5005, CommentIssueAction.ISSUE_COMMENT, "Comment", Level.INFO),
 
 // 9001 - ... All messages
     ISSUE_DROOLS_VALIDATION(9001, "issue.drools.validation", "{0}", Level.SEVERE),
@@ -106,14 +87,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         return this.level;
     }
 
-    public String getFormated(Object... args){
-        return MessageSeeds.getFormated(this, args);
-    }
-
-    public static String getFormated(MessageSeed messageSeed, Object... args){
-        return MessageFormat.format(messageSeed.getDefaultFormat(), args);
-    }
-
     public void log(Logger logger, Thesaurus thesaurus, Object... args) {
         NlsMessageFormat format = thesaurus.getFormat(this);
         logger.log(getLevel(), format.format(args));
@@ -124,17 +97,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         logger.log(getLevel(), format.format(args), t);
     }
 
-    public String getTranslated(Thesaurus thesaurus, Object... args){
-        if (thesaurus == null) {
-            throw new IllegalArgumentException("Thesaurus can't be null");
-        }
-        String translated = thesaurus.getString(this.getKey(), this.getDefaultFormat());
-        return MessageFormat.format(translated, args);
-    }
-
     public static class Keys {
         private Keys() {}
-        
+
         public static final String FIELD_CAN_NOT_BE_EMPTY       = "FieldCanNotBeEmpty";
         public static final String FIELD_SIZE_BETWEEN_1_AND_80  = "FieldSizeBetween1and80";
         public static final String FIELD_SIZE_BETWEEN_1_AND_128 = "FieldSizeBetween1and128";
@@ -150,4 +115,5 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String PROPERTY_MISSING             = "PropertyMissing";
         public static final String PROPERTY_NOT_POSSIBLE_VALUE = "XisNotAPossibleValue";
     }
+
 }

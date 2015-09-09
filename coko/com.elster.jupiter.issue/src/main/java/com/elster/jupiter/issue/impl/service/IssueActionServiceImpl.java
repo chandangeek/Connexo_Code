@@ -1,15 +1,5 @@
 package com.elster.jupiter.issue.impl.service;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
@@ -29,9 +19,18 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.logging.Logger;
+
+import static com.elster.jupiter.util.conditions.Where.where;
+
 public class IssueActionServiceImpl implements IssueActionService {
     private static final Logger LOG = Logger.getLogger(IssueActionService.class.getName());
-    
+
     private volatile DataModel dataModel;
     private volatile IssueService issueService;
     private volatile QueryService queryService;
@@ -59,12 +58,12 @@ public class IssueActionServiceImpl implements IssueActionService {
     public IssueActionType createActionType(String factoryId, String className, IssueType issueType) {
         return this.createActionType(factoryId, className, issueType, null);//any phase
     }
-    
+
     @Override
     public IssueActionType createActionType(String factoryId, String className, IssueReason issueReason) {
         return this.createActionType(factoryId, className, issueReason, null);//any phase
     }
-    
+
     @Override
     public IssueActionType createActionType(String factoryId, String className, IssueType issueType, CreationRuleActionPhase phase) {
         IssueActionTypeImpl type = findOrCreateActionType(factoryId, className, issueType, null);
@@ -80,7 +79,7 @@ public class IssueActionServiceImpl implements IssueActionService {
         type.save();
         return type;
     }
-    
+
     private IssueActionTypeImpl findOrCreateActionType(String factoryId, String className, IssueType issueType, IssueReason issueReason) {
         List<IssueActionType> actionTypes = query(IssueActionType.class).select(
                     (where("factoryId").isEqualTo(factoryId))
@@ -106,7 +105,7 @@ public class IssueActionServiceImpl implements IssueActionService {
     public Query<IssueActionType> getActionTypeQuery() {
         return query(IssueActionType.class, IssueType.class, IssueReason.class);
     }
-    
+
     @Override
     public List<IssueActionFactory> getRegisteredFactories() {
         List<IssueActionFactory> factories = new ArrayList<>();
@@ -122,7 +121,7 @@ public class IssueActionServiceImpl implements IssueActionService {
             result = issueAction.get().initAndValidate(props).execute(issue);
         } else {
             IssueActionResult.DefaultActionResult failedResult = new IssueActionResult.DefaultActionResult();
-            failedResult.fail(MessageSeeds.ISSUE_ACTION_CLASS_LOAD_FAIL.getTranslated(thesaurus, type.getClassName(), type.getId()));
+            failedResult.fail(thesaurus.getFormat(MessageSeeds.ISSUE_ACTION_CLASS_LOAD_FAIL).format(type.getClassName(), type.getId()));
             result = failedResult;
         }
         return result;

@@ -1,12 +1,7 @@
 package com.elster.jupiter.issue.impl.actions;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
+import com.elster.jupiter.issue.impl.module.TranslationKeys;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueActionResult.DefaultActionResult;
@@ -28,18 +23,23 @@ import com.elster.jupiter.util.conditions.Order;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
+import javax.inject.Inject;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 public class AssignIssueAction extends AbstractIssueAction {
-    
+
     private static final String NAME = "AssignIssueAction";
     public static final String ASSIGNEE = NAME + ".assignee";
     public static final String COMMENT = NAME + ".comment";
 
     private final PossibleAssignees assignees = new PossibleAssignees();
-    
+
     private IssueService issueService;
     private UserService userService;
     private ThreadPrincipalService threadPrincipalService;
-    
+
     @Inject
     public AssignIssueAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService, IssueService issueService, UserService userService, ThreadPrincipalService threadPrincipalService) {
         super(dataModel, thesaurus, propertySpecService);
@@ -57,10 +57,10 @@ public class AssignIssueAction extends AbstractIssueAction {
         getCommentFromParameters(properties).ifPresent(comment -> {
             issue.addComment(comment, (User)threadPrincipalService.getPrincipal());
         });
-        result.success(MessageSeeds.ACTION_ISSUE_WAS_ASSIGNED.getTranslated(getThesaurus(), assignee.getName()));
+        result.success(getThesaurus().getFormat(MessageSeeds.ACTION_ISSUE_WAS_ASSIGNED).format(assignee.getName()));
         return result;
     }
-    
+
     @SuppressWarnings("unchecked")
     private Optional<IssueAssignee> getAssigneeFromParameters(Map<String, Object> properties) {
         Object value = properties.get(ASSIGNEE);
@@ -70,7 +70,7 @@ public class AssignIssueAction extends AbstractIssueAction {
         }
         return Optional.empty();
     }
-    
+
     private Optional<String> getCommentFromParameters(Map<String, Object> properties) {
         Object value = properties.get(COMMENT);
         if (value != null) {
@@ -80,7 +80,7 @@ public class AssignIssueAction extends AbstractIssueAction {
         }
         return Optional.empty();
     }
-    
+
     @Override
     public List<PropertySpec> getPropertySpecs() {
         Builder<PropertySpec> builder = ImmutableList.builder();
@@ -91,40 +91,40 @@ public class AssignIssueAction extends AbstractIssueAction {
 
     @Override
     public String getDisplayName() {
-        return MessageSeeds.ACTION_ASSIGN_ISSUE.getTranslated(getThesaurus());
+        return getThesaurus().getFormat(TranslationKeys.ACTION_ASSIGN_ISSUE).format();
     }
-    
+
     class PossibleAssignees implements CanFindByStringKey<Assignee> {
-        
+
         @Override
         public Optional<Assignee> find(String key) {
             return userService.getUser(Long.valueOf(key).longValue()).map(user -> new Assignee(user));
         }
-        
+
         public Assignee[] getPossibleAssignees() {
             return userService.getUserQuery().select(Condition.TRUE, Order.ascending("authenticationName"))
-                                .stream().map(user -> new Assignee(user)).toArray(Assignee[]::new);
+                                .stream().map(Assignee::new).toArray(Assignee[]::new);
         }
-        
+
         @Override
         public Class<Assignee> valueDomain() {
             return Assignee.class;
         }
     }
-    
+
     static class Assignee extends HasIdAndName {
-        
+
         private User user;
-        
+
         public Assignee(User user) {
             this.user = user;
         }
-        
+
         @Override
         public Long getId() {
             return user.getId();
         }
-        
+
         @Override
         public String getName() {
             return user.getName();
