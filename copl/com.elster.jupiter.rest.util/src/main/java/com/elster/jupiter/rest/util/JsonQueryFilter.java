@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.impl.MessageSeeds;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Range;
 
 import javax.ws.rs.QueryParam;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -117,6 +118,25 @@ public class JsonQueryFilter {
 
     public Instant getInstant(String name) {
         return getProperty(name, AS_INSTANT);
+    }
+
+    public Range<Instant> getClosedRange(String from, String to) {
+        Instant startedOnFrom = this.getInstant(from);
+        Instant startedOnTo = this.getInstant(to);
+        if (startedOnFrom==null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_RANGE, from);
+        }
+        if (startedOnTo==null) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_RANGE, to);
+        }
+        if (startedOnFrom.isAfter(startedOnTo)) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_RANGE_FROM_AFTER_TO, from);
+        }
+        try {
+            return Range.closed(startedOnFrom, startedOnTo);
+        } catch (IllegalArgumentException e) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_RANGE, from);
+        }
     }
 
     public Boolean getBoolean(String name) {

@@ -1,33 +1,26 @@
 package com.elster.jupiter.rest.util.impl;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.OrmService;
-import org.osgi.service.component.annotations.Component;
-
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.util.exception.MessageSeed;
+import org.osgi.service.component.annotations.Component;
 
 import java.util.Arrays;
 import java.util.List;
 
 @Component (
 		name = "com.elster.jupiter.rest.util",
-		service = {RestQueryService.class, TranslationKeyProvider.class},
+		service = {RestQueryService.class, MessageSeedProvider.class},
 		property = "name=" + MessageSeeds.COMPONENT_NAME,
 		immediate = true)
-public class RestQueryServiceImpl implements RestQueryService, TranslationKeyProvider {
-	
+public class RestQueryServiceImpl implements RestQueryService, MessageSeedProvider {
+
 	@Override
 	public <T> RestQuery<T> wrap(Query<T> query) {
 		return new RestQueryImpl<>(query);
-	}
-
-
-	@Override
-	public String getComponentName() {
-		return MessageSeeds.COMPONENT_NAME;
 	}
 
 	@Override
@@ -36,7 +29,8 @@ public class RestQueryServiceImpl implements RestQueryService, TranslationKeyPro
 	}
 
 	@Override
-	public List<TranslationKey> getKeys() {
+	public List<MessageSeed> getSeeds() {
 		return Arrays.asList(MessageSeeds.values());
 	}
+
 }
