@@ -1008,13 +1008,18 @@ Ext.define('Dxp.controller.Tasks', {
     },
 
     addDestinationToGrid: function (button) {
-        var me = this;
+        var me = this,
+            id;
+        if(me.destinationToEdit){
+            id = me.destinationToEdit.get('id');
+        }
         me.destinationToEdit = null;
-        me.doAddDestinationToGrid(button);
+        me.doAddDestinationToGrid(button,id);
     },
 
 
-    doAddDestinationToGrid: function (button) {
+    doAddDestinationToGrid: function (button,id) {
+        debugger;
         var me = this;
         //edit destination was cancelled, add the old one again
         if (me.destinationToEdit) {
@@ -1027,11 +1032,11 @@ Ext.define('Dxp.controller.Tasks', {
             var form = page.down('#add-destination-form');
             var formErrorsPanel = form.down('#form-errors');
             var destinationModel;
-            if (form.isValid()) {
                 var formValues = form.getForm().getValues();
                 if (formValues['method'] === 'FILE') {
                     //tooltip & method duplicated from destination model, have not found another way!
                     destinationModel = Ext.create('Dxp.model.Destination', {
+                        id: id?id:0,
                         type: 'FILE',
                         fileName: formValues['fileName'],
                         fileExtension: formValues['fileExtension'],
@@ -1044,6 +1049,7 @@ Ext.define('Dxp.controller.Tasks', {
                     })
                 } else if (formValues['method'] === 'EMAIL') {
                     destinationModel = Ext.create('Dxp.model.Destination', {
+                        id: id?id:0,
                         type: 'EMAIL',
                         fileName: formValues['attachmentName'],
                         fileExtension: formValues['attachmentExtension'],
@@ -1058,6 +1064,7 @@ Ext.define('Dxp.controller.Tasks', {
                     })
                 } else if (formValues['method'] === 'FTP') {
                     destinationModel = Ext.create('Dxp.model.Destination', {
+                        id: id?id:0,
                         type: 'FTP',
                         server: formValues['server'],
                         user: formValues['user'],
@@ -1077,10 +1084,7 @@ Ext.define('Dxp.controller.Tasks', {
                 }
                 me.destinationsArray.push(destinationModel);
                 me.forwardToPreviousPage();
-            }
-            else {
-                formErrorsPanel.show();
-            }
+
         }
     },
 
