@@ -1,6 +1,10 @@
 package com.elster.jupiter.devtools.rest;
 
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
@@ -9,16 +13,6 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.reflect.ClassPath;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HEAD;
-import javax.ws.rs.OPTIONS;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Application;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
@@ -27,12 +21,23 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.Matchers;
+
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
+import javax.ws.rs.OPTIONS;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Application;
+import java.io.IOException;
+import java.lang.reflect.Method;
+
+import org.junit.*;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
@@ -96,30 +101,31 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
     public void setupMocks() {
         when(nlsService.getThesaurus(anyString(), anyObject())).thenReturn(thesaurus);
         when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> {
-            for (MessageSeed messageSeeds : getMessageSeeds()) {
-                if (messageSeeds.getKey().equals(invocationOnMock.getArguments()[0])) {
-                    return messageSeeds.getDefaultFormat();
-                }
-                if (TranslationKeyProvider.class.isAssignableFrom(getApplication().getClass())) {
-                    return ((TranslationKeyProvider)getApplication()).
-                            getKeys().stream().
-                            filter(key->key.getKey().equals(invocationOnMock.getArguments()[0])).
-                            map(TranslationKey::getDefaultFormat).
-                            findFirst().
-                            orElse((String) invocationOnMock.getArguments()[1]);
-                }
-
+            if (TranslationKeyProvider.class.isAssignableFrom(getApplication().getClass())) {
+                return ((TranslationKeyProvider) getApplication()).
+                        getKeys().stream().
+                        filter(key -> key.getKey().equals(invocationOnMock.getArguments()[0])).
+                        map(TranslationKey::getDefaultFormat).
+                        findFirst().
+                        orElse((String) invocationOnMock.getArguments()[1]);
+            }
+            if (MessageSeedProvider.class.isAssignableFrom(getApplication().getClass())) {
+                return ((MessageSeedProvider) getApplication()).
+                        getSeeds().stream().
+                        filter(messageSeed -> messageSeed.getKey().equals(invocationOnMock.getArguments()[0])).
+                        map(MessageSeed::getDefaultFormat).
+                        findFirst().
+                        orElse((String) invocationOnMock.getArguments()[1]);
             }
             return invocationOnMock.getArguments()[1];
         });
-        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
+        when(thesaurus.getFormat(any(TranslationKey.class)))
+                .thenAnswer(invocation -> new SimpleNlsMessageFormat((TranslationKey) invocation.getArguments()[0]));
+        when(thesaurus.getFormat(any(MessageSeed.class)))
+                .thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
         when(transactionService.getContext()).thenReturn(transactionContext);
-    }
 
-    /**
-     * Just return all values for the bundles messageSeeds here, or empty array if there are none
-     */
-    protected abstract MessageSeed[] getMessageSeeds();
+    }
 
     @Override
     protected final Application configure() {

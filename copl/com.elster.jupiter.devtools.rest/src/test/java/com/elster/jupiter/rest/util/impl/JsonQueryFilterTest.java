@@ -3,20 +3,18 @@ package com.elster.jupiter.rest.util.impl;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableSet;
 import com.jayway.jsonpath.JsonModel;
 
-import org.junit.Test;
-
 import javax.ws.rs.core.Application;
-
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,16 +34,11 @@ public class JsonQueryFilterTest extends FelixRestApplicationJerseyTest {
     }
 
     @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
-    }
-
-    @Override
     protected Application getApplication() {
         return new Application() {
             @Override
             public Set<Class<?>> getClasses() {
-                return ImmutableSet.<Class<?>>of(
+                return ImmutableSet.of(
                         JsonQueryFilterResource.class,
                         ConstraintViolationExceptionMapper.class,
                         LocalizedExceptionMapper.class);
