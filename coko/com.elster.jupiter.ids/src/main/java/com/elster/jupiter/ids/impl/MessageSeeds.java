@@ -1,15 +1,13 @@
 package com.elster.jupiter.ids.impl;
 
-
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.text.MessageFormat;
 import java.util.logging.Level;
 
-public enum  MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 
     MEASUREMENT_TIME_IS_INCORRECT(1, "MeasurementTimeIsIncorrect", "The specified measurement time is not valid", Level.SEVERE),
     ;

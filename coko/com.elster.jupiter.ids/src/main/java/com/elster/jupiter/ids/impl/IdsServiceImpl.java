@@ -6,13 +6,13 @@ import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -23,12 +23,13 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-@Component(name = "com.elster.jupiter.ids", service = {IdsService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + IdsService.COMPONENTNAME)
-public class IdsServiceImpl implements IdsService, InstallService, TranslationKeyProvider {
+@Component(name = "com.elster.jupiter.ids", service = {IdsService.class, InstallService.class, MessageSeedProvider.class}, property = "name=" + IdsService.COMPONENTNAME)
+public class IdsServiceImpl implements IdsService, InstallService, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile Clock clock;
@@ -39,6 +40,7 @@ public class IdsServiceImpl implements IdsService, InstallService, TranslationKe
 
     @Inject
     public IdsServiceImpl(Clock clock, OrmService ormService, NlsService nlsService) {
+        this();
         setClock(clock);
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -85,7 +87,7 @@ public class IdsServiceImpl implements IdsService, InstallService, TranslationKe
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM");
+        return Collections.singletonList("ORM");
     }
 
     @Override
@@ -102,20 +104,20 @@ public class IdsServiceImpl implements IdsService, InstallService, TranslationKe
     public void purge(Logger logger) {
     	getVaults().stream()
     		.filter(Vault::isActive)
-    		.forEach(vault -> vault.purge(logger));    	
+    		.forEach(vault -> vault.purge(logger));
     }
-    
+
     @Override
     public void extendTo(Instant instant, Logger logger) {
     	getVaults().stream()
     		.filter(Vault::isActive)
-    		.forEach(vault -> vault.extendTo(instant,logger));    	
+    		.forEach(vault -> vault.extendTo(instant, logger));
     }
-    
+
     List<VaultImpl> getVaults() {
     	return dataModel.stream(VaultImpl.class).select();
     }
-    
+
     @Reference
     public final void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(COMPONENTNAME, "TimeSeries Data Store");
@@ -151,8 +153,7 @@ public class IdsServiceImpl implements IdsService, InstallService, TranslationKe
         };
     }
 
-    @Override
-    public String getComponentName() {
+    private String getComponentName() {
         return COMPONENTNAME;
     }
 
@@ -162,7 +163,7 @@ public class IdsServiceImpl implements IdsService, InstallService, TranslationKe
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 }
