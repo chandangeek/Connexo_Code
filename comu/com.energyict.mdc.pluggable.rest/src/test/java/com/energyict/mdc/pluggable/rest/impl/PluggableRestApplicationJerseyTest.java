@@ -1,13 +1,12 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.util.exception.MessageSeed;
 
 import javax.ws.rs.core.Application;
 
@@ -16,7 +15,7 @@ import org.mockito.Mock;
 /**
  * Created by bvn on 9/19/14.
  */
-public class PluggableRestApplicationJerseyTest extends com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest {
+public class PluggableRestApplicationJerseyTest extends FelixRestApplicationJerseyTest {
     @Mock
     DeviceConfigurationService deviceConfigurationService;
     @Mock
@@ -29,11 +28,6 @@ public class PluggableRestApplicationJerseyTest extends com.elster.jupiter.devto
     UserFileFactory userFileFactory;
     @Mock
     FirmwareService firmwareService;
-
-    @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
-    }
 
     @Override
     protected Application getApplication() {
