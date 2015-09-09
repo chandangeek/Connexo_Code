@@ -92,7 +92,7 @@ Ext.define('Imt.registerdata.controller.View', {
          registerModel = me.getModel('Imt.registerdata.model.Register'),
          durationsStore = me.getStore('Imt.registerdata.store.RegisterDataDurations'),
          pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
-	     
+	   
 	     pageMainContent.setLoading(true);
 	     registerModel.getProxy().setUrl({mRID: mRID, registerId: registerId});
 	     registerModel.load(registerId, {
@@ -100,7 +100,7 @@ Ext.define('Imt.registerdata.controller.View', {
                 var widget = Ext.widget('registerDataSetup', {
                         router: router, 
                         mRID: mRID, 
-                        registerid: registerId,
+                        registerId: registerId,
                         filter: {
                            fromDate: new Date().getTime(),
                            duration: '1months',
@@ -113,6 +113,7 @@ Ext.define('Imt.registerdata.controller.View', {
                 dataStore.getProxy().setUrl({mRID: mRID, registerId: registerId});
 	            dataStore.load(function() {
 	            	me.getRegisterDataList().getSelectionModel().select(0);
+	            	me.getRegisterDataList().setTitle(record.get('readingTypeFullAliasName'));
 	            	pageMainContent.setLoading(false);
 	            });
             }

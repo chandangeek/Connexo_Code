@@ -64,9 +64,10 @@ Ext.define('Imt.registerdata.view.RegisterDataList', {
 //              {
 //                  xtype: 'pagingtoolbarbottom',
 //                  store: me.store,
-////                  params: [
-////                          {mRID: me.mRID}
-////                  ],
+//                  params: [
+//                          {mRID: me.mRID,
+//                          registerId: me.registerId}
+//                  ],
 //                  itemsPerPageMsg: Uni.I18n.translate('registerdata.pagingtoolbarbottom.itemsPerPage', 'IMT', 'Register readings per page'),
 //                  dock: 'bottom'
 //              }
