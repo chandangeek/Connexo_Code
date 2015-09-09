@@ -12,6 +12,12 @@ Ext.define('Dxp.model.AddDataExportTaskForm', {
         'recurrence-type',
         'recurrence-number',
         'recurrence',
-        'start-on'
+        'start-on',
+        'validatedDataOption',
+        'exportComplete',
+        'exportUpdate',
+        'updateWindow',
+        'updatePeriod',
+        'exportContinuousData'
     ]
 });

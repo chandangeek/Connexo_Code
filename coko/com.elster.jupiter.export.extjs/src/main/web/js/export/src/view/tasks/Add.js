@@ -314,7 +314,7 @@ Ext.define('Dxp.view.tasks.Add', {
                     {
                         xtype: 'fieldcontainer',
                         itemId: 'export-periods-container',
-                        fieldLabel: Uni.I18n.translate('general.exportPeriod', 'DES', 'Export period'),
+                        fieldLabel: Uni.I18n.translate('general.exportWindow', 'DES', 'Export window'),
                         hidden: true,
                         required: true,
                         layout: 'hbox',
@@ -330,10 +330,181 @@ Ext.define('Dxp.view.tasks.Add', {
                                 editable: false,
                                 disabled: false,
                                 //allowBlank: false,
-                                emptyText: Uni.I18n.translate('addDataExportTask.exportPeriodPrompt', 'DES', 'Select an export period...'),
+                                emptyText: Uni.I18n.translate('addDataExportTask.exportWindowPrompt', 'DES', 'Select an export window...'),
                                 displayField: 'name',
                                 valueField: 'id'
                             }
+                        ]
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        itemId: 'continuous-data-container',
+                        fieldLabel: ' ',
+                        hidden: true,
+                        required: true,
+                        layout: 'hbox',
+                        items: [
+                            {
+                                xtype: 'displayfield',
+                                value: Uni.I18n.translate('general.startingFrom', 'DES', 'Starting from')
+                            },
+                            {
+                                itemId: 'continuous-data-radiogroup',
+                                xtype: 'radiogroup',
+                                name: 'exportContinuousData',
+                                columns: 1,
+                                vertical: true,
+                                // width: 100,
+                                defaults: {
+                                    name: 'exportContinuousData'
+                                },
+                                items: [
+                                    {
+                                     //   itemId: 'noExportForUpdated',
+                                        boxLabel: Uni.I18n.translate('general.startOfExportWindow', 'DES', 'Start of export window'),
+                                        inputValue: false,
+                                        checked: true
+                                    },
+                                    {
+                                      //  itemId: 'exportWithinWindow',
+                                        boxLabel: Uni.I18n.translate('general.continuousData', 'DES', 'last exported data (continuous data)'),
+                                        inputValue: true
+                                    }
+                                ]
+                            },
+                        ]
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        itemId: 'updated-data-container',
+                        fieldLabel: Uni.I18n.translate('general.updatedData', 'DES', 'Updated data'),
+                        hidden: true,
+                        required: true,
+                        width: 1200,
+                        layout: 'vbox',
+                        items: [
+                            {
+                                xtype: 'fieldcontainer',
+                                layout: 'hbox',
+                                items: [
+                                    {
+                                        itemId: 'updated-data-trigger',
+                                        xtype: 'radiogroup',
+                                        name: 'updatedDataTrigger',
+                                        columns: 1,
+                                        vertical: true,
+                                        // width: 100,
+                                        defaults: {
+                                            name: 'exportUpdate'
+                                        },
+                                        items: [
+                                            {
+                                                itemId: 'noExportForUpdated',
+                                                boxLabel: Uni.I18n.translate('general.noExportForUpdated', 'DES', 'Do not export'),
+                                                inputValue: false,
+                                                checked: true
+                                            },
+                                            {
+                                                itemId: 'exportWithinWindow',
+                                                boxLabel: Uni.I18n.translate('general.exportWithinWindow', 'DES', 'Export within the update window'),
+                                                inputValue: true
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        itemId: 'update-window',
+                                        xtype: 'combobox',
+                                        name: 'updateWindow',
+                                        store: 'Dxp.store.ExportPeriods',
+                                        queryMode: 'local',
+                                        displayField: 'name',
+                                        valueField: 'id',
+                                        margin: '30 0 10 10',
+                                        width: 200,
+                                        editable: false,
+                                        emptyText: Uni.I18n.translate('general.updateWindow', 'DES', 'Select an update window...')
+                                        //    width: 100,
+                                        //    listeners: {
+                                        //        focus: {
+                                        //            fn: function () {
+                                        //                var radioButton = Ext.ComponentQuery.query('data-export-tasks-add #every')[0];
+                                        //                radioButton.setValue(true);
+                                        //            }
+                                        //        }
+                                        //    }
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        htmlEncode: false,
+                                        margin: '30 0 10 10',
+                                        value: '<a href="../../apps/admin/index.html#/administration/relativeperiods">' + Uni.I18n.translate('general.addUpdateWindow', 'DES', 'Add update window') + '</a>'
+                                    }
+                                ]
+                            },
+                            {
+                                xtype: 'fieldcontainer',
+                                layout: 'hbox',
+                                items: [
+                                    {
+                                        xtype: 'displayfield',
+                                        value: Uni.I18n.translate('general.export', 'DES', 'Export'),
+                                    },
+                                    {
+                                        itemId: 'export-updated',
+                                        xtype: 'radiogroup',
+                                        name: 'exportUpdated',
+                                        columns: 1,
+                                        vertical: true,
+                                       // width: 400,
+                                        defaults: {
+                                            name: 'updatedDataAndOrAdjacentData'
+                                        },
+                                        items: [
+                                            {
+                                                itemId: 'updateValuesOnly',
+                                                boxLabel: Uni.I18n.translate('general.updateValuesOnly', 'DES', 'updated values only'),
+                                                inputValue: false,
+                                                checked: true
+                                            },
+                                            {
+                                                itemId: 'exportValuesAndAdjacent',
+                                                boxLabel: Uni.I18n.translate('general.exportValuesAndAdjacent', 'DES', 'updated values and adjacent data within timeframe'),
+                                                inputValue: true
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        itemId: 'timeFrame',
+                                        xtype: 'combobox',
+                                        name: 'updatePeriod',
+                                        //     store: 'Dxp.store.DaysWeeksMonths',
+                                        store: 'Dxp.store.ExportPeriods',
+                                        queryMode: 'local',
+                                        displayField: 'name',
+                                        valueField: 'id',
+                                        margin: '30 0 10 10',
+                                        width: 200,
+                                        editable: false,
+                                        emptyText: Uni.I18n.translate('general.updateWinding', 'DES', 'Select a time frame...')
+                                        //    width: 100,
+                                        //    listeners: {
+                                        //        focus: {
+                                        //            fn: function () {
+                                        //                var radioButton = Ext.ComponentQuery.query('data-export-tasks-add #every')[0];
+                                        //                radioButton.setValue(true);
+                                        //            }
+                                        //        }
+                                        //    }
+                                    },
+                                    {
+                                        xtype: 'displayfield',
+                                        htmlEncode: false,
+                                        margin: '30 0 10 10',
+                                        value: '<a href="../../apps/admin/index.html#/administration/relativeperiods">' + Uni.I18n.translate('general.addUpdateTimeframe', 'DES', 'Add update timeframe') + '</a>'
+                                    }
+                                ]
+                            }
+
                         ]
                     },
                     {
@@ -346,6 +517,63 @@ Ext.define('Dxp.view.tasks.Add', {
                             {
                                 xtype: 'add-schedule-grid',
                                 width: 800
+                            }
+                        ]
+                    },
+
+                    {
+                        fieldLabel: Uni.I18n.translate('general.missingData', 'DES', 'Missing data'),
+                        xtype: 'radiogroup',
+                        name: 'exportComplete2',
+                        hidden: true,
+                        vertical: true,
+                        required: true,
+                        columns: 1,
+                        itemId: 'data-selector-export-complete',
+                        items: [
+                            {
+                                xtype: 'radiofield',
+                                boxLabel: Uni.I18n.translate('general.skipMissingData', 'DES', 'Skip intervals with missing data (data with gaps)'),
+                                name: 'exportComplete',
+                                checked: true,
+                                inputValue: false
+                            },
+                            {
+                                xtype: 'radiofield',
+                                boxLabel: Uni.I18n.translate('general.skipExportWindowMissingData', 'DES', 'Skip export window for reading types with missing data (complete data)'),
+                                name: 'exportComplete',
+                                inputValue: true
+                            }
+                        ]
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.validatedData', 'DES', 'Validated data'),
+                        xtype: 'radiogroup',
+                        name: 'validatedData',
+                        hidden: true,
+                        vertical: true,
+                        required: true,
+                        columns: 1,
+                        itemId: 'data-selector-validated-data',
+                        items: [
+                            {
+                                xtype: 'radiofield',
+                                boxLabel: Uni.I18n.translate('general.exportAll', 'DES', 'Export all data (including suspect/not validated data)'),
+                                name: 'validatedDataOption',
+                                checked: true,
+                                inputValue: 'INCLUDE_ALL'
+                            },
+                            {
+                                xtype: 'radiofield',
+                                boxLabel: Uni.I18n.translate('general.skipSuspectOrNotValidated', 'DES', 'Skip intervals with suspect/not validated data'),
+                                name: 'validatedDataOption',
+                                inputValue: 'EXCLUDE_INTERVAL'
+                            },
+                            {
+                                xtype: 'radiofield',
+                                boxLabel: Uni.I18n.translate('general.skipExportWindow', 'DES', 'Skip export window for reading types with suspect/not validated data'),
+                                name: 'validatedDataOption',
+                                inputValue: 'EXCLUDE_ITEM'
                             }
                         ]
                     },

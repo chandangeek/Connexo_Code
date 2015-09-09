@@ -52,7 +52,8 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                                 //{label: Uni.I18n.translate('dataExport.mail', 'DES', 'Mail'), value: 'MAIL'}
                                 //translation does not work?
                                 {displayValue: Uni.I18n.translate('destination.file','DES','Save file'), value: 'FILE'},
-                                {displayValue: Uni.I18n.translate('destination.email','DES','Mail'), value: 'EMAIL'}
+                                {displayValue: Uni.I18n.translate('destination.email','DES','Mail'), value: 'EMAIL'},
+                                {displayValue: Uni.I18n.translate('destination.ftp','DES','Ftp'), value: 'FTP'}
                             ]
                         }),
                         name: 'method',
@@ -63,6 +64,39 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         queryMode: 'local',
                         displayField: 'displayValue',
                         valueField: 'value',
+                    },
+
+                    {
+                        xtype: 'textfield',
+                        name: 'server',
+                        itemId: 'ftp-server',
+                        width: 500,
+                        required: true,
+                        fieldLabel: Uni.I18n.translate('general.ftpServer', 'DES', 'FTP server'),
+                        allowBlank: false,
+                        enforceMaxLength: true,
+                        maxLength: 80
+                    },
+                    {
+                        xtype: 'textfield',
+                        name: 'user',
+                        itemId: 'user-field',
+                        width: 500,
+                        required: true,
+                        fieldLabel: Uni.I18n.translate('general.user', 'DES', 'User'),
+                        allowBlank: false,
+                        enforceMaxLength: true,
+                        maxLength: 80
+                    },
+                    {
+                        xtype: 'password-field',
+                        name: 'password',
+                        itemId: 'password-field',
+                        width: 500,
+                        fieldLabel: Uni.I18n.translate('general.password', 'DES', 'Password'),
+                        allowBlank: false,
+                        enforceMaxLength: true,
+                        maxLength: 80
                     },
 
                     {

@@ -120,7 +120,7 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('general.exportPeriod', 'DES', 'Export period'),
+                        fieldLabel: Uni.I18n.translate('general.exportWindow', 'DES', 'Export window'),
                         name: 'exportperiod',
                         renderer: function (value) {
                             if (value) {

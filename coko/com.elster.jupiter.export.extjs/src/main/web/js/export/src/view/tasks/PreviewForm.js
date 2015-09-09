@@ -142,13 +142,52 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                         }
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('general.exportPeriod', 'DES', 'Export period'),
+                        fieldLabel: Uni.I18n.translate('general.exportWindow', 'DES', 'Export window'),
                         name: 'exportPeriod',
                         hidden: true,
                         itemId: 'data-selector-exportPeriod-preview',
                         renderer: function (value) {
                             if (value) {
                                 return Ext.String.htmlEncode(value);
+                            }
+                        }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.exportUpdate', 'DES', 'Updated data'),
+                        name: 'exportUpdate',
+                        hidden: true,
+                        itemId: 'updated-data',
+                        renderer: function (value) {
+                            return value==='true'?Uni.I18n.translate('general.exportWithinWindow', 'DES', 'Export within the update window'):
+                                Uni.I18n.translate('general.noExportForUpdated', 'DES', 'Do not export');
+                        }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.missingData', 'DES', 'Missing data'),
+                        name: 'exportComplete',
+                        hidden: true,
+                        itemId: 'data-selector-export-complete',
+                        renderer: function (value) {
+                                return value==='true'?Uni.I18n.translate('general.skipExportWindowMissingData', 'DES', 'Skip export window for reading types with missing data (complete data)'):
+                                    Uni.I18n.translate('general.skipMissingData', 'DES', 'Skip intervals with missing data (data with gaps)');
+
+                        }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('general.validatedData', 'DES', 'Validated data'),
+                        name: 'validatedDataOption',
+                        hidden: true,
+                        itemId: 'data-selector-validated-data',
+                        renderer: function (value) {
+                            if (value) {
+                                if(value==='INCLUDE_ALL'){
+                                    return Uni.I18n.translate('general.exportAll', 'DES', 'Export all data (including suspect/not validated data)');
+                                } else if (value === 'EXCLUDE_INTERVAL'){
+                                    return Uni.I18n.translate('general.skipSuspectOrNotValidated', 'DES', 'Skip intervals with suspect/not validated data');
+                                } else if (value === 'EXCLUDE_ITEM') {
+                                    return Uni.I18n.translate('general.skipExportWindow', 'DES', 'Skip export window for reading types with suspect/not validated data');
+                                }
+                                return '';
                             }
                         }
                     }
