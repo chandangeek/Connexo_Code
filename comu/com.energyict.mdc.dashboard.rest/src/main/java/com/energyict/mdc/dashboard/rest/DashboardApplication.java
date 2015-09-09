@@ -1,18 +1,5 @@
 package com.energyict.mdc.dashboard.rest;
 
-import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
@@ -21,17 +8,21 @@ import com.energyict.mdc.dashboard.rest.status.ComServerStatusInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusResource;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusSummaryResource;
 import com.energyict.mdc.dashboard.rest.status.impl.BreakdownFactory;
+import com.energyict.mdc.dashboard.rest.status.impl.ComSessionSuccessIndicatorTranslationKeys;
 import com.energyict.mdc.dashboard.rest.status.impl.ComTaskExecutionInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ComTaskExecutionSessionInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationHeatMapResource;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationOverviewInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationResource;
+import com.energyict.mdc.dashboard.rest.status.impl.CompletionCodeTranslationKeys;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionHeatMapResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionResource;
+import com.energyict.mdc.dashboard.rest.status.impl.ConnectionStrategyTranslationKeys;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionTaskInfoFactory;
+import com.energyict.mdc.dashboard.rest.status.impl.ConnectionTaskSuccessIndicatorTranslationKeys;
 import com.energyict.mdc.dashboard.rest.status.impl.DashboardFieldResource;
 import com.energyict.mdc.dashboard.rest.status.impl.FavoriteDeviceGroupResource;
 import com.energyict.mdc.dashboard.rest.status.impl.IssuesResource;
@@ -40,6 +31,8 @@ import com.energyict.mdc.dashboard.rest.status.impl.LabeledDeviceResource;
 import com.energyict.mdc.dashboard.rest.status.impl.MessageSeeds;
 import com.energyict.mdc.dashboard.rest.status.impl.OverviewFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.SummaryInfoFactory;
+import com.energyict.mdc.dashboard.rest.status.impl.TaskStatusTranslationKeys;
+import com.energyict.mdc.dashboard.rest.status.impl.TranslationKeys;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -55,17 +48,35 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.json.JsonService;
 import com.google.common.collect.ImmutableSet;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.ws.rs.core.Application;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.ws.rs.core.Application;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * Insert your comments here.
@@ -73,8 +84,8 @@ import org.osgi.service.component.annotations.Reference;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-18 (10:32)
  */
-@Component(name = "com.energyict.mdc.dashboard.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/dsr", "app=MDC", "name=" + DashboardApplication.COMPONENT_NAME})
-public class DashboardApplication extends Application implements TranslationKeyProvider {
+@Component(name = "com.energyict.mdc.dashboard.rest", service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/dsr", "app=MDC", "name=" + DashboardApplication.COMPONENT_NAME})
+public class DashboardApplication extends Application implements MessageSeedProvider, TranslationKeyProvider {
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "DSR";
 
@@ -121,17 +132,29 @@ public class DashboardApplication extends Application implements TranslationKeyP
     }
 
     @Override
-    public String getComponentName() {
-        return DashboardApplication.COMPONENT_NAME;
-    }
-
-    @Override
     public Layer getLayer() {
         return Layer.REST;
     }
 
     @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
     public List<TranslationKey> getKeys() {
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.addAll(Arrays.asList(TranslationKeys.values()));
+        keys.addAll(Arrays.asList(TaskStatusTranslationKeys.values()));
+        keys.addAll(Arrays.asList(ConnectionTaskSuccessIndicatorTranslationKeys.values()));
+        keys.addAll(Arrays.asList(ComSessionSuccessIndicatorTranslationKeys.values()));
+        keys.addAll(Arrays.asList(CompletionCodeTranslationKeys.values()));
+        keys.addAll(Arrays.asList(ConnectionStrategyTranslationKeys.values()));
+        return keys;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 

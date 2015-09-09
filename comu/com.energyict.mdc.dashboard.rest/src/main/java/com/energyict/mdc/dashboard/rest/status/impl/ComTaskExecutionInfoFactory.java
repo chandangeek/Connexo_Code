@@ -1,21 +1,20 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.function.Supplier;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.rest.BaseComTaskExecutionInfoFactory;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.nls.Thesaurus;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 public class ComTaskExecutionInfoFactory extends BaseComTaskExecutionInfoFactory<ComTaskExecutionInfo>{
 
