@@ -4,6 +4,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import org.fest.assertions.core.Condition;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,13 +69,13 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
     @Test
     public void deviceTypeHasTwoConfigsWithExactlyOneConnectionTaskThatMatchesTest() {
         String name = "MyConnectionTaskName";
-        ConnectionType connectionType = mock(ConnectionType.class);
         DeviceType deviceType = mockDeviceType();
+        ConnectionTypePluggableClass connectionTypePluggableClass = mockConnectionTypePluggableClass(1000L);
         DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
-        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(connectionType, name);
+        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(name, connectionTypePluggableClass);
         when(deviceConfiguration1.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask1));
         DeviceConfiguration deviceConfiguration2 = mockActiveDeviceConfiguration();
-        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(connectionType, name);
+        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(name, connectionTypePluggableClass);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
         DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
@@ -94,18 +95,24 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         });
     }
 
+    private ConnectionTypePluggableClass mockConnectionTypePluggableClass(long id) {
+        ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
+        when(connectionTypePluggableClass.getId()).thenReturn(id);
+        return connectionTypePluggableClass;
+    }
+
     @Test
     public void deviceTypeHasTwoConfigsWithConnectionTaskThatDontMatchAtAllTest() {
         String name1 = "MyConnectionTaskName1";
         String name2 = "MyConnectionTaskName2";
-        ConnectionType connectionType1 = mock(ConnectionType.class);
-        ConnectionType connectionType2 = mock(ConnectionType.class);
+        ConnectionTypePluggableClass connectionTypePluggableClass1 = mockConnectionTypePluggableClass(100L);
+        ConnectionTypePluggableClass connectionTypePluggableClass2 = mockConnectionTypePluggableClass(200L);
         DeviceType deviceType = mockDeviceType();
         DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
-        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(connectionType1, name1);
+        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(name1, connectionTypePluggableClass1);
         when(deviceConfiguration1.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask1));
         DeviceConfiguration deviceConfiguration2 = mockActiveDeviceConfiguration();
-        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(connectionType2, name2);
+        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(name2, connectionTypePluggableClass2);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
         DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
@@ -140,14 +147,14 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
     @Test
     public void deviceTypeHasTwoConfigsWithConnectionTaskThatMatchOnNameAndConflictOnConnectionTypeTest() {
         String name1 = "MyConnectionTaskName1";
-        ConnectionType connectionType1 = mock(ConnectionType.class);
-        ConnectionType connectionType2 = mock(ConnectionType.class);
+        ConnectionTypePluggableClass connectionTypePluggableClass1 = mockConnectionTypePluggableClass(100L);
+        ConnectionTypePluggableClass connectionTypePluggableClass2 = mockConnectionTypePluggableClass(200L);
         DeviceType deviceType = mockDeviceType();
         DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
-        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(connectionType1, name1);
+        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(name1, connectionTypePluggableClass1);
         when(deviceConfiguration1.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask1));
         DeviceConfiguration deviceConfiguration2 = mockActiveDeviceConfiguration();
-        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(connectionType2, name1);
+        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(name1, connectionTypePluggableClass2);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
         DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
@@ -183,13 +190,13 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
     public void deviceTypeHasTwoConfigsWithConnectionTaskThatMatchOnConnectionTypeAndConflictOnNameTest() {
         String name1 = "MyConnectionTaskName1";
         String name2 = "MyConnectionTaskName2";
-        ConnectionType connectionType1 = mock(ConnectionType.class);
+        ConnectionTypePluggableClass connectionTypePluggableClass1 = mockConnectionTypePluggableClass(100L);
         DeviceType deviceType = mockDeviceType();
         DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
-        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(connectionType1, name1);
+        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(name1, connectionTypePluggableClass1);
         when(deviceConfiguration1.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask1));
         DeviceConfiguration deviceConfiguration2 = mockActiveDeviceConfiguration();
-        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(connectionType1, name2);
+        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(name2, connectionTypePluggableClass1);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
         DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
@@ -213,15 +220,15 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
     public void unEvenConnectionTasksOneMatchesExactOneNotAtAllTest() {
         String name1 = "MyConnectionTaskName1";
         String name2 = "MyConnectionTaskName2";
-        ConnectionType connectionType1 = mock(ConnectionType.class);
-        ConnectionType connectionType2 = mock(ConnectionType.class);
+        ConnectionTypePluggableClass connectionTypePluggableClass1 = mockConnectionTypePluggableClass(100L);
+        ConnectionTypePluggableClass connectionTypePluggableClass2 = mockConnectionTypePluggableClass(200L);
         DeviceType deviceType = mockDeviceType();
         DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
-        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(connectionType1, name1);
-        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(connectionType2, name2);
+        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(name1, connectionTypePluggableClass1);
+        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(name2, connectionTypePluggableClass2);
         when(deviceConfiguration1.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask1, partialConnectionTask2));
         DeviceConfiguration deviceConfiguration2 = mockActiveDeviceConfiguration();
-        PartialConnectionTask partialConnectionTask3 = mockPartialConnectionTask(connectionType1, name1);
+        PartialConnectionTask partialConnectionTask3 = mockPartialConnectionTask(name1, connectionTypePluggableClass1);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask3));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
         DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
@@ -257,14 +264,14 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
     public void unEvenConnectionTasksOneMatchesExactOneMatchesOnTypeTest() {
         String name1 = "MyConnectionTaskName1";
         String name2 = "MyConnectionTaskName2";
-        ConnectionType connectionType1 = mock(ConnectionType.class);
+        ConnectionTypePluggableClass connectionTypePluggableClass1 = mockConnectionTypePluggableClass(100L);
         DeviceType deviceType = mockDeviceType();
         DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
-        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(connectionType1, name1);
-        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(connectionType1, name2);
+        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(name1, connectionTypePluggableClass1);
+        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(name2, connectionTypePluggableClass1);
         when(deviceConfiguration1.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask1, partialConnectionTask2));
         DeviceConfiguration deviceConfiguration2 = mockActiveDeviceConfiguration();
-        PartialConnectionTask partialConnectionTask3 = mockPartialConnectionTask(connectionType1, name1);
+        PartialConnectionTask partialConnectionTask3 = mockPartialConnectionTask(name1, connectionTypePluggableClass1);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask3));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
         DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
@@ -352,18 +359,18 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         String name2 = "IP";
         String name3 = "Optical";
         String name4 = "Serial";
-        ConnectionType connectionType1 = mock(ConnectionType.class);
-        ConnectionType connectionType2 = mock(ConnectionType.class);
+        ConnectionTypePluggableClass connectionTypePluggableClass1 = mockConnectionTypePluggableClass(100L);
+        ConnectionTypePluggableClass connectionTypePluggableClass2 = mockConnectionTypePluggableClass(200L);
         DeviceType deviceType = mockDeviceType();
         DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
-        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(connectionType1, name1);
-        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(connectionType2, name3);
+        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(name1, connectionTypePluggableClass1);
+        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(name3, connectionTypePluggableClass2);
         when(deviceConfiguration1.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask1, partialConnectionTask2));
         DeviceConfiguration deviceConfiguration2 = mockActiveDeviceConfiguration();
-        PartialConnectionTask partialConnectionTask3 = mockPartialConnectionTask(connectionType1, name2);
-        PartialConnectionTask partialConnectionTask4 = mockPartialConnectionTask(connectionType1, name1);
-        PartialConnectionTask partialConnectionTask5 = mockPartialConnectionTask(connectionType2, name4);
-        PartialConnectionTask partialConnectionTask6 = mockPartialConnectionTask(connectionType2, name3);
+        PartialConnectionTask partialConnectionTask3 = mockPartialConnectionTask(name2, connectionTypePluggableClass1);
+        PartialConnectionTask partialConnectionTask4 = mockPartialConnectionTask(name1, connectionTypePluggableClass1);
+        PartialConnectionTask partialConnectionTask5 = mockPartialConnectionTask(name4, connectionTypePluggableClass2);
+        PartialConnectionTask partialConnectionTask6 = mockPartialConnectionTask(name3, connectionTypePluggableClass2);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask3, partialConnectionTask4, partialConnectionTask5, partialConnectionTask6));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
         DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
@@ -538,34 +545,34 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         String name10 = "Pidgins";
         String name11 = "IndianSmokeClouds";
         String name12 = "CheeseHoles";
-        ConnectionType connectionType1 = mock(ConnectionType.class);
-        ConnectionType connectionType2 = mock(ConnectionType.class);
-        ConnectionType connectionType3 = mock(ConnectionType.class);
-        ConnectionType connectionType4 = mock(ConnectionType.class);
-        ConnectionType connectionType5 = mock(ConnectionType.class);
-        ConnectionType connectionType6 = mock(ConnectionType.class);
+        ConnectionTypePluggableClass connectionTypePluggableClass1 = mockConnectionTypePluggableClass(100L);
+        ConnectionTypePluggableClass connectionTypePluggableClass2 = mockConnectionTypePluggableClass(200L);
+        ConnectionTypePluggableClass connectionTypePluggableClass3 = mockConnectionTypePluggableClass(300L);
+        ConnectionTypePluggableClass connectionTypePluggableClass4 = mockConnectionTypePluggableClass(400L);
+        ConnectionTypePluggableClass connectionTypePluggableClass5 = mockConnectionTypePluggableClass(500L);
+        ConnectionTypePluggableClass connectionTypePluggableClass6 = mockConnectionTypePluggableClass(600L);
         DeviceType deviceType = mockDeviceType();
         DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
-        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(connectionType1, name1);
-        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(connectionType2, name3);
+        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(name1, connectionTypePluggableClass1);
+        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(name3, connectionTypePluggableClass2);
         when(deviceConfiguration1.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask1, partialConnectionTask2));
         DeviceConfiguration deviceConfiguration2 = mockActiveDeviceConfiguration();
-        PartialConnectionTask partialConnectionTask3 = mockPartialConnectionTask(connectionType1, name2);
-        PartialConnectionTask partialConnectionTask4 = mockPartialConnectionTask(connectionType1, name1);
-        PartialConnectionTask partialConnectionTask5 = mockPartialConnectionTask(connectionType2, name4);
-        PartialConnectionTask partialConnectionTask6 = mockPartialConnectionTask(connectionType2, name3);
+        PartialConnectionTask partialConnectionTask3 = mockPartialConnectionTask(name2, connectionTypePluggableClass1);
+        PartialConnectionTask partialConnectionTask4 = mockPartialConnectionTask(name1, connectionTypePluggableClass1);
+        PartialConnectionTask partialConnectionTask5 = mockPartialConnectionTask(name4, connectionTypePluggableClass2);
+        PartialConnectionTask partialConnectionTask6 = mockPartialConnectionTask(name3, connectionTypePluggableClass2);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask3, partialConnectionTask4, partialConnectionTask5, partialConnectionTask6));
         DeviceConfiguration deviceConfiguration3 = mockActiveDeviceConfiguration();
-        PartialConnectionTask partialConnectionTask7 = mockPartialConnectionTask(connectionType1, name5);
-        PartialConnectionTask partialConnectionTask8 = mockPartialConnectionTask(connectionType1, name6);
-        PartialConnectionTask partialConnectionTask9 = mockPartialConnectionTask(connectionType2, name7);
-        PartialConnectionTask partialConnectionTask10 = mockPartialConnectionTask(connectionType2, name8);
+        PartialConnectionTask partialConnectionTask7 = mockPartialConnectionTask(name5, connectionTypePluggableClass1);
+        PartialConnectionTask partialConnectionTask8 = mockPartialConnectionTask(name6, connectionTypePluggableClass1);
+        PartialConnectionTask partialConnectionTask9 = mockPartialConnectionTask(name7, connectionTypePluggableClass2);
+        PartialConnectionTask partialConnectionTask10 = mockPartialConnectionTask(name8, connectionTypePluggableClass2);
         when(deviceConfiguration3.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask7, partialConnectionTask8, partialConnectionTask9, partialConnectionTask10));
         DeviceConfiguration deviceConfiguration4 = mockActiveDeviceConfiguration();
-        PartialConnectionTask partialConnectionTask11 = mockPartialConnectionTask(connectionType3, name9);
-        PartialConnectionTask partialConnectionTask12 = mockPartialConnectionTask(connectionType4, name10);
-        PartialConnectionTask partialConnectionTask13 = mockPartialConnectionTask(connectionType5, name11);
-        PartialConnectionTask partialConnectionTask14 = mockPartialConnectionTask(connectionType6, name12);
+        PartialConnectionTask partialConnectionTask11 = mockPartialConnectionTask(name9, connectionTypePluggableClass3);
+        PartialConnectionTask partialConnectionTask12 = mockPartialConnectionTask(name10, connectionTypePluggableClass4);
+        PartialConnectionTask partialConnectionTask13 = mockPartialConnectionTask(name11, connectionTypePluggableClass5);
+        PartialConnectionTask partialConnectionTask14 = mockPartialConnectionTask(name12, connectionTypePluggableClass6);
         when(deviceConfiguration4.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask11, partialConnectionTask12, partialConnectionTask13, partialConnectionTask14));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2, deviceConfiguration3, deviceConfiguration4));
         DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
@@ -1037,10 +1044,10 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
                 && deviceConfigChangeAction.getActionType().equals(actionType);
     }
 
-    private PartialConnectionTask mockPartialConnectionTask(ConnectionType connectionType, String name) {
+    private PartialConnectionTask mockPartialConnectionTask(String name, ConnectionTypePluggableClass connectionTypePluggableClass) {
         PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
-        when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
         when(partialConnectionTask.getName()).thenReturn(name);
+        when(partialConnectionTask.getPluggableClass()).thenReturn(connectionTypePluggableClass);
         when(partialConnectionTask.toString()).thenReturn("CT - " + incrementalConTaskId + " - " + name);
         when(partialConnectionTask.getId()).thenReturn(incrementalConTaskId++);
         return partialConnectionTask;

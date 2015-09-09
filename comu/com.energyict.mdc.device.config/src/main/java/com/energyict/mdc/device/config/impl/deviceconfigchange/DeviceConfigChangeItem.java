@@ -7,9 +7,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * Copyrights EnergyICT
- * Date: 16/07/15
- * Time: 15:04
+ * Serves as a helper item to calculate the difference in T on a particular DeviceConfiguration
  */
 interface DeviceConfigChangeItem<T extends HasId> {
     DeviceConfiguration getOriginDeviceConfig();

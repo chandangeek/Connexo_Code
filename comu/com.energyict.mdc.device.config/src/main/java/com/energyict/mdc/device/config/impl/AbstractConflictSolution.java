@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.ConflictingSolution;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 
@@ -13,7 +14,7 @@ import javax.validation.constraints.NotNull;
 /**
  * Groups default behavior of a ConflictSolution
  */
-public abstract class AbstractConflictSolution<S> implements ConflictingSolution<S> {
+public abstract class AbstractConflictSolution<S extends HasId> implements ConflictingSolution<S> {
 
     private final DataModel dataModel;
     @NotNull

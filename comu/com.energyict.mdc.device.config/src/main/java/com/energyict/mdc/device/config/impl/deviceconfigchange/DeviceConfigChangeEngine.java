@@ -8,14 +8,14 @@ import java.util.*;
 import java.util.function.Predicate;
 
 /**
- * Copyrights EnergyICT
- * Date: 15/07/15
- * Time: 10:03
+ * This engine will check every DeviceConfiguration and it will determine the actions that need to take place if one wants to change
+ * the DeviceConfiguration of a Device from one DeviceConfiguration to another.
+ * Each DeviceConfigChangeAction has an ActionType which indicates what needs to happen (add, remove, match or conflict).
  */
 public class DeviceConfigChangeEngine {
 
     private final DeviceType deviceType;
-    private final List<DeviceConfigChangeAction> deviceConfigChangeActions = new ArrayList<>();
+    private List<DeviceConfigChangeAction> deviceConfigChangeActions = new ArrayList<>();
 
     public DeviceConfigChangeEngine(DeviceType deviceType) {
         this.deviceType = deviceType;
@@ -26,6 +26,7 @@ public class DeviceConfigChangeEngine {
     }
 
     public void calculateConfigChangeActions() {
+        deviceConfigChangeActions = new ArrayList<>();
         deviceType.getConfigurations().stream().filter(DeviceConfiguration::isActive).forEach(
                 origin -> deviceType.getConfigurations().stream()
                         .filter(deviceConfiguration -> deviceConfiguration.isActive() && deviceConfiguration.getId() != origin.getId())

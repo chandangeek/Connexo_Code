@@ -86,7 +86,7 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
     }
 
     @Override
-    public List<? extends ConflictingConnectionMethodSolution> getConflictingConnectionMethodSolutions() {
+    public List<ConflictingConnectionMethodSolution> getConflictingConnectionMethodSolutions() {
         return connectionMethodSolutions;
     }
 

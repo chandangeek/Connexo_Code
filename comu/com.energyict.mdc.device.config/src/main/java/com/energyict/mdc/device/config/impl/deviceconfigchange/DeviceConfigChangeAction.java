@@ -4,8 +4,8 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 
 /**
- * Value object containing the result a single action that needs to be performed when the
- * configuration of a Device will be changed
+ * Value object containing the result of a single action that needs to be performed when the
+ * configuration of a Device will be changed.
  */
 public class DeviceConfigChangeAction<T extends HasId> {
 
