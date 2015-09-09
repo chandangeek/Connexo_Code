@@ -174,7 +174,8 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
     },
 
     fillEditField: function (key, value, field) {
-        var me = this;
+        var me = this,
+            store;
 
         if (key === 'installationDate' || key === 'deactivationDate' || key === 'decommissioningDate' || key === 'shipmentDate') {
             if (!Ext.isEmpty(value.displayValue)) {
@@ -182,16 +183,15 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
                 field.setValue(dt);
             }
         } else if (key === 'usagePoint') {
-            field.getStore().load({
-                callback: function () {
-                    if (field.getStore().getCount() === 0) {
-                        field.hide();
-                        me.getUsagePointEmptyStoreField().show();
-                    }
-
-                    if (value.attributeId) {
-                        field.setValue(value.attributeId);
-                    }
+            store = field.getStore();
+            field.lastQuery = value.displayValue || '';
+            store.getProxy().setExtraParam(field.queryParam, value.displayValue || '');
+            store.load(function (records) {
+                if (!records.length) {
+                    field.hide();
+                    me.getUsagePointEmptyStoreField().show();
+                } else if (value.attributeId) {
+                    field.setValue(value.attributeId);
                 }
             });
         } else {
