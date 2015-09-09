@@ -1,8 +1,10 @@
 package com.energyict.mdc.pluggable.exceptions;
 
+import com.energyict.mdc.pluggable.PluggableClass;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.pluggable.PluggableClass;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
@@ -13,8 +15,8 @@ import com.energyict.mdc.pluggable.PluggableClass;
  */
 public class NameIsRequiredException extends LocalizedException {
 
-    public NameIsRequiredException(Thesaurus thesaurus) {
-        super(thesaurus, MessageSeeds.NAME_IS_REQUIRED);
+    public NameIsRequiredException(MessageSeed messageSeed, Thesaurus thesaurus) {
+        super(thesaurus, messageSeed);
     }
 
 }
