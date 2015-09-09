@@ -1,15 +1,12 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import java.util.Optional;
-import org.junit.Test;
-import org.mockito.Matchers;
+
+import com.elster.jupiter.time.TimeDuration;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -17,6 +14,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
@@ -73,7 +73,6 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
 
     @Test
     public void testGetLoadProfileSpec(){
-        mockNlsMessageFormat();
         when(deviceConfigurationService.findLoadProfileSpec(anyLong())).thenReturn(Optional.empty());
 
         Response response = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations/9999").request().get();
@@ -91,7 +90,6 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
 
     @Test
     public void testDeleteLoadProfileSpecFromDeviceConfiguration(){
-        mockNlsMessageFormat();
         getDeviceConfiguration();
 
         LoadProfileSpec loadProfileSpec = mockLoadProfileSpec(1, "spec");
@@ -108,7 +106,6 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
 
     @Test
     public void testAddLoadProfileTypesForDeviceType(){
-        mockNlsMessageFormat();
         DeviceConfiguration deviceConfiguration = getDeviceConfiguration();
 
         LoadProfileSpecInfo info = new LoadProfileSpecInfo();
@@ -133,7 +130,6 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
 
     @Test
     public void testEditLoadProfileSpecOnDeviceConfiguration(){
-        mockNlsMessageFormat();
         DeviceConfiguration deviceConfiguration = getDeviceConfiguration();
         LoadProfileSpecInfo info = new LoadProfileSpecInfo();
         info.overruledObisCode = new ObisCode(200,201,202,203,204,205);
