@@ -1,12 +1,10 @@
 package com.energyict.mdc.device.lifecycle.config.bpmhandler;
 
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcessStartEvent;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
-import com.elster.jupiter.fsm.StateChangeBusinessProcessStartEvent;
 import com.google.common.collect.ImmutableMap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
