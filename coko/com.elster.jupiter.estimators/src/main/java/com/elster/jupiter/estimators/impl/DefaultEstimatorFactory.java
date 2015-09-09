@@ -5,18 +5,16 @@ import com.elster.jupiter.estimation.EstimatorFactory;
 import com.elster.jupiter.estimators.AbstractEstimator;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -25,7 +23,6 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -33,10 +30,10 @@ import java.util.stream.Stream;
 
 @Component(
         name = "com.elster.jupiter.estimators.impl.DefaultEstimatorFactory",
-        service = {EstimatorFactory.class, TranslationKeyProvider.class},
+        service = {EstimatorFactory.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = "name=" + MessageSeeds.COMPONENT_NAME,
         immediate = true)
-public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKeyProvider {
+public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKeyProvider, MessageSeedProvider {
 
     public static final String VALUE_FILL_ESTIMATOR = ValueFillEstimator.class.getName();
     public static final String LINEAR_INTERPOLATION_ESTIMATOR = LinearInterpolation.class.getName();
@@ -54,11 +51,13 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
     }
 
     @Inject
-    public DefaultEstimatorFactory(NlsService nlsService, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService) {
+    public DefaultEstimatorFactory(NlsService nlsService, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService) {
+        this();
         setNlsService(nlsService);
         setPropertySpecService(propertySpecService);
         setValidationService(validationService);
         setMeteringService(meteringService);
+        setTimeService(timeService);
     }
 
     @Reference
@@ -85,7 +84,6 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
     public void setTimeService(TimeService timeService) {
         this.timeService = timeService;
     }
-
 
     @Override
     public String getComponentName() {
@@ -117,6 +115,11 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
                     .forEach(translationKeys::add);
         }
         return translationKeys;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     private enum EstimatorDefinition {
@@ -189,7 +192,7 @@ public class DefaultEstimatorFactory implements EstimatorFactory, TranslationKey
         abstract Estimator create(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService, Map<String, Object> props);
 
         abstract AbstractEstimator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, ValidationService validationService, MeteringService meteringService, TimeService timeService);
-        
+
 
         public boolean matches(String implementation) {
             return this.implementation.equals(implementation);
