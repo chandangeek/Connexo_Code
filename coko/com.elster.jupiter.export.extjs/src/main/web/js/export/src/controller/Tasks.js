@@ -1017,7 +1017,6 @@ Ext.define('Dxp.controller.Tasks', {
     doAddDestinationToGrid: function (button) {
         var me = this;
         //edit destination was cancelled, add the old one again
-        debugger;
         if (me.destinationToEdit) {
             me.destinationsArray.push(me.destinationToEdit);
             me.destinationToEdit = null;
