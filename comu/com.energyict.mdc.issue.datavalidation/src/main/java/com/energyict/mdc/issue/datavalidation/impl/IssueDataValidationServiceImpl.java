@@ -1,5 +1,13 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
+import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
+import com.energyict.mdc.issue.datavalidation.HistoricalIssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.impl.entity.IssueDataValidationImpl;
+import com.energyict.mdc.issue.datavalidation.impl.entity.OpenIssueDataValidationImpl;
+
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
@@ -14,6 +22,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -24,13 +33,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
-import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
-import com.energyict.mdc.issue.datavalidation.HistoricalIssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
-import com.energyict.mdc.issue.datavalidation.OpenIssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.impl.entity.IssueDataValidationImpl;
-import com.energyict.mdc.issue.datavalidation.impl.entity.OpenIssueDataValidationImpl;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -38,7 +41,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -46,10 +48,10 @@ import java.util.Optional;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.energyict.mdc.issue.datavalidation",
-           service = { InstallService.class, TranslationKeyProvider.class, IssueDataValidationService.class, IssueProvider.class },
+           service = { InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, IssueDataValidationService.class, IssueProvider.class },
            property = "name=" + IssueDataValidationService.COMPONENT_NAME,
            immediate = true)
-public class IssueDataValidationServiceImpl implements IssueDataValidationService, TranslationKeyProvider, InstallService, IssueProvider {
+public class IssueDataValidationServiceImpl implements IssueDataValidationService, TranslationKeyProvider, MessageSeedProvider, InstallService, IssueProvider {
 
     private volatile IssueService issueService;
     private volatile Thesaurus thesaurus;
@@ -61,9 +63,10 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     //for OSGI
     public IssueDataValidationServiceImpl() {
     }
-    
+
     @Inject
     public IssueDataValidationServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService, EventService eventService, MessageService messageService) {
+        this();
         setOrmService(ormService);
         setIssueService(issueService);
         setNlsService(nlsService);
@@ -74,7 +77,7 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
             install();
         }
     }
-    
+
     @Activate
     public final void activate() {
         dataModel.register(new AbstractModule() {
@@ -89,17 +92,17 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
             }
         });
     }
-    
+
     @Override
     public void install() {
         dataModel.getInstance(Installer.class).install();
     }
-    
+
     @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList("ORM", "NLS", "MSG", "EVT", "MTR", "ISU", "EST");
     }
-    
+
     @Override
     public Optional<? extends IssueDataValidation> findIssue(long id) {
         Optional<OpenIssueDataValidation> issue = findOpenIssue(id);
@@ -131,20 +134,22 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
         issue.setIssue((OpenIssue)baseIssue);
         return issue;
     }
-    
+
     @Override
     public String getComponentName() {
         return IssueDataValidationService.COMPONENT_NAME;
     }
-    
+
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>();
-        keys.addAll(Arrays.asList(TranslationKeys.values()));
-        keys.addAll(Arrays.asList(MessageSeeds.values()));
-        return keys;
+        return Arrays.asList(TranslationKeys.values());
     }
-    
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
     @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
@@ -157,27 +162,27 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
             spec.addTo(dataModel);
         }
     }
-    
+
     @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
     }
-    
+
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(IssueDataValidationService.COMPONENT_NAME, Layer.DOMAIN);
     }
-    
+
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
     }
-    
+
     @Reference
     public void setMessageService(MessageService messageService) {
         this.messageService = messageService;
     }
-    
+
     @Override
     public Optional<? extends OpenIssue> getOpenIssue(OpenIssue issue) {
         return issue instanceof OpenIssueDataValidation ? Optional.of(issue) : findOpenIssue(issue.getId());
@@ -187,7 +192,7 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     public Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue) {
         return issue instanceof HistoricalIssueDataValidation ? Optional.of(issue) : findHistoricalIssue(issue.getId());
     }
-    
+
     @Override
     public Finder<? extends IssueDataValidation> findAllDataValidationIssues(DataValidationIssueFilter filter) {
         Condition condition = buildConditionFromFilter(filter);
