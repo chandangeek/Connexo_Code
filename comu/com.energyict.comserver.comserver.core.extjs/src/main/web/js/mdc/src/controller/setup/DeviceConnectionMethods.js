@@ -281,7 +281,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         this.getDeviceConnectionMethodEditView().down('#comWindowField').setDisabled(false);
         // this.getDeviceConnectionMethodEditView().down('#rescheduleRetryDelay').setDisabled(false);
         this.getDeviceConnectionMethodEditView().down('#allowSimultaneousConnections').setDisabled(false);
-        if (connectionMethod.get('connectionStrategy') === 'minimizeConnections') {
+        if (connectionMethod.get('connectionStrategy') === 'MINIMIZE_CONNECTIONS') {
             this.getDeviceConnectionMethodEditView().down('form').down('#scheduleFieldContainer').setVisible(true);
             if (connectionMethod.get('temporalExpression')) {
                 this.getDeviceConnectionMethodEditView().down('#scheduleField').setValue(connectionMethod.get('temporalExpression'));
@@ -301,7 +301,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
 
     showScheduleField: function (combobox, objList) {
         this.getScheduleField().clear();
-        if (objList[0].get('connectionStrategy') === 'minimizeConnections') {
+        if (objList[0].get('connectionStrategy') === 'MINIMIZE_CONNECTIONS') {
             this.getScheduleFieldContainer().setVisible(true);
             this.getScheduleField().setValue({
                 every: {
@@ -366,7 +366,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         if (record) {
             record.beginEdit();
             record.set(values);
-            if (values.connectionStrategy === 'asSoonAsPossible') {
+            if (values.connectionStrategy === 'AS_SOON_AS_POSSIBLE') {
                 record.set('nextExecutionSpecs', null);
             }
             if (!values.hasOwnProperty('comWindowStart')) {
@@ -546,7 +546,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
                                                 me.getDeviceConnectionMethodEditView().down('#comWindowField').setDisabled(false);
                                                 me.getDeviceConnectionMethodComboBox().setDisabled(true);
                                                 me.getDeviceConnectionMethodEditView().down('form').loadRecord(connectionMethod);
-                                                if (connectionMethod.get('connectionStrategy') === 'minimizeConnections') {
+                                                if (connectionMethod.get('connectionStrategy') === 'MINIMIZE_CONNECTIONS') {
                                                     widget.down('form').down('#scheduleFieldContainer').setVisible(true);
                                                     me.getDeviceConnectionMethodEditView().down('#allowSimultaneousConnections').setVisible(false);
                                                 }
@@ -583,7 +583,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         } else {
             connectionMethod.set('isDefault', true);
         }
-        if (connectionMethod.get('connectionStrategy') === 'asSoonAsPossible' || connectionMethod.get('direction') === 'Inbound') {
+        if (connectionMethod.get('connectionStrategy') === 'AS_SOON_AS_POSSIBLE' || connectionMethod.get('direction') === 'Inbound') {
             connectionMethod.set('nextExecutionSpecs', null);
         }
 //        this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);
@@ -613,7 +613,7 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         } else {
             connectionMethod.set('status', 'connectionTaskStatusInActive');
         }
-        if (connectionMethod.get('connectionStrategy') === 'asSoonAsPossible' || connectionMethod.get('direction') === 'Inbound') {
+        if (connectionMethod.get('connectionStrategy') === 'AS_SOON_AS_POSSIBLE' || connectionMethod.get('direction') === 'Inbound') {
             connectionMethod.set('nextExecutionSpecs', null);
         }
 //        this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);

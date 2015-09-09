@@ -137,6 +137,16 @@ Ext.define('Mdc.view.setup.devicegroup.Edit', {
             filter.onDeviceTypeChanged();
         }
         filter.applyQueryObject(queryObject, true);
+    },
+
+    setSelectedRadioBtnFromStaticFilter: function() {
+        var searchResults = this.down('mdc-search-results'),
+            radioGroup = searchResults.down('#itemradiogroup'),
+            radioBtn = searchResults.down('#bulkselection-radiobtn-selected'),
+            value = {};
+
+        value[radioBtn.name] = radioBtn.inputValue;
+        radioGroup.setValue(value);
     }
 
 });

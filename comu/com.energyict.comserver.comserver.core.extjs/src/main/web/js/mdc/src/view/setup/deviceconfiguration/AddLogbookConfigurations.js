@@ -24,10 +24,9 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('logbookConfiguration.empty.title', 'MDC', 'No logbook configurations found'),
+                        title: Uni.I18n.translate('logbooktype.empty.title', 'MDC', 'No logbook types found'),
                         reasons: [
-                            Uni.I18n.translate('logbookConfiguration.emptyMsg1', 'MDC', 'No logbook configurations have been defined yet.'),
-                            Uni.I18n.translate('logbookConfiguration.emptyMsg2', 'MDC', 'Logbook configurations exist, but you do not have permission to view them.')
+                            Uni.I18n.translate('logbooktype.empty.list.item1', 'MDC', 'No logbook types have been defined yet.')
                         ]
                     }
                 },

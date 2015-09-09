@@ -458,6 +458,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                         view.showDynamicFilter();
                     } else {
                         view.showStaticFilter();
+                        view.setSelectedRadioBtnFromStaticFilter();
                     }
                     Ext.resumeLayouts(true);
                     me.getApplication().fireEvent('loadDeviceGroup', record);
@@ -487,7 +488,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         } else if (nameValue !== me.deviceGroupName && me.nameExistsAlready()) {
             Ext.suspendLayouts();
             step1ErrorMsg.show();
-            nameField.markInvalid(Uni.I18n.translate('devicegroup.duplicatename', 'MDC', 'A device group with this name already exists.'));
+            nameField.markInvalid(Uni.I18n.translate('general.name.shouldBeUnique', 'MDC', 'Name should be unique'));
             Ext.resumeLayouts(true);
         } else if (!me.dynamic && (selection.length == 0) && !me.getStaticGrid().allChosenByDefault) {
             me.getStep2FormErrorMessage().setVisible(true);

@@ -48,7 +48,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurationLogbooks', {
         this.displayedItemId = record.id;
         this.logbookConfigId = record.internalId;
         itemForm.loadRecord(record);
-        itemPanel.setTitle(record.get('name'));
+        itemPanel.setTitle(Ext.String.htmlEncode(record.get('name')));
         itemPanel.show();
         preloader.destroy();
     },
