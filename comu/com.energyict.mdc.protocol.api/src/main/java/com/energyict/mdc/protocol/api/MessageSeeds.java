@@ -1,6 +1,5 @@
 package com.energyict.mdc.protocol.api;
 
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
@@ -12,7 +11,7 @@ import java.util.logging.Level;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-02-10 (08:57)
  */
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 
     LOADPROFILE_NOT_SUPPORTED(100, "issue.loadProfileXnotsupported", "Load profile with OBIS code '{0}' is not supported by the device"),
     LOADPROFILE_ISSUE(101, "issue.loadProfileXIssue", "Encountered an exception while reading loadprofile {0}"),
