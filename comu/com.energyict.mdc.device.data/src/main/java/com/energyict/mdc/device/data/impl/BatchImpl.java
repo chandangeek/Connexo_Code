@@ -1,12 +1,12 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.device.data.Batch;
+import com.energyict.mdc.device.data.Device;
+
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.device.data.Batch;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
