@@ -9,11 +9,5 @@ package com.energyict.mdc.device.config;
  *     <li>Map the origin ConnectionMethod to the destination ConnectionMethod</li>
  * </ul>
  */
-public interface ConflictingConnectionMethodSolution {
-
-    DeviceConfigConflictMapping.ConflictingMappingAction getConflictingMappingAction();
-    PartialConnectionTask getOriginPartialConnectionTask();
-    PartialConnectionTask getDestinationPartialConnectionTask();
-
-    ConflictingConnectionMethodSolution initialize(DeviceConfigConflictMapping deviceConfigConflictMapping, PartialConnectionTask origin, PartialConnectionTask destination);
+public interface ConflictingConnectionMethodSolution extends ConflictingSolution<PartialConnectionTask>{
 }

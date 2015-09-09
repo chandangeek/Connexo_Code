@@ -14,8 +14,6 @@ import java.util.List;
  * </ul>
  */
 public interface DeviceConfigConflictMapping extends HasId {
-
-
     enum ConflictingMappingAction {
         ADD,
         REMOVE,
@@ -23,14 +21,19 @@ public interface DeviceConfigConflictMapping extends HasId {
         NOT_DETERMINED_YET;
 
     }
+
     DeviceConfiguration getOriginDeviceConfiguration();
     DeviceConfiguration getDestinationDeviceConfiguration();
-    List<ConflictingConnectionMethodSolution> getConflictingConnectionMethodSolutions();
+    List<? extends ConflictingConnectionMethodSolution> getConflictingConnectionMethodSolutions();
     List<ConflictingSecuritySetSolution> getConflictingSecuritySetSolutions();
 
+    // TODO determine whether solved must be persistent ...
     boolean isSolved();
+
     void newConflictingConnectionMethods(PartialConnectionTask origin, PartialConnectionTask destination);
     void newConflictingSecurityPropertySets(SecurityPropertySet origin, SecurityPropertySet destination);
+
+    // TODO check if we can merge into one generic method
     void removeConnectionMethodSolution(ConflictingConnectionMethodSolution conflictingConnectionMethodSolution);
     void removeSecuritySetSolution(ConflictingSecuritySetSolution conflictingSecuritySetSolution);
 }

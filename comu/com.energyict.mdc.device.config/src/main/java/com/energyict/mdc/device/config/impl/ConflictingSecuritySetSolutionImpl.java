@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -18,7 +19,7 @@ import java.util.function.Supplier;
 /**
  * Straightforward implementation ofa ConflictingSecuritySetSolution
  */
-public class ConflictingSecuritySetSolutionImpl implements ConflictingSecuritySetSolution {
+public class ConflictingSecuritySetSolutionImpl extends AbstractConflictSolution<SecurityPropertySet> implements ConflictingSecuritySetSolution {
 
     enum Fields {
         CONFLICTINGMAPPING("conflictingMapping"),
@@ -35,50 +36,39 @@ public class ConflictingSecuritySetSolutionImpl implements ConflictingSecuritySe
         String fieldName() {
             return javaFieldName;
         }
-
     }
 
     private final Thesaurus thesaurus;
 
-    private long id;
-    @IsPresent
-    private Reference<DeviceConfigConflictMapping> conflictingMapping = ValueReference.absent();
-    @NotNull
-    private DeviceConfigConflictMapping.ConflictingMappingAction action;
     private Reference<SecurityPropertySet> originSecurityPropertySet = ValueReference.absent();
     private Reference<SecurityPropertySet> destinationSecurityPropertySet = ValueReference.absent();
 
     @Inject
-    public ConflictingSecuritySetSolutionImpl(Thesaurus thesaurus) {
+    public ConflictingSecuritySetSolutionImpl(DataModel dataModel, Thesaurus thesaurus) {
+        super(dataModel);
         this.thesaurus = thesaurus;
     }
 
     @Override
-    public DeviceConfigConflictMapping.ConflictingMappingAction getConflictingMappingAction() {
-        return action;
+    public SecurityPropertySet getOriginDataSource() {
+        return originSecurityPropertySet.orElseThrow(originSecurityPropertySetIsEmpty());
     }
 
     @Override
-    public SecurityPropertySet getOriginSecurityPropertySet() {
-        return originSecurityPropertySet.orElseThrow(originSecurityPropertySetIsEmpty());
+    public SecurityPropertySet getDestinationDataSource() {
+        return destinationSecurityPropertySet.orElseThrow(destinationSecurityPropertySetIsEmpty());
+    }
+
+    public ConflictingSecuritySetSolution initialize(DeviceConfigConflictMappingImpl deviceConfigConflictMapping, SecurityPropertySet origin, SecurityPropertySet destination) {
+        setConflictingMapping(deviceConfigConflictMapping);
+        this.originSecurityPropertySet.set(origin);
+        this.destinationSecurityPropertySet.set(destination);
+        this.action = DeviceConfigConflictMapping.ConflictingMappingAction.NOT_DETERMINED_YET;
+        return this;
     }
 
     private Supplier<? extends LocalizedException> originSecurityPropertySetIsEmpty() {
         return () -> new OriginSecurityPropertySetIsEmpty(thesaurus);
-    }
-
-    @Override
-    public SecurityPropertySet getDestinationSecurityPropertySet() {
-        return destinationSecurityPropertySet.orElseThrow(destinationSecurityPropertySetIsEmpty());
-    }
-
-    @Override
-    public ConflictingSecuritySetSolution initialize(DeviceConfigConflictMapping deviceConfigConflictMapping, SecurityPropertySet origin, SecurityPropertySet destination) {
-        this.conflictingMapping.set(deviceConfigConflictMapping);
-        this.originSecurityPropertySet.set(destination);
-        this.destinationSecurityPropertySet.set(destination);
-        this.action = DeviceConfigConflictMapping.ConflictingMappingAction.NOT_DETERMINED_YET;
-        return this;
     }
 
     private Supplier<? extends LocalizedException> destinationSecurityPropertySetIsEmpty() {

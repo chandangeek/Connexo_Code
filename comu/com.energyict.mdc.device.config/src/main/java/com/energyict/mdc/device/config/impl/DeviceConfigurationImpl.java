@@ -962,6 +962,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     public void removeSecurityPropertySet(SecurityPropertySet propertySet) {
         if (propertySet != null) {
             ((SecurityPropertySetImpl) propertySet).validateDelete();
+            getServerDeviceType().removeConflictsFor(propertySet);
             securityPropertySets.remove(propertySet);
         }
     }

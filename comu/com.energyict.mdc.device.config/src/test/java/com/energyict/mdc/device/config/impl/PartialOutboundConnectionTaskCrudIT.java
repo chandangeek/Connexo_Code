@@ -1023,6 +1023,91 @@ public class PartialOutboundConnectionTaskCrudIT {
         assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
     }
 
+    @Test
+    @Transactional
+    public void solvedMappingsAreNotRemovedWhenNewConflictArisesTest() {
+        DeviceType deviceType = deviceConfigurationService.newDeviceType("ConflictTest", deviceProtocolPluggableClass);
+        deviceType.save();
+
+        DeviceConfiguration firstConfig = createDirectlyAddressableConfig(deviceType, "firstConfig");
+        PartialScheduledConnectionTaskImpl outboundConnectionTask1 = createPartialConnectionTask(firstConfig, "FirstConnectionTask");
+
+        DeviceConfiguration secondConfig = createDirectlyAddressableConfig(deviceType, "secondConfig");
+        PartialScheduledConnectionTaskImpl outboundConnectionTask2 = createPartialConnectionTask(secondConfig, "OtherConnectionTask");
+
+        ((ServerDeviceType) deviceType).updateConflictingMappings();
+
+        assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2); // what is in here is checked in another test
+        DeviceConfigConflictMapping deviceConfigConflictMapping1 = deviceType.getDeviceConfigConflictMappings().get(0);
+        ConflictingConnectionMethodSolution conflictingConnectionMethodSolution1 = deviceConfigConflictMapping1.getConflictingConnectionMethodSolutions().get(0);
+        conflictingConnectionMethodSolution1.setConflictingMappingAction(DeviceConfigConflictMapping.ConflictingMappingAction.ADD);
+
+        DeviceConfigConflictMapping deviceConfigConflictMapping2 = deviceType.getDeviceConfigConflictMappings().get(1);
+        ConflictingConnectionMethodSolution conflictingConnectionMethodSolution3 = deviceConfigConflictMapping2.getConflictingConnectionMethodSolutions().get(0);
+        conflictingConnectionMethodSolution3.setConflictingMappingAction(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE);
+
+        DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
+        assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).hasSize(2);
+
+        assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).areExactly(1, new Condition<DeviceConfigConflictMapping>() {
+            @Override
+            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
+                return deviceConfigConflictMapping.getConflictingConnectionMethodSolutions()
+                        .get(0).getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.ADD)
+                        && deviceConfigConflictMapping.isSolved();
+            }
+        });
+
+        assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).areExactly(1, new Condition<DeviceConfigConflictMapping>() {
+            @Override
+            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
+                return deviceConfigConflictMapping.getConflictingConnectionMethodSolutions()
+                        .get(0).getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE)
+                        && deviceConfigConflictMapping.isSolved();
+            }
+        });
+
+        // Logic that we want to test: if new ConnectionMethod is added, new conflicts will be calculated. Existing solved conflicts should still remain
+        DeviceConfiguration thirdConfig = createDirectlyAddressableConfig(deviceType, "ThirdConfig");
+        PartialScheduledConnectionTaskImpl outboundConnectionTask3 = createPartialConnectionTask(thirdConfig, "ThirdConnectionTask");
+        ((ServerDeviceType) deviceType).updateConflictingMappings(); // we call the method ourselves because we don't have the eventhandler in place
+
+        DeviceType finalDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
+        assertThat(finalDeviceType.getDeviceConfigConflictMappings()).hasSize(6);
+
+        assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(1, new Condition<DeviceConfigConflictMapping>() {
+            @Override
+            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
+                return deviceConfigConflictMapping.getConflictingConnectionMethodSolutions()
+                        .get(0).getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.ADD)
+                        && deviceConfigConflictMapping.isSolved();
+            }
+        });
+
+        assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(1, new Condition<DeviceConfigConflictMapping>() {
+            @Override
+            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
+                return deviceConfigConflictMapping.getConflictingConnectionMethodSolutions()
+                        .get(0).getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE)
+                        && deviceConfigConflictMapping.isSolved();
+            }
+        });
+
+        assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(2, new Condition<DeviceConfigConflictMapping>() {
+            @Override
+            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
+                return deviceConfigConflictMapping.isSolved();
+            }
+        });
+
+        assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(4, new Condition<DeviceConfigConflictMapping>() {
+            @Override
+            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
+                return !deviceConfigConflictMapping.isSolved();
+            }
+        });
+    }
+
     private void removeConnectionTaskFromConfig(DeviceConfiguration secondConfig, PartialScheduledConnectionTaskImpl outboundConnectionTask2) {
         secondConfig.remove(outboundConnectionTask2);
     }
@@ -1045,8 +1130,8 @@ public class PartialOutboundConnectionTaskCrudIT {
     }
 
     private boolean matchPartialConnectionTasks(PartialScheduledConnectionTaskImpl originPartialConnectionTask, PartialScheduledConnectionTaskImpl destinationPartialConnectionTask, DeviceConfigConflictMapping deviceConfigConflictMapping) {
-        return deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).getOriginPartialConnectionTask().getId() == originPartialConnectionTask.getId()
-                && deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).getDestinationPartialConnectionTask().getId() == destinationPartialConnectionTask.getId();
+        return deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).getOriginDataSource().getId() == originPartialConnectionTask.getId()
+                && deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).getDestinationDataSource().getId() == destinationPartialConnectionTask.getId();
     }
 
     private boolean matchConfigs(DeviceConfigConflictMapping deviceConfigConflictMapping, DeviceConfiguration originConfig, DeviceConfiguration destinationConfig) {

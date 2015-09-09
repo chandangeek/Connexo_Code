@@ -9,11 +9,5 @@ package com.energyict.mdc.device.config;
  *     <li>Map the origin SecuritySet to the destination SecuritySet</li>
  * </ul>
  */
-public interface ConflictingSecuritySetSolution {
-
-    DeviceConfigConflictMapping.ConflictingMappingAction getConflictingMappingAction();
-    SecurityPropertySet getOriginSecurityPropertySet();
-    SecurityPropertySet getDestinationSecurityPropertySet();
-
-    ConflictingSecuritySetSolution initialize(DeviceConfigConflictMapping deviceConfigConflictMapping, SecurityPropertySet origin, SecurityPropertySet destination);
+public interface ConflictingSecuritySetSolution extends ConflictingSolution<SecurityPropertySet> {
 }

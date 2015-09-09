@@ -1,21 +1,22 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.*;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Straightforward implementation of a DeviceConfigConflictMapping
  *
- * TODO validate that there is only one solution per conlfictinMethod or conflictingSecuritySet
+ * TODO validate that there is only one solution per conflictingMethod or conflictingSecuritySet
  *
  */
 public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapping{
@@ -85,7 +86,7 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
     }
 
     @Override
-    public List<ConflictingConnectionMethodSolution> getConflictingConnectionMethodSolutions() {
+    public List<? extends ConflictingConnectionMethodSolution> getConflictingConnectionMethodSolutions() {
         return connectionMethodSolutions;
     }
 
@@ -97,6 +98,32 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
     @Override
     public boolean isSolved() {
         return solved;
+    }
+
+    public void recalculateSolvedState(AbstractConflictSolution conflictingSolution) {
+        this.solved = allConnectionMethodsHaveASolution() && allSecuritySetsHaveASolution();
+        conflictingSolution.update();
+        this.update();
+    }
+
+    private void update() {
+        Save.UPDATE.save(dataModel, this);
+    }
+
+    private boolean allSecuritySetsHaveASolution() {
+        return this.securitySetSolutions.stream().filter(securitySetSolutionNotDeterminedYet().negate()).count() == securitySetSolutions.size();
+    }
+
+    private Predicate<ConflictingSecuritySetSolution> securitySetSolutionNotDeterminedYet() {
+        return conflictingSecuritySetSolution -> conflictingSecuritySetSolution.getConflictingMappingAction().equals(ConflictingMappingAction.NOT_DETERMINED_YET);
+    }
+
+    private boolean allConnectionMethodsHaveASolution() {
+        return this.connectionMethodSolutions.stream().filter(connectionMethodSolutionNotDetermined().negate()).count() == connectionMethodSolutions.size();
+    }
+
+    private Predicate<ConflictingConnectionMethodSolution> connectionMethodSolutionNotDetermined() {
+        return conflictingConnectionMethodSolution -> conflictingConnectionMethodSolution.getConflictingMappingAction().equals(ConflictingMappingAction.NOT_DETERMINED_YET);
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
@@ -12,15 +12,13 @@ import com.energyict.mdc.device.config.exceptions.DestinationConnectionTaskIsEmp
 import com.energyict.mdc.device.config.exceptions.OriginConnectionTaskIsEmpty;
 
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import java.util.function.Supplier;
 
 /**
  * Straightforward implementation of a ConflictingConnectionMethodSolution
  */
-public class ConflictingConnectionMethodSolutionImpl implements ConflictingConnectionMethodSolution {
+public class ConflictingConnectionMethodSolutionImpl extends AbstractConflictSolution<PartialConnectionTask> implements ConflictingConnectionMethodSolution {
 
-    private final Thesaurus thesaurus;
 
     enum Fields {
         CONFLICTINGMAPPING("conflictingMapping"),
@@ -39,45 +37,37 @@ public class ConflictingConnectionMethodSolutionImpl implements ConflictingConne
         }
     }
 
-    private long id;
-    @IsPresent
-    private Reference<DeviceConfigConflictMapping> conflictingMapping = ValueReference.absent();
-    @NotNull
-    private DeviceConfigConflictMapping.ConflictingMappingAction action;
+    private Thesaurus thesaurus;
+
     private Reference<PartialConnectionTask> originConnectionMethod = ValueReference.absent();
     private Reference<PartialConnectionTask> destinationConnectionMethod = ValueReference.absent();
 
     @Inject
-    public ConflictingConnectionMethodSolutionImpl(Thesaurus thesaurus) {
+    public ConflictingConnectionMethodSolutionImpl(DataModel dataModel, Thesaurus thesaurus) {
+        super(dataModel);
         this.thesaurus = thesaurus;
     }
 
     @Override
-    public DeviceConfigConflictMapping.ConflictingMappingAction getConflictingMappingAction() {
-        return action;
-    }
-
-    @Override
-    public PartialConnectionTask getOriginPartialConnectionTask() {
+    public PartialConnectionTask getOriginDataSource() {
         return originConnectionMethod.orElseThrow(originConnectionMethodIsEmpty());
     }
 
-    private Supplier<? extends LocalizedException> originConnectionMethodIsEmpty() {
-        return () -> new OriginConnectionTaskIsEmpty(thesaurus);
-    }
-
     @Override
-    public PartialConnectionTask getDestinationPartialConnectionTask() {
+    public PartialConnectionTask getDestinationDataSource() {
         return destinationConnectionMethod.orElseThrow(destinationConnectionMethodIsEmpty());
     }
 
-    @Override
-    public ConflictingConnectionMethodSolution initialize(DeviceConfigConflictMapping deviceConfigConflictMapping, PartialConnectionTask origin, PartialConnectionTask destination) {
-        this.conflictingMapping.set(deviceConfigConflictMapping);
+    public ConflictingConnectionMethodSolutionImpl initialize(DeviceConfigConflictMappingImpl deviceConfigConflictMapping, PartialConnectionTask origin, PartialConnectionTask destination) {
+        setConflictingMapping(deviceConfigConflictMapping);
         this.originConnectionMethod.set(origin);
         this.destinationConnectionMethod.set(destination);
         this.action = DeviceConfigConflictMapping.ConflictingMappingAction.NOT_DETERMINED_YET;
         return this;
+    }
+
+    private Supplier<? extends LocalizedException> originConnectionMethodIsEmpty() {
+        return () -> new OriginConnectionTaskIsEmpty(thesaurus);
     }
 
     private Supplier<? extends LocalizedException> destinationConnectionMethodIsEmpty() {

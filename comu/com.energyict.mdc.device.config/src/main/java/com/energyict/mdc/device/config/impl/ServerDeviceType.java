@@ -1,9 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 /**
@@ -42,4 +39,11 @@ public interface ServerDeviceType extends DeviceType {
      * @param partialConnectionTask the partialConnectionTask
      */
     void removeConflictsFor(PartialConnectionTask partialConnectionTask);
+
+    /**
+     * Cleans up the DeviceConfigConflictMapping which uses the given SecurityPropertySet
+     *
+     * @param securityPropertySet the SecurityPropertySet
+     */
+    void removeConflictsFor(SecurityPropertySet securityPropertySet);
 }

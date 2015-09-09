@@ -242,13 +242,24 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         return deviceConfigConflictMapping;
     }
 
+    //TODO check to generify
     @Override
     public void removeConflictsFor(PartialConnectionTask partialConnectionTask) {
         this.deviceConfigConflictMappings.stream().filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == partialConnectionTask.getConfiguration().getId() || deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == partialConnectionTask.getConfiguration().getId())
         .forEach(deviceConfigConflictMapping -> {
-            List<ConflictingConnectionMethodSolution> conflictsWithGivenConnectionTask = deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().stream().filter(conflictingConnectionMethodSolution -> conflictingConnectionMethodSolution.getDestinationPartialConnectionTask().getId() == partialConnectionTask.getId() || conflictingConnectionMethodSolution.getOriginPartialConnectionTask().getId() == partialConnectionTask.getId()).collect(Collectors.toList());
+            List<ConflictingConnectionMethodSolution> conflictsWithGivenConnectionTask = deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().stream().filter(conflictingConnectionMethodSolution -> conflictingConnectionMethodSolution.getDestinationDataSource().getId() == partialConnectionTask.getId() || conflictingConnectionMethodSolution.getOriginDataSource().getId() == partialConnectionTask.getId()).collect(Collectors.toList());
             conflictsWithGivenConnectionTask.stream().forEach(deviceConfigConflictMapping::removeConnectionMethodSolution);
         });
+    }
+
+    //TODO check to generify
+    @Override
+    public void removeConflictsFor(SecurityPropertySet securityPropertySet) {
+        this.deviceConfigConflictMappings.stream().filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == securityPropertySet.getDeviceConfiguration().getId() || deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == securityPropertySet.getDeviceConfiguration().getId())
+                .forEach(deviceConfigConflictMapping -> {
+                    List<ConflictingSecuritySetSolution> conflictsWithGivenSecurityPropertySet = deviceConfigConflictMapping.getConflictingSecuritySetSolutions().stream().filter(securitySetSolutionPredicate -> securitySetSolutionPredicate.getDestinationDataSource().getId() == securityPropertySet.getId() || securitySetSolutionPredicate.getOriginDataSource().getId() == securityPropertySet.getId()).collect(Collectors.toList());
+                    conflictsWithGivenSecurityPropertySet.stream().forEach(deviceConfigConflictMapping::removeSecuritySetSolution);
+                });
     }
 
     private void closeCurrentDeviceLifeCycle(Instant now) {
