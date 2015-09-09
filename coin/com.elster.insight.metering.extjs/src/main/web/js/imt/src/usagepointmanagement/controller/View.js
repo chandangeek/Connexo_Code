@@ -71,7 +71,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                                         cls: 'x-form-display-field',
                                         autoEl: {
                                             tag: 'a',
-                                            href: router.getRoute('device').buildUrl({mRID: item.get('meter').mRID}),
+                                            href: router.getRoute('usagepoints/device').buildUrl({mRID: item.get('meter').mRID}),
                                             html: item.get('meter').mRID
                                         }
                                     },
@@ -90,7 +90,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                                         cls: 'x-form-display-field',
                                         autoEl: {
                                             tag: 'a',
-                                            href: router.getRoute('device').buildUrl({mRID: item.get('meter').mRID}),
+                                            href: router.getRoute('usagepoints/device').buildUrl({mRID: item.get('meter').mRID}),
                                             html: item.get('meter').mRID
                                         }
                                     },
