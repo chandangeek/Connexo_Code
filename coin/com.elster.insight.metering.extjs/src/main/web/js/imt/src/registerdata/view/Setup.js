@@ -31,6 +31,7 @@ Ext.define('Imt.registerdata.view.Setup', {
                 xtype: 'panel',
                 ui: 'large',
                 itemId: 'registerListSetupPanel',
+                title: Uni.I18n.translate('registers.registerList', 'IMT', 'Registers'),
                 layout: {
                     type: 'fit',
                     align: 'stretch'
@@ -43,6 +44,7 @@ Ext.define('Imt.registerdata.view.Setup', {
                 },
                 items: [{
                     xtype: 'preview-container',    
+                    title: Uni.I18n.translate('registers.registerList', 'IMT', 'Registers'),
                     grid: {
                         xtype: 'registerList',
                         mRID: me.mRID,

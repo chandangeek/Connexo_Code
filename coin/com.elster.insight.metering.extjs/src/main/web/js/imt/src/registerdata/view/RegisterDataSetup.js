@@ -34,6 +34,7 @@ Ext.define('Imt.registerdata.view.RegisterDataSetup', {
                 xtype: 'panel',
                 ui: 'large',
                 itemId: 'registerDataSetupPanel',
+                title: Uni.I18n.translate('registers.registerDataList', 'IMT', 'Register Readings'),
                 layout: {
                     type: 'fit',
                     align: 'stretch'

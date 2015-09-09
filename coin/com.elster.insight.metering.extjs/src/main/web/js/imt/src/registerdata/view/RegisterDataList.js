@@ -10,7 +10,7 @@ Ext.define('Imt.registerdata.view.RegisterDataList', {
     store: 'Imt.registerdata.store.RegisterData',
     overflowY: 'auto',
     itemId: 'registerDataList',
-    title: Uni.I18n.translate('registers.registerDataList', 'IMT', 'Readings'),
+//    title: Uni.I18n.translate('registers.registerDataList', 'IMT', 'Readings'),
     viewConfig: {
         style: { overflow: 'auto', overflowX: 'hidden' },
         enableTextSelection: true

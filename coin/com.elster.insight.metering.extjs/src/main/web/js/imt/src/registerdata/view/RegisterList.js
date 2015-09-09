@@ -48,13 +48,13 @@ Ext.define('Imt.registerdata.view.RegisterList', {
             flex: 1,
             dataIndex: 'lastReadingValue', 
         },
-        {
-            xtype: 'uni-actioncolumn',
-            menu: {
-                xtype: 'registerActionMenu',
-                itemId: 'registerActionMenu'
-            }
-        }
+//        {
+//            xtype: 'uni-actioncolumn',
+//            menu: {
+//                xtype: 'registerActionMenu',
+//                itemId: 'registerActionMenu'
+//            }
+//        }
     ];
 //        me.dockedItems = [
 //              {
