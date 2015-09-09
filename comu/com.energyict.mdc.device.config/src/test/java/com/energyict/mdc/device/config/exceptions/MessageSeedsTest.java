@@ -1,9 +1,11 @@
 package com.energyict.mdc.device.config.exceptions;
 
-import org.junit.*;
+import com.energyict.mdc.device.config.impl.MessageSeeds;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

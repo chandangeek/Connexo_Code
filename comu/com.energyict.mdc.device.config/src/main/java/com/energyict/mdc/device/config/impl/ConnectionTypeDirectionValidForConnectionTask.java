@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.protocol.api.ConnectionType;
 
 import javax.validation.Constraint;

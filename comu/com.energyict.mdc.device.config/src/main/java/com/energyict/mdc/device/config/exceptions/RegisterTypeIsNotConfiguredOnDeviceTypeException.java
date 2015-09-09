@@ -4,6 +4,7 @@ import com.energyict.mdc.masterdata.MeasurementType;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Copyrights EnergyICT
@@ -12,8 +13,8 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class RegisterTypeIsNotConfiguredOnDeviceTypeException extends LocalizedException {
 
-    public RegisterTypeIsNotConfiguredOnDeviceTypeException(Thesaurus thesaurus, MeasurementType measurementType) {
-        super(thesaurus, MessageSeeds.REGISTER_SPEC_REGISTER_TYPE_IS_NOT_ON_DEVICE_TYPE, measurementType.getReadingType().getAliasName());
+    public RegisterTypeIsNotConfiguredOnDeviceTypeException(MeasurementType measurementType, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, measurementType.getReadingType().getAliasName());
         set("measurementTypeId", measurementType.getId());
     }
 

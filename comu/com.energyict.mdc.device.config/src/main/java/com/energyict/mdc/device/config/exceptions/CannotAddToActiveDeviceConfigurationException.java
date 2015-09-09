@@ -26,8 +26,8 @@ public class CannotAddToActiveDeviceConfigurationException extends LocalizedExce
      * @param thesaurus The Thesaurus
      * @return The CannotAddToActiveDeviceConfigurationException
      */
-    public static CannotAddToActiveDeviceConfigurationException aNewLoadProfileSpec(Thesaurus thesaurus) {
-        return new CannotAddToActiveDeviceConfigurationException(thesaurus, MessageSeeds.LOAD_PROFILE_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION);
+    public static CannotAddToActiveDeviceConfigurationException aNewLoadProfileSpec(Thesaurus thesaurus, MessageSeed messageSeed) {
+        return new CannotAddToActiveDeviceConfigurationException(thesaurus, messageSeed);
     }
 
     /**
@@ -38,8 +38,8 @@ public class CannotAddToActiveDeviceConfigurationException extends LocalizedExce
      * @param thesaurus The Thesaurus
      * @return The CannotAddToActiveDeviceConfigurationException
      */
-    public static CannotAddToActiveDeviceConfigurationException aNewChannelSpec(Thesaurus thesaurus) {
-        return new CannotAddToActiveDeviceConfigurationException(thesaurus, MessageSeeds.CHANNEL_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION);
+    public static CannotAddToActiveDeviceConfigurationException aNewChannelSpec(Thesaurus thesaurus, MessageSeed messageSeed) {
+        return new CannotAddToActiveDeviceConfigurationException(thesaurus, messageSeed);
     }
 
     /**
@@ -50,8 +50,8 @@ public class CannotAddToActiveDeviceConfigurationException extends LocalizedExce
      * @param thesaurus The Thesaurus
      * @return The CannotAddToActiveDeviceConfigurationException
      */
-    public static CannotAddToActiveDeviceConfigurationException aNewLogBookSpec(Thesaurus thesaurus) {
-        return new CannotAddToActiveDeviceConfigurationException(thesaurus, MessageSeeds.LOGBOOK_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIGURATION);
+    public static CannotAddToActiveDeviceConfigurationException aNewLogBookSpec(Thesaurus thesaurus, MessageSeed messageSeed) {
+        return new CannotAddToActiveDeviceConfigurationException(thesaurus, messageSeed);
     }
 
     /**
@@ -62,7 +62,8 @@ public class CannotAddToActiveDeviceConfigurationException extends LocalizedExce
      * @param thesaurus The Thesaurus
      * @return The CannotAddToActiveDeviceConfigurationException
      */
-    public static CannotAddToActiveDeviceConfigurationException aNewRegisterSpec(Thesaurus thesaurus) {
-        return new CannotAddToActiveDeviceConfigurationException(thesaurus, MessageSeeds.REGISTER_SPEC_CANNOT_ADD_TO_ACTIVE_CONFIG);
+    public static CannotAddToActiveDeviceConfigurationException aNewRegisterSpec(Thesaurus thesaurus, MessageSeed messageSeed) {
+        return new CannotAddToActiveDeviceConfigurationException(thesaurus, messageSeed);
     }
+
 }

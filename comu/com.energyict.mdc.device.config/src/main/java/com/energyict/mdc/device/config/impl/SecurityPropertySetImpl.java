@@ -116,7 +116,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     protected void validateDelete() {
         List<ComTaskEnablement> comTaskEnablements = this.getDataModel().mapper(ComTaskEnablement.class).find(ComTaskEnablementImpl.Fields.SECURITY_PROPERTY_SET.fieldName(), this);
         if (!comTaskEnablements.isEmpty()) {
-            throw new CannotDeleteSecurityPropertySetWhileInUseException(this.getThesaurus(), this);
+            throw new CannotDeleteSecurityPropertySetWhileInUseException(this, this.getThesaurus(), MessageSeeds.SECURITY_PROPERTY_SET_IN_USE);
         }
         this.getEventService().postEvent(EventType.SECURITY_PROPERTY_SET_VALIDATE_DELETE.topic(), this);
     }

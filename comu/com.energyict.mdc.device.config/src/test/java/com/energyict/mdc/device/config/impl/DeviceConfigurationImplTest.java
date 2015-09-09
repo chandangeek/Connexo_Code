@@ -17,7 +17,6 @@ import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotAddToActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLoadProfileTypeException;
 import com.energyict.mdc.device.config.exceptions.DuplicateLogBookTypeException;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -35,16 +34,14 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.rules.*;
 import org.mockito.Matchers;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;

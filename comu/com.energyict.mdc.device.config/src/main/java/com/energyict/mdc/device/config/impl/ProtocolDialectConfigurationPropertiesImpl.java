@@ -17,7 +17,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteProtocolDialectConfigurationPropertiesWhileInUseException;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.NoSuchPropertyOnDialectException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -69,7 +68,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         this.getEventService().postEvent(EventType.PROTOCOLCONFIGURATIONPROPS_VALIDATEDELETE.topic(), this);
         List<ComTaskEnablement> comTaskEnablements = this.dataModel.mapper(ComTaskEnablement.class).find(ComTaskEnablementImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName(), this);
         if (!comTaskEnablements.isEmpty()) {
-            throw new CannotDeleteProtocolDialectConfigurationPropertiesWhileInUseException(this.getThesaurus(), this);
+            throw new CannotDeleteProtocolDialectConfigurationPropertiesWhileInUseException(this, this.getThesaurus(), MessageSeeds.PROTOCOLDIALECT_CONF_PROPS_IN_USE);
         }
     }
 
@@ -254,7 +253,7 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     private String asStringValue(String name, Object value) {
         PropertySpec propertySpec = getPropertySpec(name);
         if (propertySpec == null) {
-            throw new NoSuchPropertyOnDialectException(this.getThesaurus(), getDeviceProtocolDialect(), name);
+            throw new NoSuchPropertyOnDialectException(getDeviceProtocolDialect(), name, this.getThesaurus(), MessageSeeds.PROTOCOL_DIALECT_HAS_NO_SUCH_PROPERTY);
         }
         return propertySpec.getValueFactory().toStringValue(value);
     }

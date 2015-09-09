@@ -9,11 +9,10 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -116,7 +115,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PartialOutboundConnectionTaskCrudIT {

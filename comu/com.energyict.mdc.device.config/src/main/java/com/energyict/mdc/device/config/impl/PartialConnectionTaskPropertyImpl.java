@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
 
