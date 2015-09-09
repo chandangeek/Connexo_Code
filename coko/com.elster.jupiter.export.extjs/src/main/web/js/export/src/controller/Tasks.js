@@ -324,13 +324,28 @@ Ext.define('Dxp.controller.Tasks', {
     },
 
     showAddDestination: function (button) {
+        this.doShowAddOrEditDestination(false);
+    },
+
+    showEditDestination: function() {
+        this.doShowAddOrEditDestination(true);
+    },
+
+    doShowAddOrEditDestination: function(edit) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
-            addDestinationRoute = router.currentRoute + '/destination';
+            addDestinationRoute = router.currentRoute + '/destination',
+            route;
+
         me.destinationsArray = [];
         me.saveFormValues();
-        router.getRoute(addDestinationRoute).forward();
-
+        route = router.getRoute(addDestinationRoute);
+        if (edit) {
+            route.setTitle(Uni.I18n.translate('dataExport.editDestination', 'DES', 'Edit destination'));
+        } else {
+            route.setTitle(Uni.I18n.translate('dataExport.addDestination', 'DES', 'Add destination'));
+        }
+        route.forward();
     },
 
     addDestination: function () {
@@ -670,7 +685,7 @@ Ext.define('Dxp.controller.Tasks', {
                 // edit = remove + add new
                 me.destinationIndexToEdit = destinationsGrid.getStore().indexOf(menu.record);
                 destinationsGrid.getStore().remove(menu.record);
-                me.showAddDestination();
+                me.showEditDestination();
                 break;
         }
 
