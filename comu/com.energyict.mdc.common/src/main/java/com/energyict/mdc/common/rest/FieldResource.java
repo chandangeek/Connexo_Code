@@ -257,7 +257,7 @@ public class FieldResource {
         }
 
         @Override
-        public NlsMessageFormat getSimpleFormat(TranslationKey key) {
+        public NlsMessageFormat getFormat(TranslationKey key) {
             return null;
         }
 
