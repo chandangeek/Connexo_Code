@@ -1,7 +1,31 @@
 package com.elster.jupiter.demo.impl;
 
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.favorites.FavoritesService;
+import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
+
 import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.demo.impl.commands.*;
+import com.elster.jupiter.demo.impl.commands.CreateA3DeviceCommand;
+import com.elster.jupiter.demo.impl.commands.CreateApplicationServerCommand;
+import com.elster.jupiter.demo.impl.commands.CreateAssignmentRulesCommand;
+import com.elster.jupiter.demo.impl.commands.CreateCollectRemoteDataSetupCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDeliverDataSetupCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDemoDataCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDeviceTypeCommand;
+import com.elster.jupiter.demo.impl.commands.CreateG3GatewayCommand;
+import com.elster.jupiter.demo.impl.commands.CreateG3SlaveCommand;
+import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
+import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
+import com.elster.jupiter.demo.impl.commands.CreateValidationSetupCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateValidationDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddIntervalChannelReadingsCommand;
@@ -25,18 +49,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.favorites.FavoritesService;
-import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -105,7 +117,6 @@ public class DemoServiceImpl {
     private boolean reThrowEx = false;
 
     public DemoServiceImpl(){
-
     }
 
     @Inject
@@ -139,6 +150,7 @@ public class DemoServiceImpl {
             Clock clock,
             IdsService idsService,
             FirmwareService firmwareService) {
+        this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
         setValidationService(validationService);
@@ -402,7 +414,9 @@ public class DemoServiceImpl {
         } catch (Exception ex) {
             System.out.println("Transaction failed!");
             ex.printStackTrace();
-            if (reThrowEx) throw ex;
+            if (reThrowEx) {
+                throw ex;
+            }
         } finally {
             clearPrincipal();
         }
