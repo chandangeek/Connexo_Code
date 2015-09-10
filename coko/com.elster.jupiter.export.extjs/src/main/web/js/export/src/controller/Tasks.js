@@ -229,6 +229,7 @@ Ext.define('Dxp.controller.Tasks', {
                     deviceGroup = detailsForm.down('#data-selector-deviceGroup-preview'),
                     exportPeriod = detailsForm.down('#data-selector-exportPeriod-preview'),
                     readingTypes = detailsForm.down('#data-selector-readingTypes-preview'),
+                    continuousDataPreview = detailsForm.down('#continuousData-preview'),
                     dataValidation = detailsForm.down('#data-selector-validated-data'),
                     missingData = detailsForm.down('#data-selector-export-complete'),
                     updatedData = detailsForm.down('#updated-data');
@@ -257,6 +258,7 @@ Ext.define('Dxp.controller.Tasks', {
                     dataValidation.setVisible(false);
                     missingData.setVisible(false);
                     updatedData.setVisible(false);
+                    continuousDataPreview.setVisible(false);
                     selectorPropertyForm.loadRecord(record.getDataSelector());
 
                 } else {
@@ -267,6 +269,7 @@ Ext.define('Dxp.controller.Tasks', {
                     dataValidation.setVisible(true);
                     missingData.setVisible(true);
                     updatedData.setVisible(true);
+                    continuousDataPreview.setVisible(true);
                 }
             }
         });
@@ -542,19 +545,20 @@ Ext.define('Dxp.controller.Tasks', {
             fileFormatterCombo = view.down('#file-formatter-combo'),
             deviceGroupCombo = view.down('#device-group-combo'),
             exportPeriodCombo = view.down('#export-period-combo'),
+
             dataSelectorCombo = view.down('#data-selector-combo'),
             emptyDestinationsLabel = view.down('#noDestinationsLabel'),
             destinationsGrid = view.down('#task-destinations-grid'),
             destinationsStore = view.down('#task-destinations-grid').getStore(),
             readingTypesStore = view.down('#readingTypesGridPanel').getStore(),
-            recurrenceTypeCombo = view.down('#recurrence-type');
             recurrenceTypeCombo = view.down('#recurrence-type'),
             missingData = view.down('#data-selector-export-complete'),
             updatedDataRadioGroup = view.down('#updated-data-trigger'),
             updatePeriodCombo = view.down('#update-window'),
-            updateWindowCombo = view.down('#timeFrame'),
+            updateWindowCombo = view.down('#update-window'),
             timeFrameRadioGroup = view.down('#export-updated'),
-            continuousDataRadioGroup =  view.down('#continuous-data-radiogroup');
+            continuousDataRadioGroup =  view.down('#continuous-data-radiogroup'),
+            timeframeCombo = view.down('#timeFrame');
 
         //readingTypesStore.removeAll();
         destinationsStore.removeAll();
@@ -621,6 +625,25 @@ Ext.define('Dxp.controller.Tasks', {
                                         exportPeriodCombo.setValue(exportPeriodCombo.store.getById(record.getStandardDataSelector().data.exportPeriod.id));
                                     }
                                 });
+                                updateWindowCombo.store.load({
+                                    params: {
+                                        category: 'relativeperiod.category.updateWindow'
+                                    },
+                                    callback: function () {
+                                        debugger;
+                                        updateWindowCombo.setValue(updateWindowCombo.store.getById(record.getStandardDataSelector().data.updateWindow.id));
+                                    }
+                                });
+                                timeframeCombo.store.load({
+                                    params: {
+                                        category: 'relativeperiod.category.updateTimeframe'
+                                    },
+                                    callback: function () {
+                                        debugger;
+                                        timeframeCombo.setValue(timeframeCombo.store.getById(record.getStandardDataSelector().data.updatePeriod.id));
+                                    }
+                                });
+
                                 deviceGroupCombo.store.load({
                                     callback: function () {
                                         if (this.getCount() === 0) {

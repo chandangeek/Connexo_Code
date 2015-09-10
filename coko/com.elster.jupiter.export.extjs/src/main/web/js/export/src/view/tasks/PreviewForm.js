@@ -153,6 +153,17 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                         }
                     },
                     {
+                        fieldLabel: ' ',
+                        name: 'exportContinuousData',
+                        hidden: true,
+                        itemId: 'continuousData-preview',
+                        renderer: function (value) {
+                            var option = value==='true'?Uni.I18n.translate('general.continuousData', 'DES', 'last exported data (continuous data)'):
+                                Uni.I18n.translate('general.startOfExportWindow', 'DES', 'start of export window');
+                            return Uni.I18n.translate('general.startingFrom', 'DES', 'Starting from') + ' ' + option;
+                        }
+                    },
+                    {
                         fieldLabel: Uni.I18n.translate('general.exportUpdate', 'DES', 'Updated data'),
                         name: 'exportUpdate',
                         hidden: true,
