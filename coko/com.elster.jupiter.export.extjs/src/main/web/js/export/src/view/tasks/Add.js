@@ -234,18 +234,20 @@ Ext.define('Dxp.view.tasks.Add', {
                                 editable: false,
                                 disabled: false,
                                 emptyText: Uni.I18n.translate('addDataExportTask.deviceGroupPrompt', 'DES', 'Select a device group...'),
-                                //allowBlank: false,
                                 queryMode: 'local',
                                 displayField: 'name',
                                 valueField: 'id'
                             },
                             {
-                                xtype: 'displayfield',
+                                xtype: 'component',
+                                html: Uni.I18n.translate('general.noDeviceGroup', 'DES', 'No device group defined yet.'),
                                 itemId: 'no-device',
-                                htmlEncode: false,
                                 hidden: true,
-                                value: '<div style="color: #FF0000">' + Uni.I18n.translate('general.noDeviceGroup', 'DES', 'No device group defined yet.') + '</div>',
-                                width: 235
+                                width: 235,
+                                style: {
+                                    'color': '#FF0000',
+                                    'margin': '6px 10px 6px 0px'
+                                }
                             }
                         ]
                     },
