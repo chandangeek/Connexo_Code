@@ -630,7 +630,6 @@ Ext.define('Dxp.controller.Tasks', {
                                         category: 'relativeperiod.category.updateWindow'
                                     },
                                     callback: function () {
-                                        debugger;
                                         updateWindowCombo.setValue(updateWindowCombo.store.getById(record.getStandardDataSelector().data.updateWindow.id));
                                     }
                                 });
@@ -639,7 +638,6 @@ Ext.define('Dxp.controller.Tasks', {
                                         category: 'relativeperiod.category.updateTimeframe'
                                     },
                                     callback: function () {
-                                        debugger;
                                         timeframeCombo.setValue(timeframeCombo.store.getById(record.getStandardDataSelector().data.updatePeriod.id));
                                     }
                                 });
