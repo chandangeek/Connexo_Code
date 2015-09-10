@@ -185,7 +185,7 @@ public abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> 
                 newStateMachine
                         .getState(stateName)
                         .orElseThrow(() -> new StateNoLongerExistsException(stateName)));
-        this.touch();
+        this.dataModel.update(this, "stateMachine");
     }
 
     public void touch() {
