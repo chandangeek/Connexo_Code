@@ -27,6 +27,7 @@ import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdw.core.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
@@ -135,7 +136,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         addDefaultValuesIfNecessary(gatewayProtocol, dialectProperties);
 
         DLMSCache dummyCache = new DLMSCache(new UniversalObject[0], 0);     //Empty cache, prevents that the protocol will read out the object list
-        OfflineDevice offlineDevice = context.getInboundDAO().findOfflineDevice(getDeviceIdentifier());
+        OfflineDevice offlineDevice = context.getInboundDAO().goOffline(getDeviceIdentifier(), new DeviceOfflineFlags());   //Empty flags means don't load any master data
         createTcpComChannel();
         gatewayProtocol.setDeviceCache(dummyCache);
         gatewayProtocol.addProperties(protocolProperties);

@@ -64,7 +64,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
     @Override
     protected Structure createMacAndKeyPair(OctetString macAddressOctetString, OctetString wrappedPSKKey, DeviceIdentifier slaveDeviceIdentifier) {
         final Structure macAndKeyPair = super.createMacAndKeyPair(macAddressOctetString, wrappedPSKKey, slaveDeviceIdentifier);
-        macAndKeyPair.addDataType(OctetString.fromString(context.getInboundDAO().findOfflineDevice(slaveDeviceIdentifier).getDeviceProtocolPluggableClass().getJavaClassName()));
+        macAndKeyPair.addDataType(OctetString.fromString(context.getInboundDAO().getDeviceProtocol(slaveDeviceIdentifier)));
         return macAndKeyPair;
     }
 
