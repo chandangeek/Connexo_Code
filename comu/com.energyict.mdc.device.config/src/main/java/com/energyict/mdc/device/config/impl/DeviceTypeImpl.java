@@ -46,8 +46,7 @@ import java.util.stream.Collectors;
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements ServerDeviceType {
 
     enum Fields {
-        CONFLICTINGMAPPING("deviceConfigConflictMappings"),
-        ;
+        CONFLICTINGMAPPING("deviceConfigConflictMappings"),;
 
         private final String javaFieldName;
 
@@ -75,7 +74,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
     private List<DeviceTypeRegisterTypeUsage> registerTypeUsages = new ArrayList<>();
     @Valid
-    private List<DeviceConfigConflictMapping> deviceConfigConflictMappings = new ArrayList<>();
+    private List<DeviceConfigConflictMappingImpl> deviceConfigConflictMappings = new ArrayList<>();
     private long deviceProtocolPluggableClassId;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
@@ -228,31 +227,29 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         getDeviceConfigConflictMappingEngine().reCalculateConflicts();
     }
 
-    private DeviceConfigConflictMappingEngine getDeviceConfigConflictMappingEngine(){
-        if(this.deviceConfigConflictMappingEngine == null){
+    private DeviceConfigConflictMappingEngine getDeviceConfigConflictMappingEngine() {
+        if (this.deviceConfigConflictMappingEngine == null) {
             this.deviceConfigConflictMappingEngine = new DeviceConfigConflictMappingEngine(this);
         }
         return this.deviceConfigConflictMappingEngine;
     }
 
     @Override
-    public DeviceConfigConflictMapping newConflictMappingFor(DeviceConfiguration origin, DeviceConfiguration destination) {
-        DeviceConfigConflictMapping deviceConfigConflictMapping = getDataModel().getInstance(DeviceConfigConflictMappingImpl.class).initialize(this, origin, destination);
+    public DeviceConfigConflictMappingImpl newConflictMappingFor(DeviceConfiguration origin, DeviceConfiguration destination) {
+        DeviceConfigConflictMappingImpl deviceConfigConflictMapping = getDataModel().getInstance(DeviceConfigConflictMappingImpl.class).initialize(this, origin, destination);
         this.deviceConfigConflictMappings.add(deviceConfigConflictMapping);
         return deviceConfigConflictMapping;
     }
 
-    //TODO check to generify
     @Override
     public void removeConflictsFor(PartialConnectionTask partialConnectionTask) {
         this.deviceConfigConflictMappings.stream().filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == partialConnectionTask.getConfiguration().getId() || deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == partialConnectionTask.getConfiguration().getId())
-        .forEach(deviceConfigConflictMapping -> {
-            List<ConflictingConnectionMethodSolution> conflictsWithGivenConnectionTask = deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().stream().filter(conflictingConnectionMethodSolution -> conflictingConnectionMethodSolution.getDestinationDataSource().getId() == partialConnectionTask.getId() || conflictingConnectionMethodSolution.getOriginDataSource().getId() == partialConnectionTask.getId()).collect(Collectors.toList());
-            conflictsWithGivenConnectionTask.stream().forEach(deviceConfigConflictMapping::removeConnectionMethodSolution);
-        });
+                .forEach(deviceConfigConflictMapping -> {
+                    List<ConflictingConnectionMethodSolution> conflictsWithGivenConnectionTask = deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().stream().filter(conflictingConnectionMethodSolution -> conflictingConnectionMethodSolution.getDestinationDataSource().getId() == partialConnectionTask.getId() || conflictingConnectionMethodSolution.getOriginDataSource().getId() == partialConnectionTask.getId()).collect(Collectors.toList());
+                    conflictsWithGivenConnectionTask.stream().forEach(deviceConfigConflictMapping::removeConnectionMethodSolution);
+                });
     }
 
-    //TODO check to generify
     @Override
     public void removeConflictsFor(SecurityPropertySet securityPropertySet) {
         this.deviceConfigConflictMappings.stream().filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == securityPropertySet.getDeviceConfiguration().getId() || deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == securityPropertySet.getDeviceConfiguration().getId())
@@ -270,7 +267,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     private void setDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle, Instant effective) {
         Interval effectivityInterval = Interval.of(Range.atLeast(effective));
-        if(deviceLifeCycle != null) {
+        if (deviceLifeCycle != null) {
             this.deviceLifeCycle.add(
                     this.getDataModel()
                             .getInstance(DeviceLifeCycleInDeviceTypeImpl.class)
@@ -326,7 +323,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public List<DeviceConfigConflictMapping> getDeviceConfigConflictMappings() {
-        return deviceConfigConflictMappings;
+        return deviceConfigConflictMappings.stream().map(deviceConfigConflictMapping -> ((DeviceConfigConflictMapping) deviceConfigConflictMapping)).collect(Collectors.toList());
     }
 
     @Override
@@ -760,7 +757,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
         @Override
         public DeviceConfigurationBuilder gatewayType(GatewayType gatewayType) {
-            if (gatewayType != null && !GatewayType.NONE.equals(gatewayType)){
+            if (gatewayType != null && !GatewayType.NONE.equals(gatewayType)) {
                 canActAsGateway(true);
             }
             underConstruction.setGatewayType(gatewayType);

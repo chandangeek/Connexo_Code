@@ -27,10 +27,4 @@ public interface DeviceConfigConflictMapping extends HasId {
     List<ConflictingSecuritySetSolution> getConflictingSecuritySetSolutions();
 
     boolean isSolved();
-
-    void newConflictingConnectionMethods(PartialConnectionTask origin, PartialConnectionTask destination);
-    void newConflictingSecurityPropertySets(SecurityPropertySet origin, SecurityPropertySet destination);
-
-    void removeConnectionMethodSolution(ConflictingConnectionMethodSolution conflictingConnectionMethodSolution);
-    void removeSecuritySetSolution(ConflictingSecuritySetSolution conflictingSecuritySetSolution);
 }

@@ -25,13 +25,13 @@ public interface ServerDeviceType extends DeviceType {
     void updateConflictingMappings();
 
     /**
-     * Creates a new DeviceConfigConflictMapping.
+     * Creates a new DeviceConfigConflictMappingImpl.
      *
      * @param origin the origin DeviceConfiguration
      * @param destination the destination DeviceConfiguration
      * @return a newly created DeviceConfigConflictMapping for this DeviceType with the given configs
      */
-    DeviceConfigConflictMapping newConflictMappingFor(DeviceConfiguration origin, DeviceConfiguration destination);
+    DeviceConfigConflictMappingImpl newConflictMappingFor(DeviceConfiguration origin, DeviceConfiguration destination);
 
     /**
      * Cleans up the DeviceConfigConflictMapping which use the given partialConnectionTask
