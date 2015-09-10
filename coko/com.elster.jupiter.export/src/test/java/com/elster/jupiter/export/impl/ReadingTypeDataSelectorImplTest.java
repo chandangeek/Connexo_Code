@@ -151,7 +151,7 @@ public class ReadingTypeDataSelectorImplTest {
         doReturn(READING_TYPE_MRID).when(readingType).getMRID();
         doReturn(UPDATE_WINDOW_INTERVAL).when(updateWindow).getOpenClosedInterval(UPDATED_RECORD_TIME);
         doReturn(validationEvaluator).when(validationService).getEvaluator();
-
+        doReturn(Optional.of(occurrence)).when(occurrence).getDefaultSelectorOccurrence();
     }
 
     @After

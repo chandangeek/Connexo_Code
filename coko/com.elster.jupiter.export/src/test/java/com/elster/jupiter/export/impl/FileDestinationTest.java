@@ -172,7 +172,7 @@ public class FileDestinationTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}")
+    @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}", strict=false)
     public void testCreateDestinationWithInvalidFileExtensionAstrix() throws Exception {
         FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
         fileDestination.init(null, RELATIVE_DIR, FILENAME, "EX*E");
@@ -180,7 +180,7 @@ public class FileDestinationTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}")
+    @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}",strict=false)
     public void testCreateDestinationWithInvalidFileExtensionQuotedAstrix() throws Exception {
         FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
         fileDestination.init(null, RELATIVE_DIR, FILENAME, "EX\\*E");

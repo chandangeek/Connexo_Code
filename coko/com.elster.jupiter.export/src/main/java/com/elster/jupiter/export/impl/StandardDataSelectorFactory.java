@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class StandardDataSelectorFactory implements DataSelectorFactory {
-
+    private final String DISPLAYNAME = "Device readings data selector";
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
     private final MeteringService meteringService;
@@ -53,7 +53,7 @@ public class StandardDataSelectorFactory implements DataSelectorFactory {
 
     @Override
     public String getDisplayName() {
-        return thesaurus.getString(getNlsKey().getKey(), getName());
+        return thesaurus.getString(getNlsKey().getKey(), DISPLAYNAME);
     }
 
     @Override

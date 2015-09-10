@@ -12,4 +12,6 @@ public interface DataFormatterFactory extends HasDynamicProperties, HasName {
 
     void validateProperties(List<DataExportProperty> properties);
 
+    String getDisplayName();
+
 }
