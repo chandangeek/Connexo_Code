@@ -54,7 +54,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.dataProcessor = new ProcessorInfo();
         info.dataProcessor.name = "dataProcessor";
         info.dataSelector = new SelectorInfo();
-        info.dataSelector.name = "Standard Data Selector";
+        info.dataSelector.name = "Device readings data selector";
         DestinationInfo fileDestinationInfo = new DestinationInfo();
         fileDestinationInfo.type = DestinationType.FILE;
         fileDestinationInfo.fileLocation = "";

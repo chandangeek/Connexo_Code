@@ -84,7 +84,7 @@ public class DataExportTaskInfo {
         dataSelector =
                 new SelectorInfo(
                         selector,
-                        thesaurus.getStringBeyondComponent(selector, selector),
+                        thesaurus.getStringBeyondComponent(selector, "Device readings data selector"),
                         propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataSelectorPropertySpecs(), dataExportTask.getProperties()),
                         selector.equals(DataExportService.STANDARD_DATA_SELECTOR));
 //TODO above : pass correct property info
