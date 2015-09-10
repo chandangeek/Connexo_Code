@@ -12,6 +12,7 @@
 
     <artifactId>mdc.gogo</artifactId>
     <packaging>bundle</packaging>
+    <version>1.0.0-SNAPSHOT</version>
     <name>[MDC] mdc.gogo</name>
 
     <build>
