@@ -948,7 +948,7 @@ public class DeviceImpl implements Device, CanLock {
                                 channel.getLoadProfile(),
                                 interval,
                                 meter.get());
-                Range<Instant> clipped = Ranges.openClosed(meterActivationClipped(meter.get(), interval), lastReadingClipped(channel.getLoadProfile(), interval));
+                Range<Instant> clipped = Ranges.openClosed(interval.lowerEndpoint(), lastReadingClipped(channel.getLoadProfile(), interval));
                 meterHasData = this.addChannelDataToMap(clipped, meter.get(), channel, sortedLoadProfileReadingMap);
                 if (meterHasData) {
                     loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
@@ -1199,15 +1199,6 @@ public class DeviceImpl implements Device, CanLock {
             default: {
                 throw new IllegalArgumentException("Unsupported load profile interval length unit " + loadProfile.getInterval().getTimeUnit());
             }
-        }
-    }
-
-    private Instant meterActivationClipped(Meter meter, Range<Instant> interval) {
-        if (meter.getCurrentMeterActivation().isPresent() && interval.contains(meter.getCurrentMeterActivation().get().getStart())) {
-            return meter.getCurrentMeterActivation().get().getStart();
-        }
-        else {
-            return interval.lowerEndpoint();
         }
     }
 
