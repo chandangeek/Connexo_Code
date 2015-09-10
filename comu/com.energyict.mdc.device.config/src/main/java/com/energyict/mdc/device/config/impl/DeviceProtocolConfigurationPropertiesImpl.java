@@ -103,7 +103,7 @@ public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocol
                 this.addProperty(name, value, propertySpec.get());
             }
             else {
-                throw new NoSuchPropertyException(this.deviceConfiguration.getThesaurus(), this.getDeviceProtocolPluggableClass(), name);
+                throw new NoSuchPropertyException(this.getDeviceProtocolPluggableClass(), name, this.deviceConfiguration.getThesaurus(), MessageSeeds.PROTOCOL_HAS_NO_SUCH_PROPERTY);
             }
         }
         else {
@@ -126,7 +126,7 @@ public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocol
     }
 
     private void doRemoveProperty(String name) {
-        this.findPropertySpec(name).orElseThrow(() -> new NoSuchPropertyException(this.deviceConfiguration.getThesaurus(), this.getDeviceProtocolPluggableClass(), name));
+        this.findPropertySpec(name).orElseThrow(() -> new NoSuchPropertyException(this.getDeviceProtocolPluggableClass(), name, this.deviceConfiguration.getThesaurus(), MessageSeeds.PROTOCOL_HAS_NO_SUCH_PROPERTY));
         if (this.deviceConfiguration.removeProtocolProperty(name)) {
             this.properties.removeProperty(name);
         }

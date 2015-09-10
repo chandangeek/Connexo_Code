@@ -1,5 +1,13 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.exceptions.CannotChangeLogbookTypeOfLogbookSpecException;
+import com.energyict.mdc.device.config.exceptions.LogbookTypeIsNotConfiguredOnDeviceTypeException;
+import com.energyict.mdc.masterdata.LogBookType;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -8,14 +16,6 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.exceptions.CannotChangeLogbookTypeOfLogbookSpecException;
-import com.energyict.mdc.device.config.exceptions.LogbookTypeIsNotConfiguredOnDeviceTypeException;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.masterdata.LogBookType;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -98,7 +98,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
                 return;
             }
         }
-        throw new LogbookTypeIsNotConfiguredOnDeviceTypeException(this.getThesaurus(), getLogBookType());
+        throw new LogbookTypeIsNotConfiguredOnDeviceTypeException(getLogBookType(), this.getThesaurus(), MessageSeeds.LOGBOOK_SPEC_LOGBOOK_TYPE_IS_NOT_ON_DEVICE_TYPE);
     }
 
     private void validateUpdate() {
@@ -142,7 +142,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
 
     private void validateLogbookTypeForUpdate(LogBookType loadProfileType) {
         if (this.logBookType.isPresent() && this.getLogBookType().getId() != loadProfileType.getId()) {
-            throw new CannotChangeLogbookTypeOfLogbookSpecException(this.getThesaurus());
+            throw new CannotChangeLogbookTypeOfLogbookSpecException(this.getThesaurus(), MessageSeeds.LOGBOOK_SPEC_CANNOT_CHANGE_LOGBOOK_TYPE);
         }
     }
 

@@ -4,6 +4,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when client code is using a property
@@ -14,8 +15,8 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class NoSuchPropertyException extends LocalizedException {
 
-    public NoSuchPropertyException(Thesaurus thesaurus, DeviceProtocolPluggableClass deviceProtocol, String propertyName) {
-        super(thesaurus, MessageSeeds.PROTOCOL_HAS_NO_SUCH_PROPERTY, deviceProtocol.getName(), propertyName);
+    public NoSuchPropertyException(DeviceProtocolPluggableClass deviceProtocol, String propertyName, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, deviceProtocol.getName(), propertyName);
         set("deviceProtocolPluggableClass", deviceProtocol);
         set("propertyName", propertyName);
     }

@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import javax.validation.Constraint;
+import javax.validation.Payload;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import javax.validation.Constraint;
-import javax.validation.Payload;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 

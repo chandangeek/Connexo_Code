@@ -1,10 +1,12 @@
 package com.energyict.mdc.device.config.exceptions;
 
-import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.LoadProfileSpec;
+
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an
@@ -16,28 +18,28 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
  */
 public class DuplicateObisCodeException extends LocalizedException {
 
-    private DuplicateObisCodeException(Thesaurus thesaurus, MessageSeeds messageSeed, Object... args) {
+    private DuplicateObisCodeException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
         super(thesaurus, messageSeed, args);
     }
 
-    public static DuplicateObisCodeException forLoadProfileSpec(Thesaurus thesaurus, DeviceConfiguration deviceConfiguration, ObisCode obisCode) {
-        return new DuplicateObisCodeException(thesaurus, MessageSeeds.DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_LOAD_PROFILE_SPEC, deviceConfiguration.getName(), obisCode);
+    public static DuplicateObisCodeException forLoadProfileSpec(DeviceConfiguration deviceConfiguration, ObisCode obisCode, Thesaurus thesaurus, MessageSeed messageSeed) {
+        return new DuplicateObisCodeException(thesaurus, messageSeed, deviceConfiguration.getName(), obisCode);
     }
 
-    public static DuplicateObisCodeException forLogBookSpec(Thesaurus thesaurus, DeviceConfiguration deviceConfiguration, ObisCode obisCode) {
-        return new DuplicateObisCodeException(thesaurus, MessageSeeds.DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_LOGBOOK_SPEC, deviceConfiguration.getName(), obisCode);
+    public static DuplicateObisCodeException forLogBookSpec(DeviceConfiguration deviceConfiguration, ObisCode obisCode, Thesaurus thesaurus, MessageSeed messageSeed) {
+        return new DuplicateObisCodeException(thesaurus, messageSeed, deviceConfiguration.getName(), obisCode);
     }
 
-    public static DuplicateObisCodeException forRegisterSpec(Thesaurus thesaurus, DeviceConfiguration deviceConfiguration, ObisCode obisCode) {
-        return new DuplicateObisCodeException(thesaurus, MessageSeeds.DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_REGISTER_SPEC, deviceConfiguration.getName(), obisCode);
+    public static DuplicateObisCodeException forRegisterSpec(Thesaurus thesaurus, DeviceConfiguration deviceConfiguration, ObisCode obisCode, MessageSeed messageSeed) {
+        return new DuplicateObisCodeException(thesaurus, messageSeed, deviceConfiguration.getName(), obisCode);
     }
 
-    public static DuplicateObisCodeException forChannelSpecInLoadProfileSpec(Thesaurus thesaurus, DeviceConfiguration deviceConfiguration, ObisCode obisCode, LoadProfileSpec loadProfileSpec) {
-        return new DuplicateObisCodeException(thesaurus, MessageSeeds.DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_CHANNEL_SPEC_IN_LOAD_PROFILE_SPEC, loadProfileSpec.getLoadProfileType().getName(), deviceConfiguration.getName(), obisCode);
+    public static DuplicateObisCodeException forChannelSpecInLoadProfileSpec(Thesaurus thesaurus, DeviceConfiguration deviceConfiguration, ObisCode obisCode, LoadProfileSpec loadProfileSpec, MessageSeed messageSeed) {
+        return new DuplicateObisCodeException(thesaurus, messageSeed, loadProfileSpec.getLoadProfileType().getName(), deviceConfiguration.getName(), obisCode);
     }
 
-    public static DuplicateObisCodeException forChannelSpecConfigWithoutLoadProfileSpec(Thesaurus thesaurus, DeviceConfiguration deviceConfiguration, ObisCode obisCode) {
-        return new DuplicateObisCodeException(thesaurus, MessageSeeds.DEVICE_CONFIGURATION_DUPLICATE_OBIS_CODE_FOR_CHANNEL_SPEC, deviceConfiguration.getName(), obisCode);
+    public static DuplicateObisCodeException forChannelSpecConfigWithoutLoadProfileSpec(DeviceConfiguration deviceConfiguration, ObisCode obisCode, Thesaurus thesaurus, MessageSeed messageSeed) {
+        return new DuplicateObisCodeException(thesaurus, messageSeed, deviceConfiguration.getName(), obisCode);
     }
 
 }

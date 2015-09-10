@@ -1,10 +1,10 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.orm.DataModel;
-
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+
+import com.elster.jupiter.orm.DataModel;
+
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.config.exceptions;
 
+import com.energyict.mdc.device.config.LoadProfileSpec;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
@@ -16,8 +18,9 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
  */
 public class LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException extends LocalizedException {
 
-    public LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException(Thesaurus thesaurus, LoadProfileSpec loadProfileSpec) {
-        super(thesaurus, MessageSeeds.CHANNEL_SPEC_LOAD_PROFILE_SPEC_IS_NOT_ON_DEVICE_CONFIGURATION, loadProfileSpec);
+    public LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException(LoadProfileSpec loadProfileSpec, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, loadProfileSpec);
         set("loadProfileSpec", loadProfileSpec);
     }
+
 }

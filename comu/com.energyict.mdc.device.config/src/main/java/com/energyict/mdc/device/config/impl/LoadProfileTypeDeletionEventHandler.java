@@ -58,11 +58,11 @@ public class LoadProfileTypeDeletionEventHandler implements TopicHandler {
     private void validateDelete(LoadProfileType loadProfileType) {
         List<DeviceType> deviceTypes = this.deviceConfigurationService.findDeviceTypesUsingLoadProfileType(loadProfileType);
         if (!deviceTypes.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.loadProfileTypeIsStillInUseByDeviceType(this.thesaurus, loadProfileType, deviceTypes);
+            throw CannotDeleteBecauseStillInUseException.loadProfileTypeIsStillInUseByDeviceType(loadProfileType, deviceTypes, this.thesaurus, MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_DEVICE_TYPES);
         }
         List<LoadProfileSpec> loadProfileSpecs = this.deviceConfigurationService.findLoadProfileSpecsByLoadProfileType(loadProfileType);
         if (!loadProfileSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.loadProfileTypeIsStillInUseByLoadProfileSpec(this.thesaurus, loadProfileType, loadProfileSpecs);
+            throw CannotDeleteBecauseStillInUseException.loadProfileTypeIsStillInUseByLoadProfileSpec(loadProfileType, loadProfileSpecs, this.thesaurus, MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS);
         }
     }
 

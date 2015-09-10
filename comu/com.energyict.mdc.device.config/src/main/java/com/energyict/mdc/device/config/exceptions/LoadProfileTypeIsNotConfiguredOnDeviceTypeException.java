@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.config.exceptions;
 
+import com.energyict.mdc.masterdata.LoadProfileType;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.masterdata.LoadProfileType;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
@@ -15,8 +17,8 @@ import com.energyict.mdc.masterdata.LoadProfileType;
  */
 public class LoadProfileTypeIsNotConfiguredOnDeviceTypeException extends LocalizedException{
 
-    public LoadProfileTypeIsNotConfiguredOnDeviceTypeException(Thesaurus thesaurus, LoadProfileType loadProfileType) {
-        super(thesaurus, MessageSeeds.LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_NOT_ON_DEVICE_TYPE, loadProfileType.getName());
+    public LoadProfileTypeIsNotConfiguredOnDeviceTypeException(LoadProfileType loadProfileType, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, loadProfileType.getName());
         set("loadProfileTypeName", loadProfileType.getName());
     }
 

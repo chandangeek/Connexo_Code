@@ -9,7 +9,6 @@ import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateChannelTypeException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredException;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -62,6 +61,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     private DeviceConfiguration deviceConfiguration;
     private LoadProfileType loadProfileType;
     private RegisterType registerType;
+    private RegisterType calculatedRegisterType;
     private Unit unit = Unit.get("kWh");
     private ChannelType channelType;
 
@@ -84,7 +84,9 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
             this.registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType, channelTypeObisCode);
             this.registerType.save();
         }
-        loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval, Arrays.asList(registerType));
+        createOrSetCalculatedRegisterType(readingType);
+
+        loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval, Arrays.asList(registerType, calculatedRegisterType));
         channelType = loadProfileType.findChannelType(registerType).get();
         loadProfileType.save();
 
@@ -92,10 +94,25 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.setDescription("For ChannelSpec Test purposes only");
         deviceType.addLoadProfileType(loadProfileType);
         deviceType.addRegisterType(registerType);
+        deviceType.addRegisterType(calculatedRegisterType);
 
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfiguration = deviceConfigurationBuilder.add();
         deviceType.save();
+    }
+
+    private void createOrSetCalculatedRegisterType(ReadingType readingType){
+        ReadingType calculatedReadingType = readingType.getCalculatedReadingType().get();
+        Optional<RegisterType> xRegisterType =
+                inMemoryPersistence.getMasterDataService()
+                        .findRegisterTypeByReadingType(calculatedReadingType);
+        if (xRegisterType.isPresent()) {
+            this.calculatedRegisterType = xRegisterType.get();
+        }
+        else {
+            this.calculatedRegisterType = inMemoryPersistence.getMasterDataService().newRegisterType(calculatedReadingType, channelTypeObisCode);
+            this.calculatedRegisterType.save();
+        }
     }
 
     private LoadProfileSpec createDefaultTestingLoadProfileSpecWithOverruledObisCode() {
@@ -392,6 +409,43 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         createDefaultChannelSpec(loadProfileSpec);
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
         channelSpecBuilder.add();
+    }
+
+    @Test(expected = DuplicateChannelTypeException.class)
+    @Transactional
+    public void createWithReadingTypeInUseAsPartOfCumulative() {
+        // Can we detect that the current reading type is used by channel with a cumulative reading type?
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+        createDefaultChannelSpec(loadProfileSpec);
+        ChannelType channelTypeForCalculatedRT = loadProfileType.findChannelType(calculatedRegisterType).get();
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelTypeForCalculatedRT, loadProfileSpec);
+        channelSpecBuilder.add();
+    }
+
+    @Test(expected = DuplicateChannelTypeException.class)
+    @Transactional
+    public void createWithReadingTypeInUse() {
+        // Can we detect that the current cumulative reading type (or its calculated reading type) is already used by channel?
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+        ChannelType channelTypeForCalculatedRT = loadProfileType.findChannelType(calculatedRegisterType).get();
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelTypeForCalculatedRT, loadProfileSpec);
+        channelSpecBuilder.add();
+        createDefaultChannelSpec(loadProfileSpec);
+    }
+
+    @Test(expected = DuplicateChannelTypeException.class)
+    @Transactional
+    public void createWithReadingTypeInUseByAnotherLoadProfileSpec() {
+        LoadProfileType loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME + "2", ObisCode.fromString("1.0.99.9.0.255"), interval, Arrays.asList(registerType));
+        loadProfileType.save();
+        deviceType.addLoadProfileType(loadProfileType);
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+        createDefaultChannelSpec(loadProfileSpec);
+
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = getReloadedDeviceConfiguration().createLoadProfileSpec(loadProfileType);
+        loadProfileSpecBuilder.setOverruledObisCode(ObisCode.fromString("1.0.1.9.2.255"));
+        loadProfileSpec = loadProfileSpecBuilder.add();
+        createDefaultChannelSpec(loadProfileSpec);
     }
 
     @Test

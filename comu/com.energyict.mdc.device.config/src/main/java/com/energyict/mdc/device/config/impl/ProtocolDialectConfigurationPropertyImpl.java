@@ -1,9 +1,8 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperty;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
+import com.energyict.mdc.device.config.events.EventType;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.associations.Reference;

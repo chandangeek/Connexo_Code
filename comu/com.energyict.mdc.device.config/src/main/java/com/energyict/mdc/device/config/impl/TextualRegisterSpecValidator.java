@@ -2,7 +2,6 @@ package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 
 import com.elster.jupiter.orm.DataModel;
 

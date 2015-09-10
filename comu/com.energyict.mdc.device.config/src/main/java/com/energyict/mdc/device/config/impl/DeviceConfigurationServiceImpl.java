@@ -2,7 +2,6 @@ package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.events.EventType;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -33,6 +32,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -48,6 +48,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.HashMultiset;
@@ -84,8 +85,8 @@ import static java.util.stream.Collectors.toList;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:38)
  */
-@Component(name = "com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
-public class DeviceConfigurationServiceImpl implements ServerDeviceConfigurationService, InstallService, TranslationKeyProvider, PrivilegesProvider {
+@Component(name = "com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
+public class DeviceConfigurationServiceImpl implements ServerDeviceConfigurationService, InstallService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
 
     private volatile ProtocolPluggableService protocolPluggableService;
 
@@ -471,17 +472,22 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
-    public String getComponentName() {
-        return DeviceConfigurationService.COMPONENTNAME;
-    }
-
-    @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
     }
 
     @Override
+    public String getComponentName() {
+        return COMPONENTNAME;
+    }
+
+    @Override
     public List<TranslationKey> getKeys() {
+        return Arrays.asList(TranslationKeys.values());
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 
