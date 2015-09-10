@@ -299,7 +299,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
         allowedTags.push('<dataendtime>');
         allowedTags.push('<seqnrwithinday>');
         allowedTags.push('<datayearandmonth>');
-        allowedTags.push(/\<dateformat:[a-zA-Z]+\>/);
+        allowedTags.push(/\<dateformat:[^#\<\>$\+%\!`\&\*'\|\{\}\?"\=\/:\\@\s]+\>/);
         allowedTags.push('<identifier>');
         for (var i=0, max=allowedTags.length; i < max; i++) {
             value = value.replace(allowedTags[i], '');

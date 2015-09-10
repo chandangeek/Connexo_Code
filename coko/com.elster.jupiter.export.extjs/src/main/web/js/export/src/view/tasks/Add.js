@@ -299,7 +299,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                         ]
                                     }
                                 ],
-                                width: 500,
+                                width: 800,
                                 height: 220
                             },
                             {
@@ -664,7 +664,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 xtype: 'dxp-tasks-destinations-grid',
                                 itemId: 'task-destinations-grid',
                                 hidden: true,
-                                width: 500
+                                width: 800
                             },
                             {
                                 xtype: 'button',
