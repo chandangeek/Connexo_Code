@@ -13,7 +13,7 @@ public enum DefaultTranslationKey implements TranslationKey {
     CIM_DATE_INSTALLED("DeviceCimInstalledDate" , "Installation date"),
     CIM_DATE_REMOVE("DeviceCimRemovedDate" , "Deactivation date"),
     CIM_DATE_RETRIED("DeviceCimRetriedDate" , "Decommissioning date"),
-    LAST_CHECKED_PROPERTY_NAME(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key() , "Action effective timestamp"),
+    LAST_CHECKED_PROPERTY_NAME(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key() , "Start validation date"),
     CONNECTION_TASK_STATUS_INCOMPLETE(Keys.CONNECTION_TASK_STATUS_INCOMPLETE, "Incomplete"),
     CONNECTION_TASK_STATUS_ACTIVE(Keys.CONNECTION_TASK_STATUS_ACTIVE, "Active"),
     CONNECTION_TASK_STATUS_INACTIVE(Keys.CONNECTION_TASK_STATUS_INACTIVE, "Inactive"),
