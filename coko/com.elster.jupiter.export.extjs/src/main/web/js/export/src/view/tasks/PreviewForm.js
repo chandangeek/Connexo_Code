@@ -97,7 +97,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                         name: 'dataSelector',
                         renderer: function (value) {
                             if (value) {
-                                return Ext.String.htmlEncode(value.name);
+                                return Ext.String.htmlEncode(value.displayName);
                             }
                         }
                     },
