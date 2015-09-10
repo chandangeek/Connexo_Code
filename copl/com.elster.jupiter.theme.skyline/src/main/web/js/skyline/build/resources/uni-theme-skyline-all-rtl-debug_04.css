@@ -5385,6 +5385,11 @@ div.x-form-spinner-down {
 }
 
 /* line 14, ../../sass/src/form/field/Base.scss */
+.x-form-field::-ms-clear {
+  display: none;
+}
+
+/* line 18, ../../sass/src/form/field/Base.scss */
 .x-form-invalid-under {
   background: none;
   color: #eb5642;
@@ -5393,12 +5398,12 @@ div.x-form-spinner-down {
   white-space: nowrap;
 }
 
-/* line 22, ../../sass/src/form/field/Base.scss */
+/* line 26, ../../sass/src/form/field/Base.scss */
 .x-form-invalid-field {
   border-color: #eb5642 !important;
 }
 
-/* line 26, ../../sass/src/form/field/Base.scss */
+/* line 30, ../../sass/src/form/field/Base.scss */
 .x-form-display-field {
   height: auto;
   min-height: 28px;
