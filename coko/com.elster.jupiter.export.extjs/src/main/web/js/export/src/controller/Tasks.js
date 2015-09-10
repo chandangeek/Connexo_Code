@@ -1064,7 +1064,6 @@ Ext.define('Dxp.controller.Tasks', {
             me.destinationIndexToEdit = -1;
             me.forwardToPreviousPage();
         } else {
-            debugger;
             var page = me.getAddDestinationPage();
             var form = page.down('#add-destination-form');
             var formErrorsPanel = form.down('#form-errors');
