@@ -433,12 +433,12 @@ Ext.define('Dxp.controller.Tasks', {
             page = me.getAddDestinationPage();
         page.down('#destination-recipients').setVisible(visible);
         page.down('#destination-subject').setVisible(visible);
-        page.down('#destination-attachment-name').setVisible(visible);
+        page.down('#dxp-attachment-name-container').setVisible(visible);
         page.down('#destination-attachment-extension').setVisible(visible);
 
         page.down('#destination-recipients').disabled = !visible;
         page.down('#destination-subject').disabled = !visible;
-        page.down('#destination-attachment-name').disabled = !visible;
+        page.down('#dxp-attachment-name-container').disabled = !visible;
         page.down('#destination-attachment-extension').disabled = !visible;
     },
 
