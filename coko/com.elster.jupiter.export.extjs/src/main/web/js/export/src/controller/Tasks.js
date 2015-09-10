@@ -376,7 +376,7 @@ Ext.define('Dxp.controller.Tasks', {
         me.getApplication().fireEvent('changecontentevent', view);
 
         if (me.destinationToEdit) {
-            view.down('#save-destination-button').setText(Uni.I18n.translate('general.save', 'DES', 'Save'));
+            view.down('#save-destination-button').setText(Uni.I18n.translate('general.edit', 'DES', 'Edit'));
             view.down('#add-destination-form').setTitle(Uni.I18n.translate('dataExport.editDestination', 'DES', 'Edit destination'));
             me.showAllDestinationAttributes(false);
             var type = me.destinationToEdit.get('type');
