@@ -4,6 +4,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
     edit: false,
     returnLink: null,
     router: null,
+    fieldIdsWithErrors:[],
     requires: [
         'Dxp.view.common.ExportTagsInfoButton'
     ],
@@ -35,12 +36,16 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                 },
                 items: [
                     {
-                        itemId: 'form-errors',
-                        xtype: 'uni-form-error-message',
                         name: 'form-errors',
+                        itemId: 'form-errors',
+                        ui: 'form-error-framed',
+                        layout: 'hbox',
                         margin: '0 0 10 0',
                         hidden: true,
-                        width: 500
+                        width: 500,
+                        defaults: {
+                            xtype: 'container'
+                        }
                     },
                     {
                         xtype: 'combo',
@@ -351,9 +356,40 @@ Ext.define('Dxp.view.tasks.AddDestination', {
         component = me.down(errorMsgComponentId);
         if (value.search(regexOfInvalidChars) !== -1) {
             component.setActiveError(errorMsg);
+            me.showErrorPanel();
+            if (me.fieldIdsWithErrors.indexOf(errorMsgComponentId) === -1) {
+                me.fieldIdsWithErrors.push(errorMsgComponentId);
+            }
         } else {
             component.unsetActiveError();
+            if (me.fieldIdsWithErrors.indexOf(errorMsgComponentId) !== -1) {
+                me.fieldIdsWithErrors.splice(me.fieldIdsWithErrors.indexOf(errorMsgComponentId), 1);
+            }
+            if (me.fieldIdsWithErrors.length === 0) {
+                me.hideErrorPanel();
+            }
         }
         component.doComponentLayout();
+    },
+
+    showErrorPanel: function () {
+        var me = this,
+            formErrorsPlaceHolder = me.down('#form-errors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
+        formErrorsPlaceHolder.add({
+            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.')
+        });
+        formErrorsPlaceHolder.show();
+    },
+
+    hideErrorPanel: function () {
+        var me = this,
+            formErrorsPlaceHolder = me.down('#form-errors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
     }
+
 });

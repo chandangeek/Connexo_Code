@@ -1066,7 +1066,6 @@ Ext.define('Dxp.controller.Tasks', {
         } else {
             var page = me.getAddDestinationPage();
             var form = page.down('#add-destination-form');
-            var formErrorsPanel = form.down('#form-errors');
             var destinationModel;
                 var formValues = form.getForm().getValues();
                 if (formValues['method'] === 'FILE') {
