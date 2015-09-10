@@ -28,6 +28,7 @@ import java.util.regex.Pattern;
 public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
 
     static final String NAME = "standardCsvDataProcessorFactory";
+    static final String DISPLAY_NAME = "CSV Exporter";
     private static final String NON_PATH_INVALID = "\":*?<>|";
 
     private volatile PropertySpecService propertySpecService;
@@ -116,4 +117,8 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
         return Pattern.compile("").splitAsStream(invalidCharacters).collect(FancyJoiner.joining(", ", and));
     }
 
+    @Override
+    public String getDisplayName() {
+        return DISPLAY_NAME;
+    }
 }

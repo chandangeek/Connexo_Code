@@ -45,7 +45,7 @@ public class Translations implements TranslationKeyProvider, MessageSeedProvider
     }
 
     static enum Labels implements TranslationKey {
-        CSV_PROCESSSOR(StandardCsvDataFormatterFactory.NAME, "Standard CSV Exporter"),
+        CSV_PROCESSSOR(StandardCsvDataFormatterFactory.NAME, "CSV Exporter"),
         AND("des.processor.and", "and");
 
         private final String key;
