@@ -73,7 +73,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
     ],
     proxy: {
         type: 'rest',
-        url: '/api/imt/usagepoints/',
+        url: '/api/mtr/usagepoints/',
         timeout: 240000,
         reader: {
             type: 'json',

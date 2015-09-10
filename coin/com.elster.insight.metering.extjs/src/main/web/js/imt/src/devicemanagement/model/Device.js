@@ -21,7 +21,7 @@ Ext.define('Imt.devicemanagement.model.Device', {
     ],
     proxy: {
         type: 'rest',
-        url: '/api/imt/devices',
+        url: '/api/mtr/devices',
         timeout: 240000,
         reader: {
             type: 'json',
