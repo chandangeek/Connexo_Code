@@ -445,16 +445,16 @@ Ext.define('Dxp.controller.Tasks', {
     showFtpDestinationAttributes: function (visible){
         var me = this,
             page = me.getAddDestinationPage();
-        page.down('#destination-file-name').setVisible(visible);
+        page.down('#dxp-file-name-container').setVisible(visible);
         page.down('#destination-file-extension').setVisible(visible);
-        page.down('#destination-file-location').setVisible(visible);
+        page.down('#dxp-file-location-container').setVisible(visible);
         page.down('#ftp-server').setVisible(visible);
         page.down('#user-field').setVisible(visible);
         page.down('#password-field').setVisible(visible);
 
-        page.down('#destination-file-name').disabled = !visible;
+        page.down('#dxp-file-name-container').disabled = !visible;
         page.down('#destination-file-extension').disabled = !visible;
-        page.down('#destination-file-location').disabled = !visible;
+        page.down('#dxp-file-location-container').disabled = !visible;
         page.down('#ftp-server').disabled = !visible;
         page.down('#user-field').disabled = !visible;
         page.down('#password-field').disabled = !visible;
@@ -1064,6 +1064,7 @@ Ext.define('Dxp.controller.Tasks', {
             me.destinationIndexToEdit = -1;
             me.forwardToPreviousPage();
         } else {
+            debugger;
             var page = me.getAddDestinationPage();
             var form = page.down('#add-destination-form');
             var formErrorsPanel = form.down('#form-errors');
@@ -1077,11 +1078,13 @@ Ext.define('Dxp.controller.Tasks', {
                         fileName: formValues['fileName'],
                         fileExtension: formValues['fileExtension'],
                         fileLocation: formValues['fileLocation'],
-                        method: Uni.I18n.translate('general.saveFile', 'DES', 'Save file'),
+                        method: Uni.I18n.translate('destination.file','DES','Save file'),
                         destination: formValues['fileLocation'] + '/' + formValues['fileName'] + '.' + formValues['fileExtension'],
-                        tooltiptext: Uni.I18n.translate('general.fileLocation', 'DES', 'File location') + ': ' + formValues['fileLocation'] + '&lt;br/&gt;' +
-                        Uni.I18n.translate('general.fileName', 'DES', 'File name') + ': ' + formValues['fileName'] + '&lt;br/&gt;' +
-                        Uni.I18n.translate('general.fileExtension', 'DES', 'File extension') + ': ' + formValues['fileExtension']
+                        tooltiptext: Uni.I18n.translate('general.fileLocation', 'DES', 'File location')
+                            + ': ' + Ext.String.htmlEncode(formValues['fileLocation']) + '&lt;br/&gt;'
+                            + Uni.I18n.translate('general.fileName', 'DES', 'File name') + ': ' + Ext.String.htmlEncode(formValues['fileName'])
+                            + '&lt;br/&gt;'
+                            + Uni.I18n.translate('general.fileExtension', 'DES', 'File extension') + ': ' + formValues['fileExtension']
                     })
                 } else if (formValues['method'] === 'EMAIL') {
                     destinationModel = Ext.create('Dxp.model.Destination', {
@@ -1091,7 +1094,7 @@ Ext.define('Dxp.controller.Tasks', {
                         fileExtension: formValues['attachmentExtension'],
                         recipients: formValues['recipients'],
                         subject: formValues['subject'],
-                        method: Uni.I18n.translate('dataExportdestinations.email', 'DES', 'Email'),
+                        method: Uni.I18n.translate('destination.email','DES','Mail'),
                         destination: formValues['recipients'],
                         tooltiptext: Uni.I18n.translate('dataExportdestinations.recipients', 'DES', 'Recipients') + ': ' + formValues['recipients'] + '&lt;br/&gt;' +
                         Uni.I18n.translate('general.subject', 'DES', 'Subject') + ': ' + formValues['subject'] + '&lt;br/&gt;' +
@@ -1108,7 +1111,7 @@ Ext.define('Dxp.controller.Tasks', {
                         fileName: formValues['fileName'],
                         fileExtension: formValues['fileExtension'],
                         fileLocation: formValues['fileLocation'],
-                        method: Uni.I18n.translate('dataExportdestinations.ftp', 'DES', 'FTP'),
+                        method: Uni.I18n.translate('destination.ftp','DES','Ftp'),
                         destination: formValues['server'],
                         tooltiptext: Uni.I18n.translate('dataExportdestinations.ftpServer', 'DES', 'FTP server') + ': ' + formValues['server'] + '&lt;br/&gt;' +
                         Uni.I18n.translate('general.user', 'DES', 'User') + ': ' + formValues['user'] + '&lt;br/&gt;' +

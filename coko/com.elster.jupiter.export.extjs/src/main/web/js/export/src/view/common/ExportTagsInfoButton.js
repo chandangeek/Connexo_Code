@@ -7,6 +7,7 @@ Ext.define('Dxp.view.common.ExportTagsInfoButton', {
     shadow: false,
     margin: '5 0 0 10',
     width: 16,
+    tabIndex: -1, // disallow this 'button' to be focused using the TAB key
 
     initComponent: function () {
         var me = this;

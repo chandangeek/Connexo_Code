@@ -51,9 +51,6 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                             ],
 
                             data: [
-                                //{label: Uni.I18n.translate('general.saveFile', 'DES', 'Save file'), value: 'FILE'},
-                                //{label: Uni.I18n.translate('dataExport.mail', 'DES', 'Mail'), value: 'MAIL'}
-                                //translation does not work?
                                 {displayValue: Uni.I18n.translate('destination.file','DES','Save file'), value: 'FILE'},
                                 {displayValue: Uni.I18n.translate('destination.email','DES','Mail'), value: 'EMAIL'},
                                 {displayValue: Uni.I18n.translate('destination.ftp','DES','Ftp'), value: 'FTP'}
@@ -108,6 +105,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         layout: 'hbox',
                         required: true,
                         itemId: 'dxp-file-name-container',
+                        msgTarget: 'under',
                         items: [
                             {
                                 xtype: 'textfield',
@@ -116,7 +114,13 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                                 width: 236,
                                 allowBlank: false,
                                 enforceMaxLength: true,
-                                maxLength: 80
+                                maxLength: 80,
+                                listeners: {
+                                    blur: {
+                                        fn: me.fileNameValidation,
+                                        scope: me
+                                    }
+                                }
                             },
                             {
                                 xtype: 'dxp-export-tags-info-button'
@@ -133,7 +137,14 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         fieldLabel: Uni.I18n.translate('general.fileExtension', 'DES', 'File extension'),
                         allowBlank: false,
                         enforceMaxLength: true,
-                        maxLength: 80
+                        maxLength: 80,
+                        msgTarget: 'under',
+                        listeners: {
+                            blur: {
+                                fn: me.fileExtensionValidation,
+                                scope: me
+                            }
+                        }
                     },
 
                     {
@@ -142,6 +153,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         layout: 'hbox',
                         required: true,
                         itemId: 'dxp-file-location-container',
+                        msgTarget: 'under',
                         items: [
                             {
                                 xtype: 'textfield',
@@ -150,7 +162,13 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                                 width: 236,
                                 allowBlank: false,
                                 enforceMaxLength: true,
-                                maxLength: 80
+                                maxLength: 80,
+                                listeners: {
+                                    blur: {
+                                        fn: me.fileLocationValidation,
+                                        scope: me
+                                    }
+                                }
                             },
                             {
                                 xtype: 'dxp-export-tags-info-button'
@@ -233,9 +251,67 @@ Ext.define('Dxp.view.tasks.AddDestination', {
         me.callParent(arguments);
         me.setEdit(me.edit);
     },
+
+    fileNameValidation: function(field) {
+        this.fieldValidation(
+            field,
+            /[#\<\>$\+%\!`\&\*'\|\{\}\?"\=\/:\\@\s]/,
+            Uni.I18n.translate('dataExport.invalidCharacters.fileName','DES',"This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=/:\\"),
+            '#dxp-file-name-container'
+        );
+    },
+
+    fileLocationValidation: function(field) {
+        this.fieldValidation(
+            field,
+            /[#\<\>$\+%\!`\&\*'\|\{\}\?"\=:@\s]/,
+            Uni.I18n.translate('dataExport.invalidCharacters.fileLocation','DES',"This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=:"),
+            '#dxp-file-location-container'
+        );
+    },
+
+    fileExtensionValidation: function(field) {
+        this.fieldValidation(
+            field,
+            /[#\<\>$\+%\!`\&\*'\|\{\}\?"\=\/:\\@\s]/,
+            Uni.I18n.translate('dataExport.invalidCharacters.fileName','DES',"This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=/:\\"),
+            '#destination-file-extension'
+        );
+    },
+
+    fieldValidation: function(field, regexOfInvalidChars, errorMsg, errorMsgComponentId) {
+        var me = this,
+            component,
+            value = field.getValue(),
+            allowedTags = [];
+
+        // a. First remove the allowed tags
+        allowedTags.push('<date>');
+        allowedTags.push('<time>');
+        allowedTags.push('<sec>');
+        allowedTags.push('<millisec>');
+        allowedTags.push('<dateyear>');
+        allowedTags.push('<datemonth>');
+        allowedTags.push('<dateday>');
+        allowedTags.push('<datadate>');
+        allowedTags.push('<datatime>');
+        allowedTags.push('<dataenddate>');
+        allowedTags.push('<dataendtime>');
+        allowedTags.push('<seqnrwithinday>');
+        allowedTags.push('<datayearandmonth>');
+        allowedTags.push(/\<dateformat:[a-zA-Z]+\>/);
+        allowedTags.push('<identifier>');
+        for (var i=0, max=allowedTags.length; i < max; i++) {
+            value = value.replace(allowedTags[i], '');
+        }
+
+        // b. Then check for invalid characters
+        component = me.down(errorMsgComponentId);
+        if (value.search(regexOfInvalidChars) !== -1) {
+            component.setActiveError(errorMsg);
+        } else {
+            component.unsetActiveError();
+        }
+        component.doComponentLayout();
+    }
 });
-
-
-
-
-
