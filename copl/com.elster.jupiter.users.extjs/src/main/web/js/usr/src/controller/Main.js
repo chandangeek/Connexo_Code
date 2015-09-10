@@ -12,6 +12,7 @@ Ext.define('Usr.controller.Main', {
         'Usr.controller.GroupEdit',
         'Usr.controller.User',
         'Usr.controller.UserEdit',
+        'Usr.controller.UserDirectories',
         'Usr.controller.history.UserManagement'
     ],
 
@@ -57,6 +58,13 @@ Ext.define('Usr.controller.Main', {
                 {
                     text: Uni.I18n.translate('general.roles', 'USR', 'Roles'),
                     href: '#/administration/roles'
+                }
+            );
+
+            usersItems.push(
+                {
+                    text: Uni.I18n.translate('general.userDirectories', 'USR', 'User directories'),
+                    href: '#/administration/userdirectories'
                 }
             );
 
