@@ -687,11 +687,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         bulkValidationResult = validationInfo.bulkValidationInfo.validationResult;
 
                     if (!Ext.isEmpty(mainValidationResult)) {
-                        mainStatus = validationInfo.mainValidationInfo.validationResult.split('.')[1] == 'suspect';
+                    mainStatus = validationInfo.mainValidationInfo.validationResult.split('.')[1] == 'suspect';
                     }
 
                     if (!Ext.isEmpty(bulkValidationResult)) {
-                        bulkStatus = validationInfo.bulkValidationInfo.validationResult.split('.')[1] == 'suspect';
+                    bulkStatus = validationInfo.bulkValidationInfo.validationResult.split('.')[1] == 'suspect';
                     }
 
                     if (mainStatus) {

@@ -18,9 +18,9 @@ Ext.define('Mdc.model.DeviceDataValidationRulesSet', {
             }
         },
 		{
-            name: 'activeVersion',            
+            name: 'activeVersion',
             convert: function (value, record) {
-				
+
                 var result, startDate, endDate, numberOfVersions, hasCurrent;
 
                 numberOfVersions = record.get('numberOfVersions');
@@ -40,7 +40,7 @@ Ext.define('Mdc.model.DeviceDataValidationRulesSet', {
                     result = Uni.I18n.translate('validationResults.version.notStart', 'MDC', 'Always')
                 }
 
-				return result;                
+				return result;
             }
         }
     ],

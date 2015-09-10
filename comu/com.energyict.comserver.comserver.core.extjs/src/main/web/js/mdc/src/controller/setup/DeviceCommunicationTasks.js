@@ -275,12 +275,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                             case 'plannedPriority':
                                 error.id = 'urgency';
                                 break;
-                        }
+                }
                     });
                     form.markInvalid(json.errors);
                 } else {
-                    me.showDeviceCommunicationTasksView(me.mrid);
-                }
+                me.showDeviceCommunicationTasksView(me.mrid);
+            }
             }
         });
     },
