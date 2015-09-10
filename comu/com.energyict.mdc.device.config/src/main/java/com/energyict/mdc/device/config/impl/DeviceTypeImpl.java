@@ -1,19 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent;
-import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.DeviceUsageType;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.TextualRegisterSpec;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
