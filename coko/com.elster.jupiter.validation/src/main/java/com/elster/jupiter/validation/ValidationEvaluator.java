@@ -69,5 +69,7 @@ public interface ValidationEvaluator {
 
     boolean isValidationEnabled(Channel channel);
 
+    boolean isValidationEnabled(ReadingContainer meter, ReadingType readingType);
+
     Optional<Instant> getLastChecked(ReadingContainer meter, ReadingType readingType);
 }

@@ -55,6 +55,14 @@ class ValidationEvaluatorImpl extends AbstractValidationEvaluator {
     }
 
     @Override
+    public boolean isValidationEnabled(ReadingContainer meter, ReadingType readingType) {
+        return (meter.getMeterActivations().stream()
+                .flatMap(m -> m.getChannels().stream())
+                .filter(k -> k.getReadingTypes().contains(readingType))
+                .filter(validationService::isValidationActive)).count() > 0;
+    }
+
+    @Override
     public Optional<Instant> getLastChecked(ReadingContainer meter, ReadingType readingType) {
         return meter.getMeterActivations().stream()
                 .flatMap(m -> m.getChannels().stream())
