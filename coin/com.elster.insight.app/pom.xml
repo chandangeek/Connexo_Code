@@ -50,7 +50,10 @@
             <artifactId>metering</artifactId>
         </dependency>
 
-
+        <dependency>
+            <groupId>com.elster</groupId>
+            <artifactId>insight.metering.extjs</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
