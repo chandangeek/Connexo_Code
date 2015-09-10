@@ -97,7 +97,7 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                         name: 'dataSelector',
                         renderer: function (value) {
                             if (value) {
-                                return Ext.String.htmlEncode(value.name);
+                                return Ext.String.htmlEncode(value.displayName);
                             }
                         }
                     },
@@ -150,6 +150,17 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                             if (value) {
                                 return Ext.String.htmlEncode(value);
                             }
+                        }
+                    },
+                    {
+                        fieldLabel: ' ',
+                        name: 'exportContinuousData',
+                        hidden: true,
+                        itemId: 'continuousData-preview',
+                        renderer: function (value) {
+                            var option = value==='true'?Uni.I18n.translate('general.continuousData', 'DES', 'last exported data (continuous data)'):
+                                Uni.I18n.translate('general.startOfExportWindow', 'DES', 'start of export window');
+                            return Uni.I18n.translate('general.startingFrom', 'DES', 'Starting from') + ' ' + option;
                         }
                     },
                     {

@@ -361,7 +361,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 items: [
                                     {
                                      //   itemId: 'noExportForUpdated',
-                                        boxLabel: Uni.I18n.translate('general.startOfExportWindow', 'DES', 'Start of export window'),
+                                        boxLabel: Uni.I18n.translate('general.startOfExportWindow', 'DES', 'start of export window'),
                                         inputValue: false,
                                         checked: true
                                     },
