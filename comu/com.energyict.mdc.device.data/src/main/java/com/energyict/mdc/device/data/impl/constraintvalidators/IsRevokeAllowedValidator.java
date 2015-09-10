@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.DeviceMessageImpl;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

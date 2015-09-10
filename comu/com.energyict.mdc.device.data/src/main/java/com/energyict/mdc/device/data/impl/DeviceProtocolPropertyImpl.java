@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.impl;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
@@ -50,7 +49,7 @@ public class DeviceProtocolPropertyImpl implements DeviceProtocolProperty, Seria
         if (propertySpecName != null) {
             this.propertySpec = propertySpecName;
         } else {
-            throw DeviceProtocolPropertyException.propertySpecTypeDoesNotExist(thesaurus, stringValue);
+            throw DeviceProtocolPropertyException.propertySpecTypeDoesNotExist(stringValue, thesaurus, MessageSeeds.DEVICE_PROPERTY_HAS_NO_SPEC);
         }
         this.propertyValue = stringValue;
         return this;

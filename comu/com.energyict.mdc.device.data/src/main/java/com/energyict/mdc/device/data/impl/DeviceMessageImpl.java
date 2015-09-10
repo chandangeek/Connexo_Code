@@ -3,7 +3,6 @@ package com.energyict.mdc.device.data.impl;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.IllegalDeviceMessageIdException;
 import com.energyict.mdc.device.data.exceptions.InvalidDeviceMessageStatusMove;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.constraintvalidators.HasValidDeviceMessageAttributes;
 import com.energyict.mdc.device.data.impl.constraintvalidators.IsRevokeAllowed;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UserHasTheMessagePrivilege;
@@ -138,7 +137,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
 
     @Override
     public DeviceMessageId getDeviceMessageId() {
-        return Stream.of(DeviceMessageId.values()).filter(deviceMessage -> deviceMessage.dbValue() == this.deviceMessageId).findAny().orElseThrow(() -> new IllegalDeviceMessageIdException(getThesaurus(), this.deviceMessageId));
+        return Stream.of(DeviceMessageId.values()).filter(deviceMessage -> deviceMessage.dbValue() == this.deviceMessageId).findAny().orElseThrow(() -> new IllegalDeviceMessageIdException(this.deviceMessageId, getThesaurus(), MessageSeeds.DEVICE_MESSAGE_ID_NOT_SUPPORTED));
     }
 
     @Override
@@ -221,7 +220,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     @Override
     public void moveTo(DeviceMessageStatus status) {
         if (!getStatus().isPredecessorOf(status)) {
-            throw new InvalidDeviceMessageStatusMove(getThesaurus(), this.deviceMessageStatus, status);
+            throw new InvalidDeviceMessageStatusMove(this.deviceMessageStatus, status, getThesaurus(), MessageSeeds.DEVICE_MESSAGE_STATUS_INVALID_MOVE);
         }
         this.deviceMessageStatus = status;
     }
