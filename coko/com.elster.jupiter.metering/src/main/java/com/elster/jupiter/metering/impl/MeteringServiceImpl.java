@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -25,6 +27,7 @@ import com.elster.jupiter.metering.StorerProcess;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
@@ -44,6 +47,7 @@ import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
@@ -413,6 +417,18 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     public List<ReadingType> getAvailableNonEquidistantReadingTypes() {
         return dataModel.stream(ReadingType.class).filter(where(ReadingTypeImpl.Fields.equidistant.name()).isEqualTo(false))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Finder<UsagePoint> getUsagePoints(UsagePointFilter filter) {
+        Condition condition = Condition.TRUE;
+        if (!Checks.is(filter.getMrid()).emptyOrOnlyWhiteSpace()){
+            condition = condition.and(where("mRID").likeIgnoreCase(filter.getMrid()));
+        }
+        if (filter.isAccountabilityOnly()){
+            condition = condition.and(hasAccountability());
+        }
+        return DefaultFinder.of(UsagePoint.class, condition, dataModel);
     }
 
     @Override
