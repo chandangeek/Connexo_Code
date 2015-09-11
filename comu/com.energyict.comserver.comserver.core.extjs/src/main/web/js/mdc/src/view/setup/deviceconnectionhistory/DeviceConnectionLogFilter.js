@@ -35,7 +35,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionLogFilter', {
         },
         {
             type: 'combobox',
-            dataIndex: 'communications',
+            dataIndex: 'logTypes',
             emptyText: Uni.I18n.translate('deviceconnectionhistory.logType', 'MDC', 'Log type'),
             multiSelect: true,
             options: [
