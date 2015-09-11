@@ -67,13 +67,15 @@ class DefaultItemDataSelector implements ItemDataSelector {
     }
 
     private void handleValidatedDataOption(IReadingTypeDataExportItem item, DataExportStrategy strategy, List<? extends BaseReadingRecord> readings, Range<Instant> interval) {
-        switch (strategy.getValidatedDataOption()) {
-            case EXCLUDE_INTERVAL:
-                handleExcludeInterval(item, readings, interval);
-                return;
-            case EXCLUDE_ITEM:
-                handleExcludeItem(item, readings, interval);
-            default:
+        if (validationService.getEvaluator().isValidationEnabled(item.getReadingContainer(), item.getReadingType())) {
+            switch (strategy.getValidatedDataOption()) {
+                case EXCLUDE_INTERVAL:
+                    handleExcludeInterval(item, readings, interval);
+                    return;
+                case EXCLUDE_ITEM:
+                    handleExcludeItem(item, readings, interval);
+                default:
+            }
         }
     }
 
