@@ -1,18 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.Valid;
-import javax.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlRootElement;
-
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
@@ -23,12 +11,29 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.validation.*;
-import com.elster.jupiter.validation.impl.MessageSeeds.Constants;
-import org.hibernate.validator.constraints.NotEmpty;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @XmlRootElement
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.DUPLICATE_VALIDATION_RULE_SET + "}")
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_VALIDATION_RULE_SET + "}")
 public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     static final String OBSOLETE_TIME_FIELD = "obsoleteTime";
@@ -36,12 +41,12 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     private long id;
     private String mRID;
 
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.NAME_REQUIRED_KEY + "}")
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
-    @Size(min = 0, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @Size(min = 0, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String aliasName;
-    @Size(min = 0, max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + Constants.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    @Size(min = 0, max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String description;
     private Instant obsoleteTime;
 
@@ -66,7 +71,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         this.eventService = eventService;
         this.validationRuleSetVersionProvider = validationRuleSetValidationProvider;
     }
-    
+
     ValidationRuleSetImpl init(String name) {
     	return init(name,null);
     }
@@ -214,7 +219,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         });
         versionToSave.clear();
     }
-    
+
     private Stream<IValidationRule> doGetRules() {
         return getRuleSetVersions()
                 .stream()
