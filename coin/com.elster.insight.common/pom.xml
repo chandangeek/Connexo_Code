@@ -32,6 +32,14 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>domain.util</artifactId>
+        </dependency>
         <!-- 
         <dependency>
             <groupId>com.elster.jupiter</groupId>
