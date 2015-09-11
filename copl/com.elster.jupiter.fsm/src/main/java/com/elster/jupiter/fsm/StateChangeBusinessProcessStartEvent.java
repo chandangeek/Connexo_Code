@@ -16,7 +16,7 @@ public interface StateChangeBusinessProcessStartEvent {
     /**
      * The topic on which this event is published.
      */
-    public static final String TOPIC = "com/elster/jupiter/fsm/bpm/START";
+    public static final String TOPIC = "com/elster/jupiter/fsm/bpm/state/START";
 
     public enum Type {
         ENTRY, EXIT;
