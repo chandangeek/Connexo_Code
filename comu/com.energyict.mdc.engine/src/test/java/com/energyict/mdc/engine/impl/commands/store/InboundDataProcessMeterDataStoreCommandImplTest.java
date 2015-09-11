@@ -1,9 +1,5 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.Reading;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -28,11 +24,11 @@ import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.tasks.ComTask;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.Reading;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 
 import java.time.Clock;
 import java.util.Arrays;
@@ -40,8 +36,17 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -112,7 +117,7 @@ public class InboundDataProcessMeterDataStoreCommandImplTest {
     }
 
     @Test
-    public void comSessionLoggingIsUpdatedWhenWhenDataStorageFailedTest() {
+    public void comSessionLoggingIsUpdatedWhenDataStorageFailedTest() {
         doThrow(new RuntimeException("It's oké, the exception is just for my test purposes")).when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
         ComTaskExecutionSessionBuilder comTaskExecutionSessionBuilder = mock(ComTaskExecutionSessionBuilder.class);
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);

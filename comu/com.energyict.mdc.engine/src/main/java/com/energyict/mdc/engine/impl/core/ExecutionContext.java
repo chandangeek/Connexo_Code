@@ -313,9 +313,9 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     public void fail(Throwable t, ComSession.SuccessIndicator reason) {
-        this.sessionBuilder.incrementFailedTasks(this.jobExecution.getFailedComTaskExecutions().size());
-        this.sessionBuilder.incrementSuccessFulTasks(this.jobExecution.getSuccessfulComTaskExecutions().size());
-        this.sessionBuilder.incrementNotExecutedTasks(this.jobExecution.getNotExecutedComTaskExecutions().size());
+        this.sessionBuilder.setFailedTasks(this.jobExecution.getFailedComTaskExecutions().size());
+        this.sessionBuilder.setSuccessFulTasks(this.jobExecution.getSuccessfulComTaskExecutions().size());
+        this.sessionBuilder.setNotExecutedTasks(this.jobExecution.getNotExecutedComTaskExecutions().size());
         this.sessionBuilder.addJournalEntry(now(), ComServer.LogLevel.ERROR, t);
         this.createComSessionCommand(sessionBuilder, reason);
     }
