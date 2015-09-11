@@ -4,10 +4,14 @@ Ext.define('Dxp.view.tasks.AddDestination', {
     edit: false,
     returnLink: null,
     router: null,
+    fieldIdsWithErrors:[],
+    requires: [
+        'Dxp.view.common.ExportTagsInfoButton'
+    ],
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
-            this.down('#save-destination-button').setText(Uni.I18n.translate('general.save', 'DES', 'Save'));
+            this.down('#save-destination-button').setText(Uni.I18n.translate('general.edit', 'DES', 'Edit'));
             this.down('#save-destination-button').action = 'editDestination';
         } else {
             this.edit = edit;
@@ -32,12 +36,16 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                 },
                 items: [
                     {
-                        itemId: 'form-errors',
-                        xtype: 'uni-form-error-message',
                         name: 'form-errors',
+                        itemId: 'form-errors',
+                        ui: 'form-error-framed',
+                        layout: 'hbox',
                         margin: '0 0 10 0',
                         hidden: true,
-                        width: 500
+                        width: 500,
+                        defaults: {
+                            xtype: 'container'
+                        }
                     },
                     {
                         xtype: 'combo',
@@ -48,9 +56,6 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                             ],
 
                             data: [
-                                //{label: Uni.I18n.translate('general.saveFile', 'DES', 'Save file'), value: 'FILE'},
-                                //{label: Uni.I18n.translate('dataExport.mail', 'DES', 'Mail'), value: 'MAIL'}
-                                //translation does not work?
                                 {displayValue: Uni.I18n.translate('destination.file','DES','Save file'), value: 'FILE'},
                                 {displayValue: Uni.I18n.translate('destination.email','DES','Mail'), value: 'EMAIL'},
                                 {displayValue: Uni.I18n.translate('destination.ftp','DES','Ftp'), value: 'FTP'}
@@ -100,15 +105,32 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                     },
 
                     {
-                        xtype: 'textfield',
-                        name: 'fileName',
-                        itemId: 'destination-file-name',
-                        width: 500,
-                        required: true,
+                        xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.fileName', 'DES', 'File name'),
-                        allowBlank: false,
-                        enforceMaxLength: true,
-                        maxLength: 80
+                        layout: 'hbox',
+                        required: true,
+                        itemId: 'dxp-file-name-container',
+                        msgTarget: 'under',
+                        items: [
+                            {
+                                xtype: 'textfield',
+                                name: 'fileName',
+                                itemId: 'destination-file-name',
+                                width: 236,
+                                allowBlank: false,
+                                enforceMaxLength: true,
+                                maxLength: 80,
+                                listeners: {
+                                    blur: {
+                                        fn: me.fileNameValidation,
+                                        scope: me
+                                    }
+                                }
+                            },
+                            {
+                                xtype: 'dxp-export-tags-info-button'
+                            }
+                        ]
                     },
 
                     {
@@ -120,19 +142,43 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         fieldLabel: Uni.I18n.translate('general.fileExtension', 'DES', 'File extension'),
                         allowBlank: false,
                         enforceMaxLength: true,
-                        maxLength: 80
+                        maxLength: 80,
+                        msgTarget: 'under',
+                        listeners: {
+                            blur: {
+                                fn: me.fileExtensionValidation,
+                                scope: me
+                            }
+                        }
                     },
 
                     {
-                        xtype: 'textfield',
-                        name: 'fileLocation',
-                        itemId: 'destination-file-location',
-                        width: 500,
-                        required: true,
+                        xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.fileLocation', 'DES', 'File location'),
-                        allowBlank: false,
-                        enforceMaxLength: true,
-                        maxLength: 80
+                        layout: 'hbox',
+                        required: true,
+                        itemId: 'dxp-file-location-container',
+                        msgTarget: 'under',
+                        items: [
+                            {
+                                xtype: 'textfield',
+                                name: 'fileLocation',
+                                itemId: 'destination-file-location',
+                                width: 236,
+                                allowBlank: false,
+                                enforceMaxLength: true,
+                                maxLength: 80,
+                                listeners: {
+                                    blur: {
+                                        fn: me.fileLocationValidation,
+                                        scope: me
+                                    }
+                                }
+                            },
+                            {
+                                xtype: 'dxp-export-tags-info-button'
+                            }
+                        ]
                     },
 
                     {
@@ -161,15 +207,32 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                     },
 
                     {
-                        xtype: 'textfield',
-                        name: 'attachmentName',
-                        itemId: 'destination-attachment-name',
-                        width: 500,
-                        required: true,
+                        xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('dataExport.attachmentName', 'DES', 'Attachment name'),
-                        allowBlank: false,
-                        enforceMaxLength: true,
-                        maxLength: 80
+                        layout: 'hbox',
+                        required: true,
+                        itemId: 'dxp-attachment-name-container',
+                        msgTarget: 'under',
+                        items: [
+                            {
+                                xtype: 'textfield',
+                                name: 'attachmentName',
+                                itemId: 'destination-attachment-name',
+                                width: 236,
+                                allowBlank: false,
+                                enforceMaxLength: true,
+                                maxLength: 80,
+                                listeners: {
+                                    blur: {
+                                        fn: me.attachmentNameValidation,
+                                        scope: me
+                                    }
+                                }
+                            },
+                            {
+                                xtype: 'dxp-export-tags-info-button'
+                            }
+                        ]
                     },
 
                     {
@@ -181,7 +244,14 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         fieldLabel: Uni.I18n.translate('dataExport.attachmentExtension', 'DES', 'Attachment extension'),
                         allowBlank: false,
                         enforceMaxLength: true,
-                        maxLength: 80
+                        maxLength: 80,
+                        msgTarget: 'under',
+                        listeners: {
+                            blur: {
+                                fn: me.attachmentExtensionValidation,
+                                scope: me
+                            }
+                        }
                     },
 
                     {
@@ -210,9 +280,116 @@ Ext.define('Dxp.view.tasks.AddDestination', {
         me.callParent(arguments);
         me.setEdit(me.edit);
     },
+
+    fileNameValidation: function(field) {
+        this.fieldValidation(
+            field,
+            /[#\<\>$\+%\!`\&\*'\|\{\}\?"\=\/:\\@\s]/,
+            Uni.I18n.translate('dataExport.invalidCharacters.fileName','DES',"This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=/:\\"),
+            '#dxp-file-name-container'
+        );
+    },
+
+    fileLocationValidation: function(field) {
+        this.fieldValidation(
+            field,
+            /[#\<\>$\+%\!`\&\*'\|\{\}\?"\=:@\s]/,
+            Uni.I18n.translate('dataExport.invalidCharacters.fileLocation','DES',"This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=:"),
+            '#dxp-file-location-container'
+        );
+    },
+
+    fileExtensionValidation: function(field) {
+        this.fieldValidation(
+            field,
+            /[#\<\>$\+%\!`\&\*'\|\{\}\?"\=\/:\\@\s]/,
+            Uni.I18n.translate('dataExport.invalidCharacters.fileName','DES',"This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=/:\\"),
+            '#destination-file-extension'
+        );
+    },
+
+    attachmentNameValidation: function(field) {
+        this.fieldValidation(
+            field,
+            /[#\<\>$\+%\!`\&\*'\|\{\}\?"\=\/:\\@\s]/,
+            Uni.I18n.translate('dataExport.invalidCharacters.fileName','DES',"This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=/:\\"),
+            '#dxp-attachment-name-container'
+        );
+    },
+
+    attachmentExtensionValidation: function(field) {
+        this.fieldValidation(
+            field,
+            /[#\<\>$\+%\!`\&\*'\|\{\}\?"\=\/:\\@\s]/,
+            Uni.I18n.translate('dataExport.invalidCharacters.fileName','DES',"This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=/:\\"),
+            '#destination-attachment-extension'
+        );
+    },
+
+    fieldValidation: function(field, regexOfInvalidChars, errorMsg, errorMsgComponentId) {
+        var me = this,
+            component,
+            value = field.getValue(),
+            allowedTags = [];
+
+        // a. First remove the allowed tags
+        allowedTags.push('<date>');
+        allowedTags.push('<time>');
+        allowedTags.push('<sec>');
+        allowedTags.push('<millisec>');
+        allowedTags.push('<dateyear>');
+        allowedTags.push('<datemonth>');
+        allowedTags.push('<dateday>');
+        allowedTags.push('<datadate>');
+        allowedTags.push('<datatime>');
+        allowedTags.push('<dataenddate>');
+        allowedTags.push('<dataendtime>');
+        allowedTags.push('<seqnrwithinday>');
+        allowedTags.push('<datayearandmonth>');
+        allowedTags.push(/\<dateformat:[^#\<\>$\+%\!`\&\*'\|\{\}\?"\=\/:\\@\s]+\>/);
+        allowedTags.push('<identifier>');
+        for (var i=0, max=allowedTags.length; i < max; i++) {
+            value = value.replace(allowedTags[i], '');
+        }
+
+        // b. Then check for invalid characters
+        component = me.down(errorMsgComponentId);
+        if (value.search(regexOfInvalidChars) !== -1) {
+            component.setActiveError(errorMsg);
+            me.showErrorPanel();
+            if (me.fieldIdsWithErrors.indexOf(errorMsgComponentId) === -1) {
+                me.fieldIdsWithErrors.push(errorMsgComponentId);
+            }
+        } else {
+            component.unsetActiveError();
+            if (me.fieldIdsWithErrors.indexOf(errorMsgComponentId) !== -1) {
+                me.fieldIdsWithErrors.splice(me.fieldIdsWithErrors.indexOf(errorMsgComponentId), 1);
+            }
+            if (me.fieldIdsWithErrors.length === 0) {
+                me.hideErrorPanel();
+            }
+        }
+        component.doComponentLayout();
+    },
+
+    showErrorPanel: function () {
+        var me = this,
+            formErrorsPlaceHolder = me.down('#form-errors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
+        formErrorsPlaceHolder.add({
+            html: Uni.I18n.translate('general.formErrors', 'MDC', 'There are errors on this page that require your attention.')
+        });
+        formErrorsPlaceHolder.show();
+    },
+
+    hideErrorPanel: function () {
+        var me = this,
+            formErrorsPlaceHolder = me.down('#form-errors');
+
+        formErrorsPlaceHolder.hide();
+        formErrorsPlaceHolder.removeAll();
+    }
+
 });
-
-
-
-
-
