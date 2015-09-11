@@ -121,7 +121,7 @@ public class ConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             Meter meter = meteringService.findMeter(mrId).get();
             UsagePoint usagePoint = meteringService.findUsagePoint(usagePointId).get();
-            meter.getCurrentMeterActivation().get().setUsagePoint(usagePoint);
+            ((UsagePointImpl) usagePoint).adopt((MeterActivationImpl) meter.getCurrentMeterActivation().get());
             context.commit();
         } finally {
             threadPrincipalService.clear();

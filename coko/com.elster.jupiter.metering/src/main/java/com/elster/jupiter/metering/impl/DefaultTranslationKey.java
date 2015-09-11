@@ -5,6 +5,7 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum DefaultTranslationKey implements TranslationKey{
     PRIVILEGE_USAGE_POINT_NAME("metering.usage.points", "Usage points"),
     PRIVILEGE_USAGE_POINT_DESCRIPTION("metering.usage.points.description", "Administrate usage points"),
+    SUBSCRIBER_TRANSLATION(SwitchStateMachineEvent.SUBSCRIBER, SwitchStateMachineEvent.SUBSCRIBER_TRANSLATION),
     ;
 
     private String key;

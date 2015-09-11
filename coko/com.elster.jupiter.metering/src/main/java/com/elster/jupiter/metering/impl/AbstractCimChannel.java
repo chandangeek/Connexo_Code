@@ -110,7 +110,7 @@ public abstract class AbstractCimChannel implements CimChannel {
     private Condition isActual() {
         return where("actual").isEqualTo(true);
     }
-
+    
     private Condition inRange(Range<Instant> range) {
         return where("readingTimestamp").in(range);
     }
