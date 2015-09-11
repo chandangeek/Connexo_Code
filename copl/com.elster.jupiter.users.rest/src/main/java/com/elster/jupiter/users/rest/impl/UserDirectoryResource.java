@@ -47,8 +47,8 @@ public class UserDirectoryResource {
             ldapUserDirectory.setDefault(usr.get().isDefault());
             ldapDirectories.add(ldapUserDirectory);
         }
-        UserDirectoryInfos userDirectorys = new UserDirectoryInfos(ldapDirectories);
-        return userDirectorys;
+        return new UserDirectoryInfos(ldapDirectories);
+
     }
 
     @GET
@@ -79,7 +79,7 @@ public class UserDirectoryResource {
             ldapUserDirectory.setBaseGroup(info.baseGroup);
             ldapUserDirectory.setBaseUser(info.baseUser);
             ldapUserDirectory.setUrl(info.url);
-            ldapUserDirectory.setBackupUrl(info.backupurl);
+            ldapUserDirectory.setBackupUrl(info.backupUrl);
             ldapUserDirectory.setDefault(info.isDefault);
             ldapUserDirectory.setPrefix(info.prefix);
             ldapUserDirectory.save();
@@ -95,9 +95,16 @@ public class UserDirectoryResource {
 //    @RolesAllowed(Privileges.ADMINISTRATE_USER_ROLE)
 //    public UserDirectoryInfo editUserDirectory(UserDirectoryInfo info, @PathParam("id") long id) {
 //        try (TransactionContext context = transactionService.getContext()) {
-//            userService.getLdapUserDirectory(info.id)
-//
-//            return null;
+//            LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
+//            ldapUserDirectory.setBackupUrl(info.backupurl);
+//            ldapUserDirectory.setUrl(info.url);
+//            ldapUserDirectory.setSecurity(info.securityProtocol);
+//            ldapUserDirectory.setBaseGroup(info.baseGroup);
+//            ldapUserDirectory.setBaseUser(info.baseUser);
+//            ldapUserDirectory.setDefault(info.isDefault);
+//            ldapUserDirectory.setPrefix(info.prefix);
+//            ldapUserDirectory.save();
+//            return info;
 //        }
 //    }
 }

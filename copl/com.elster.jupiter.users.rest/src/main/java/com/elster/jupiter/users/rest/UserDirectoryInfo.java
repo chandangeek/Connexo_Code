@@ -11,7 +11,7 @@ public class UserDirectoryInfo {
     public String url;
     public boolean isDefault;
     public String securityProtocol;
-    public String backupurl;
+    public String backupUrl;
     public String baseUser;
     public String baseGroup;
     public String type;
@@ -27,7 +27,7 @@ public class UserDirectoryInfo {
         url = ldapUserDirectory.getUrl();
         isDefault = ldapUserDirectory.isDefault();
         securityProtocol = ldapUserDirectory.getSecurity();
-        backupurl = ldapUserDirectory.getBackupUrl();
+        backupUrl = ldapUserDirectory.getBackupUrl();
         baseGroup = ldapUserDirectory.getBaseGroup();
         baseUser = ldapUserDirectory.getBaseUser();
         type = ldapUserDirectory.getType();
