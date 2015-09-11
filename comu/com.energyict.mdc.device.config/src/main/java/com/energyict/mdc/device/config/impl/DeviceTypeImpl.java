@@ -5,6 +5,8 @@ import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseE
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.RegisterTypeAlreadyInDeviceTypeException;
+import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingEngine;
+import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingImpl;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -90,7 +92,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private Clock clock;
     private ProtocolPluggableService protocolPluggableService;
     private DeviceConfigurationService deviceConfigurationService;
-    private DeviceConfigConflictMappingEngine deviceConfigConflictMappingEngine;
 
     /**
      * The DeviceProtocol of this DeviceType, only for local usage.
@@ -222,22 +223,16 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public void updateConflictingMappings() {
-        getDeviceConfigConflictMappingEngine().reCalculateConflicts();
-    }
-
-    private DeviceConfigConflictMappingEngine getDeviceConfigConflictMappingEngine() {
-        if (this.deviceConfigConflictMappingEngine == null) {
-            this.deviceConfigConflictMappingEngine = new DeviceConfigConflictMappingEngine(this);
-        }
-        return this.deviceConfigConflictMappingEngine;
-    }
-
-    @Override
     public DeviceConfigConflictMappingImpl newConflictMappingFor(DeviceConfiguration origin, DeviceConfiguration destination) {
         DeviceConfigConflictMappingImpl deviceConfigConflictMapping = getDataModel().getInstance(DeviceConfigConflictMappingImpl.class).initialize(this, origin, destination);
         this.deviceConfigConflictMappings.add(deviceConfigConflictMapping);
         return deviceConfigConflictMapping;
+    }
+
+    @SuppressWarnings("SuspiciousMethodCalls")
+    @Override
+    public void removeDeviceConfigConflictMappings(List<DeviceConfigConflictMapping> deviceConfigConflictMappings) {
+        this.deviceConfigConflictMappings.removeAll(deviceConfigConflictMappings);
     }
 
     @Override

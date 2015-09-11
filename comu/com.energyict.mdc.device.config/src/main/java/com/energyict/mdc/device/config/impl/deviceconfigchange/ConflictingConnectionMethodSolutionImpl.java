@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.config.impl;
+package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -17,10 +17,9 @@ import java.util.function.Supplier;
 /**
  * Straightforward implementation of a ConflictingConnectionMethodSolution
  */
-//TODO validate that if a MAP is defined as action, you actually have a mapped object
 public class ConflictingConnectionMethodSolutionImpl extends AbstractConflictSolution<PartialConnectionTask> implements ConflictingConnectionMethodSolution {
 
-    enum Fields {
+    public enum Fields {
         CONFLICTINGMAPPING("conflictingMapping"),
         ACTION("action"),
         ORIGINCONNECTIONMETHOD("originConnectionMethod"),
@@ -32,7 +31,7 @@ public class ConflictingConnectionMethodSolutionImpl extends AbstractConflictSol
             this.javaFieldName = javaFieldName;
         }
 
-        String fieldName() {
+        public String fieldName() {
             return javaFieldName;
         }
     }

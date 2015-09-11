@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.config.impl;
+package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
@@ -45,7 +45,7 @@ public abstract class AbstractConflictSolution<S extends HasId> implements Confl
         return action;
     }
 
-    public void setConflictingMapping(DeviceConfigConflictMappingImpl conflictingMapping) {
+    void setConflictingMapping(DeviceConfigConflictMappingImpl conflictingMapping) {
         this.conflictingMapping.set(conflictingMapping);
     }
 

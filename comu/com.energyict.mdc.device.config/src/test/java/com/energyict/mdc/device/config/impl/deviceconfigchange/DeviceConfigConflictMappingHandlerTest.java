@@ -5,6 +5,7 @@ import com.elster.jupiter.events.LocalEvent;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
 import com.energyict.mdc.device.config.impl.ServerDeviceType;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,7 +62,7 @@ public class DeviceConfigConflictMappingHandlerTest {
 
         new DeviceConfigConflictMappingHandler().onEvent(localEvent);
 
-        verify(deviceType).updateConflictingMappings();
+        verify(DeviceConfigChangeEngine.INSTANCE).calculateConfigChangeActions(deviceType);
     }
 
     @Test
@@ -72,18 +73,20 @@ public class DeviceConfigConflictMappingHandlerTest {
 
         new DeviceConfigConflictMappingHandler().onEvent(localEvent);
 
-        verify(deviceType).updateConflictingMappings();
+        verify(DeviceConfigChangeEngine.INSTANCE).calculateConfigChangeActions(deviceType);
     }
 
     @Test
     public void updateConnectionTaskDoesntUpdateConflictsTest() {
         String topic = "com/energyict/mdc/device/config/partialinboundconnectiontask/UPDATED";
         PartialConnectionTask connectionTask = mockConnectionTask();
-        LocalEvent localEvent = mockLocalEvent(topic, connectionTask);
+        PartialConnectionTaskUpdateDetails partialConnectionTaskUpdateDetails = mock(PartialConnectionTaskUpdateDetails.class);
+        when(partialConnectionTaskUpdateDetails.getPartialConnectionTask()).thenReturn(connectionTask);
+        LocalEvent localEvent = mockLocalEvent(topic, partialConnectionTaskUpdateDetails);
 
         new DeviceConfigConflictMappingHandler().onEvent(localEvent);
 
-        verify(deviceType).updateConflictingMappings();
+        verify(DeviceConfigChangeEngine.INSTANCE).calculateConfigChangeActions(deviceType);
     }
 
     @Test
@@ -94,7 +97,7 @@ public class DeviceConfigConflictMappingHandlerTest {
 
         new DeviceConfigConflictMappingHandler().onEvent(localEvent);
 
-        verify(deviceType).updateConflictingMappings();
+        verify(DeviceConfigChangeEngine.INSTANCE).calculateConfigChangeActions(deviceType);
     }
 
     @Test
@@ -105,7 +108,7 @@ public class DeviceConfigConflictMappingHandlerTest {
 
         new DeviceConfigConflictMappingHandler().onEvent(localEvent);
 
-        verify(deviceType).updateConflictingMappings();
+        verify(DeviceConfigChangeEngine.INSTANCE).calculateConfigChangeActions(deviceType);
     }
 
     @Test
@@ -116,7 +119,7 @@ public class DeviceConfigConflictMappingHandlerTest {
 
         new DeviceConfigConflictMappingHandler().onEvent(localEvent);
 
-        verify(deviceType).updateConflictingMappings();
+        verify(DeviceConfigChangeEngine.INSTANCE).calculateConfigChangeActions(deviceType);
     }
 
     @Test
@@ -126,7 +129,7 @@ public class DeviceConfigConflictMappingHandlerTest {
 
         new DeviceConfigConflictMappingHandler().onEvent(localEvent);
 
-        verify(deviceType).updateConflictingMappings();
+        verify(DeviceConfigChangeEngine.INSTANCE).calculateConfigChangeActions(deviceType);
     }
 
     @Test
@@ -136,7 +139,7 @@ public class DeviceConfigConflictMappingHandlerTest {
 
         new DeviceConfigConflictMappingHandler().onEvent(localEvent);
 
-        verify(deviceType).updateConflictingMappings();
+        verify(DeviceConfigChangeEngine.INSTANCE).calculateConfigChangeActions(deviceType);
     }
 
     @Test
@@ -146,7 +149,7 @@ public class DeviceConfigConflictMappingHandlerTest {
 
         new DeviceConfigConflictMappingHandler().onEvent(localEvent);
 
-        verify(deviceType, never()).updateConflictingMappings();
+        verify(DeviceConfigChangeEngine.INSTANCE).calculateConfigChangeActions(deviceType);
     }
 
     @Test // the update should have happened when we deactivated the config
@@ -156,7 +159,7 @@ public class DeviceConfigConflictMappingHandlerTest {
 
         new DeviceConfigConflictMappingHandler().onEvent(localEvent);
 
-        verify(deviceType, never()).updateConflictingMappings();
+        verify(DeviceConfigChangeEngine.INSTANCE).calculateConfigChangeActions(deviceType);
     }
 
     @Test
@@ -166,6 +169,6 @@ public class DeviceConfigConflictMappingHandlerTest {
 
         new DeviceConfigConflictMappingHandler().onEvent(localEvent);
 
-        verify(deviceType, never()).updateConflictingMappings();
+        verify(DeviceConfigChangeEngine.INSTANCE).calculateConfigChangeActions(deviceType);
     }
 }

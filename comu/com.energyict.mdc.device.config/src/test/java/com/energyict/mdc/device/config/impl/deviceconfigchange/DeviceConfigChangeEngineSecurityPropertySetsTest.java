@@ -12,6 +12,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -35,8 +36,8 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
     @Test
     public void deviceTypeHasTwoConfigsWithExactlyOneSecuritySetThatMatchesTest() {
         String name = "MySecurityPropertySet";
-        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
-        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = mock(EncryptionDeviceAccessLevel.class);
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mockAuthenticationLevel(102);
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = mockEncryptionLevel(44856);
         DeviceType deviceType = mockDeviceType();
         DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
         SecurityPropertySet securityPropertySet1 = mockSecurityPropertySet(name, authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
@@ -45,16 +46,16 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
         SecurityPropertySet securityPropertySet2 = mockSecurityPropertySet(name, authenticationDeviceAccessLevel, encryptionDeviceAccessLevel);
         when(deviceConfiguration2.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
-        deviceConfigChangeEngine.calculateConfigChangeActions();
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).hasSize(2);
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+
+        assertThat(deviceConfigChangeActions).hasSize(2);
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, securityPropertySet1, securityPropertySet2, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, securityPropertySet2, securityPropertySet1, DeviceConfigChangeActionType.MATCH);
@@ -62,15 +63,21 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
         });
     }
 
+    private AuthenticationDeviceAccessLevel mockAuthenticationLevel(int id) {
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
+        when(authenticationDeviceAccessLevel.getId()).thenReturn(id);
+        return authenticationDeviceAccessLevel;
+    }
+
     @Test
     public void deviceTypeHasTwoConfigsWithSecurityPropertySetsThatDontMatchAtAllTest() {
         String name1 = "MySecurityPropertySet1";
         String name2 = "MySecurityPropertySet2";
 
-        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel1 = mock(AuthenticationDeviceAccessLevel.class);
-        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel1 = mock(EncryptionDeviceAccessLevel.class);
-        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel2 = mock(AuthenticationDeviceAccessLevel.class);
-        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel2 = mock(EncryptionDeviceAccessLevel.class);
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel1 = mockAuthenticationLevel(102);
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel1 = mockEncryptionLevel(44856);
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel2 = mockAuthenticationLevel(4456);
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel2 = mockEncryptionLevel(744565);
         DeviceType deviceType = mockDeviceType();
         DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
         SecurityPropertySet securityPropertySet1 = mockSecurityPropertySet(name1, authenticationDeviceAccessLevel1, encryptionDeviceAccessLevel1);
@@ -79,28 +86,28 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
         SecurityPropertySet securityPropertySet2 = mockSecurityPropertySet(name2, authenticationDeviceAccessLevel2, encryptionDeviceAccessLevel2);
         when(deviceConfiguration2.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
-        deviceConfigChangeEngine.calculateConfigChangeActions();
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).hasSize(4);
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+
+        assertThat(deviceConfigChangeActions).hasSize(4);
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, securityPropertySet1, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, null, securityPropertySet2, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, securityPropertySet2, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, null, securityPropertySet1, DeviceConfigChangeActionType.ADD);
@@ -112,10 +119,10 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
     public void deviceTypeHasTwoConfigsWithSecurityPropertySetMatchOnNameAndConflictOnAccessLevelsTest() {
         String name = "MySecurityPropertySet1";
 
-        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel1 = mock(AuthenticationDeviceAccessLevel.class);
-        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel1 = mock(EncryptionDeviceAccessLevel.class);
-        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel2 = mock(AuthenticationDeviceAccessLevel.class);
-        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel2 = mock(EncryptionDeviceAccessLevel.class);
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel1 = mockAuthenticationLevel(102);
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel1 = mockEncryptionLevel(44856);
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel2 = mockAuthenticationLevel(102);
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel2 = mockEncryptionLevel(44856);
         DeviceType deviceType = mockDeviceType();
         DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
         SecurityPropertySet securityPropertySet1 = mockSecurityPropertySet(name, authenticationDeviceAccessLevel1, encryptionDeviceAccessLevel1);
@@ -124,28 +131,28 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
         SecurityPropertySet securityPropertySet2 = mockSecurityPropertySet(name, authenticationDeviceAccessLevel2, encryptionDeviceAccessLevel2);
         when(deviceConfiguration2.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
-        deviceConfigChangeEngine.calculateConfigChangeActions();
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).hasSize(4);
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+
+        assertThat(deviceConfigChangeActions).hasSize(4);
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, securityPropertySet1, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, null, securityPropertySet2, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, securityPropertySet2, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, null, securityPropertySet1, DeviceConfigChangeActionType.ADD);
@@ -157,8 +164,8 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
     public void deviceTypeHasTwoConfigsWithSecurityPropertySetThatMatchOnLevelsAndConflictOnNameTest() {
         String name1 = "LowLevelSecurity";
         String name2 = "EasyPeasySecurity";
-        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel1 = mock(AuthenticationDeviceAccessLevel.class);
-        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel1 = mock(EncryptionDeviceAccessLevel.class);
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel1 = mockAuthenticationLevel(102);
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel1 = mockEncryptionLevel(44856);
 
         DeviceType deviceType = mockDeviceType();
         DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
@@ -168,16 +175,16 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
         SecurityPropertySet securityPropertySet2 = mockSecurityPropertySet(name2, authenticationDeviceAccessLevel1, encryptionDeviceAccessLevel1);
         when(deviceConfiguration2.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
-        deviceConfigChangeEngine.calculateConfigChangeActions();
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).hasSize(2);
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+
+        assertThat(deviceConfigChangeActions).hasSize(2);
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, securityPropertySet1, securityPropertySet2, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, securityPropertySet2, securityPropertySet1, DeviceConfigChangeActionType.CONFLICT);
@@ -189,10 +196,10 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
     public void unEvenSecurityPropertySetsOneMatchesExactOneNotAtAllTest() {
         String name1 = "LowLevelSecurity";
         String name2 = "MajorSecurityLevel";
-        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel1 = mock(AuthenticationDeviceAccessLevel.class);
-        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel1 = mock(EncryptionDeviceAccessLevel.class);
-        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel2 = mock(AuthenticationDeviceAccessLevel.class);
-        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel2 = mock(EncryptionDeviceAccessLevel.class);
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel1 = mockAuthenticationLevel(102);
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel1 = mockEncryptionLevel(44856);
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel2 = mockAuthenticationLevel(102);
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel2 = mockEncryptionLevel(44856);
 
         DeviceType deviceType = mockDeviceType();
         DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
@@ -203,28 +210,28 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
         SecurityPropertySet securityPropertySet3 = mockSecurityPropertySet(name1, authenticationDeviceAccessLevel1, encryptionDeviceAccessLevel1);
         when(deviceConfiguration2.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet3));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
-        deviceConfigChangeEngine.calculateConfigChangeActions();
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).hasSize(4);
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+
+        assertThat(deviceConfigChangeActions).hasSize(4);
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, securityPropertySet2, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, securityPropertySet1, securityPropertySet3, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, securityPropertySet3, securityPropertySet1, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, null, securityPropertySet2, DeviceConfigChangeActionType.ADD);
@@ -236,8 +243,8 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
     public void unEvenConnectionTasksOneMatchesExactOneMatchesOnLevelsTest() {
         String name1 = "LowLevelSecurity";
         String name2 = "MajorSecurityLevel";
-        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel1 = mock(AuthenticationDeviceAccessLevel.class);
-        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel1 = mock(EncryptionDeviceAccessLevel.class);
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel1 = mockAuthenticationLevel(102);
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel1 = mockEncryptionLevel(44856);
 
         DeviceType deviceType = mockDeviceType();
         DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
@@ -248,28 +255,28 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
         SecurityPropertySet securityPropertySet3 = mockSecurityPropertySet(name1, authenticationDeviceAccessLevel1, encryptionDeviceAccessLevel1);
         when(deviceConfiguration2.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet3));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
-        deviceConfigChangeEngine.calculateConfigChangeActions();
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).hasSize(4);
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+
+        assertThat(deviceConfigChangeActions).hasSize(4);
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, securityPropertySet2, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, securityPropertySet1, securityPropertySet3, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, securityPropertySet3, securityPropertySet1, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, null, securityPropertySet2, DeviceConfigChangeActionType.ADD);
@@ -283,10 +290,10 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
         String name2 = "NoSecurity";
         String name3 = "HighLevel";
         String name4 = "PentagonStyle";
-        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel1 = mock(AuthenticationDeviceAccessLevel.class);
-        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel1 = mock(EncryptionDeviceAccessLevel.class);
-        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel2 = mock(AuthenticationDeviceAccessLevel.class);
-        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel2 = mock(EncryptionDeviceAccessLevel.class);
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel1 = mockAuthenticationLevel(102);
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel1 = mockEncryptionLevel(44856);
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel2 = mockAuthenticationLevel(102);
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel2 = mockEncryptionLevel(44856);
         DeviceType deviceType = mockDeviceType();
         DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
         SecurityPropertySet securityPropertySet1 = mockSecurityPropertySet(name1, authenticationDeviceAccessLevel1, encryptionDeviceAccessLevel1);
@@ -299,57 +306,63 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
         SecurityPropertySet securityPropertySet6 = mockSecurityPropertySet(name3, authenticationDeviceAccessLevel2, encryptionDeviceAccessLevel2);
         when(deviceConfiguration2.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet3, securityPropertySet4, securityPropertySet5, securityPropertySet6));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
-        deviceConfigChangeEngine.calculateConfigChangeActions();
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).hasSize(8);
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+
+        assertThat(deviceConfigChangeActions).hasSize(8);
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, securityPropertySet1, securityPropertySet4, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, securityPropertySet2, securityPropertySet6, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, null, securityPropertySet3, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, null, securityPropertySet5, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, securityPropertySet4, securityPropertySet1, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, securityPropertySet6, securityPropertySet2, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, securityPropertySet5, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchSecurityPropertySet(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, securityPropertySet5, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
+    }
+
+    private EncryptionDeviceAccessLevel mockEncryptionLevel(int id) {
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = mock(EncryptionDeviceAccessLevel.class);
+        when(encryptionDeviceAccessLevel.getId()).thenReturn(id);
+        return encryptionDeviceAccessLevel;
     }
 
     private boolean matchSecurityPropertySet(DeviceConfigChangeAction deviceConfigChangeAction, DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration, SecurityPropertySet origin, SecurityPropertySet destination, DeviceConfigChangeActionType actionType) {

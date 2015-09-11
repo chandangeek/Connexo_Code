@@ -248,6 +248,7 @@ public class PartialOutboundConnectionTaskCrudIT {
             ctx.commit();
         }
         setupMasterData();
+        enhanceEventServiceForConflictCalculation();
     }
 
     private static void initializeStaticMocks() {
@@ -937,6 +938,19 @@ public class PartialOutboundConnectionTaskCrudIT {
         assertThat(partialOutboundConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.MINIMIZE_CONNECTIONS);
     }
 
+    private static void enhanceEventServiceForConflictCalculation(){
+        doAnswer(invocationOnMock -> {
+                    LocalEvent localEvent = mock(LocalEvent.class);
+            com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
+            when(eventType.getTopic()).thenReturn((String) invocationOnMock.getArguments()[0]);
+            when(localEvent.getType()).thenReturn(eventType);
+            when(localEvent.getSource()).thenReturn(invocationOnMock.getArguments()[1]);
+            injector.getInstance(DeviceConfigConflictMappingHandler.class).onEvent(localEvent);
+            return null;
+        }).when(eventService.getSpy()).postEvent(any(), any());
+    }
+
+
     @Test
     @Transactional
     public void partialConnectionTaskConflictTest() {
@@ -949,8 +963,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         DeviceConfiguration secondConfig = createDirectlyAddressableConfig(deviceType, "secondConfig");
         PartialScheduledConnectionTaskImpl outboundConnectionTask2 = createPartialConnectionTask(secondConfig, "OtherConnectionTask");
 
-        assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
-        ((ServerDeviceType) deviceType).updateConflictingMappings();
         assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2);
         assertThat(deviceType.getDeviceConfigConflictMappings()).haveExactly(1, new Condition<DeviceConfigConflictMapping>() {
             @Override
@@ -976,17 +988,16 @@ public class PartialOutboundConnectionTaskCrudIT {
         DeviceType deviceType = deviceConfigurationService.newDeviceType("ConflictTest", deviceProtocolPluggableClass);
         deviceType.save();
 
+
         DeviceConfiguration firstConfig = createDirectlyAddressableConfig(deviceType, "firstConfig");
         PartialScheduledConnectionTaskImpl outboundConnectionTask1 = createPartialConnectionTask(firstConfig, "FirstConnectionTask");
 
         DeviceConfiguration secondConfig = createDirectlyAddressableConfig(deviceType, "secondConfig");
         PartialScheduledConnectionTaskImpl outboundConnectionTask2 = createPartialConnectionTask(secondConfig, "OtherConnectionTask");
-        ((ServerDeviceType) deviceType).updateConflictingMappings();
         assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2); // what is in here is checked in another test
 
         secondConfig.deactivate();
 
-        ((ServerDeviceType) deviceType).updateConflictingMappings();
         assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
     }
 
@@ -996,26 +1007,17 @@ public class PartialOutboundConnectionTaskCrudIT {
         DeviceType deviceType = deviceConfigurationService.newDeviceType("ConflictTest", deviceProtocolPluggableClass);
         deviceType.save();
 
+
         DeviceConfiguration firstConfig = createDirectlyAddressableConfig(deviceType, "firstConfig");
         PartialScheduledConnectionTaskImpl outboundConnectionTask1 = createPartialConnectionTask(firstConfig, "FirstConnectionTask");
 
         DeviceConfiguration secondConfig = createDirectlyAddressableConfig(deviceType, "secondConfig");
         PartialScheduledConnectionTaskImpl outboundConnectionTask2 = createPartialConnectionTask(secondConfig, "OtherConnectionTask");
 
-        ((ServerDeviceType) deviceType).updateConflictingMappings();
         assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2); // what is in here is checked in another test
 
         deviceType.save();
 
-        LocalEvent localEvent = mock(LocalEvent.class);
-        com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
-        when(eventType.getTopic()).thenReturn(EventType.PARTIAL_SCHEDULED_CONNECTION_TASK_DELETED.topic());
-        when(localEvent.getType()).thenReturn(eventType);
-        when(localEvent.getSource()).thenReturn(outboundConnectionTask2);
-        doAnswer(invocationOnMock -> {
-            injector.getInstance(DeviceConfigConflictMappingHandler.class).onEvent(localEvent, outboundConnectionTask2);
-            return null;
-        }).when(eventService.getSpy()).postEvent(EventType.PARTIAL_SCHEDULED_CONNECTION_TASK_DELETED.topic(), outboundConnectionTask2);
 
         removeConnectionTaskFromConfig(secondConfig, outboundConnectionTask2);
         assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
@@ -1027,13 +1029,13 @@ public class PartialOutboundConnectionTaskCrudIT {
         DeviceType deviceType = deviceConfigurationService.newDeviceType("ConflictTest", deviceProtocolPluggableClass);
         deviceType.save();
 
+
         DeviceConfiguration firstConfig = createDirectlyAddressableConfig(deviceType, "firstConfig");
         PartialScheduledConnectionTaskImpl outboundConnectionTask1 = createPartialConnectionTask(firstConfig, "FirstConnectionTask");
 
         DeviceConfiguration secondConfig = createDirectlyAddressableConfig(deviceType, "secondConfig");
         PartialScheduledConnectionTaskImpl outboundConnectionTask2 = createPartialConnectionTask(secondConfig, "OtherConnectionTask");
 
-        ((ServerDeviceType) deviceType).updateConflictingMappings();
 
         assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2); // what is in here is checked in another test
         DeviceConfigConflictMapping deviceConfigConflictMapping1 = deviceType.getDeviceConfigConflictMappings().get(0);
@@ -1068,7 +1070,6 @@ public class PartialOutboundConnectionTaskCrudIT {
         // Logic that we want to test: if new ConnectionMethod is added, new conflicts will be calculated. Existing solved conflicts should still remain
         DeviceConfiguration thirdConfig = createDirectlyAddressableConfig(deviceType, "ThirdConfig");
         PartialScheduledConnectionTaskImpl outboundConnectionTask3 = createPartialConnectionTask(thirdConfig, "ThirdConnectionTask");
-        ((ServerDeviceType) deviceType).updateConflictingMappings(); // we call the method ourselves because we don't have the eventhandler in place
 
         DeviceType finalDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
         assertThat(finalDeviceType.getDeviceConfigConflictMappings()).hasSize(6);

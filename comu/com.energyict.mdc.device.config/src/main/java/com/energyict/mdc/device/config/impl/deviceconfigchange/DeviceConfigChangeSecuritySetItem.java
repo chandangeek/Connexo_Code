@@ -49,6 +49,7 @@ public class DeviceConfigChangeSecuritySetItem implements DeviceConfigChangeItem
     @Override
     public Predicate<SecurityPropertySet> isItAConflict(SecurityPropertySet item) {
         return securityPropertySet -> !securityPropertySet.getName().equals(item.getName())
-                && securityPropertySet.getAuthenticationDeviceAccessLevel().equals(item.getAuthenticationDeviceAccessLevel())
-                && securityPropertySet.getEncryptionDeviceAccessLevel().equals(item.getEncryptionDeviceAccessLevel());    }
+                && securityPropertySet.getAuthenticationDeviceAccessLevel().getId() == item.getAuthenticationDeviceAccessLevel().getId()
+                && securityPropertySet.getEncryptionDeviceAccessLevel().getId() == item.getEncryptionDeviceAccessLevel().getId();
+    }
 }

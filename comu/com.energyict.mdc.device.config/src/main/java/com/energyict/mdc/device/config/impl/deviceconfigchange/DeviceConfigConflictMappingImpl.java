@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.config.impl;
+package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.impl.DeviceTypeImpl;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -23,7 +24,7 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
 
     private final DataModel dataModel;
 
-    enum Fields {
+    public enum Fields {
         DEVICETYPE("deviceType"),
         ORIGINDEVICECONFIG("originDeviceConfig"),
         DESTINATIONDEVICECONFIG("destinationDeviceConfig"),
@@ -38,7 +39,7 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
             this.javaFieldName = javaFieldName;
         }
 
-        String fieldName() {
+        public String fieldName() {
             return javaFieldName;
         }
 

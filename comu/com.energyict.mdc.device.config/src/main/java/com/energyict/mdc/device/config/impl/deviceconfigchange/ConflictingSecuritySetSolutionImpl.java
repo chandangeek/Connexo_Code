@@ -1,9 +1,8 @@
-package com.energyict.mdc.device.config.impl;
+package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
@@ -13,7 +12,6 @@ import com.energyict.mdc.device.config.exceptions.DestinationSecurityPropertySet
 import com.energyict.mdc.device.config.exceptions.OriginSecurityPropertySetIsEmpty;
 
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 import java.util.function.Supplier;
 
 /**
@@ -21,7 +19,7 @@ import java.util.function.Supplier;
  */
 public class ConflictingSecuritySetSolutionImpl extends AbstractConflictSolution<SecurityPropertySet> implements ConflictingSecuritySetSolution {
 
-    enum Fields {
+    public enum Fields {
         CONFLICTINGMAPPING("conflictingMapping"),
         ACTION("action"),
         ORIGINSECURITYSET("originSecurityPropertySet"),
@@ -33,7 +31,7 @@ public class ConflictingSecuritySetSolutionImpl extends AbstractConflictSolution
             this.javaFieldName = javaFieldName;
         }
 
-        String fieldName() {
+        public String fieldName() {
             return javaFieldName;
         }
     }

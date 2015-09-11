@@ -1,13 +1,11 @@
-package com.energyict.mdc.device.config.impl;
+package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
 import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigChangeAction;
-import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigChangeActionType;
-import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigChangeEngine;
+import com.energyict.mdc.device.config.impl.ServerDeviceType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -15,50 +13,54 @@ import java.util.stream.Collectors;
 /**
  * Calculates the DeviceConfigConflictMappings
  */
-final class DeviceConfigConflictMappingEngine {
+public final class DeviceConfigConflictMappingEngine {
 
-    private final DeviceType deviceType;
+    public static DeviceConfigConflictMappingEngine INSTANCE = new DeviceConfigConflictMappingEngine();
 
-    public DeviceConfigConflictMappingEngine(DeviceType deviceType) {
-        this.deviceType = deviceType;
+    private DeviceConfigConflictMappingEngine() {
     }
 
-    void reCalculateConflicts() {
-        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
-        deviceConfigChangeEngine.calculateConfigChangeActions();
-        List<DeviceConfigChangeAction> deviceConfigChangeActions = deviceConfigChangeEngine.getDeviceConfigChangeActions();
+    public void reCalculateConflicts(DeviceType deviceType) {
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
 
         deviceConfigChangeActions.stream()
                 .forEach(conflictingAction -> {
                     // find existing conflictMapping
                     if (conflictingAction.getActionType().equals(DeviceConfigChangeActionType.CONFLICT)) {
-                        DeviceConfigConflictMappingImpl conflictMapping = getDeviceConfigConflictMapping(conflictingAction);
-                        if (isConnectionMethodAction(conflictingAction)) {
-                            // do connectionTask stuff
-                            findOrCreateConflictingConnectionMethodSolution(conflictingAction, conflictMapping);
-                        } else if (isSecurityPropertySetAction(conflictingAction)) {
-                            // do securityPropertySet stuff
-                            findOrCreateConflictingSecuritySetSolution(conflictingAction, conflictMapping);
-                        }
+                        DeviceConfigConflictMappingImpl conflictMapping = getDeviceConfigConflictMapping(conflictingAction, deviceType);
+                        findOrCreateConflict(conflictingAction, conflictMapping);
                     } else { // cleaunup if exists
-                        Optional<DeviceConfigConflictMappingImpl> existingDeviceConfigConflictMapping = getExistingDeviceConfigConflictMapping(conflictingAction);
-                        existingDeviceConfigConflictMapping.ifPresent(deviceConfigConflictMapping -> {
-                            if (isConnectionMethodAction(conflictingAction)) {
-                                Optional<ConflictingConnectionMethodSolution> existingConnectionMethodConflictSolution = deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().stream()
-                                        .filter(sameOriginConflict(conflictingAction)).findFirst();
-                                existingConnectionMethodConflictSolution.ifPresent(deviceConfigConflictMapping::removeConnectionMethodSolution);
-                            } else if (isSecurityPropertySetAction(conflictingAction)) {
-                                Optional<ConflictingSecuritySetSolution> existingSecurityPropertySetConflictSolution = deviceConfigConflictMapping.getConflictingSecuritySetSolutions().stream()
-                                        .filter(sameOriginConflict(conflictingAction)).findFirst();
-                                existingSecurityPropertySetConflictSolution.ifPresent(deviceConfigConflictMapping::removeSecuritySetSolution);
-                            }
-                        });
+                        Optional<DeviceConfigConflictMappingImpl> existingDeviceConfigConflictMapping = getExistingDeviceConfigConflictMapping(conflictingAction, deviceType);
+                        existingDeviceConfigConflictMapping.ifPresent(removeExistingConflictIfExists(conflictingAction));
                     }
-
                 });
         // remove the non-conflicting
         List<DeviceConfigConflictMapping> solvedConflicts = deviceType.getDeviceConfigConflictMappings().stream().filter(areConflictsResolved(deviceConfigChangeActions)).collect(Collectors.toList());
-        deviceType.getDeviceConfigConflictMappings().removeAll(solvedConflicts);
+        ((ServerDeviceType) deviceType).removeDeviceConfigConflictMappings(solvedConflicts);
+    }
+
+    private Consumer<DeviceConfigConflictMappingImpl> removeExistingConflictIfExists(DeviceConfigChangeAction conflictingAction) {
+        return deviceConfigConflictMapping -> {
+            if (isConnectionMethodAction(conflictingAction)) {
+                Optional<ConflictingConnectionMethodSolution> existingConnectionMethodConflictSolution = deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().stream()
+                        .filter(sameOriginConflict(conflictingAction)).findFirst();
+                existingConnectionMethodConflictSolution.ifPresent(deviceConfigConflictMapping::removeConnectionMethodSolution);
+            } else if (isSecurityPropertySetAction(conflictingAction)) {
+                Optional<ConflictingSecuritySetSolution> existingSecurityPropertySetConflictSolution = deviceConfigConflictMapping.getConflictingSecuritySetSolutions().stream()
+                        .filter(sameOriginConflict(conflictingAction)).findFirst();
+                existingSecurityPropertySetConflictSolution.ifPresent(deviceConfigConflictMapping::removeSecuritySetSolution);
+            }
+        };
+    }
+
+    private void findOrCreateConflict(DeviceConfigChangeAction conflictingAction, DeviceConfigConflictMappingImpl conflictMapping) {
+        if (isConnectionMethodAction(conflictingAction)) {
+            // do connectionTask stuff
+            findOrCreateConflictingConnectionMethodSolution(conflictingAction, conflictMapping);
+        } else if (isSecurityPropertySetAction(conflictingAction)) {
+            // do securityPropertySet stuff
+            findOrCreateConflictingSecuritySetSolution(conflictingAction, conflictMapping);
+        }
     }
 
     private void findOrCreateConflictingSecuritySetSolution(DeviceConfigChangeAction conflictingAction, DeviceConfigConflictMappingImpl conflictMapping) {
@@ -105,12 +107,12 @@ final class DeviceConfigConflictMappingEngine {
 
     }
 
-    private DeviceConfigConflictMappingImpl getDeviceConfigConflictMapping(DeviceConfigChangeAction configChangeAction) {
-        return getExistingDeviceConfigConflictMapping(configChangeAction)
-                .orElseGet(makeNewConflictMapping(configChangeAction.getOriginDeviceConfiguration(), configChangeAction.getDestinationDeviceConfiguration()));
+    private DeviceConfigConflictMappingImpl getDeviceConfigConflictMapping(DeviceConfigChangeAction configChangeAction, DeviceType deviceType) {
+        return getExistingDeviceConfigConflictMapping(configChangeAction, deviceType)
+                .orElseGet(makeNewConflictMapping(configChangeAction.getOriginDeviceConfiguration(), configChangeAction.getDestinationDeviceConfiguration(), ((ServerDeviceType) deviceType)));
     }
 
-    private Optional<DeviceConfigConflictMappingImpl> getExistingDeviceConfigConflictMapping(DeviceConfigChangeAction configChangeAction) {
+    private Optional<DeviceConfigConflictMappingImpl> getExistingDeviceConfigConflictMapping(DeviceConfigChangeAction configChangeAction, DeviceType deviceType) {
         return deviceType.getDeviceConfigConflictMappings().stream()
                 .filter(getMatchingDeviceConfigConflictMapping(configChangeAction)).map(deviceConfigConflictMapping -> ((DeviceConfigConflictMappingImpl) deviceConfigConflictMapping)).findFirst();
     }
@@ -124,7 +126,7 @@ final class DeviceConfigConflictMappingEngine {
         return conflictingSolution -> configChangeAction.getOrigin() != null && conflictingSolution.getOriginDataSource().getId() == configChangeAction.getOrigin().getId();
     }
 
-    private Supplier<DeviceConfigConflictMappingImpl> makeNewConflictMapping(DeviceConfiguration origin, DeviceConfiguration destination) {
-        return () -> ((ServerDeviceType) deviceType).newConflictMappingFor(origin, destination);
+    private Supplier<DeviceConfigConflictMappingImpl> makeNewConflictMapping(DeviceConfiguration origin, DeviceConfiguration destination, ServerDeviceType serverDeviceType) {
+        return () -> serverDeviceType.newConflictMappingFor(origin, destination);
     }
 }

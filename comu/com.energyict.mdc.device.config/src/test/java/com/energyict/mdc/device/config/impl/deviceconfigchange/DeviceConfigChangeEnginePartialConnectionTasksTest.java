@@ -3,7 +3,6 @@ package com.energyict.mdc.device.config.impl.deviceconfigchange;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import org.fest.assertions.core.Condition;
 import org.junit.Test;
@@ -12,6 +11,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -35,9 +35,7 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
     @Test
     public void deviceTypeHasNoConfigsTest() {
         DeviceType deviceType = mockDeviceType();
-        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
-        deviceConfigChangeEngine.calculateConfigChangeActions();
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).isEmpty();
+        assertThat(DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType)).isEmpty();
     }
 
     @Test
@@ -48,9 +46,7 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         DeviceConfiguration deviceConfiguration3 = mock(DeviceConfiguration.class);
         DeviceConfiguration deviceConfiguration4 = mock(DeviceConfiguration.class);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2, deviceConfiguration3, deviceConfiguration4));
-        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
-        deviceConfigChangeEngine.calculateConfigChangeActions();
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).isEmpty();
+        assertThat(DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType)).isEmpty();
     }
 
     @Test
@@ -61,9 +57,7 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         DeviceConfiguration deviceConfiguration3 = mockActiveDeviceConfiguration();
         DeviceConfiguration deviceConfiguration4 = mockActiveDeviceConfiguration();
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2, deviceConfiguration3, deviceConfiguration4));
-        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
-        deviceConfigChangeEngine.calculateConfigChangeActions();
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).isEmpty();
+        assertThat(DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType)).isEmpty();
     }
 
     @Test
@@ -78,16 +72,15 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(name, connectionTypePluggableClass);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
-        deviceConfigChangeEngine.calculateConfigChangeActions();
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).hasSize(2);
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+        assertThat(deviceConfigChangeActions).hasSize(2);
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, partialConnectionTask1, partialConnectionTask2, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, partialConnectionTask2, partialConnectionTask1, DeviceConfigChangeActionType.MATCH);
@@ -115,28 +108,27 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(name2, connectionTypePluggableClass2);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
-        deviceConfigChangeEngine.calculateConfigChangeActions();
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).hasSize(4);
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+        assertThat(deviceConfigChangeActions).hasSize(4);
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, partialConnectionTask1, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, null, partialConnectionTask2, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, partialConnectionTask2, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, null, partialConnectionTask1, DeviceConfigChangeActionType.ADD);
@@ -157,28 +149,28 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(name1, connectionTypePluggableClass2);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
-        deviceConfigChangeEngine.calculateConfigChangeActions();
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).hasSize(4);
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+
+        assertThat(deviceConfigChangeActions).hasSize(4);
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, partialConnectionTask1, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, null, partialConnectionTask2, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, partialConnectionTask2, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, null, partialConnectionTask1, DeviceConfigChangeActionType.ADD);
@@ -199,16 +191,16 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(name2, connectionTypePluggableClass1);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
-        deviceConfigChangeEngine.calculateConfigChangeActions();
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).hasSize(2);
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+
+        assertThat(deviceConfigChangeActions).hasSize(2);
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, partialConnectionTask1, partialConnectionTask2, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, partialConnectionTask2, partialConnectionTask1, DeviceConfigChangeActionType.CONFLICT);
@@ -231,28 +223,28 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         PartialConnectionTask partialConnectionTask3 = mockPartialConnectionTask(name1, connectionTypePluggableClass1);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask3));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
-        deviceConfigChangeEngine.calculateConfigChangeActions();
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).hasSize(4);
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+
+        assertThat(deviceConfigChangeActions).hasSize(4);
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, partialConnectionTask2, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, partialConnectionTask1, partialConnectionTask3, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, partialConnectionTask3, partialConnectionTask1, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, null, partialConnectionTask2, DeviceConfigChangeActionType.ADD);
@@ -274,28 +266,28 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         PartialConnectionTask partialConnectionTask3 = mockPartialConnectionTask(name1, connectionTypePluggableClass1);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask3));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
-        deviceConfigChangeEngine.calculateConfigChangeActions();
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).hasSize(4);
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+
+        assertThat(deviceConfigChangeActions).hasSize(4);
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, partialConnectionTask2, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, partialConnectionTask1, partialConnectionTask3, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, partialConnectionTask3, partialConnectionTask1, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, null, partialConnectionTask2, DeviceConfigChangeActionType.ADD);
@@ -373,52 +365,52 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         PartialConnectionTask partialConnectionTask6 = mockPartialConnectionTask(name3, connectionTypePluggableClass2);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask3, partialConnectionTask4, partialConnectionTask5, partialConnectionTask6));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
-        deviceConfigChangeEngine.calculateConfigChangeActions();
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).hasSize(8);
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+
+        assertThat(deviceConfigChangeActions).hasSize(8);
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, partialConnectionTask1, partialConnectionTask4, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, partialConnectionTask2, partialConnectionTask6, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, null, partialConnectionTask3, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, null, partialConnectionTask5, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, partialConnectionTask4, partialConnectionTask1, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, partialConnectionTask6, partialConnectionTask2, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, partialConnectionTask5, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, partialConnectionTask5, null, DeviceConfigChangeActionType.REMOVE);
@@ -575,460 +567,460 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         PartialConnectionTask partialConnectionTask14 = mockPartialConnectionTask(name12, connectionTypePluggableClass6);
         when(deviceConfiguration4.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask11, partialConnectionTask12, partialConnectionTask13, partialConnectionTask14));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2, deviceConfiguration3, deviceConfiguration4));
-        DeviceConfigChangeEngine deviceConfigChangeEngine = new DeviceConfigChangeEngine(deviceType);
-        deviceConfigChangeEngine.calculateConfigChangeActions();
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).hasSize(76);
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+
+        assertThat(deviceConfigChangeActions).hasSize(76);
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, partialConnectionTask1, partialConnectionTask4, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, partialConnectionTask2, partialConnectionTask6, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, null, partialConnectionTask3, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration2, null, partialConnectionTask5, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, partialConnectionTask4, partialConnectionTask1, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, partialConnectionTask6, partialConnectionTask2, DeviceConfigChangeActionType.MATCH);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, partialConnectionTask5, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration1, partialConnectionTask5, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration3, partialConnectionTask1, partialConnectionTask7, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration3, partialConnectionTask1, partialConnectionTask8, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration3, partialConnectionTask2, partialConnectionTask9, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration3, partialConnectionTask2, partialConnectionTask10, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration4, partialConnectionTask1, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration4, partialConnectionTask1, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration4, null, partialConnectionTask11, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration4, null, partialConnectionTask12, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration4, null, partialConnectionTask13, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration1, deviceConfiguration4, null, partialConnectionTask14, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration3, partialConnectionTask3, partialConnectionTask7, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration3, partialConnectionTask3, partialConnectionTask8, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration3, partialConnectionTask4, partialConnectionTask7, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration3, partialConnectionTask4, partialConnectionTask8, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration3, partialConnectionTask5, partialConnectionTask9, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration3, partialConnectionTask5, partialConnectionTask10, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration3, partialConnectionTask6, partialConnectionTask9, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration3, partialConnectionTask6, partialConnectionTask10, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration4, partialConnectionTask3, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration4, partialConnectionTask4, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration4, partialConnectionTask5, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration4, partialConnectionTask6, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration4, null, partialConnectionTask11, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration4, null, partialConnectionTask12, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration4, null, partialConnectionTask13, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration2, deviceConfiguration4, null, partialConnectionTask14, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration1, partialConnectionTask7, partialConnectionTask1, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration1, partialConnectionTask8, partialConnectionTask1, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration1, partialConnectionTask9, partialConnectionTask2, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration1, partialConnectionTask10, partialConnectionTask2, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration2, partialConnectionTask7, partialConnectionTask3, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration2, partialConnectionTask7, partialConnectionTask4, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration2, partialConnectionTask8, partialConnectionTask3, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration2, partialConnectionTask8, partialConnectionTask4, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration2, partialConnectionTask9, partialConnectionTask5, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration2, partialConnectionTask9, partialConnectionTask6, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration2, partialConnectionTask10, partialConnectionTask5, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration2, partialConnectionTask10, partialConnectionTask6, DeviceConfigChangeActionType.CONFLICT);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration4, partialConnectionTask7, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration4, partialConnectionTask8, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration4, partialConnectionTask9, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration4, partialConnectionTask10, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration4, null, partialConnectionTask11, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration4, null, partialConnectionTask12, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration4, null, partialConnectionTask13, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration3, deviceConfiguration4, null, partialConnectionTask14, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration1, null, partialConnectionTask1, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration1, null, partialConnectionTask2, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration1, partialConnectionTask11, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration1, partialConnectionTask12, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration1, partialConnectionTask13, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration1, partialConnectionTask14, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration2, partialConnectionTask11, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration2, partialConnectionTask12, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration2, partialConnectionTask13, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration2, partialConnectionTask14, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration2, null, partialConnectionTask3, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration2, null, partialConnectionTask4, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration2, null, partialConnectionTask5, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration2, null, partialConnectionTask6, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration3, partialConnectionTask11, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration3, partialConnectionTask12, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration3, partialConnectionTask13, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration3, partialConnectionTask14, null, DeviceConfigChangeActionType.REMOVE);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration3, null, partialConnectionTask7, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration3, null, partialConnectionTask8, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration3, null, partialConnectionTask9, DeviceConfigChangeActionType.ADD);
             }
         });
-        assertThat(deviceConfigChangeEngine.getDeviceConfigChangeActions()).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
+        assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
             public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
                 return matchConnectionTask(deviceConfigChangeAction, deviceConfiguration4, deviceConfiguration3, null, partialConnectionTask10, DeviceConfigChangeActionType.ADD);

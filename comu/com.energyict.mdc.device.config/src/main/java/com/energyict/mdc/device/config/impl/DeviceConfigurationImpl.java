@@ -964,6 +964,9 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
             ((SecurityPropertySetImpl) propertySet).validateDelete();
             getServerDeviceType().removeConflictsFor(propertySet);
             securityPropertySets.remove(propertySet);
+            if (this.getId() > 0) {
+                getEventService().postEvent(((PersistentIdObject) propertySet).deleteEventType().topic(), propertySet);
+            }
         }
     }
 
@@ -1283,6 +1286,9 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         @Override
         public SecurityPropertySet build() {
             DeviceConfigurationImpl.this.addSecurityPropertySet(underConstruction);
+            if (DeviceConfigurationImpl.this.getId() > 0) {
+                DeviceConfigurationImpl.this.getEventService().postEvent(underConstruction.createEventType().topic(), underConstruction);
+            }
             return underConstruction;
         }
     }

@@ -1,7 +1,10 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingImpl;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+
+import java.util.List;
 
 /**
  * Adds behavior to {@link DeviceType} that is reserved
@@ -20,11 +23,6 @@ public interface ServerDeviceType extends DeviceType {
     void updateDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle);
 
     /**
-     * Updates the DeviceConfigConflictMappings
-     */
-    void updateConflictingMappings();
-
-    /**
      * Creates a new DeviceConfigConflictMappingImpl.
      *
      * @param origin the origin DeviceConfiguration
@@ -32,6 +30,13 @@ public interface ServerDeviceType extends DeviceType {
      * @return a newly created DeviceConfigConflictMapping for this DeviceType with the given configs
      */
     DeviceConfigConflictMappingImpl newConflictMappingFor(DeviceConfiguration origin, DeviceConfiguration destination);
+
+    /**
+     * Remove the given deviceConfigConflictMappings
+     *
+     * @param deviceConfigConflictMappings the mappings to remove
+     */
+    void removeDeviceConfigConflictMappings(List<DeviceConfigConflictMapping> deviceConfigConflictMappings);
 
     /**
      * Cleans up the DeviceConfigConflictMapping which use the given partialConnectionTask
