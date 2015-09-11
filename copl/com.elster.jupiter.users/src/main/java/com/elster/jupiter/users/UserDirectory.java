@@ -12,6 +12,8 @@ public interface UserDirectory {
 
     String getDomain();
 
+    void setDomain(String domain);
+
     String getType();
 
     void setType(String type);

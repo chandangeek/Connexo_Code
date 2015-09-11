@@ -1,5 +1,6 @@
 package com.elster.jupiter.users.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
@@ -69,10 +70,16 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
     }
 
     public void save() {
-        dataModel.persist(this);
+//        version count
+        if (getId() == 0) {
+            Save.CREATE.save(dataModel, this);
+        } else {
+            Save.UPDATE.save(dataModel, this);
+        }
     }
 
-    void setDomain(String domain) {
+    @Override
+    public void setDomain(String domain) {
         this.domain = domain;
     }
 
