@@ -34,6 +34,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
             {
                 xtype: 'tabpanel',
                 ui: 'large',
+                title: me.title,
                 itemId: 'channelTabPanel',
                 activeTab: me.activeTab,
                 items: [
@@ -153,11 +154,8 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     },
 
     onLoad: function () {
-        this.setLoading(false);
-        Ext.suspendLayouts();
         this.showGraphView();
-        this.store.rejectChanges();
-        Ext.resumeLayouts(true);
+        this.setLoading(false);
     },
 
     onBeforeDestroy: function () {
@@ -220,7 +218,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
         } else {
             container.down('#graphContainer').hide();
         }
-        me.doLayout();
+        me.updateLayout();
         Ext.resumeLayouts(true);
     },
 

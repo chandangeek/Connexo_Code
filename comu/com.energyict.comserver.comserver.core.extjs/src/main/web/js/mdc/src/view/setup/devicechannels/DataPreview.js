@@ -52,9 +52,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             } else {
                 me.setReadingQualities(me.down('#mainReadingQualities'), record.get('mainValidationInfo'));
                 me.setReadingQualities(me.down('#bulkReadingQualities'), record.get('bulkValidationInfo'));
-                me.setGeneralReadingQualities(me.down('#generalReadingQualities'), record.get('readingQualities'));
+                me.setGeneralReadingQualities(me.down('#generalReadingQualities'), me.up('tabbedDeviceChannelsView').channel.get('validationInfo'));
                 me.down('#readingDataValidated').setValue(record.get('dataValidated'));
             }
+
             Ext.resumeLayouts(true);
             me.setLoading(false);
         });
@@ -74,7 +75,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             me.setValidationRules(field, info.validationRules);
         } else if (info.estimatedByRule) {
             estimatedRule = info.estimatedByRule;
-            url = view.router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule').buildUrl({ruleSetId: estimatedRule.ruleSetId, ruleId: estimatedRule.id});
+            url = me.router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule').buildUrl({ruleSetId: estimatedRule.ruleSetId, ruleId: estimatedRule.id});
             estimatedRuleName = estimatedRule.deleted ? estimatedRule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') :
                 '<a href="' + url + '">' + estimatedRule.name + '</a>';
             field.setValue(Uni.I18n.translate('deviceChannelData.estimatedAccordingTo', 'MDC', 'Estimated according to {0}',[estimatedRuleName]));
@@ -149,7 +150,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     result += Ext.String.htmlEncode(rule.key.name) + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + ' - ' + rule.value + ' ' + Uni.I18n.translate('general.suspects', 'MDC', 'suspects') + '<br>';
                 } else {
                     if (Cfg.privileges.Validation.canViewOrAdministrate()) {
-                        url = me.up('deviceLoadProfilesData').router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({ruleSetId: rule.key.ruleSetVersion.ruleSet.id, versionId: rule.key.ruleSetVersion.id, ruleId: rule.key.id});
+                        url = me.router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({ruleSetId: rule.key.ruleSetVersion.ruleSet.id, versionId: rule.key.ruleSetVersion.id, ruleId: rule.key.id});
                         result += '<a href="' + url + '"> ' + Ext.String.htmlEncode(rule.key.name) + '</a>';
                     } else {
                         result = Ext.String.htmlEncode(rule.key.name);
@@ -190,7 +191,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             }
         } else {
             measurementType = me.channelRecord.get('unitOfMeasure');
-            validationInfo = record.get('validationInfo') ? record.get('validationInfo')[type + 'ValidationInfo'] : null;
+            validationInfo = record.get(type + 'ValidationInfo');
         }
 
         if (validationInfo && validationInfo.validationResult) {

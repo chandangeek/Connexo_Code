@@ -13,8 +13,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
         'Mdc.view.setup.devicechannels.DataBulkActionMenu'
     ],
     plugins: [
-        'bufferedrenderer',
-        'showConditionalToolTip',
+        {
+            ptype: 'bufferedrenderer',
+            trailingBufferZone: 12,
+            leadingBufferZone: 24
+        },
         {
             ptype: 'cellediting',
             clicksToEdit: 1,

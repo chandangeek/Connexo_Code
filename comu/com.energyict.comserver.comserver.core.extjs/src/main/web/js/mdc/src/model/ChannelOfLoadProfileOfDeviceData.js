@@ -2,27 +2,27 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
     extend: 'Ext.data.Model',
     idProperty: 'interval_end',
     fields: [
-        {name: 'interval', type: 'auto'}, // required
-        {name: 'readingTime', dateFormat: 'time', type: 'date'}, // preview
-        {name: 'value', type: 'auto' }, // required
-        {name: 'isBulk', type: 'boolean'}, // preview
-        {name: 'collectedValue', type: 'auto'}, // required
-        {name: 'intervalFlags', type: 'auto'}, // check - available on grid
-        {name: 'validationStatus', type: 'auto'}, // preview
-        {name: 'mainValidationInfo', type: 'auto'}, // struct
-        {name: 'bulkValidationInfo', type: 'auto'}, // struct
-        {name: 'confirmed', type: 'auto'}, // required
-        {name: 'dataValidated', type: 'auto'}, // required
+        {name: 'interval', type: 'auto'},
+        {name: 'readingTime', dateFormat: 'time', type: 'date'},
+        {name: 'value', type: 'auto' },
+        {name: 'isBulk', type: 'boolean'},
+        {name: 'collectedValue', type: 'auto'},
+        {name: 'intervalFlags', type: 'auto'},
+        {name: 'validationStatus', type: 'auto'},
+        {name: 'mainValidationInfo', type: 'auto'},
+        {name: 'bulkValidationInfo', type: 'auto'},
+        {name: 'confirmed', type: 'auto'},
+        {name: 'dataValidated', type: 'auto'},
         'plotband',
         {
-            name: 'interval_end', // required - grid
+            name: 'interval_end',
             persist: false,
             mapping: 'interval.end',
             dateFormat: 'time',
             type: 'date'
         },
         {
-            name: 'interval_formatted', // preview
+            name: 'interval_formatted',
             persist: false,
             mapping: function (data) {
                 return data.interval
@@ -37,7 +37,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
             }
         },
         {
-            name: 'readingTime_formatted', // preview
+            name: 'readingTime_formatted',
             persist: false,
             mapping: function (data) {
                 return data.readingTime
@@ -48,7 +48,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
             }
         },
         {
-            name: 'mainModificationState', // grid
+            name: 'mainModificationState',
             persist: false,
             mapping: function (data) {
                 var result = null,
@@ -65,7 +65,17 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
             }
         },
         {
-            name: 'bulkModificationState', // grid
+            name: 'validationResult',
+            persist: false,
+            mapping: function (data) {
+                return {
+                    main: data.mainValidationInfo.validationResult.split('.')[1],
+                    bulk: data.bulkValidationInfo.validationResult.split('.')[1]
+                }
+            }
+        },
+        {
+            name: 'bulkModificationState',
             persist: false,
             mapping: function (data) {
                 var result = null,
@@ -95,9 +105,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                 if (delta) {
                     result.delta.suspect = delta.validationResult.split('.')[1] == 'suspect';
                     delta.validationResult == 'validationStatus.notValidated' ? result.delta.notValidated = true : result.delta.notValidated = false
-                }
 
-                if (delta && delta.action) {
                     if (delta.action == 'FAIL') {
                         result.delta.suspect = true;
                         result.delta['informative'] = false;
@@ -109,9 +117,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
 
                 if (bulk) {
                     bulk.validationResult == 'validationStatus.notValidated' ? result.bulk.notValidated = true : result.bulk.notValidated = false
-                }
 
-                if (bulk && bulk.action) {
                     if (bulk.action == 'FAIL') {
                         result.bulk.suspect = true;
                         result.bulk.informative = false;
@@ -137,7 +143,9 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
             success: function(response) {
                 var data = Ext.decode(response.responseText);
                 //Ext.apply(me.raw, data)
+                me.beginEdit();
                 me.set(data);
+                me.endEdit(true);
 
                 callback ? callback() : null;
             }
