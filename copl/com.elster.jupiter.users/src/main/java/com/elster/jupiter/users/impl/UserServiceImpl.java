@@ -122,19 +122,19 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     private UserDirectory getUserDirectory(String domain) {
-        Optional<UserDirectory> found = dataModel.mapper(UserDirectory.class).find().stream().filter(s -> s.getDomain().equals(domain)).findAny();
-        if (!found.isPresent()) {
+        List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUAL.compare("domain", domain));
+        if (found.isEmpty()) {
             throw new NoDomainFoundException(thesaurus, domain);
         }
 
-        return found.get();
+        return found.get(0);
     }
 
     @Override
     public LdapUserDirectory getLdapUserDirectory(long id) {
         Optional<LdapUserDirectory> found = dataModel.mapper(LdapUserDirectory.class).getOptional(id);
         if (!found.isPresent()) {
-            throw new NoDomainFoundException(thesaurus,"asd");
+            throw new NoDomainIdFoundException(thesaurus,id);
         }
         return found.get();
     }
@@ -441,7 +441,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public Optional<UserDirectory> findUserDirectory(String domain) {
-        return dataModel.mapper(UserDirectory.class).find().stream().filter(s->s.getDomain().equals(domain)).findAny();
+        return dataModel.mapper(UserDirectory.class).find().stream().filter(s -> s.getDomain().equals(domain)).findAny();
     }
 
     @Reference
