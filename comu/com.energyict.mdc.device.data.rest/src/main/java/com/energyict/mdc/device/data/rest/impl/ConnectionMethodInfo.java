@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -14,12 +15,14 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,4 +96,11 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
 
     public abstract ConnectionTask<?, ?> createTask(EngineConfigurationService engineConfigurationService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask);
 
+    @JsonIgnore
+    protected ConnectionStrategy getConnectionStrategy(){
+        return Arrays.stream(ConnectionStrategy.values())
+                .filter(candidate -> candidate.name().equals(this.connectionStrategy))
+                .findFirst()
+                .orElse(null);
+    }
 }
