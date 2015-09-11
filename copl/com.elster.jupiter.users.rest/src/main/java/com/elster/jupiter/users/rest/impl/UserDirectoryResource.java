@@ -3,6 +3,7 @@ package com.elster.jupiter.users.rest.impl;
 
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
@@ -54,9 +55,8 @@ public class UserDirectoryResource {
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE})
-    public UserDirectoryInfo getUserDirectory(UserDirectoryInfo info, @PathParam("id") long id) {
+    public UserDirectoryInfo getUserDirectory(@PathParam("id") long id,@Context SecurityContext securityContext) {
         LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
         return new UserDirectoryInfo(ldapUserDirectory);
     }
@@ -88,23 +88,28 @@ public class UserDirectoryResource {
         }
     }
 
-//    @PUT
-//    @Path("/{id}")
-//    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    @RolesAllowed(Privileges.ADMINISTRATE_USER_ROLE)
-//    public UserDirectoryInfo editUserDirectory(UserDirectoryInfo info, @PathParam("id") long id) {
-//        try (TransactionContext context = transactionService.getContext()) {
-//            LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
-//            ldapUserDirectory.setBackupUrl(info.backupurl);
-//            ldapUserDirectory.setUrl(info.url);
-//            ldapUserDirectory.setSecurity(info.securityProtocol);
-//            ldapUserDirectory.setBaseGroup(info.baseGroup);
-//            ldapUserDirectory.setBaseUser(info.baseUser);
-//            ldapUserDirectory.setDefault(info.isDefault);
-//            ldapUserDirectory.setPrefix(info.prefix);
-//            ldapUserDirectory.save();
-//            return info;
-//        }
-//    }
+    @PUT
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_USER_ROLE)
+    public UserDirectoryInfo editUserDirectory(UserDirectoryInfo info, @PathParam("id") long id,@Context SecurityContext securityContext) {
+        transactionService.execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
+                ldapUserDirectory.setBackupUrl(info.backupUrl);
+                ldapUserDirectory.setDomain(info.name);
+                ldapUserDirectory.setUrl(info.url);
+                ldapUserDirectory.setSecurity(info.securityProtocol);
+                ldapUserDirectory.setBaseGroup(info.baseGroup);
+                ldapUserDirectory.setBaseUser(info.baseUser);
+                ldapUserDirectory.setDefault(info.isDefault);
+                ldapUserDirectory.setPrefix(info.prefix);
+                ldapUserDirectory.setType(info.type);
+                ldapUserDirectory.save();
+            }
+        });
+        return getUserDirectory(id,securityContext);
+    }
 }
