@@ -1,6 +1,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.export.StructureMarker;
@@ -74,8 +75,11 @@ class FtpDestinationImpl extends AbstractDataExportDestination implements FtpDes
     private int port = 21;
     private String user;
     private String password;
+    @ValidFileName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
     private String fileName;
+    @ValidFileName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
     private String fileExtension;
+    @ValidFileLocation(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
     private String fileLocation;
 
     private final DataVaultService dataVaultService;
