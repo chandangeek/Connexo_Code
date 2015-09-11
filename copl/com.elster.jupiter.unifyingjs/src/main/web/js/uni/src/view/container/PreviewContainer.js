@@ -222,6 +222,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
         var me = this,
             activeIndex = me.items.indexOf(me.getLayout().getActiveItem());
 
+        Ext.suspendLayouts();
         try {
             me.grid.getView().getSelectionModel().deselectAll(true);
         } catch (ex) {
@@ -236,6 +237,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
         if (activeIndex !== 1) {
             me.getLayout().setActiveItem(1);
         }
+        Ext.resumeLayouts();
     },
 
     onLoad: function (store, records) {
@@ -249,6 +251,8 @@ Ext.define('Uni.view.container.PreviewContainer', {
     updateOnChange: function(isEmpty) {
         var me = this,
             activeIndex = me.items.indexOf(me.getLayout().getActiveItem());
+
+        Ext.suspendLayouts();
         if (isEmpty && activeIndex !== 0) {
             me.getLayout().setActiveItem(0);
         } else if (!isEmpty && activeIndex !== 1) {
@@ -264,6 +268,7 @@ Ext.define('Uni.view.container.PreviewContainer', {
             me.grid.getView().getSelectionModel().preventFocus = true;
             me.grid.getView().getSelectionModel().select(0);
         }
+        Ext.resumeLayouts();
     },
 
     getWrapperCt: function () {
