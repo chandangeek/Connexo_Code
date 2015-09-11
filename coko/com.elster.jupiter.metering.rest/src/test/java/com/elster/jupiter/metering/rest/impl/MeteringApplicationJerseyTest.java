@@ -3,11 +3,11 @@ package com.elster.jupiter.metering.rest.impl;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.util.exception.MessageSeed;
-import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
+
+import org.mockito.Mock;
 
 public class MeteringApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
@@ -19,11 +19,6 @@ public class MeteringApplicationJerseyTest extends FelixRestApplicationJerseyTes
     Clock clock;
 
     @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
-    }
-
-    @Override
     protected Application getApplication() {
         MeteringApplication app = new MeteringApplication();
         app.setClock(clock);
@@ -33,4 +28,5 @@ public class MeteringApplicationJerseyTest extends FelixRestApplicationJerseyTes
         app.setNlsService(nlsService);
         return app;
     }
+
 }

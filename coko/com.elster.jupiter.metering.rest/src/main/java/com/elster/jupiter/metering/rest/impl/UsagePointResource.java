@@ -1,24 +1,26 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.Checks;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -40,18 +42,17 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Path("/usagepoints")
 public class UsagePointResource {
 
-    private final RestQueryService queryService;
     private final MeteringService meteringService;
     private final TransactionService transactionService;
     private final Clock clock;
 
     @Inject
-    public UsagePointResource(RestQueryService queryService, MeteringService meteringService, TransactionService transactionService, Clock clock) {
-        this.queryService = queryService;
+    public UsagePointResource(MeteringService meteringService, TransactionService transactionService, Clock clock) {
         this.meteringService = meteringService;
         this.transactionService = transactionService;
         this.clock = clock;
@@ -60,29 +61,19 @@ public class UsagePointResource {
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public UsagePointInfos getUsagePoints(@Context UriInfo uriInfo, @Context SecurityContext securityContext) {
-        QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<UsagePoint> list = queryUsagePoints(maySeeAny(securityContext), params);
-        return toUsagePointInfos(params.clipToLimit(list), params.getStartInt(), params.getLimit());
-    }
-
-    private UsagePointInfos toUsagePointInfos(List<UsagePoint> list, int start, int limit) {
-        UsagePointInfos infos = new UsagePointInfos(list, clock);
-        infos.addServiceLocationInfo();
-        infos.total = start + list.size();
-        if (list.size() == limit) {
-            infos.total++;
+    public PagedInfoList getUsagePoints(@Context SecurityContext securityContext,
+                                          @BeanParam JsonQueryParameters queryParameters,
+                                          @QueryParam("like") String like) {
+        UsagePointFilter usagePointFilter = new UsagePointFilter();
+        if (!Checks.is(like).emptyOrOnlyWhiteSpace()){
+            usagePointFilter.setMrid("*"+like+"*");
         }
-        return infos;
-    }
-
-    private List<UsagePoint> queryUsagePoints(boolean maySeeAny, QueryParameters queryParameters) {
-        Query<UsagePoint> query = meteringService.getUsagePointQuery();
-        query.setLazy("serviceLocation");
-        if (!maySeeAny) {
-            query.setRestriction(meteringService.hasAccountability());
-        }
-        return queryService.wrap(query).select(queryParameters);
+        usagePointFilter.setAccountabilityOnly(!maySeeAny(securityContext));
+        List<UsagePointInfo> usagePoints = meteringService.getUsagePoints(usagePointFilter).from(queryParameters)
+                .stream()
+                .map(usagePoint -> new UsagePointInfo(usagePoint, clock))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("usagePoints", usagePoints, queryParameters);
     }
 
     private boolean maySeeAny(SecurityContext securityContext) {
