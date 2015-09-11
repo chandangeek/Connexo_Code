@@ -229,30 +229,45 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
     activateDataValidation: function (record, confWindow) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
-            mRID = me.mRID ? me.mRID : router.arguments.mRID;
+            mRID = me.mRID ? me.mRID : router.arguments.mRID,
+            viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            lastChecked = confWindow.down('#validateChannelFromDate').getValue().getTime(),
+            timeout;
 
         if (confWindow.down('#validateChannelFromDate').getValue() > me.dataValidationLastChecked) {
             confWindow.down('#validateChannelDateErrors').update(Uni.I18n.translate('deviceloadprofiles.activation.error', 'MDC', 'The date should be before or equal to the default date.'));
             confWindow.down('#validateChannelDateErrors').setVisible(true);
         } else {
-            confWindow.down('button').setDisabled(true);
+            confWindow.removeAll(true);
+            confWindow.destroy();
+            viewport.setLoading();
             Ext.Ajax.request({
                 url: '../../api/ddr/devices/' + encodeURIComponent(mRID) + '/channels/' + record.get('id') + '/validate',
                 method: 'PUT',
+                timeout: 1800000,
                 jsonData: {
-                    lastChecked: confWindow.down('#validateChannelFromDate').getValue().getTime()
+                    lastChecked: lastChecked
                 },
                 success: function () {
-                    confWindow.removeAll(true);
-                    confWindow.destroy();
+                    clearTimeout(timeout);
                     me.getApplication().fireEvent('acknowledge',
                         Uni.I18n.translate('deviceloadprofiles.channels.activation.completed', 'MDC', 'Data validation completed'));
                     if (Ext.ComponentQuery.query('#deviceLoadProfileChannelsGrid')[0]) {
                         Ext.ComponentQuery.query('#deviceLoadProfileChannelsGrid')[0].fireEvent('select', Ext.ComponentQuery.query('#deviceLoadProfileChannelsGrid')[0].getSelectionModel(), record);
                     }
-                    me.updateDeviceChannelDetails(mRID, record.get('id'));
+                    if (me.getDeviceLoadProfileChannelsPreviewForm() || me.getDeviceLoadProfileChannelsOverviewForm()) {
+                        me.updateDeviceChannelDetails(mRID, record.get('id'));
+                    }
+                },
+                callback: function () {
+                    viewport.setLoading(false);
                 }
             });
+            timeout = setTimeout(function () {
+                viewport.setLoading(false);
+                me.getApplication().fireEvent('acknowledge',
+                    Uni.I18n.translate('deviceloadprofiles.channels.activation.putToBackground', 'MDC', 'The data validation takes longer as expected and will continue in the background.'));
+            }, 180000);
         }
     },
     updateDeviceChannelDetails: function (mRID, channelId) {
