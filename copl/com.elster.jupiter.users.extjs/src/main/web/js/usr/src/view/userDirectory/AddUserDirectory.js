@@ -55,7 +55,7 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                         xtype: 'textfield',
                         name: 'prefix',
                         itemId: 'txt-prefix',
-                        required: true,
+                        //required: true,
                         allowBlank: false,
                         fieldLabel: Uni.I18n.translate('userDirectories.prefix', 'USR', 'Prefix')
                     },
@@ -110,7 +110,7 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                             {
                                 boxLabel: Uni.I18n.translate('userDirectories.type.activeDirectory', 'USR', 'Active directory'),
                                 inputValue: 'ACD',
-                                checked:true
+                                checked: true
                             },
                             {
                                 boxLabel: Uni.I18n.translate('userDirectories.type.apacheDS', 'USR', 'Apache DS'),

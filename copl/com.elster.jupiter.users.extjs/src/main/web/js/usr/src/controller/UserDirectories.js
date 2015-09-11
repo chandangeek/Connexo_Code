@@ -43,7 +43,7 @@ Ext.define('Usr.controller.UserDirectories', {
          selector: '#frm-import-service-details'
          }*/
     ],
-
+    localDomainName: 'Local',
     init: function () {
         this.control({
             'usr-user-directories-setup usr-user-directories-grid': {
@@ -76,6 +76,8 @@ Ext.define('Usr.controller.UserDirectories', {
 
         Ext.suspendLayouts();
         preview.setTitle(record.get('name'));
+        previewForm = page.down('usr-user-directory-preview-form'),
+        previewForm.down('#ctn-user-directory-properties').setVisible(record.get('name') != me.localDomainName);
         previewForm.loadRecord(record);
         preview.down('usr-user-directory-action-menu').record = record;
         Ext.resumeLayouts();
@@ -114,7 +116,7 @@ Ext.define('Usr.controller.UserDirectories', {
             isRemoveUserDirectory = false;
         }
 
-        if (menu.record.get('name') === 'Local') {
+        if (menu.record.get('name') === me.localDomainName) {
             isEditUserDirectory = false;
             isSynchronizeUserDirectory = false;
             isRemoveUserDirectory = false;
@@ -228,8 +230,6 @@ Ext.define('Usr.controller.UserDirectories', {
 
     showAddUserDirectory: function () {
         var me = this,
-            userDirectoriesGrid = me.getUserDirectoriesGrid(),
-            userDirectoryPreviewContainerPanel = me.getUserDirectoryPreviewContainerPanel(),
             router = me.getController('Uni.controller.history.Router'),
             addUserDirectoryView, addUserDirectoryForm;
 
@@ -252,8 +252,6 @@ Ext.define('Usr.controller.UserDirectories', {
 
     showEditImportService: function (userDirectoryId) {
         var me = this,
-            userDirectoriesGrid = me.getUserDirectoriesGrid(),
-            userDirectoryPreviewContainerPanel = me.getUserDirectoryPreviewContainerPanel(),
             router = me.getController('Uni.controller.history.Router'),
             addUserDirectoryView, addUserDirectoryForm;
 
@@ -284,7 +282,8 @@ Ext.define('Usr.controller.UserDirectories', {
     },
 
     synchronizeUserDirectory: function () {
-        alert('synchronizeUserDirectory');
+        var me = this;
+        me.getApplication().fireEvent('acknowledge', 'synchronizeUserDirectory');
     }
 
 });
