@@ -14,10 +14,8 @@
     <packaging>pom</packaging>
     <name>[Jupiter Subsystem] com.elster.jupiter.subsystem.platform</name>
 
-
     <dependencyManagement>
         <dependencies>
-
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>platform.bom</artifactId>
@@ -27,6 +25,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
     <dependencies>
         <!-- Platform subsystem components -->
         <dependency>
@@ -108,6 +107,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>fsm.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>ftpclient</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
