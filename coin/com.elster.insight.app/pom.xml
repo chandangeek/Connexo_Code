@@ -6,6 +6,7 @@
         <groupId>com.elster</groupId>
         <artifactId>insight.parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../com.elster.insight.parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>insight.app</artifactId>
@@ -42,19 +43,16 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>config.extjs</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
         </dependency>
         
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.elster</groupId>
             <artifactId>insight.metering.extjs</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
