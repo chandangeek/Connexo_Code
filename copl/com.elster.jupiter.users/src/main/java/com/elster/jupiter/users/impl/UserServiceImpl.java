@@ -12,19 +12,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.ApplicationPrivilegesProvider;
-import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.MessageSeeds;
-import com.elster.jupiter.users.NoDefaultDomainException;
-import com.elster.jupiter.users.NoDomainFoundException;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.Resource;
-import com.elster.jupiter.users.ResourceDefinition;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserDirectory;
-import com.elster.jupiter.users.UserPreferencesService;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.*;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
@@ -134,7 +122,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     private UserDirectory getUserDirectory(String domain) {
-        Optional<UserDirectory> found = dataModel.mapper(UserDirectory.class).getOptional(domain);
+        Optional<UserDirectory> found = dataModel.mapper(UserDirectory.class).find().stream().filter(s -> s.getDomain().equals(domain)).findAny();
         if (!found.isPresent()) {
             throw new NoDomainFoundException(thesaurus, domain);
         }
@@ -143,8 +131,22 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     @Override
+    public LdapUserDirectory getLdapUserDirectory(long id) {
+        Optional<LdapUserDirectory> found = dataModel.mapper(LdapUserDirectory.class).getOptional(id);
+        if (!found.isPresent()) {
+            throw new NoDomainFoundException(thesaurus,"asd");
+        }
+        return found.get();
+    }
+    @Override
     public List<UserDirectory> getUserDirectories() {
         return dataModel.mapper(UserDirectory.class).find();
+
+    }
+
+    @Override
+    public List<LdapUserDirectory> getLdapDirectories() {
+        return dataModel.mapper(LdapUserDirectory.class).find();
     }
 
     @Override
@@ -187,15 +189,16 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public User createUser(String name, String description) {
-        UserImpl result = createInternalDirectory(getRealm()).newUser(name, description, false);
+        InternalDirectoryImpl directory = (InternalDirectoryImpl) this.findUserDirectory(getRealm()).orElse(null);
+        UserImpl result = directory.newUser(name, description, false);
         result.save();
-
         return result;
     }
 
     @Override
     public User createApacheDirectoryUser(String name, String domain) {
-        UserImpl result = createApacheDirectory(domain).newUser(name, domain, false);
+        ApacheDirectoryImpl directory = (ApacheDirectoryImpl) this.findUserDirectory(domain).orElse(null);
+        UserImpl result = directory.newUser(name, domain, false);
         result.save();
 
         return result;
@@ -203,7 +206,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public User createActiveDirectoryUser(String name, String domain) {
-        UserImpl result = createActiveDirectory(domain).newUser(name, domain, false);
+        ActiveDirectoryImpl directory = (ActiveDirectoryImpl) this.findUserDirectory(domain).orElse(null);
+        UserImpl result = directory.newUser(name, domain, false);
         result.save();
 
         return result;
@@ -437,7 +441,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public Optional<UserDirectory> findUserDirectory(String domain) {
-        return dataModel.mapper(UserDirectory.class).getOptional(domain);
+        return dataModel.mapper(UserDirectory.class).find().stream().filter(s->s.getDomain().equals(domain)).findAny();
     }
 
     @Reference

@@ -29,6 +29,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     @Inject
     public ApacheDirectoryImpl(DataModel dataModel, UserService userService) {
         super(dataModel, userService);
+        setType(TYPE_IDENTIFIER);
     }
 
     static ApacheDirectoryImpl from(DataModel dataModel, String domain) {

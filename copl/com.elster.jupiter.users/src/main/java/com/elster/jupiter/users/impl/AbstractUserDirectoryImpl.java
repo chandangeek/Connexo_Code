@@ -12,8 +12,11 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
     protected final UserService userService;
     private String domain;
     private boolean isDefault;
+    private String prefix;
     protected final DataModel dataModel;
     private long version;
+    private long id;
+    private String type;
     private Instant createTime;
     private Instant modTime;
     @SuppressWarnings("unused")
@@ -35,8 +38,34 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
         isDefault = aDefault;
     }
 
+    @Override
     public String getDomain() {
         return domain;
+    }
+
+    @Override
+    public String getType() {
+        return type;
+    }
+
+    @Override
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    @Override
+    public long getId(){
+        return  id;
+    }
+
+    @Override
+    public String getPrefix(){
+        return prefix;
+    }
+
+    @Override
+    public void setPrefix(String prefix){
+        this.prefix = prefix;
     }
 
     public void save() {

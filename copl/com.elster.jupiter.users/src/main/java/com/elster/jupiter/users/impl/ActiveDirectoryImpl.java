@@ -25,6 +25,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
     @Inject
     public ActiveDirectoryImpl(DataModel dataModel, UserService userService) {
         super(dataModel, userService);
+        setType(TYPE_IDENTIFIER);
     }
 
     static ActiveDirectoryImpl from(DataModel dataModel, String domain) {

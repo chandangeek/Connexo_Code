@@ -17,6 +17,7 @@ public class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
     @Inject
     public InternalDirectoryImpl(DataModel dataModel, UserService userService) {
         super(dataModel, userService);
+        setType(TYPE_IDENTIFIER);
     }
 
     static InternalDirectoryImpl from(DataModel dataModel, String domain) {

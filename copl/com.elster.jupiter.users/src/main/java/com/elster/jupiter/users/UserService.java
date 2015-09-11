@@ -90,6 +90,10 @@ public interface UserService {
 
     List<UserDirectory> getUserDirectories();
 
+    List<LdapUserDirectory> getLdapDirectories();
+
+    LdapUserDirectory getLdapUserDirectory(long id);
+
     UserPreferencesService getUserPreferencesService();
 
     ResourceDefinition createModuleResourceWithPrivileges(String moduleName, String resourceName, String resourceDescription, List<String> privileges);
