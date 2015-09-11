@@ -15,7 +15,7 @@ import java.util.stream.Stream;
  */
 public enum ConnectionStrategyTranslationKeys implements TranslationKey {
 
-    AS_SOON_AS_POSSIBLE(ConnectionStrategy.AS_SOON_AS_POSSIBLE, "As soon a possible"),
+    AS_SOON_AS_POSSIBLE(ConnectionStrategy.AS_SOON_AS_POSSIBLE, "As soon as possible"),
     MINIMIZE_CONNECTIONS(ConnectionStrategy.MINIMIZE_CONNECTIONS, "Minimize connections");
 
     private final ConnectionStrategy connectionStrategy;
@@ -28,7 +28,7 @@ public enum ConnectionStrategyTranslationKeys implements TranslationKey {
 
     @Override
     public String getKey() {
-        return ConnectionStrategy.class.getSimpleName() + "." + this.connectionStrategy.name();
+        return this.connectionStrategy.name();
     }
 
     @Override

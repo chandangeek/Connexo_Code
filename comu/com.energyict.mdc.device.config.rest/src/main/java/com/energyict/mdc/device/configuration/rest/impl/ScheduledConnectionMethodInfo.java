@@ -15,8 +15,10 @@ import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
 
 public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialScheduledConnectionTask> {
 
@@ -51,9 +53,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         } else {
             partialConnectionTask.setComWindow(null);
         }
-        if (!Checks.is(this.connectionStrategy).emptyOrOnlyWhiteSpace()) {
-            partialConnectionTask.setConnectionStrategy(ConnectionStrategy.valueOf(this.connectionStrategy));
-        }
+        partialConnectionTask.setConnectionStrategy(getConnectionStrategy());
         if (!Checks.is(this.comPortPool).emptyOrOnlyWhiteSpace()) {
             engineConfigurationService.findOutboundComPortPoolByName(this.comPortPool).ifPresent(partialConnectionTask::setComportPool);
         } else {
@@ -74,7 +74,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         TimeDuration rescheduleDelay = this.rescheduleRetryDelay == null ? null : this.rescheduleRetryDelay.asTimeDuration();
         PartialScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder =
                 deviceConfiguration
-                        .newPartialScheduledConnectionTask(this.name, connectionTypePluggableClass, rescheduleDelay, ConnectionStrategy.valueOf(this.connectionStrategy))
+                        .newPartialScheduledConnectionTask(this.name, connectionTypePluggableClass, rescheduleDelay, getConnectionStrategy())
                         .comPortPool(engineConfigurationService.findOutboundComPortPoolByName(this.comPortPool).orElse(null))
                         .asDefault(this.isDefault)
                         .allowSimultaneousConnections(this.allowSimultaneousConnections);
@@ -99,4 +99,11 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         return scheduledConnectionTaskBuilder.build();
     }
 
+    @JsonIgnore
+    private ConnectionStrategy getConnectionStrategy(){
+       return Arrays.stream(ConnectionStrategy.values())
+                .filter(candidate -> candidate.name().equals(this.connectionStrategy))
+                .findFirst()
+                .orElse(null);
+    }
 }
