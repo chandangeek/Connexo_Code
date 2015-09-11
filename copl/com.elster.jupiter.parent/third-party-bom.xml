@@ -372,11 +372,33 @@
         <artifactId>stateless4j</artifactId>
         <version>2.5.0</version>
       </dependency>
-
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-csv</artifactId>
         <version>1.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.enterprisedt</groupId>
+        <artifactId>edtftpj-pro</artifactId>
+        <version>4.7.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.mockftpserver</groupId>
+        <artifactId>MockFtpServer</artifactId>
+        <version>2.6</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.google.jimfs</groupId>
+        <artifactId>jimfs</artifactId>
+        <version>1.0</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava-testlib</artifactId>
+        <version>18.0</version>
+        <scope>test</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
