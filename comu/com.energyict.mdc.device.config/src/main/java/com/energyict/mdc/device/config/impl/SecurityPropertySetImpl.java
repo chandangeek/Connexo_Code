@@ -16,6 +16,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -28,7 +29,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.google.common.collect.Range;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -60,7 +60,7 @@ import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED
 @LevelMustBeProvidedIfSupportedByDevice(groups = {Save.Create.class, Save.Update.class})
 public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPropertySet> implements ServerSecurityPropertySet, PersistenceAware {
 
-    @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     private String name;
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
@@ -132,12 +132,10 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
             SecurityPropertySet otherSet = other.get();
             if (otherSet.getId() == this.getId()) {
                 return null;
-            }
-            else {
+            } else {
                 return other.get();
             }
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -224,7 +222,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
      *
      * @param id The unique identifier of the AuthenticationDeviceAccessLevel
      * @return The AuthenticationDeviceAccessLevel or NoAuthenthication when the device protocol
-     *         does not have an AuthenticationDeviceAccessLevel with the specified id
+     * does not have an AuthenticationDeviceAccessLevel with the specified id
      */
     private AuthenticationDeviceAccessLevel findAuthenticationLevel(int id) {
         List<AuthenticationDeviceAccessLevel> levels = this.getDeviceProtocol().getAuthenticationAccessLevels();
@@ -254,7 +252,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
      *
      * @param id The unique identifier of the EncryptionDeviceAccessLevel
      * @return The EncryptionDeviceAccessLevel or NoEncryption when the device protocol
-     *         does not have an EncryptionDeviceAccessLevel with the specified id
+     * does not have an EncryptionDeviceAccessLevel with the specified id
      */
     private EncryptionDeviceAccessLevel findEncryptionLevel(int id) {
         List<EncryptionDeviceAccessLevel> levels = this.getDeviceProtocol().getEncryptionAccessLevels();
@@ -368,15 +366,15 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         return false;
     }
 
-    public boolean viewingIsAuthorizedFor (DeviceSecurityUserAction action, User user) {
+    public boolean viewingIsAuthorizedFor(DeviceSecurityUserAction action, User user) {
         return action.isViewing() && this.isAuthorized(action, user);
     }
 
     private boolean isAuthorized(DeviceSecurityUserAction action, User user) {
-        return user.hasPrivilege("MDC",action.getPrivilege());
+        return user.hasPrivilege("MDC", action.getPrivilege());
     }
 
-    public boolean editingIsAuthorizedFor (DeviceSecurityUserAction action, User user) {
+    public boolean editingIsAuthorizedFor(DeviceSecurityUserAction action, User user) {
         return action.isEditing() && this.isAuthorized(action, user);
     }
 
