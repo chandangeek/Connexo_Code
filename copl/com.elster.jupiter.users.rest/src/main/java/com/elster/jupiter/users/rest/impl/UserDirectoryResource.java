@@ -1,6 +1,7 @@
 package com.elster.jupiter.users.rest.impl;
 
 
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.UserDirectory;
@@ -54,9 +55,49 @@ public class UserDirectoryResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_USER_ROLE)
+    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE})
     public UserDirectoryInfo getUserDirectory(UserDirectoryInfo info, @PathParam("id") long id) {
         LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
         return new UserDirectoryInfo(ldapUserDirectory);
     }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_USER_ROLE)
+    public UserDirectoryInfo createUserDirectory(UserDirectoryInfo info,@PathParam("id") long id ){
+        try (TransactionContext context = transactionService.getContext()) {
+            LdapUserDirectory ldapUserDirectory;
+            if (info.type.equals("APD")) {
+                ldapUserDirectory = userService.createApacheDirectory(info.name);
+            } else {
+                ldapUserDirectory = userService.createActiveDirectory(info.name);
+            }
+            ldapUserDirectory.setDirectoryUser("admin");
+            ldapUserDirectory.setSecurity(info.securityProtocol);
+            ldapUserDirectory.setPassword("admin");
+            ldapUserDirectory.setBaseGroup(info.baseGroup);
+            ldapUserDirectory.setBaseUser(info.baseUser);
+            ldapUserDirectory.setUrl(info.url);
+            ldapUserDirectory.setBackupUrl(info.backupurl);
+            ldapUserDirectory.setDefault(info.isDefault);
+            ldapUserDirectory.setPrefix(info.prefix);
+            ldapUserDirectory.save();
+            context.commit();
+            return info;
+        }
+    }
+
+//    @PUT
+//    @Path("/{id}")
+//    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+//    @Consumes(MediaType.APPLICATION_JSON)
+//    @RolesAllowed(Privileges.ADMINISTRATE_USER_ROLE)
+//    public UserDirectoryInfo editUserDirectory(UserDirectoryInfo info, @PathParam("id") long id) {
+//        try (TransactionContext context = transactionService.getContext()) {
+//            userService.getLdapUserDirectory(info.id)
+//
+//            return null;
+//        }
+//    }
 }
