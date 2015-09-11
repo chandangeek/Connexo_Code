@@ -26,6 +26,7 @@
                 <include>org.eclipse.jdt.core.compiler:*</include>
                 <include>commons-codec:*</include>
                 <include>com.sun.xml.bind:jaxb-xjc:*</include>
+                <include>org.apache.commons:*</include>
             </includes>
 
             <unpack>false</unpack>
