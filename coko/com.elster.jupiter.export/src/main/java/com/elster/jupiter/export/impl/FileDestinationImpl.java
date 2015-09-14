@@ -35,7 +35,7 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
         private void send(Map<StructureMarker, Path> files) {
             files.forEach(this::copyFile);
         }
-        
+
         private void copyFile(StructureMarker structureMarker, Path path) {
             doCopy(path, determineTargetFile(structureMarker));
         }
@@ -74,13 +74,13 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
 
     private final AppService appService;
 
-    @Pattern(regexp = "[^"+NON_PATH_INVALID+"]*", groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
+    @ValidFileName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
     private String fileName;
-    @Pattern(regexp = "[^"+NON_PATH_INVALID+"]*", groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
+    @ValidFileName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
     private String fileExtension;
-    @Pattern(regexp = "[^"+PATH_INVALID+"]*", groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
+    @ValidFileLocation(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
     private String fileLocation;
 
