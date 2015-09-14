@@ -1303,7 +1303,6 @@ Ext.define('Dxp.controller.Tasks', {
                 readingTypesStore.each(function (record) {
                     arrReadingTypes.push(record.getData().readingType);
                 });
-                debugger;
                 var timeFrameValue = form.down('#export-updated').getValue().updatedDataAndOrAdjacentData;
 
                 record.set('standardDataSelector', {
