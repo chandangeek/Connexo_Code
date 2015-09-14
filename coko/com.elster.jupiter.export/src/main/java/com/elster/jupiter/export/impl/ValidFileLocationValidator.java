@@ -35,7 +35,9 @@ public class ValidFileLocationValidator implements ConstraintValidator<ValidFile
         allowed.add("<dateformat:[^#\\<\\>$\\+%\\!`\\&\\*'\\|\\{\\}\\?\"\\=\\/:\\\\@\\s]+\\>");
         allowed.add("<identifier>");
         for (int i = 0; i< allowed.size(); i++) {
-            value = value.replace(allowed.get(i), "");
+            Pattern p = Pattern.compile(allowed.get(i));
+            Matcher m = p.matcher(value);
+            value = m.replaceAll("");
         }
         Pattern p = Pattern.compile("[#\\<\\>$\\+%\\!`\\&\\*'\\|\\{\\}\\?\"\\=:@\\s]");
         Matcher m = p.matcher(value);
