@@ -568,11 +568,11 @@ Ext.define('Dxp.controller.Tasks', {
             recurrenceTypeCombo = view.down('#recurrence-type'),
             missingData = view.down('#data-selector-export-complete'),
             updatedDataRadioGroup = view.down('#updated-data-trigger'),
-            updatePeriodCombo = view.down('#update-window'),
             updateWindowCombo = view.down('#update-window'),
+            timeframeCombo = view.down('#timeFrame'),
             timeFrameRadioGroup = view.down('#export-updated'),
-            continuousDataRadioGroup =  view.down('#continuous-data-radiogroup'),
-            timeframeCombo = view.down('#timeFrame');
+            continuousDataRadioGroup =  view.down('#continuous-data-radiogroup')
+
 
         //readingTypesStore.removeAll();
         destinationsStore.removeAll();
@@ -652,6 +652,7 @@ Ext.define('Dxp.controller.Tasks', {
                                         category: 'relativeperiod.category.updateTimeframe'
                                     },
                                     callback: function () {
+                                        timeFrameRadioGroup.setValue({updatedDataAndOrAdjacentData: true});
                                         timeframeCombo.setValue(timeframeCombo.store.getById(record.getStandardDataSelector().data.updatePeriod.id));
                                     }
                                 });
@@ -664,15 +665,10 @@ Ext.define('Dxp.controller.Tasks', {
                                             view.down('#no-device').show();
                                         }
                                         deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.getStandardDataSelector().data.deviceGroup.id));
-                                    },
+                                    }
                                 });
                                 missingData.setValue({exportComplete: record.getStandardDataSelector().get('exportComplete')});
                                 updatedDataRadioGroup.setValue({exportUpdate: record.getStandardDataSelector().get('exportUpdate')});
-                                updatePeriodCombo.setValue(record.getStandardDataSelector().get('updatePeriod').id);
-                                if(record.getStandardDataSelector().get('updateWindow')){
-                                    updateWindowCombo.setValue(record.getStandardDataSelector().get('updateWindow').id);
-                                    timeFrameRadioGroup.setValue({updatedDataAndOrAdjacentData: true});
-                                }
                                 continuousDataRadioGroup.setValue({exportContinuousData: record.getStandardDataSelector().get('exportContinuousData')});
 
                             } 
@@ -1307,6 +1303,7 @@ Ext.define('Dxp.controller.Tasks', {
                 readingTypesStore.each(function (record) {
                     arrReadingTypes.push(record.getData().readingType);
                 });
+                debugger;
                 var timeFrameValue = form.down('#export-updated').getValue().updatedDataAndOrAdjacentData;
 
                 record.set('standardDataSelector', {
@@ -1322,12 +1319,12 @@ Ext.define('Dxp.controller.Tasks', {
                     validatedDataOption: form.down('#data-selector-validated-data').getValue().validatedDataOption,
                     exportUpdate: form.down('#updated-data-trigger').getValue().exportUpdate,
                     updatePeriod: {
-                        id: form.down('#update-window').getValue(),
-                        name: form.down('#update-window').getRawValue()
-                    },
-                    updateWindow: timeFrameValue?{
                         id: form.down('#timeFrame').getValue(),
                         name: form.down('#timeFrame').getRawValue()
+                    },
+                    updateWindow: timeFrameValue?{
+                        id: form.down('#update-window').getValue(),
+                        name: form.down('#update-window').getRawValue()
                     }:{},
                     exportContinuousData: form.down('#continuous-data-radiogroup').getValue().exportContinuousData,
                     readingTypes: arrReadingTypes
