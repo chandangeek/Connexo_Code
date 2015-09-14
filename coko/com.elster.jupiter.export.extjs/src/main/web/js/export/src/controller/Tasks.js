@@ -408,7 +408,7 @@ Ext.define('Dxp.controller.Tasks', {
             }
         } else {
             me.destinationIndexToEdit = -1;
-            view.down('#destination-methods-combo').setValue('FILE');
+            me.showAllDestinationAttributes(false);
         }
     },
 
