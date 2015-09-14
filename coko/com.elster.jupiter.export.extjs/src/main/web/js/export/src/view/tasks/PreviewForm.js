@@ -248,6 +248,65 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                     resetButtonHidden: true,
                     labelWidth: 250
                 }
+            },
+            {
+                xtype: 'fieldcontainer',
+                fieldLabel: Uni.I18n.translate('general.Destinations', 'DES', 'Destinations'),
+                labelAlign: 'top',
+                layout: 'vbox',
+                defaults: {
+                    xtype: 'displayfield',
+                    labelWidth: 250
+                },
+                items: [
+                    {
+                        fieldLabel: Uni.I18n.translate('general.Destinations', 'DES', 'Destinations'),
+                        name: 'destinations',
+                        renderer: function(value){
+                            var result = '',
+                                nrOfDestinations = '',
+                                toolTip ='';
+                            if(value && value !== ''){
+                                nrOfDestinations = Uni.I18n.translatePlural('general.xDestinations', value.length,'DES','No destinations','{0} destination','{0} destinations');
+                                toolTip += '<ul>'
+                                Ext.Array.each(value, function(destination){
+                                    switch (destination.type){
+                                        case 'FILE':
+                                            toolTip += '<li>' + Uni.I18n.translate('general.saveFile', 'DES', 'Save file') +
+                                                ' (' +
+                                                    destination.fileLocation + '/' + destination.fileName  + '.' + destination.fileExtension +
+                                                ')' +
+                                                '</li>';
+                                            break;
+                                        case 'EMAIL':
+                                            toolTip += '<li>' + Uni.I18n.translate('general.mail', 'DES', 'Mail') +
+                                                ' (' + destination.fileName  + '.' + destination.fileExtension + ')<BR>' +
+                                                    '<ul>' +
+                                                        destination.recipients.split(/\n/).map(function(recipient){
+                                                            return '<li>' + recipient + '</li>';
+                                                        }).join('') +
+                                                    '</ul>' +
+                                                '</li>';
+                                            break;
+                                        case 'FTP':
+                                            toolTip += '<li>' +Uni.I18n.translate('general.ftp', 'DES', 'FTP') +
+                                                ' (' +
+                                                'ftp://' + destination.server + '/' + destination.fileLocation + '/' + destination.fileName  + '.' + destination.fileExtension +
+                                                ')' +
+                                                '</li>';
+                                            break;
+                                        case 'FTPS':
+                                            //implement whan ftps is implemented
+                                            break;
+                                    }
+                                });
+                                toolTip += '</ul>'
+                            }
+                            result += '<span data-qtip="' + toolTip + '">'+ nrOfDestinations +'</span>';
+                            return result;
+                        }
+                    }
+                ]
             }
         ];
         me.callParent();
