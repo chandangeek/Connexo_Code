@@ -269,6 +269,77 @@ public class ChannelInfo implements java.io.Serializable {
     }
 
     /**
+     * 2 channel infos are considered equal if they have the same ObisCode (or text name), BaseUnit and serial number.
+     * - Scale of the unit is ignored, only BaseUnit is compared
+     * - Wild cards at the B-field of the ObisCode is equal to any b-field value
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ChannelInfo that = (ChannelInfo) o;
+
+        if (name != null && that.name == null) {
+            return false;   //Not equal if one of the names is null
+        }
+        if (name == null && that.name != null) {
+            return false;   //Not equal if one of the names is null
+        }
+
+        if (name != null && that.name != null) {
+            try {
+                ObisCode thisObisCode = ObisCode.fromString(name);
+                ObisCode thatObisCode = ObisCode.fromString(that.name);
+                if (thisObisCode.anyChannel() || thatObisCode.anyChannel()) {
+                    if (!thisObisCode.equalsIgnoreBChannel(thatObisCode)) {
+                        return false;
+                    }
+                } else if (!thisObisCode.equals(thatObisCode)) {
+                    return false;
+                }
+            } catch (IllegalArgumentException e) {  //Name field is not an obis code
+                if (!name.equals(that.name)) {
+                    return false;
+                }
+            }
+        }
+
+        if(readingType == null && that.readingType != null){
+            return false;
+        }
+        if(readingType != null && that.readingType == null){
+            return false;
+        }
+        if(readingType != null && that.readingType != null && !readingType.getMRID().equals(that.readingType.getMRID())){
+            return false;
+        }
+
+        if (!meterIdentifier.equals(that.getMeterIdentifier())) {
+            return false;       //Also check the serial number, because multiple channels can have the same obiscode (0.x.24.2.1.255)
+        }
+
+        if (unit != null && unit.isUndefined()) {
+            return true;
+        }
+        if (that.unit != null && that.unit.isUndefined()) {
+            return true;
+        }
+
+        //Units are considered equal if they are both null, or if they both have the same BaseUnit
+        return (unit == null) ? (that.unit == null) : ((that.unit != null) && unit.equalBaseUnit(that.unit));
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (unit != null ? unit.hashCode() : 0);
+        result = 31 * result + (meterIdentifier != null ? meterIdentifier.hashCode() : 0);
+        result = 31 * result + (readingType != null ? readingType.getMRID().hashCode() : 0);
+        return result;
+    }
+
+    /**
      * Returns a string representation of the object. In general, the
      * <code>toString</code> method returns a string that
      * "textually represents" this object. The result should

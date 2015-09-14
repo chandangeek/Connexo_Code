@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.api.inbound;
 import com.energyict.mdc.pluggable.Pluggable;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 
 import java.util.List;
 
@@ -73,6 +74,13 @@ public interface InboundDeviceProtocol extends Pluggable {
          */
         SUCCESS,
         /**
+         * Indicates that not all received data is handled (and is thus not stored in the database)<br/>
+         * This is the case when data from a type is received for which there was no ComTask scheduled.
+         * (e.g. this is the case when only 'Read registers' ComTask is scheduled and the device sends both load profile and register data).
+         * Note: most devices do not care about this (~ then this code is equal to 'success'), it is currently only EIWeb who uses this
+         */
+        DATA_ONLY_PARTIALLY_HANDLED,
+        /**
          * Indicates that the inbound discovery failed. No data was provided and will therefore not be processed nor stored.
          */
         FAILURE,
@@ -81,6 +89,11 @@ public interface InboundDeviceProtocol extends Pluggable {
          * The provided data (if any) will <b>NOT</b> be processed or stored.
          */
         DEVICE_NOT_FOUND,
+        /**
+         * Indicates that the provided {@link DeviceIdentifier} did not refer to an <b>unique</b> Device in our database.
+         * The provided data (if any) will <b>NOT</b> be processed or stored.
+         */
+        DUPLICATE_DEVICE,
         /**
          * Indicates that the requested Device was found in the database, but the Device did not expect any
          * inbound data. Processing of this data will <b>NOT</b> be done.
@@ -95,7 +108,11 @@ public interface InboundDeviceProtocol extends Pluggable {
          * Indicates that the server is running at full capacity and that their is no free resource anymore to
          * properly handle the incoming data. <b>No</b> processing will be done and the connection will terminate.
          */
-        SERVER_BUSY
+        SERVER_BUSY,
+        /**
+         * Indicates that the server was not able to correctly store all the data
+         */
+        STORING_FAILURE
     }
 
     /**
@@ -103,7 +120,7 @@ public interface InboundDeviceProtocol extends Pluggable {
      *
      * @param context The InboundDiscoveryContext
      */
-    public void initializeDiscoveryContext (InboundDiscoveryContext context);
+    public void initializeDiscoveryContext(InboundDiscoveryContext context);
 
     /**
      * Gets the {@link InboundDiscoveryContext contextual information}
@@ -112,16 +129,22 @@ public interface InboundDeviceProtocol extends Pluggable {
      * @return The InboundDiscoveryContext
      * @see #initializeDiscoveryContext
      */
-    public InboundDiscoveryContext getContext ();
+    public InboundDiscoveryContext getContext();
 
     /**
-     * Does the actual discovery and returns the type of the received data to the framework.
-     * Note that any exception that is reported by underlying communication
-     * mechanisms are wrapped in a com.energyict.mdc.protocol.exceptions.CommunicationException.
+     * Does the actual discovery and returns the type of the received data to the framework.<br/>
+     * Note that:
+     * <ul>
+     * <li>any exception that is reported by underlying communication
+     * mechanisms are wrapped in a com.energyict.mdc.protocol.exceptions.CommunicationException.</li>
+     * <li>during this discovery, the DeviceIdentifier - which uniquely identifies the calling device - will be parsed along <i>optionally</i>
+     * additional collected data. It is important as soon as the DeviceIdentifier is successfully parsed it should be kept in memory, so call #getDeviceIdentifier() can use it,
+     * regardless of the fact parsing of additional collected data fails. By doing so, we assure we can always add logging to the correct device in Connexo.
+     * </ul>
      *
      * @return The type of the result, indicating if we just received the device identifier or also extra meter data.
      */
-    public DiscoverResultType doDiscovery ();
+    public DiscoverResultType doDiscovery();
 
     /**
      * Allows the protocol to provide a descent response/feedback to the actual Device after we processed the data.
@@ -136,7 +159,7 @@ public interface InboundDeviceProtocol extends Pluggable {
      *
      * @return The unique device identifier
      */
-    public DeviceIdentifier getDeviceIdentifier ();
+    public DeviceIdentifier<?> getDeviceIdentifier();
 
     /**
      * Returns the data (registers, load profile entries, events, ...)
@@ -144,8 +167,9 @@ public interface InboundDeviceProtocol extends Pluggable {
      * Note that when only identification information was detected,
      * the protocol should return an empty list instead of <code>null</code>.
      *
+     * @param device the offline version of the device which is discovered
      * @return The CollectedData or an empty list when no data was detected
      */
-    public List<CollectedData> getCollectedData ();
+    public List<CollectedData> getCollectedData(OfflineDevice device);
 
 }

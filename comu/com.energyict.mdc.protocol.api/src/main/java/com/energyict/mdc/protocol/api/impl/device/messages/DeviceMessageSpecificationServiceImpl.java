@@ -1,21 +1,30 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
-import com.elster.jupiter.nls.*;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttributes;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-
-import com.elster.jupiter.orm.callback.InstallService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.util.exception.MessageSeed;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,8 +34,8 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-11 (13:33)
  */
-@Component(name = "com.energyict.mdc.protocols.api", service = {DeviceMessageSpecificationService.class, TranslationKeyProvider.class}, property = "name=" + DeviceMessageSpecificationService.COMPONENT_NAME, immediate = true)
-public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpecificationService, TranslationKeyProvider {
+@Component(name = "com.energyict.mdc.protocols.api", service = {DeviceMessageSpecificationService.class, TranslationKeyProvider.class, MessageSeedProvider.class}, property = "name=" + DeviceMessageSpecificationService.COMPONENT_NAME, immediate = true)
+public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpecificationService, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile PropertySpecService propertySpecService;
     private Thesaurus thesaurus;
@@ -124,9 +133,13 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
     }
 
     @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
+    @Override
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys = new ArrayList<>();
-        Stream.of(MessageSeeds.values()).forEach(keys::add);
         Stream.of(DeviceMessageCategories.values()).forEach(keys::add);
         Stream.of(ActivityCalendarDeviceMessage.values()).forEach(keys::add);
         Stream.of(AdvancedTestMessage.values()).forEach(keys::add);
