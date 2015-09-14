@@ -1,17 +1,26 @@
 package com.energyict.mdc.masterdata.impl;
 
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.masterdata.RegisterType;
+import org.fest.assertions.api.Assertions;
 import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
- * Tests the installer component
+ * Tests the installer component amongst others
  *
  * Copyrights EnergyICT
  * Date: 24/02/14
@@ -19,44 +28,25 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class InstallerTest {
 
-    private InMemoryPersistence inMemoryPersistence = new InMemoryPersistence();
+    private static InMemoryPersistence inMemoryPersistence;
 
-    @After
-    public void cleanUpDataBase() throws SQLException {
-        this.inMemoryPersistence.cleanUpDataBase();
+    @BeforeClass
+    static public void setUp() throws Exception {
+        inMemoryPersistence = new InMemoryPersistence();
+        // Business method is linked to "createMasterData" parameter in the call below
+        inMemoryPersistence.initializeDatabase("com.energyict.mdc.masterdata.impl.InstallerTest", false, true);
     }
 
-    @Test
-    public void installWithoutMasterData() {
-        this.inMemoryPersistence = new InMemoryPersistence();
-
-        // Business method is linked to "createMasterData" parameter in the call below
-        this.inMemoryPersistence.initializeDatabase("com.energyict.mdc.masterdata.impl.InstallerTest", false, false);
-
-        // Asserts
-        assertThat(inMemoryPersistence.getMasterDataService().findAllMeasurementTypes().find()).isEmpty();
+    @AfterClass
+    static public void cleanUpDataBase() throws SQLException {
+        inMemoryPersistence.cleanUpDataBase();
     }
 
     @Test
     public void installWithMasterData () {
-        this.inMemoryPersistence = new InMemoryPersistence();
-
-        // Business method is linked to "createMasterData" parameter in the call below
-        this.inMemoryPersistence.initializeDatabase("com.energyict.mdc.masterdata.impl.InstallerTest", false, true);
-
         // Asserts
         assertThat(inMemoryPersistence.getMasterDataService().findAllMeasurementTypes().find()).isNotEmpty();
-    }
-
-    @Test
-    public void createRegisterTypesTest() {
-        this.inMemoryPersistence = new InMemoryPersistence();
-
-        // Business method is linked to "createMasterData" parameter in the call below
-        this.inMemoryPersistence.initializeDatabase("com.energyict.mdc.masterdata.impl.InstallerTest", false, true);
-
-        // Asserts
-        List<RegisterType> registerTypes = this.inMemoryPersistence.getMasterDataService().findAllRegisterTypes().find();
+        List<RegisterType> registerTypes = inMemoryPersistence.getMasterDataService().findAllRegisterTypes().find();
         assertThat(registerTypes).hasSize(MasterDataGenerator.FixedRegisterTypes.values().length);
         registerTypes.stream().forEach(registerType -> assertThat(
                 Stream.of(MasterDataGenerator.FixedRegisterTypes.values())
@@ -64,6 +54,24 @@ public class InstallerTest {
                         .findFirst()
                         .isPresent())
                 .isTrue());
+    }
+
+    @Test
+    public void testGetAllRegisterTypesSupportsPaging() {
+        JsonQueryParameters queryParameters = mock(JsonQueryParameters.class);
+        when(queryParameters.getLimit()).thenReturn(Optional.of(10));
+        when(queryParameters.getStart()).thenReturn(Optional.of(10));
+        List<RegisterType> registerTypes2 = inMemoryPersistence.getMasterDataService().findAllRegisterTypes().from(queryParameters).find();
+        Assertions.assertThat(registerTypes2).hasSize(11);
+
+    }
+
+    @Test
+    public void testGetAllRegisterTypesIsSortedByReadingTypesFullAliasName() {
+        // Asserts
+        List<RegisterType> registerTypes = inMemoryPersistence.getMasterDataService().findAllRegisterTypes().find();
+
+        Assertions.assertThat(registerTypes).isSortedAccordingTo((a,b)->a.getReadingType().getFullAliasName().toUpperCase().compareTo(b.getReadingType().getFullAliasName().toUpperCase()));
     }
 
 }

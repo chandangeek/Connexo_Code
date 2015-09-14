@@ -68,7 +68,7 @@ public class LogBookTypeImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}", strict = false)
     public void testLogBookTypeCreationWithEmptyName() {
         LogBookType logBookType = PersistenceTest.inMemoryPersistence.getMasterDataService().newLogBookType("", OBIS_CODE);
 

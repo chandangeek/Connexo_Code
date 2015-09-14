@@ -1,18 +1,17 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-import com.energyict.mdc.masterdata.exceptions.RegisterTypesRequiredException;
-
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.pubsub.Publisher;
-import org.hibernate.validator.constraints.NotEmpty;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.RegisterGroup;
+import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+import com.energyict.mdc.masterdata.exceptions.RegisterTypesRequiredException;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -26,6 +25,7 @@ import java.util.stream.Collectors;
 public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> implements RegisterGroup {
 
     private final Publisher publisher;
+    @Size(min= 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.AT_LEAST_ONE_REGISTER_TYPE_REQUIRED + "}")
     private List<RegisterTypeInGroup> registerTypeInGroups = new ArrayList<>();
     private ChangeNotifier changeNotifier = new NotNotifiedYet();
 
@@ -119,7 +119,6 @@ public class RegisterGroupImpl extends PersistentNamedObject<RegisterGroup> impl
     public void updateRegisterTypes(List<RegisterType> registerTypes) {
         this.removeObsoleteRegisterTypes(registerTypes);
         this.addNewRegisterTypes(registerTypes);
-        this.checkAtLeastOneRegisterType();
         this.changeNotifier.updated();
     }
 

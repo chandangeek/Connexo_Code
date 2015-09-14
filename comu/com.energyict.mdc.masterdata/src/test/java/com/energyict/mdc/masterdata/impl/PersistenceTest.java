@@ -21,7 +21,7 @@ public abstract class PersistenceTest {
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
-    static InMemoryPersistence inMemoryPersistence = new InMemoryPersistence();
+    static InMemoryPersistence inMemoryPersistence;
 
     public PersistenceTest() {
     }
@@ -29,7 +29,7 @@ public abstract class PersistenceTest {
     @BeforeClass
     public static void initialize() {
         inMemoryPersistence = new InMemoryPersistence();
-        inMemoryPersistence.initializeDatabase("PersistenceTest.mdc.masterdata", false, true);
+        inMemoryPersistence.initializeDatabase("PersistenceTest.mdc.masterdata", false, true, "0.0.2.0.0.2.0.0.0.0.0.0.0.0.0.0.0.0", "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0");
     }
 
     @AfterClass

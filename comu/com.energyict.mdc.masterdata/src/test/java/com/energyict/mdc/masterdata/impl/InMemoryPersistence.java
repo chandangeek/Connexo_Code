@@ -36,6 +36,7 @@ import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -63,7 +64,7 @@ public class InMemoryPersistence {
     private Injector injector;
     private InMemoryBootstrapModule bootstrapModule;
 
-    public void initializeDatabase(String testName, boolean showSqlLogging, boolean createDefaults) {
+    public void initializeDatabase(String testName, boolean showSqlLogging, boolean createDefaults, String ... readingTypes) {
         this.initializeMocks(testName);
         this.bootstrapModule = new InMemoryBootstrapModule();
         injector = Guice.createInjector(
@@ -82,7 +83,7 @@ public class InMemoryPersistence {
                 new EventsModule(),
                 new OrmModule(),
                 new FiniteStateMachineModule(),
-                new MeteringModule(),
+                readingTypes.length==0?MeteringModule.withAllReadingTypes_AVOID_AVOID():new MeteringModule(readingTypes[0], Arrays.copyOfRange(readingTypes, 1, readingTypes.length)),
                 new MdcReadingTypeUtilServiceModule(),
                 new MasterDataModule());
         this.transactionService = injector.getInstance(TransactionService.class);

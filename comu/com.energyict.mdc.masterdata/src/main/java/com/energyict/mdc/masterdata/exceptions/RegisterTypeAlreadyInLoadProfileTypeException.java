@@ -16,9 +16,7 @@ import com.energyict.mdc.masterdata.MeasurementType;
 public class RegisterTypeAlreadyInLoadProfileTypeException extends LocalizedException {
 
     public RegisterTypeAlreadyInLoadProfileTypeException(Thesaurus thesaurus, LoadProfileType loadProfileType, MeasurementType measurementType) {
-        super(thesaurus, MessageSeeds.DUPLICATE_REGISTER_TYPE_IN_LOAD_PROFILE_TYPE);
-        this.set("loadProfileType", loadProfileType);
-        this.set("registerType", measurementType);
+        super(thesaurus, MessageSeeds.DUPLICATE_REGISTER_TYPE_IN_LOAD_PROFILE_TYPE, measurementType.getReadingType().getAliasName(), loadProfileType.getName());
     }
 
 }

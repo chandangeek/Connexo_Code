@@ -1,5 +1,6 @@
 package com.energyict.mdc.masterdata.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -8,18 +9,18 @@ import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
+ * Provides an implementation for the {@link LogBookType} interface.
+ *
  * Copyrights EnergyICT
  * Date: 24/10/12
  * Time: 10:35
  */
-
 public class LogBookTypeImpl extends PersistentNamedObject<LogBookType> implements LogBookType {
 
     enum Fields {

@@ -16,12 +16,13 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.google.common.collect.ImmutableMap;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -173,7 +174,14 @@ public abstract class MeasurementTypeImpl extends PersistentIdObject<Measurement
 
     @Override
     public Unit getUnit() {
-        return this.readingType.isPresent() ? Optional.ofNullable(Unit.get(this.readingType.get().getMultiplier().getSymbol() + this.readingType.get().getUnit().getSymbol())).orElse(Unit.getUndefined()) : Unit.getUndefined();
+        return this.readingType.getOptional()
+                .flatMap(rt -> {
+                    Unit unit = Unit.get(rt.getMultiplier().getSymbol() + rt.getUnit().getSymbol());
+                    if (unit == null) {
+                        unit = Unit.get(rt.getMultiplier().getSymbol() + rt.getUnit().getUnit().getAsciiSymbol());
+                    }
+                    return Optional.ofNullable(unit);
+                }).orElse(Unit.getUndefined());
     }
 
     public Instant getModificationDate() {
