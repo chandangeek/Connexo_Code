@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
+import com.elster.jupiter.users.FormatKey;
+import com.elster.jupiter.users.UserPreference;
+import com.elster.jupiter.users.UserPreferencesService;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
@@ -116,6 +120,10 @@ public class DeviceLifeCycleServiceImplTest {
     @Mock
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     @Mock
+    private UserService userService;
+    @Mock
+    private UserPreferencesService userPreferencesService;
+    @Mock
     private Privilege privilege;
     @Mock
     private StateTransition stateTransition;
@@ -154,6 +162,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.device.getStateTimeline()).thenReturn(stateTimeline);
         when(this.stateTransition.getEventType()).thenReturn(this.eventType);
         when(this.user.getName()).thenReturn(DeviceLifeCycleServiceImplTest.class.getSimpleName());
+        when(user.getLocale()).thenReturn(Optional.<Locale>empty());
         when(this.threadPrincipleService.getPrincipal()).thenReturn(this.user);
         when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(anyString())).thenReturn(Optional.of(this.privilege));
         when(this.eventType.newInstance(any(FiniteStateMachine.class), anyString(), anyString(), any(Instant.class), anyMap())).thenReturn(this.event);
@@ -167,6 +176,8 @@ public class DeviceLifeCycleServiceImplTest {
             ServerMicroAction serverMicroAction = mock(ServerMicroAction.class);
             when(this.microActionFactory.from(microAction)).thenReturn(serverMicroAction);
         }
+        when(userService.getUserPreferencesService()).thenReturn(userPreferencesService);
+        when(userPreferencesService.getPreferenceByKey(any(User.class), any(FormatKey.class))).thenReturn(Optional.<UserPreference>empty());
     }
 
     @Test
@@ -789,7 +800,7 @@ public class DeviceLifeCycleServiceImplTest {
     }
 
     private DeviceLifeCycleServiceImpl getTestInstance() {
-        return new DeviceLifeCycleServiceImpl(this.nlsService, this.threadPrincipleService, this.propertySpecService, this.microCheckFactory, this.microActionFactory, this.deviceLifeCycleConfigurationService);
+        return new DeviceLifeCycleServiceImpl(this.nlsService, this.threadPrincipleService, this.propertySpecService, this.microCheckFactory, this.microActionFactory, this.deviceLifeCycleConfigurationService, this.userService);
     }
 
     public static class NoTranslation implements NlsMessageFormat {
