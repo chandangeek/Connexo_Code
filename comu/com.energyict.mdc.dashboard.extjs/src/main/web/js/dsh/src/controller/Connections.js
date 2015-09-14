@@ -316,7 +316,7 @@ Ext.define('Dsh.controller.Connections', {
     },
 
     updateFinishedBetweenFilter: function(combo, newValue) {
-        this.getFinishedBetweenFilter().getChooseIntervalButton().setDisabled(Ext.isArray(newValue) && _.contains(newValue, 'NotApplicable'));
+        this.getFinishedBetweenFilter().getChooseIntervalButton().setDisabled(Ext.isArray(newValue) && _.contains(newValue, 'NOT_APPLICABLE'));
     },
 
     updateLatestStatusFilter: function() {
@@ -341,7 +341,7 @@ Ext.define('Dsh.controller.Connections', {
     },
 
     doFilterLatestStatus: function(record, id) {
-        return record.get('successIndicator') !== 'NotApplicable';
+        return record.get('successIndicator') !== 'NOT_APPLICABLE';
     }
 
 });
