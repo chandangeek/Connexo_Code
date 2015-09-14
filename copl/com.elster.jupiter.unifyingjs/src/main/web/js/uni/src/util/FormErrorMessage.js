@@ -3,7 +3,7 @@ Ext.define('Uni.util.FormErrorMessage', {
     alias: 'widget.uni-form-error-message',
     ui: 'form-error-framed',
     text: null,
-    defaultText: 'There are errors on this page that require your attention.',
+    defaultText: Uni.I18n.translate('general.formErrors', 'UNI', 'There are errors on this page that require your attention.'),
     layout: {
         type: 'hbox',
         align: 'middle'

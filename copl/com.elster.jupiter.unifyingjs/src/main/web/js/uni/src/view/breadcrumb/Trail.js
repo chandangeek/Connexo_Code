@@ -38,7 +38,8 @@ Ext.define('Uni.view.breadcrumb.Trail', {
             child,
             href = item.data.href,
             link = Ext.create('Uni.view.breadcrumb.Link', {
-                text: item.data.text
+                key: item.get('key'),
+                text: item.get('text')
             });
 
         // TODO Append '#/' when necessary.
@@ -84,6 +85,6 @@ Ext.define('Uni.view.breadcrumb.Trail', {
         }
 
         this.add(component);
-        Ext.resumeLayouts();
+        Ext.resumeLayouts(true);
     }
 });

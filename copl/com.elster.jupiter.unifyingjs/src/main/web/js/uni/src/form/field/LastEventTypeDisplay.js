@@ -41,9 +41,27 @@ Ext.define('Uni.form.field.LastEventTypeDisplay', {
             if (key === 'code') {
                 result = value;
             } else {
+                var translation = ''
+                switch(key){
+                    case 'label':
+                        translation = Uni.I18n.translate('lastEventType.label', 'UNI', 'Last event type');
+                        break;
+                    case 'deviceType':
+                        translation = Uni.I18n.translate('lastEventType.deviceType', 'UNI', 'Device type');
+                        break;
+                    case 'domain':
+                        translation = Uni.I18n.translate('lastEventType.domain', 'UNI', 'Domain');
+                        break;
+                    case 'subDomain':
+                        translation = Uni.I18n.translate('lastEventType.subDomain', 'UNI', 'Subdomain');
+                        break;
+                    case 'eventOrAction':
+                        translation = Uni.I18n.translate('lastEventType.eventOrAction', 'UNI', 'Event or action');
+                        break;
+                }
                 tooltip += '<tr>'
                     + '<td style="text-align: right;border: none">'
-                    + '<b>' + Uni.I18n.translate('lastEventType.' + key, 'UNI', key) + ':' + '</b>'
+                    + '<b>' + translation + ':' + '</b>'
                     + '</td>'
                     + '<td>'
                     + '&nbsp;&nbsp;&nbsp;' + value.name + ' ' + '(' + value.id + ')'

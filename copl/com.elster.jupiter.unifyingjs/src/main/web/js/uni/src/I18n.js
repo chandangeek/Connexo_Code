@@ -33,7 +33,7 @@
  *
  *     @example
  *     Ext.create('Ext.panel.Panel' {
- *         title: Uni.I18n.translate('my.key', 'CMP', 'Fallback')
+ *         title: Uni.I18n.translate('my.key', 'UNI', 'Fallback')
  *     });
  *
  * Be mindful that you will need to add {@link Uni.I18n} as a requirement every time, which can be
@@ -47,7 +47,7 @@
  *
  *     @example
  *     Ext.create('Ext.panel.Panel' {
- *         title: Uni.I18n.translate('my.key', 'CMP', 'Fallback')
+ *         title: Uni.I18n.translate('my.key', 'UNI', 'Fallback')
  *     });
  *
  * More information and examples can be found at the {@link #translate} function.
@@ -71,7 +71,7 @@
  * A full list of supported formats can be found at the {Ext.Date} documentation.
  *
  *     @example
- *     var formattedNow = Uni.I18n.formatDate('long.date.format', new Date(), 'CMP', ''F j Y g:i A'');
+ *     var formattedNow = Uni.I18n.formatDate('long.date.format', new Date(), 'UNI', ''F j Y g:i A'');
  *     console.log(formattedNow); // January 28 2014 11:14 AM
  *
  * More information and examples can be found at the {@link #formatDate} function.
@@ -84,7 +84,7 @@
  * should be used.
  *
  *     @example
- *     var formattedNumber = Uni.I18n.formatNumber(130000.037, 'CMP');
+ *     var formattedNumber = Uni.I18n.formatNumber(130000.037, 'UNI');
  *     console.log(formattedNumber); // 130,000.04
  *
  * More information and examples can be found at the {@link #formatNumber} function.
@@ -96,7 +96,7 @@
  * create a complete formatted currency string.
  *
  *     @example
- *     var formattedCurrency = Uni.I18n.formatCurrency(130000.037, 'CMP');
+ *     var formattedCurrency = Uni.I18n.formatCurrency(130000.037, 'UNI');
  *     console.log(formattedCurrency); // €130,000.04
  *
  * More information and examples can be found at the {@link #formatCurrency} function.
@@ -156,20 +156,10 @@ Ext.define('Uni.I18n', {
      * @returns {String} Translation
      */
     lookupTranslation: function (key, component) {
-        var translation,
-            index;
+        var translation = Ldr.store.Translations.getById(key + ':' + component);
 
-        if (typeof component !== 'undefined' && component) {
-            index = Ldr.store.Translations.findBy(function (record) {
-                return record.data.key === key && record.data.cmp === component;
-            });
-            translation = Ldr.store.Translations.getAt(index);
-        } else {
-            translation = Ldr.store.Translations.getById(key);
-        }
-
-        if (typeof translation !== 'undefined' && translation !== null) {
-            translation = translation.data.value;
+        if (translation) {
+            translation = translation.get('value');
         } else {
             //<debug>
             if (!this.blacklist[key + component]) {
@@ -195,6 +185,7 @@ Ext.define('Uni.I18n', {
      * @param {String} component Component on which to filter
      * @param {String} fallback Fallback value in case the translation was not found
      * @param {String[]} [values] Values to replace in the translation
+     * @param {boolean} htmlEncode if the values should be HTML encoded
      * @returns {String} Translation
      */
     translate: function (key, component, fallback, values, htmlEncode) {
@@ -228,21 +219,42 @@ Ext.define('Uni.I18n', {
 
     /**
      * Looks up the plural translation of a number, e.g. for 0 items the translation could be
-     * 'There no items', for 1 item 'There is 1 item', or for 7 items 'There are 7 items'.
+     * 'There are no items', for 1 item 'There is one item', or for 7 items 'There are 7 items'.
      * If your key is named 'itemCount' then for the amount 0 will look up 'itemCount[0]',
-     * for the amount 1 'itemCount[1]', and so on. It falls back on the generic 'itemCount' key.
+     * for the amount 1 'itemCount[1]', and for all the others 'itemCount[many]'.
+     * If the key isn't found, it falls back on the resp. defaults that are provided in the last three parameters
      *
      * @param {String} key Translation key to look up
      * @param {Number/String} amount Amount to translate with
      * @param {String} component Component to look up the translation for
-     * @param {String} fallback Fallback value in case the translation was not found
+     * @param {String} defaultZero Fallback translation to be used in case of amount == 0
+     * @param {String} defaultOne Fallback translation to be used in case of amount == 1
+     * @param {String} defaultMany Fallback translation to be used in case of amount > 1
      */
-    translatePlural: function (key, amount, component, fallback) {
-        var lookup = key + '[' + amount + ']',
-            translation = this.lookupTranslation(lookup, component);
+    translatePlural: function (key, amount, component, defaultZero, defaultOne, defaultMany) {
+        var lookup, translation;
 
-        if (typeof translation === 'undefined') {
-            translation = this.lookupTranslation(key, component) || fallback;
+        //<debug>
+        if (defaultZero === undefined || defaultOne === undefined || defaultMany === undefined) {
+            if (!this.blacklist[key + component]) {
+                var pattern = "translatePlural() is called for key '{0}' in bundle '{1}' with too little parameters";
+                console.warn(Ext.String.format(pattern, key, component));
+            }
+        }
+        //</debug>
+
+        switch (amount) {
+            case 0: lookup = key + '[0]'; break;
+            case 1: lookup = key + '[1]'; break;
+            default: lookup = key + '[many]'; break;
+        }
+        translation = this.lookupTranslation(lookup, component);
+        if (!translation) {
+            switch (amount) {
+                case 0: translation = defaultZero; break;
+                case 1: translation = defaultOne; break;
+                default: translation = defaultMany; break;
+            }
         }
 
         if (typeof amount !== 'undefined') {

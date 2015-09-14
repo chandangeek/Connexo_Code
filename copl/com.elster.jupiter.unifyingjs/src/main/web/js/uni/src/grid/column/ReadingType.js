@@ -4,7 +4,7 @@
 Ext.define('Uni.grid.column.ReadingType', {
     extend: 'Ext.grid.column.Column',
     xtype: 'reading-type-column',
-    header: Uni.I18n.translate('readingType.label', 'UNI', 'Reading type'),
+    header: Uni.I18n.translate('general.readingType', 'UNI', 'Reading type'),
     minWidth: 280,
     align: 'left',
     showTimeAttribute: true,

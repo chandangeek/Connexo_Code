@@ -237,7 +237,7 @@ Ext.define('Uni.property.view.property.Base', {
             cancelText: Uni.I18n.translate('general.no', 'UNI', 'No')
         }).show({
             msg: Ext.String.format(Uni.I18n.translate('property.valueSameAsInherited', 'UNI', 'The value of \'{0}\' is the same as the default value.  Do you want to link the value to the default value?'), key),
-            title: Ext.String.format(Uni.I18n.translate('property.valueSameAs', 'MDC', 'Set \'{0}\' to its default value?'), key),
+            title: Ext.String.format(Uni.I18n.translate('property.valueSameAs', 'UNI', 'Set \'{0}\' to its default value?'), key),
             config: {
                 property: me,
                 field: field
@@ -296,8 +296,7 @@ Ext.define('Uni.property.view.property.Base', {
         return {
             xtype: 'displayfield',
             name: this.getName(),
-            itemId: this.key + 'displayfield',
-            cls: 'uni-property-displayfield'
+            itemId: this.key + 'displayfield'
         }
     },
 
@@ -314,7 +313,7 @@ Ext.define('Uni.property.view.property.Base', {
         }
         if (this.isEdit) {
             if (this.getProperty() && this.getProperty().get('hasValue') && !this.userHasViewPrivilege && this.userHasEditPrivilege) {
-                this.getField().emptyText = Uni.I18n.translate('Uni.value.provided', 'UNI', 'Value provided - no rights to see the value.');
+                this.getField().emptyText = Uni.I18n.translate('general.valueProvided', 'UNI', 'Value provided - no rights to see the value.');
             } else {
                 this.getField().emptyText = '';
             }
@@ -432,6 +431,9 @@ Ext.define('Uni.property.view.property.Base', {
                 if (field.getValue() === ''  && field.getValue() === me.getProperty().get('default')) {
                     me.getProperty().set('isInheritedOrDefaultValue', true);
                     me.updateResetButton();
+                }
+                if (!field.getValue() && field.up().required && field.up().getResetButton()) {
+                    me.restoreDefault();
                 }
                 me.customHandlerLogic();
             })

@@ -23,8 +23,8 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
                         fieldLabel: me.boxLabel ? me.boxLabel : '',
                         items: [
                             {boxLabel: Uni.I18n.translate('advanceReadingProperty.None','UNI','None'), name: 'advanceRb', inputValue: '1'},
-                            {boxLabel:  Uni.I18n.translate('advanceReadingProperty.bulkReading','UNI','Bulk Reading'), name: 'advanceRb', inputValue: '2'},
-                            {boxLabel: Uni.I18n.translate('advanceReadingProperty.readingType','UNI','Reading type'), name: 'advanceRb', inputValue: '3'}
+                            {boxLabel:  Uni.I18n.translate('advanceReadingProperty.bulkReading','UNI','Bulk reading'), name: 'advanceRb', inputValue: '2'},
+                            {boxLabel: Uni.I18n.translate('general.readingType','UNI','Reading type'), name: 'advanceRb', inputValue: '3'}
                         ]
                     },
                     {
@@ -37,10 +37,9 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
                         valueField: 'mRID',
                         forceSelection: true,
                         store: this.readingTypes,//'Uni.property.store.PropertyReadingTypes',
-
                         listConfig: {
                             cls: 'isu-combo-color-list',
-                            emptyText: Uni.I18n.translate('advanceReadingProperty.readingtype.noreadingtypefound', 'MDC', 'No readingtype found')
+                            emptyText: Uni.I18n.translate('general.readingtype.noreadingtypefound', 'UNI', 'No readingtype found')
                         },
 
                         queryMode: 'remote',
@@ -51,7 +50,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
                         editable:true,
                         typeAhead:true,
                         // anchor: '100%',
-                        emptyText: Uni.I18n.translate('advanceReadingProperty.readingtype.selectreadingtype', 'MDC', 'Start typing to select a reading type...')
+                        emptyText: Uni.I18n.translate('general.readingtype.selectreadingtype', 'UNI', 'Start typing to select a reading type...')
                     }
 
                 ]
@@ -141,8 +140,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
             name: this.getName(),
             itemId: me.key + 'displayfield',
             width: me.width,
-            msgTarget: 'under',
-            cls: 'uni-property-displayfield'
+            msgTarget: 'under'
         }
     },
 
@@ -157,16 +155,17 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
         this.callParent(arguments);
     },
 
-    doEnable: function(enable) {
-        if (this.getField()) {
-            if (enable) {
-                this.getField().enable();
-                this.down('reading-type-combo').enable();
-            } else {
-                this.getField().disable();
-                this.down('reading-type-combo').disable();
-            }
-        }
+    //this method is not needed here. Please check listeners.
+    doEnable: function() {
+        return null;
+    },
+
+    markInvalid: function (error) {
+        this.down('combobox').markInvalid(error);
+    },
+
+    clearInvalid: function (error) {
+        this.down('combobox').clearInvalid();
     },
 
     getValueAsDisplayString: function (value) {
@@ -174,7 +173,7 @@ Ext.define('Uni.property.view.property.AdvanceReadingsSettings', {
             if(value.none){
                 return Uni.I18n.translate('general.none', this.translationKey, 'None');
             } else if (value.bulk){
-                return Uni.I18n.translate('advanceReadingProperty.bulkReading', this.translationKey, 'Bulk Reading');
+                return Uni.I18n.translate('advanceReadingProperty.bulkReading', this.translationKey, 'Bulk reading');
             } else {
                 return value.readingType.aliasName;
             }

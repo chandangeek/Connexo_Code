@@ -2,7 +2,7 @@ Ext.define('Uni.override.panel.Panel', {
     override: 'Ext.panel.Panel',
 
     initComponent: function() {
-        if (this.ui === 'large'){
+        if (this.ui === 'large' || (this.tools && this.tools.length > 0)){
             this.title = this.title || ' ';
         }
         this.callParent(arguments);

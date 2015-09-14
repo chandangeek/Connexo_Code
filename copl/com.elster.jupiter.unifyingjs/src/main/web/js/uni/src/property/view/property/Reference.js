@@ -24,19 +24,29 @@ Ext.define('Uni.property.view.property.Reference', {
             valueField: 'key',
             width: me.width,
             forceSelection: me.getProperty().getExhaustive(),
-            readOnly: me.isReadOnly,
-            allowBlank: me.allowBlank
+            readOnly: me.isReadOnly
         }
     },
 
     getDisplayCmp: function () {
-        var me = this
+        var me = this;
 
         return {
             xtype: 'displayfield',
             name: me.getName(),
             itemId: me.key + 'displayfield',
-            cls: 'uni-property-displayfield'
+            renderer: function (value) {
+                var result;
+
+                if (value) {
+                    result = Ext.Array.findBy(me.getProperty().getPossibleValues(), function (item) {
+                        return value == item.id;
+                    });
+                    result = Ext.isObject(result) ? result.name : value;
+                }
+
+                return result || me.emptyText;
+            }
         }
     },
 
@@ -58,7 +68,7 @@ Ext.define('Uni.property.view.property.Reference', {
     setValue: function (value) {
         if (this.isEdit) {
             if (this.getProperty().get('hasValue') && !this.userHasViewPrivilege && this.userHasEditPrivilege) {
-                this.getField().emptyText = Uni.I18n.translate('Uni.value.provided', 'UNI', 'Value provided - no rights to see the value.');
+                this.getField().emptyText = Uni.I18n.translate('general.valueProvided', 'UNI', 'Value provided - no rights to see the value.');
             } else {
                 this.getField().emptyText = '';
             }

@@ -36,7 +36,13 @@ Ext.define('Uni.property.view.property.DateTime', {
                     maxValue: 23,
                     minValue: 0,
                     allowDecimals: false,
-                    submitValue: false
+                    submitValue: false,
+                    listeners: {
+                        change: {
+                            fn: me.checkValidHour,
+                            scope: me
+                        }
+                    }
                 },
                 {
                     xtype: 'label',
@@ -59,11 +65,37 @@ Ext.define('Uni.property.view.property.DateTime', {
                     minValue: 0,
                     allowDecimals: false,
                     submitValue: false,
-                    margin: '0 0 0 3'
+                    margin: '0 0 0 3',
+                    listeners: {
+                        change: {
+                            fn: me.checkValidMinute,
+                            scope: me
+                        }
+                    }
                 }
             ]
         };
         return result;
+    },
+
+    checkValidHour: function() {
+      this.checkValid(this.getHoursField());
+    },
+
+    checkValidMinute: function() {
+        this.checkValid(this.getMinutesField());
+    },
+
+    checkValid: function (field) {
+        var me = this,
+            number = field.getValue();
+
+        if (Ext.isNumber(number)) {
+            if (number > field.maxValue) field.setValue(field.maxValue);
+            if (number < field.minValue) field.setValue(field.minValue);
+        } else {
+            field.setValue(field.minValue);
+        }
     },
 
     getHoursField: function () {

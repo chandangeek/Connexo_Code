@@ -30,8 +30,7 @@ Ext.define('Uni.property.view.property.Password', {
         return {
             xtype: 'password-display-field',
             name: this.getName(),
-            itemId: this.key + 'passworddisplayfield',
-            cls: 'uni-property-displayfield'
+            itemId: this.key + 'passworddisplayfield'
         }
     },
 
@@ -75,7 +74,7 @@ Ext.define('Uni.property.view.property.Password', {
     setValue: function (value) {
         if (this.isEdit) {
             if (this.getProperty().get('hasValue') && !this.userHasViewPrivilege && this.userHasEditPrivilege) {
-                this.getPasswordField().emptyText = Uni.I18n.translate('Uni.value.provided', 'UNI', 'Value provided - no rights to see the value.');
+                this.getPasswordField().emptyText = Uni.I18n.translate('general.valueProvided', 'UNI', 'Value provided - no rights to see the value.');
             } else {
                 this.getPasswordField().emptyText = '';
             }

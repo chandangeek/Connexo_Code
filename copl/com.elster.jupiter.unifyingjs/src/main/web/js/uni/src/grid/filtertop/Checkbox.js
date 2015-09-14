@@ -29,10 +29,19 @@ Ext.define('Uni.grid.filtertop.Checkbox', {
         }
 
         if (Ext.isDefined(me.options) && !Ext.isDefined(me.items)) {
+            me.resetItemsFromOptions();
             me.items = me.createItemsFromOptions();
         }
 
         me.callParent(arguments);
+    },
+
+    resetItemsFromOptions: function () {
+        var me = this;
+
+        Ext.Array.each(me.options, function (option) {
+            option.name = undefined;
+        });
     },
 
     createItemsFromOptions: function () {
@@ -60,8 +69,18 @@ Ext.define('Uni.grid.filtertop.Checkbox', {
         var me = this,
             values = {};
 
-        values[me.groupName] = data;
-        me.setValues(values);
+        if (Ext.isArray(data)) {
+            values[me.groupName] = data;
+            me.setValues(values);
+        } else {
+            me.setOneValue(data);
+        }
+    },
+
+    setOneValue: function(value) {
+      Ext.each(this.items.items, function (item) {
+          if (item.inputValue === value) item.setValue(true);
+      });
     },
 
     getParamValue: function () {

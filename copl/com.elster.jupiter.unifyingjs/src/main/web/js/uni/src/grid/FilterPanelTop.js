@@ -5,6 +5,7 @@ Ext.define('Uni.grid.FilterPanelTop', {
     extend: 'Ext.panel.Panel',
     xtype: 'uni-grid-filterpaneltop',
     ui: 'filter',
+    margin: '0 0 10 0',
 
     requires: [
         'Uni.grid.filtertop.Base',
@@ -67,6 +68,8 @@ Ext.define('Uni.grid.FilterPanelTop', {
     },
 
     items: [],
+
+    hasDefaultFilters: false,
 
     dockedItems: [
         {
@@ -375,7 +378,16 @@ Ext.define('Uni.grid.FilterPanelTop', {
         if (location.href !== href) {
             Uni.util.History.setParsePath(false);
             Uni.util.History.suspendEventsForNextCall();
-            location.href = href;
+            if (Uni.util.QueryString.getQueryString()) {
+                location.href = href;
+            } else {
+                if (me.hasDefaultFilters) {
+                    location.replace(href);
+                } else {
+                    location.href = href;
+                }
+            }
+            me.fireEvent('change', params);
         }
     },
 

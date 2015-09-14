@@ -5,11 +5,8 @@ Ext.define('Uni.property.view.property.deviceconfigurations.AddDeviceConfigurati
     cancelHref: undefined,
 
     counterTextFn: function (count) {
-        return Uni.I18n.translatePlural(
-            'deviceconfigurations.counterText',
-            count,
-            'UNI',
-            '{0} device configurations selected'
+        return Uni.I18n.translatePlural('deviceconfigurations.counterText', count, 'UNI',
+            'No device configurations selected', '{0} device configuration selected', '{0} device configurations selected'
         );
     },
 

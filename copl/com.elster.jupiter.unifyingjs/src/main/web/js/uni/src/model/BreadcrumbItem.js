@@ -4,6 +4,7 @@
 Ext.define('Uni.model.BreadcrumbItem', {
     extend: 'Ext.data.Model',
     fields: [
+        'key',
         'text',
         'href',
         {name: 'relative', type: 'boolean', defaultValue: true}

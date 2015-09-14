@@ -36,7 +36,14 @@ Ext.define('Uni.view.navigation.AppCenter', {
                     '</tpl>'
                 ],
                 itemSelector: 'div.app-item',
-                store: 'apps'
+                store: 'apps',
+                listeners: {
+                    itemclick: function (dataview, record) {
+                        if (record.get('isActive')) {
+                            dataview.up('menu').hide();
+                        }
+                    }
+                }
             }
         ]
     },

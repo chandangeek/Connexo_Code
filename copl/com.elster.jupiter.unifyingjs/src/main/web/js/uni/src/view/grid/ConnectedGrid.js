@@ -9,18 +9,18 @@
  *
  * {
  *   xtype: 'fieldcontainer',
- *       fieldLabel: Uni.I18n.translate('comtask.messages', 'MDC', 'Messages'),
+ *       fieldLabel: Uni.I18n.translate('comtask.messages', 'UNI', 'Messages'),
  *   labelWidth: 200,
  *   items:[
  *     {
  *       xtype: 'displayfield',
- *       value: Uni.I18n.translate('comtask.messages.text', 'MDC', 'Send pending messages of these message categories every time this communication task executes')
+ *       value: Uni.I18n.translate('comtask.messages.text', 'UNI', 'Send pending messages of these message categories every time this communication task executes')
  *     },
  *     {
  *       xtype: 'connected-grid',
- *       allItemsTitle: Uni.I18n.translate('comtask.message.cathegories', 'MDC', 'Message categories'),
+ *       allItemsTitle: Uni.I18n.translate('comtask.message.cathegories', 'UNI', 'Message categories'),
  *       allItemsStoreName: 'Mdc.store.MessageCategories',
- *       selectedItemsTitle: Uni.I18n.translate('comtask.selected.message.cathegories', 'MDC', 'Selected message categories'),
+ *       selectedItemsTitle: Uni.I18n.translate('comtask.selected.message.cathegories', 'UNI', 'Selected message categories'),
  *       selectedItemsStoreName: 'Mdc.store.SelectedMessageCategories',
  *       displayedColumn: 'name',
  *       disableIndication: true,

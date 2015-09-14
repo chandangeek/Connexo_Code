@@ -3,7 +3,8 @@ Ext.define('Uni.property.view.property.deviceconfigurations.DeviceConfigurations
     requires: [
         'Uni.property.view.property.deviceconfigurations.AddDeviceConfigurationsView',
         'Uni.property.model.PropertyDeviceConfiguration',
-        'Uni.property.store.PropertyDeviceConfigurations'
+        'Uni.property.store.PropertyDeviceConfigurations',
+        'Uni.model.BreadcrumbItem'
     ],
 
     currentPageView: null,
@@ -137,7 +138,7 @@ Ext.define('Uni.property.view.property.deviceconfigurations.DeviceConfigurations
         Ext.suspendLayouts();
         me.currentPageView.hide();
         Ext.ComponentQuery.query('viewport > #contentPanel')[0].add(me.addDeviceConfigurationsView);
-        store.loadData(me.getProperty().getPossibleValues());
+        store.loadData(me.getProperty().getPossibleValues() || []);
         store.filterBy(function (record, id) {
             return !Ext.Array.contains(addedConfigurations, id);
         });
@@ -169,7 +170,10 @@ Ext.define('Uni.property.view.property.deviceconfigurations.DeviceConfigurations
         if (toAddDeviceConfigurations) {
             lastBreadcrumbLink.renderData.href = window.location.href;
             lastBreadcrumbLink.update(lastBreadcrumbLink.renderTpl.apply(lastBreadcrumbLink.renderData));
-            breadcrumbTrail.addBreadcrumbItem({data:{text: Uni.I18n.translate('deviceconfigurations.addDeviceConfigurations', 'UNI', 'Add device configurations')}});
+            breadcrumbTrail.addBreadcrumbItem(Ext.create('Uni.model.BreadcrumbItem', {
+                text: Uni.I18n.translate('deviceconfigurations.addDeviceConfigurations', 'UNI', 'Add device configurations'),
+                relative: false
+            }));
             lastBreadcrumbLink.getEl().on('click', me.hideAddView, me, {single: true});
         } else {
             lastBreadcrumbLink.destroy();

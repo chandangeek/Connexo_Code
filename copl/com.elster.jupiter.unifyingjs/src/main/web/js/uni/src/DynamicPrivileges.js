@@ -5,25 +5,35 @@ Ext.define('Uni.DynamicPrivileges', {
         'Uni.store.DynamicPrivileges'
     ],
 
-    getDynamicPrivilegesStore: function() {
+    getDynamicPrivilegesStore: function () {
         return Uni.store.DynamicPrivileges;
     },
 
-    checkDynamicPrivileges: function(privilege) {
+    checkDynamicPrivileges: function (privilege) {
         var me = this,
             dynamicPrivilegesStore = me.getDynamicPrivilegesStore(),
             privilegeRecord;
 
         if (!Ext.isEmpty(privilege)) {
-            privilegeRecord = dynamicPrivilegesStore.findExact('name', privilege);
-            return privilegeRecord >= 0;
+            if (Ext.isArray(privilege)) {
+                var access = true;
+                //Check if any of privileges presented in store. Like &&
+                Ext.each(privilege, function (item) {
+                    privilegeRecord = dynamicPrivilegesStore.findExact('name', item);
+                    if (privilegeRecord < 0) access = false;
+                });
+                return access;
+            } else {
+                privilegeRecord = dynamicPrivilegesStore.findExact('name', privilege);
+                return privilegeRecord >= 0;
+            }
         } else {
             return true;
         }
 
     },
 
-    loadPage: function(stores, privilege, applyMethod, router) {
+    loadPage: function (stores, privilege, applyMethod, router) {
         var me = this,
             dynamicPrivilegesStore = me.getDynamicPrivilegesStore(),
             storesCount = stores.length,
@@ -31,7 +41,7 @@ Ext.define('Uni.DynamicPrivileges', {
 
         //All dependencies (such as applyMethod and crossroad methods) should be moved to another place
         dynamicPrivilegesStore.removeAll();
-        dynamicPrivilegesStore.on('privilegeStoreLoaded', function() {
+        dynamicPrivilegesStore.on('privilegeStoreLoaded', function () {
             loadedStoresCount += 1;
             if (storesCount === loadedStoresCount) {
                 if (me.checkDynamicPrivileges(privilege)) {
@@ -42,13 +52,13 @@ Ext.define('Uni.DynamicPrivileges', {
             }
         }, me);
 
-        Ext.each(stores, function(store) {
+        Ext.each(stores, function (store) {
             var store = Ext.data.StoreManager.lookup(store) || Ext.create(store);
 
             store.getProxy().setUrl(router.arguments);
             store.load({
-                callback: function() {
-                    this.each(function(record) {
+                callback: function () {
+                    this.each(function (record) {
                         dynamicPrivilegesStore.add(record);
                     });
                     dynamicPrivilegesStore.fireEvent('privilegeStoreLoaded', me);

@@ -84,6 +84,7 @@
  */
 Ext.define('Uni.controller.history.Router', {
     extend: 'Ext.app.Controller',
+    requires: ['Ext.util.Observable'],
 
     config: {},
 
@@ -109,6 +110,8 @@ Ext.define('Uni.controller.history.Router', {
      * Filter instance
      */
     filter: null,
+
+    state: {returnLink: location.href.split('#/')[1]?location.href.split('#/')[1].split('/')[0]:''},
 
     /**
      * Add router configuration
@@ -138,9 +141,7 @@ Ext.define('Uni.controller.history.Router', {
     },
 
     queryParamsToString: function (obj) {
-        return Ext.urlEncode(_.object(_.keys(obj), _.map(obj, function (i) {
-            return _.isString(i) ? i : Ext.JSON.encodeValue(i);
-        })));
+        return Ext.Object.toQueryString(obj, false);
     },
 
     /**
@@ -159,6 +160,7 @@ Ext.define('Uni.controller.history.Router', {
         // register route within controller
         // todo: move route class to external entity.
         me.routes[key] = _.extend(config, {
+            key: key,
             path: route,
 
             /**
@@ -215,6 +217,7 @@ Ext.define('Uni.controller.history.Router', {
         // register route with crossroads if not disabled
         if (!config.disabled) {
             me.routes[key].crossroad = crossroads.addRoute(route, function () {
+                me.fireEvent('routeChangeStart', this);
                 me.currentRoute = key;
                 // todo: this will not work with optional params
                 me.queryParams = Ext.Object.fromQueryString(me.getQueryString());
@@ -227,7 +230,9 @@ Ext.define('Uni.controller.history.Router', {
 
                 Object.keys(routeArguments).forEach(function (key) {
                     if (typeof routeArguments[key] === 'string') {
-                        routeArguments[key] = decodeURIComponent(routeArguments[key]);
+                        try {
+                            routeArguments[key] = decodeURIComponent(routeArguments[key]);
+                        } catch (e) {}
                     }
                 });
 
@@ -313,9 +318,11 @@ Ext.define('Uni.controller.history.Router', {
      * @param path
      * @returns Route
      */
-    getRoute: function (path) {
+    getRoute: function (path, state) {
         var me = this;
-
+        if(state){
+            this.state = state;
+        }
         if (!Ext.isDefined(path)) {
             path = me.currentRoute;
         }
@@ -334,5 +341,13 @@ Ext.define('Uni.controller.history.Router', {
         } while (path.length);
 
         return route;
+    },
+
+    setState: function(state){
+        this.state = state;
+    },
+
+    getState: function(state){
+        return this.state;
     }
 });

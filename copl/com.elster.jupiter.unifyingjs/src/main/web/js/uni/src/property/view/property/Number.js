@@ -3,9 +3,15 @@ Ext.define('Uni.property.view.property.Number', {
 
     getNormalCmp: function () {
         var me = this;
-        var minValue = null;
-        var maxValue = null;
+        var min = me.property.raw.propertyTypeInfo.predefinedPropertyValuesInfo ? me.property.raw.propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues[0] : null;
+        var minValue = (min || min === 0) ? min : -9000000000000000 ;
+        var max = null;
+        if(me.property.raw.propertyTypeInfo.predefinedPropertyValuesInfo) {
+            var range = me.property.raw.propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues;
+            max = range[range.length-1]
+        }
 
+        var maxValue = (max || max === 0) ? max : 9000000000000000;
         return {
             xtype: 'numberfield',
             name: this.getName(),
@@ -32,9 +38,13 @@ Ext.define('Uni.property.view.property.Number', {
 
     checkValidNumber: function () {
         var me = this,
-            number = me.getField().getValue();
+            field = me.getField(),
+            number = field.getValue();
 
-        if (!Ext.isNumber(number)) {
+        if (Ext.isNumber(number)) {
+            if (number > field.maxValue) me.getField().setValue(field.maxValue);
+            if (number < field.minValue) me.getField().setValue(field.minValue);
+        } else {
             me.getField().setValue(null);
         }
     },
@@ -43,8 +53,7 @@ Ext.define('Uni.property.view.property.Number', {
         return {
             xtype: 'displayfield',
             name: this.getName(),
-            itemId: this.key + 'displayfield',
-            cls: 'uni-property-displayfield'
+            itemId: this.key + 'displayfield'
         }
     },
 
@@ -53,6 +62,14 @@ Ext.define('Uni.property.view.property.Number', {
         result.fieldStyle = 'text-align:right;';
 
         return result;
+    },
+
+    markInvalid: function (error) {
+        this.down('numberfield').markInvalid(error);
+    },
+
+    clearInvalid: function () {
+        this.down('numberfield').clearInvalid();
     },
 
     getField: function () {

@@ -31,7 +31,7 @@ Ext.define('Uni.grid.filtertop.DateTime', {
                 items: [
                     {
                         xtype: 'label',
-                        html: Uni.I18n.translate('grid.filter.date.label.from', 'UNI', 'From'),
+                        html: Uni.I18n.translate('general.from', 'UNI', 'From'),
                         width: 48,
                         style: 'font-weight: normal;'
                     },

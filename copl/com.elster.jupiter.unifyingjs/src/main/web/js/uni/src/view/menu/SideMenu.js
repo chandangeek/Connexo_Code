@@ -23,13 +23,13 @@
  *             xtype: 'menu',
  *             items: [
  *               {
- *                   text: Uni.I18n.translate('devicemenu.loadProfiles', 'MDC', 'Load profiles'),
+ *                   text: Uni.I18n.translate('devicemenu.loadProfiles', 'UNI', 'Load profiles'),
  *                   itemId: 'loadProfilesLink',
  *                   href: '#/devices/' + mRID + '/loadprofiles',
  *                   showCondition: me.device.get('hasLoadProfiles')
  *               },
  *               {
- *                   text: Uni.I18n.translate('devicemenu.channels', 'MDC', 'Channels'),
+ *                   text: Uni.I18n.translate('devicemenu.channels', 'UNI', 'Channels'),
  *                   itemId: 'channelsLink',
  *                   href: '#/devices/' + mRID + '/channels',
  *                   showCondition: me.device.get('hasLoadProfiles')
@@ -89,8 +89,10 @@ Ext.define('Uni.view.menu.SideMenu', {
         me.callParent(arguments);
 
         // Selects the correct item whenever the URL changes over time.
-        Ext.util.History.addListener('change', function (token) {
-            me.checkNavigation(token);
+        Ext.util.History.addListener('change', me.checkNavigation, me);
+
+        me.on('destroy', function () {
+            Ext.util.History.removeListener('change', me.checkNavigation, me);
         });
 
         if (Ext.isDefined(me.menuItems) && Ext.isArray(me.menuItems)) {
@@ -173,7 +175,7 @@ Ext.define('Uni.view.menu.SideMenu', {
         for (var i = 0; i < items.length; i++) {
             var item = items[i];
 
-            subItems = item.items;
+            subItems = item.items && item.items.items ? item.items.items : undefined;
 
             item.removeCls(me.activeItemCls);
 

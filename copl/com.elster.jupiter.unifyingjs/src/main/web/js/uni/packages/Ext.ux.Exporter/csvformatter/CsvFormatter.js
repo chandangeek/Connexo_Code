@@ -46,7 +46,7 @@ Ext.define("Ext.ux.exporter.csvformatter.CsvFormatter", {
             var name = col.name || col.dataIndex || col.stateId;
             if (name && col.getXType() != "rownumberer") {
                 if (Ext.isFunction(col.renderer)) {
-                    var value = col.renderer(record.get(name), {}, record);
+                    var value = col.renderer(record.get(name), {column: col}, record);
                     //to handle specific case if renderer returning html(img tags inside div)
                     this.parserDiv.innerHTML = value;
                     var values = [];

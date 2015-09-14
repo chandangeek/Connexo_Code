@@ -29,14 +29,15 @@ Ext.define('Uni.property.view.property.Multiselect', {
                                 var count = newValue.length;
 
                                 if (me.itemId == 'intervalFlags') {
-                                    if (count == 1) {
-                                        field.nextSibling('#multiselectSelectedItemsInfo').update(Ext.String.format(Uni.I18n.translatePlural('multiselect.intervalflags.selected[1]', count, 'UNI', '{0} interval flag selected'), count));
-                                    } else {
-                                        field.nextSibling('#multiselectSelectedItemsInfo').update(Ext.String.format(Uni.I18n.translatePlural('multiselect.intervalflags.selected', count, 'UNI', '{0} interval flags selected'), count));
-                                    }
+                                    field.nextSibling('#multiselectSelectedItemsInfo').update(
+                                        Uni.I18n.translatePlural('multiselect.intervalflags.selected', count, 'UNI',
+                                            'No interval flags selected', '{0} interval flag selected', '{0} interval flags selected')
+                                    );
                                 } else {
-                                    field.nextSibling('#multiselectSelectedItemsInfo').update(Ext.String.format(Uni.I18n.translatePlural('multiselect.selected', count, 'UNI', '{0} items selected'), count));
-
+                                    field.nextSibling('#multiselectSelectedItemsInfo').update(
+                                        Uni.I18n.translatePlural('multiselect.selected', count, 'UNI',
+                                            'No items selected', '{0} item selected', '{0} items selected')
+                                    );
                                 }
                                                             },
                             fieldvaliditychange: function (field, isValid) {
@@ -47,8 +48,14 @@ Ext.define('Uni.property.view.property.Multiselect', {
                     {
                         xtype: 'component',
                         itemId: 'multiselectSelectedItemsInfo',
-                        html: (me.itemId == 'intervalFlags')? Ext.String.format(Ext.String.format(Uni.I18n.translatePlural('multiselect.intervalflags.selected', 0, 'UNI', '{0} interval flags selected'), 0))
-                            :Ext.String.format(Uni.I18n.translatePlural('multiselect.selected', 0, 'UNI', '{0} items selected'), 0)
+                        html: (me.itemId == 'intervalFlags')
+                            ? Ext.String.format(Ext.String.format(
+                                Uni.I18n.translatePlural('multiselect.intervalflags.selected', 0, 'UNI',
+                                    'No interval flags selected', '{0} interval flag selected', '{0} interval flags selected'),
+                                0)
+                            )
+                            : Ext.String.format(Uni.I18n.translatePlural('multiselect.selected', 0, 'UNI',
+                                'No items selected', '{0} item selected', '{0} items selected'), 0)
                     },
                     {
                         xtype: 'component',
@@ -81,8 +88,7 @@ Ext.define('Uni.property.view.property.Multiselect', {
                 });
 
                 return result;
-            },
-            cls: 'uni-property-displayfield'
+            }
         }
     },
 

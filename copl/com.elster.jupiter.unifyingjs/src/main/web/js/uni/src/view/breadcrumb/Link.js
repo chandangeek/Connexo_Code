@@ -21,6 +21,11 @@ Ext.define('Uni.view.breadcrumb.Link', {
         });
     },
 
+    setText: function(text) {
+        Ext.apply(this.renderData, {text: text});
+        this.update(this.renderTpl.apply(this.renderData));
+    },
+
     renderTpl: [
         '<tpl if="href">',
         '<a href="{href}">',

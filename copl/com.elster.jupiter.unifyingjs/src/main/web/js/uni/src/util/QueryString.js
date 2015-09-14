@@ -14,7 +14,7 @@ Ext.define('Uni.util.QueryString', {
             queryObject;
 
         recursive = typeof recursive === 'undefined' ? true : recursive;
-        queryObject = Ext.Object.fromQueryString(queryString, true);
+        queryObject = Ext.Object.fromQueryString(queryString, recursive);
 
         Ext.apply(queryObject, config || {});
 

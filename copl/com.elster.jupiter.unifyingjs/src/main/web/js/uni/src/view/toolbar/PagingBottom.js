@@ -122,7 +122,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
         if (!me.deferLoading) {
             this.store.load({
-                params: me.params,
+                params: Ext.clone(me.params),
                 callback: function (records) {
                     if (records !== null && records.length === 0 && pageNum > 1) {
                         me.initPageSizeAndStart(pageSize, pageStart - pageSize);
@@ -168,7 +168,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         this.initExtraParams();
 
         me.store.load({
-            params: me.params,
+            params: Ext.clone(me.params),
             callback: function (records) {
                 if (records !== null && records.length === 0 && newPage > 1) {
                     me.initPageSizeAndStart(pageSize, pageStart - pageSize);
@@ -425,7 +425,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
 
         me.initExtraParams();
         me.store.loadPage(page, {
-            params: me.params
+            params: Ext.clone(me.params)
         });
         me.updateQueryString();
     },

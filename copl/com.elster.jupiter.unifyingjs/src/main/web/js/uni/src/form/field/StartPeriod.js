@@ -5,7 +5,7 @@ Ext.define('Uni.form.field.StartPeriod', {
     extend: 'Ext.form.RadioGroup',
     xtype: 'uni-form-field-startperiod',
 
-    fieldLabel: Uni.I18n.translate('form.field.startPeriod.label', 'UNI', 'From'),
+    fieldLabel: Uni.I18n.translate('general.from', 'UNI', 'From'),
     columns: 1,
     vertical: true,
 

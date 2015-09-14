@@ -5,7 +5,7 @@ Ext.define('Uni.form.field.AtPeriod', {
     extend: 'Ext.form.FieldContainer',
     xtype: 'uni-form-field-atperiod',
 
-    fieldLabel: Uni.I18n.translate('form.field.atPeriod.label', 'UNI', 'At'),
+    fieldLabel: Uni.I18n.translate('general.at', 'UNI', 'At'),
 
     layout: {
         type: 'hbox'

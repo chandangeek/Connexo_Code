@@ -5,7 +5,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
     extend: 'Ext.form.field.Display',
     alias: 'widget.reading-type-displayfield',
     name: 'readingType',
-    fieldLabel: Uni.I18n.translate('readingType.label', 'UNI', 'Reading type'),
+    fieldLabel: Uni.I18n.translate('general.readingType', 'UNI', 'Reading type'),
     emptyText: '',
     showTimeAttribute: true,
     link: null,
