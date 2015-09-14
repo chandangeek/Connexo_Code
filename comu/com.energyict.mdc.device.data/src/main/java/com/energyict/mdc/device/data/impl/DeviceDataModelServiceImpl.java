@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
@@ -16,6 +15,7 @@ import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageH
 import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
+import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
@@ -24,6 +24,7 @@ import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -55,6 +56,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
@@ -513,11 +515,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>();
-        Stream.of(MessageSeeds.values()).forEach(keys::add);
-        Stream.of(PropertyTranslationKeys.values()).forEach(keys::add);
-        return keys;
-        return Arrays.asList(
+        List<TranslationKey> keys = Arrays.asList(PropertyTranslationKeys.values());
+        keys.addAll(Arrays.asList(
                 new SimpleTranslationKey(DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
                 new SimpleTranslationKey(ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER, ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAY_NAME),
                 new SimpleTranslationKey(Installer.COMSCHEDULE_RECALCULATOR_MESSAGING_NAME, Installer.COMSCHEDULE_RECALCULATOR_MESSAGING_DISPLAYNAME),
@@ -532,11 +531,17 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 new SimpleTranslationKey(ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_SUBSCRIBER, ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_DISPLAY_NAME),
                 new SimpleTranslationKey(ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_SUBSCRIBER, ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_DISPLAY_NAME),
                 new SimpleTranslationKey(SchedulingService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, SchedulingService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME),
-                new SimpleTranslationKey(SchedulingService.COM_SCHEDULER_QUEUE_SUBSCRIBER, SchedulingService.COM_SCHEDULER_QUEUE_DISPLAYNAME));
+                new SimpleTranslationKey(SchedulingService.COM_SCHEDULER_QUEUE_SUBSCRIBER, SchedulingService.COM_SCHEDULER_QUEUE_DISPLAYNAME)));
+        return keys;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     private void install(boolean executeDdl) {
-        new Installer(this.dataModel, this.eventService, messagingService, this.userService, thesaurus).install(executeDdl);
+        new Installer(this.dataModel, this.eventService, messagingService).install(executeDdl);
     }
 
     @Override

@@ -3,7 +3,8 @@ package com.energyict.mdc.device.data.impl.finders;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
+
+import com.elster.jupiter.orm.DataModel;
 
 import java.util.Optional;
 
@@ -17,10 +18,10 @@ import java.util.Optional;
  */
 public class DeviceFinder implements CanFindByLongPrimaryKey<Device> {
 
-    private final DeviceService deviceService;
+    private final DataModel dataModel;
 
-    public DeviceFinder(DeviceService deviceService) {
-        this.deviceService = deviceService;
+    public DeviceFinder(DataModel dataModel) {
+        this.dataModel = dataModel;
     }
 
     @Override
@@ -34,9 +35,8 @@ public class DeviceFinder implements CanFindByLongPrimaryKey<Device> {
     }
 
     @Override
-
     public Optional<Device> findByPrimaryKey(long id) {
-        return this.deviceService.findDeviceById(id);
+        return this.dataModel.mapper(Device.class).getUnique("id", id);
     }
 
 }

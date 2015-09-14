@@ -1,17 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -33,6 +22,18 @@ import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectPropertyRelatio
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 import javax.inject.Inject;
 import java.sql.PreparedStatement;
