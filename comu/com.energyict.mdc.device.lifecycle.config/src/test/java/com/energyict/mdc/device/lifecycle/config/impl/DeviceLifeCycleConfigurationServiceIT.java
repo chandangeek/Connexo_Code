@@ -1,12 +1,12 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
-import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.nls.Layer;
@@ -121,7 +121,7 @@ public class DeviceLifeCycleConfigurationServiceIT {
 
         // Asserts
         assertThat(defaultDeviceLifeCycle.isPresent()).isTrue();
-        assertThat(defaultDeviceLifeCycle.get().getName()).isEqualTo(DefaultLifeCycleTranslationKey.DEFAULT_DEVICE_LIFE_CYCLE_NAME.getKey());
+        assertThat(defaultDeviceLifeCycle.get().getName()).isEqualTo(DefaultLifeCycleTranslationKey.DEFAULT_DEVICE_LIFE_CYCLE_NAME.getDefaultFormat());
     }
 
     @Transactional

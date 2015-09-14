@@ -40,6 +40,8 @@ public interface TransitionBusinessProcess extends HasId {
      */
     public static final String STATE_ID_BPM_PARAMETER_NAME = "stateId";
 
+    public String getName();
+
     public String getDeploymentId();
 
     public String getProcessId();

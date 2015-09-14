@@ -61,15 +61,17 @@ public class TransitionBusinessProcessImplIT {
     @Transactional
     @Test
     public void createWithoutConstraint() {
+        String expectedName = "name";
         String expectedDeploymentId = "deploymentId";
         String expectedProcessId = "processId";
 
         // Business method
-        TransitionBusinessProcess process = this.getTestService().enableAsTransitionBusinessProcess(expectedDeploymentId, expectedProcessId);
+        TransitionBusinessProcess process = this.getTestService().enableAsTransitionBusinessProcess(expectedName, expectedDeploymentId, expectedProcessId);
 
         // Asserts
         assertThat(process).isNotNull();
         assertThat(process.getId()).isNotZero();
+        assertThat(process.getName()).isEqualTo(expectedName);
         assertThat(process.getDeploymentId()).isEqualTo(expectedDeploymentId);
         assertThat(process.getProcessId()).isEqualTo(expectedProcessId);
     }
@@ -78,9 +80,10 @@ public class TransitionBusinessProcessImplIT {
     @Test
     public void findAfterCreate() {
         DeviceLifeCycleConfigurationService testService = this.getTestService();
+        String expectedName = "name";
         String expectedDeploymentId = "deploymentId";
         String expectedProcessId = "processId";
-        testService.enableAsTransitionBusinessProcess(expectedDeploymentId, expectedProcessId);
+        testService.enableAsTransitionBusinessProcess(expectedName, expectedDeploymentId, expectedProcessId);
 
         // Business method
         List<TransitionBusinessProcess> businessProcesses = testService.findTransitionBusinessProcesses();
@@ -98,6 +101,12 @@ public class TransitionBusinessProcessImplIT {
                 .filter(ip -> ip.equals(expectedProcessId))
                 .findAny();
         assertThat(processId).contains(expectedProcessId);
+        Optional<String> name = businessProcesses
+                .stream()
+                .map(TransitionBusinessProcess::getName)
+                .filter(namep -> namep.equals(expectedName))
+                .findAny();
+        assertThat(name).contains(expectedName);
     }
 
     @Transactional
@@ -111,11 +120,42 @@ public class TransitionBusinessProcessImplIT {
     }
 
     @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "name")
+    @Test
+    public void addWithNullName() {
+        // Business method
+        this.getTestService().enableAsTransitionBusinessProcess(null, "deploymentId", "processId");
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "name")
+    @Test
+    public void addWithEmptyName() {
+        // Business method
+        this.getTestService().enableAsTransitionBusinessProcess("", "deploymentId", "processId");
+
+        // Asserts: see expected constraint violation rule
+    }
+
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "name")
+    @Test
+    public void addWithNameToLong() {
+        // Business method
+        this.getTestService().enableAsTransitionBusinessProcess(Strings.repeat("Too long", 100), "deploymentId", "processId");
+
+        // Asserts: see expected constraint violation rule
+    }
+
+
+    @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "deploymentId")
     @Test
     public void addWithNullDeploymentId() {
         // Business method
-        this.getTestService().enableAsTransitionBusinessProcess(null, "processId");
+        this.getTestService().enableAsTransitionBusinessProcess("name", null, "processId");
 
         // Asserts: see expected constraint violation rule
     }
@@ -125,7 +165,7 @@ public class TransitionBusinessProcessImplIT {
     @Test
     public void addWithEmptyDeploymentId() {
         // Business method
-        this.getTestService().enableAsTransitionBusinessProcess("", "processId");
+        this.getTestService().enableAsTransitionBusinessProcess("name", "", "processId");
         // Asserts: see expected constraint violation rule
     }
 
@@ -134,7 +174,7 @@ public class TransitionBusinessProcessImplIT {
     @Test
     public void addWithTooLongDeploymentId() {
         // Business method
-        this.getTestService().enableAsTransitionBusinessProcess(Strings.repeat("Too long", 100), "processId");
+        this.getTestService().enableAsTransitionBusinessProcess("name", Strings.repeat("Too long", 100), "processId");
 
         // Asserts: see expected constraint violation rule
     }
@@ -144,7 +184,7 @@ public class TransitionBusinessProcessImplIT {
     @Test
     public void addWithNullProcessId() {
         // Business method
-        this.getTestService().enableAsTransitionBusinessProcess("deploymentId", null);
+        this.getTestService().enableAsTransitionBusinessProcess("name", "deploymentId", null);
 
         // Asserts: see expected constraint violation rule
     }
@@ -154,7 +194,7 @@ public class TransitionBusinessProcessImplIT {
     @Test
     public void addWithEmptyProcessId() {
         // Business method
-        this.getTestService().enableAsTransitionBusinessProcess("deploymentId", "");
+        this.getTestService().enableAsTransitionBusinessProcess("name", "deploymentId", "");
 
         // Asserts: see expected constraint violation rule
     }
@@ -164,7 +204,7 @@ public class TransitionBusinessProcessImplIT {
     @Test
     public void addWithTooLongProcessId() {
         // Business method
-        this.getTestService().enableAsTransitionBusinessProcess("deploymentId", Strings.repeat("Too long", 100));
+        this.getTestService().enableAsTransitionBusinessProcess("name", "deploymentId", Strings.repeat("Too long", 100));
 
         // Asserts: see expected constraint violation rule
     }
@@ -172,10 +212,11 @@ public class TransitionBusinessProcessImplIT {
     @Transactional
     @Test
     public void disableWhenNotUsed() {
+        String name = "name";
         String deploymentId = "deploymentId";
         String processId = "processId";
         DeviceLifeCycleConfigurationService testService = this.getTestService();
-        testService.enableAsTransitionBusinessProcess(deploymentId, processId);
+        testService.enableAsTransitionBusinessProcess(name, deploymentId, processId);
 
         // Business method
         testService.disableAsTransitionBusinessProcess(deploymentId, processId);
@@ -202,9 +243,10 @@ public class TransitionBusinessProcessImplIT {
         FiniteStateMachine stateMachine = this.findDefaultFiniteStateMachine();
         State state = stateMachine.getState(DefaultState.ACTIVE.getKey()).get();
         DeviceLifeCycleConfigurationService testService = this.getTestService();
+        String name = "name";
         String deploymentId = "deploymentId1";
         String processId = "processId";
-        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(deploymentId, processId);
+        TransitionBusinessProcess process = testService.enableAsTransitionBusinessProcess(name,deploymentId, processId);
         DeviceLifeCycleBuilder builder = testService.newDeviceLifeCycleUsing("Test", stateMachine);
         String expectedActionName = "addBusinessProcessAction";
         builder

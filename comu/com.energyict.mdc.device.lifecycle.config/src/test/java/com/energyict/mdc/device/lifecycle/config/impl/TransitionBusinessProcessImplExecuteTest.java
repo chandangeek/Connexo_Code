@@ -29,6 +29,7 @@ public class TransitionBusinessProcessImplExecuteTest {
 
     private static final long DEVICE_ID = 97L;
     private static final long STATE_ID = 101L;
+    private static final String NAME = "name";
     private static final String DEPLOYMENT_ID = "deploymentId";
     private static final String PROCESS_ID = "processId";
 
@@ -64,7 +65,7 @@ public class TransitionBusinessProcessImplExecuteTest {
 
     private TransitionBusinessProcessImpl getTestInstance() {
         TransitionBusinessProcessImpl businessProcess = new TransitionBusinessProcessImpl(dataModel);
-        businessProcess.initialize(DEPLOYMENT_ID, PROCESS_ID);
+        businessProcess.initialize(NAME, DEPLOYMENT_ID, PROCESS_ID);
         return businessProcess;
     }
 

@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
@@ -13,7 +12,7 @@ import java.util.logging.Level;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-11 (11:05)
  */
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 
     // Generic
     FIELD_TOO_LONG(100, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters"),
@@ -24,7 +23,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     TRANSITION_PROCESS_IN_USE(1001, Keys.TRANSITION_PROCESS_IN_USE, "The external business process with deployment id {0} and process id {1} is still in use by at least one transition action"),
 
     // DeviceLifeCycle
-    UNIQUE_DEVICE_LIFE_CYCLE_NAME(202, Keys.UNIQUE_DEVICE_LIFE_CYCLE_NAME, "The name of a device life cycle must be unique"),
+    UNIQUE_DEVICE_LIFE_CYCLE_NAME(202, Keys.UNIQUE_DEVICE_LIFE_CYCLE_NAME, "Name must be unique"),
     MAXIMUM_FUTURE_EFFECTIVE_TIME_SHIFT_NOT_IN_RANGE(203, Keys.MAXIMUM_FUTURE_EFFECTIVE_TIME_SHIFT_NOT_IN_RANGE, "Field must not exceed the maximum value"),
     MAXIMUM_PAST_EFFECTIVE_TIME_SHIFT_NOT_IN_RANGE(204, Keys.MAXIMUM_PAST_EFFECTIVE_TIME_SHIFT_NOT_IN_RANGE, "Field must not exceed the maximum value");
 

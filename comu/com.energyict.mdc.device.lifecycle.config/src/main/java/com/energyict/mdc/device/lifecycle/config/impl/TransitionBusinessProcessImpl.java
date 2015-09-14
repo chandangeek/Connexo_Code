@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
-
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.DataModel;
-import org.hibernate.validator.constraints.NotEmpty;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
@@ -19,6 +18,7 @@ import javax.validation.constraints.Size;
 public class TransitionBusinessProcessImpl implements TransitionBusinessProcess {
 
     public enum Fields {
+        NAME("name"),
         DEPLOYMENT_ID("deploymentId"),
         PROCESS_ID("processId");
 
@@ -39,6 +39,9 @@ public class TransitionBusinessProcessImpl implements TransitionBusinessProcess 
     private long id;
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= 256, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
+    private String name;
+    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
+    @Size(max= 256, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String deploymentId;
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= 256, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
@@ -50,10 +53,16 @@ public class TransitionBusinessProcessImpl implements TransitionBusinessProcess 
         this.dataModel = dataModel;
     }
 
-    TransitionBusinessProcessImpl initialize(String deploymentId, String processId) {
+    TransitionBusinessProcessImpl initialize(String name, String deploymentId, String processId) {
+        this.name = name;
         this.deploymentId = deploymentId;
         this.processId = processId;
         return this;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override

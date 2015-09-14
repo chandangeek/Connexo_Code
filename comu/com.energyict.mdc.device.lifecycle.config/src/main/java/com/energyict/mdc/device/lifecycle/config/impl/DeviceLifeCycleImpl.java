@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -19,7 +21,13 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TimeDuration;
-import org.hibernate.validator.constraints.NotEmpty;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
+import com.energyict.mdc.device.lifecycle.config.impl.constraints.MaximumFutureEffectiveTimeShiftInRange;
+import com.energyict.mdc.device.lifecycle.config.impl.constraints.MaximumPastEffectiveTimeShiftInRange;
+import com.energyict.mdc.device.lifecycle.config.impl.constraints.Unique;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -99,7 +107,7 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     }
 
     public DeviceLifeCycleImpl initialize(String name, FiniteStateMachine stateMachine) {
-        this.name = name;
+        setName(name);
         this.stateMachine.set(stateMachine);
         return this;
     }
@@ -112,13 +120,17 @@ public class DeviceLifeCycleImpl implements DeviceLifeCycle {
     @Override
     public String getName() {
         if (DefaultLifeCycleTranslationKey.DEFAULT_DEVICE_LIFE_CYCLE_NAME.getKey().equals(this.name)){
-            return this.thesaurus.getString(this.name, this.name);
+            return this.thesaurus.getFormat(DefaultLifeCycleTranslationKey.DEFAULT_DEVICE_LIFE_CYCLE_NAME).format();
         }
         return this.name;
     }
 
     void setName(String name) {
-        this.name = name;
+        if (!Checks.is(name).emptyOrOnlyWhiteSpace()){
+            this.name = name.trim();
+        } else {
+            this.name = null;
+        }
     }
 
     @Override
