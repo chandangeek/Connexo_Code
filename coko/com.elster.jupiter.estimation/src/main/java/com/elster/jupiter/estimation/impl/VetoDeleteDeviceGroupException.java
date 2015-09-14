@@ -1,6 +1,5 @@
 package com.elster.jupiter.estimation.impl;
 
-import com.elster.jupiter.estimation.MessageSeeds;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;

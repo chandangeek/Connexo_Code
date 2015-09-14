@@ -5,6 +5,7 @@ import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.util.Pair;
 
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public interface Estimator extends HasDynamicProperties {
@@ -21,7 +22,7 @@ public interface Estimator extends HasDynamicProperties {
 
     String getDefaultFormat();
 
-    default void validateProperties(List<EstimationRuleProperties> properties) {
+    default void validateProperties(Map<String, Object> properties) {
 
     }
 

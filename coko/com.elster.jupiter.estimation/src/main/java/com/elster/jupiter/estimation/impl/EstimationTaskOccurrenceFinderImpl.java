@@ -42,13 +42,13 @@ public class EstimationTaskOccurrenceFinderImpl implements EstimationTaskOccurre
 
     @Override
     public EstimationTaskOccurrenceFinder withStartDateIn(Range<Instant> interval) {
-        this.condition = this.condition.and(where("taskOccurrence.startDate").in(interval));
+        this.condition = this.condition.and(where("startDate").in(interval));
         return this;
     }
 
     @Override
     public EstimationTaskOccurrenceFinder withEndDateIn(Range<Instant> interval) {
-        this.condition = this.condition.and(where("taskOccurrence.endDate").in(interval));
+        this.condition = this.condition.and(where("endDate").in(interval));
         return this;
     }
 

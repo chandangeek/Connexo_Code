@@ -6,7 +6,6 @@ import javax.validation.ConstraintValidatorContext;
 
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.EstimatorNotFoundException;
-import com.elster.jupiter.estimation.MessageSeeds;
 
 public class ExistingEstimatorValidator implements ConstraintValidator<ExistingEstimator, String> {
 
