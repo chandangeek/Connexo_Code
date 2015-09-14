@@ -6,6 +6,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import org.junit.Test;
 import org.mockito.Matchers;
 
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -29,8 +30,10 @@ public class IssueResourceTest extends IssueRestApplicationJerseyTest {
         TransactionContext context = mock(TransactionContext.class);
         when(transactionService.getContext()).thenReturn(context);
 
-        Map<?, ?> map = target("issues/groupedlist").queryParam("issueType", "datacollection")
-                .queryParam("start", 0).queryParam("limit", 1).queryParam("field", "reason").request().get(Map.class);
+        String filter = URLEncoder.encode("[{\"property\":\"field\",\"value\":\"reason\"},{\"property\":\"issueType\",\"value\":\"datacollection\"}]");
+
+        Map<?, ?> map = target("issues/groupedlist")
+                .queryParam("start", 0).queryParam("limit", 1).queryParam("filter", filter).request().get(Map.class);
 
         assertThat(map.get("total")).isEqualTo(1);
 

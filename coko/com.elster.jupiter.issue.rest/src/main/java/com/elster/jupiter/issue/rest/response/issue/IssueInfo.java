@@ -15,6 +15,7 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
     public long dueDate;
     public IssueAssigneeInfo assignee;
     public DeviceInfo device;
+    public String title;
     public long creationDate;
     public long modTime;
     public long version;
@@ -38,6 +39,7 @@ public class IssueInfo<T extends DeviceInfo, I extends Issue> {
                 this.device = issue.getDevice() != null ? deviceType.getConstructor(EndDevice.class).newInstance(issue.getDevice()) : null;
             } catch (ReflectiveOperationException e) {
             }
+            this.title = issue.getTitle();
             this.creationDate = issue.getCreateTime().toEpochMilli();
             this.modTime = issue.getModTime().toEpochMilli();
             this.version = issue.getVersion();

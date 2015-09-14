@@ -42,16 +42,13 @@ public class MeterResource extends BaseResource {
     public Response getMeters(@BeanParam StandardParametersBean params) {
         validateMandatory(params, START, LIMIT);
         // We shouldn't return anything if the 'like' parameter is absent or it is an empty string.
+        // Update: COPL-631, we should.
+        Query<Meter> meterQuery = getMeteringService().getMeterQuery();
         String searchText = params.getFirst(LIKE);
-        if (searchText != null && !searchText.isEmpty()){
-            String dbSearchText = "*" + searchText + "*";
-            Condition condition = where("mRID").likeIgnoreCase(dbSearchText);
-
-            Query<Meter> meterQuery = getMeteringService().getMeterQuery();
-            List<Meter> listMeters = meterQuery.select(condition, params.getFrom(), params.getTo(), Order.ascending("mRID"));
-            return entity(listMeters, MeterShortInfo.class, params.getStart(), params.getLimit()).build();
-        }
-        return entity("").build();
+        String dbSearchText = (searchText != null && !searchText.isEmpty()) ? ("*" + searchText + "*") : "*";
+        Condition condition = where("mRID").likeIgnoreCase(dbSearchText);
+        List<Meter> listMeters = meterQuery.select(condition, params.getFrom(), params.getTo(), Order.ascending("mRID"));
+        return entity(listMeters, MeterShortInfo.class, params.getStart(), params.getLimit()).build();
     }
 
     /**

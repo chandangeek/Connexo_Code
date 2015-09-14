@@ -1,12 +1,5 @@
 package com.elster.jupiter.issue.rest.response;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -20,6 +13,12 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertySelectionMode;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class PropertyUtils {
     
@@ -83,11 +82,7 @@ public class PropertyUtils {
 
     private PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec propertySpec, PropertyType propertyType) {
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
-        if (possibleValues == null) {
-            return null;
-        }
-        if (possibleValues.getAllValues().size() <= 1) {
-            // this means we have a default value, so no predefinedPropertyValues necessary in frontend.
+        if (possibleValues == null || possibleValues.getAllValues().isEmpty()) {
             return null;
         }
         Object[] possibleObjects = new Object[possibleValues.getAllValues().size()];
