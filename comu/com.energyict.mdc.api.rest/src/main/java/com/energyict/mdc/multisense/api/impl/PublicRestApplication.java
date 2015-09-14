@@ -3,9 +3,9 @@ package com.energyict.mdc.multisense.api.impl;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -53,7 +53,7 @@ public class PublicRestApplication extends Application implements TranslationKey
     public static final String COMPONENT_NAME = "DDA";
 
     private volatile DeviceService deviceService;
-    private volatile DeviceImportService deviceImportService;
+    private volatile BatchService batchService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile TopologyService topologyService;
     private volatile IssueService issueService;
@@ -105,8 +105,8 @@ public class PublicRestApplication extends Application implements TranslationKey
     }
 
     @Reference
-    public void setDeviceImportService(DeviceImportService deviceImportService) {
-        this.deviceImportService = deviceImportService;
+    public void setBatchService(BatchService batchService) {
+        this.batchService = batchService;
     }
 
     @Reference
@@ -199,7 +199,7 @@ public class PublicRestApplication extends Application implements TranslationKey
         @Override
         protected void configure() {
             bind(deviceService).to(DeviceService.class);
-            bind(deviceImportService).to(DeviceImportService.class);
+            bind(batchService).to(BatchService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(issueService).to(IssueService.class);
             bind(thesaurus).to(Thesaurus.class);

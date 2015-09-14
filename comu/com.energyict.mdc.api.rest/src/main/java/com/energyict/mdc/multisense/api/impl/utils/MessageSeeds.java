@@ -1,11 +1,12 @@
 package com.energyict.mdc.multisense.api.impl.utils;
 
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.multisense.api.impl.PublicRestApplication;
+
+import com.elster.jupiter.util.exception.MessageSeed;
+
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 
     IMPOSSIBLE_TO_SET_MASTER_DEVICE(1, "ImpossibleToSetMasterDevice", "Device {0} is directly addressable. It is not possible to set master device"),
     NO_SUCH_DEVICE_LIFE_CYCLE_ACTION(2, "NoSuchDeviceLifeCycleAction" , "No device life cycle action with id = {0}"),
@@ -28,7 +29,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     private final String key;
     private final String format;
 
-    private MessageSeeds(int number, String key, String format) {
+    MessageSeeds(int number, String key, String format) {
         this.number = number;
         this.key = key;
         this.format = format;
