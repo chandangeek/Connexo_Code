@@ -23,10 +23,9 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <serialio.version>10.0.4.2</serialio.version>
-        <org.rxtx.version>2.2pre2</org.rxtx.version>
+
         <jetty-server.version>7.6.3.v20120416</jetty-server.version>
-        <json.version>20090211</json.version>
+
         <!-- next line is the argLine for the maven-surefire-plugin
              but it must be declared as a property because of the jacoco plugin (defined in jupiter parent)
              see http://docs.codehaus.org/display/SONAR/JaCoCo+Plugin
@@ -50,247 +49,12 @@
 
     <dependencyManagement>
         <dependencies>
-
-            <!-- Project modules -->
             <dependency>
                 <groupId>com.energyict</groupId>
-                <artifactId>mdc</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.issues</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.common</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.dynamic</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.metering</artifactId>
-                <version>1.2.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.protocols.api</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.io</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.pluggable</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.pluggable.rest</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.protocol.pluggable</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.device.lifecycle.config</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.device.lifecycle.config.rest</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.device.lifecycle.config.extjs</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.device.lifecycle</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.device.topology</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.device.data</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.favorites</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.device.data.imp</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.scheduling</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.scheduling.rest</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>comserver.core.rest</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.masterdata</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.masterdata.rest</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.engine</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.engine.config</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.device.config</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.device.config.rest</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.tasks</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.issue.datacollection</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.issue.datavalidation</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.firmware</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.issue.datavalidation</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.dashboard</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-
-            <!-- Kore (and by import also Platform) -->
-            <dependency>
-                <groupId>com.elster.jupiter.subsystem</groupId>
-                <artifactId>kore</artifactId>
+                <artifactId>mdc.bom</artifactId>
                 <version>1.1.0-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>devtools</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>devtools.persistence</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>devtools.rest</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>bootstrap.h2</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>messaging.h2</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-                <scope>test</scope>
-            </dependency>
-
-            <!-- Logging -->
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>1.0.0</version>
-                <scope>runtime</scope>
-            </dependency>
-
-            <!-- ComPort libraries -->
-            <!-- need to depend on org.rxtx version -->
-            <!-- but at runtime se.joel.osgi will be provided to get the osgi version -->
-            <dependency>
-                <groupId>org.rxtx</groupId>
-                <artifactId>rxtx</artifactId>
-                <version>${org.rxtx.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict.dataconcentrator.external</groupId>
-                <artifactId>serialio</artifactId>
-                <version>${serialio.version}</version>
-            </dependency>
-
-            <!-- Remoting libraries -->
-            <dependency>
-                <groupId>org.json</groupId>
-                <artifactId>json</artifactId>
-                <version>${json.version}</version>
-                <scope>provided</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-csv</artifactId>
-                <version>1.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -409,6 +173,7 @@
                 <!-- Can we please keep this list organized alphabetically -->
                 <module>../com.energyict.comserver.comserver.core.extjs</module>
                 <module>../com.energyict.comserver.comserver.core.rest</module>
+                <module>../com.energyict.mdc.api.rest</module>
                 <module>../com.energyict.mdc.app</module>
                 <module>../com.energyict.mdc.app.help</module>
                 <module>../com.energyict.mdc.common</module>
@@ -420,14 +185,15 @@
                 <module>../com.energyict.mdc.device.data</module>
                 <module>../com.energyict.mdc.device.lifecycle</module>
                 <module>../com.energyict.mdc.device.lifecycle.config</module>
+                <module>../com.energyict.mdc.device.lifecycle.config.bpmhandler</module>
                 <module>../com.energyict.mdc.device.lifecycle.config.rest</module>
                 <module>../com.energyict.mdc.device.lifecycle.config.extjs</module>
                 <module>../com.energyict.mdc.device.topology</module>
                 <module>../com.energyict.mdc.device.data.rest</module>
-                <module>../com.energyict.mdc.device.data.imp</module>
-                <module>../com.energyict.mdc.device.data.imp.messagehandlers</module>
-                <module>../com.energyict.mdc.device.data.imp.rest</module>
-                <module>../com.energyict.mdc.device.data.imp.extjs</module>
+                <module>../com.energyict.mdc.device.data.importers</module>
+                <module>../com.energyict.mdc.device.data.validation</module>
+                <module>../com.energyict.mdc.device.data.validation.rest</module>
+                <module>../com.energyict.mdc.device.data.validation.extjs</module>
                 <module>../com.energyict.mdc.dynamic</module>
                 <module>../com.energyict.mdc.engine</module>
                 <module>../com.energyict.mdc.engine.config</module>
@@ -441,6 +207,8 @@
                 <module>../com.energyict.mdc.issue.datacollection.rest</module>
                 <module>../com.energyict.mdc.issue.datacollection.extjs</module>
                 <module>../com.energyict.mdc.issue.datavalidation</module>
+                <module>../com.energyict.mdc.issue.datavalidation.extjs</module>
+                <module>../com.energyict.mdc.issue.datavalidation.rest</module>
                 <module>../com.energyict.mdc.issues</module>
                 <module>../com.energyict.mdc.masterdata</module>
                 <module>../com.energyict.mdc.masterdata.rest</module>
@@ -451,12 +219,18 @@
                 <module>../com.energyict.mdc.protocol.pluggable</module>
                 <module>../com.energyict.mdc.protocols</module>
                 <module>../com.energyict.mdc.scheduling</module>
-                <module>../com.energyict.mdc.scheduling.extjs</module>
                 <module>../com.energyict.mdc.scheduling.rest</module>
                 <module>../com.energyict.mdc.tasks</module>
                 <module>../com.energyict.mdc.tasks.rest</module>
                 <!-- Can we please keep this list organized alphabetically -->
             </modules>
         </profile>
+        <profile>
+            <id>test-mdc-bundles</id>
+            <modules>
+                <module>../com.elster.jupiter.demo</module>
+            </modules>
+        </profile>
+
     </profiles>
 </project>
