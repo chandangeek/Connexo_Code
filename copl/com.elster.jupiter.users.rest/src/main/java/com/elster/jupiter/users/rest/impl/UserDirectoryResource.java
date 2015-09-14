@@ -14,10 +14,7 @@ import com.elster.jupiter.users.security.Privileges;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -118,4 +115,16 @@ public class UserDirectoryResource {
         return getUserDirectory(id,securityContext);
     }
 
+    @DELETE
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.ADMINISTRATE_USER_ROLE)
+    public Response deleteUserDirectory(UserDirectoryInfo info, @PathParam("id") long id) {
+        try (TransactionContext context = transactionService.getContext()) {
+            LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
+            ldapUserDirectory.delete();
+            context.commit();
+            return Response.status(Response.Status.OK).build();
+        }
+    }
 }
