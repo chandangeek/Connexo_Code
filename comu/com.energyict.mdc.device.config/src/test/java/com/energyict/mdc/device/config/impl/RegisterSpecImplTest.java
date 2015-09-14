@@ -1,11 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.devtools.tests.rules.Expected;
-import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -15,16 +9,19 @@ import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateObisCodeException;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumberOfDigitsException;
-import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFractionDigitsException;
 import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.masterdata.RegisterType;
-import org.junit.Before;
-import org.junit.Test;
+
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.metering.ReadingType;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+
+import org.junit.*;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
@@ -199,7 +196,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_OVERFLOW_IS_REQUIRED+"}", property = "overflowValue")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_OVERFLOW_IS_REQUIRED+"}", property = "overflow")
     public void updateOverflowMissing() {
         NumericalRegisterSpec registerSpec = createNumericalRegisterSpecWithDefaults();
 
@@ -210,7 +207,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE+"}", property = "overflowValue")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE+"}", property = "overflow")
     public void updateOverflowValueTooSmallTest() {
         NumericalRegisterSpec registerSpec = createNumericalRegisterSpecWithDefaults();
 
@@ -282,8 +279,9 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(registerSpec.getOverflowValue()).isEqualTo(overflow);
     }
 
-    @Test(expected = OverFlowValueCanNotExceedNumberOfDigitsException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "DTC6005S The provided overflow value \"1,000,000,001\" may not exceed \"1,000,000,000\" (according to the provided number of digits \"9\")", property = "overflow")
     public void updateOverflowLargerThanNumberOfDigitsTest() {
         NumericalRegisterSpec registerSpec = createNumericalRegisterSpecWithDefaults();
         BigDecimal overflow = new BigDecimal(1000000001);
@@ -293,8 +291,9 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         registerSpecUpdater.update();
     }
 
-    @Test(expected = OverFlowValueHasIncorrectFractionDigitsException.class)
+    @Test
     @Transactional
+    @ExpectedConstraintViolation(messageId = "DTC6007S The provided overflow value \"123.333\" more fraction digits \"46\" than provided \"3\"", property = "overflow")
     public void updateWithIncorrectNumberOfFractionDigitsTest() {
         NumericalRegisterSpec registerSpec = createNumericalRegisterSpecWithDefaults();
         BigDecimal overflow = new BigDecimal(123.33333333); // assuming we have three fractionDigits
@@ -388,9 +387,10 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED+"}", property = "numberOfDigits")
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED+"}", property = "numberOfDigits", strict = false)
     public void testDecreaseNumberOfDigits() throws Exception {
         NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
+        this.getReloadedDeviceConfiguration().activate();
         registerSpec.setNumberOfDigits(8); // decreased!!
         registerSpec.save();
     }
@@ -399,6 +399,24 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED+"}", property = "numberOfFractionDigits")
     public void testDecreaseNumberOfFractionDigits() throws Exception {
+        NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
+        this.getReloadedDeviceConfiguration().activate();
+        registerSpec.setNumberOfFractionDigits(1); // decreased!!
+        registerSpec.save();
+    }
+
+    @Test
+    @Transactional
+    public void testDecreaseNumberOfDigitsInactiveConfig() throws Exception {
+        NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
+        registerSpec.setNumberOfDigits(8); // decreased!!
+        registerSpec.setOverflowValue(BigDecimal.valueOf(100000000));
+        registerSpec.save();
+    }
+
+    @Test
+    @Transactional
+    public void testDecreaseNumberOfFractionDigitsInactiveConfig() throws Exception {
         NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
         registerSpec.setNumberOfFractionDigits(1); // decreased!!
         registerSpec.save();
@@ -419,9 +437,9 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @Expected(value = OverFlowValueCanNotExceedNumberOfDigitsException.class)
+    @ExpectedConstraintViolation(messageId = "DTC6005S The provided overflow value \"9,223,372,036,854,775,807\" may not exceed \"10,000,000,000\" (according to the provided number of digits \"10\")", property = "overflow")
     public void testVeryBigOverflowValueExceedsMaxInt() throws Exception {
-        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().
+        this.getReloadedDeviceConfiguration().
                 createNumericalRegisterSpec(registerType).
                 setNumberOfDigits(10).
                 setNumberOfFractionDigits(3).

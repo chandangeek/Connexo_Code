@@ -2,7 +2,6 @@ package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.common.rest.MinTimeDuration;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;

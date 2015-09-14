@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 
 /**
  * Copyrights EnergyICT

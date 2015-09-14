@@ -1,9 +1,10 @@
 package com.energyict.mdc.device.config.exceptions;
 
+import com.energyict.mdc.masterdata.LoadProfileType;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.masterdata.LoadProfileType;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
@@ -14,20 +15,21 @@ import com.energyict.mdc.masterdata.LoadProfileType;
  */
 public class IntervalIsRequiredException extends LocalizedException {
 
-    private IntervalIsRequiredException(Thesaurus thesaurus, MessageSeed messageSeed) {
-        super(thesaurus, messageSeed);
-    }
-
     /**
      * Creates a IntervalIsRequiredException that models the
      * exceptional situation that occurs when an attempt is made to create
      * a {@link LoadProfileType} without an Interval
      *
      * @param thesaurus The Thesaurus
+     * @param messageSeed The MessageSeed
      * @return the newly create IntervalIsRequiredException
      */
-    public static IntervalIsRequiredException forChannelSpecWithoutLoadProfileSpec(Thesaurus thesaurus) {
-        return new IntervalIsRequiredException(thesaurus, MessageSeeds.CHANNEL_SPEC_WITHOUT_LOAD_PROFILE_SPEC_INTERVAL_IS_REQUIRED);
+    public static IntervalIsRequiredException forChannelSpecWithoutLoadProfileSpec(Thesaurus thesaurus, MessageSeed messageSeed) {
+        return new IntervalIsRequiredException(thesaurus, messageSeed);
+    }
+
+    private IntervalIsRequiredException(Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed);
     }
 
 }

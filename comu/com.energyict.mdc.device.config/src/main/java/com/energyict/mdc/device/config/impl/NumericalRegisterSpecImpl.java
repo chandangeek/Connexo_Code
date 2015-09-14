@@ -4,16 +4,13 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.device.config.exceptions.OverFlowValueCanNotExceedNumberOfDigitsException;
-import com.energyict.mdc.device.config.exceptions.OverFlowValueHasIncorrectFractionDigitsException;
 import com.energyict.mdc.masterdata.RegisterType;
 
+import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import org.hibernate.validator.constraints.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -21,6 +18,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
+@ValidOverFlowAndNumberOfDigits(groups = {Save.Create.class, Save.Update.class})
 @ValidNumericalRegisterSpec(groups = {Save.Update.class})
 public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegisterSpec> implements NumericalRegisterSpec {
 
@@ -31,7 +29,7 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
     private Integer numberOfFractionDigits;
     @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE + "}")
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_OVERFLOW_IS_REQUIRED + "}")
-    private BigDecimal overflowValue;
+    private BigDecimal overflow;
 
     @Inject
     public NumericalRegisterSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
@@ -61,48 +59,26 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         return numberOfFractionDigits;
     }
 
+    protected boolean hasNumberOfFractionDigits() {
+        return numberOfFractionDigits != null;
+    }
+
     @Override
     public void setNumberOfFractionDigits(int numberOfFractionDigits) {
         this.numberOfFractionDigits = numberOfFractionDigits;
     }
 
     public BigDecimal getOverflowValue() {
-        return overflowValue;
+        return overflow;
     }
 
     @Override
     public void setOverflowValue(BigDecimal overflowValue) {
-        this.overflowValue = overflowValue;
+        this.overflow = overflowValue;
     }
 
     protected void validate() {
-        this.validateOverFlowAndNumberOfDigits();
-        this.validateNumberOfFractionDigitsOfOverFlowValue();
         super.validate();
-    }
-
-    private void validateNumberOfFractionDigitsOfOverFlowValue() {
-        if (this.overflowValue != null) {
-            int scale = this.overflowValue.scale();
-            if (scale > this.numberOfFractionDigits) {
-                throw new OverFlowValueHasIncorrectFractionDigitsException(this.getThesaurus(), this.overflowValue, scale, this.numberOfFractionDigits);
-            }
-        }
-    }
-
-    /**
-     * We need to validate the OverFlow value and the NumberOfDigits together.
-     */
-    private void validateOverFlowAndNumberOfDigits() {
-        if (this.overflowValue != null && this.numberOfDigits > 0) {
-            if (this.overflowValue.compareTo(BigDecimal.valueOf(10).pow(numberOfDigits)) == 1) {
-                throw new OverFlowValueCanNotExceedNumberOfDigitsException(this.getThesaurus(), this.overflowValue, Math.pow(10, this.numberOfDigits), this.numberOfDigits);
-            }
-            // should be covered by field validation
-            //else if (this.overflowValue.compareTo(BigDecimal.ZERO) <= 0) {
-            //   throw InvalidValueException.registerSpecOverFlowValueShouldBeLargerThanZero(this.thesaurus, this.overflowValue);
-            //}
-        }
     }
 
     abstract static class AbstractBuilder implements Builder {

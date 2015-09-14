@@ -40,7 +40,7 @@ public class ImmutablePropertiesCanNotChangeForActiveConfigurationValidator impl
                 context.buildConstraintViolationWithTemplate(message).addPropertyNode(DeviceConfigurationImpl.Fields.CAN_ACT_AS_GATEWAY.fieldName()).addConstraintViolation().disableDefaultConstraintViolation();
                 valid=false;
             }
-            if (deviceConfiguration.getGetwayType() != originalConfiguration.get().getGetwayType()){
+            if (deviceConfiguration.getGatewayType() != originalConfiguration.get().getGatewayType()){
                 context.buildConstraintViolationWithTemplate(message).addPropertyNode(DeviceConfigurationImpl.Fields.GATEWAY_TYPE.fieldName()).addConstraintViolation().disableDefaultConstraintViolation();
                 valid=false;
             }

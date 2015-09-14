@@ -1,9 +1,10 @@
 package com.energyict.mdc.device.config.exceptions;
 
+import com.energyict.mdc.device.config.DeviceConfiguration;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
@@ -15,8 +16,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
  */
 public class DeviceConfigurationIsActiveException extends LocalizedException {
 
-    public DeviceConfigurationIsActiveException(Thesaurus thesaurus, DeviceConfiguration deviceConfiguration) {
-        super(thesaurus, MessageSeeds.DEVICE_CONFIGURATION_IS_ACTIVE_CAN_NOT_DELETE);
+    public DeviceConfigurationIsActiveException(DeviceConfiguration deviceConfiguration, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed);
         set("deviceConfiguration", deviceConfiguration);
     }
 }

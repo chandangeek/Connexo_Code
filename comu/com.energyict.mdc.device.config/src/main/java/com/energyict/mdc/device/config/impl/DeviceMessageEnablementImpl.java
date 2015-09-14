@@ -56,7 +56,9 @@ public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessag
 
     private List<DeviceMessageUserActionRecord> deviceMessageUserActionRecords = new ArrayList<>();
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
-    private DeviceMessageId deviceMessageId;
+    private transient DeviceMessageId deviceMessageId;
+    private long deviceMessageIdDbValue;
+
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -83,11 +85,20 @@ public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessag
     private DeviceMessageEnablement init(DeviceConfiguration deviceConfiguration, DeviceMessageId deviceMessageId) {
         setDeviceConfiguration(deviceConfiguration);
         this.deviceMessageId = deviceMessageId;
+        this.deviceMessageIdDbValue = deviceMessageId.dbValue();
         return this;
+    }
+
+
+    public long getDeviceMessageDbValue(){
+        return deviceMessageIdDbValue;
     }
 
     @Override
     public DeviceMessageId getDeviceMessageId() {
+        if (deviceMessageId == null){
+            deviceMessageId = DeviceMessageId.havingId(this.deviceMessageIdDbValue);
+        }
         return deviceMessageId;
     }
 

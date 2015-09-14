@@ -35,6 +35,10 @@ public interface DeviceMessageEnablement extends HasId {
      */
     public DeviceMessageId getDeviceMessageId();
 
+    /**
+     * @return the dbValue of the DeviceMessage
+     */
+     public long getDeviceMessageDbValue();
 
     void addDeviceMessageCategory(DeviceMessageCategory deviceMessageCategory);
 

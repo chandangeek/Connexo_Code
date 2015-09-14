@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+
 import java.util.Optional;
 
 /**

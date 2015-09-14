@@ -5,9 +5,7 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.exceptions.CannotDeleteLoadProfileSpecLinkedChannelSpecsException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsNotConfiguredOnDeviceTypeException;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 
@@ -102,7 +100,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     private void validateDeviceTypeContainsLoadProfileType() {
         DeviceType deviceType = getDeviceConfiguration().getDeviceType();
         if (!hasLoadProfileType(deviceType, getLoadProfileType())) {
-            throw new LoadProfileTypeIsNotConfiguredOnDeviceTypeException(this.getThesaurus(), getLoadProfileType());
+            throw new LoadProfileTypeIsNotConfiguredOnDeviceTypeException(getLoadProfileType(), this.getThesaurus(), MessageSeeds.LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_NOT_ON_DEVICE_TYPE);
         }
     }
 
@@ -121,15 +119,17 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
     @Override
     protected void doDelete() {
-        this.channelSpecs.clear();
-        this.getDeviceConfiguration().deleteLoadProfileSpec(this);
+        throw new UnsupportedOperationException("LoadProfileConfig is to be deleted by removing it from the device configuration");
     }
 
     @Override
+    public void prepareDelete() {
+        this.channelSpecs.clear();
+    }
+
+
+    @Override
     public void validateDelete() {
-        if (!this.getChannelSpecs().isEmpty()) {
-            throw new CannotDeleteLoadProfileSpecLinkedChannelSpecsException(this.getThesaurus());
-        }
     }
 
     @Override
@@ -183,7 +183,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
     @Override
     public void removeChannelSpec(ChannelSpec channelSpec) {
-        this.channelSpecs.remove(channelSpec);
+        removeFromHasIdList(channelSpecs, channelSpec);
     }
 
     @Override

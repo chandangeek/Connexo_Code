@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.config.exceptions;
 
+import com.energyict.mdc.masterdata.MeasurementType;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.masterdata.MeasurementType;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt
@@ -14,8 +16,8 @@ import com.energyict.mdc.masterdata.MeasurementType;
  */
 public class CannotUpdateObisCodeWhenMeasurementTypeIsInUseException extends LocalizedException {
 
-    public CannotUpdateObisCodeWhenMeasurementTypeIsInUseException(Thesaurus thesaurus, MeasurementType measurementType) {
-        super(thesaurus, MessageSeeds.MEASUREMENT_TYPE_OBIS_CODE_CANNOT_BE_UPDATED, measurementType.getReadingType().getAliasName());
+    public CannotUpdateObisCodeWhenMeasurementTypeIsInUseException(Thesaurus thesaurus, MeasurementType measurementType, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, measurementType.getReadingType().getAliasName());
         this.set("measurementType", measurementType);
     }
 

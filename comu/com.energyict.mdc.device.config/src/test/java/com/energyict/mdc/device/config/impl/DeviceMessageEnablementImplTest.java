@@ -1,18 +1,19 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceMessageEnablement;
-import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.List;
+
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 /**
@@ -21,7 +22,7 @@ import static org.mockito.Mockito.*;
  * Time: 16:01
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DeviceMessageEnablementImplTest {
+public class DeviceMessageEnablementImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Mock
     private DeviceConfigurationImpl original;
@@ -34,7 +35,10 @@ public class DeviceMessageEnablementImplTest {
     @Mock
     private Thesaurus thesaurus;
 
+    private DeviceConfiguration deviceConfiguration;
+
     @Test
+    @Transactional
     public void cloneDeviceMessageEnablementTest() {
         DeviceMessageId deviceMessageId = DeviceMessageId.CLOCK_SET_TIME;
         DeviceMessageEnablement mockedDeviceMessageEnablement = mock(DeviceMessageEnablement.class);
@@ -54,6 +58,26 @@ public class DeviceMessageEnablementImplTest {
         verify(deviceMessageEnablementBuilder, times(1)).addUserAction(userAction1);
         verify(deviceMessageEnablementBuilder, times(1)).addUserAction(userAction2);
         verify(clone).createDeviceMessageEnablement(deviceMessageId);
+    }
+
+     @Test
+     @Transactional
+     public void testDeviceConfigurationCreation() {
+         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = this.deviceType.newConfiguration("DeviceConfiguration");
+         deviceConfiguration = deviceConfigurationBuilder.add();
+
+         DeviceConfiguration deviceConfiguration = getReloadedDeviceConfiguration();
+
+         List<DeviceMessageEnablementImpl> deviceMessageEnablements = inMemoryPersistence.getDataModel().mapper(DeviceMessageEnablementImpl.class).find("deviceConfiguration", deviceConfiguration);
+         assertThat(deviceMessageEnablements.stream().filter(enablement -> enablement.getDeviceMessageDbValue() == DeviceMessageId.CONTACTOR_CLOSE.dbValue()).count()).isEqualTo(1);
+         assertThat(deviceMessageEnablements.stream().filter(enablement -> enablement.getDeviceMessageDbValue() == DeviceMessageId.CONTACTOR_OPEN.dbValue()).count()).isEqualTo(1);
+         assertThat(deviceMessageEnablements.stream().filter(enablement -> enablement.getDeviceMessageDbValue() == DeviceMessageId.CONTACTOR_ARM.dbValue()).count()).isEqualTo(1);
+     }
+
+    private DeviceConfiguration getReloadedDeviceConfiguration(){
+        return inMemoryPersistence.getDeviceConfigurationService()
+                .findDeviceConfiguration(this.deviceConfiguration.getId())
+                .orElseThrow(() -> new RuntimeException("Failed to reload device configuration " + this.deviceConfiguration.getId()));
     }
 
 }

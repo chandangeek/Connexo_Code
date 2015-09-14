@@ -10,7 +10,7 @@ enum RegisterSpecFields {
     REGISTER_TYPE("registerType"),
     NUMBER_OF_DIGITS("numberOfDigits"),
     NUMBER_OF_FRACTION_DIGITS("numberOfFractionDigits"),
-    OVERFLOW_VALUE("overflowValue"),
+    OVERFLOW_VALUE("overflow"),
     TEXTUAL("textual");
 
     private final String javaFieldName;

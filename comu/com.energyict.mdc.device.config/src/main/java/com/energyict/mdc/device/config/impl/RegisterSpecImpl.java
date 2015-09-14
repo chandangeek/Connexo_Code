@@ -5,7 +5,6 @@ import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredOnDeviceTypeException;
 import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -121,7 +120,7 @@ public abstract class RegisterSpecImpl<T extends RegisterSpec> extends Persisten
             }
         }
         if (notFound) {
-            throw new RegisterTypeIsNotConfiguredOnDeviceTypeException(this.getThesaurus(), getRegisterType());
+            throw new RegisterTypeIsNotConfiguredOnDeviceTypeException(getRegisterType(), this.getThesaurus(), MessageSeeds.REGISTER_SPEC_REGISTER_TYPE_IS_NOT_ON_DEVICE_TYPE);
         }
     }
 

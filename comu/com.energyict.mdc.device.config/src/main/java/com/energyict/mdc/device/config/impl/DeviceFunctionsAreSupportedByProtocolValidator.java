@@ -1,13 +1,13 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.DeviceCommunicationFunction;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import java.util.List;
-import java.util.Set;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.List;
+import java.util.Set;
 
 public class DeviceFunctionsAreSupportedByProtocolValidator implements ConstraintValidator<DeviceFunctionsAreSupportedByProtocol, DeviceConfigurationImpl> {
 

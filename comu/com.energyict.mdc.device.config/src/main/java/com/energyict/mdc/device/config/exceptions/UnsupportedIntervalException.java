@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.config.exceptions;
 
+import com.energyict.mdc.device.config.ChannelSpec;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.ChannelSpec;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an {@link com.elster.jupiter.time.TimeDuration}
@@ -21,25 +23,25 @@ import com.energyict.mdc.device.config.ChannelSpec;
  */
 public class UnsupportedIntervalException extends LocalizedException {
 
-    public static UnsupportedIntervalException weeksAreNotSupportedForChannelSpecs(Thesaurus thesaurus, ChannelSpec channelSpec) {
-        UnsupportedIntervalException unsupportedIntervalException = new UnsupportedIntervalException(thesaurus, MessageSeeds.CHANNEL_SPEC_INTERVAL_IN_WEEKS_IS_NOT_SUPPORTED);
+    public static UnsupportedIntervalException weeksAreNotSupportedForChannelSpecs(Thesaurus thesaurus, ChannelSpec channelSpec, MessageSeed messageSeed) {
+        UnsupportedIntervalException unsupportedIntervalException = new UnsupportedIntervalException(thesaurus, messageSeed);
         unsupportedIntervalException.set("channelSpec", channelSpec);
         return unsupportedIntervalException;
     }
 
-    public static UnsupportedIntervalException intervalOfChannelSpecShouldBeLargerThanZero(Thesaurus thesaurus, int count){
-        UnsupportedIntervalException invalidValueException = new UnsupportedIntervalException(thesaurus, MessageSeeds.CHANNEL_SPEC_INVALID_INTERVAL_COUNT, count);
+    public static UnsupportedIntervalException intervalOfChannelSpecShouldBeLargerThanZero(int count, Thesaurus thesaurus, MessageSeed messageSeed){
+        UnsupportedIntervalException invalidValueException = new UnsupportedIntervalException(thesaurus, messageSeed, count);
         invalidValueException.set("count", count);
         return invalidValueException;
     }
 
-    public static UnsupportedIntervalException intervalOfChannelShouldBeOneIfUnitIsLargerThanOneHour(Thesaurus thesaurus, int count){
-        UnsupportedIntervalException invalidValueException = new UnsupportedIntervalException(thesaurus, MessageSeeds.CHANNEL_SPEC_INVALID_INTERVAL_COUNT_LARGE_UNIT, count);
+    public static UnsupportedIntervalException intervalOfChannelShouldBeOneIfUnitIsLargerThanOneHour(int count, Thesaurus thesaurus, MessageSeed messageSeed){
+        UnsupportedIntervalException invalidValueException = new UnsupportedIntervalException(thesaurus, messageSeed, count);
         invalidValueException.set("count", count);
         return invalidValueException;
     }
 
-    private UnsupportedIntervalException(Thesaurus thesaurus, MessageSeeds messageSeed, Object... arguments) {
+    private UnsupportedIntervalException(Thesaurus thesaurus, MessageSeed messageSeed, Object... arguments) {
         super(thesaurus, messageSeed, arguments);
     }
 

@@ -58,7 +58,7 @@ public class ChannelTypeDeleteFromLoadProfileTypeEventHandler implements TopicHa
     private void validateNoChannelSpecForChannelType(LoadProfileTypeChannelTypeUsage channelTypeUsage) {
         List<ChannelSpec> channelSpecs = this.deviceConfigurationService.findChannelSpecsForChannelTypeInLoadProfileType(channelTypeUsage.getChannelType(), channelTypeUsage.getLoadProfileType());
         if (!channelSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.channelTypeIsStillInUseByChannelSpecs(this.thesaurus, channelTypeUsage.getChannelType(), channelSpecs);
+            throw CannotDeleteBecauseStillInUseException.channelTypeIsStillInUseByChannelSpecs(this.thesaurus, channelTypeUsage.getChannelType(), channelSpecs, MessageSeeds.CHANNEL_TYPE_STILL_USED_BY_CHANNEL_SPEC);
         }
     }
 

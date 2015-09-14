@@ -21,7 +21,7 @@ public class GatewayTypeMustBeSpecifiedValidator implements ConstraintValidator<
         }
 
         boolean valid=true;
-        if (deviceConfiguration.canActAsGateway() && GatewayType.NONE.equals(deviceConfiguration.getGetwayType())){
+        if (deviceConfiguration.canActAsGateway() && GatewayType.NONE.equals(deviceConfiguration.getGatewayType())){
             context.buildConstraintViolationWithTemplate(message)
                     .addPropertyNode(DeviceConfigurationImpl.Fields.GATEWAY_TYPE.fieldName())
                     .addConstraintViolation()

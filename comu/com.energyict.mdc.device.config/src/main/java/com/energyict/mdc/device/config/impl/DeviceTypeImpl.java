@@ -1,10 +1,32 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.*;
+import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.TemporalReference;
+import com.elster.jupiter.orm.associations.Temporals;
+import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent;
+import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
+import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.DeviceUsageType;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.config.exceptions.RegisterTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -16,19 +38,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.TemporalReference;
-import com.elster.jupiter.orm.associations.Temporals;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -46,11 +57,11 @@ import java.util.stream.Collectors;
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements ServerDeviceType {
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private String name;
     @Size(max = 4000, groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String description;
-    @IsPresent(message = "{" + MessageSeeds.Keys.DEVICE_LIFE_CYCLE_REQUIRED + "}", groups = {Save.Create.class, Save.Update.class})
+    @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", groups = {Save.Create.class, Save.Update.class})
     private TemporalReference<DeviceLifeCycleInDeviceType> deviceLifeCycle = Temporals.absent();
     private int deviceUsageTypeId;
     private DeviceUsageType deviceUsageType;
@@ -60,7 +71,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
     private List<DeviceTypeRegisterTypeUsage> registerTypeUsages = new ArrayList<>();
     private long deviceProtocolPluggableClassId;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_PROTOCOL_IS_REQUIRED + "}")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private boolean deviceProtocolPluggableClassChanged = false;
     @SuppressWarnings("unused")
@@ -125,16 +136,11 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         // do not replace with foreach!! the deviceConfiguration will be removed from the iterator
         while (iterator.hasNext()) {
             ServerDeviceConfiguration deviceConfiguration = (ServerDeviceConfiguration) iterator.next();
-            this.notifyDelete(deviceConfiguration);
             deviceConfiguration.notifyDelete();
             deviceConfiguration.prepareDelete();
             iterator.remove();
         }
         this.getDataMapper().remove(this);
-    }
-
-    private void notifyDelete(ServerDeviceConfiguration deviceConfiguration) {
-        deviceConfiguration.notifyDelete();
     }
 
     @Override
@@ -155,7 +161,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     protected void validateDelete() {
         if (this.hasActiveConfigurations()) {
-            throw CannotDeleteBecauseStillInUseException.deviceTypeIsStillInUse(this.getThesaurus(), this);
+            throw CannotDeleteBecauseStillInUseException.deviceTypeIsStillInUse(this.getThesaurus(), this, MessageSeeds.DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS);
         }
     }
 
@@ -218,10 +224,12 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     private void setDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle, Instant effective) {
         Interval effectivityInterval = Interval.of(Range.atLeast(effective));
-        this.deviceLifeCycle.add(
-                this.getDataModel()
-                        .getInstance(DeviceLifeCycleInDeviceTypeImpl.class)
-                        .initialize(effectivityInterval, this, deviceLifeCycle));
+        if(deviceLifeCycle != null) {
+            this.deviceLifeCycle.add(
+                    this.getDataModel()
+                            .getInstance(DeviceLifeCycleInDeviceTypeImpl.class)
+                            .initialize(effectivityInterval, this, deviceLifeCycle));
+        }
     }
 
     @Override
@@ -346,7 +354,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public void addLoadProfileType(LoadProfileType loadProfileType) {
         for (DeviceTypeLoadProfileTypeUsage loadProfileTypeUsage : this.loadProfileTypeUsages) {
             if (loadProfileTypeUsage.sameLoadProfileType(loadProfileType)) {
-                throw new LoadProfileTypeAlreadyInDeviceTypeException(this.getThesaurus(), this, loadProfileType);
+                throw new LoadProfileTypeAlreadyInDeviceTypeException(this, loadProfileType, this.getThesaurus(), MessageSeeds.DUPLICATE_LOAD_PROFILE_TYPE_IN_DEVICE_TYPE);
             }
         }
         this.loadProfileTypeUsages.add(new DeviceTypeLoadProfileTypeUsage(this, loadProfileType));
@@ -367,7 +375,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private void validateLoadProfileTypeNotUsedByLoadProfileSpec(LoadProfileType loadProfileType) {
         List<LoadProfileSpec> loadProfileSpecs = this.getLoadProfileSpecsForLoadProfileType(loadProfileType);
         if (!loadProfileSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.loadProfileTypeIsStillInUseByLoadProfileSpec(this.getThesaurus(), loadProfileType, loadProfileSpecs);
+            throw CannotDeleteBecauseStillInUseException.loadProfileTypeIsStillInUseByLoadProfileSpec(loadProfileType, loadProfileSpecs, this.getThesaurus(), MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS);
         }
     }
 
@@ -403,7 +411,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public void addLogBookType(LogBookType logBookType) {
         for (DeviceTypeLogBookTypeUsage logBookTypeUsage : this.logBookTypeUsages) {
             if (logBookTypeUsage.sameLogBookType(logBookType)) {
-                throw new LogBookTypeAlreadyInDeviceTypeException(this.getThesaurus(), this, logBookType);
+                throw new LogBookTypeAlreadyInDeviceTypeException(this, logBookType, this.getThesaurus(), MessageSeeds.DUPLICATE_LOG_BOOK_TYPE_IN_DEVICE_TYPE);
             }
         }
         this.logBookTypeUsages.add(new DeviceTypeLogBookTypeUsage(this, logBookType));
@@ -413,7 +421,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public void addRegisterType(RegisterType registerType) {
         for (DeviceTypeRegisterTypeUsage registerTypeUsage : this.registerTypeUsages) {
             if (registerTypeUsage.sameRegisterType(registerType)) {
-                throw new RegisterTypeAlreadyInDeviceTypeException(this.getThesaurus(), this, registerType);
+                throw new RegisterTypeAlreadyInDeviceTypeException(this, registerType, this.getThesaurus(), MessageSeeds.DUPLICATE_REGISTER_TYPE_IN_DEVICE_TYPE);
             }
         }
         this.registerTypeUsages.add(new DeviceTypeRegisterTypeUsage(this, registerType));
@@ -435,7 +443,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private void validateRegisterTypeNotUsedByChannelSpec(MeasurementType measurementType) {
         List<ChannelSpec> channelSpecs = this.getChannelSpecsForChannelType(measurementType);
         if (!channelSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.channelTypeIsStillInUseByChannelSpecs(this.getThesaurus(), measurementType, channelSpecs);
+            throw CannotDeleteBecauseStillInUseException.channelTypeIsStillInUseByChannelSpecs(this.getThesaurus(), measurementType, channelSpecs, MessageSeeds.CHANNEL_TYPE_STILL_USED_BY_CHANNEL_SPEC);
         }
     }
 
@@ -463,7 +471,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private void validateRegisterTypeNotUsedByRegisterSpec(MeasurementType measurementType) {
         List<RegisterSpec> registerSpecs = this.getRegisterSpecsForRegisterType(measurementType);
         if (!registerSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.registerTypeIsStillInUseByRegisterSpecs(this.getThesaurus(), measurementType, registerSpecs);
+            throw CannotDeleteBecauseStillInUseException.registerTypeIsStillInUseByRegisterSpecs(this.getThesaurus(), measurementType, registerSpecs, MessageSeeds.REGISTER_TYPE_STILL_USED_BY_REGISTER_SPEC);
         }
     }
 
@@ -503,7 +511,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private void validateLogBookTypeNotUsedByLogBookSpec(LogBookType logBookType) {
         List<LogBookSpec> logBookSpecs = this.getLogBookSpecsForLogBookType(logBookType);
         if (!logBookSpecs.isEmpty()) {
-            throw CannotDeleteBecauseStillInUseException.logBookTypeIsStillInUseByLogBookSpec(this.getThesaurus(), logBookType, logBookSpecs);
+            throw CannotDeleteBecauseStillInUseException.logBookTypeIsStillInUseByLogBookSpec(this.getThesaurus(), logBookType, logBookSpecs, MessageSeeds.LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS);
         }
     }
 
