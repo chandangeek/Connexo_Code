@@ -582,14 +582,14 @@ Ext.define('Dxp.view.tasks.Add', {
                         ]
                     },
                     {
-                        title: Uni.I18n.translate('general.formatter', 'DES', 'Formatter'),
+                        title: Uni.I18n.translate('general.outputFormat', 'DES', 'Output format'),
                         itemId: 'file-formatter-title',
                         hidden: true,
                         ui: 'medium'
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('general.formatter', 'DES', 'Formatter'),
+                        fieldLabel: Uni.I18n.translate('general.outputFormat', 'DES', 'Output format'),
                         layout: 'hbox',
                         itemId: 'formatter-container',
                         hidden: true,
