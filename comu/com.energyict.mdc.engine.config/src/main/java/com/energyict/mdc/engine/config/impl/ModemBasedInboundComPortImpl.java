@@ -1,33 +1,34 @@
 package com.energyict.mdc.engine.config.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.io.NrOfDataBits;
 import com.energyict.mdc.io.NrOfStopBits;
 import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialPortConfiguration;
+import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.Range;
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import org.hibernate.validator.constraints.NotEmpty;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.config.ModemBasedInboundComPort} interface.

@@ -1,11 +1,12 @@
 package com.energyict.mdc.engine.config.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.common.BusinessException;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.rest.MinTimeDuration;
 import com.energyict.mdc.engine.config.ComPort;
@@ -16,16 +17,11 @@ import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.io.SerialPortConfiguration;
+import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Provider;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -35,8 +31,10 @@ import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.hibernate.validator.constraints.NotEmpty;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.config.ComServer} interface.
@@ -89,10 +87,11 @@ public abstract class ComServerImpl implements ComServer {
         }
     }
 
+    @SuppressWarnings("unused")
     private long id;
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_FIELD_TOO_LONG+"}")
-    @Pattern(regexp="[a-zA-Z0-9\\.\\-]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.COMSERVER_NAME_INVALID_CHARS +"}")
+    @Pattern(regexp="[a-zA-Z0-9\\.\\-]*", groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.COMSERVER_NAME_INVALID_CHARS +"}")
     private String name;
     private boolean active;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
@@ -105,9 +104,13 @@ public abstract class ComServerImpl implements ComServer {
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     @MinTimeDuration(value = 60 ,groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}")
     private TimeDuration schedulingInterPollDelay;
+    @SuppressWarnings("unused")
     private String userName;
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
     private final List<ComPort>  comPorts = new ArrayList<>();
     @Null(groups = { Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_COMSERVER_NO_UPDATE_ALLOWED+"}")
@@ -198,9 +201,6 @@ public abstract class ComServerImpl implements ComServer {
         return new OutboundComPortBuilder(name, numberOfSimultaneousConnections);
     }
 
-    /**
-     * Builders are used to facilitate validating ComPorts??
-     */
     private class OutboundComPortBuilder extends OutboundComPortImpl.OutboundComPortBuilderImpl {
 
         private OutboundComPortBuilder(String name, int numberOfSimultaneousConnections) {
@@ -314,6 +314,11 @@ public abstract class ComServerImpl implements ComServer {
 
     public Instant getModificationDate() {
         return this.modTime;
+    }
+
+    @Override
+    public long getVersion() {
+        return this.version;
     }
 
     @Override

@@ -15,11 +15,10 @@ import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
 import com.google.inject.Provider;
+
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlElement;
-
-import org.hibernate.validator.constraints.URL;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.config.RemoteComServer} interface.
@@ -29,13 +28,13 @@ import org.hibernate.validator.constraints.URL;
  */
 public class RemoteComServerImpl extends ComServerImpl implements RemoteComServer {
 
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
+    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY + "}")
     private final Reference<OnlineComServer> onlineComServer = ValueReference.absent();
     private boolean usesDefaultEventRegistrationUri = true;
-    @URL(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}")
+    @URI(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_INVALID_URL + "}")
     @Size(max = 512)
     private String eventRegistrationUri;
-    @URL(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}")
+    @URI(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_INVALID_URL + "}")
     @Size(max = 512)
     private String statusUri;
     private boolean usesDefaultStatusUri = true;
@@ -50,12 +49,12 @@ public class RemoteComServerImpl extends ComServerImpl implements RemoteComServe
     }
 
     @Override
-    public boolean isRemote () {
+    public boolean isRemote() {
         return true;
     }
 
     @Override
-    public OnlineComServer getOnlineComServer () {
+    public OnlineComServer getOnlineComServer() {
         return this.onlineComServer.get();
     }
 
@@ -66,13 +65,13 @@ public class RemoteComServerImpl extends ComServerImpl implements RemoteComServe
 
     @Override
     public void setEventRegistrationUri(String eventRegistrationUri) {
-        this.usesDefaultEventRegistrationUri=Checks.is(eventRegistrationUri).emptyOrOnlyWhiteSpace();
+        this.usesDefaultEventRegistrationUri = Checks.is(eventRegistrationUri).emptyOrOnlyWhiteSpace();
         this.eventRegistrationUri = eventRegistrationUri;
     }
 
     @Override
     @XmlElement
-    public String getEventRegistrationUri () {
+    public String getEventRegistrationUri() {
         if (this.usesDefaultEventRegistrationUri) {
             return this.defaultEventRegistrationUri();
         }
@@ -80,7 +79,7 @@ public class RemoteComServerImpl extends ComServerImpl implements RemoteComServe
     }
 
     @Override
-    public boolean usesDefaultEventRegistrationUri () {
+    public boolean usesDefaultEventRegistrationUri() {
         return this.usesDefaultEventRegistrationUri;
     }
 
@@ -93,21 +92,20 @@ public class RemoteComServerImpl extends ComServerImpl implements RemoteComServe
     public String getEventRegistrationUriIfSupported() throws BusinessException {
         if (Checks.is(this.getEventRegistrationUri()).emptyOrOnlyWhiteSpace()) {
             return super.getEventRegistrationUriIfSupported();
-        }
-        else {
+        } else {
             return this.getEventRegistrationUri();
         }
     }
 
     @Override
     public void setStatusUri(String statusUri) {
-        this.usesDefaultStatusUri=Checks.is(statusUri).emptyOrOnlyWhiteSpace();
+        this.usesDefaultStatusUri = Checks.is(statusUri).emptyOrOnlyWhiteSpace();
         this.statusUri = statusUri;
     }
 
     @Override
     @XmlElement
-    public String getStatusUri () {
+    public String getStatusUri() {
         if (this.usesDefaultStatusUri) {
             return this.defaultStatusUri();
         }
@@ -115,7 +113,7 @@ public class RemoteComServerImpl extends ComServerImpl implements RemoteComServe
     }
 
     @Override
-    public boolean usesDefaultStatusUri () {
+    public boolean usesDefaultStatusUri() {
         return this.usesDefaultStatusUri;
     }
 

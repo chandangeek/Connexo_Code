@@ -28,10 +28,9 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -41,6 +40,7 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.proxy.LazyLoader;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.streams.Predicates;
@@ -66,8 +66,8 @@ import static com.energyict.mdc.engine.config.impl.ComServerImpl.OFFLINE_COMSERV
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.ONLINE_COMSERVER_DISCRIMINATOR;
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.REMOTE_COMSERVER_DISCRIMINATOR;
 
-@Component(name = "com.energyict.mdc.engine.config", service = {EngineConfigurationService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + EngineConfigurationService.COMPONENT_NAME)
-public class EngineConfigurationServiceImpl implements EngineConfigurationService, InstallService, TranslationKeyProvider, OrmClient, PrivilegesProvider {
+@Component(name = "com.energyict.mdc.engine.config", service = {EngineConfigurationService.class, InstallService.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = "name=" + EngineConfigurationService.COMPONENT_NAME)
+public class EngineConfigurationServiceImpl implements EngineConfigurationService, InstallService, MessageSeedProvider, OrmClient, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -103,17 +103,12 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
-    public String getComponentName() {
-        return EngineConfigurationService.COMPONENT_NAME;
-    }
-
-    @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 
