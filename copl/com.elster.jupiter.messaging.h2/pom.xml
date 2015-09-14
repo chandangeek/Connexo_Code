@@ -48,4 +48,21 @@
             <artifactId>joda-time</artifactId>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>copy</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
