@@ -351,15 +351,4 @@ public class KpiResourceTest extends DeviceDataRestApplicationJerseyTest {
         return endDeviceGroup;
     }
 
-    private <T> Finder<T> mockFinder(List<T> list) {
-        Finder<T> finder = mock(Finder.class);
-
-        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
-        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
-        when(finder.from(any(JsonQueryParameters.class))).thenReturn(finder);
-        when(finder.find()).thenReturn(list);
-        when(finder.stream()).thenReturn(list.stream());
-        return finder;
-    }
-
 }

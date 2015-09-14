@@ -1,14 +1,14 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.estimation.*;
+import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.util.Ranges;
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.energyict.mdc.common.rest.IntervalInfo;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -21,16 +21,32 @@ import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableRangeSet;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -139,7 +155,7 @@ public class ChannelResource {
             @BeanParam JsonQueryParameters queryParameters) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
-        boolean isValidationActive = deviceValidation.isValidationActive(channel, clock.instant());
+        boolean isValidationActive = deviceValidation.isValidationActive();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             List<LoadProfileReading> channelData = channel.getChannelData(Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd")));
             List<ChannelDataInfo> infos = channelData.stream().map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReading, isValidationActive, deviceValidation)).collect(Collectors.toList());
@@ -199,13 +215,10 @@ public class ChannelResource {
         List<BaseReading> editedReadings = new ArrayList<>();
         List<BaseReading> editedBulkReadings = new ArrayList<>();
         List<BaseReading> confirmedReadings = new ArrayList<>();
-        List<Range<Instant>> removeCandidates = new ArrayList<>();
+        List<Instant> removeCandidates = new ArrayList<>();
         channelDataInfos.forEach((channelDataInfo) -> {
             if (!(isToBeConfirmed(channelDataInfo)) && channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
-                removeCandidates.add(
-                        Range.openClosed(
-                                Instant.ofEpochMilli(channelDataInfo.interval.start),
-                                Instant.ofEpochMilli(channelDataInfo.interval.end)));
+                removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
             }
             else {
                 if (channelDataInfo.value != null) {
@@ -219,7 +232,12 @@ public class ChannelResource {
                 }
             }
         });
-        channel.startEditingData().removeChannelData(removeCandidates).editChannelData(editedReadings).editBulkChannelData(editedBulkReadings).confirmChannelData(confirmedReadings).complete();
+        channel.startEditingData()
+                .removeChannelData(removeCandidates)
+                .editChannelData(editedReadings)
+                .editBulkChannelData(editedBulkReadings)
+                .confirmChannelData(confirmedReadings)
+                .complete();
 
         return Response.status(Response.Status.OK).build();
     }
@@ -244,17 +262,20 @@ public class ChannelResource {
         Estimator estimator = estimationHelper.getEstimator(estimateChannelDataInfo);
         ReadingType readingType = channel.getReadingType();
         List<EstimationResult> results = new ArrayList<>();
-        List<Range<Instant>> ranges = new ArrayList<>();
-        for (IntervalInfo info : estimateChannelDataInfo.intervals) {
-            ranges.add(Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)));
-        }
+        List<Range<Instant>> ranges = estimateChannelDataInfo.intervals.stream()
+                .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
+                .collect(Collectors.toList());
+        ImmutableSet<Range<Instant>> blocks = ranges.stream()
+                .collect(ImmutableRangeSet::<Instant>builder, ImmutableRangeSet.Builder::add, (b1, b2) -> b1.addAll(b2.build()))
+                .build()
+                .asRanges();
 
         if (!estimateChannelDataInfo.estimateBulk && channel.getReadingType().isCumulative() && channel.getReadingType().getCalculatedReadingType().isPresent()) {
             readingType = channel.getReadingType().getCalculatedReadingType().get();
         }
 
-        for (Range<Instant> range : ranges) {
-            results.add(estimationHelper.previewEstimate(device, readingType, range, estimator));
+        for (Range<Instant> block : blocks) {
+            results.add(estimationHelper.previewEstimate(device, readingType, block, estimator));
         }
         return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results);
     }
@@ -267,6 +288,15 @@ public class ChannelResource {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         ValidationStatusInfo deviceValidationStatusInfo = channelHelper.get().determineStatus(channel);
         return Response.ok(deviceValidationStatusInfo).build();
+    }
+
+    @GET
+    @Path("{channelid}/validationpreview")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    public Response getValidationStatusPreview(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+        return channelHelper.get().getChannelValidationInfo(() -> channel);
     }
 
     @PUT

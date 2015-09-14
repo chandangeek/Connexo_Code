@@ -1,28 +1,30 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.rest.ConnectionTaskLifecycleStateAdapter;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
+
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * This Info element represents the PartialConnectionTask in the domain model
@@ -42,8 +44,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     public boolean isDefault;
     public Integer comWindowStart;
     public Integer comWindowEnd;
-    @XmlJavaTypeAdapter(ConnectionStrategyAdapter.class)
-    public ConnectionStrategy connectionStrategy;
+    public String connectionStrategy;
     public List<PropertyInfo> properties;
     public boolean allowSimultaneousConnections;
     public TimeDurationInfo rescheduleRetryDelay;
@@ -53,6 +54,7 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
     }
 
     protected ConnectionMethodInfo(ConnectionTask<?, ?> connectionTask, UriInfo uriInfo, MdcPropertyUtils mdcPropertyUtils) {
+        this();
         this.id = connectionTask.getId();
         this.name = connectionTask.getName();
         this.status = connectionTask.getStatus();
@@ -74,7 +76,12 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
                     if (propertyValue != null) {
                         connectionTask.setProperty(propertySpec.getName(), propertyValue);
                     } else {
-                        connectionTask.removeProperty(propertySpec.getName());
+                        Optional<PropertyValueInfo<?>> propertyValueInfo = findPropertyValueInfo(this.properties, propertySpec.getName());
+                        if (propertyValueInfo.isPresent() && (propertyValueInfo.get().inheritedValue == null || "".equals(propertyValueInfo.get().inheritedValue))) {
+                            connectionTask.setProperty(propertySpec.getName(), null);
+                        } else {
+                            connectionTask.removeProperty(propertySpec.getName());//it means that we really want to use inherited value
+                        }
                     }
                 }
             }
@@ -83,7 +90,17 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
         }
     }
 
+    protected Optional<PropertyValueInfo<?>> findPropertyValueInfo(List<PropertyInfo> properties, String key) {
+        return properties.stream().filter(propertyInfo -> key.equals(propertyInfo.key)).map(PropertyInfo::getPropertyValueInfo).findFirst();
+    }
 
     public abstract ConnectionTask<?, ?> createTask(EngineConfigurationService engineConfigurationService, Device device, MdcPropertyUtils mdcPropertyUtils, PartialConnectionTask partialConnectionTask);
 
+    @JsonIgnore
+    protected ConnectionStrategy getConnectionStrategy(){
+        return Arrays.stream(ConnectionStrategy.values())
+                .filter(candidate -> candidate.name().equals(this.connectionStrategy))
+                .findFirst()
+                .orElse(null);
+    }
 }

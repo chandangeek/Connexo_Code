@@ -7,6 +7,8 @@ import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -21,6 +23,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
@@ -34,6 +37,7 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.ComScheduleOnDevicesFilterSpecification;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceValidation;
@@ -41,10 +45,8 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.TopologyTimeline;
@@ -56,15 +58,16 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 import org.assertj.core.data.MapEntry;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 
-import javax.validation.ConstraintViolationException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.math.BigDecimal;
@@ -81,6 +84,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -339,75 +343,100 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testComSchedulesBulkActionsWithWrongDevice() {
+    public void testComSchedulesBulkAddOnDevice() {
         BulkRequestInfo request = new BulkRequestInfo();
-        request.deviceMRIDs = Arrays.asList("mrid1", "unexisting");
-        request.scheduleIds = Arrays.asList(1L);
-        Entity<BulkRequestInfo> json = Entity.json(request);
-
-        ComTaskExecutionBuilder<ScheduledComTaskExecution> builder = mock(ComTaskExecutionBuilder.class);
-
-        Device device = mock(Device.class);
-        when(device.getmRID()).thenReturn("mrid1");
-        when(device.getName()).thenReturn("Device with mrid1");
-        when(device.newScheduledComTaskExecution(any(ComSchedule.class))).thenReturn(builder);
-        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device));
-        when(deviceService.findByUniqueMrid("unexisting")).thenReturn(Optional.<Device>empty());
-
-        ComSchedule schedule = mock(ComSchedule.class);
-        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(schedule));
-
-        ComSchedulesBulkInfo response = target("/devices/schedules").request().put(json, ComSchedulesBulkInfo.class);
-        assertThat(response.actions.size()).isEqualTo(1);
-        assertThat(response.actions.get(0).successCount).isEqualTo(1);
-        assertThat(response.actions.get(0).failCount).isEqualTo(1);
-        assertThat(response.actions.get(0).fails.size()).isEqualTo(1);
-        assertThat(response.actions.get(0).fails.get(0).message).isNotEmpty();
-    }
-
-    @Test
-    public void testComSchedulesBulkActionsAddAlreadyAdded() {
-        BulkRequestInfo request = new BulkRequestInfo();
+        request.action = "add";
         request.deviceMRIDs = Arrays.asList("mrid1", "mrid2");
         request.scheduleIds = Arrays.asList(1L);
         Entity<BulkRequestInfo> json = Entity.json(request);
+        Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
+        when(messageService.getDestinationSpec(SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION)).thenReturn(destinationSpec);
+        when(jsonService.serialize(any())).thenAnswer(invocation -> new ObjectMapper().writeValueAsString(invocation.getArguments()[0]));
+        MessageBuilder builder = mock(MessageBuilder.class);
+        when(destinationSpec.get().message(anyString())).thenReturn(builder);
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        when(destinationSpec.get().message(stringArgumentCaptor.capture())).thenReturn(builder);
+        mockAppServers(SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION);
 
-        ComTaskExecutionBuilder<ScheduledComTaskExecution> builder = mock(ComTaskExecutionBuilder.class);
-        DeviceType deviceType = mock(DeviceType.class);
-        when(deviceType.getId()).thenReturn(10L);
-        when(deviceType.getName()).thenReturn("Router");
+        Response response = target("/devices/schedules").request().put(json);
 
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getId()).thenReturn(10L);
-        when(deviceConfiguration.getName()).thenReturn("BaseConfig");
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.model(stringArgumentCaptor.getValue());
+        assertThat(jsonModel.<String>get("$.action")).isEqualTo("Add");
+        assertThat(jsonModel.<List>get("$.deviceMRIDs")).containsOnly("mrid1", "mrid2");
+        assertThat(jsonModel.<List>get("$.scheduleIds")).containsOnly(1);
+    }
 
-        Device device1 = mock(Device.class);
-        when(device1.getmRID()).thenReturn("mrid1");
-        when(device1.getName()).thenReturn("Device with mrid1");
-        when(device1.getDeviceType()).thenReturn(deviceType);
-        when(device1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(device1.newScheduledComTaskExecution(any(ComSchedule.class))).thenReturn(builder);
-        when(deviceService.findByUniqueMrid("mrid1")).thenReturn(Optional.of(device1));
-        doReturn("translated").when(thesaurus).getString(anyString(), anyString());
+    @Test
+    public void testComSchedulesBulkAddOnDeviceWithFilter() {
+        BulkRequestInfo request = new BulkRequestInfo();
+        request.action = "add";
+        request.filter = new ComScheduleOnDevicesFilterSpecification();
+        request.filter.mRID = "DAO*";
+        request.scheduleIds = Arrays.asList(1L);
+        Entity<BulkRequestInfo> json = Entity.json(request);
+        Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
+        when(messageService.getDestinationSpec(SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION)).thenReturn(destinationSpec);
+        when(jsonService.serialize(any())).thenAnswer(invocation -> new ObjectMapper().writeValueAsString(invocation.getArguments()[0]));
+        MessageBuilder builder = mock(MessageBuilder.class);
+        when(destinationSpec.get().message(anyString())).thenReturn(builder);
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        when(destinationSpec.get().message(stringArgumentCaptor.capture())).thenReturn(builder);
+        mockAppServers(SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION);
 
-        Device device2 = mock(Device.class);
-        when(device2.getmRID()).thenReturn("mrid2");
-        when(device2.getName()).thenReturn("Device with mrid2");
-        when(device2.getDeviceType()).thenReturn(deviceType);
-        when(device2.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(device2.newScheduledComTaskExecution(any(ComSchedule.class))).thenReturn(builder);
-        doThrow(new ConstraintViolationException("already exists", null)).when(device2).save();
-        when(deviceService.findByUniqueMrid("mrid2")).thenReturn(Optional.of(device2));
+        Response response = target("/devices/schedules").request().put(json);
 
-        ComSchedule schedule = mock(ComSchedule.class);
-        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(schedule));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.model(stringArgumentCaptor.getValue());
+        assertThat(jsonModel.<String>get("$.action")).isEqualTo("Add");
+        assertThat(jsonModel.<List>get("$.deviceMRIDs")).isNull();
+        assertThat(jsonModel.<String>get("$.filter.mRID")).isEqualTo("DAO*");
+        assertThat(jsonModel.<List<Integer>>get("$.scheduleIds")).containsOnly(1);
+    }
 
-        ComSchedulesBulkInfo response = target("/devices/schedules").request().put(json, ComSchedulesBulkInfo.class);
-        assertThat(response.actions.size()).isEqualTo(1);
-        assertThat(response.actions.get(0).successCount).isEqualTo(1);
-        assertThat(response.actions.get(0).failCount).isEqualTo(1);
-        assertThat(response.actions.get(0).fails.size()).isEqualTo(1);
-        assertThat(response.actions.get(0).fails.get(0).message).isNotEmpty();
+    @Test
+    public void testComSchedulesBulkRemoveFromDeviceWithFilter() {
+        BulkRequestInfo request = new BulkRequestInfo();
+        request.action = "remove";
+        request.filter = new ComScheduleOnDevicesFilterSpecification();
+        request.filter.serialNumber = "*001";
+        request.scheduleIds = Arrays.asList(1L);
+        Entity<BulkRequestInfo> json = Entity.json(request);
+        Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
+        when(messageService.getDestinationSpec(SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION)).thenReturn(destinationSpec);
+        when(jsonService.serialize(any())).thenAnswer(invocation -> new ObjectMapper().writeValueAsString(invocation.getArguments()[0]));
+        MessageBuilder builder = mock(MessageBuilder.class);
+        when(destinationSpec.get().message(anyString())).thenReturn(builder);
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        when(destinationSpec.get().message(stringArgumentCaptor.capture())).thenReturn(builder);
+        mockAppServers(SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION);
+
+        Response response = target("/devices/schedules").request().put(json);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.model(stringArgumentCaptor.getValue());
+        System.out.println(stringArgumentCaptor.getValue());
+        assertThat(jsonModel.<String>get("$.action")).isEqualTo("Remove");
+        assertThat(jsonModel.<List>get("$.deviceMRIDs")).isNull();
+        assertThat(jsonModel.<String>get("$.filter.serialNumber")).isEqualTo("*001");
+        assertThat(jsonModel.<List<Integer>>get("$.scheduleIds")).containsOnly(1);
+    }
+
+    @Test
+    public void testComSchedulesBulkWithoutAction() {
+        BulkRequestInfo request = new BulkRequestInfo();
+        request.action = null;
+        request.filter = new ComScheduleOnDevicesFilterSpecification();
+        request.filter.serialNumber = "*001";
+        request.scheduleIds = Arrays.asList(1L);
+        Entity<BulkRequestInfo> json = Entity.json(request);
+        Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
+        when(messageService.getDestinationSpec(SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION)).thenReturn(destinationSpec);
+        mockAppServers(SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION);
+
+        Response response = target("/devices/schedules").request().put(json);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
     @Test
@@ -1068,7 +1097,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device gateway = mockDeviceForTopologyTest("gateway");
         when(deviceService.findAndLockDeviceByIdAndVersion(1L, 13L)).thenReturn(Optional.of(device));
         when(deviceService.findByUniqueMrid("gateway")).thenReturn(Optional.of(gateway));
-        when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
+        when(batchService.findBatch(device)).thenReturn(Optional.empty());
         Device oldGateway = mockDeviceForTopologyTest("oldGateway");
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldGateway));
 
@@ -1109,7 +1138,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
         when(deviceService.findByUniqueMrid("device")).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceByIdAndVersion(1L, 13L)).thenReturn(Optional.of(device));
-        when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
+        when(batchService.findBatch(device)).thenReturn(Optional.empty());
         Device oldMaster = mock(Device.class);
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldMaster));
 
@@ -1130,7 +1159,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findAndLockDeviceByIdAndVersion(1L, 13L)).thenReturn(Optional.of(device));
         when(deviceService.findByUniqueMrid("device")).thenReturn(Optional.of(device));
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
-        when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
+        when(batchService.findBatch(device)).thenReturn(Optional.empty());
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
 
         DeviceInfo info = new DeviceInfo();
@@ -1151,7 +1180,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findAndLockDeviceByIdAndVersion(1L, 13L)).thenReturn(Optional.of(device));
         when(deviceService.findByUniqueMrid("device")).thenReturn(Optional.of(device));
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
-        when(deviceImportService.findBatch(Matchers.anyLong())).thenReturn(Optional.empty());
+        when(batchService.findBatch(device)).thenReturn(Optional.empty());
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
 
         DeviceInfo info = new DeviceInfo();
@@ -1182,7 +1211,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(pluggableClass.getId()).thenReturn(10L);
         DeviceEstimation deviceEstimation = mock(DeviceEstimation.class);
         when(device.forEstimation()).thenReturn(deviceEstimation);
-        mockForCountDataValidationIssues();
+        mockGetOpenDataValidationIssue();
         State state = mockDeviceState("In stock");
         when(device.getState()).thenReturn(state);
         Instant now = Instant.now();
@@ -1265,7 +1294,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         return state;
     }
 
-    private void mockForCountDataValidationIssues() {
+    private void mockGetOpenDataValidationIssue() {
         AmrSystem amrSystem = mock(AmrSystem.class);
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
         Meter meter = mock(Meter.class);
@@ -1274,7 +1303,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(issueService.findStatus(Matchers.anyString())).thenReturn(Optional.of(status));
         Finder finder = mock(Finder.class);
         when(issueDataValidationService.findAllDataValidationIssues(Matchers.any())).thenReturn(finder);
-        when(finder.find()).thenReturn(Collections.emptyList());
+        when(finder.stream()).thenAnswer(invocationOnMock -> Stream.empty());
     }
 
     @Test
@@ -1287,7 +1316,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
-        assertThat(model.<Number>get("$.total")).isEqualTo(16);
+        assertThat(model.<Number>get("$.total")).isEqualTo(17);
         List<String> privileges = model.<List<String>>get("$.privileges[*].name");
         assertThat(privileges).contains(
                 DevicePrivileges.DEVICES_WIDGET_COMMUNICATION_TOPOLOGY,
@@ -1304,6 +1333,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_TASKS,
                 DevicePrivileges.DEVICES_ACTIONS_CONNECTION_METHODS,
                 DevicePrivileges.DEVICES_ACTIONS_DATA_EDIT,
+                DevicePrivileges.DEVICES_ACTIONS_CHANGE_DEVICE_CONFIGURATION,
                 DevicePrivileges.DEVICES_ACTIONS_FIRMWARE_MANAGEMENT,
                 DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
         );
@@ -1334,7 +1364,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         String response = target("/devices/1/privileges").request().get(String.class);
         JsonModel model = JsonModel.create(response);
-        assertThat(model.<Number>get("$.total")).isEqualTo(20);
+        assertThat(model.<Number>get("$.total")).isEqualTo(21);
         List<String> privileges = model.<List<String>>get("$.privileges[*].name");
         assertThat(privileges).contains(
                 DevicePrivileges.DEVICES_WIDGET_ISSUES,
@@ -1355,8 +1385,20 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 DevicePrivileges.DEVICES_ACTIONS_COMMUNICATION_TASKS,
                 DevicePrivileges.DEVICES_ACTIONS_CONNECTION_METHODS,
                 DevicePrivileges.DEVICES_ACTIONS_DATA_EDIT,
+                DevicePrivileges.DEVICES_ACTIONS_CHANGE_DEVICE_CONFIGURATION,
                 DevicePrivileges.DEVICES_ACTIONS_FIRMWARE_MANAGEMENT,
                 DevicePrivileges.DEVICES_PAGES_COMMUNICATION_PLANNING
         );
+    }
+
+    @Test
+    public void testFindAllSerialNumbers() throws Exception {
+        Finder<Device> finder = mockFinder(Collections.emptyList());
+        when(deviceService.findAllDevices(any())).thenReturn(finder);
+        Response response = target("/devices").queryParam("mRID", "COP*").queryParam("serialNumber", "*").request().get();
+        ArgumentCaptor<Condition> conditionArgumentCaptor = ArgumentCaptor.forClass(Condition.class);
+        verify(deviceService).findAllDevices(conditionArgumentCaptor.capture());
+        System.out.println(conditionArgumentCaptor.getValue());
+
     }
 }

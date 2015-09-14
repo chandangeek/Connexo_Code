@@ -1,10 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -12,10 +12,13 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
+
+import com.elster.jupiter.nls.Thesaurus;
+
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
-import javax.inject.Inject;
 
 import static java.util.stream.Collectors.toList;
 
@@ -43,9 +46,9 @@ public class DeviceMessageInfoFactory {
         info.messageSpecification.name = deviceMessage.getSpecification().getName();
 
         info.category = deviceMessage.getSpecification().getCategory().getName();
-        info.status = new StatusInfo();
+        info.status = new DeviceMessageInfo.StatusInfo();
         info.status.value = MESSAGE_STATUS_ADAPTER.marshal(deviceMessage.getStatus());
-        info.status.displayValue = thesaurus.getString(MESSAGE_STATUS_ADAPTER.marshal(deviceMessage.getStatus()), MESSAGE_STATUS_ADAPTER.marshal(deviceMessage.getStatus()));
+        info.status.displayValue = DeviceMessageStatusTranslationKeys.translationFor(deviceMessage.getStatus(), thesaurus);
         info.creationDate = deviceMessage.getCreationDate();
         info.releaseDate = deviceMessage.getReleaseDate();
         info.sentDate = deviceMessage.getSentDate().orElse(null);

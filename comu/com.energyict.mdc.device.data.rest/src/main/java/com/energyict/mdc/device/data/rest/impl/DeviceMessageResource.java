@@ -1,10 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.data.Device;
@@ -15,12 +12,14 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -34,6 +33,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.nullsLast;
@@ -44,6 +49,7 @@ import static java.util.stream.Collectors.toList;
  */
 @DeviceStatesRestricted(value = {DefaultState.DECOMMISSIONED}, methods = {HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE})
 public class DeviceMessageResource {
+    private static final String PRIVILEGE_DEVICE_HAS_COMMANDS_WITH_PRIVILEGES = "privilege.command.has.privileges";
     private final ResourceHelper resourceHelper;
     private final DeviceMessageInfoFactory deviceMessageInfoFactory;
     private final MdcPropertyUtils mdcPropertyUtils;
@@ -68,7 +74,7 @@ public class DeviceMessageResource {
             com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_4})
-    public DeviceMessageInfos getDeviceCommands(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
+    public Response getDeviceCommands(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<DeviceMessageInfo> infos = device.getMessages().stream().
                 // we do the explicit filtering because some categories should be hidden for the user
@@ -76,17 +82,25 @@ public class DeviceMessageResource {
                 sorted(comparing(DeviceMessage::getReleaseDate, nullsLast(Comparator.<Instant>naturalOrder().reversed()))).
                 map(deviceMessageInfoFactory::asInfo).
                 collect(toList());
-
         List<DeviceMessageInfo> infosInPage = ListPager.of(infos).from(queryParameters).find();
+        return Response.ok(PagedInfoList.fromPagedList("deviceMessages", infosInPage, queryParameters)).build();
+    }
 
-        PagedInfoList deviceMessages = PagedInfoList.fromPagedList("deviceMessages", infosInPage, queryParameters);
-
-        DeviceMessageInfos info = new DeviceMessageInfos();
-        info.deviceMessages = deviceMessages.getInfos();
-        info.hasCommandsWithPrivileges = hasCommandsWithPrivileges(device) ;
-        info.total = deviceMessages.getTotal();
-
-        return info;
+    @GET
+    @Path("/privileges")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_1,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_2,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_3,
+            com.energyict.mdc.device.config.security.Privileges.EXECUTE_DEVICE_MESSAGE_4})
+    public Response getDeviceCommandsPrivileges(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        List<IdWithNameInfo> privileges = new ArrayList<>();
+        if (hasCommandsWithPrivileges(device)){
+            privileges.add(new IdWithNameInfo(null, PRIVILEGE_DEVICE_HAS_COMMANDS_WITH_PRIVILEGES));
+        }
+        return Response.ok(PagedInfoList.fromCompleteList("privileges", privileges, queryParameters)).build();
     }
 
     @POST
@@ -130,7 +144,7 @@ public class DeviceMessageResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         DeviceMessage<?> deviceMessage = findDeviceMessageOrThrowException(device, deviceMessageId);
         deviceMessage.setReleaseDate(deviceMessageInfo.releaseDate);
-        if (deviceMessageInfo.status!=null && MessageStatusAdapter.REVOKED.equals(deviceMessageInfo.status.value)) {
+        if (deviceMessageInfo.status != null && DeviceMessageStatus.REVOKED.name().equals(deviceMessageInfo.status.value)) {
             deviceMessage.revoke();
         }
         deviceMessage.save();

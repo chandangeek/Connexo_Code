@@ -59,6 +59,13 @@ public class ChannelResourceHelper {
         return Response.ok(channelInfo).build();
     }
 
+    public Response getChannelValidationInfo(Supplier<Channel> channelSupplier) {
+        Channel channel = channelSupplier.get();
+        ChannelInfo channelInfo = ChannelInfo.from(channel);
+        addValidationInfo(channel, channelInfo);
+        return Response.ok(channelInfo.validationInfo).build();
+    }
+
     public void addValidationInfo(Channel channel, ChannelInfo channelInfo) {
         List<DataValidationStatus> states =
                 channel.getDevice().forValidation().getValidationStatus(channel, Collections.emptyList(), lastMonth());

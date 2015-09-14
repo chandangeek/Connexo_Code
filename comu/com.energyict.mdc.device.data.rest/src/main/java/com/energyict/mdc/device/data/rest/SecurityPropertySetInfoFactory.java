@@ -1,21 +1,23 @@
 package com.energyict.mdc.device.data.rest;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
+import com.energyict.mdc.device.data.rest.impl.DefaultTranslationKey;
 import com.energyict.mdc.device.data.rest.impl.SecurityPropertySetInfo;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import java.util.ArrayList;
-import java.util.List;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.PrivilegePresence.WITH_PRIVILEGES;
 import static com.energyict.mdc.pluggable.rest.MdcPropertyUtils.ValueVisibility.HIDE_VALUES;
@@ -31,11 +33,15 @@ public class SecurityPropertySetInfoFactory {
     private final Thesaurus thesaurus;
 
     enum CompletionState {
-        COMPLETE(MessageSeeds.COMPLETE), INCOMPLETE(MessageSeeds.INCOMPLETE);
-        private final MessageSeeds seed;
+        COMPLETE(DefaultTranslationKey.COMPLETE), INCOMPLETE(DefaultTranslationKey.INCOMPLETE);
+        private final DefaultTranslationKey translationKey;
 
-        CompletionState(MessageSeeds seed) {
-            this.seed = seed;
+        CompletionState(DefaultTranslationKey translationKey) {
+            this.translationKey = translationKey;
+        }
+
+        public String getTranslation(Thesaurus thesaurus) {
+            return thesaurus.getFormat(this.translationKey).format();
         }
     }
 
@@ -46,7 +52,10 @@ public class SecurityPropertySetInfoFactory {
     }
 
     public List<SecurityPropertySetInfo> asInfo(Device device, UriInfo uriInfo) {
-        return device.getDeviceConfiguration().getSecurityPropertySets().stream().map(s -> asInfo(device, uriInfo, s))
+        return device.getDeviceConfiguration()
+                .getSecurityPropertySets()
+                .stream()
+                .map(s -> asInfo(device, uriInfo, s))
                 .sorted((p1, p2) -> p1.name.compareToIgnoreCase(p2.name))
                 .collect(toList());
     }
@@ -61,20 +70,17 @@ public class SecurityPropertySetInfoFactory {
         securityPropertySetInfo.userHasViewPrivilege = securityPropertySet.currentUserIsAllowedToViewDeviceProperties();
         securityPropertySetInfo.userHasEditPrivilege = securityPropertySet.currentUserIsAllowedToEditDeviceProperties();
 
-        TypedProperties typedProperties = getTypedPropertiesForSecurityPropertySet(device, securityPropertySet);
+        List<SecurityProperty> securityProperties = device.getSecurityProperties(securityPropertySet);
+        TypedProperties typedProperties = this.toTypedProperties(securityProperties);
 
         securityPropertySetInfo.properties = new ArrayList<>();
         MdcPropertyUtils.ValueVisibility valueVisibility = securityPropertySetInfo.userHasViewPrivilege && securityPropertySetInfo.userHasEditPrivilege? SHOW_VALUES: HIDE_VALUES;
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, securityPropertySet.getPropertySpecs(), typedProperties, securityPropertySetInfo.properties, valueVisibility, WITH_PRIVILEGES);
 
         securityPropertySetInfo.status = new IdWithNameInfo();
-        if (!getStatus(device, securityPropertySet, typedProperties)) {
-            securityPropertySetInfo.status.id = CompletionState.INCOMPLETE;
-            securityPropertySetInfo.status.name = thesaurus.getString(MessageSeeds.INCOMPLETE.getKey(), MessageSeeds.INCOMPLETE.getDefaultFormat());
-        } else {
-            securityPropertySetInfo.status.id = CompletionState.COMPLETE;
-            securityPropertySetInfo.status.name = thesaurus.getString(MessageSeeds.COMPLETE.getKey(), MessageSeeds.COMPLETE.getDefaultFormat());
-        }
+        CompletionState status = getStatus(device, securityPropertySet);
+        securityPropertySetInfo.status.id = status;
+        securityPropertySetInfo.status.name = status.getTranslation(this.thesaurus);
         if (!securityPropertySetInfo.userHasViewPrivilege) {
             securityPropertySetInfo.properties.stream().forEach(p -> p.propertyValueInfo = new PropertyValueInfo<>(p.propertyValueInfo.propertyHasValue));
             if (!securityPropertySetInfo.userHasEditPrivilege) {
@@ -84,30 +90,21 @@ public class SecurityPropertySetInfoFactory {
         return securityPropertySetInfo;
     }
 
-    private boolean getStatus(Device device, SecurityPropertySet securityPropertySet,TypedProperties typedProperties) {
-        if (securityPropertySet.getPropertySpecs().isEmpty()) {
-            return true;
-        }
-        if (device.getSecurityProperties(securityPropertySet).isEmpty()) {
-            return typedProperties.size() == 0;
-        } else {
-            for (SecurityProperty securityProperty : device.getSecurityProperties(securityPropertySet)) {
-                if (!securityProperty.isComplete()) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    private TypedProperties getTypedPropertiesForSecurityPropertySet(Device device, SecurityPropertySet securityPropertySet) {
+    private TypedProperties toTypedProperties(List<SecurityProperty> securityProperties) {
         TypedProperties typedProperties = TypedProperties.empty();
-        for (SecurityProperty securityProperty : device.getSecurityProperties(securityPropertySet)) {
+        for (SecurityProperty securityProperty : securityProperties) {
             typedProperties.setProperty(securityProperty.getName(), securityProperty.getValue());
         }
         return typedProperties;
     }
 
+    private CompletionState getStatus(Device device, SecurityPropertySet securityPropertySet) {
+        if (device.securityPropertiesAreValid(securityPropertySet)) {
+            return CompletionState.COMPLETE;
+        }
+        else {
+            return CompletionState.INCOMPLETE;
+        }
+    }
+
 }
-
-

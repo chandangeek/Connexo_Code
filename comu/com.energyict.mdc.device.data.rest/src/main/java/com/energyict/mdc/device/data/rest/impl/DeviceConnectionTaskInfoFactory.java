@@ -1,14 +1,15 @@
-package com.energyict.mdc.device.data.rest;
+package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
+import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo.ComTaskCountInfo;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo.ConnectionMethodInfo;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo.ConnectionStrategyInfo;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo.LatestStatusInfo;
-import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
+import com.energyict.mdc.device.data.rest.SuccessIndicatorInfo;
+import com.energyict.mdc.device.data.rest.TaskStatusInfo;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -23,8 +24,6 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class DeviceConnectionTaskInfoFactory {
-    private static final ConnectionTaskSuccessIndicatorAdapter SUCCESS_INDICATOR_ADAPTER = new ConnectionTaskSuccessIndicatorAdapter();
-    private static final ConnectionStrategyAdapter CONNECTION_STRATEGY_ADAPTER = new ConnectionStrategyAdapter();
 
     private final Thesaurus thesaurus;
 
@@ -41,11 +40,12 @@ public class DeviceConnectionTaskInfoFactory {
         T info = supplier.get();
         info.id=connectionTask.getId();
         info.latestStatus=new LatestStatusInfo();
-        info.latestStatus.id =connectionTask.getSuccessIndicator();
-        info.latestStatus.displayValue=thesaurus.getString(SUCCESS_INDICATOR_ADAPTER.marshal(connectionTask.getSuccessIndicator()), SUCCESS_INDICATOR_ADAPTER.marshal(connectionTask.getSuccessIndicator()));
+        info.latestStatus.id = connectionTask.getSuccessIndicator().name();
+        info.latestStatus.displayValue = ConnectionTaskSuccessIndicatorTranslationKeys.translationFor(connectionTask.getSuccessIndicator(), thesaurus);
         if (lastComSessionOptional.isPresent()) {
             ComSession comSession = lastComSessionOptional.get();
-            info.latestResult = new SuccessIndicatorInfo(comSession.getSuccessIndicator(), thesaurus);
+            ComSession.SuccessIndicator successIndicator = comSession.getSuccessIndicator();
+            info.latestResult = new SuccessIndicatorInfo(successIndicator.name(), ComSessionSuccessIndicatorTranslationKeys.translationFor(successIndicator, thesaurus));
             if (connectionTask instanceof OutboundConnectionTask<?>) {
                 info.latestResult.retries=((OutboundConnectionTask<?>)connectionTask).getCurrentTryCount();
             }
@@ -71,17 +71,18 @@ public class DeviceConnectionTaskInfoFactory {
         if (connectionTask instanceof ScheduledConnectionTask) {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
             if (scheduledConnectionTask.getTaskStatus()!=null) {
-                info.currentState = new TaskStatusInfo(scheduledConnectionTask.getTaskStatus(), thesaurus);
+                TaskStatusTranslationKeys taskStatusTranslationKey = TaskStatusTranslationKeys.from(scheduledConnectionTask.getTaskStatus());
+                info.currentState = new TaskStatusInfo(taskStatusTranslationKey.getKey(), thesaurus.getFormat(taskStatusTranslationKey).format());
             }
             info.connectionStrategy=new ConnectionStrategyInfo();
-            info.connectionStrategy.id=scheduledConnectionTask.getConnectionStrategy();
-            info.connectionStrategy.displayValue=thesaurus.getString(CONNECTION_STRATEGY_ADAPTER.marshal(scheduledConnectionTask.getConnectionStrategy()), scheduledConnectionTask.getConnectionStrategy().name());
+            info.connectionStrategy.id = scheduledConnectionTask.getConnectionStrategy().name();
+            info.connectionStrategy.displayValue = ConnectionStrategyTranslationKeys.translationFor(scheduledConnectionTask.getConnectionStrategy(), thesaurus);
             ComWindow communicationWindow = scheduledConnectionTask.getCommunicationWindow();
             if (communicationWindow!=null &&
                     (communicationWindow.getStart().getMillis()!=0 || communicationWindow.getEnd().getMillis()!=0)) {
                 info.window = communicationWindow.getStart() + " - " + communicationWindow.getEnd();
             } else {
-                info.window = thesaurus.getString(MessageSeeds.NO_RESTRICTIONS.getKey(), MessageSeeds.NO_RESTRICTIONS.getDefaultFormat());
+                info.window = thesaurus.getFormat(DefaultTranslationKey.NO_RESTRICTIONS).format();
             }
             info.nextExecution=scheduledConnectionTask.getNextExecutionTimestamp();
         }

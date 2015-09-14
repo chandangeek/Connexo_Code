@@ -1,22 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cbo.*;
-import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -33,18 +21,55 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.SystemComTask;
-import org.junit.Before;
-import org.mockito.Mock;
+
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.RationalNumber;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Currency;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.junit.*;
+import org.mockito.Mock;
+
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -64,7 +89,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     TopologyService topologyService;
     @Mock
-    DeviceImportService deviceImportService;
+    BatchService batchService;
     @Mock
     DeviceConfigurationService deviceConfigurationService;
     @Mock
@@ -111,6 +136,10 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     FirmwareService firmwareService;
     @Mock
     DeviceLifeCycleService deviceLifeCycleService;
+    @Mock
+    AppService appService;
+    @Mock
+    MessageService messageService;
 
     @Before
     public void setup() {
@@ -119,11 +148,6 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(taskService.findComTask(firmwareComTaskId)).thenReturn(Optional.of(firmwareComTask));
         when(firmwareComTask.isSystemComTask()).thenReturn(true);
         when(firmwareComTask.isUserComTask()).thenReturn(false);
-    }
-
-    @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
     }
 
     protected boolean disableDeviceConstraintsBasedOnDeviceState(){
@@ -152,7 +176,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setConnectionTaskService(connectionTaskService);
         application.setDeviceService(deviceService);
         application.setTopologyService(topologyService);
-        application.setDeviceImportService(deviceImportService);
+        application.setBatchService(batchService);
         application.setEngineConfigurationService(engineConfigurationService);
         application.setIssueService(issueService);
         application.setIssueDataValidationService(issueDataValidationService);
@@ -170,6 +194,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setYellowfinGroupsService(yellowfinGroupsService);
         application.setFirmwareService(firmwareService);
         application.setDeviceLifeCycleService(deviceLifeCycleService);
+        application.setAppService(appService);
+        application.setMessageService(messageService);
         return application;
     }
 
@@ -193,6 +219,39 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
         return readingType;
+    }
+
+    AppServer mockAppServers(String ...name) {
+        AppServer appServer = mock(AppServer.class);
+        List<SubscriberExecutionSpec> execSpecs = new ArrayList<>();
+        for (String specName: name) {
+            SubscriberExecutionSpec subscriberExecutionSpec = mock(SubscriberExecutionSpec.class);
+            SubscriberSpec spec = mock(SubscriberSpec.class);
+            when(subscriberExecutionSpec.getSubscriberSpec()).thenReturn(spec);
+            DestinationSpec destinationSpec = mock(DestinationSpec.class);
+            when(spec.getDestination()).thenReturn(destinationSpec);
+            when(destinationSpec.getName()).thenReturn(specName);
+            when(destinationSpec.isActive()).thenReturn(true);
+            List<SubscriberSpec> list = mock(List.class);
+            when(list.isEmpty()).thenReturn(false);
+            when(destinationSpec.getSubscribers()).thenReturn(list);
+            execSpecs.add(subscriberExecutionSpec);
+        }
+        doReturn(execSpecs).when(appServer).getSubscriberExecutionSpecs();
+        when(appServer.isActive()).thenReturn(true);
+        when(appService.findAppServers()).thenReturn(Arrays.asList(appServer));
+        return appServer;
+    }
+
+    <T> Finder<T> mockFinder(List<T> list) {
+        Finder<T> finder = mock(Finder.class);
+
+        when(finder.paged(anyInt(), anyInt())).thenReturn(finder);
+        when(finder.sorted(anyString(), any(Boolean.class))).thenReturn(finder);
+        when(finder.from(any(QueryParameters.class))).thenReturn(finder);
+        when(finder.find()).thenReturn(list);
+        when(finder.stream()).thenReturn(list.stream());
+        return finder;
     }
 
 }

@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -130,7 +131,8 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
                 mockDevice(1, "001", "Elster AS1440", "Default"),
                 mockDevice(2, "002", "Iskra 001", "Default"));
         when(finder.find()).thenReturn(devices);
-        
+        when(finder.stream()).thenReturn(Stream.of(devices.get(0), devices.get(1)));
+
         String response = target("/devicegroups/111/devices").request().get(String.class);
         
         JsonModel jsonModel = JsonModel.model(response);

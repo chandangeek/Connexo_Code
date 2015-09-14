@@ -1,26 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.ChronoField;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.junit.Test;
-import org.mockito.internal.verification.VerificationModeFactory;
-
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -41,7 +20,28 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.ConnectionType.Direction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
 import com.jayway.jsonpath.JsonModel;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoField;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.*;
+import org.mockito.internal.verification.VerificationModeFactory;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -64,7 +64,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<Integer>get("$.connections[0].id")).isEqualTo(13);
         assertThat(jsonModel.<String>get("$.connections[0].currentState.id")).isEqualTo("Pending");
         assertThat(jsonModel.<String>get("$.connections[0].currentState.displayValue")).isEqualTo("Pending");
-        assertThat(jsonModel.<String>get("$.connections[0].latestStatus.id")).isEqualTo("Failure");
+        assertThat(jsonModel.<String>get("$.connections[0].latestStatus.id")).isEqualTo("FAILURE");
         assertThat(jsonModel.<String>get("$.connections[0].latestStatus.displayValue")).isEqualTo("Failure");
         assertThat(jsonModel.<String>get("$.connections[0].latestResult.id")).isEqualTo("Success");
         assertThat(jsonModel.<String>get("$.connections[0].latestResult.displayValue")).isEqualTo("Success");
@@ -89,8 +89,8 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<Boolean>get("$.connections[0].connectionMethod.isDefault")).isTrue();
         assertThat(jsonModel.<String>get("$.connections[0].connectionMethod.status")).isEqualTo("active");
         assertThat(jsonModel.<String>get("$.connections[0].window")).isEqualTo("00:01 - 00:02");
-        assertThat(jsonModel.<String>get("$.connections[0].connectionStrategy.id")).isEqualTo("asSoonAsPossible");
-        assertThat(jsonModel.<String>get("$.connections[0].connectionStrategy.displayValue")).isEqualTo("As soon as possible");
+        assertThat(jsonModel.<String>get("$.connections[0].connectionStrategy.id")).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name());
+        assertThat(jsonModel.<String>get("$.connections[0].connectionStrategy.displayValue")).isEqualTo(ConnectionStrategyTranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat());
         assertThat(jsonModel.<Long>get("$.connections[0].nextExecution")).isEqualTo(nextExecution.toEpochMilli());
         assertThat(jsonModel.<Integer>get("$.connections[0].comSessionId")).isEqualTo(1);
     }

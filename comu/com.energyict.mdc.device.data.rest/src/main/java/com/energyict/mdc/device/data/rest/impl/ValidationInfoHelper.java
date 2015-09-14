@@ -28,7 +28,8 @@ public class ValidationInfoHelper {
     }
 
     public DetailedValidationInfo getRegisterValidationInfo(Register<?> register) {
-        boolean validationActive = validationActive(register, register.getDevice().forValidation());
+        boolean validationActive = validationActive(register.getDevice().forValidation());
+
         Optional<Instant> lastChecked = register.getDevice().forValidation().getLastChecked(register);
         return validationInfoFactory.createDetailedValidationInfo(validationActive, statuses(register), lastChecked);
     }
@@ -38,8 +39,8 @@ public class ValidationInfoHelper {
         return readings.stream().map(Reading::getValidationStatus).flatMap(Functions.asStream()).collect(Collectors.toList());
     }
 
-    private boolean validationActive(Register<?> register, DeviceValidation deviceValidation) {
-        return deviceValidation.isValidationActive(register, clock.instant());
+    private boolean validationActive(DeviceValidation deviceValidation) {
+        return deviceValidation.isValidationActive();
     }
 
     private List<? extends Reading> getReadingsForOneYear(Register<?> register) {

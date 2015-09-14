@@ -3,35 +3,29 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.imp.DeviceImportService;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
+import com.energyict.mdc.device.data.rest.DevicePrivileges;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -52,18 +46,28 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.Checks.is;
 
 @Path("/devices")
 public class DeviceResource {
     private static final int RECENTLY_ADDED_COUNT = 5;
 
-    private final DeviceImportService deviceImportService;
     private final DeviceService deviceService;
     private final TopologyService topologyService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
-    private final IssueService issueService;
     private final Provider<ProtocolDialectResource> protocolDialectResourceProvider;
     private final Provider<LoadProfileResource> loadProfileResourceProvider;
     private final Provider<LogBookResource> logBookResourceProvider;
@@ -84,18 +88,17 @@ public class DeviceResource {
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoryInfoFactory;
     private final Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider;
     private final Provider<DeviceHistoryResource> deviceHistoryResourceProvider;
+    private final Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider;
     private final DeviceInfoFactory deviceInfoFactory;
-    private final Thesaurus thesaurus;
+    private final DeviceAttributesInfoFactory deviceAttributesInfoFactory;
 
     @Inject
     public DeviceResource(
             ResourceHelper resourceHelper,
             ExceptionFactory exceptionFactory,
-            DeviceImportService deviceImportService,
             DeviceService deviceService,
             TopologyService topologyService,
             DeviceConfigurationService deviceConfigurationService,
-            IssueService issueService,
             Provider<ProtocolDialectResource> protocolDialectResourceProvider,
             Provider<LoadProfileResource> loadProfileResourceProvider,
             Provider<LogBookResource> logBookResourceProvider,
@@ -116,15 +119,14 @@ public class DeviceResource {
             Provider<ChannelResource> channelsOnDeviceResourceProvider,
             Provider<DeviceProtocolPropertyResource> devicePropertyResourceProvider,
             Provider<DeviceHistoryResource> deviceHistoryResourceProvider,
+            Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider,
             DeviceInfoFactory deviceInfoFactory,
-            Thesaurus thesaurus) {
+            DeviceAttributesInfoFactory deviceAttributesInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
-        this.deviceImportService = deviceImportService;
         this.deviceService = deviceService;
         this.topologyService = topologyService;
         this.deviceConfigurationService = deviceConfigurationService;
-        this.issueService = issueService;
         this.protocolDialectResourceProvider = protocolDialectResourceProvider;
         this.loadProfileResourceProvider = loadProfileResourceProvider;
         this.logBookResourceProvider = logBookResourceProvider;
@@ -145,10 +147,10 @@ public class DeviceResource {
         this.channelsOnDeviceResourceProvider = channelsOnDeviceResourceProvider;
         this.devicePropertyResourceProvider = devicePropertyResourceProvider;
         this.deviceHistoryResourceProvider = deviceHistoryResourceProvider;
+        this.deviceLifeCycleActionResourceProvider = deviceLifeCycleActionResourceProvider;
         this.deviceInfoFactory = deviceInfoFactory;
-        this.thesaurus = thesaurus;
+        this.deviceAttributesInfoFactory = deviceAttributesInfoFactory;
     }
-
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -176,15 +178,17 @@ public class DeviceResource {
         if (info.deviceConfigurationId != null) {
             deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId);
         }
-
-        Device newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID);
+        Device newDevice;
+        if (!is(info.batch).emptyOrOnlyWhiteSpace()) {
+            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID, info.batch);
+        } else {
+            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID);
+        }
         newDevice.setSerialNumber(info.serialNumber);
         newDevice.setYearOfCertification(Integer.valueOf(info.yearOfCertification));
         newDevice.save();
 
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
-
-        this.deviceImportService.addDeviceToBatch(newDevice, info.batch);
         return deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice));
     }
 
@@ -196,9 +200,6 @@ public class DeviceResource {
     public DeviceInfo updateDevice(@PathParam("id") long id, DeviceInfo info, @Context SecurityContext securityContext) {
         Device device = deviceService.findAndLockDeviceByIdAndVersion(id, info.version).orElseThrow(() -> new WebApplicationException(Status.CONFLICT));
         updateGateway(info, device);
-        if (info.estimationStatus != null) {
-            updateEstimationStatus(info.estimationStatus, device);
-        }
         return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
     }
 
@@ -209,14 +210,6 @@ public class DeviceResource {
             removeGateway(device);
         }
         return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
-    }
-
-    private void updateEstimationStatus(DeviceEstimationStatusInfo info, Device device) {
-        if (info.active) {
-            device.forEstimation().activateEstimation();
-        } else {
-            device.forEstimation().deactivateEstimation();
-        }
     }
 
     private void updateGateway(Device device, String gatewayMRID) {
@@ -246,16 +239,6 @@ public class DeviceResource {
         return slaves;
     }
 
-    @DELETE
-    @Path("/{mRID}")
-    @RolesAllowed(Privileges.REMOVE_DEVICE)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response deleteDevice(@PathParam("mRID") String id) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        device.delete();
-        return Response.ok().build();
-    }
-
     @GET
     @Path("/{mRID}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -265,6 +248,40 @@ public class DeviceResource {
         return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
     }
 
+    @GET
+    @Path("/{mRID}/attributes")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_DEVICE})
+    public Response getDeviceAttributes(@PathParam("mRID") String id) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+        return Response.ok(deviceAttributesInfoFactory.from(device)).build();
+    }
+
+    @PUT
+    @Path("/{mRID}/attributes")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.ADMINISTRATE_DEVICE_ATTRIBUTE})
+    public Response editDeviceAttributes(@PathParam("mRID") String id, DeviceAttributesInfo info) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+        resourceHelper.findDeviceAndLock(device.getId(), info.deviceVersion);
+        deviceAttributesInfoFactory.validateOn(device, info);
+        deviceAttributesInfoFactory.writeTo(device, info);
+        return Response.ok(deviceAttributesInfoFactory.from(device)).build();
+    }
+
+    @GET
+    @Path("/{mRID}/privileges")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.VIEW_DEVICE})
+    public Response getDeviceConstraintsBasedOnDeviceState(@PathParam("mRID") String id, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
+        User user = (User) securityContext.getUserPrincipal();
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+        List<IdWithNameInfo> privileges = DevicePrivileges.getPrivilegesFor(device, user)
+                .stream()
+                .map(privilege -> new IdWithNameInfo(null, privilege))
+                .collect(Collectors.toList());
+        return Response.ok(PagedInfoList.fromCompleteList("privileges", privileges, queryParameters)).build();
+    }
     /**
      * List all device message categories with devices messages:
      * - that are supported by the device protocol defined on the device's device type
@@ -392,6 +409,11 @@ public class DeviceResource {
     @Path("/{mRID}/history")
     public DeviceHistoryResource getDeviceHistoryResource() {
         return deviceHistoryResourceProvider.get();
+    }
+
+    @Path("/{mRID}/transitions")
+    public DeviceLifeCycleActionResource getDeviceLifeCycleActionsResource() {
+        return deviceLifeCycleActionResourceProvider.get();
     }
 
     @GET
