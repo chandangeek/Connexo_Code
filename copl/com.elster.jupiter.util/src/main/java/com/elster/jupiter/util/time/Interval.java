@@ -120,7 +120,7 @@ public final class Interval {
         return (start == -ETERNITY) ?
                 (end == ETERNITY ? Range.all() : Range.lessThan(Instant.ofEpochMilli(end))) :
                 (end == ETERNITY ?
-                        Range.atLeast(Instant.ofEpochMilli(start)) :
+                        Range.greaterThan(Instant.ofEpochMilli(start)) :
                         Range.openClosed(Instant.ofEpochMilli(start), Instant.ofEpochMilli(this.end)));
     }
 
