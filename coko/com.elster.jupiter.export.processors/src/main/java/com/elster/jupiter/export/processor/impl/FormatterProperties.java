@@ -10,8 +10,8 @@ public enum FormatterProperties implements TranslationKey {
     UPDATE_FILE_EXTENSION(FORMATTER.getKey() + '.' + UPDATEDDATA.getKey() + ".updateFileExtension", "File extension"),
     FORMATTER_PROPERTIES("formatterProperties", "Formatter properties"),
     SEPARATOR(FORMATTER_PROPERTIES.getKey() + ".separator", "Separator"),
-    TAG(FORMATTER_PROPERTIES.getKey() + '.' + "tag", "Tag"),
-    UPDATE_TAG(FORMATTER_PROPERTIES.getKey() + '.' + "update.tag", "Tag");
+    TAG(FORMATTER_PROPERTIES.getKey() + '.' + "tag", "Identifier"),
+    UPDATE_TAG(FORMATTER_PROPERTIES.getKey() + '.' + "update.tag", "Update identifier");
 
 
     private String name;
