@@ -18,6 +18,8 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import org.junit.Test;
+
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -32,7 +34,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
@@ -168,6 +169,48 @@ public class ConnectionOverviewResourceTest extends DashboardApplicationJerseyTe
         when(endDeviceGroup.getName()).thenReturn("South region");
 
         ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview").queryParam("filter", ExtjsFilter.filter("deviceGroup", (long) deviceGroupId)).request().get(ConnectionOverviewInfo.class);
+
+        assertThat(connectionOverviewInfo.kpi).isNotNull();
+        assertThat(connectionOverviewInfo.kpi.time).hasSize(96); // all day
+        assertThat(connectionOverviewInfo.kpi.series.get(0).name).isEqualTo("Success");
+        assertThat(connectionOverviewInfo.kpi.series.get(1).name).isEqualTo("Ongoing");
+        assertThat(connectionOverviewInfo.kpi.series.get(2).name).isEqualTo("Failed");
+        assertThat(connectionOverviewInfo.kpi.series.get(3).name).isEqualTo("Target");
+        assertThat(connectionOverviewInfo.deviceGroup.id).isEqualTo(123);
+        assertThat(connectionOverviewInfo.deviceGroup.name).isEqualTo("South region");
+        assertThat(connectionOverviewInfo.deviceGroup.alias).isEqualTo("deviceGroups");
+
+        // Assert the first KPI (alignment between different lists on index)
+        assertThat(connectionOverviewInfo.kpi.time.get(56)).isEqualTo(Date.from(LocalDateTime.of(2014,10,1,14, 0, 0).atZone(ZoneId.systemDefault()).toInstant()).getTime());
+        assertThat(connectionOverviewInfo.kpi.series.get(0).name).isEqualTo("Success");
+        assertThat(connectionOverviewInfo.kpi.series.get(0).data.get(56)).isEqualTo(BigDecimal.valueOf(10L));
+        assertThat(connectionOverviewInfo.kpi.series.get(1).name).isEqualTo("Ongoing");
+        assertThat(connectionOverviewInfo.kpi.series.get(1).data.get(56)).isEqualTo(BigDecimal.valueOf(80L));
+        assertThat(connectionOverviewInfo.kpi.series.get(2).name).isEqualTo("Failed");
+        assertThat(connectionOverviewInfo.kpi.series.get(2).data.get(56)).isEqualTo(BigDecimal.valueOf(10L));
+        assertThat(connectionOverviewInfo.kpi.series.get(3).name).isEqualTo("Target");
+        assertThat(connectionOverviewInfo.kpi.series.get(3).data.get(56)).isEqualTo(BigDecimal.valueOf(100L));
+
+        assertThat(connectionOverviewInfo.connectionSummary.target).isEqualTo(100L);
+    }
+
+    @Test
+    public void testGetOverviewWidgetWithKpisWithDeviceGroup() throws UnsupportedEncodingException {
+        //COMU-1217
+        int deviceGroupId = 123;
+
+        TaskStatusOverview taskStatusOverview = createConnectionStatusOverview();
+        QueryEndDeviceGroup endDeviceGroup = mock(QueryEndDeviceGroup.class);
+        when(dashboardService.getConnectionTaskStatusOverview(endDeviceGroup)).thenReturn(taskStatusOverview);
+        ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview = createComTaskCompletionOverview();
+        when(dashboardService.getComSessionSuccessIndicatorOverview(endDeviceGroup)).thenReturn(comSessionSuccessIndicatorOverview);
+        DataCollectionKpi dataCollectionKpi = mockDataCollectionKpi(Duration.ofMinutes(15), TimeDuration.days(1));
+        when(dataCollectionKpiService.findDataCollectionKpi(endDeviceGroup)).thenReturn(Optional.of(dataCollectionKpi));
+        when(meteringGroupsService.findEndDeviceGroup(deviceGroupId)).thenReturn(Optional.of(endDeviceGroup));
+        when(endDeviceGroup.getId()).thenReturn((long) deviceGroupId);
+        when(endDeviceGroup.getName()).thenReturn("South region");
+
+        ConnectionOverviewInfo connectionOverviewInfo = target("/connectionoverview/widget").queryParam("filter", ExtjsFilter.filter("deviceGroup", (long) deviceGroupId)).request().get(ConnectionOverviewInfo.class);
 
         assertThat(connectionOverviewInfo.kpi).isNotNull();
         assertThat(connectionOverviewInfo.kpi.time).hasSize(96); // all day

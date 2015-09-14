@@ -1,15 +1,16 @@
-package com.energyict.mdc.dashboard.rest;
+package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.dashboard.rest.status.impl.MessageSeeds;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.Test;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests the {@link com.energyict.mdc.scheduling.model.impl.MessageSeeds} component.
+ * Tests the {@link MessageSeeds} component.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-02-12 (13:36)
