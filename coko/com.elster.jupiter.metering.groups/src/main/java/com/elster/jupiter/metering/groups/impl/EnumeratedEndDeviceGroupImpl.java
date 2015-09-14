@@ -21,16 +21,12 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
-import static com.elster.jupiter.util.conditions.Where.where;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
-
-import org.hibernate.validator.constraints.br.CNPJ;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +38,8 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements EnumeratedEndDeviceGroup {
 

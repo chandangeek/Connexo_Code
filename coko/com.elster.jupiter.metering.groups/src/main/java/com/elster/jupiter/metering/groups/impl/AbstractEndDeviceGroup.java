@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceGroupEventData;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.EventType;
-import com.elster.jupiter.metering.groups.MessageSeeds;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.ImmutableMap;
