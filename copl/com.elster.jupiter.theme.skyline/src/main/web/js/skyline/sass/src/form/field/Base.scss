@@ -1,6 +1,7 @@
 @import "RadioButton";
 @import "Trigger";
 @import "PropertyDisplayField";
+@import "Combobox";
 
 
 .#{$prefix}form-field{
@@ -8,6 +9,10 @@
   height: $form-field-height;
   background-color: #ffffff;
 
+}
+
+.#{$prefix}form-field::-ms-clear {
+  display: none;
 }
 
 .#{$prefix}form-invalid-under {
