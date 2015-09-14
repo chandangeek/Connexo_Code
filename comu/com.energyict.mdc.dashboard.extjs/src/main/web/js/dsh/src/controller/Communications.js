@@ -170,7 +170,7 @@ Ext.define('Dsh.controller.Communications', {
         });
 
         if (record.get('connectionTask').connectionStrategy && record.get('connectionTask').connectionStrategy.id) {
-            if (record.get('connectionTask').connectionStrategy.id === 'minimizeConnections') {
+            if (record.get('connectionTask').connectionStrategy.id === 'MINIMIZE_CONNECTIONS') {
                 menuItems.push({
                     text: Uni.I18n.translate('general.run', 'DSH', 'Run'),
                     action: {
