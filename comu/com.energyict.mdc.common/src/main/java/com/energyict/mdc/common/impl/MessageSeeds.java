@@ -1,6 +1,7 @@
 package com.energyict.mdc.common.impl;
 
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
@@ -14,7 +15,7 @@ public enum MessageSeeds implements MessageSeed {
     private final String format;
     private final Level level;
 
-    private MessageSeeds(int number, String key, String format, Level level) {
+    MessageSeeds(int number, String key, String format, Level level) {
         this.number = number;
         this.key = key;
         this.format = format;
@@ -45,6 +46,5 @@ public enum MessageSeeds implements MessageSeed {
     public Level getLevel() {
         return level;
     }
-
 
 }

@@ -5,8 +5,6 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import java.text.MessageFormat;
-
 /**
  * Serves as the root for all exceptions that we want to deal with at runtime.
  * Supports internationalization/localization (I18N) of messages and arguments
@@ -65,8 +63,7 @@ public abstract class ComServerRuntimeException extends ComServerExecutionExcept
 
     public String translated (NlsService nlsService) {
         Thesaurus thesaurus = nlsService.getThesaurus(this.messageSeed.getModule(), Layer.DOMAIN);
-        String messagePattern = thesaurus.getString(this.messageSeed.getKey(), this.messageSeed.getDefaultFormat());
-        return MessageFormat.format(messagePattern.replaceAll("'", "''"), this.messageArguments);
+        return thesaurus.getFormat(messageSeed).format(this.messageArguments);
     }
 
 }

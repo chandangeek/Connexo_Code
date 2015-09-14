@@ -254,10 +254,7 @@ public class ObisCode implements Serializable {
     }
 
     public static ObisCode fromString(String codeString) {
-        StringTokenizer tokenizer = new StringTokenizer(codeString, ".");
-        if (tokenizer.countTokens() != 6) {
-            throw new IllegalArgumentException(codeString);
-        }
+       StringTokenizer tokenizer = new StringTokenizer(codeString, ".");
         String token = tokenizer.nextToken();
         int a = Integer.parseInt(token);
         token = tokenizer.nextToken();

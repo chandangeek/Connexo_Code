@@ -702,24 +702,6 @@ public class TypedPropertiesTest {
     }
 
     @Test
-    public void testToStringPropertiesOnlyCopiesLocalValues () {
-        TypedProperties parentProperties = TypedProperties.empty();
-        parentProperties.setProperty(PROP1_NAME, PROP1_VALUE);
-        TypedProperties typedProperties = TypedProperties.inheritingFrom(parentProperties);
-        typedProperties.setProperty(PROP2_NAME, PROP2_VALUE);
-        String booleanPropertyName = "boolean";
-        typedProperties.setProperty(booleanPropertyName, Boolean.TRUE);
-
-        // Business method
-        Properties properties = typedProperties.toStringProperties();
-
-        // Asserts
-        assertThat(properties.keySet()).containsOnly(PROP2_NAME, booleanPropertyName);
-        assertThat(properties.get(PROP2_NAME)).isEqualTo(PROP2_VALUE);
-        assertThat(properties.get(booleanPropertyName)).isEqualTo("1");
-    }
-
-    @Test
     public void testEqualityWithTypedProperties () {
         List<String> keys = new ArrayList<>();
         keys.add("azerty");
@@ -786,6 +768,24 @@ public class TypedPropertiesTest {
     public void testEqualityWithString () {
         TypedProperties props1 = TypedProperties.empty();
         assertThat(props1.equals("aString")).isFalse();
+    }
+
+    @Test
+    public void testToStringPropertiesHasAllProperties() {
+        TypedProperties parentProperties = TypedProperties.empty();
+        parentProperties.setProperty(PROP1_NAME, PROP1_VALUE);
+        TypedProperties typedProperties = TypedProperties.inheritingFrom(parentProperties);
+        typedProperties.setProperty(PROP2_NAME, PROP2_VALUE);
+        String booleanPropertyName = "boolean";
+        typedProperties.setProperty(booleanPropertyName, Boolean.TRUE);
+
+        // Business method
+        Properties properties = typedProperties.toStringProperties();
+
+        // Asserts
+        assertThat(properties.keySet()).containsOnly(PROP1_NAME, PROP2_NAME, booleanPropertyName);
+        assertThat(properties.get(PROP2_NAME)).isEqualTo(PROP2_VALUE);
+        assertThat(properties.get(booleanPropertyName)).isEqualTo("1");
     }
 
 }
