@@ -21,11 +21,11 @@ Ext.define('Uni.property.form.GroupedPropertyForm', {
 
             var type = property.getType();
             var fieldType = registry.getProperty(type);
-
             if (fieldType) {
-                var partitions = property.get('key').split('.');
-                partitions.pop();
-                var control = Ext.create(fieldType, {
+                var partitions = property.get('key').split('.'),
+                    groupName = partitions.shift(),
+                //partitions.pop();
+                    control = Ext.create(fieldType, {
                         property: property,
                         isEdit: me.isEdit,
                         translationKey: 'DES',
@@ -36,8 +36,8 @@ Ext.define('Uni.property.form.GroupedPropertyForm', {
                         itemId: property.get('key'),
                         boxLabel: Uni.I18n.translate(property.get('key'), null, property.get('key'))
 
-                    }),
-                    groupName = partitions.join('.');
+                    });
+                    //groupName = partitions.join('.');
                 if (type === 'BOOLEAN') {
                     control.fieldLabel = '';
                 }
@@ -54,7 +54,8 @@ Ext.define('Uni.property.form.GroupedPropertyForm', {
             var namesArray = groupName.split('.'),
                 fieldContainer = {
                     xtype: 'fieldcontainer',
-                    itemId: 'group-fieldcontainer'
+                    itemId: 'group-fieldcontainer',
+                    margin: 0
                 };
             if (namesArray.length > 1) {
                 fieldContainer.fieldLabel = Uni.I18n.translate(namesArray[1], null, namesArray[1]);
@@ -63,21 +64,22 @@ Ext.define('Uni.property.form.GroupedPropertyForm', {
                     groupItem.setWidth(600);
                     groupItem.labelAlign = 'left';
                 })
-            } else {
-                if (!me.addEditPage) {
-                    me.add({
-                        xtype: 'displayfield',
-                        renderer: function () {
-                            return '<b>' + Uni.I18n.translate(namesArray[0], null, namesArray[0]) + '</b>'
-                        }
-                    });
-                } else {
-                    me.add({
-                        title: Uni.I18n.translate(namesArray[0], null, namesArray[0]),
-                        ui: 'medium'
-                    });
-                }
             }
+            //else {
+            //    if (!me.addEditPage) {
+            //        me.add({
+            //            xtype: 'displayfield',
+            //            renderer: function () {
+            //                return '<b>' + Uni.I18n.translate(namesArray[0], null, namesArray[0]) + '</b>'
+            //            }
+            //        });
+            //    } else {
+            //        me.add({
+            //            title: Uni.I18n.translate(namesArray[0], null, namesArray[0]),
+            //            ui: 'medium'
+            //        });
+            //    }
+            //}
             me.add(fieldContainer.items ? fieldContainer : groupItems);
         });
         Ext.resumeLayouts();
