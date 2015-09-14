@@ -1,6 +1,7 @@
 package com.elster.jupiter.rest.util.impl;
 
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
@@ -8,6 +9,9 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_VALUE(1, "RUT.InvalidValue", "Invalid value", Level.SEVERE),
     FIELD_CAN_NOT_BE_EMPTY(2, "RUT.FieldCanNotBeEmpty", "This field is required", Level.SEVERE),
     FIELD_SHOULD_HAVE_BEEN_ARRAY(3, "RUT.ExpectedArray", "Expected list of values", Level.SEVERE),
+    OPTIMISTIC_LOCK_FAILED(4, "OptimisticLockFailed", "Another user or process modified this resource at the same time, please try again later", Level.SEVERE),
+    INVALID_RANGE_FROM_AFTER_TO(5, "FromAfterTo", "Invalid range: from-date should be before to-date", Level.SEVERE),
+    INVALID_RANGE(6, "InvalidRange", "Invalid range", Level.SEVERE),
     ;
 
     public static final String COMPONENT_NAME = "RUT";
@@ -17,7 +21,7 @@ public enum MessageSeeds implements MessageSeed {
     private final String format;
     private final Level level;
 
-    private MessageSeeds(int number, String key, String format, Level level) {
+    MessageSeeds(int number, String key, String format, Level level) {
         this.number = number;
         this.key = key;
         this.format = format;
@@ -48,6 +52,5 @@ public enum MessageSeeds implements MessageSeed {
     public Level getLevel() {
         return level;
     }
-
 
 }

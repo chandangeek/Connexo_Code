@@ -3,6 +3,7 @@ package com.elster.jupiter.rest.util;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.rest.util.impl.MessageSeeds;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -95,6 +96,12 @@ public class ConstraintViolationInfo {
         this.message= exception.getLocalizedMessage();
         this.error= exception.getMessageSeed().getKey();
 
+        return this;
+    }
+
+    public ConstraintViolationInfo from(OptimisticLockException exception) {
+        this.message = thesaurus.getFormat(MessageSeeds.OPTIMISTIC_LOCK_FAILED).format();
+        this.error = exception.getMessageSeed().getKey();
         return this;
     }
 
