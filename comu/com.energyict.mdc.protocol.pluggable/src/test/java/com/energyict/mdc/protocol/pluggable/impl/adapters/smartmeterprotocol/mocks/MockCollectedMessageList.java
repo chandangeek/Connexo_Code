@@ -5,9 +5,11 @@ import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Insert your comments here.
@@ -56,4 +58,9 @@ public class MockCollectedMessageList implements CollectedMessageList {
         return this.collectedMessages;
     }
 
+    @Override
+    public List<CollectedMessage> getCollectedMessages(MessageIdentifier messageIdentifier) {
+        return this.getCollectedMessages().stream().filter(x -> x.getMessageIdentifier().equals(messageIdentifier)).collect(Collectors.toList());
+
+    }
 }

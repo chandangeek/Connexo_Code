@@ -4,6 +4,7 @@ import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
@@ -123,7 +124,7 @@ public class InboundDeviceProtocolPluggableClassRegistrarTest {
         }
 
         @Override
-        public List<CollectedData> getCollectedData() {
+        public List<CollectedData> getCollectedData(OfflineDevice device) {
             return null;
         }
 
