@@ -67,6 +67,99 @@ public class DeviceLifeCycleStateResourceTest extends DeviceLifeCycleConfigAppli
     }
 
     @Test
+    public void testLifeCycleStateWithOnEntryProcessesJsonModel(){
+        List<State> states = mockDefaultStatesWithOnEntryProcessesForDecommissioned();
+
+        FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
+        when(stateMachine.getStates()).thenReturn(states);
+        DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
+        when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
+
+        String stringResponse = target("/devicelifecycles/1/states").request().get(String.class);
+        JsonModel model = JsonModel.create(stringResponse);
+        assertThat(model.<Number>get("$.total")).isEqualTo(3);
+        assertThat(model.<List>get("$.deviceLifeCycleStates[0].onEntry").size()).isEqualTo(0);
+        assertThat(model.<List>get("$.deviceLifeCycleStates[0].onExit").size()).isEqualTo(0);
+        assertThat(model.<String>get("$.deviceLifeCycleStates[1].name")).isEqualTo("Decommissioned");
+        assertThat(model.<List>get("$.deviceLifeCycleStates[1].onEntry").size()).isEqualTo(2);
+        assertThat(model.<List>get("$.deviceLifeCycleStates[1].onExit").size()).isEqualTo(0);
+        assertThat(model.<Number>get("$.deviceLifeCycleStates[1].onEntry[0].id")).isEqualTo(1);
+        assertThat(model.<String>get("$.deviceLifeCycleStates[1].onEntry[0].deploymentId")).isEqualTo("deploymentIdOnEntry1");
+        assertThat(model.<String>get("$.deviceLifeCycleStates[1].onEntry[0].processId")).isEqualTo("processIdOnEntry1");
+        assertThat(model.<Number>get("$.deviceLifeCycleStates[1].onEntry[1].id")).isEqualTo(2);
+        assertThat(model.<String>get("$.deviceLifeCycleStates[1].onEntry[1].deploymentId")).isEqualTo("deploymentIdOnEntry2");
+        assertThat(model.<String>get("$.deviceLifeCycleStates[1].onEntry[1].processId")).isEqualTo("processIdOnEntry2");
+        assertThat(model.<List>get("$.deviceLifeCycleStates[2].onEntry").size()).isEqualTo(0);
+        assertThat(model.<List>get("$.deviceLifeCycleStates[2].onExit").size()).isEqualTo(0);
+    }
+
+    @Test
+    public void testLifeCycleStateWithOnExitProcessesJsonModel(){
+        List<State> states = mockDefaultStatesWithOnExitProcessesForInStock();
+
+        FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
+        when(stateMachine.getStates()).thenReturn(states);
+        DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
+        when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
+
+        String stringResponse = target("/devicelifecycles/1/states").request().get(String.class);
+        JsonModel model = JsonModel.create(stringResponse);
+        assertThat(model.<Number>get("$.total")).isEqualTo(3);
+        assertThat(model.<List>get("$.deviceLifeCycleStates[0].onEntry").size()).isEqualTo(0);
+        assertThat(model.<List>get("$.deviceLifeCycleStates[0].onExit").size()).isEqualTo(0);
+        assertThat(model.<List>get("$.deviceLifeCycleStates[1].onEntry").size()).isEqualTo(0);
+        assertThat(model.<List>get("$.deviceLifeCycleStates[1].onExit").size()).isEqualTo(0);
+        assertThat(model.<String>get("$.deviceLifeCycleStates[2].name")).isEqualTo("In stock");
+        assertThat(model.<List>get("$.deviceLifeCycleStates[2].onEntry").size()).isEqualTo(0);
+        assertThat(model.<List>get("$.deviceLifeCycleStates[2].onExit").size()).isEqualTo(3);
+        assertThat(model.<Number>get("$.deviceLifeCycleStates[2].onExit[0].id")).isEqualTo(1);
+        assertThat(model.<String>get("$.deviceLifeCycleStates[2].onExit[0].deploymentId")).isEqualTo("deploymentIdOnExit1");
+        assertThat(model.<String>get("$.deviceLifeCycleStates[2].onExit[0].processId")).isEqualTo("processIdOnExit1");
+        assertThat(model.<Number>get("$.deviceLifeCycleStates[2].onExit[1].id")).isEqualTo(2);
+        assertThat(model.<String>get("$.deviceLifeCycleStates[2].onExit[1].deploymentId")).isEqualTo("deploymentIdOnExit2");
+        assertThat(model.<String>get("$.deviceLifeCycleStates[2].onExit[1].processId")).isEqualTo("processIdOnExit2");
+        assertThat(model.<Number>get("$.deviceLifeCycleStates[2].onExit[2].id")).isEqualTo(3);
+        assertThat(model.<String>get("$.deviceLifeCycleStates[2].onExit[2].deploymentId")).isEqualTo("deploymentIdOnExit3");
+        assertThat(model.<String>get("$.deviceLifeCycleStates[2].onExit[2].processId")).isEqualTo("processIdOnExit3");
+    }
+
+    @Test
+     public void testLifeCycleStateWithOnEntryAndOnExitProcessesJsonModel(){
+         List<State> states = mockDefaultStatesWithOnEntryAndOnExitProcessesForCommissioning();
+
+         FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
+         when(stateMachine.getStates()).thenReturn(states);
+         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
+         when(dlc.getFiniteStateMachine()).thenReturn(stateMachine);
+         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
+
+         String stringResponse = target("/devicelifecycles/1/states").request().get(String.class);
+         JsonModel model = JsonModel.create(stringResponse);
+         assertThat(model.<Number>get("$.total")).isEqualTo(3);
+         assertThat(model.<String>get("$.deviceLifeCycleStates[0].name")).isEqualTo("Commissioning");
+         assertThat(model.<List>get("$.deviceLifeCycleStates[0].onEntry").size()).isEqualTo(2);
+         assertThat(model.<List>get("$.deviceLifeCycleStates[0].onExit").size()).isEqualTo(1);
+         assertThat(model.<Number>get("$.deviceLifeCycleStates[0].onEntry[0].id")).isEqualTo(1);
+         assertThat(model.<String>get("$.deviceLifeCycleStates[0].onEntry[0].deploymentId")).isEqualTo("deploymentIdOnEntry1");
+         assertThat(model.<String>get("$.deviceLifeCycleStates[0].onEntry[0].processId")).isEqualTo("processIdOnEntry1");
+         assertThat(model.<Number>get("$.deviceLifeCycleStates[0].onEntry[1].id")).isEqualTo(2);
+         assertThat(model.<String>get("$.deviceLifeCycleStates[0].onEntry[1].deploymentId")).isEqualTo("deploymentIdOnEntry2");
+         assertThat(model.<String>get("$.deviceLifeCycleStates[0].onEntry[1].processId")).isEqualTo("processIdOnEntry2");
+         assertThat(model.<Number>get("$.deviceLifeCycleStates[0].onExit[0].id")).isEqualTo(3);
+         assertThat(model.<String>get("$.deviceLifeCycleStates[0].onExit[0].deploymentId")).isEqualTo("deploymentIdOnExit1");
+         assertThat(model.<String>get("$.deviceLifeCycleStates[0].onExit[0].processId")).isEqualTo("processIdOnExit1");
+
+         assertThat(model.<List>get("$.deviceLifeCycleStates[1].onEntry").size()).isEqualTo(0);
+         assertThat(model.<List>get("$.deviceLifeCycleStates[1].onExit").size()).isEqualTo(0);
+
+         assertThat(model.<List>get("$.deviceLifeCycleStates[2].onEntry").size()).isEqualTo(0);
+         assertThat(model.<List>get("$.deviceLifeCycleStates[2].onExit").size()).isEqualTo(0);
+
+     }
+
+    @Test
     public void testGetLifeCycleStateById(){
         List<State> states = mockDefaultStates();
         FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);

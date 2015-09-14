@@ -4,17 +4,8 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
-import com.energyict.mdc.device.lifecycle.config.Privileges;
-import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
-import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCyclePrivilegeFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCyclePrivilegeInfo;
-import com.energyict.mdc.device.lifecycle.config.rest.info.StateTransitionEventTypeFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.info.StateTransitionEventTypeInfo;
+import com.energyict.mdc.device.lifecycle.config.*;
+import com.energyict.mdc.device.lifecycle.config.rest.info.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -42,18 +33,28 @@ public class DeviceLifeCycleResource {
     private final ResourceHelper resourceHelper;
     private final Provider<DeviceLifeCycleStateResource> lifeCycleStateResourceProvider;
     private final Provider<DeviceLifeCycleActionResource> lifeCycleStateTransitionsResourceProvider;
+    private final Provider<TransitionBusinessProcessResource> transitionBusinessProcessResourceProvider;
     private final DeviceLifeCycleFactory deviceLifeCycleFactory;
     private final DeviceLifeCyclePrivilegeFactory deviceLifeCyclePrivilegeFactory;
     private final StateTransitionEventTypeFactory stateTransitionEventTypeFactory;
 
     @Inject
-    public DeviceLifeCycleResource(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, FiniteStateMachineService finiteStateMachineService, ResourceHelper resourceHelper, Provider<DeviceLifeCycleStateResource> lifeCycleStateResourceProvider, Provider<DeviceLifeCycleActionResource> lifeCycleStateTransitionsResourceProvider, DeviceLifeCycleFactory deviceLifeCycleFactory, DeviceLifeCyclePrivilegeFactory deviceLifeCyclePrivilegeFactory, StateTransitionEventTypeFactory stateTransitionEventTypeFactory) {
+    public DeviceLifeCycleResource(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+                                   FiniteStateMachineService finiteStateMachineService,
+                                   ResourceHelper resourceHelper,
+                                   Provider<DeviceLifeCycleStateResource> lifeCycleStateResourceProvider,
+                                   Provider<DeviceLifeCycleActionResource> lifeCycleStateTransitionsResourceProvider,
+                                   Provider<TransitionBusinessProcessResource> transitionBusinessProcessResourceProvider,
+                                   DeviceLifeCycleFactory deviceLifeCycleFactory,
+                                   DeviceLifeCyclePrivilegeFactory deviceLifeCyclePrivilegeFactory,
+                                   StateTransitionEventTypeFactory stateTransitionEventTypeFactory) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.finiteStateMachineService = finiteStateMachineService;
         this.resourceHelper = resourceHelper;
         this.deviceLifeCycleFactory = deviceLifeCycleFactory;
         this.stateTransitionEventTypeFactory = stateTransitionEventTypeFactory;
         this.lifeCycleStateResourceProvider = lifeCycleStateResourceProvider;
+        this.transitionBusinessProcessResourceProvider = transitionBusinessProcessResourceProvider;
         this.lifeCycleStateTransitionsResourceProvider = lifeCycleStateTransitionsResourceProvider;
         this.deviceLifeCyclePrivilegeFactory = deviceLifeCyclePrivilegeFactory;
     }
@@ -128,6 +129,11 @@ public class DeviceLifeCycleResource {
     @Path("/{deviceLifeCycleId}/actions")
     public DeviceLifeCycleActionResource getLifeCycleTransitionsResource() {
         return this.lifeCycleStateTransitionsResourceProvider.get();
+    }
+
+    @Path("/statechangebusinessprocesses")
+    public TransitionBusinessProcessResource getTransitionBusinessProcessResource(){
+        return this.transitionBusinessProcessResourceProvider.get();
     }
 
     @GET

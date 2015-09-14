@@ -1,4 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
-Export-Package: com.energyict.mdc.device.lifecycle.config.rest.info, com.energyict.mdc.device.lifecycle.config.rest.i18n
+Export-Package: com.energyict.mdc.device.lifecycle.config.rest.info
 Private-Package: com.energyict.mdc.device.lifecycle.config.rest, com.energyict.mdc.device.lifecycle.config.rest.impl.*

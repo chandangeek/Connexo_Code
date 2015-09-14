@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
-import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
-import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.*;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -13,9 +11,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
-import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfoFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
-import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.info.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -30,12 +26,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DeviceLifeCycleStateResource {
     private final ExceptionFactory exceptionFactory;
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final FiniteStateMachineService finiteStateMachineService;
     private final DeviceLifeCycleStateFactory deviceLifeCycleStateFactory;
     private final AuthorizedActionInfoFactory authorizedActionInfoFactory;
     private final ResourceHelper resourceHelper;
@@ -44,11 +41,13 @@ public class DeviceLifeCycleStateResource {
     public DeviceLifeCycleStateResource(
             ExceptionFactory exceptionFactory,
             DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+            FiniteStateMachineService finiteStateMachineService,
             DeviceLifeCycleStateFactory deviceLifeCycleStateFactory,
             AuthorizedActionInfoFactory authorizedActionInfoFactory,
             ResourceHelper resourceHelper) {
         this.exceptionFactory = exceptionFactory;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+        this.finiteStateMachineService = finiteStateMachineService;
         this.deviceLifeCycleStateFactory = deviceLifeCycleStateFactory;
         this.authorizedActionInfoFactory = authorizedActionInfoFactory;
         this.resourceHelper = resourceHelper;
@@ -98,14 +97,42 @@ public class DeviceLifeCycleStateResource {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         State stateForEdit = resourceHelper.findStateByIdOrThrowException(deviceLifeCycle, stateId);
 
+
+
         FiniteStateMachineUpdater fsmUpdater = deviceLifeCycle.getFiniteStateMachine().startUpdate();
         FiniteStateMachineUpdater.StateUpdater stateUpdater = fsmUpdater.state(stateId);
         if (stateForEdit.isCustom()) {
             stateUpdater.setName(stateInfo.name);
         }
+
+        stateInfo.onEntry.stream().map(this::findStateChangeBusinessProcess).forEach(stateUpdater::onEntry);
+        stateInfo.onExit.stream().map(this::findStateChangeBusinessProcess).forEach(stateUpdater::onExit);
+        // remove 'obsolete' onEntry processes:
+        stateForEdit.getOnEntryProcesses().stream()
+                .map(ProcessReference::getStateChangeBusinessProcess)
+                .filter(x -> isObsoleteStateChageBusinessProcess(stateInfo.onEntry, x))
+                .forEach(stateUpdater::removeOnEntry);
+        //remove 'obsolete' onExit processes
+        stateForEdit.getOnExitProcesses().stream()
+                .map(ProcessReference::getStateChangeBusinessProcess)
+                .filter(x -> isObsoleteStateChageBusinessProcess(stateInfo.onExit, x))
+                .forEach(stateUpdater::removeOnExit);
+
         State stateAfterEdit = stateUpdater.complete();
         fsmUpdater.complete();
         return Response.ok(deviceLifeCycleStateFactory.from(stateAfterEdit)).build();
+    }
+
+    private StateChangeBusinessProcess findStateChangeBusinessProcess(TransitionBusinessProcessInfo businessProcessInfo){
+        Optional<StateChangeBusinessProcess> process = finiteStateMachineService.findStateChangeBusinessProcessById(businessProcessInfo.id);
+        if (!process.isPresent()) {
+            throw exceptionFactory.newException(MessageSeeds.STATE_CHANGE_BUSINESS_PROCESS_NOT_FOUND, businessProcessInfo.id);
+        }
+        return process.get();
+    }
+
+    private boolean isObsoleteStateChageBusinessProcess(List<TransitionBusinessProcessInfo> transitionBussinessProcessInfos, StateChangeBusinessProcess stateChangeBusinessProcess){
+        return transitionBussinessProcessInfos.stream().noneMatch(x -> x.id == stateChangeBusinessProcess.getId());
     }
 
     @PUT
@@ -138,8 +165,6 @@ public class DeviceLifeCycleStateResource {
         fsmUpdater.removeState(stateForDeletion).complete();
         return Response.ok(deviceLifeCycleStateFactory.from(stateForDeletion)).build();
     }
-
-
 
     private void checkStateHasTransitions(DeviceLifeCycle deviceLifeCycle, State stateForDeletion) {
         List<Long> transitionIds = deviceLifeCycle.getFiniteStateMachine().getTransitions().stream()
