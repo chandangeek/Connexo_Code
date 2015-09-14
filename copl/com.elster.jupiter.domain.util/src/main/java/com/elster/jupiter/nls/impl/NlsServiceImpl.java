@@ -12,6 +12,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 import com.google.inject.AbstractModule;
@@ -44,6 +46,7 @@ public class NlsServiceImpl implements NlsService, InstallService {
 
     private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile TransactionService transactionService;
     private volatile MessageInterpolator messageInterpolator;
     @GuardedBy("translationLock")
     private final List<TranslationKeyProvider> translationKeyProviders = new ArrayList<>();
@@ -70,10 +73,11 @@ public class NlsServiceImpl implements NlsService, InstallService {
     }
 
     @Inject
-    public NlsServiceImpl(OrmService ormService, ThreadPrincipalService threadPrincipalService, ValidationProviderResolver validationProviderResolver) {
+    public NlsServiceImpl(OrmService ormService, ThreadPrincipalService threadPrincipalService, TransactionService transactionService, ValidationProviderResolver validationProviderResolver) {
         this();
         setOrmService(ormService);
         setThreadPrincipalService(threadPrincipalService);
+        setTransactionService(transactionService);
         setValidationProviderResolver(validationProviderResolver);
         activate();
         if (!dataModel.isInstalled()) {
@@ -101,6 +105,11 @@ public class NlsServiceImpl implements NlsService, InstallService {
     @Reference
     public final void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     @Reference
@@ -181,22 +190,23 @@ public class NlsServiceImpl implements NlsService, InstallService {
     }
 
     private void doInstallProvider(TranslationKeyProvider provider) {
-        String componentName = provider.getComponentName();
-        Layer layer = provider.getLayer();
-        ThesaurusImpl thesaurus = (ThesaurusImpl) getThesaurus(componentName, layer);
-        thesaurus.createNewTranslationKeys(provider);
+        try (TransactionContext context = this.transactionService.getContext()) {
+            String componentName = provider.getComponentName();
+            Layer layer = provider.getLayer();
+            ThesaurusImpl thesaurus = (ThesaurusImpl) getThesaurus(componentName, layer);
+            thesaurus.createNewTranslationKeys(provider);
+            context.commit();
+        }
     }
 
     private void doInstallProvider(MessageSeedProvider provider) {
-        provider
+        try (TransactionContext context = this.transactionService.getContext()) {
+            provider
                 .getSeeds()
                 .stream()
                 .forEach(messageSeed -> this.addTranslation(provider.getLayer(), messageSeed));
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Collections.singletonList("ORM");
+            context.commit();
+        }
     }
 
     private void addTranslation(Layer layer, MessageSeed messageSeed) {
@@ -215,6 +225,11 @@ public class NlsServiceImpl implements NlsService, InstallService {
             e.printStackTrace();
             throw e;
         }
+    }
+
+    @Override
+    public List<String> getPrerequisiteModules() {
+        return Collections.singletonList("ORM");
     }
 
     // Published as a gogo command
