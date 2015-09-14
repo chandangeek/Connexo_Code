@@ -71,7 +71,7 @@ public class SecurityPropertyImpl implements SecurityProperty {
         return this.activePeriod;
     }
 
-    public Boolean isComplete () {
+    public boolean isComplete () {
         return this.isComplete;
     }
 

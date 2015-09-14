@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
@@ -52,11 +53,13 @@ public interface DeviceDataModelService {
 
     public DataCollectionKpiService dataCollectionKpiService();
 
+    public BatchService batchService();
+
     public void executeUpdate(SqlBuilder sqlBuilder);
 
-    public Map<TaskStatus, Long> fetchTaskStatusCounters(ClauseAwareSqlBuilder builder);
+    public Map<TaskStatus, Long> fetchTaskStatusCounters(PreparedStatementProvider preparedStatementProvider);
 
-    public Map<Long, Map<TaskStatus, Long>> fetchTaskStatusBreakdown(ClauseAwareSqlBuilder builder);
+    public Map<Long, Map<TaskStatus, Long>> fetchTaskStatusBreakdown(PreparedStatementProvider builder);
 
     public Map<TaskStatus, Long> addMissingTaskStatusCounters(Map<TaskStatus, Long> counters);
 

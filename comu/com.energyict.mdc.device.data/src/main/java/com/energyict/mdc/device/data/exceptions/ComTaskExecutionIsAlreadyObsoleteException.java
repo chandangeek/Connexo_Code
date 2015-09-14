@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.data.exceptions;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made to make a
@@ -14,8 +16,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
  */
 public class ComTaskExecutionIsAlreadyObsoleteException extends LocalizedException {
 
-    public ComTaskExecutionIsAlreadyObsoleteException(Thesaurus thesaurus, ComTaskExecution comTaskExecution) {
-        super(thesaurus, MessageSeeds.COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE, comTaskExecution.getId(), comTaskExecution.getDevice().getName(), comTaskExecution.getObsoleteDate());
+    public ComTaskExecutionIsAlreadyObsoleteException(ComTaskExecution comTaskExecution, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, comTaskExecution.getId(), comTaskExecution.getDevice().getName(), comTaskExecution.getObsoleteDate());
         this.set("comTaskExecution", comTaskExecution.getId());
         this.set("device", comTaskExecution.getDevice());
         this.set("obsoleteDate", comTaskExecution.getObsoleteDate());

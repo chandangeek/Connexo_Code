@@ -1,16 +1,21 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementPriorityMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory;
+import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
-import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
@@ -19,7 +24,6 @@ import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -38,7 +42,9 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -49,7 +55,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.inject.AbstractModule;
@@ -84,9 +90,9 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-30 (17:33)
  */
-@Component(name="com.energyict.mdc.device.data", service = {DeviceDataModelService.class, ReferencePropertySpecFinderProvider.class,
-        InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME,"osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
-public class DeviceDataModelServiceImpl implements DeviceDataModelService, ReferencePropertySpecFinderProvider, InstallService, TranslationKeyProvider, PrivilegesProvider {
+@Component(name = "com.energyict.mdc.device.data", service = {DeviceDataModelService.class, ReferencePropertySpecFinderProvider.class,
+        InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME, "osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
+public class DeviceDataModelServiceImpl implements DeviceDataModelService, ReferencePropertySpecFinderProvider, InstallService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -119,11 +125,14 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private ServerLogBookService logBookService;
     private DataCollectionKpiService dataCollectionKpiService;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private BatchService batchService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
 
     // For OSGi purposes only
-    public DeviceDataModelServiceImpl() {super();}
+    public DeviceDataModelServiceImpl() {
+        super();
+    }
 
     // For unit testing purposes only
     @Inject
@@ -134,7 +143,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                                       EngineConfigurationService engineConfigurationService, DeviceConfigurationService deviceConfigurationService,
                                       MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
                                       SchedulingService schedulingService, MessageService messageService,
-                                      SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService) {
+                                      SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
+                                      QueryService queryService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -158,6 +168,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setUserService(userService);
         this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         this.setMeteringGroupsService(meteringGroupsService);
+        this.setQueryService(queryService);
         this.activate(bundleContext);
         if (!this.dataModel.isInstalled()) {
             this.install(true);
@@ -187,8 +198,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     @Override
     public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
         return Stream.of(this.connectionTaskService, this.deviceService, this.logBookService, this.loadProfileService).
-            flatMap(p -> p.finders().stream()).
-            collect(Collectors.toList());
+                flatMap(p -> p.finders().stream()).
+                collect(Collectors.toList());
     }
 
     @Reference
@@ -202,8 +213,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     @Reference
     public void setQueryService(QueryService queryService) {
-		this.queryService = queryService;
-	}
+        this.queryService = queryService;
+    }
 
     @Override
     public DataModel dataModel() {
@@ -350,6 +361,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Override
+    public BatchService batchService() {
+        return this.batchService;
+    }
+
+    @Override
     public KpiService kpiService() {
         return kpiService;
     }
@@ -360,7 +376,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Reference
-    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService){
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
     }
 
@@ -412,6 +428,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(DeviceMessageSpecificationService.class).toInstance(deviceMessageSpecificationService);
                 bind(DataCollectionKpiService.class).toInstance(dataCollectionKpiService);
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
+                bind(BatchService.class).toInstance(batchService);
             }
         };
     }
@@ -430,6 +447,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
+        this.batchService = new BatchServiceImpl(this);
     }
 
     private void registerRealServices(BundleContext bundleContext) {
@@ -439,6 +457,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.registerLoadProfileService(bundleContext);
         this.registerLogBookService(bundleContext);
         this.registerDataCollectionKpiService(bundleContext);
+        this.registerBatchService(bundleContext);
     }
 
     private void registerConnectionTaskService(BundleContext bundleContext) {
@@ -468,9 +487,13 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.serviceRegistrations.add(bundleContext.registerService(DataCollectionKpiService.class, this.dataCollectionKpiService, null));
     }
 
+    private void registerBatchService(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(BatchService.class, this.batchService, null));
+    }
+
     @Deactivate
     public void stop() throws Exception {
-        this.serviceRegistrations.forEach(org.osgi.framework.ServiceRegistration::unregister);
+        this.serviceRegistrations.forEach(ServiceRegistration::unregister);
     }
 
     @Override
@@ -494,6 +517,22 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         Stream.of(MessageSeeds.values()).forEach(keys::add);
         Stream.of(PropertyTranslationKeys.values()).forEach(keys::add);
         return keys;
+        return Arrays.asList(
+                new SimpleTranslationKey(DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
+                new SimpleTranslationKey(ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER, ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAY_NAME),
+                new SimpleTranslationKey(Installer.COMSCHEDULE_RECALCULATOR_MESSAGING_NAME, Installer.COMSCHEDULE_RECALCULATOR_MESSAGING_DISPLAYNAME),
+                new SimpleTranslationKey(Installer.COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME, Installer.COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_DISPLAYNAME),
+                new SimpleTranslationKey(ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME),
+                new SimpleTranslationKey(ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME),
+                new SimpleTranslationKey(ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME),
+                new SimpleTranslationKey(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_SUBSCRIBER, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DISPLAYNAME),
+                new SimpleTranslationKey(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME),
+                new SimpleTranslationKey(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER, ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DISPLAY_NAME),
+                new SimpleTranslationKey(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME),
+                new SimpleTranslationKey(ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_SUBSCRIBER, ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_DISPLAY_NAME),
+                new SimpleTranslationKey(ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_SUBSCRIBER, ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_DISPLAY_NAME),
+                new SimpleTranslationKey(SchedulingService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, SchedulingService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME),
+                new SimpleTranslationKey(SchedulingService.COM_SCHEDULER_QUEUE_SUBSCRIBER, SchedulingService.COM_SCHEDULER_QUEUE_DISPLAYNAME));
     }
 
     private void install(boolean executeDdl) {
@@ -514,12 +553,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Override
-    public Map<TaskStatus, Long> fetchTaskStatusCounters(ClauseAwareSqlBuilder builder) {
+    public Map<TaskStatus, Long> fetchTaskStatusCounters(PreparedStatementProvider preparedStatementProvider) {
         Map<TaskStatus, Long> counters = new HashMap<>();
-        try (PreparedStatement statement = builder.prepare(this.dataModel.getConnection(true))) {
+        try (PreparedStatement statement = preparedStatementProvider.prepare(this.dataModel.getConnection(true))) {
             this.fetchTaskStatusCounters(statement, counters);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
         return counters;
@@ -536,12 +574,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Override
-    public Map<Long, Map<TaskStatus, Long>> fetchTaskStatusBreakdown(ClauseAwareSqlBuilder builder) {
+    public Map<Long, Map<TaskStatus, Long>> fetchTaskStatusBreakdown(PreparedStatementProvider builder) {
         Map<Long, Map<TaskStatus, Long>> counters = new HashMap<>();
         try (PreparedStatement statement = builder.prepare(this.dataModel.getConnection(true))) {
             this.fetchTaskStatusBreakdown(statement, counters);
-        }
-        catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
         return counters;
@@ -581,7 +618,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         }
     }
 
-
     @Override
     public String getModuleName() {
         return DeviceDataServices.COMPONENT_NAME;
@@ -591,11 +627,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     public List<ResourceDefinition> getModuleResources() {
 
         return Arrays.asList(
-            this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "device.devices", "device.devices.description", Arrays.asList(Privileges.ADD_DEVICE, Privileges.VIEW_DEVICE, Privileges.REMOVE_DEVICE, Privileges.ADMINISTRATE_DEVICE_ATTRIBUTE)),
-            this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceData.deviceData", "deviceData.deviceData.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)),
-            this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceCommunication.deviceCommunications", "deviceCommunication.deviceCommunications.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION)),
-            this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceGroup.deviceGroups", "deviceGroup.deviceGroups.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL)),
-            this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "inventoryManagement.inventoryManagements", "inventoryManagement.inventoryManagements.description", Arrays.asList(Privileges.IMPORT_INVENTORY_MANAGEMENT, Privileges.REVOKE_INVENTORY_MANAGEMENT))
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "device.devices", "device.devices.description", Arrays.asList(Privileges.ADD_DEVICE, Privileges.VIEW_DEVICE, Privileges.REMOVE_DEVICE, Privileges.ADMINISTRATE_DEVICE_ATTRIBUTE)),
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceData.deviceData", "deviceData.deviceData.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)),
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceCommunication.deviceCommunications", "deviceCommunication.deviceCommunications.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION)),
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "deviceGroup.deviceGroups", "deviceGroup.deviceGroups.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL)),
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, "inventoryManagement.inventoryManagements", "inventoryManagement.inventoryManagements.description", Arrays.asList(Privileges.IMPORT_INVENTORY_MANAGEMENT, Privileges.REVOKE_INVENTORY_MANAGEMENT))
         );
 
     }

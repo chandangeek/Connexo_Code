@@ -793,16 +793,16 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         if (comPort.isActive()) {
             InboundComPortPool inboundComPortPool = comPort.getComPortPool();
             Instant now = this.deviceDataModelService.clock().instant();
-            Condition condition = where("connectionTask.paused").isEqualTo(false)
-                    .and(where("connectionTask.comServer").isNull())
-                    .and(where("connectionTask.obsoleteDate").isNull())
-                    .and(where("connectionTask." + ConnectionTaskFields.DEVICE.name()).isEqualTo(device))
-                    .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
-                    .and(where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now))
-                    .and(where("connectionTask.nextExecutionTimestamp").isLessThanOrEqual(now)
-                            .or(where(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).isEqualTo(true)))
-                    .and(where(ComTaskExecutionFields.COMPORT.fieldName()).isNull())
-                    .and(where("connectionTask.comPortPool").isEqualTo(inboundComPortPool));
+            Condition condition =
+                    where("connectionTask.comServer").isNull()
+                            .and(where("connectionTask.obsoleteDate").isNull())
+                            .and(where("connectionTask." + ConnectionTaskFields.DEVICE.name()).isEqualTo(device.getId()))
+                            .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
+                            .and(where(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).isEqualTo(true)
+                                    .or(where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now)
+                                            .and(where("connectionTask.nextExecutionTimestamp").isLessThanOrEqual(now))))
+                            .and(where(ComTaskExecutionFields.COMPORT.fieldName()).isNull())
+                            .and(where("connectionTask.comPortPool").isEqualTo(inboundComPortPool));
             return this.deviceDataModelService.dataModel().query(ComTaskExecution.class, ConnectionTask.class).select(condition,
                     Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
                     Order.ascending(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()),

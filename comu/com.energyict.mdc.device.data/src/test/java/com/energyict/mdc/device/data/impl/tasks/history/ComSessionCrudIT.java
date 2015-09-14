@@ -231,7 +231,7 @@ public class ComSessionCrudIT {
                     new UserModule(),
                     new IdsModule(),
                     new FiniteStateMachineModule(),
-                    new MeteringModule(false),
+                    new MeteringModule(),
                     new MeteringGroupsModule(),
                     new InMemoryMessagingModule(),
                     new EventsModule(),

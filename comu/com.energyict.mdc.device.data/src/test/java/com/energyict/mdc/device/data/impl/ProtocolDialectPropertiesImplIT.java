@@ -1,16 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.google.common.base.Strings;
-import com.google.common.collect.Range;
-
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -30,16 +19,18 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.google.common.base.Strings;
+import com.google.common.collect.Range;
+
 import javax.validation.ConstraintViolationException;
-
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
@@ -50,12 +41,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
+ * Integration test for the {@link ProtocolDialectPropertiesImpl} component.
+ *
  * Copyrights EnergyICT
  * Date: 26/04/13
  * Time: 16:46
@@ -186,6 +184,54 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         assertThat(dialectProperties.get().getProtocolDialectConfigurationProperties().getId()).isEqualTo(protocolDialect1ConfigurationProperties.getId());
         assertThat(dialectProperties.get().getTypedProperties().size()).isEqualTo(1);
         assertThat(dialectProperties.get().getTypedProperties().getProperty(REQUIRED_PROPERTY_NAME_D1)).isEqualTo(REQUIRED_PROPERTY_VALUE);
+    }
+
+    @Test
+    @Transactional
+    public void createWithoutViolationsWithVeryLongAttributeTest() throws BusinessException, SQLException {
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createWithoutViolationsTest", MRID);
+        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
+        device.setProtocolDialectProperty(DIALECT_1_NAME, OPTIONAL_PROPERTY_WITH_LONG_NAME_D1, OPTIONAL_PROPERTY_WITH_LONG_NAME_VALUE);
+
+        // Business method
+        device.save();
+
+        // Asserts
+        Optional<ProtocolDialectProperties> dialectProperties = device.getProtocolDialectProperties(DIALECT_1_NAME);
+        assertThat(dialectProperties.isPresent()).isTrue();
+        assertThat(dialectProperties.get().getDevice()).isNotNull();
+        assertThat(dialectProperties.get().getDevice().getId()).isEqualTo(device.getId());
+        assertThat(dialectProperties.get().getPluggableClass().getId()).isEqualTo(deviceProtocolPluggableClass.getId());
+        assertThat(dialectProperties.get().getProtocolDialectConfigurationProperties().getId()).isEqualTo(protocolDialect1ConfigurationProperties.getId());
+        TypedProperties typedProperties = dialectProperties.get().getTypedProperties();
+        assertThat(typedProperties.size()).isEqualTo(2);
+        assertThat(typedProperties.getProperty(REQUIRED_PROPERTY_NAME_D1)).isEqualTo(REQUIRED_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_WITH_LONG_NAME_D1)).isEqualTo(OPTIONAL_PROPERTY_WITH_LONG_NAME_VALUE);
+    }
+
+    @Test
+    @Transactional
+    public void createAndReloadWithoutViolationsWithVeryLongAttributeTest() throws BusinessException, SQLException {
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createAndReloadWithoutViolationsTest", MRID);
+        device.setProtocolDialectProperty(DIALECT_1_NAME, REQUIRED_PROPERTY_NAME_D1, REQUIRED_PROPERTY_VALUE);
+        device.setProtocolDialectProperty(DIALECT_1_NAME, OPTIONAL_PROPERTY_WITH_LONG_NAME_D1, OPTIONAL_PROPERTY_WITH_LONG_NAME_VALUE);
+        device.save();
+        Device deviceReloaded = inMemoryPersistence.getDeviceService().findDeviceById(device.getId()).get();
+
+        // Business method
+        Optional<ProtocolDialectProperties> dialectProperties = deviceReloaded.getProtocolDialectProperties(DIALECT_1_NAME);
+
+        // Asserts
+        assertThat(dialectProperties.isPresent()).isTrue();
+        assertThat(dialectProperties.get().getDevice()).isNotNull();
+        assertThat(dialectProperties.get().getDevice()).isNotNull();
+        assertThat(dialectProperties.get().getDevice().getId()).isEqualTo(device.getId());
+        assertThat(dialectProperties.get().getPluggableClass().getId()).isEqualTo(deviceProtocolPluggableClass.getId());
+        assertThat(dialectProperties.get().getProtocolDialectConfigurationProperties().getId()).isEqualTo(protocolDialect1ConfigurationProperties.getId());
+        TypedProperties typedProperties = dialectProperties.get().getTypedProperties();
+        assertThat(typedProperties.size()).isEqualTo(2);
+        assertThat(typedProperties.getProperty(REQUIRED_PROPERTY_NAME_D1)).isEqualTo(REQUIRED_PROPERTY_VALUE);
+        assertThat(typedProperties.getProperty(OPTIONAL_PROPERTY_WITH_LONG_NAME_D1)).isEqualTo(OPTIONAL_PROPERTY_WITH_LONG_NAME_VALUE);
     }
 
     @Test

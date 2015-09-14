@@ -221,6 +221,41 @@ public class ConnectionTaskServiceImplOracleSpecificIT {
         oracleIntegrationPersistence.getConnectionTaskService().getConnectionTypeHeatMap(enumeratedEndDeviceGroup);
     }
 
+    @Test
+    @Transactional
+    public void testConnectionTypeHeatMapWithQueryEndDeviceGroup() throws Exception {
+        QueryEndDeviceGroup queryEndDeviceGroup = findOrCreateQueryEndDeviceGroup();
+        oracleIntegrationPersistence.getConnectionTaskService().getConnectionTypeHeatMap(queryEndDeviceGroup);
+    }
+
+    @Test
+    @Transactional
+    public void testConnectionsDeviceTypeHeatMapWithQueryEndDeviceGroup() throws Exception {
+        QueryEndDeviceGroup queryEndDeviceGroup = findOrCreateQueryEndDeviceGroup();
+        oracleIntegrationPersistence.getConnectionTaskService().getConnectionsDeviceTypeHeatMap(queryEndDeviceGroup);
+    }
+
+    @Test
+    @Transactional
+    public void testConnectionsDeviceTypeHeatMapWithEnumeratedEndDeviceGroup() throws Exception {
+        EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = findOrCreateEnumeratedEndDeviceGroup();
+        oracleIntegrationPersistence.getConnectionTaskService().getConnectionsDeviceTypeHeatMap(enumeratedEndDeviceGroup);
+    }
+
+    @Test
+    @Transactional
+    public void testConnectionsComPortPoolHeatMapWithQueryEndDeviceGroup() throws Exception {
+        QueryEndDeviceGroup queryEndDeviceGroup = findOrCreateQueryEndDeviceGroup();
+        oracleIntegrationPersistence.getConnectionTaskService().getConnectionsComPortPoolHeatMap(queryEndDeviceGroup);
+    }
+
+    @Test
+    @Transactional
+    public void testConnectionsComPortPoolHeatMapWithEnumeratedEndDeviceGroup() throws Exception {
+        EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = findOrCreateEnumeratedEndDeviceGroup();
+        oracleIntegrationPersistence.getConnectionTaskService().getConnectionsComPortPoolHeatMap(enumeratedEndDeviceGroup);
+    }
+
     private EnumeratedEndDeviceGroup findOrCreateEnumeratedEndDeviceGroup() {
         Optional<EndDeviceGroup> endDeviceGroup = oracleIntegrationPersistence.getMeteringGroupsService().findEndDeviceGroup("static");
         if (endDeviceGroup.isPresent()) {

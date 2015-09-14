@@ -2,6 +2,12 @@ package com.energyict.mdc.device.data.exceptions;
 
 import com.energyict.mdc.device.data.Device;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
+
+import java.time.Instant;
+import java.util.Date;
+
 /**
  * Models the exceptional situation that occurs when validation
  * is activated on a {@link Device} but the specified last checked
@@ -12,43 +18,41 @@ import com.energyict.mdc.device.data.Device;
  */
 public class InvalidLastCheckedException extends RuntimeException {
 
-    public enum Reason {
-        /**
-         * The last checked timestamp cannot be <code>null</code>.
-         */
-        NULL,
-
-        /**
-         * The specified last checked timestamp is after the
-         * last checked of the current meter activation.
-         */
-        AFTER_CURRENT_LAST_CHECKED;
-
+    public static InvalidLastCheckedException lastCheckedCannotBeNull(Device device, Thesaurus thesaurus, MessageSeed messageSeed) {
+        return new InvalidLastCheckedException(thesaurus, messageSeed, device);
     }
 
-    public static InvalidLastCheckedException lastCheckedCannotBeNull(Device device) {
-        return new InvalidLastCheckedException(Reason.NULL, device);
+    public static InvalidLastCheckedException lastCheckedAfterCurrentLastChecked(Device device, Instant oldLastChecked, Instant newLastChecked, Thesaurus thesaurus, MessageSeed messageSeed) {
+        InvalidLastCheckedException e = new InvalidLastCheckedException(thesaurus, messageSeed, device);
+        e.oldLastChecked = Date.from(oldLastChecked);
+        e.newLastChecked = Date.from(newLastChecked);
+        return e;
     }
 
-    public static InvalidLastCheckedException lastCheckedAfterCurrentLastChecked(Device device) {
-        return new InvalidLastCheckedException(Reason.AFTER_CURRENT_LAST_CHECKED, device);
-    }
-
-    private final Reason reason;
+    private final Thesaurus thesaurus;
+    private final MessageSeed messageSeed;
     private final Device device;
+    private Date oldLastChecked;
+    private Date newLastChecked;
 
-    private InvalidLastCheckedException(Reason reason, Device device) {
+    private InvalidLastCheckedException(Thesaurus thesaurus, MessageSeed messageSeed, Device device) {
         super();
-        this.reason = reason;
+        this.thesaurus = thesaurus;
+        this.messageSeed = messageSeed;
         this.device = device;
-    }
-
-    public Reason getReason() {
-        return reason;
     }
 
     public Device getDevice() {
         return device;
+    }
+
+    public MessageSeed getMessageSeed() {
+        return messageSeed;
+    }
+
+    @Override
+    public String getLocalizedMessage() {
+        return this.thesaurus.getFormat(this.messageSeed).format(this.device.getmRID(), this.oldLastChecked, this.newLastChecked);
     }
 
 }

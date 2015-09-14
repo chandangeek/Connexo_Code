@@ -202,7 +202,7 @@ public class DeviceGroupTest {
                 new UserModule(),
                 new IdsModule(),
                 new FiniteStateMachineModule(),
-                new MeteringModule(false),
+                new MeteringModule(),
                 new InMemoryMessagingModule(),
                 new ValidationModule(),
                 new EstimationModule(),

@@ -40,7 +40,7 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
 
         private ComSessionImpl comSession;
 
-        private final Counter successfulTasks = Counters.newStrictCounter();
+        private final Counter successfulTasks = Counters.newLenientNonNegativeCounter();
         private final Counter failedTasks = Counters.newStrictCounter();
         private final Counter notExecutedTasks = Counters.newStrictCounter();
         private final List<ComTaskExecutionSessionBuilderImpl> comTaskExecutions = new ArrayList<>();
@@ -116,6 +116,12 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         }
 
         @Override
+        public ComSessionBuilder incrementSuccessFulTasks(int numberOfSuccessFulTasks) {
+            successfulTasks.add(numberOfSuccessFulTasks);
+            return parentBuilder();
+        }
+
+        @Override
         public ComSessionBuilder incrementFailedTasks(int numberOfFailedTasks) {
             failedTasks.add(numberOfFailedTasks);
             return parentBuilder();
@@ -125,6 +131,24 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         public ComSessionBuilder incrementNotExecutedTasks(int numberOfPlannedButNotExecutedTasks) {
             notExecutedTasks.add(numberOfPlannedButNotExecutedTasks);
             return parentBuilder();
+        }
+
+        @Override
+        public ComSessionBuilder setSuccessFulTasks(int numberOfSuccessFulTasks) {
+            this.successfulTasks.reset();
+            return this.incrementSuccessFulTasks(numberOfSuccessFulTasks);
+        }
+
+        @Override
+        public ComSessionBuilder setFailedTasks(int numberOfFailedTasks) {
+            this.failedTasks.reset();
+            return this.incrementFailedTasks(numberOfFailedTasks);
+        }
+
+        @Override
+        public ComSessionBuilder setNotExecutedTasks(int numberOfPlannedButNotExecutedTasks) {
+            this.notExecutedTasks.reset();
+            return this.incrementNotExecutedTasks(numberOfPlannedButNotExecutedTasks);
         }
 
         @Override
@@ -152,12 +176,6 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
             else {
                 return cause.toString();
             }
-        }
-
-        @Override
-        public ComSessionBuilder incrementSuccessFulTasks(int numberOfSuccessFulTasks) {
-            successfulTasks.add(numberOfSuccessFulTasks);
-            return parentBuilder();
         }
 
         @Override
@@ -250,6 +268,20 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
     @Override
     public ComSessionBuilder incrementSuccessFulTasks(int numberOfSuccessFulTasks) {
         return state.incrementSuccessFulTasks(numberOfSuccessFulTasks);
+    }
+
+    public ComSessionBuilder setFailedTasks(int numberOfFailedTasks) {
+        return state.setFailedTasks(numberOfFailedTasks);
+    }
+
+    @Override
+    public ComSessionBuilder setNotExecutedTasks(int numberOfPlannedButNotExecutedTasks) {
+        return state.setNotExecutedTasks(numberOfPlannedButNotExecutedTasks);
+    }
+
+    @Override
+    public ComSessionBuilder setSuccessFulTasks(int numberOfSuccessFulTasks) {
+        return state.setSuccessFulTasks(numberOfSuccessFulTasks);
     }
 
     @Override

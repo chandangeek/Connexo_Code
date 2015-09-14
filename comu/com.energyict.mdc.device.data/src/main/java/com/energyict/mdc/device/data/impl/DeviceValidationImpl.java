@@ -1,28 +1,28 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.metering.readings.ReadingQuality;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationEvaluator;
-import com.elster.jupiter.validation.ValidationResult;
-import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
 
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.ValidationResult;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -42,14 +42,16 @@ public class DeviceValidationImpl implements DeviceValidation {
     private final AmrSystem amrSystem;
     private final ValidationService validationService;
     private final Clock clock;
+    private final Thesaurus thesaurus;
     private final DeviceImpl device;
     private transient Meter meter;
     private transient ValidationEvaluator evaluator;
 
-    public DeviceValidationImpl(AmrSystem amrSystem, ValidationService validationService, Clock clock, DeviceImpl device) {
+    public DeviceValidationImpl(AmrSystem amrSystem, ValidationService validationService, Clock clock, Thesaurus thesaurus, DeviceImpl device) {
         this.amrSystem = amrSystem;
         this.validationService = validationService;
         this.clock = clock;
+        this.thesaurus = thesaurus;
         this.device = device;
     }
 
@@ -87,14 +89,14 @@ public class DeviceValidationImpl implements DeviceValidation {
         Meter koreMeter = this.fetchKoreMeter();
         if (koreMeter.hasData()) {
             if (lastChecked == null) {
-                throw InvalidLastCheckedException.lastCheckedCannotBeNull(this.device);
+                throw InvalidLastCheckedException.lastCheckedCannotBeNull(this.device, this.thesaurus, MessageSeeds.LAST_CHECKED_CANNOT_BE_NULL);
             }
             this.getMeterActivationsMostRecentFirst(koreMeter)
                 .filter(each -> this.isEffectiveOrStartsAfterLastChecked(lastChecked, each))
                 .forEach(each -> this.applyLastChecked(lastChecked, each));
         }
         this.validationService.activateValidation(koreMeter);
-        if(onStorage){
+        if (onStorage) {
             this.validationService.enableValidationOnStorage(koreMeter);
         }
         else {
@@ -110,7 +112,7 @@ public class DeviceValidationImpl implements DeviceValidation {
         Optional<Instant> meterActivationLastChecked = validationService.getLastChecked(meterActivation);
         if (meterActivation.isCurrent()) {
             if (meterActivationLastChecked.isPresent() && lastChecked.isAfter(meterActivationLastChecked.get())) {
-                throw InvalidLastCheckedException.lastCheckedAfterCurrentLastChecked(this.device);
+                throw InvalidLastCheckedException.lastCheckedAfterCurrentLastChecked(this.device, meterActivationLastChecked.get(), lastChecked, this.thesaurus, MessageSeeds.LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED);
             }
             this.validationService.updateLastChecked(meterActivation, lastChecked);
         } else {

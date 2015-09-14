@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.data.exceptions;
 
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.sql.Date;
 
@@ -16,8 +18,8 @@ import java.sql.Date;
  */
 public class ConnectionTaskIsAlreadyObsoleteException extends LocalizedException {
 
-    public ConnectionTaskIsAlreadyObsoleteException(Thesaurus thesaurus, ConnectionTask<?,?> connectionTask) {
-        super(thesaurus, MessageSeeds.CONNECTION_TASK_IS_ALREADY_OBSOLETE, connectionTask.getName(), connectionTask.getDevice().getId(), Date.from(connectionTask.getObsoleteDate()));
+    public ConnectionTaskIsAlreadyObsoleteException(ConnectionTask<?, ?> connectionTask, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, connectionTask.getName(), connectionTask.getDevice().getId(), Date.from(connectionTask.getObsoleteDate()));
         this.set("connectionTaskName", connectionTask.getName());
         this.set("deviceId", connectionTask.getDevice().getId());
         this.set("obsoleteDate", connectionTask.getObsoleteDate());

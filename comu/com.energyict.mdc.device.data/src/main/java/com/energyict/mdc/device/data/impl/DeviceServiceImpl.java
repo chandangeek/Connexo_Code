@@ -1,6 +1,17 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -22,19 +33,6 @@ import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectPropertyRelatio
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.sql.SqlBuilder;
 
 import javax.inject.Inject;
 import java.sql.PreparedStatement;
@@ -69,14 +67,10 @@ public class DeviceServiceImpl implements ServerDeviceService {
         this.thesaurus = thesaurus;
     }
 
-    public DataModel dataModel() {
-        return this.deviceDataModelService.dataModel();
-    }
-
     @Override
     public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
         List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
-        finders.add(new DeviceFinder(this));
+        finders.add(new DeviceFinder(this.deviceDataModelService.dataModel()));
         finders.add(new ProtocolDialectPropertiesFinder(this.deviceDataModelService.dataModel()));
         finders.add(new SecuritySetFinder(this.deviceDataModelService.deviceConfigurationService()));
         return finders;
@@ -151,8 +145,7 @@ public class DeviceServiceImpl implements ServerDeviceService {
                 counter.next();
                 return counter.getLong(1);
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }
@@ -160,6 +153,14 @@ public class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID) {
         return this.deviceDataModelService.dataModel().getInstance(DeviceImpl.class).initialize(deviceConfiguration, name, mRID);
+    }
+
+    @Override
+    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, String batch) {
+        Device device = newDevice(deviceConfiguration, name, mRID);
+        device.save();
+        this.deviceDataModelService.batchService().findOrCreateBatch(batch).addDevice(device);
+        return device;
     }
 
     @Override
@@ -173,8 +174,8 @@ public class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public Optional<Device> findAndLockDeviceBymRIDAndVersion(String mrid, long version) {
-        Optional<Device> deviceOptional = this.deviceDataModelService.dataModel().mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), mrid);
+    public Optional<Device> findAndLockDeviceBymRIDAndVersion(String mRID, long version) {
+        Optional<Device> deviceOptional = this.deviceDataModelService.dataModel().mapper(Device.class).getUnique(DeviceFields.MRID.fieldName(), mRID);
         if (deviceOptional.isPresent()) {
             return this.deviceDataModelService.dataModel().mapper(Device.class).lockObjectIfVersion(version, deviceOptional.get().getId());
         } else {
@@ -196,7 +197,7 @@ public class DeviceServiceImpl implements ServerDeviceService {
     public Finder<Device> findAllDevices(Condition condition) {
         return DefaultFinder.of(Device.class, condition, this.deviceDataModelService.dataModel(), DeviceConfiguration.class, DeviceType.class).
                 defaultSortColumn("name").
-                maxPageSize(thesaurus, 10000);
+                maxPageSize(thesaurus, 1000);
     }
 
     @Override
@@ -227,9 +228,8 @@ public class DeviceServiceImpl implements ServerDeviceService {
         return this.deviceDataModelService.dataModel().query(Device.class, ConnectionTask.class, ConnectionTypePluggableClass.class, PluggableClass.class).select(condition);
     }
 
-	@Override
-	public Query<Device> deviceQuery() {
-		return queryService.wrap(deviceDataModelService.dataModel().query(Device.class, DeviceConfiguration.class, DeviceType.class));
-	}
-
+    @Override
+    public Query<Device> deviceQuery() {
+        return queryService.wrap(deviceDataModelService.dataModel().query(Device.class, DeviceConfiguration.class, DeviceType.class));
+    }
 }

@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl.identifiers;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
@@ -42,7 +43,7 @@ public class LoadProfileIdentifierFirstOnDevice implements LoadProfileIdentifier
         Device device = this.deviceIdentifier.findDevice();
         List<LoadProfile> loadProfiles = device.getLoadProfiles();
         if (loadProfiles.isEmpty()) {
-            throw CanNotFindForIdentifier.loadProfile(this);
+            throw CanNotFindForIdentifier.loadProfile(this, MessageSeeds.CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER);
         } else {
             return loadProfiles.get(0);
         }

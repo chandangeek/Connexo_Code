@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 
@@ -48,7 +49,7 @@ public class SimpleDiscoveryProtocol implements InboundDeviceProtocol {
     }
 
     @Override
-    public List<CollectedData> getCollectedData() {
+    public List<CollectedData> getCollectedData(OfflineDevice device) {
         return Collections.emptyList();
     }
 

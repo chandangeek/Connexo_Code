@@ -4,9 +4,9 @@ import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 /**
  * Calculates the scores of the connection setup KPI for a {@link DataCollectionKpiImpl}.
@@ -30,7 +30,7 @@ public class ConnectionSetupKpiCalculator extends AbstractDataCollectionKpiCalcu
     public void calculateAndStore() {
         if (this.kpi.calculatesConnectionSetupKpi()) {
             Map<TaskStatus, Long> statusCounters = this.connectionTaskService.getConnectionTaskStatusCount();
-            long total = Stream.of(TaskStatus.values()).mapToLong(statusCounters::get).sum();
+            long total = EnumSet.complementOf(EnumSet.of(TaskStatus.OnHold)).stream().mapToLong(statusCounters::get).sum();
             if (total > 0) {
                 this.calculateAndStore(this.kpi.connectionKpi().get(), statusCounters, total);
             }

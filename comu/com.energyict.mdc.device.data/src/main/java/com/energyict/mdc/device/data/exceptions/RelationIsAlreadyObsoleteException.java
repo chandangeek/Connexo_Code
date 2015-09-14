@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when
@@ -15,8 +16,8 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class RelationIsAlreadyObsoleteException extends LocalizedException {
 
-    public RelationIsAlreadyObsoleteException(Thesaurus thesaurus, String relationTypeName) {
-        super(thesaurus, MessageSeeds.CODING_RELATION_IS_ALREADY_OBSOLETE, relationTypeName);
+    public RelationIsAlreadyObsoleteException(String relationTypeName, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, relationTypeName);
         this.set("relationTypeName", relationTypeName);
     }
 

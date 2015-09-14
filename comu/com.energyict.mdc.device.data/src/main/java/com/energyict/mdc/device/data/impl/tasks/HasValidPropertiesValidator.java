@@ -1,20 +1,20 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Validates the {@link HasValidProperties} constraint against a {@link ConnectionTaskImpl}.
@@ -108,7 +108,8 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         boolean validConnectionTaskInIncompleteState = isValidConnectionTaskInIncompleteState(connectionTask);
         for (PropertySpec propertySpec : this.getRequiredPropertySpecs(connectionType)) {
             String propertySpecName = propertySpec.getName();
-            if (validConnectionTaskInIncompleteState && ((properties.getProperty(propertySpecName) == null) && !properties.hasInheritedValueFor(propertySpecName))) {
+            if (validConnectionTaskInIncompleteState &&
+                    (hasEmptyLocalValue(properties, propertySpecName) || !hasValue(properties, propertySpecName))) {
                 context.disableDefaultConstraintViolation();
                 if (connectionTask.isAllowIncomplete()) {
                     context
@@ -122,6 +123,14 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
                 this.valid = false;
             }
         }
+    }
+
+    private boolean hasEmptyLocalValue(TypedProperties properties, String propertyName) {
+        return properties.hasLocalValueFor(propertyName) && properties.getLocalValue(propertyName) == null;
+    }
+
+    private boolean hasValue(TypedProperties properties, String propertyName) {
+        return properties.getProperty(propertyName) != null;
     }
 
     private List<PropertySpec> getRequiredPropertySpecs(ConnectionType connectionType) {

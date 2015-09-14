@@ -151,7 +151,7 @@ public class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilter
         this.appendLastSessionStatusClause();
         if (!this.isNull(this.lastSessionEnd)) {
             this.appendWhereOrAnd();
-            this.appendIntervalWhereClause("cs", "STOPDATE", this.lastSessionEnd, IntervalBindStrategy.SECONDS);
+            this.appendIntervalWhereClause("cs", "STOPDATE", this.lastSessionEnd, IntervalBindStrategy.MILLIS);
         }
         this.appendLastSessionStartWhereClause();
     }

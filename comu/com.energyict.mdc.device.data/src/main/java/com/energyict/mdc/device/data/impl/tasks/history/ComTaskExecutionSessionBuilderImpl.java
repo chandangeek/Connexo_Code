@@ -103,6 +103,11 @@ class ComTaskExecutionSessionBuilderImpl implements ComTaskExecutionSessionBuild
         return this;
     }
 
+    @Override
+    public void updateSuccessIndicator(ComTaskExecutionSession.SuccessIndicator successIndicator) {
+        this.successIndicator = successIndicator;
+    }
+
     long getReceivedBytes() {
         return receivedBytes.getValue();
     }

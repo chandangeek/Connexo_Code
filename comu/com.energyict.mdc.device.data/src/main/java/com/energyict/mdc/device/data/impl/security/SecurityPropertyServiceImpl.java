@@ -7,6 +7,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.exceptions.NestedRelationTransactionException;
 import com.energyict.mdc.device.data.exceptions.SecurityPropertyException;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.dynamic.relation.CompositeFilterCriterium;
 import com.energyict.mdc.dynamic.relation.FilterAspect;
 import com.energyict.mdc.dynamic.relation.Relation;
@@ -150,7 +151,15 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
         Boolean status = (Boolean) relation.get(SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME);
         Object propertyValue = relation.get(propertySpec.getName());
         if (propertyValue != null) {
-            return Optional.of(new SecurityPropertyImpl(device, securityPropertySet, propertySpec, propertyValue, relation.getPeriod(), status));
+            return Optional.of(
+                    new SecurityPropertyImpl(
+                            device,
+                            securityPropertySet,
+                            propertySpec,
+                            propertyValue,
+                            relation.getPeriod(),
+                            // Status is a required attribute on the relation should it cannot be null
+                            status));
         }
         else {
             return Optional.empty();
@@ -163,16 +172,36 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
     }
 
     @Override
+    public boolean securityPropertiesAreValid(Device device, SecurityPropertySet securityPropertySet) {
+        if (this.hasRequiredProperties(securityPropertySet)) {
+            return !this.isMissingOrIncomplete(device, securityPropertySet);
+        }
+        else {
+            return true;
+        }
+    }
+
+    private boolean hasRequiredProperties(SecurityPropertySet securityPropertySet) {
+        return securityPropertySet
+                .getPropertySpecs()
+                .stream()
+                .anyMatch(PropertySpec::isRequired);
+    }
+
+    @Override
     public boolean securityPropertiesAreValid(Device device) {
-        return device.getDeviceConfiguration().getComTaskEnablements().stream().noneMatch(comTaskEnablement -> isMissingOrIncomplete(device, comTaskEnablement.getSecurityPropertySet()));
+        return device.getDeviceConfiguration()
+                .getComTaskEnablements()
+                .stream()
+                .noneMatch(comTaskEnablement -> isMissingOrIncomplete(device, comTaskEnablement.getSecurityPropertySet()));
     }
 
     private boolean isMissingOrIncomplete(Device device, SecurityPropertySet securityPropertySet) {
         List<SecurityProperty> securityProperties = this.getSecurityPropertiesIgnoringPrivileges(device, this.clock.instant(), securityPropertySet);
         return securityProperties.isEmpty()
-                || securityProperties
-                .stream()
-                .anyMatch(Predicates.not(SecurityProperty::isComplete));
+            || securityProperties
+                    .stream()
+                    .anyMatch(Predicates.not(SecurityProperty::isComplete));
     }
 
     @Override
@@ -181,7 +210,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
             this.doSetSecurityProperties(device, securityPropertySet, properties);
         }
         else {
-            throw new SecurityPropertyException(this.thesaurus, securityPropertySet);
+            throw new SecurityPropertyException(securityPropertySet, this.thesaurus, MessageSeeds.USER_IS_NOT_ALLOWED_TO_EDIT_SECURITY_PROPERTIES);
         }
     }
 
@@ -199,7 +228,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
             transaction.execute();
         }
         catch (BusinessException e) {
-            throw new NestedRelationTransactionException(this.thesaurus, e, transaction.getRelationType().getName());
+            throw new NestedRelationTransactionException(e, transaction.getRelationType().getName(), this.thesaurus, MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
         }
         catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
@@ -238,7 +267,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
                 relation.delete();
             }
             catch (BusinessException e) {
-                throw new NestedRelationTransactionException(this.thesaurus, e, relationType.getName());
+                throw new NestedRelationTransactionException(e, relationType.getName(), this.thesaurus, MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
             }
             catch (SQLException e) {
                 throw new UnderlyingSQLFailedException(e);

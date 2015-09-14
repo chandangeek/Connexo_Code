@@ -49,7 +49,7 @@ public enum ServerComTaskStatus {
 
         @Override
         public boolean appliesTo(ServerComTaskExecution task, Instant now) {
-            return task.isExecuting() && ((task.getConnectionTask() == null) || (task.getConnectionTask().isExecuting()));
+            return task.isExecuting() && ((!task.getConnectionTask().isPresent()) || (task.getConnectionTask().get().isExecuting()));
         }
 
         @Override

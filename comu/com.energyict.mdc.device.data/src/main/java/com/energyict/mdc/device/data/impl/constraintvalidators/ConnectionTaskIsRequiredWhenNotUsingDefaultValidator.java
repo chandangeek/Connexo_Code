@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 
 import javax.validation.ConstraintValidator;
@@ -23,7 +23,7 @@ public class ConnectionTaskIsRequiredWhenNotUsingDefaultValidator implements Con
 
     @Override
     public boolean isValid(ComTaskExecutionImpl comTaskExecution, ConstraintValidatorContext context) {
-        if (comTaskExecution.getConnectionTask() == null && !comTaskExecution.usesDefaultConnectionTask()) {
+        if (!comTaskExecution.getConnectionTask().isPresent() && !comTaskExecution.usesDefaultConnectionTask()) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CONNECTION_TASK_REQUIRED_WHEN_NOT_USING_DEFAULT + "}")
                     .addPropertyNode(ComTaskExecutionFields.CONNECTIONTASK.fieldName())
