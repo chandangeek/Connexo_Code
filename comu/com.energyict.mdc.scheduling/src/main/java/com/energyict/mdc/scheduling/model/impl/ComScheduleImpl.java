@@ -9,6 +9,8 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import java.time.Clock;
 import java.time.Instant;
+
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.elster.jupiter.time.TemporalExpression;
@@ -108,7 +110,7 @@ public class ComScheduleImpl implements ComSchedule {
 
     @Override
     public void setName(String name) {
-        this.name = name!=null?name.trim():null;
+        this.name = Checks.is(name).emptyOrOnlyWhiteSpace() ? null : name.trim();
     }
 
     @Valid

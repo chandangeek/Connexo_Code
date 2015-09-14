@@ -1,22 +1,6 @@
 package com.energyict.mdc.scheduling.model.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.Resource;
-import com.elster.jupiter.users.ResourceDefinition;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -25,25 +9,42 @@ import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.scheduling.security.Privileges;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-@Component(name = "com.energyict.mdc.scheduling", service = {ServerSchedulingService.class,SchedulingService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, immediate = true, property = "name=" + SchedulingService.COMPONENT_NAME)
-public class SchedulingServiceImpl implements ServerSchedulingService, InstallService, TranslationKeyProvider, PrivilegesProvider {
+@Component(name = "com.energyict.mdc.scheduling", service = {ServerSchedulingService.class,SchedulingService.class, InstallService.class, MessageSeedProvider.class, PrivilegesProvider.class}, immediate = true, property = "name=" + SchedulingService.COMPONENT_NAME)
+public class SchedulingServiceImpl implements ServerSchedulingService, InstallService, MessageSeedProvider, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -116,17 +117,12 @@ public class SchedulingServiceImpl implements ServerSchedulingService, InstallSe
     }
 
     @Override
-    public String getComponentName() {
-        return SchedulingService.COMPONENT_NAME;
-    }
-
-    @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 
