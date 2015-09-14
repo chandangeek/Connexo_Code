@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLoadProfileDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
@@ -28,18 +29,18 @@ import java.util.List;
 public class DeviceLoadProfile extends CollectedDeviceData implements CollectedLoadProfile {
 
     /**
-     * The unique identifier of the LoadProfile for this collected data
+     * The unique identifier of the LoadProfile for this collected data.
      */
     private final LoadProfileIdentifier loadProfileIdentifier;
 
     /**
-     * The collected intervals for the LoadProfile
+     * The collected intervals for the LoadProfile.
      */
     private List<IntervalData> collectedIntervalData;
     private Range<Instant> collectedIntervalDataRange = Range.all();
 
     /**
-     * The <code>ChannelInfo</code> corresponding with the {@link #collectedIntervalData}
+     * The <code>ChannelInfo</code> corresponding to the {@link #collectedIntervalData}.
      */
     private List<ChannelInfo> deviceChannelInfo;
 
@@ -55,14 +56,9 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
 
     @Override
     public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
-        return new CollectedLoadProfileDeviceCommand(this, meterDataStoreCommand, serviceProvider);
+        return new CollectedLoadProfileDeviceCommand(this, this.getComTaskExecution(), meterDataStoreCommand, serviceProvider);
     }
 
-    /**
-     * Default constructor
-     *
-     * @param loadProfileIdentifier the identifier for this collected data
-     */
     public DeviceLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
         super();
         this.loadProfileIdentifier = loadProfileIdentifier;
@@ -73,9 +69,6 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
         return configuration.isConfiguredToCollectLoadProfileData();
     }
 
-    /**
-     * @return the collected {@link IntervalData} since lastReading
-     */
     @Override
     public List<IntervalData> getCollectedIntervalData() {
         if (this.collectedIntervalData == null) {
@@ -88,9 +81,6 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
         return collectedIntervalDataRange;
     }
 
-    /**
-     * @return the channel configuration of the collected {@link IntervalData}
-     */
     @Override
     public List<ChannelInfo> getChannelInfo() {
         if (this.deviceChannelInfo == null) {
@@ -117,9 +107,9 @@ public class DeviceLoadProfile extends CollectedDeviceData implements CollectedL
     @Override
     public void setCollectedData(final List<IntervalData> collectedIntervalData, final List<ChannelInfo> deviceChannelInfo) {
         if (collectedIntervalData == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setCollectedData", "collectedIntervalData");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setCollectedData", "collectedIntervalData", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         } else if (deviceChannelInfo == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setCollectedData", "deviceChannelInfo");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "setCollectedData", "deviceChannelInfo", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         this.collectedIntervalData = collectedIntervalData;
         this.collectedIntervalDataRange = this.calculateCollectedIntervalDataRange(collectedIntervalData);

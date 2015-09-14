@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
@@ -124,7 +125,21 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new NlsModule(),
                 new UserModule(),
                 new FiniteStateMachineModule(),
-                new MeteringModule(),
+                new MeteringModule(
+                        "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                        "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                        "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                        "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
+
+                        "0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                        "0.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                        "0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
+
+                        "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0",
+                        "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"
+
+                        ),
                 new MeteringGroupsModule(),
                 new OrmModule(),
                 new DataVaultModule(),
@@ -279,6 +294,11 @@ public abstract class AbstractCollectedDataIntegrationTest {
 
         @Override
         public EngineService engineService() {
+            return null;
+        }
+
+        @Override
+        public NlsService nlsService() {
             return null;
         }
     }

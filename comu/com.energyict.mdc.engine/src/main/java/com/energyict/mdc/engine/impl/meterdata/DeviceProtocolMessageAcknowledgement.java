@@ -49,7 +49,7 @@ public class DeviceProtocolMessageAcknowledgement extends CollectedDeviceData im
 
     @Override
     public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
-        return new UpdateDeviceMessage(this, serviceProvider);
+        return new UpdateDeviceMessage(this, this.getComTaskExecution(), serviceProvider);
     }
 
     @Override

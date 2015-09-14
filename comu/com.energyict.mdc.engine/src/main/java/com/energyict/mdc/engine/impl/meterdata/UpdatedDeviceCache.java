@@ -18,17 +18,17 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 public class UpdatedDeviceCache extends CollectedDeviceData implements CollectedDeviceCache {
 
     /**
-     * Unique identification object of who needs to update his cache
+     * Unique identification object of who needs to update his cache.
      */
     private final DeviceIdentifier<?> deviceIdentifier;
 
     /**
-     * The DeviceProtocolCache that the protocol used/updated during communication
+     * The DeviceProtocolCache that the protocol used/updated during communication.
      */
     private DeviceProtocolCache updatedDeviceProtocolCache;
 
     /**
-     * Default constructor
+     * Default constructor.
      *
      * @param deviceIdentifier unique identification of the device which need s to update his cache
      */
@@ -53,7 +53,7 @@ public class UpdatedDeviceCache extends CollectedDeviceData implements Collected
     }
 
     /**
-     * Sets the {@link DeviceProtocolCache}
+     * Sets the {@link DeviceProtocolCache}.
      *
      * @param deviceProtocolCache The DeviceProtocolCache
      */
@@ -63,7 +63,7 @@ public class UpdatedDeviceCache extends CollectedDeviceData implements Collected
 
     @Override
     public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
-        return new CollectedDeviceCacheCommand(this, serviceProvider);
+        return new CollectedDeviceCacheCommand(this, this.getComTaskExecution(), serviceProvider);
     }
 
 }

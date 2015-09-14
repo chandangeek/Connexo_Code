@@ -6,7 +6,7 @@ import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
  * Acts as a place holder for a {@link ComPortRelatedComChannel} that
  * does not actually exists yet. As such a ComChannelPlaceHolder
  * may be regarded as a {@link java.util.concurrent.Future}
- * without the capabilities to cancel the asynchroneous computation.
+ * without the capabilities to cancel the asynchronous computation.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-03-20 (08:49)

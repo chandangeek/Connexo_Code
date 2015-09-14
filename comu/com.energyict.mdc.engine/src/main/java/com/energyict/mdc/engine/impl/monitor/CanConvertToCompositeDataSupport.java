@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.monitor;
 
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
@@ -45,7 +46,7 @@ public abstract class CanConvertToCompositeDataSupport {
                         this.values());
         }
         catch (OpenDataException e) {
-            throw CodingException.compositeDataCreation(this.getClass(), e);
+            throw CodingException.compositeDataCreation(this.getClass(), e, MessageSeeds.COMPOSITE_TYPE_CREATION);
         }
     }
 

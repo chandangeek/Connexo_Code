@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -13,6 +13,8 @@ import com.energyict.mdc.engine.impl.commands.collect.VerifyTimeDifferenceComman
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.tasks.BasicCheckTask;
+
+import com.elster.jupiter.time.TimeDuration;
 
 import java.util.Optional;
 
@@ -47,10 +49,10 @@ public class BasicCheckCommandImpl extends CompositeComCommandImpl implements Ba
     public BasicCheckCommandImpl(final BasicCheckTask basicCheckTask, CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
         super(commandRoot);
         if (basicCheckTask == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "basicCheckTask");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "basicCheckTask", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         if (commandRoot == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "commandRoot");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "commandRoot", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         this.basicCheckTask = basicCheckTask;
 

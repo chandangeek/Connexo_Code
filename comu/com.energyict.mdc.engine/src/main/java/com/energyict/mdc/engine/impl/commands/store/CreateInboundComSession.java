@@ -33,7 +33,7 @@ public class CreateInboundComSession extends ExecutionLoggerImpl implements Crea
     private final InboundComPort comPort;
     private final InboundConnectionTask connectionTask;
     private final ComSessionBuilder builder;
-    private final ComSession.SuccessIndicator successIndicator;
+    private ComSession.SuccessIndicator successIndicator;
     private ComSession inboundComSession;
     private StopWatch stopWatch;
 
@@ -53,6 +53,11 @@ public class CreateInboundComSession extends ExecutionLoggerImpl implements Crea
     @Override
     public void setStopWatch(StopWatch stopWatch) {
         this.stopWatch = stopWatch;
+    }
+
+    @Override
+    public void updateSuccessIndicator(ComSession.SuccessIndicator successIndicator) {
+        this.successIndicator = successIndicator;
     }
 
     @Override

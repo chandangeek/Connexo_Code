@@ -17,7 +17,7 @@ public class CollectedFirmwareVersionDeviceCommand extends DeviceCommandImpl {
     private final ComTaskExecution comTaskExecution;
 
     public CollectedFirmwareVersionDeviceCommand(ServiceProvider serviceProvider, CollectedFirmwareVersion collectedFirmwareVersions, ComTaskExecution comTaskExecution) {
-        super(serviceProvider);
+        super(comTaskExecution, serviceProvider);
         this.collectedFirmwareVersions = collectedFirmwareVersions;
         this.comTaskExecution = comTaskExecution;
     }

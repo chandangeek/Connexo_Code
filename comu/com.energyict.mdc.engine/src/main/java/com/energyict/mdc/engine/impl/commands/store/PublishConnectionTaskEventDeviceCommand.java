@@ -23,7 +23,9 @@ public abstract class PublishConnectionTaskEventDeviceCommand extends DeviceComm
     private CreateComSessionDeviceCommand createComSessionDeviceCommand;
 
     public PublishConnectionTaskEventDeviceCommand(ConnectionTask connectionTask, ComPort comPort, ServiceProvider serviceProvider) {
-        super(serviceProvider);
+        /* Not passing the ComTaskExecution because current implementation
+         * is not using it in any way. */
+        super(null, serviceProvider);
         this.connectionTask = connectionTask;
         this.comPort = comPort;
     }

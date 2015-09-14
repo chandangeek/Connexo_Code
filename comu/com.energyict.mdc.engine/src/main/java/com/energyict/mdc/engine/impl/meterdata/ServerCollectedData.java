@@ -1,8 +1,10 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
+import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommandImpl;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 
 /**
@@ -36,5 +38,13 @@ public interface ServerCollectedData extends CollectedData {
      * @param connectionTask The ConnectionTask
      */
     public void postProcess (ConnectionTask connectionTask);
+
+    /**
+     * Injects the currently executing {@link ComTaskExecution}
+     * as part of post processing of this CollectedData.
+     *
+     * @param comTaskExecution the currently executing ComTaskExecution
+     */
+    public void injectComTaskExecution(ComTaskExecution comTaskExecution);
 
 }

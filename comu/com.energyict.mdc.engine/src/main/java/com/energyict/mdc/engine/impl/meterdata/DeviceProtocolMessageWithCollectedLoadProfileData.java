@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLoadProfileDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
@@ -64,8 +65,16 @@ public class DeviceProtocolMessageWithCollectedLoadProfileData extends Collected
     }
 
     @Override
+    public void injectComTaskExecution(ComTaskExecution comTaskExecution) {
+        super.injectComTaskExecution(comTaskExecution);
+        if (this.collectedLoadProfile != null && this.collectedLoadProfile instanceof ServerCollectedData) {
+            ((ServerCollectedData) collectedLoadProfile).injectComTaskExecution(comTaskExecution);
+        }
+    }
+
+    @Override
     public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
-        return new CollectedLoadProfileDeviceCommand(collectedLoadProfile, meterDataStoreCommand, serviceProvider);
+        return new CollectedLoadProfileDeviceCommand(collectedLoadProfile, this.getComTaskExecution(), meterDataStoreCommand, serviceProvider);
     }
 
 }

@@ -25,10 +25,11 @@ public class SerializationException extends LocalizedException {
      * @param thesaurus   the used Thesaurus
      * @param cacheObject the object which we tried to serialize
      * @param message     the exception message
+     * @param messageSeed The MessageSeed
      * @return the newly created SerializationException
      */
-    public static SerializationException whenSerializingCacheObject(Thesaurus thesaurus, Object cacheObject, String message) {
-        return new SerializationException(thesaurus, MessageSeeds.DEVICE_CACHE_SERIALIZATION, cacheObject, message);
+    public static SerializationException whenSerializingCacheObject(Thesaurus thesaurus, Object cacheObject, String message, MessageSeed messageSeed) {
+        return new SerializationException(thesaurus, messageSeed, cacheObject, message);
     }
 
     /**
@@ -38,9 +39,11 @@ public class SerializationException extends LocalizedException {
      * @param thesaurus the used Thesaurus
      * @param bytes     the bytes which we tried to deserialized
      * @param message   the exception message
+     * @param messageSeed The MessageSeed
      * @return the newly created SerializationException
      */
-    public static SerializationException whenDeSerializingCacheObject(Thesaurus thesaurus, byte[] bytes, String message) {
-        return new SerializationException(thesaurus, MessageSeeds.DEVICE_CACHE_DESERIALIZATION, bytes, message);
+    public static SerializationException whenDeSerializingCacheObject(Thesaurus thesaurus, byte[] bytes, String message, MessageSeed messageSeed) {
+        return new SerializationException(thesaurus, messageSeed, bytes, message);
     }
+
 }

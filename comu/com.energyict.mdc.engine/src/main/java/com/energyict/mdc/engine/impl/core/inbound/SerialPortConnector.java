@@ -1,13 +1,14 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
 import com.energyict.mdc.common.NestedIOException;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
+import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannelImpl;
-import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.io.ModemComponent;
 import com.energyict.mdc.io.ModemException;
 import com.energyict.mdc.io.SerialComChannel;
@@ -42,6 +43,7 @@ public class SerialPortConnector implements InboundComPortConnector {
      * The number of consecutive rings already received.
      */
     private int currentRingCount;
+    private ComPortRelatedComChannel comChannel;
 
     public SerialPortConnector(ModemBasedInboundComPort comPort, SerialComponentService serialComponentService, HexService hexService, EventPublisher eventPublisher, Clock clock) {
         super();
@@ -60,9 +62,16 @@ public class SerialPortConnector implements InboundComPortConnector {
         waitForNumberOfRings(comChannel, modemComponent);
         acceptCallAndConnect(comChannel, modemComponent);
 
-        return new ComPortRelatedComChannelImpl(comChannel, this.comPort, this.clock, this.hexService, eventPublisher);
+        this.comChannel = new ComPortRelatedComChannelImpl(comChannel, this.comPort, this.clock, this.hexService, eventPublisher);
+        return this.comChannel;
     }
 
+    @Override
+    public void close() throws Exception {
+        if (this.comChannel != null) {
+            this.comChannel.close();
+        }
+    }
 
     private void waitForNumberOfRings(SerialComChannel comChannel, ModemComponent modemComponent) {
         do {
@@ -91,8 +100,7 @@ public class SerialPortConnector implements InboundComPortConnector {
     }
 
     private ModemComponent initializeAtModemComponent(SerialComChannel comChannel) {
-        ModemComponent atModemComponent = this.serialComponentService.newModemComponent(
-                "",
+        ModemComponent atModemComponent = this.serialComponentService.newModemComponent("",
                 "",
                 comPort.getConnectTimeout(),
                 comPort.getDelayAfterConnect(),
@@ -122,8 +130,8 @@ public class SerialPortConnector implements InboundComPortConnector {
     }
 
     /**
-     * Creates a new {@link ComChannel} that uses a {@link ServerSerialPort}
-     * as the interface with the physical ComPort.
+     * Creates a new {@link ComChannel}
+     * that uses a {@link ServerSerialPort} as the interface with the physical ComPort.
      *
      * @param serialPortConfiguration the configuration of the serialPort
      * @return the ComChannel
@@ -135,15 +143,16 @@ public class SerialPortConnector implements InboundComPortConnector {
             serialPort.openAndInit();
             return serialComponentService.newSerialComChannel(serialPort);
         } catch (SerialPortException e) {
-            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, (IOException) e.getCause());
+            throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, (IOException) e.getCause());
         } catch (UnsatisfiedLinkError e) {
-            throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, new NestedIOException(e));
+            throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, new NestedIOException(e));
         }
     }
 
     public int getCurrentRingCount() {
         return currentRingCount;
     }
+
 }
 
 // 5. Create the tests based on UDPPortConnectorTest

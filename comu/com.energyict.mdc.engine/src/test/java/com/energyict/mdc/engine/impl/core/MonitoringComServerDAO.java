@@ -28,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link ComServerDAO} interface
@@ -54,7 +55,6 @@ public class MonitoringComServerDAO implements ComServerDAO {
     private Counter getThisComServer = new Counter();
     private Counter getComServer = new Counter();
     private Counter refreshComServer = new Counter();
-    private Counter refreshComPort = new Counter();
     private Counter findExecutableComTasks = new Counter();
     private Counter connectionTaskExecutionStarted = new Counter();
     private Counter connectionTaskExecutionCompleted = new Counter();
@@ -69,7 +69,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     public ComServerDAO verify (CounterVerifier verifier) {
-        return new VerifingComServerDAO(verifier);
+        return new VerifyingComServerDAO(verifier);
     }
 
     @Override
@@ -91,12 +91,6 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public ComPort refreshComPort (ComPort comPort) {
-        this.refreshComPort.increment();
-        return this.actual.refreshComPort(comPort);
-    }
-
-    @Override
     public List<ComJob> findExecutableOutboundComTasks (OutboundComPort comPort) {
         this.findExecutableComTasks.increment();
         return this.actual.findExecutableOutboundComTasks(comPort);
@@ -108,35 +102,34 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public OfflineDevice findOfflineDevice(DeviceIdentifier identifier) {
-        return null;
+    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier identifier) {
+        return Optional.empty();
     }
 
     @Override
-    public OfflineDevice findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
-        return null;
+    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
+        return Optional.empty();
     }
 
     @Override
-    public OfflineRegister findOfflineRegister(RegisterIdentifier identifier) {
-        return null;
+    public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier) {
+        return Optional.empty();
     }
 
     @Override
-    public OfflineLoadProfile findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
-        return null;
+    public Optional<OfflineLoadProfile> findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
+        return Optional.empty();
     }
 
     @Override
-    public OfflineLogBook findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
-        return null;
+    public Optional<OfflineLogBook> findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
+        return Optional.empty();
     }
 
-
-    //    @Override
-//    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
-//        return null;
-//    }
+    @Override
+    public Optional<OfflineDeviceMessage> findOfflineDeviceMessage(MessageIdentifier identifier) {
+        return Optional.empty();
+    }
 
     @Override
     public List<ConnectionTaskProperty> findProperties(ConnectionTask connectionTask) {
@@ -279,10 +272,10 @@ public class MonitoringComServerDAO implements ComServerDAO {
         return this.actual.createComSession(builder, successIndicator);
     }
 
-    private class VerifingComServerDAO implements ComServerDAO {
+    private class VerifyingComServerDAO implements ComServerDAO {
         private CounterVerifier verifier;
 
-        private VerifingComServerDAO (CounterVerifier verifier) {
+        private VerifyingComServerDAO(CounterVerifier verifier) {
             super();
             this.verifier = verifier;
         }
@@ -302,12 +295,6 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public ComServer refreshComServer (ComServer comServer) {
             this.verifier.verify(refreshComServer);
-            return null;
-        }
-
-        @Override
-        public ComPort refreshComPort (ComPort comPort) {
-            this.verifier.verify(refreshComPort);
             return null;
         }
 
@@ -368,34 +355,34 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public OfflineDevice findOfflineDevice(DeviceIdentifier identifier) {
-            return null;
+        public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier identifier) {
+            return Optional.empty();
         }
 
         @Override
-        public OfflineDevice findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
-            return null;
+        public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
+            return Optional.empty();
         }
 
         @Override
-        public OfflineRegister findOfflineRegister(RegisterIdentifier identifier) {
-            return null;
+        public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier) {
+            return Optional.empty();
         }
 
         @Override
-        public OfflineLoadProfile findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
-            return null;
+        public Optional<OfflineLoadProfile> findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
+            return Optional.empty();
         }
 
         @Override
-        public OfflineLogBook findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
-            return null;
+        public Optional<OfflineLogBook> findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
+            return Optional.empty();
         }
 
-        //        @Override
-//        public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
-//            return null;
-//        }
+        @Override
+        public Optional<OfflineDeviceMessage> findOfflineDeviceMessage(MessageIdentifier identifier) {
+            return Optional.empty();
+        }
 
         @Override
         public List<ConnectionTaskProperty> findProperties(ConnectionTask connectionTask) {

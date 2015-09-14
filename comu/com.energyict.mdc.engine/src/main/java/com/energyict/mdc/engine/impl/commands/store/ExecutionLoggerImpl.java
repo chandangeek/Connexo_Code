@@ -5,8 +5,9 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.issues.Issue;
 
 import java.time.Clock;
@@ -21,6 +22,7 @@ import java.util.Optional;
 public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogger {
 
     private ComServer.LogLevel logLevel;
+    private long problemCounter = 0;
     private final Clock clock;
 
     protected ExecutionLoggerImpl(ComServer.LogLevel logLevel, Clock clock) {
@@ -54,7 +56,7 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
 
     @Override
     public void logUnexpected (Throwable t, ComTaskExecution comTaskExecution) {
-        this.logFailure(t, this.findComTaskExecutionSession(comTaskExecution));
+        this.logFailure(StackTracePrinter.print(t), this.findComTaskExecutionSession(comTaskExecution));
     }
 
     private ComTaskExecutionSessionBuilder findComTaskExecutionSession (ComTaskExecution comTaskExecution) {
@@ -62,11 +64,11 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
         if (found.isPresent()) {
             return found.get();
         }
-        throw CodingException.comTaskSessionMissing(comTaskExecution);
+        throw CodingException.comTaskSessionMissing(comTaskExecution, MessageSeeds.SESSION_FOR_COMTASK_MISSING);
     }
 
-    private void logFailure (Throwable t, ComTaskExecutionSessionBuilder builder) {
-        builder.addComCommandJournalEntry(clock.instant(), CompletionCode.UnexpectedError, StackTracePrinter.print(t), "General");
+    private void logFailure(String errorMessage, ComTaskExecutionSessionBuilder builder){
+        builder.addComCommandJournalEntry(clock.instant(), CompletionCode.UnexpectedError, errorMessage, "General");
     }
 
     @Override
@@ -75,7 +77,15 @@ public abstract class ExecutionLoggerImpl implements DeviceCommand.ExecutionLogg
     }
 
     private void logIssue(CompletionCode completionCode, Issue issue, ComTaskExecutionSessionBuilder builder) {
+        if (issue.isProblem()) {
+            this.problemCounter++;
+        }
         builder.addComCommandJournalEntry(issue.getTimestamp(), completionCode, issue.isProblem() ? issue.getDescription() : "", issue.getDescription());
+    }
+
+    @Override
+    public boolean hasProblems() {
+        return this.problemCounter > 0;
     }
 
 }

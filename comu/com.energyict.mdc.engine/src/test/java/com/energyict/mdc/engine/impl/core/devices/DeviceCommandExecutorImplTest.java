@@ -4,6 +4,7 @@ import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
@@ -16,6 +17,7 @@ import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import org.joda.time.DateTimeConstants;
@@ -32,6 +34,7 @@ import java.util.concurrent.ThreadFactory;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Answers;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -73,9 +76,15 @@ public class DeviceCommandExecutorImplTest {
     private EventPublisherImpl eventPublisher;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ConnectionTaskService connectionTaskService;
+    @Mock
+    private ComServerDAO comServerDAO;
 
     @Before
     public void initializeMocks() {
+        when(comServerDAO.executeTransaction(Matchers.<Transaction<Object>>any())).thenAnswer(invocationOnMock -> {
+            ((Transaction) invocationOnMock.getArguments()[0]).perform();
+            return true;
+        });
         when(userService.findUser(anyString())).thenReturn(Optional.of(user));
         when(this.comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
     }
@@ -83,7 +92,7 @@ public class DeviceCommandExecutorImplTest {
     @Test
     public void testStart() {
         ThreadFactory threadFactory = mock(ThreadFactory.class);
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, threadFactory, clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, threadFactory, clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
 
         // Business method
         deviceCommandExecutor.start();
@@ -96,7 +105,7 @@ public class DeviceCommandExecutorImplTest {
     @Test
     public void testPrepareExecution() {
         ThreadFactory threadFactory = mock(ThreadFactory.class);
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, threadFactory, clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, threadFactory, clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
         deviceCommandExecutor.start();
 
         // Business method
@@ -112,7 +121,7 @@ public class DeviceCommandExecutorImplTest {
         Thread mockedThread = mock(Thread.class);
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         when(threadFactory.newThread(any(Runnable.class))).thenReturn(mockedThread);
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, threadFactory, clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, threadFactory, clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
         deviceCommandExecutor.start();
         List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(1);
         DeviceCommandExecutionToken token = tokens.get(0);
@@ -131,7 +140,7 @@ public class DeviceCommandExecutorImplTest {
         try {
             TrackingThreadFactory threadFactory = new TrackingThreadFactory(new ComServerThreadFactory(this.comServer));
             int threadPriority = Thread.MAX_PRIORITY;
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, threadPriority, ComServer.LogLevel.INFO, threadFactory, clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, threadPriority, ComServer.LogLevel.INFO, threadFactory, clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(1);
             DeviceCommandExecutionToken token = tokens.get(0);
@@ -151,7 +160,7 @@ public class DeviceCommandExecutorImplTest {
     public void testExecuteWithPreparation() throws InterruptedException {
         DeviceCommandExecutor deviceCommandExecutor = null;
         try {
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(1);
             DeviceCommandExecutionToken token = tokens.get(0);
@@ -181,7 +190,7 @@ public class DeviceCommandExecutorImplTest {
         when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
         DeviceCommandExecutor deviceCommandExecutor = null;
         try {
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(CAPACITY);
             Collections.reverse(tokens);
@@ -214,7 +223,7 @@ public class DeviceCommandExecutorImplTest {
         DeviceCommandExecutor deviceCommandExecutor = null;
 
         try {
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             DeviceCommandExecutionToken token = mock(DeviceCommandExecutionToken.class);
 
@@ -234,7 +243,7 @@ public class DeviceCommandExecutorImplTest {
         DeviceCommandExecutor deviceCommandExecutor = null;
 
         try {
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(1);
             DeviceCommandExecutionToken token = tokens.get(0);
@@ -264,7 +273,7 @@ public class DeviceCommandExecutorImplTest {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
         ThreadFactory threadFactory = mock(ThreadFactory.class);
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, threadFactory, clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, threadFactory, clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
         deviceCommandExecutor.start();
 
         // Business method
@@ -289,7 +298,7 @@ public class DeviceCommandExecutorImplTest {
         ComServer comServer = mock(ComServer.class);
         when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
         ThreadFactory threadFactory = mock(ThreadFactory.class);
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, threadFactory, clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, threadFactory, clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
         deviceCommandExecutor.start();
         deviceCommandExecutor.tryAcquireTokens(CAPACITY - 1);
 
@@ -316,7 +325,7 @@ public class DeviceCommandExecutorImplTest {
         when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
         DeviceCommandExecutor deviceCommandExecutor = null;
         try {
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             int numberOfCommands = CAPACITY - 1;
             List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfCommands);
@@ -356,7 +365,7 @@ public class DeviceCommandExecutorImplTest {
         CountDownLatch stopLatch = new CountDownLatch(numberOfExecutingCommands);
         DeviceCommandExecutor deviceCommandExecutor = null;
         try {
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands);
             for (DeviceCommandExecutionToken token : alreadyPrepared) {
@@ -403,7 +412,7 @@ public class DeviceCommandExecutorImplTest {
             /* Restrict the execution of the commands to only 2 threads,
              * freeing the tokens runs at higher priority then normal commands
              * so the tokens should normally be freed before the execution of the last command. */
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, 2, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, 2, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands + 2);
             DeviceCommandExecutionToken unused1 = alreadyPrepared.remove(0);
@@ -439,7 +448,7 @@ public class DeviceCommandExecutorImplTest {
             ComServer comServer = mock(ComServer.class);
             when(comServer.getName()).thenReturn("DeviceCommandExecutorImplTest");
             int numberOfExecutingCommands = CAPACITY - 1;
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
 
             // Business method
@@ -464,7 +473,7 @@ public class DeviceCommandExecutorImplTest {
         CountDownLatch stopLatch = new CountDownLatch(numberOfExecutingCommands);
         DeviceCommandExecutor deviceCommandExecutor = null;
         try {
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.ERROR, new ComServerThreadFactory(this.comServer), clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.ERROR, new ComServerThreadFactory(this.comServer), clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands);
             for (DeviceCommandExecutionToken token : alreadyPrepared) {
@@ -498,7 +507,7 @@ public class DeviceCommandExecutorImplTest {
         CountDownLatch stopLatch = new CountDownLatch(numberOfExecutingCommands);
         DeviceCommandExecutor deviceCommandExecutor = null;
         try {
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.ERROR, new ComServerThreadFactory(this.comServer), clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.ERROR, new ComServerThreadFactory(this.comServer), clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands);
             for (DeviceCommandExecutionToken token : alreadyPrepared) {
@@ -532,7 +541,7 @@ public class DeviceCommandExecutorImplTest {
         CountDownLatch stopLatch = new CountDownLatch(numberOfExecutingCommands);
         DeviceCommandExecutor deviceCommandExecutor = null;
         try {
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.ERROR, new ComServerThreadFactory(this.comServer), clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, numberOfExecutingCommands, THREAD_PRIORITY, ComServer.LogLevel.ERROR, new ComServerThreadFactory(this.comServer), clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             List<DeviceCommandExecutionToken> alreadyPrepared = deviceCommandExecutor.tryAcquireTokens(numberOfExecutingCommands);
             for (DeviceCommandExecutionToken token : alreadyPrepared) {
@@ -558,7 +567,7 @@ public class DeviceCommandExecutorImplTest {
     @Test(expected = IllegalStateException.class)
     public void testPrepareExecutionWhenNotRunning() {
         ThreadFactory threadFactory = mock(ThreadFactory.class);
-        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, threadFactory, clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+        DeviceCommandExecutor deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, threadFactory, clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
 
         // Business method
         deviceCommandExecutor.tryAcquireTokens(10);
@@ -570,7 +579,7 @@ public class DeviceCommandExecutorImplTest {
     public void testShutdownWithoutCommands() {
         DeviceCommandExecutor deviceCommandExecutor = null;
         try {
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
 
             // Business method
@@ -587,7 +596,7 @@ public class DeviceCommandExecutorImplTest {
     public void testShutdownWithCommandsOnSingleThread() {
         DeviceCommandExecutor deviceCommandExecutor = null;
         try {
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, 1, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, 1, THREAD_PRIORITY, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(CAPACITY);
             SignalReceiver receiver = mock(SignalReceiver.class);
@@ -617,7 +626,7 @@ public class DeviceCommandExecutorImplTest {
         TrackingThreadFactory threadFactory = new TrackingThreadFactory(realThreadFactory);
         DeviceCommandExecutor deviceCommandExecutor = null;
         try {
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, CAPACITY, THREAD_PRIORITY, ComServer.LogLevel.INFO, threadFactory, clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, CAPACITY, THREAD_PRIORITY, ComServer.LogLevel.INFO, threadFactory, clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(CAPACITY);
             SignalReceiver receiver = mock(SignalReceiver.class);
@@ -667,7 +676,6 @@ public class DeviceCommandExecutorImplTest {
     @Test
     public void testShutdownImmediateOnlyExecutesImmediateCommands() throws InterruptedException {
         TrackingThreadFactory threadFactory = new TrackingThreadFactory(new ComServerThreadFactory(this.comServer));
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
         DeviceCommandExecutorImpl deviceCommandExecutor = null;
         try {
             deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, 1, Thread.MIN_PRIORITY, ComServer.LogLevel.INFO, threadFactory, clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
@@ -706,7 +714,7 @@ public class DeviceCommandExecutorImplTest {
         int threadPriority = Thread.MIN_PRIORITY;
         DeviceCommandExecutorImpl deviceCommandExecutor = null;
         try {
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, threadPriority, ComServer.LogLevel.INFO, threadFactory, clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, NUMBER_OF_THREADS, threadPriority, ComServer.LogLevel.INFO, threadFactory, clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             List<DeviceCommandExecutionToken> tokens = deviceCommandExecutor.tryAcquireTokens(1);
             DeviceCommandExecutionToken token = tokens.get(0);
@@ -732,7 +740,7 @@ public class DeviceCommandExecutorImplTest {
         int initialCapacity = CAPACITY;
         DeviceCommandExecutorImpl deviceCommandExecutor = null;
         try {
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), initialCapacity, NUMBER_OF_THREADS, threadPriority, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), initialCapacity, NUMBER_OF_THREADS, threadPriority, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             deviceCommandExecutor.tryAcquireTokens(CAPACITY);
 
@@ -755,7 +763,7 @@ public class DeviceCommandExecutorImplTest {
         int initialCapacity = CAPACITY;
         DeviceCommandExecutorImpl deviceCommandExecutor = null;
         try {
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), initialCapacity, NUMBER_OF_THREADS, threadPriority, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), initialCapacity, NUMBER_OF_THREADS, threadPriority, ComServer.LogLevel.INFO, new ComServerThreadFactory(this.comServer), clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             deviceCommandExecutor.tryAcquireTokens(CAPACITY - 2);
 
@@ -779,7 +787,7 @@ public class DeviceCommandExecutorImplTest {
         int initialNumberOfThreads = NUMBER_OF_THREADS;
         DeviceCommandExecutorImpl deviceCommandExecutor = null;
         try {
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, initialNumberOfThreads, threadPriority, ComServer.LogLevel.INFO, threadFactory, clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, initialNumberOfThreads, threadPriority, ComServer.LogLevel.INFO, threadFactory, clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             List<DeviceCommandExecutionToken> firstSetOfTokens = deviceCommandExecutor.tryAcquireTokens(CAPACITY);
             CountDownLatch firstStartLatch = new CountDownLatch(1);
@@ -818,7 +826,7 @@ public class DeviceCommandExecutorImplTest {
         int initialNumberOfThreads = 5;
         DeviceCommandExecutorImpl deviceCommandExecutor = null;
         try {
-            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, initialNumberOfThreads, threadPriority, ComServer.LogLevel.INFO, threadFactory, clock, mock(ComServerDAO.class), eventPublisher, mock(ThreadPrincipalService.class), userService);
+            deviceCommandExecutor = new DeviceCommandExecutorImpl(this.comServer.getName(), CAPACITY, initialNumberOfThreads, threadPriority, ComServer.LogLevel.INFO, threadFactory, clock, comServerDAO, eventPublisher, mock(ThreadPrincipalService.class), userService);
             deviceCommandExecutor.start();
             List<DeviceCommandExecutionToken> firstSetOfTokens = deviceCommandExecutor.tryAcquireTokens(CAPACITY);
             CountDownLatch firstStartLatch = new CountDownLatch(1);
@@ -955,7 +963,7 @@ public class DeviceCommandExecutorImplTest {
         @Override
         protected void doExecute() {
             super.doExecute();
-            throw new DataAccessException(new SQLException(this.getClass().getName() + " - For unit testing purposes only"));
+            throw new DataAccessException(new SQLException(this.getClass().getName() + " - For unit testing purposes only"), MessageSeeds.UNEXPECTED_SQL_ERROR);
         }
 
     }

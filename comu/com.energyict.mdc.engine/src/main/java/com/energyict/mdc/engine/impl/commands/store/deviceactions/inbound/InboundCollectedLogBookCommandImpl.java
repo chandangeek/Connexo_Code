@@ -5,8 +5,10 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.LogBooksCommandImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LogBooksTask;
 
@@ -33,7 +35,7 @@ public class InboundCollectedLogBookCommandImpl extends LogBooksCommandImpl {
 
     @Override
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        this.addListOfCollectedDataItems(collectedData);
+        collectedData.stream().filter(dataItem -> dataItem instanceof CollectedLogBook || dataItem instanceof DeviceIpAddress).forEach(this::addCollectedDataItem);
     }
 
 }

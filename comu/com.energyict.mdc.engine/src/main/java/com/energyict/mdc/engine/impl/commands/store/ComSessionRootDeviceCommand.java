@@ -1,11 +1,11 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-
-import com.elster.jupiter.util.time.StopWatch;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,11 +25,11 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     private CreateComSessionDeviceCommand createComSessionDeviceCommand;
     private PublishConnectionTaskEventDeviceCommand publishConnectionTaskEventDeviceCommand;
 
-    public ComSessionRootDeviceCommand () {
+    public ComSessionRootDeviceCommand() {
         this(ComServer.LogLevel.INFO);
     }
 
-    public ComSessionRootDeviceCommand (ComServer.LogLevel communicationLogLevel) {
+    public ComSessionRootDeviceCommand(ComServer.LogLevel communicationLogLevel) {
         super(communicationLogLevel);
     }
 
@@ -39,6 +39,10 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
         if (this.publishConnectionTaskEventDeviceCommand != null) {
             this.publishConnectionTaskEventDeviceCommand.setCreateComSessionDeviceCommand(command);
         }
+    }
+
+    public CreateComSessionDeviceCommand getCreateComSessionDeviceCommand() {
+        return createComSessionDeviceCommand;
     }
 
     @Override
@@ -76,10 +80,7 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     public void execute (final ComServerDAO comServerDAO) {
         this.startStopWatch();
         this.broadCastFailureLoggerIfAny();
-        comServerDAO.executeTransaction(() -> {
-            executeAll(comServerDAO);
-            return null;
-        });
+        executeAll(comServerDAO);
     }
 
     private void startStopWatch() {
@@ -123,7 +124,13 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
 
         if (this.isJournalingLevelEnabled(serverLogLevel, ComServer.LogLevel.INFO)) {
             StringBuilder stringBuilder = builder.addProperty("commands");
-            Iterator<DeviceCommand> commandIterator = this.getChildren().iterator();
+
+            List<DeviceCommand> deviceCommands = super.getChildren();
+            if (this.createComSessionDeviceCommand != null) {
+                deviceCommands.add(this.createComSessionDeviceCommand);
+            }
+
+            Iterator<DeviceCommand> commandIterator = deviceCommands.iterator();
             while (commandIterator.hasNext()) {
                 DeviceCommand command = commandIterator.next();
                 String messageDescription = command.toJournalMessageDescription(serverLogLevel);

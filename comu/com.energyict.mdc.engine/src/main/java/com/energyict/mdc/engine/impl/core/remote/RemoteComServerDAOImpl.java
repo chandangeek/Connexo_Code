@@ -1,27 +1,51 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
-import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.transaction.Transaction;
 import com.energyict.mdc.common.ApplicationException;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
-import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
-import com.energyict.mdc.engine.impl.core.*;
+import com.energyict.mdc.engine.impl.MessageSeeds;
+import com.energyict.mdc.engine.impl.core.ComJob;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.RemoteComServerQueryJSonPropertyNames;
+import com.energyict.mdc.engine.impl.core.ServerProcess;
+import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
 import com.energyict.mdc.protocol.api.device.data.TopologyPathSegment;
-import com.energyict.mdc.protocol.api.device.data.identifiers.*;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LogBookIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-import com.energyict.mdc.protocol.api.device.offline.*;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
+import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
+
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.Transaction;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketClient;
 import org.eclipse.jetty.websocket.WebSocketClientFactory;
@@ -34,7 +58,12 @@ import java.net.URISyntaxException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -97,15 +126,6 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE, comServer.getModificationDate());
         JSONObject response = this.post(QueryMethod.RefreshComServer, queryParameters);
         return this.toComServer(response);
-    }
-
-    @Override
-    public ComPort refreshComPort (ComPort comPort) {
-        Map<String, Object> queryParameters = new HashMap<>();
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
-        queryParameters.put(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE, comPort.getModificationDate());
-        JSONObject response = this.post(QueryMethod.RefreshComPort, queryParameters);
-        return this.toComPort(response);
     }
 
     @Override
@@ -301,28 +321,33 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public OfflineDevice findOfflineDevice(DeviceIdentifier identifier) {
-        return null;
+    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier identifier) {
+        return Optional.empty();
     }
 
     @Override
-    public OfflineDevice findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
-        return null;
+    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
+        return Optional.empty();
     }
 
     @Override
-    public OfflineRegister findOfflineRegister(RegisterIdentifier identifier) {
-        return null;
+    public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier) {
+        return Optional.empty();
     }
 
     @Override
-    public OfflineLoadProfile findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
-        return null;
+    public Optional<OfflineLoadProfile> findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
+        return Optional.empty();
     }
 
     @Override
-    public OfflineLogBook findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
-        return null;
+    public Optional<OfflineLogBook> findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<OfflineDeviceMessage> findOfflineDeviceMessage(MessageIdentifier identifier) {
+        return Optional.empty();
     }
 
     @Override
@@ -397,7 +422,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
             return new ComServerParser(this.serviceProvider.engineConfigurationService()).parse(response);
         }
         catch (JSONException e) {
-            throw new DataAccessException(e);
+            throw new DataAccessException(e, MessageSeeds.UNEXPECTED_SQL_ERROR);
         }
     }
 
@@ -406,7 +431,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
             return new ComPortParser(this.serviceProvider.engineConfigurationService()).parse(response);
         }
         catch (JSONException e) {
-            throw new DataAccessException(e);
+            throw new DataAccessException(e, MessageSeeds.UNEXPECTED_SQL_ERROR);
         }
     }
 
@@ -415,7 +440,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
             return new TimeDurationParser().parse(response);
         }
         catch (JSONException e) {
-            throw new DataAccessException(e);
+            throw new DataAccessException(e, MessageSeeds.UNEXPECTED_SQL_ERROR);
         }
     }
 
@@ -424,7 +449,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
             return new BooleanParser().parse(response);
         }
         catch (JSONException e) {
-            throw new DataAccessException(e);
+            throw new DataAccessException(e, MessageSeeds.UNEXPECTED_SQL_ERROR);
         }
     }
 
@@ -440,19 +465,19 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
             return query.getResponse().get(5, TimeUnit.MINUTES);
         }
         catch (JSONException e) {
-            throw new DataAccessException(e);
+            throw new DataAccessException(e, MessageSeeds.UNEXPECTED_SQL_ERROR);
         }
         catch (IOException e) {
-            throw new DataAccessException(e);
+            throw new DataAccessException(e, MessageSeeds.UNEXPECTED_SQL_ERROR);
         }
         catch (InterruptedException e) {
-            throw new DataAccessException(e); // TODO thread safety hazard : this is not responsive to interruption
+            throw new DataAccessException(e, MessageSeeds.UNEXPECTED_SQL_ERROR); // TODO thread safety hazard : this is not responsive to interruption
         }
         catch (ExecutionException e) {
-            throw new DataAccessException(e);
+            throw new DataAccessException(e, MessageSeeds.UNEXPECTED_SQL_ERROR);
         }
         catch (TimeoutException e) {
-            throw new DataAccessException(e);
+            throw new DataAccessException(e, MessageSeeds.UNEXPECTED_SQL_ERROR);
         }
     }
 
@@ -484,7 +509,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
             this.status = ServerProcessStatus.STARTED;
         }
         catch (URISyntaxException e) {
-            throw CodingException.validationFailed(OnlineComServer.class, "queryAPIPostUri");
+            throw CodingException.validationFailed(OnlineComServer.class, "queryAPIPostUri", MessageSeeds.VALIDATION_FAILED);
         }
         catch (Exception e) {
             throw new ApplicationException("Unable to start connection with online comserver at " + this.queryAPIPostUri, e);

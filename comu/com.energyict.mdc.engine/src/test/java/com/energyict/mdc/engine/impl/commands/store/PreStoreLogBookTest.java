@@ -38,7 +38,7 @@ import java.util.List;
 
 import org.mockito.Mock;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -88,9 +88,10 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         assertThat(collectedLogBook.getCollectedMeterEvents()).overridingErrorMessage("The collected data should contain {0} events to start", 2).hasSize(2);
 
         PreStoreLogBook preStoreLogBook = new PreStoreLogBook(getClock(), comServerDAO);
-        Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook> localLogBook = preStoreLogBook.preStore(collectedLogBook);
+        Optional<Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
 
-        assertThat(localLogBook.getLast().getEndDeviceEvents()).hasSize(2);
+        assertThat(localLogBook).isPresent();
+        assertThat(localLogBook.get().getLast().getEndDeviceEvents()).hasSize(2);
     }
 
     @Test
@@ -108,9 +109,10 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         assertThat(collectedLogBook.getCollectedMeterEvents()).overridingErrorMessage("The collected data should contain {0} events to start", 2).hasSize(2);
 
         PreStoreLogBook preStoreLogBook = new PreStoreLogBook(getClock(), comServerDAO);
-        Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook> localLogBook = preStoreLogBook.preStore(collectedLogBook);
+        Optional<Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
 
-        assertThat(localLogBook.getLast().getEndDeviceEvents()).hasSize(1);
+        assertThat(localLogBook).isPresent();
+        assertThat(localLogBook.get().getLast().getEndDeviceEvents()).hasSize(1);
     }
 
     @Test
@@ -128,16 +130,17 @@ public class PreStoreLogBookTest extends AbstractCollectedDataIntegrationTest {
         assertThat(collectedLogBook.getCollectedMeterEvents()).overridingErrorMessage("The collected data should contain {0} events to start", 4).hasSize(4);
 
         PreStoreLogBook preStoreLogBook = new PreStoreLogBook(getClock(), comServerDAO);
-        Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook> localLogBook = preStoreLogBook.preStore(collectedLogBook);
+        Optional<Pair<DeviceIdentifier<Device>, PreStoreLogBook.LocalLogBook>> localLogBook = preStoreLogBook.preStore(collectedLogBook);
 
-        assertThat(localLogBook.getLast().getEndDeviceEvents()).hasSize(2);
+        assertThat(localLogBook).isPresent();
+        assertThat(localLogBook.get().getLast().getEndDeviceEvents()).hasSize(2);
     }
 
     protected ComServerDAOImpl mockComServerDAOWithOfflineLoadProfile(OfflineLogBook offlineLogBook) {
         final ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         doCallRealMethod().when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
         when(comServerDAO.executeTransaction(any())).thenAnswer(invocation -> ((Transaction<?>) invocation.getArguments()[0]).perform());
-        when(comServerDAO.findOfflineLogBook(any(LogBookIdentifier.class))).thenReturn(offlineLogBook);
+        when(comServerDAO.findOfflineLogBook(any(LogBookIdentifier.class))).thenReturn(Optional.of(offlineLogBook));
         DeviceIdentifier<Device> deviceIdentifier = (DeviceIdentifier<Device>) offlineLogBook.getDeviceIdentifier();
         when(comServerDAO.getDeviceIdentifierFor(any(LogBookIdentifier.class))).thenReturn(deviceIdentifier);
         doCallRealMethod().when(comServerDAO).updateLastLogBook(any(LogBookIdentifier.class), any(Instant.class));

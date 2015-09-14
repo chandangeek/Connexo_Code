@@ -11,6 +11,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
+import java.time.Clock;
 import java.util.Optional;
 
 import org.junit.*;
@@ -43,11 +44,14 @@ public class ScheduledComPortFactoryImplTest {
     @Mock
     private ScheduledComPortImpl.ServiceProvider serviceProvider;
 
+    private Clock clock = Clock.systemDefaultZone();
+
     @Before
     public void initBefore() {
-        when(this.userService.findUser(anyString())).thenReturn(Optional.of(user));
-        when(this.serviceProvider.userService()).thenReturn(userService);
-        when(this.serviceProvider.threadPrincipalService()).thenReturn(threadPrincipalService);
+        when(this.userService.findUser(anyString())).thenReturn(Optional.of(this.user));
+        when(this.serviceProvider.userService()).thenReturn(this.userService);
+        when(this.serviceProvider.threadPrincipalService()).thenReturn(this.threadPrincipalService);
+        when(this.serviceProvider.clock()).thenReturn(this.clock);
     }
 
     @Test

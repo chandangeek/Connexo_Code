@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests for the {@link CollectedDeviceCacheCommand} component
+ * Tests for the {@link CollectedDeviceCacheCommand} component.
  * <p>
  * Copyrights EnergyICT
  * Date: 3/09/12
@@ -61,7 +62,7 @@ public class CollectedDeviceCacheCommandTest {
         DeviceProtocolCache protocolCache = new SimpleDeviceProtocolCache();
         updatedDeviceCache.setCollectedDeviceCache(protocolCache);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        CollectedDeviceCacheCommand deviceCacheCommand = new CollectedDeviceCacheCommand(updatedDeviceCache, new EngineServiceOnly());
+        CollectedDeviceCacheCommand deviceCacheCommand = new CollectedDeviceCacheCommand(updatedDeviceCache, null, new EngineServiceOnly());
         deviceCacheCommand.logExecutionWith(this.executionLogger);
 
         // Business method
@@ -79,7 +80,7 @@ public class CollectedDeviceCacheCommandTest {
         protocolCache.updateChangedState(true);
         protocolCache.updateDescription(newDescription);
         updatedDeviceCache.setCollectedDeviceCache(protocolCache);
-        CollectedDeviceCacheCommand deviceCacheCommand = new CollectedDeviceCacheCommand(updatedDeviceCache, new EngineServiceOnly());
+        CollectedDeviceCacheCommand deviceCacheCommand = new CollectedDeviceCacheCommand(updatedDeviceCache, null, new EngineServiceOnly());
         deviceCacheCommand.logExecutionWith(this.executionLogger);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
@@ -97,7 +98,7 @@ public class CollectedDeviceCacheCommandTest {
     public void testToJournalMessageDescription() {
         final DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID, deviceService);
         UpdatedDeviceCache updatedDeviceCache = new UpdatedDeviceCache(deviceIdentifier);
-        CollectedDeviceCacheCommand command = new CollectedDeviceCacheCommand(updatedDeviceCache, new EngineServiceOnly());
+        CollectedDeviceCacheCommand command = new CollectedDeviceCacheCommand(updatedDeviceCache, null, new EngineServiceOnly());
 
         // Business method
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.INFO);
@@ -170,6 +171,11 @@ public class CollectedDeviceCacheCommandTest {
         @Override
         public EngineService engineService() {
             return engineService;
+        }
+
+        @Override
+        public NlsService nlsService() {
+            return null;
         }
     }
 

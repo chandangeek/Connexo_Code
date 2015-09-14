@@ -79,10 +79,20 @@ public interface ComPortOperationsLogger {
      * Logs that the specified {@link com.energyict.mdc.engine.config.ComPort}
      * ran into an unexpected problem.
      *
-     * @param unexpected The unexpected problem
      * @param comPortThreadName The name of the ComPort thread that ran into an unexpected problem
+     * @param unexpected The unexpected problem
      */
     @Configuration(format = "ComPort ''{0}'' ran into the following unexpected problem:", logLevel = LogLevel.ERROR)
-    public void unexpectedError (Throwable unexpected, String comPortThreadName);
+    public void unexpectedError(String comPortThreadName, Throwable unexpected);
+
+    /**
+     * Logs that the specified {@link com.energyict.mdc.engine.config.ComPort}
+     * ran into the same unexpected problem and will therefore not log the stacktrace.
+     *
+     * @param comPortThreadName The name of the ComPort thread that ran into an unexpected problem
+     * @param message The message of the unexpected problem
+     */
+    @Configuration(format = "ComPort ''{0}'' ran into the following unexpected problem: {1}", logLevel = LogLevel.ERROR)
+    public void unexpectedError (String comPortThreadName, String message);
 
 }

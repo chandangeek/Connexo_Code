@@ -59,19 +59,6 @@ public enum QueryMethod {
             return null;
         }
     },
-    RefreshComPort {
-        @Override
-        protected Object doExecute(Map<String, Object> parameters, ServiceProvider serviceProvider) {
-            Long comportId = getLong(parameters, RemoteComServerQueryJSonPropertyNames.COMPORT);
-            Instant modificationDate = this.getModificationDate(parameters);
-            Optional<? extends ComPort> comPort = serviceProvider.engineConfigurationService().findComPort(comportId);
-            if (comPort.isPresent() && comPort.get().getModificationDate().isAfter(modificationDate)) {
-                return comPort.get();
-            } else {
-                return null;
-            }
-        }
-    },
     FindExecutableOutboundComTasks,
     FindExecutableInboundComTasks,
     ExecutionStarted {

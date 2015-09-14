@@ -1,19 +1,18 @@
 package com.energyict.mdc.engine.impl.monitor;
 
 import com.energyict.mdc.engine.EngineService;
-import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.engine.impl.core.ComPortListener;
-import com.energyict.mdc.engine.impl.core.RunningComServer;
-import com.energyict.mdc.engine.impl.core.ScheduledComPort;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
+import com.energyict.mdc.engine.impl.core.ComPortListener;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
+import com.energyict.mdc.engine.impl.core.ScheduledComPort;
 
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import java.time.Clock;
-import java.util.Optional;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -25,8 +24,10 @@ import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -201,7 +202,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
             return new ObjectName(this.comServerBaseName(comServer));
         }
         catch (MalformedObjectNameException e) {
-            throw CodingException.malformedObjectName(comServer, e);
+            throw CodingException.malformedObjectName(comServer, e, MessageSeeds.MBEAN_OBJECT_FORMAT);
         }
     }
 
@@ -210,7 +211,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
             return new ObjectName(this.comServerBaseName(comServerName));
         }
         catch (MalformedObjectNameException e) {
-            throw CodingException.malformedComServerObjectName(comServerName, e);
+            throw CodingException.malformedComServerObjectName(comServerName, e, MessageSeeds.MBEAN_OBJECT_FORMAT);
         }
     }
 
@@ -243,7 +244,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
             return new ObjectName(this.comServerBaseName(comPort.getComServer()) + ",process=Outbound communication ports,comPortName=" + comPort.getName());
         }
         catch (MalformedObjectNameException e) {
-            throw CodingException.malformedObjectName(comPort, e);
+            throw CodingException.malformedObjectName(comPort, e, MessageSeeds.MBEAN_OBJECT_FORMAT);
         }
     }
 

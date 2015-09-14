@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.logging;
 
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 
 import javassist.CannotCompileException;
 import javassist.ClassClassPath;
@@ -18,6 +19,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Produces wrappers for a logging framework that uses interface based logging,
@@ -72,7 +75,7 @@ public final class LoggerFactory {
     /**
      * Produces an instance of the message interface class
      * that will log message at the {@link LogLevel}
-     * that is conigured in the underlying logging framework
+     * that is configured in the underlying logging framework
      * for the logging category that relates to the message interface class.
      *
      * @param messageInterfaceClass The message interface class
@@ -146,7 +149,7 @@ public final class LoggerFactory {
 
     private static <MI> MI getLoggerFor (Class<MI> messageInterfaceClass, LogLevel logLevel, Context<MI> context) {
         if (!messageInterfaceClass.isInterface()) {
-            throw CodingException.loggerFactoryRequiresInterface(messageInterfaceClass);
+            throw CodingException.loggerFactoryRequiresInterface(messageInterfaceClass, MessageSeeds.LOGGER_FACTORY_REQUIRES_INTERFACE);
         }
         try {
             Class<MI> subClass = context.findOrGenerateImplementationClass(messageInterfaceClass, logLevel);
@@ -350,12 +353,10 @@ public final class LoggerFactory {
                 return allParameterTypes;
             }
             else {
-                List<Class<?>> parameterTypes = new ArrayList<>(allParameterTypes.length);
-                for (int i = 0; i < allParameterTypes.length; i++) {
-                    if (!this.isThrowable(allParameterTypes[i])) {
-                        parameterTypes.add(allParameterTypes[i]);
-                    }
-                }
+                List<Class<?>> parameterTypes = Stream
+                        .of(allParameterTypes)
+                        .filter(parameterType -> !this.isThrowable(parameterType))
+                        .collect(Collectors.toList());
                 return parameterTypes.toArray(new Class<?>[parameterTypes.size()]);
             }
         }
@@ -371,7 +372,7 @@ public final class LoggerFactory {
                 for (int i = 0; i < parameterTypes.length; i++) {
                     if (isThrowable(parameterTypes[i])) {
                         if (throwableParameterIndex != -1) {
-                            throw CodingException.loggerFactorySupportsOnlyOneThrowableParameter(method);
+                            throw CodingException.loggerFactorySupportsOnlyOneThrowableParameter(method, MessageSeeds.LOGGER_FACTORY_SUPPORTS_ONLY_ONE_THROWABLE_PARAMETER);
                         }
                         throwableParameterIndex = i;
                     }

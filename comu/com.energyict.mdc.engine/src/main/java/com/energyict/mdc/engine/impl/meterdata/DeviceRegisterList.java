@@ -41,7 +41,7 @@ public class DeviceRegisterList extends CompositeCollectedData<CollectedRegister
 
     @Override
     public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
-        return new CollectedRegisterListDeviceCommand(this, meterDataStoreCommand, serviceProvider);
+        return new CollectedRegisterListDeviceCommand(this, this.getComTaskExecution(), meterDataStoreCommand, serviceProvider);
     }
 
     @Override

@@ -6,8 +6,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.core.ComServerDAO;
 
 import java.util.Iterator;
 import java.util.List;
@@ -33,8 +33,10 @@ public class ComTaskExecutionRootDeviceCommand extends CompositeDeviceCommandImp
     public void execute(final ComServerDAO comServerDAO) {
         try {
             executeAll(comServerDAO);
-        } catch (Throwable t) {
-            this.executionLogger.logUnexpected(t, this.comTaskExecution);
+            this.markExecutionFailedWhenProblemsWereLogged(comServerDAO);
+        }
+        catch (Throwable t) {
+            handleUnexpectedError(t, comServerDAO);
         }
     }
 
@@ -42,8 +44,16 @@ public class ComTaskExecutionRootDeviceCommand extends CompositeDeviceCommandImp
     public void executeDuringShutdown(final ComServerDAO comServerDAO) {
         try {
             executeAllDuringShutdown(comServerDAO);
-        } catch (Throwable t) {
-            this.executionLogger.logUnexpected(t, this.comTaskExecution);
+            this.markExecutionFailedWhenProblemsWereLogged(comServerDAO);
+        }
+        catch (Throwable t) {
+            handleUnexpectedError(t, comServerDAO);
+        }
+    }
+
+    private void markExecutionFailedWhenProblemsWereLogged(ComServerDAO comServerDAO) {
+        if (this.executionLogger.hasProblems()) {
+            comServerDAO.executionFailed(this.comTaskExecution);
         }
     }
 
@@ -51,6 +61,11 @@ public class ComTaskExecutionRootDeviceCommand extends CompositeDeviceCommandImp
     public void logExecutionWith(ExecutionLogger logger) {
         this.executionLogger = logger;
         broadCastExecutionLoggerIfAny();
+    }
+
+    private void handleUnexpectedError(Throwable t, final ComServerDAO comServerDAO) {
+        this.executionLogger.logUnexpected(t, this.comTaskExecution);
+        comServerDAO.executionFailed(this.comTaskExecution);
     }
 
     private void broadCastExecutionLoggerIfAny() {
@@ -64,16 +79,18 @@ public class ComTaskExecutionRootDeviceCommand extends CompositeDeviceCommandImp
     @Override
     public String toJournalMessageDescription(ComServer.LogLevel serverLogLevel) {
         DescriptionBuilder descriptionBuilder = new DescriptionBuilderImpl(this);
-        if(this.comTaskExecution != null){
+        if (this.comTaskExecution != null) {
             descriptionBuilder.addProperty("deviceID").append(comTaskExecution.getDevice().getId());
             if (this.comTaskExecution instanceof ScheduledComTaskExecution) {
                 ScheduledComTaskExecution scheduledComTaskExecution = (ScheduledComTaskExecution) this.comTaskExecution;
                 descriptionBuilder.addProperty("comSchedule").append(scheduledComTaskExecution.getComSchedule().getName());
-            } else if (this.comTaskExecution instanceof ManuallyScheduledComTaskExecution) {
+            }
+            else if (this.comTaskExecution instanceof ManuallyScheduledComTaskExecution) {
                 // Must be ManuallyScheduledComTaskExecution
                 ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = (ManuallyScheduledComTaskExecution) this.comTaskExecution;
                 descriptionBuilder.addProperty("comTask").append(manuallyScheduledComTaskExecution.getComTask().getName());
-            } else if (this.comTaskExecution instanceof FirmwareComTaskExecution) {
+            }
+            else if (this.comTaskExecution instanceof FirmwareComTaskExecution) {
                 FirmwareComTaskExecution firmwareComTaskExecution = (FirmwareComTaskExecution) this.comTaskExecution;
                 descriptionBuilder.addProperty("comTask").append(firmwareComTaskExecution.getComTask().getName());
             }

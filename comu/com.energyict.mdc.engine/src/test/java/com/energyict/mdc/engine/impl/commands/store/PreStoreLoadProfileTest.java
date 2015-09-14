@@ -51,11 +51,11 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 /**
- * Tests the store functionality of the {@link CollectedLoadProfileDeviceCommand}
+ * Tests the store functionality of the {@link CollectedLoadProfileDeviceCommand}.
  * <p>
  * Copyrights EnergyICT
  * Date: 13/01/14
@@ -132,9 +132,10 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         assertThat(collectedLoadProfile.getCollectedIntervalData()).overridingErrorMessage("The collected data should contain {0} intervals to start", 6).hasSize(6);
 
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        Optional<Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile>> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
-        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals()).hasSize(4);
+        assertThat(localLoadProfile).isPresent();
+        assertThat(localLoadProfile.get().getLast().getIntervalBlocks().get(0).getIntervals()).hasSize(4);
     }
 
     @Test
@@ -151,13 +152,14 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         freezeClock(currentTimeStamp);
 
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        Optional<Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile>> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
+        assertThat(localLoadProfile).isPresent();
         for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
             IntervalData intervalData = collectedLoadProfile.getCollectedIntervalData().get(i);
             for (int j = 0; j < intervalData.getIntervalValues().size(); j++) {
                 IntervalValue intervalValue = intervalData.getIntervalValues().get(j);
-                IntervalReading intervalReading = localLoadProfile.getLast().getIntervalBlocks().get(j).getIntervals().get(i);
+                IntervalReading intervalReading = localLoadProfile.get().getLast().getIntervalBlocks().get(j).getIntervals().get(i);
                 assertThat(new BigDecimal(intervalValue.getNumber().toString()).multiply(BigDecimal.valueOf(1000)).compareTo(intervalReading.getValue()))
                         .overridingErrorMessage("Values are not the same -> %s and %s",
                                 new BigDecimal(intervalValue.getNumber().toString()).multiply(BigDecimal.valueOf(1000)),
@@ -181,13 +183,14 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         freezeClock(currentTimeStamp);
 
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        Optional<Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile>> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
+        assertThat(localLoadProfile).isPresent();
         for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
             IntervalData intervalData = collectedLoadProfile.getCollectedIntervalData().get(i);
             for (int j = 0; j < intervalData.getIntervalValues().size(); j++) {
                 IntervalValue intervalValue = intervalData.getIntervalValues().get(j);
-                IntervalReading intervalReading = localLoadProfile.getLast().getIntervalBlocks().get(j).getIntervals().get(i);
+                IntervalReading intervalReading = localLoadProfile.get().getLast().getIntervalBlocks().get(j).getIntervals().get(i);
                 assertThat(new BigDecimal(intervalValue.getNumber().toString()).divide(BigDecimal.valueOf(1000)).compareTo(intervalReading.getValue()))
                         .overridingErrorMessage("Values are not the same -> %s and %s",
                                 new BigDecimal(intervalValue.getNumber().toString()).divide(BigDecimal.valueOf(1000)),
@@ -210,13 +213,14 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         freezeClock(currentTimeStamp);
 
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        Optional<Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile>> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
+        assertThat(localLoadProfile).isPresent();
         for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
             IntervalData intervalData = collectedLoadProfile.getCollectedIntervalData().get(i);
             for (int j = 0; j < intervalData.getIntervalValues().size(); j++) {
                 IntervalValue intervalValue = intervalData.getIntervalValues().get(j);
-                IntervalReading intervalReading = localLoadProfile.getLast().getIntervalBlocks().get(j).getIntervals().get(i);
+                IntervalReading intervalReading = localLoadProfile.get().getLast().getIntervalBlocks().get(j).getIntervals().get(i);
                 if (i >= 2 && j == 0) { // only the third and fourth interval of channel 1 have overflowed ...
                     assertThat(new BigDecimal(intervalValue.getNumber().toString()).subtract(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)).compareTo(intervalReading.getValue()))
                             .overridingErrorMessage("Values are not the same -> %s and %s",
@@ -255,13 +259,14 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         freezeClock(currentTimeStamp);
 
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        Optional<Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile>> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
+        assertThat(localLoadProfile).isPresent();
         for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
             IntervalData intervalData = collectedLoadProfile.getCollectedIntervalData().get(i);
             for (int j = 0; j < intervalData.getIntervalValues().size(); j++) {
                 IntervalValue intervalValue = intervalData.getIntervalValues().get(j);
-                IntervalReading intervalReading = localLoadProfile.getLast().getIntervalBlocks().get(j).getIntervals().get(i);
+                IntervalReading intervalReading = localLoadProfile.get().getLast().getIntervalBlocks().get(j).getIntervals().get(i);
                 BigDecimal intervalValueBigDecimal = new BigDecimal(intervalValue.getNumber().toString()).multiply(BigDecimal.valueOf(1000));
                 if (i >= 2 && j == 0) { // only the third and fourth interval of channel 1 have overflowed ...
                     assertThat(intervalValueBigDecimal.subtract(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)).compareTo(intervalReading.getValue()))
@@ -293,13 +298,14 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         freezeClock(currentTimeStamp);
 
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        Optional<Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile>> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
+        assertThat(localLoadProfile).isPresent();
         for (int i = 0; i < collectedLoadProfile.getCollectedIntervalData().size(); i++) {
             IntervalData intervalData = collectedLoadProfile.getCollectedIntervalData().get(i);
             for (int j = 0; j < intervalData.getIntervalValues().size(); j++) {
                 IntervalValue intervalValue = intervalData.getIntervalValues().get(j);
-                IntervalReading intervalReading = localLoadProfile.getLast().getIntervalBlocks().get(j).getIntervals().get(i);
+                IntervalReading intervalReading = localLoadProfile.get().getLast().getIntervalBlocks().get(j).getIntervals().get(i);
                 BigDecimal intervalValueBigDecimal = new BigDecimal(intervalValue.getNumber().toString()).divide(BigDecimal.valueOf(1000));
                 if (i >= 2 && j == 0) { // only the third and fourth interval of channel 1 have overflowed ...
                     assertThat(intervalValueBigDecimal.subtract(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)).compareTo(intervalReading.getValue()))
@@ -331,12 +337,13 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
         freezeClock(currentTimeStamp);
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        Optional<Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile>> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
-        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals()).hasSize(3);
-        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals().get(0).getTimeStamp()).isEqualTo(intervalEndTime2.toInstant());
-        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals().get(1).getTimeStamp()).isEqualTo(intervalEndTime3.toInstant());
-        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals().get(2).getTimeStamp()).isEqualTo(intervalEndTime4.toInstant());
+        assertThat(localLoadProfile).isPresent();
+        assertThat(localLoadProfile.get().getLast().getIntervalBlocks().get(0).getIntervals()).hasSize(3);
+        assertThat(localLoadProfile.get().getLast().getIntervalBlocks().get(0).getIntervals().get(0).getTimeStamp()).isEqualTo(intervalEndTime2.toInstant());
+        assertThat(localLoadProfile.get().getLast().getIntervalBlocks().get(0).getIntervals().get(1).getTimeStamp()).isEqualTo(intervalEndTime3.toInstant());
+        assertThat(localLoadProfile.get().getLast().getIntervalBlocks().get(0).getIntervals().get(2).getTimeStamp()).isEqualTo(intervalEndTime4.toInstant());
     }
 
     @Test
@@ -352,12 +359,13 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
         freezeClock(intervalEndTime4);
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        Optional<Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile>> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
-        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals()).hasSize(3);
-        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals().get(0).getTimeStamp()).isEqualTo(intervalEndTime2.toInstant());
-        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals().get(1).getTimeStamp()).isEqualTo(intervalEndTime3.toInstant());
-        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals().get(2).getTimeStamp()).isEqualTo(intervalEndTime4.toInstant());
+        assertThat(localLoadProfile).isPresent();
+        assertThat(localLoadProfile.get().getLast().getIntervalBlocks().get(0).getIntervals()).hasSize(3);
+        assertThat(localLoadProfile.get().getLast().getIntervalBlocks().get(0).getIntervals().get(0).getTimeStamp()).isEqualTo(intervalEndTime2.toInstant());
+        assertThat(localLoadProfile.get().getLast().getIntervalBlocks().get(0).getIntervals().get(1).getTimeStamp()).isEqualTo(intervalEndTime3.toInstant());
+        assertThat(localLoadProfile.get().getLast().getIntervalBlocks().get(0).getIntervals().get(2).getTimeStamp()).isEqualTo(intervalEndTime4.toInstant());
     }
 
     @Test
@@ -373,18 +381,19 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         final ComServerDAOImpl comServerDAO = mockComServerDAOWithOfflineLoadProfile(offlineLoadProfile);
         freezeClock(intervalEndTime3);
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(getClock(), getMdcReadingTypeUtilService(), comServerDAO);
-        Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        Optional<Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile>> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
 
-        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals()).hasSize(2);
-        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals().get(0).getTimeStamp()).isEqualTo(intervalEndTime2.toInstant());
-        assertThat(localLoadProfile.getLast().getIntervalBlocks().get(0).getIntervals().get(1).getTimeStamp()).isEqualTo(intervalEndTime3.toInstant());
+        assertThat(localLoadProfile).isPresent();
+        assertThat(localLoadProfile.get().getLast().getIntervalBlocks().get(0).getIntervals()).hasSize(2);
+        assertThat(localLoadProfile.get().getLast().getIntervalBlocks().get(0).getIntervals().get(0).getTimeStamp()).isEqualTo(intervalEndTime2.toInstant());
+        assertThat(localLoadProfile.get().getLast().getIntervalBlocks().get(0).getIntervals().get(1).getTimeStamp()).isEqualTo(intervalEndTime3.toInstant());
     }
 
     protected ComServerDAOImpl mockComServerDAOWithOfflineLoadProfile(OfflineLoadProfile offlineLoadProfile) {
         final ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);
         doCallRealMethod().when(comServerDAO).storeMeterReadings(any(DeviceIdentifier.class), any(MeterReading.class));
         when(comServerDAO.executeTransaction(any())).thenAnswer(invocation -> ((Transaction<?>) invocation.getArguments()[0]).perform());
-        when(comServerDAO.findOfflineLoadProfile(any(LoadProfileIdentifier.class))).thenReturn(offlineLoadProfile);
+        when(comServerDAO.findOfflineLoadProfile(any(LoadProfileIdentifier.class))).thenReturn(Optional.of(offlineLoadProfile));
         DeviceIdentifier<Device> deviceIdentifier = (DeviceIdentifier<Device>) offlineLoadProfile.getDeviceIdentifier();
         when(comServerDAO.getDeviceIdentifierFor(any(LoadProfileIdentifier.class))).thenReturn(deviceIdentifier);
         doCallRealMethod().when(comServerDAO).updateLastReadingFor(any(LoadProfileIdentifier.class), any(Instant.class));

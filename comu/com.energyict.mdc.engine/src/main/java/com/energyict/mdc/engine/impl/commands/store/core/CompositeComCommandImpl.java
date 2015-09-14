@@ -1,6 +1,9 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
+import com.energyict.mdc.common.ComServerRuntimeException;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.ComCommandException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
@@ -8,12 +11,10 @@ import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.CreateComTaskExecutionSessionCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.common.ComServerRuntimeException;
+import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionFailureException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
-import com.energyict.mdc.protocol.api.exceptions.ConnectionTimeOutException;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -105,13 +106,13 @@ public abstract class CompositeComCommandImpl extends SimpleComCommand implement
     private boolean areWeStillAbleToPerformAProperDisconnect(Exception e) {
         return !ConnectionFailureException.class.isAssignableFrom(e.getClass())
                 && !ConnectionSetupException.class.isAssignableFrom(e.getClass())
-                && !ConnectionTimeOutException.class.isAssignableFrom(e.getClass());
+                && !ConnectionCommunicationException.class.isAssignableFrom(e.getClass());
     }
 
     @Override
     public void addUniqueCommand(ComCommand command, ComTaskExecution comTaskExecution) {
         if (checkCommandTypeExistence(command.getCommandType(), getCommandRoot().getCommands())) {
-            throw ComCommandException.uniqueCommandViolation(command);
+            throw ComCommandException.uniqueCommandViolation(command, MessageSeeds.COMMAND_NOT_UNIQUE);
         }
         this.doAddCommand(command);
     }

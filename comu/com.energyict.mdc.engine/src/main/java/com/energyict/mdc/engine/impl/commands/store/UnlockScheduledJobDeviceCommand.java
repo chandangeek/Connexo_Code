@@ -19,7 +19,7 @@ public class UnlockScheduledJobDeviceCommand extends DeviceCommandImpl {
     private final ScheduledJob scheduledJob;
 
     public UnlockScheduledJobDeviceCommand(ScheduledJob scheduledJob, ServiceProvider serviceProvider) {
-        super(serviceProvider);
+        super(scheduledJob.getComTaskExecutions().stream().findFirst().orElse(null), serviceProvider);
         this.scheduledJob = scheduledJob;
     }
 

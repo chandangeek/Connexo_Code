@@ -255,6 +255,7 @@ public class RescheduleBehaviorForAsapTest {
                         jobExecution,
                         connectionTask,
                         comPort,
+                        true,
                         this.serviceProvider);
         executionContext.setLogger(logger);
         executionContext.connect();

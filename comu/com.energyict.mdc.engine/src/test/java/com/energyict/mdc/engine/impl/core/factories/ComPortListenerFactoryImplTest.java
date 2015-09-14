@@ -13,20 +13,24 @@ import com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl;
 import com.energyict.mdc.engine.impl.core.ComPortListener;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ComServerThreadFactory;
+import com.energyict.mdc.engine.impl.core.InboundComPortConnectorFactoryImpl;
 import com.energyict.mdc.engine.impl.core.MultiThreadedComPortListener;
 import com.energyict.mdc.engine.impl.core.ServletInboundComPortListener;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComPortListener;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactoryImpl;
+import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import com.elster.jupiter.time.TimeDuration;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.time.Clock;
 import java.util.concurrent.ThreadFactory;
 
 import org.junit.*;
@@ -68,7 +72,12 @@ public class ComPortListenerFactoryImplTest {
     private DeviceService deviceService;
     @Mock
     private ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider;
+    @Mock
+    private SerialComponentService serialComponentService;
+    @Mock
+    private HexService hexService;
 
+    private Clock clock = Clock.systemDefaultZone();
     private ThreadFactory threadFactory;
 
     @Before
@@ -85,7 +94,16 @@ public class ComPortListenerFactoryImplTest {
         when(this.serviceProvider.issueService()).thenReturn(mock(IssueService.class));
         when(this.serviceProvider.socketService()).thenReturn(this.socketService);
         when(this.serviceProvider.embeddedWebServerFactory()).thenReturn(new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
-        when(this.serviceProvider.socketService()).thenReturn(socketService);
+        when(this.serviceProvider.threadFactory()).thenReturn(this.threadFactory);
+        when(this.serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
+        when(this.serviceProvider.clock()).thenReturn(this.clock);
+        when(this.serviceProvider.inboundComPortConnectorFactory())
+                .thenReturn(new InboundComPortConnectorFactoryImpl(
+                        this.serialComponentService,
+                        this.socketService,
+                        this.hexService,
+                        this.eventPublisher,
+                        this.clock));
     }
 
     @Before
@@ -100,7 +118,7 @@ public class ComPortListenerFactoryImplTest {
 
     @Test
     public void testWithActivePort () {
-        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.threadFactory, this.eventPublisher, this.serviceProvider);
+        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.serviceProvider);
 
         // Busines method
         ComPortListener comPortListener = factory.newFor(this.activeComPort());
@@ -111,19 +129,19 @@ public class ComPortListenerFactoryImplTest {
 
     @Test
     public void testWithInactivePort () {
-        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.threadFactory, eventPublisher, this.serviceProvider);
+        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.serviceProvider);
         assertNull("Was expecting the factory to return null for an inactive port", factory.newFor(this.inactiveComPort()));
     }
 
     @Test
     public void testWithActivePortWithZeroSimultaneousConnections () {
-        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.threadFactory, eventPublisher, this.serviceProvider);
+        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.serviceProvider);
         assertNull("Was expecting the factory to return null for active port with 0 simultaneous connections", factory.newFor(this.activeComPortWithZeroSimultaneousConnections()));
     }
 
     @Test
     public void testServletBasedInboundComPortListener(){
-        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.threadFactory, eventPublisher, this.serviceProvider);
+        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.serviceProvider);
         final ComPortListener comPortListener = factory.newFor(this.servletBasedInboundComPort());
         assertNotNull(comPortListener);
         assertTrue(comPortListener instanceof ServletInboundComPortListener);
@@ -131,7 +149,7 @@ public class ComPortListenerFactoryImplTest {
 
     @Test
     public void testSingleThreadedComPortListener(){
-        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.threadFactory, eventPublisher, this.serviceProvider);
+        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.serviceProvider);
         final ComPortListener comPortListener = factory.newFor(this.singleThreadedInboundComPort());
         assertNotNull(comPortListener);
         assertTrue(comPortListener instanceof SingleThreadedComPortListener);
@@ -139,7 +157,7 @@ public class ComPortListenerFactoryImplTest {
 
     @Test
     public void testMultiThreadedComPortListener(){
-        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.threadFactory, eventPublisher, this.serviceProvider);
+        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.serviceProvider);
         final ComPortListener comPortListener = factory.newFor(this.multiThreadedInboundComPort());
         assertNotNull(comPortListener);
         assertTrue(comPortListener instanceof MultiThreadedComPortListener);

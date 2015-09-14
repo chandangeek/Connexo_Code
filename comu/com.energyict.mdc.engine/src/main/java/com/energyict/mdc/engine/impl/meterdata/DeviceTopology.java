@@ -15,6 +15,7 @@ import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -27,7 +28,7 @@ import java.util.List;
 public class DeviceTopology extends CollectedDeviceData implements CollectedTopology {
 
     /**
-     * The unique identifier of the Device
+     * The unique identifier of the Device.
      */
     private final DeviceIdentifier deviceIdentifier;
 
@@ -45,7 +46,7 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
     private ComTaskExecution comTaskExecution;
 
     /**
-     * A list containing additional info that is collected for (some of) the devices
+     * A list containing additional info that is collected for (some of) the devices.
      */
     private List<CollectedDeviceInfo> additionalCollectedDeviceInfo;
 
@@ -54,7 +55,7 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
     private G3TopologyDeviceAddressInformation g3IDeviceAddressInformation;
 
     /**
-     * Default constructor
+     * Default constructor.
      *
      * @param deviceIdentifier unique identification of the device which need s to update his cache
      */
@@ -88,11 +89,7 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
 
     @Override
     public List<DeviceIdentifier> getSlaveDeviceIdentifiers() {
-        List<DeviceIdentifier> slaveDeviceIdentifiers = new ArrayList<>(this.slaveDeviceIdentifiers.size());
-        for (DeviceIdentifier identifier : this.slaveDeviceIdentifiers) {
-            slaveDeviceIdentifiers.add(identifier);
-        }
-        return slaveDeviceIdentifiers;
+        return Collections.unmodifiableList(this.slaveDeviceIdentifiers);
     }
 
     @Override
@@ -113,6 +110,16 @@ public class DeviceTopology extends CollectedDeviceData implements CollectedTopo
     @Override
     public void addAdditionalCollectedDeviceInfo(CollectedDeviceInfo additionalDeviceInfo) {
         additionalCollectedDeviceInfo.add(additionalDeviceInfo);
+    }
+
+    @Override
+    public void injectComTaskExecution(ComTaskExecution comTaskExecution) {
+        super.injectComTaskExecution(comTaskExecution);
+        this.getAdditionalCollectedDeviceInfo()
+                .stream()
+                .filter(collectedDeviceInfo -> collectedDeviceInfo instanceof ServerCollectedData)
+                .map(ServerCollectedData.class::cast)
+                .forEach(collectedDeviceInfo -> collectedDeviceInfo.injectComTaskExecution(comTaskExecution));
     }
 
     @Override

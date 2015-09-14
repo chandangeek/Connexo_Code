@@ -109,6 +109,7 @@ public class GenericDeviceProtocolTest {
                         mock(JobExecution.class),
                         connectionTask,
                         comPort,
+                        true,
                         serviceProvider);
         executionContext.setLogger(logger);
         return executionContext;

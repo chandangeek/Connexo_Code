@@ -1,26 +1,21 @@
 package com.energyict.mdc.engine.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.*;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.HostName;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.cache.DeviceCacheImpl;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.monitor.PrettyPrintTimeDurationTranslationKeys;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.io.LibraryType;
@@ -43,10 +38,31 @@ import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -57,7 +73,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Stream;
 
 import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
 
@@ -67,7 +82,7 @@ import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
  * Time: 13:17
  */
 @Component(name = "com.energyict.mdc.engine",
-        service = {EngineService.class, InstallService.class, TranslationKeyProvider.class},
+        service = {EngineService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = {"name=" + EngineService.COMPONENTNAME,
                 "osgi.command.scope=mdc",
                 "osgi.command.function=become",
@@ -76,7 +91,7 @@ import static com.elster.jupiter.appserver.AppService.SERVER_NAME_PROPERTY_NAME;
                 "osgi.command.function=lcs",
                 "osgi.command.function=scs"},
         immediate = true)
-public class EngineServiceImpl implements EngineService, InstallService, TranslationKeyProvider {
+public class EngineServiceImpl implements EngineService, InstallService, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -258,9 +273,14 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>();
-        Stream.of(MessageSeeds.values()).forEach(keys::add);
-        Stream.of(com.energyict.mdc.engine.impl.monitor.MessageSeeds.values()).forEach(keys::add);
+        return Arrays.asList(PrettyPrintTimeDurationTranslationKeys.values());
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        List<MessageSeed> keys = new ArrayList<>();
+        keys.addAll(Arrays.asList(MessageSeeds.values()));
+        keys.addAll(Arrays.asList(com.energyict.mdc.engine.impl.commands.MessageSeeds.values()));
         return keys;
     }
 
@@ -373,6 +393,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         }
     }
 
+    @SuppressWarnings("unused")
     @Deactivate
     public void deactivate() {
         this.stopComServer();
@@ -391,7 +412,7 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.eventService, this.thesaurus).install(true);
+        new Installer(this.dataModel, this.eventService).install(true);
     }
 
     @Override
@@ -596,11 +617,6 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         }
 
         @Override
-        public LogBookService logBookService() {
-            return logBookService;
-        }
-
-        @Override
         public MdcReadingTypeUtilService mdcReadingTypeUtilService() {
             return mdcReadingTypeUtilService;
         }
@@ -653,11 +669,6 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
         @Override
         public MeteringService meteringService() {
             return meteringService;
-        }
-
-        @Override
-        public FirmwareService getFirmwareService() {
-            return firmwareService;
         }
 
         @Override

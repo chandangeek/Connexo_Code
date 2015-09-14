@@ -31,15 +31,10 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.CreateOutboundComSession;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.commands.store.PublishConnectionCompletionEvent;
-import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
+import com.energyict.mdc.engine.impl.commands.store.*;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
+import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.ComPortType;
@@ -47,6 +42,8 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -68,11 +65,13 @@ import com.elster.jupiter.users.UserService;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 
 import org.assertj.core.api.Condition;
 import org.junit.*;
@@ -80,6 +79,8 @@ import org.junit.runner.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.MockSettings;
+import org.mockito.mock.MockCreationSettings;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -333,6 +334,9 @@ public class ScheduledJobImplTest {
         final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(comPort, blockingQueue, this.deviceCommandExecutor, this.transactionService, this.threadprincipalService, userService);
         final CountDownLatch startLatch = new CountDownLatch(2);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class, withSettings().extraInterfaces(ServerCollectedData.class));
+        when(collectedFirmwareVersion.getResultType()).thenReturn(ResultType.NotSupported);
+        when(deviceProtocol.getFirmwareVersions()).thenReturn(collectedFirmwareVersion);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
         Runnable jobRunnable = () -> {
@@ -359,13 +363,9 @@ public class ScheduledJobImplTest {
         verify(this.deviceCommandExecutor).execute(deviceCommandArgumentCaptor.capture(), any(DeviceCommandExecutionToken.class));
         DeviceCommand deviceCommand = deviceCommandArgumentCaptor.getValue();
         assertThat(deviceCommand).isInstanceOf(CompositeDeviceCommand.class);
-        CompositeDeviceCommand compositeDeviceCommand = (CompositeDeviceCommand) deviceCommand;
-        CreateOutboundComSession createComSession = null;
-        for (DeviceCommand command : compositeDeviceCommand.getChildren()) {
-            if (command instanceof CreateOutboundComSession) {
-                createComSession = (CreateOutboundComSession) command;
-            }
-        }
+        ComSessionRootDeviceCommand compositeDeviceCommand = (ComSessionRootDeviceCommand) deviceCommand;
+        CreateComSessionDeviceCommand createComSession = compositeDeviceCommand.getCreateComSessionDeviceCommand();
+
         assertThat(createComSession).isNotNull();
         assertThat(createComSession.getComSessionBuilder()).isNotNull();
     }
@@ -398,6 +398,9 @@ public class ScheduledJobImplTest {
         final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(comPort, blockingQueue, this.deviceCommandExecutor, this.transactionService, this.threadprincipalService, userService);
         final CountDownLatch startLatch = new CountDownLatch(2);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class, withSettings().extraInterfaces(ServerCollectedData.class));
+        when(collectedFirmwareVersion.getResultType()).thenReturn(ResultType.NotSupported);
+        when(deviceProtocol.getFirmwareVersions()).thenReturn(collectedFirmwareVersion);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
         Thread jobThread = new Thread(() -> {
@@ -458,6 +461,9 @@ public class ScheduledJobImplTest {
         final ScheduledJobExecutor jobExecutor = new MultiThreadedScheduledJobExecutor(comPort, blockingQueue, this.deviceCommandExecutor, this.transactionService, this.threadprincipalService, userService);
         final CountDownLatch startLatch = new CountDownLatch(2);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        CollectedFirmwareVersion collectedFirmwareVersion = mock(CollectedFirmwareVersion.class, withSettings().extraInterfaces(ServerCollectedData.class));
+        when(collectedFirmwareVersion.getResultType()).thenReturn(ResultType.NotSupported);
+        when(deviceProtocol.getFirmwareVersions()).thenReturn(collectedFirmwareVersion);
         when(this.deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(this.deviceType.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
         Thread jobThread = new Thread(() -> {
@@ -494,7 +500,7 @@ public class ScheduledJobImplTest {
         ManuallyScheduledComTaskExecution scheduledComTask = mock(ManuallyScheduledComTaskExecution.class, withSettings().extraInterfaces(ComTaskExecution.class));
         when(scheduledComTask.getId()).thenReturn(COM_TASK_EXECUTION_ID);
         when(scheduledComTask.getDevice()).thenReturn(device);
-        when(scheduledComTask.getConnectionTask()).thenReturn(connectionTask);
+        when(scheduledComTask.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         when(scheduledComTask.getComTasks()).thenReturn(Arrays.asList(comTask));
         List<ProtocolTask> protocolTasks = comTask.getProtocolTasks();
         when(scheduledComTask.getProtocolTasks()).thenReturn(protocolTasks);
@@ -574,9 +580,12 @@ public class ScheduledJobImplTest {
         }
 
         @Override
-        public void execute(DeviceCommand command, DeviceCommandExecutionToken token) {
-            this.actualExecutor.execute(command, token);
-            this.executeLatch.countDown();
+        public Future<Boolean> execute(DeviceCommand command, DeviceCommandExecutionToken token) {
+            try {
+                return this.actualExecutor.execute(command, token);
+            } finally {
+                this.executeLatch.countDown();
+            }
         }
 
         @Override

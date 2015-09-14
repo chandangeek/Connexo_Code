@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.ResultType;
@@ -34,6 +35,16 @@ public abstract class CompositeCollectedData<T extends CollectedData> extends Co
             issues.addAll(collectedData.getIssues());
         }
         return issues;
+    }
+
+    @Override
+    public void injectComTaskExecution(ComTaskExecution comTaskExecution) {
+        super.injectComTaskExecution(comTaskExecution);
+        this.getElements()
+                .stream()
+                .filter(t -> t instanceof ServerCollectedData)
+                .map(ServerCollectedData.class::cast)
+                .forEach(t -> t.injectComTaskExecution(comTaskExecution));
     }
 
     @Override

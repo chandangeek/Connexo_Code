@@ -35,7 +35,7 @@ public class DeviceUserFileConfigurationInformation extends CollectedDeviceData 
 
     @Override
     public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
-        return new StoreConfigurationUserFile(this, serviceProvider);
+        return new StoreConfigurationUserFile(this, this.getComTaskExecution(), serviceProvider);
     }
 
     @Override

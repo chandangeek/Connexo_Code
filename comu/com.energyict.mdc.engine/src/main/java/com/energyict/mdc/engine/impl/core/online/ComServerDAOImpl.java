@@ -170,27 +170,10 @@ public class ComServerDAOImpl implements ComServerDAO {
         if (reloaded.isPresent()) {
             if (reloaded.get().isObsolete()) {
                 return null;
-            } else if (reloaded.get().getModificationDate().isAfter(comServer.getModificationDate())) {
+            } else if (reloaded.get().getVersion() > comServer.getVersion()) {
                 return reloaded.get();
             } else {
                 return comServer;
-            }
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public ComPort refreshComPort(ComPort comPort) {
-        Optional<? extends ComPort> reloaded = getEngineModelService().findComPort(comPort.getId());
-        if (reloaded.isPresent()) {
-            ComPort reloadedPort = reloaded.get();
-            if (reloadedPort.isObsolete()) {
-                return null;
-            } else if (reloadedPort.getModificationDate().isAfter(comPort.getModificationDate())) {
-                return reloadedPort;
-            } else {
-                return comPort;
             }
         } else {
             return null;
@@ -236,48 +219,49 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public OfflineDevice findOfflineDevice(DeviceIdentifier<?> identifier) {
+    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier) {
         return findOfflineDevice(identifier, DeviceOffline.needsEverything);
     }
 
     @Override
-    public OfflineDevice findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
+    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier, OfflineDeviceContext offlineDeviceContext) {
         BaseDevice<? extends BaseChannel, ? extends BaseLoadProfile<? extends BaseChannel>, ? extends BaseRegister> device = identifier.findDevice();
         if (device != null) {
-            return new OfflineDeviceImpl((Device) device, offlineDeviceContext, new OfflineDeviceServiceProvider());
+            return Optional.of(new OfflineDeviceImpl((Device) device, offlineDeviceContext, new OfflineDeviceServiceProvider()));
         } else {
-            return null;
+            return Optional.empty();
         }
     }
 
     @Override
-    public OfflineRegister findOfflineRegister(RegisterIdentifier identifier) {
-        return new OfflineRegisterImpl((Register) identifier.findRegister(), this.serviceProvider.identificationService());
+    public Optional<OfflineRegister> findOfflineRegister(RegisterIdentifier identifier) {
+        return Optional.of(new OfflineRegisterImpl((Register) identifier.findRegister(), this.serviceProvider.identificationService()));
     }
 
     @Override
-    public OfflineLoadProfile findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
-        return new OfflineLoadProfileImpl((LoadProfile) loadProfileIdentifier.findLoadProfile(), this.serviceProvider.topologyService(), this.serviceProvider.identificationService());
+    public Optional<OfflineLoadProfile> findOfflineLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
+        return Optional.of(new OfflineLoadProfileImpl((LoadProfile) loadProfileIdentifier.findLoadProfile(), this.serviceProvider.topologyService(), this.serviceProvider.identificationService()));
     }
 
     @Override
-    public OfflineLogBook findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
-        return new OfflineLogBookImpl((LogBook) logBookIdentifier.getLogBook(), this.serviceProvider.identificationService());
+    public Optional<OfflineLogBook> findOfflineLogBook(LogBookIdentifier logBookIdentifier) {
+        return Optional.of(new OfflineLogBookImpl((LogBook) logBookIdentifier.getLogBook(), this.serviceProvider.identificationService()));
     }
 
-    //    @Override
-//    public OfflineDeviceMessage findDeviceMessage(MessageIdentifier identifier) {
-//        EndDeviceMessage deviceMessage = (EndDeviceMessage) identifier.getDeviceMessage();
-//        return deviceMessage.goOffline();
-//    }
+    @Override
+    public Optional<OfflineDeviceMessage> findOfflineDeviceMessage(MessageIdentifier identifier) {
+        DeviceMessage<Device> deviceMessage = identifier.getDeviceMessage();
+        return Optional.of(
+                new OfflineDeviceMessageImpl(
+                    deviceMessage,
+                    deviceMessage.getDevice().getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol(),
+                    this.serviceProvider.identificationService()));
+    }
 
     @Override
     public void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
-        TypedProperties properties = connectionTask.getTypedProperties();
-        properties.setProperty(connectionTaskPropertyName, ipAddress);
-        // TODO: JP-1123
-        // serverConnectionTask.updateProperties(properties);
-        // add/remove/update properties
+        connectionTask.setProperty(connectionTaskPropertyName, ipAddress);
+        connectionTask.save();
     }
 
     @Override
@@ -368,19 +352,19 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void executionStarted(final ConnectionTask connectionTask, final ComServer comServer) {
         this.executeTransaction(() -> {
-            toServerConnectionTask(connectionTask).executionStarted(comServer);
+            connectionTask.executionStarted(comServer);
             return null;
         });
     }
 
     @Override
     public void executionCompleted(final ConnectionTask connectionTask) {
-        this.toServerConnectionTask(connectionTask).executionCompleted();
+        connectionTask.executionCompleted();
     }
 
     @Override
     public void executionFailed(final ConnectionTask connectionTask) {
-        this.toServerConnectionTask(connectionTask).executionFailed();
+        connectionTask.executionFailed();
     }
 
     @Override
@@ -624,10 +608,6 @@ public class ComServerDAOImpl implements ComServerDAO {
         }
     }
 
-    private ScheduledConnectionTask toServerConnectionTask(ConnectionTask connectionTask) {
-        return (ScheduledConnectionTask) connectionTask;
-    }
-
     @Override
     public DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
         return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(loadProfileIdentifier.findLoadProfile().getDevice());
@@ -709,7 +689,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     public void updateFirmwareVersions(CollectedFirmwareVersion collectedFirmwareVersions) {
         Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(collectedFirmwareVersions.getDeviceIdentifier());
         optionalDevice.ifPresent(device -> {
-            FirmwareStorage firmwareStorage = new FirmwareStorage(serviceProvider);
+            FirmwareStorage firmwareStorage = new FirmwareStorage(serviceProvider.firmwareService(), serviceProvider.clock());
             firmwareStorage.updateMeterFirmwareVersion(collectedFirmwareVersions.getActiveMeterFirmwareVersion(), device);
             firmwareStorage.updateCommunicationFirmwareVersion(collectedFirmwareVersions.getActiveCommunicationFirmwareVersion(), device);
         });

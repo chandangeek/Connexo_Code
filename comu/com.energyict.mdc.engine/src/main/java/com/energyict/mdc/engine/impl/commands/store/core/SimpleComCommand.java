@@ -5,25 +5,28 @@ import com.energyict.mdc.common.comserver.logging.CanProvideDescriptionTitle;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
-import com.energyict.mdc.engine.exceptions.CodingException;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
-import com.energyict.mdc.engine.impl.core.ExecutionContext;
-import com.energyict.mdc.engine.impl.core.ComCommandJournalist;
-import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.core.ComCommandJournalist;
+import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
+import com.energyict.mdc.io.CommunicationException;
+import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+
+import com.elster.jupiter.nls.Thesaurus;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -34,6 +37,7 @@ import java.util.stream.Collectors;
 
 import static com.energyict.mdc.device.data.tasks.history.CompletionCode.ConnectionError;
 import static com.energyict.mdc.device.data.tasks.history.CompletionCode.Ok;
+import static com.energyict.mdc.device.data.tasks.history.CompletionCode.ProtocolError;
 import static com.energyict.mdc.device.data.tasks.history.CompletionCode.UnexpectedError;
 import static com.energyict.mdc.device.data.tasks.history.CompletionCode.forResultType;
 
@@ -50,35 +54,35 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     private CompletionCode completionCode = Ok;
 
     /**
-     * A List containing all the issue which occurred during the execution of this {@link ComCommand}
+     * All the issue that have occurred during the execution of this {@link ComCommand}.
      */
     private List<Issue> issueList = new ArrayList<>();
 
     /**
-     * A List containing all the {@link CollectedData} which is collected during the execution of this {@link ComCommand}
+     * All the {@link CollectedData} that have been collected during the execution of this {@link ComCommand}.
      */
     private List<CollectedData> collectedDataList = new ArrayList<>();
 
     /**
-     * The state of the command execution
+     * The state of the command execution.
      */
     public enum ExecutionState {
         /**
-         * command is not yet executed
+         * Command is not yet executed.
          */
         NOT_EXECUTED,
         /**
-         * command is successfully executed
+         * Command is successfully executed.
          */
         SUCCESSFULLY_EXECUTED,
         /**
-         * command is executed but failed
+         * Command is executed but failed.
          */
         FAILED
     }
 
     /**
-     * Keeps track of the executionState of this command
+     * Keeps track of the executionState of this command.
      */
     private ExecutionState executionState = ExecutionState.NOT_EXECUTED;
 
@@ -129,6 +133,10 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
     @Override
     public CommandRoot getCommandRoot() {
         return this.commandRoot;
+    }
+
+    protected Thesaurus getThesaurus() {
+        return this.getCommandRoot().getServiceProvider().thesaurus();
     }
 
     @Override
@@ -196,13 +204,17 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
             try {
                 doExecute(deviceProtocol, executionContext);
                 success = true;
-            } catch (CommunicationException e) {
+            } catch (ConnectionCommunicationException e) {
                 setCompletionCode(ConnectionError);
                 throw e;
+            } catch (CommunicationException e) {
+                setCompletionCode(ProtocolError);
+                addIssue(getIssueService().newProblem(deviceProtocol, "deviceprotocol.protocol.issue", StackTracePrinter.print(e)), ProtocolError);
+                throw new ConnectionCommunicationException(MessageSeeds.COMMUNICATION_FAILURE, e);
             } catch (LegacyProtocolException e) {
                 if (isExceptionCausedByALegacyTimeout(e)) {
                     setCompletionCode(ConnectionError);
-                    throw new CommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, (IOException) e.getCause());
+                    throw new ConnectionCommunicationException(MessageSeeds.UNEXPECTED_IO_EXCEPTION, (IOException) e.getCause());
                 } else {
                     addIssue(getIssueService().newProblem(deviceProtocol, "deviceprotocol.legacy.issue", StackTracePrinter.print(e)), UnexpectedError);
                 }
@@ -247,10 +259,10 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
 
     private void validateArguments (DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         if (deviceProtocol == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "execute", "deviceProtocol");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "execute", "deviceProtocol", com.energyict.mdc.engine.impl.MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         if (executionContext == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "execute", "executionContext");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "execute", "executionContext", com.energyict.mdc.engine.impl.MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
     }
 
@@ -292,7 +304,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
             case ConnectionError:
                 return LogLevel.ERROR;
             default: {
-                throw CodingException.unrecognizedEnumValue(LogLevel.class, this.completionCode.ordinal());
+                throw CodingException.unrecognizedEnumValue(LogLevel.class, this.completionCode.ordinal(), com.energyict.mdc.engine.impl.MessageSeeds.UNRECOGNIZED_ENUM_VALUE);
             }
         }
     }

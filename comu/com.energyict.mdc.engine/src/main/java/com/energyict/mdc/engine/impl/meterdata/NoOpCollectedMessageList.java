@@ -6,6 +6,7 @@ import com.energyict.mdc.engine.impl.commands.store.NoopDeviceCommand;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +25,11 @@ public class NoOpCollectedMessageList extends CollectedDeviceData implements Col
 
     @Override
     public List<CollectedMessage> getCollectedMessages() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<CollectedMessage> getCollectedMessages(MessageIdentifier messageIdentifier) {
         return Collections.emptyList();
     }
 

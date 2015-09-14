@@ -39,6 +39,8 @@ public class ComTaskExecutionRootDeviceCommandTest {
     private ComTask comTask;
     @Mock
     private ComTaskExecution comTaskExecution;
+    @Mock
+    private DeviceCommand.ServiceProvider serviceProvider;
 
     private ComServerDAOImpl mockComServerDAOButPerformTransactions() {
         final ComServerDAOImpl comServerDAO = mock(ComServerDAOImpl.class);

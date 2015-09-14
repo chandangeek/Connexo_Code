@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -41,4 +42,8 @@ public class NoDeviceCommandServices implements DeviceCommand.ServiceProvider {
         return null;
     }
 
+    @Override
+    public NlsService nlsService() {
+        return null;
+    }
 }

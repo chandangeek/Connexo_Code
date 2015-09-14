@@ -20,7 +20,7 @@ public class Installer {
     private final DataModel dataModel;
     private final EventService eventService;
 
-    public Installer(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+    public Installer(DataModel dataModel, EventService eventService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;

@@ -15,8 +15,6 @@ import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
-import org.joda.time.DateTimeConstants;
-
 /**
  * Command to set the device time on the current system time <b>if and only if</b> the timeDifference is between
  * the Minimum and Maximum defined times. Otherwise a warning will be added to the issueList.
@@ -37,8 +35,8 @@ public class SetClockCommandImpl extends SimpleComCommand implements SetClockCom
     @Override
     protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
-        builder.addProperty("minimumDifference").append(this.getMinDiff()).append("s");
-        builder.addProperty("maximumDifference").append(this.getMaxDiff()).append("s");
+        builder.addProperty("minimumDifference").append(this.getMinDiff()).append("ms");
+        builder.addProperty("maximumDifference").append(this.getMaxDiff()).append("ms");
     }
 
     /**
@@ -54,19 +52,19 @@ public class SetClockCommandImpl extends SimpleComCommand implements SetClockCom
     }
 
     private boolean aboveMaximum(final long timeDifference) {
-        return getMaxDiff() * DateTimeConstants.MILLIS_PER_SECOND < Math.abs(timeDifference);
+        return getMaxDiff() < Math.abs(timeDifference);
     }
 
-    private int getMaxDiff() {
-        return clockCommand.getClockTask().getMaximumClockDifference().map(TimeDuration::getSeconds).orElse(0);
+    private long getMaxDiff() {
+        return clockCommand.getClockTask().getMaximumClockDifference().map(TimeDuration::getMilliSeconds).orElse(0L);
     }
 
     private boolean belowMinimum(final long timeDifference) {
-        return getMinDiff() * DateTimeConstants.MILLIS_PER_SECOND > Math.abs(timeDifference);
+        return getMinDiff() > Math.abs(timeDifference);
     }
 
-    private int getMinDiff() {
-        return clockCommand.getClockTask().getMinimumClockDifference().map(TimeDuration::getSeconds).orElse(0);
+    private long getMinDiff() {
+        return clockCommand.getClockTask().getMinimumClockDifference().map(TimeDuration::getMilliSeconds).orElse(0L);
     }
 
     @Override

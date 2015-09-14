@@ -20,6 +20,7 @@ import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.TopologyTask;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
 
 import java.time.Clock;
@@ -41,7 +42,7 @@ public interface CommandRoot extends CompositeComCommand {
 
         public Clock clock();
 
-        public LogBookService logBookService();
+        public Thesaurus thesaurus();
 
         public DeviceService deviceService();
 
@@ -273,5 +274,10 @@ public interface CommandRoot extends CompositeComCommand {
      * @return the ServiceProvider
      */
     public ServiceProvider getServiceProvider();
+
+    /**
+     * Indicates if any exceptions (during storing of underlying collected data) should be exposed to the DeviceCommandExecutor
+     */
+    public boolean isExposeStoringException();
 
 }

@@ -29,19 +29,19 @@ public interface InboundComPortLogger {
     public void shuttingDown (String threadName);
 
     /**
-     * Logs that the specified {@link InboundComPort} is now monitoring for changes.
-     *
-     * @param comPort The InboundComPort
-     */
-    @Configuration(format = "Checking for changes applied to inbound ComPort {0}...", logLevel = LogLevel.INFO)
-    public void monitoringChanges (InboundComPort comPort);
-
-    /**
      * Logs that the specified thread is monitoring for incoming connections.
      *
      * @param threadName The name of the thread that is listening for incoming connections
      */
-    @Configuration(format = "{0} is listening for incomming connections...", logLevel = LogLevel.INFO)
+    @Configuration(format = "{0} is listening for incoming connections...", logLevel = LogLevel.INFO)
     public void listening (String threadName);
 
+    /**
+     * Logs that the specified ComPort ran into an unexpected problem.
+     *
+     * @param comPortThreadName The name of the ComPort thread that ran into an unexpected problem
+     * @param unexpected The unexpected problem
+     */
+    @Configuration(format = "ComPort ''{0}'' ran into the following unexpected problem: {1}", logLevel = LogLevel.ERROR)
+    public void unexpectedError(String comPortThreadName, Throwable unexpected);
 }

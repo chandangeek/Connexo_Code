@@ -42,6 +42,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     private ComPortRelatedComChannel comChannel;
     private HttpServletRequest servletRequest;
     private HttpServletResponse servletResponse;
+    private boolean allCollectedDataWasProcessed = true;
 
     public InboundDiscoveryContextImpl(InboundComPort comPort, ComPortRelatedComChannel comChannel, ConnectionTaskService connectionTaskService) {
         super();
@@ -143,6 +144,15 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     @Override
     public TypedProperties getDeviceProtocolProperties(DeviceIdentifier deviceIdentifier) {
         return this.getInboundDAO().getDeviceProtocolProperties(deviceIdentifier);
+    }
+
+    @Override
+    public void markNotAllCollectedDataWasProcessed() {
+        this.allCollectedDataWasProcessed = false;
+    }
+
+    public boolean isAllCollectedDataWasProcessed() {
+        return allCollectedDataWasProcessed;
     }
 
     public void addJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String description, Throwable t) {

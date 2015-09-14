@@ -22,8 +22,6 @@ import java.util.List;
  * @author gna
  * @since 10/05/12 - 14:50
  */
-//public <T extends Enum<T> & MyInterface> C1(Class<T> enumClz)
-//<C extends Class<? extends ProtocolTask>>
 public enum ComCommandTypes implements ComCommandType {
 
     UNKNOWN,

@@ -1,6 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
@@ -13,9 +15,8 @@ import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-
 import com.energyict.mdc.tasks.RegistersTask;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,13 +46,13 @@ public class RegisterCommandImpl extends CompositeComCommandImpl implements Regi
     public RegisterCommandImpl(RegistersTask registersTask, OfflineDevice device, CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
         super(commandRoot);
         if (registersTask == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "registersTask");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "registersTask", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         if (device == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "device");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "device", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         if (commandRoot == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "commandRoot");
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "commandRoot", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         this.registersTask = registersTask;
 

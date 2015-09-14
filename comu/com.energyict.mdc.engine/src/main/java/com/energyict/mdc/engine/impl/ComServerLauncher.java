@@ -18,6 +18,7 @@ import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServerImpl;
 import com.energyict.mdc.engine.impl.core.RunningRemoteComServerImpl;
+import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.RemoteComServerDAOImpl;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
@@ -39,9 +40,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Clock;
+import java.util.EnumSet;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Set;
 
 /**
  * Launches the {@link com.energyict.mdc.engine.config.OnlineComServer}
@@ -118,15 +119,16 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
                 this.startOnlineComServer();
             }
         }
-
     }
 
     public boolean isStarted() {
-        return this.runningComServer != null;
+        Set<ServerProcessStatus> startedStatusses = EnumSet.of(ServerProcessStatus.STARTING, ServerProcessStatus.STARTED);
+        return this.runningComServer != null
+            && startedStatusses.contains(runningComServer.getStatus());
     }
 
     public void stopComServer() {
-        if (this.runningComServer != null) {
+        if (this.isStarted()) {
             this.runningComServer.shutdownImmediate();
         }
     }

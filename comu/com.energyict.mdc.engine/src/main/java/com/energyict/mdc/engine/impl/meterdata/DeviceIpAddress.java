@@ -42,7 +42,7 @@ public class DeviceIpAddress extends CollectedDeviceData implements CollectedAdd
 
     @Override
     public DeviceCommand toDeviceCommand(MeterDataStoreCommand meterDataStoreCommand, DeviceCommand.ServiceProvider serviceProvider) {
-        return new UpdateDeviceIpAddress(this, serviceProvider);
+        return new UpdateDeviceIpAddress(this, this.getComTaskExecution(), serviceProvider);
     }
 
     public String getIpAddress () {

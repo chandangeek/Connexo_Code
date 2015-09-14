@@ -1,17 +1,15 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.concurrent.ResizeableSemaphore;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactory;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.impl.events.EventPublisher;
+
+import com.elster.jupiter.time.TimeDuration;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -30,35 +28,12 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
     private int numberOfThreads;
     private InboundComPortExecutorFactory inboundComPortExecutorFactory;
 
-    public MultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, EventPublisher eventPublisher, com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider) {
-        this(comPort, comServerDAO, deviceCommandExecutor, new ComServerThreadFactory(comPort.getComServer()), new InboundComPortExecutorFactoryImpl(serviceProvider), eventPublisher, serviceProvider);
+    public MultiThreadedComPortListener(InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider) {
+        this(comPort, deviceCommandExecutor, serviceProvider, new InboundComPortExecutorFactoryImpl(serviceProvider));
     }
 
-    public MultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, EventPublisher eventPublisher, com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider) {
-        this(comPort, comServerDAO, deviceCommandExecutor, threadFactory, new InboundComPortExecutorFactoryImpl(serviceProvider), eventPublisher, serviceProvider);
-    }
-
-    protected MultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, InboundComPortExecutorFactory inboundComPortExecutorFactory, EventPublisher eventPublisher, ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider) {
-        this(comPort,
-                comServerDAO,
-                deviceCommandExecutor,
-                threadFactory,
-                inboundComPortExecutorFactory,
-                new InboundComPortConnectorFactoryImpl(
-                        serviceProvider.serialAtComponentService(),
-                        serviceProvider.socketService(),
-                        serviceProvider.hexService(),
-                        eventPublisher,
-                        serviceProvider.clock())
-        );
-    }
-
-    protected MultiThreadedComPortListener(InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, InboundComPortExecutorFactory inboundComPortExecutorFactory, InboundComPortConnectorFactory inboundComPortConnectorFactory) {
-        super(comPort,
-                comServerDAO,
-                inboundComPortConnectorFactory,
-                threadFactory,
-                deviceCommandExecutor);
+    protected MultiThreadedComPortListener(InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider, InboundComPortExecutorFactory inboundComPortExecutorFactory) {
+        super(comPort, deviceCommandExecutor, serviceProvider);
         this.setThreadName("MultiThreaded listener for inbound ComPort " + comPort.getName());
         this.numberOfThreads = getComPort().getNumberOfSimultaneousConnections();
         this.resourceManager = new ResourceManager(getComPort().getNumberOfSimultaneousConnections());
@@ -94,7 +69,7 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
         } else {
             this.executorService.shutdown();
             try {
-                this.executorService.awaitTermination(1, TimeUnit.HOURS);
+                this.executorService.awaitTermination(1, TimeUnit.MINUTES);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -122,7 +97,7 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
     }
 
     /**
-     * Keep myself <i>busy</i> while waiting for resources to be freed
+     * Keep myself <i>busy</i> while waiting for resources to be freed.
      */
     private void waitForFreeResources() {
         try {
@@ -132,19 +107,8 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
         }
     }
 
-    @Override
-    protected void applyChangesForNewComPort(InboundComPort inboundComPort) {
-        this.resourceManager.changeCapacity(inboundComPort.getNumberOfSimultaneousConnections());
-        ThreadPoolExecutor executor = (ThreadPoolExecutor) this.executorService;
-        executor.setCorePoolSize(inboundComPort.getNumberOfSimultaneousConnections());
-    }
-
     protected ResourceManager getResourceManager() {
         return resourceManager;
-    }
-
-    protected ExecutorService getExecutorService(){
-        return this.executorService;
     }
 
     /**
@@ -218,15 +182,15 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
     /**
      * Manages the capacity of this multiThreaded object.
      */
-    protected class ResourceManager {
+    class ResourceManager {
 
         private int capacity;
-        private final ResizeableSemaphore semaphore;
+        private final Semaphore semaphore;
 
         public ResourceManager(int capacity) {
             super();
             this.capacity = capacity;
-            this.semaphore = new ResizeableSemaphore(capacity, true);
+            this.semaphore = new Semaphore(capacity, true);
         }
 
         public boolean prepareExecution() {
@@ -251,21 +215,5 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
             return capacity;
         }
 
-        public void changeCapacity(int newCapacity) {
-            if (this.reducingCapacity(newCapacity)) {
-                this.semaphore.reducePermits(this.capacity - newCapacity);
-            } else if (this.extendingCapacity(newCapacity)) {
-                this.semaphore.release(newCapacity - this.capacity);
-            }
-            this.capacity = newCapacity;
-        }
-
-        private boolean reducingCapacity(int newCapacity) {
-            return this.capacity > newCapacity;
-        }
-
-        private boolean extendingCapacity(int newCapacity) {
-            return this.capacity < newCapacity;
-        }
     }
 }

@@ -24,4 +24,9 @@ public interface CreateComSessionDeviceCommand extends DeviceCommand, DeviceComm
 
     public void setStopWatch(StopWatch stopWatch);
 
+    /**
+     * We allow to update the successIndicator in case of failures of storage etc.
+     * @param successIndicator the new successIndicator
+     */
+    void updateSuccessIndicator(ComSession.SuccessIndicator successIndicator);
 }

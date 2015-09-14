@@ -1,16 +1,17 @@
 package com.energyict.mdc.engine.impl.monitor;
 
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 
 import com.elster.jupiter.nls.Thesaurus;
-import java.time.Clock;
+import com.elster.jupiter.time.TimeDuration;
 import org.joda.time.DateTimeConstants;
 
 import javax.management.openmbean.CompositeType;
 import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -88,7 +89,7 @@ public class OperationalStatisticsImpl extends CanConvertToCompositeDataSupport 
                     this.itemTypes());
         }
         catch (OpenDataException e) {
-            throw CodingException.compositeTypeCreation(this.getClass(), e);
+            throw CodingException.compositeTypeCreation(this.getClass(), e, MessageSeeds.COMPOSITE_TYPE_CREATION);
         }
     }
 

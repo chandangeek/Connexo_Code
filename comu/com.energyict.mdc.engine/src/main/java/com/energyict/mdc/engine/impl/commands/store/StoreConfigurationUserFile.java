@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceUserFileConfigurationInformation;
 import com.energyict.mdc.engine.config.ComServer;
@@ -24,8 +25,8 @@ public class StoreConfigurationUserFile extends DeviceCommandImpl {
     private String fileExtension;
     private byte[] contents;
 
-    public StoreConfigurationUserFile(DeviceUserFileConfigurationInformation configurationInformation, ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public StoreConfigurationUserFile(DeviceUserFileConfigurationInformation configurationInformation, ComTaskExecution comTaskExecution, ServiceProvider serviceProvider) {
+        super(comTaskExecution, serviceProvider);
         this.deviceIdentifier = configurationInformation.getDeviceIdentifier();
         this.fileExtension = configurationInformation.getFileExtension();
         this.contents = configurationInformation.getContents();

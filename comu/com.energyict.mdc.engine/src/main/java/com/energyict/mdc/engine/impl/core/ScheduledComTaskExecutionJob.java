@@ -34,7 +34,8 @@ public class ScheduledComTaskExecutionJob extends ScheduledJobImpl {
 
     @Override
     public ScheduledConnectionTask getConnectionTask() {
-        return (ScheduledConnectionTask) this.comTaskExecution.getConnectionTask();
+        // ComTaskExecution was returned by task query that joins it with the ConnectionTask so it cannot be <code>null</code>
+        return (ScheduledConnectionTask) this.comTaskExecution.getConnectionTask().get();
     }
 
     @Override

@@ -89,13 +89,13 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         DeviceRegisterList collectedRegisterList = new DeviceRegisterList(deviceIdentifier);
         collectedRegisterList.addCollectedRegister(collectedRegister);
         MdcReadingTypeUtilServiceAndClock serviceProvider = new MdcReadingTypeUtilServiceAndClock();
-        MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommand(serviceProvider);
-        CollectedRegisterListDeviceCommand collectedRegisterListDeviceCommand = new CollectedRegisterListDeviceCommand(collectedRegisterList, meterDataStoreCommand, serviceProvider);
+        MeterDataStoreCommand meterDataStoreCommand = new MeterDataStoreCommandImpl(serviceProvider);
+        CollectedRegisterListDeviceCommand collectedRegisterListDeviceCommand = new CollectedRegisterListDeviceCommand(collectedRegisterList, null, meterDataStoreCommand, serviceProvider);
 
         OfflineRegister offlineRegister = mock(OfflineRegister.class);
         when(offlineRegister.getOverFlowValue()).thenReturn(new BigDecimal(Double.MAX_VALUE));
         ComServerDAOImpl comServerDAO = mockComServerDAOButCallRealMethodForMeterReadingStoring();
-        when(comServerDAO.findOfflineRegister(registerIdentifier)).thenReturn(offlineRegister);
+        when(comServerDAO.findOfflineRegister(registerIdentifier)).thenReturn(Optional.of(offlineRegister));
 
         // Business method
         collectedRegisterListDeviceCommand.execute(comServerDAO);

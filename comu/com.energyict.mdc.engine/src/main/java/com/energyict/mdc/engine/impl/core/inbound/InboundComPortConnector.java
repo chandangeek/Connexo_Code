@@ -10,7 +10,7 @@ import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
  * Date: 18/10/12
  * Time: 13:37
  */
-public interface InboundComPortConnector {
+public interface InboundComPortConnector extends AutoCloseable {
 
     /**
      * Listen, wait and accept an incoming Call, and provide a decent {@link ComPortRelatedComChannel} in return. <br/>

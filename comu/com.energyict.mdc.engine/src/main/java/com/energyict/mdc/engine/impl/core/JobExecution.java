@@ -9,16 +9,14 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.SingleComTaskComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -28,6 +26,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.OfflineDeviceForComTaskGroup;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
@@ -57,16 +56,17 @@ import com.energyict.mdc.tasks.ProtocolTask;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 
 import java.time.Clock;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -87,29 +87,29 @@ public abstract class JobExecution implements ScheduledJob {
 
     public interface ServiceProvider extends ExecutionContext.ServiceProvider {
 
-        public DeviceConfigurationService deviceConfigurationService();
+        DeviceConfigurationService deviceConfigurationService();
 
-        public ConnectionTaskService connectionTaskService();
+        ConnectionTaskService connectionTaskService();
 
-        public LogBookService logBookService();
+        Thesaurus thesaurus();
 
-        public DeviceService deviceService();
+        DeviceService deviceService();
 
-        public TopologyService topologyService();
+        TopologyService topologyService();
 
-        public EngineService engineService();
+        EngineService engineService();
 
-        public MdcReadingTypeUtilService mdcReadingTypeUtilService();
+        MdcReadingTypeUtilService mdcReadingTypeUtilService();
 
-        public HexService hexService();
+        HexService hexService();
 
-        public TransactionService transactionService();
+        TransactionService transactionService();
 
-        public EventService eventService();
+        EventService eventService();
 
-        public IdentificationService identificationService();
+        IdentificationService identificationService();
 
-        public MeteringService meteringService();
+        MeteringService meteringService();
 
     }
 
@@ -209,14 +209,21 @@ public abstract class JobExecution implements ScheduledJob {
         this.getExecutionContext().fail(t, this.getFailureIndicatorFor(reason.toRescheduleReason()));
         this.getExecutionContext().getStoreCommand().add(new RescheduleFailedExecution(this, t, reason));
         this.getExecutionContext().getStoreCommand().add(new UnlockScheduledJobDeviceCommand(this, this.executionContext.getDeviceCommandServiceProvider()));
-        this.getDeviceCommandExecutor().execute(this.getExecutionContext().getStoreCommand(), getToken());
+        doExecuteStoreCommand();
     }
 
     protected void completeSuccessfulComSession() {
         this.getExecutionContext().complete();
         this.getExecutionContext().getStoreCommand().add(new RescheduleSuccessfulExecution(this));
         this.getExecutionContext().getStoreCommand().add(new UnlockScheduledJobDeviceCommand(this, this.executionContext.getDeviceCommandServiceProvider()));
-        this.getDeviceCommandExecutor().execute(this.getExecutionContext().getStoreCommand(), getToken());
+        doExecuteStoreCommand();
+    }
+
+    /**
+     * Store all the collected data and create a ComSession
+     */
+    protected Future<Boolean> doExecuteStoreCommand() {
+        return this.getDeviceCommandExecutor().execute(this.getExecutionContext().getStoreCommand(), getToken());
     }
 
     protected final void doReschedule(ComServerDAO comServerDAO, RescheduleBehavior.RescheduleReason rescheduleReason) {
@@ -274,10 +281,6 @@ public abstract class JobExecution implements ScheduledJob {
      * @return true if the connection is up, false otherwise
      */
     protected abstract boolean isConnected();
-
-    protected ExecutionContext newExecutionContext(ConnectionTask<?, ?> connectionTask, ComPort comPort) {
-        return newExecutionContext(connectionTask, comPort, true);
-    }
 
     protected ExecutionContext newExecutionContext(ConnectionTask<?, ?> connectionTask, ComPort comPort, boolean logConnectionProperties) {
         return new ExecutionContext(this, connectionTask, comPort, logConnectionProperties, this.serviceProvider);
@@ -380,7 +383,7 @@ public abstract class JobExecution implements ScheduledJob {
         return new ComCommandServiceProvider();
     }
 
-    private ComSession.SuccessIndicator getFailureIndicatorFor(RescheduleBehavior.RescheduleReason rescheduleReason) {
+    protected ComSession.SuccessIndicator getFailureIndicatorFor(RescheduleBehavior.RescheduleReason rescheduleReason) {
         if (RescheduleBehavior.RescheduleReason.CONNECTION_BROKEN.equals(rescheduleReason)) {
             return Broken;
         }
@@ -424,27 +427,20 @@ public abstract class JobExecution implements ScheduledJob {
         if (isItAScheduledComTaskExecution(comTaskExecution)) {
             ScheduledComTaskExecution scheduledComTaskExecution = (ScheduledComTaskExecution) comTaskExecution;
             return getProtocolDialectTypedProperties(scheduledComTaskExecution);
-        } else if (isItAManuallyScheduledComTaskExecution(comTaskExecution)) {
-            ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = (ManuallyScheduledComTaskExecution) comTaskExecution;
-            return getProtocolDialectTypedProperties(comTaskExecution.getDevice(), manuallyScheduledComTaskExecution.getProtocolDialectConfigurationProperties());
-        } else if(isItAFirmwareComTaskExecution(comTaskExecution)){
-            FirmwareComTaskExecution firmwareComTaskExecution = (FirmwareComTaskExecution) comTaskExecution;
-            return getProtocolDialectTypedProperties(comTaskExecution.getDevice(), firmwareComTaskExecution.getProtocolDialectConfigurationProperties());
+        } else if (isSingleComTaskComTaskExecution(comTaskExecution)) {
+            SingleComTaskComTaskExecution singleComTaskComTaskExecution = (SingleComTaskComTaskExecution) comTaskExecution;
+            return getProtocolDialectTypedProperties(comTaskExecution.getDevice(), singleComTaskComTaskExecution.getProtocolDialectConfigurationProperties());
         } else {
             return TypedProperties.empty();
         }
     }
 
-    private static boolean isItAFirmwareComTaskExecution(ComTaskExecution comTaskExecution) {
-        return comTaskExecution instanceof FirmwareComTaskExecution;
-    }
-
-    private static boolean isItAManuallyScheduledComTaskExecution(ComTaskExecution comTaskExecution) {
-        return comTaskExecution instanceof ManuallyScheduledComTaskExecution;
-    }
-
     private static boolean isItAScheduledComTaskExecution(ComTaskExecution comTaskExecution) {
         return comTaskExecution instanceof ScheduledComTaskExecution;
+    }
+
+    private static boolean isSingleComTaskComTaskExecution(ComTaskExecution comTaskExecution) {
+        return comTaskExecution instanceof SingleComTaskComTaskExecution;
     }
 
     static TypedProperties getProtocolDialectTypedProperties(ScheduledComTaskExecution comTaskExecution) {
@@ -594,8 +590,8 @@ public abstract class JobExecution implements ScheduledJob {
         }
 
         @Override
-        public LogBookService logBookService() {
-            return JobExecution.this.serviceProvider.logBookService();
+        public Thesaurus thesaurus() {
+            return JobExecution.this.serviceProvider.thesaurus();
         }
 
         @Override
@@ -742,7 +738,7 @@ public abstract class JobExecution implements ScheduledJob {
         @Override
         public PreparedComTaskExecution perform() {
             ComTaskExecutionOrganizer organizer = new ComTaskExecutionOrganizer(serviceProvider.topologyService());
-            final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = organizer.defineComTaskExecutionOrders(Arrays.asList(comTaskExecution));
+            final List<DeviceOrganizedComTaskExecution> deviceOrganizedComTaskExecutions = organizer.defineComTaskExecutionOrders(Collections.singletonList(comTaskExecution));
             final DeviceOrganizedComTaskExecution deviceOrganizedComTaskExecution = deviceOrganizedComTaskExecutions.get(0);
             if (deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().size() == 1) {
                 final DeviceOrganizedComTaskExecution.ComTaskWithSecurityAndConnectionSteps comTaskWithSecurityAndConnectionSteps = deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().get(0);
@@ -753,7 +749,7 @@ public abstract class JobExecution implements ScheduledJob {
                         comTaskWithSecurityAndConnectionSteps.getComTaskExecutionConnectionSteps(),
                         comTaskWithSecurityAndConnectionSteps.getDeviceProtocolSecurityPropertySet());
             } else {
-                throw CodingException.incorrectNumberOfPreparedComTaskExecutions(1, deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().size());
+                throw CodingException.incorrectNumberOfPreparedComTaskExecutions(1, deviceOrganizedComTaskExecution.getComTasksWithStepsAndSecurity().size(), MessageSeeds.INCORRECT_NUMBER_OF_COMTASKS);
             }
         }
 

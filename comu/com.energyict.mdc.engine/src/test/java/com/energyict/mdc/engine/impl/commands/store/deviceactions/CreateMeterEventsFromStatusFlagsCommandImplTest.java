@@ -165,7 +165,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         ComPort comPort = mock(ComPort.class);
         when(comPort.getComServer()).thenReturn(comServer);
-        ExecutionContext executionContext = new ExecutionContext(new MockJobExecution(), connectionTask, comPort, this.executionContextServiceProvider);
+        ExecutionContext executionContext = new ExecutionContext(new MockJobExecution(), connectionTask, comPort, true, this.executionContextServiceProvider);
 
         verifyDeviceError(command, executionContext);
         verifyPowerDown(command, executionContext);

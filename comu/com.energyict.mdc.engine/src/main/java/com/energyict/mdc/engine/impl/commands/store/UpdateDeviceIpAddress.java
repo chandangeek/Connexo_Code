@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
@@ -22,8 +23,8 @@ public class UpdateDeviceIpAddress extends DeviceCommandImpl {
     private ConnectionTask connectionTask;
     private String connectionTaskPropertyName;
 
-    public UpdateDeviceIpAddress(DeviceIpAddress ipAddressProperties, ServiceProvider serviceProvider) {
-        super(serviceProvider);
+    public UpdateDeviceIpAddress(DeviceIpAddress ipAddressProperties, ComTaskExecution comTaskExecution, ServiceProvider serviceProvider) {
+        super(comTaskExecution, serviceProvider);
         this.deviceIdentifier = ipAddressProperties.getDeviceIdentifier();
         this.ipAddress = ipAddressProperties.getIpAddress();
         this.connectionTask = ipAddressProperties.getConnectionTask();

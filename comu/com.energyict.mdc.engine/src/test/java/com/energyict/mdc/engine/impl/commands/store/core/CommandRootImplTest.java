@@ -1,10 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store.core;
 
-import com.elster.jupiter.time.TimeDuration;
-
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ClockCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
@@ -25,9 +22,9 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.meterdata.ComTaskExecutionCollectedData;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
+import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.protocol.api.exceptions.ConnectionTimeOutException;
 import com.energyict.mdc.protocol.api.exceptions.DataParseException;
 import com.energyict.mdc.tasks.BasicCheckTask;
 import com.energyict.mdc.tasks.ClockTask;
@@ -36,6 +33,7 @@ import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 import com.energyict.mdc.tasks.RegistersTask;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.ArrayList;
@@ -253,14 +251,14 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         when(deviceProtocolUpdateCacheCommand.getCommandType()).thenReturn(ComCommandTypes.DEVICE_PROTOCOL_UPDATE_CACHE_COMMAND);
         AddPropertiesCommand addPropertiesCommand = mock(AddPropertiesCommand.class);
         when(addPropertiesCommand.getCommandType()).thenReturn(ComCommandTypes.ADD_PROPERTIES_COMMAND);
-        Mockito.doThrow(new ConnectionTimeOutException(MessageSeeds.CONNECTION_TIMEOUT, 5)).when(addPropertiesCommand).doExecute(deviceProtocol, executionContext);
+        Mockito.doThrow(new ConnectionCommunicationException(5)).when(addPropertiesCommand).doExecute(deviceProtocol, executionContext);
         commandRoot.addUniqueCommand(addPropertiesCommand, comTaskExecution);
         commandRoot.addUniqueCommand(deviceProtocolTerminateCommand, comTaskExecution);
         commandRoot.addUniqueCommand(deviceProtocolUpdateCacheCommand, comTaskExecution);
 
         try {
             commandRoot.execute(deviceProtocol, executionContext);
-        } catch (ConnectionTimeOutException e) {
+        } catch (ConnectionCommunicationException e) {
             // if we get the exception we need to verify if the terminate command and updateCache command is called first
             verify(deviceProtocolTerminateCommand).execute(deviceProtocol, executionContext);
             verify(deviceProtocolUpdateCacheCommand).execute(deviceProtocol, executionContext);
@@ -279,14 +277,14 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         when(forceClockCommand.getCommandType()).thenReturn(ComCommandTypes.FORCE_CLOCK_COMMAND);
         ReadRegistersCommandImpl readRegistersCommand = mock(ReadRegistersCommandImpl.class);
         when(readRegistersCommand.getCommandType()).thenReturn( ComCommandTypes.READ_REGISTERS_COMMAND);
-        Mockito.doThrow(new ConnectionTimeOutException(MessageSeeds.CONNECTION_TIMEOUT, 5)).when(addPropertiesCommand).doExecute(deviceProtocol, executionContext);
+        Mockito.doThrow(new ConnectionCommunicationException(5)).when(addPropertiesCommand).doExecute(deviceProtocol, executionContext);
         commandRoot.addUniqueCommand(addPropertiesCommand, comTaskExecution);
         commandRoot.addUniqueCommand(forceClockCommand, comTaskExecution);
         commandRoot.addUniqueCommand(readRegistersCommand, comTaskExecution);
 
         try {
             commandRoot.execute(deviceProtocol, executionContext);
-        } catch (ConnectionTimeOutException e) {
+        } catch (ConnectionCommunicationException e) {
             verify(forceClockCommand, never()).execute(deviceProtocol, executionContext);
             verify(readRegistersCommand, never()).execute(deviceProtocol, executionContext);
         }
@@ -304,14 +302,14 @@ public class CommandRootImplTest extends CommonCommandImplTests {
         when(logOffCommand.getCommandType()).thenReturn(ComCommandTypes.LOGOFF);
         DaisyChainedLogOffCommand daisyChainedLogOffCommand = mock(DaisyChainedLogOffCommand.class);
         when(daisyChainedLogOffCommand.getCommandType()).thenReturn(ComCommandTypes.DAISY_CHAINED_LOGOFF);
-        Mockito.doThrow(new ConnectionTimeOutException(MessageSeeds.CONNECTION_TIMEOUT, 5)).when(addPropertiesCommand).doExecute(deviceProtocol, executionContext);
+        Mockito.doThrow(new ConnectionCommunicationException(5)).when(addPropertiesCommand).doExecute(deviceProtocol, executionContext);
         commandRoot.addUniqueCommand(addPropertiesCommand, comTaskExecution);
         commandRoot.addUniqueCommand(daisyChainedLogOffCommand, comTaskExecution);
         commandRoot.addUniqueCommand(logOffCommand, comTaskExecution);
 
         try {
             commandRoot.execute(deviceProtocol, executionContext);
-        } catch (ConnectionTimeOutException e) {
+        } catch (ConnectionCommunicationException e) {
             verify(daisyChainedLogOffCommand, never()).execute(deviceProtocol, executionContext);
             verify(logOffCommand, never()).execute(deviceProtocol, executionContext);
         }
@@ -335,7 +333,7 @@ public class CommandRootImplTest extends CommonCommandImplTests {
 
         try {
             commandRoot.execute(deviceProtocol, executionContext);
-        } catch (ConnectionTimeOutException e) {
+        } catch (ConnectionCommunicationException e) {
             verify(daisyChainedLogOffCommand).execute(deviceProtocol, executionContext);
             verify(logOffCommand).execute(deviceProtocol, executionContext);
         }

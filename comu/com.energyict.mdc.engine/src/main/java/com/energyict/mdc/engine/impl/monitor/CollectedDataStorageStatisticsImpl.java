@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.monitor;
 
 import com.energyict.mdc.engine.exceptions.CodingException;
+import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 
 import javax.management.openmbean.CompositeType;
@@ -79,7 +80,7 @@ public class CollectedDataStorageStatisticsImpl extends CanConvertToCompositeDat
                             SimpleType.INTEGER});
         }
         catch (OpenDataException e) {
-            throw CodingException.compositeTypeCreation(targetClass, e);
+            throw CodingException.compositeTypeCreation(targetClass, e, MessageSeeds.COMPOSITE_TYPE_CREATION);
         }
     }
 

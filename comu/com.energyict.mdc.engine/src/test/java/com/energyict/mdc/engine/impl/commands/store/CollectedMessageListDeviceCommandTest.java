@@ -44,7 +44,7 @@ public class CollectedMessageListDeviceCommandTest {
     @Mock
     private IssueService issueService;
     @Mock
-    private MeterDataStoreCommand meterDataStoreCommand;
+    private MeterDataStoreCommandImpl meterDataStoreCommand;
     @Mock
     private DeviceCommand.ServiceProvider serviceProvider;
 
@@ -67,6 +67,7 @@ public class CollectedMessageListDeviceCommandTest {
         deviceProtocolMessageList.addCollectedMessages(collectedMessage1);
         DeviceCommand command = deviceProtocolMessageList.toDeviceCommand(meterDataStoreCommand, serviceProvider);
         command.logExecutionWith(this.executionLogger);
+
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
         // Business method

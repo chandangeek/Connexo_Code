@@ -1,11 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.util.Holder;
-import com.elster.jupiter.util.HolderBuilder;
-import java.time.Clock;
-import com.elster.jupiter.util.time.StopWatch;
+import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -22,8 +17,11 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
@@ -35,6 +33,7 @@ import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailur
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.core.events.ComPortLogHandler;
 import com.energyict.mdc.engine.impl.core.logging.ComPortConnectionLogger;
+import com.energyict.mdc.engine.impl.core.logging.CompositeComPortConnectionLogger;
 import com.energyict.mdc.engine.impl.core.logging.CompositeLogger;
 import com.energyict.mdc.engine.impl.core.logging.ExecutionContextLogHandler;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
@@ -47,22 +46,25 @@ import com.energyict.mdc.engine.impl.events.connection.CloseConnectionEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-import com.energyict.mdc.engine.impl.core.logging.CompositeComPortConnectionLogger;
+import com.energyict.mdc.engine.impl.meterdata.DeviceCommandFactory;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
-import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.util.Holder;
+import com.elster.jupiter.util.HolderBuilder;
+import com.elster.jupiter.util.time.StopWatch;
+
 import java.text.MessageFormat;
-import java.time.Instant;
+import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -85,23 +87,23 @@ public final class ExecutionContext implements JournalEntryFactory {
 
     public interface ServiceProvider {
 
-        public Clock clock();
+        Clock clock();
 
-        public NlsService nlsService();
+        NlsService nlsService();
 
-        public EventService eventService();
+        EventService eventService();
 
-        public IssueService issueService();
+        IssueService issueService();
 
-        public ConnectionTaskService connectionTaskService();
+        ConnectionTaskService connectionTaskService();
 
-        public DeviceService deviceService();
+        DeviceService deviceService();
 
-        public EventPublisher eventPublisher();
+        EventPublisher eventPublisher();
 
-        public MdcReadingTypeUtilService mdcReadingTypeUtilService();
+        MdcReadingTypeUtilService mdcReadingTypeUtilService();
 
-        public EngineService engineService();
+        EngineService engineService();
 
     }
 
@@ -125,10 +127,7 @@ public final class ExecutionContext implements JournalEntryFactory {
     private boolean basicCheckFailed = false;
     private StopWatch connecting;
     private StopWatch executing;
-
-    public ExecutionContext(JobExecution jobExecution, ConnectionTask<?, ?> connectionTask, ComPort comPort, ServiceProvider serviceProvider) {
-        this(jobExecution, connectionTask, comPort, true, serviceProvider);
-    }
+    private DeviceCommandFactory deviceCommandFactory;
 
     public ExecutionContext(JobExecution jobExecution, ConnectionTask<?, ?> connectionTask, ComPort comPort, boolean logConnectionProperties, ServiceProvider serviceProvider) {
         super();
@@ -314,7 +313,10 @@ public final class ExecutionContext implements JournalEntryFactory {
     }
 
     public void fail(Throwable t, ComSession.SuccessIndicator reason) {
-        sessionBuilder.addJournalEntry(now(), ComServer.LogLevel.ERROR, t);
+        this.sessionBuilder.setFailedTasks(this.jobExecution.getFailedComTaskExecutions().size());
+        this.sessionBuilder.setSuccessFulTasks(this.jobExecution.getSuccessfulComTaskExecutions().size());
+        this.sessionBuilder.setNotExecutedTasks(this.jobExecution.getNotExecutedComTaskExecutions().size());
+        this.sessionBuilder.addJournalEntry(now(), ComServer.LogLevel.ERROR, t);
         this.createComSessionCommand(sessionBuilder, reason);
     }
 
@@ -620,10 +622,21 @@ public final class ExecutionContext implements JournalEntryFactory {
         }
     }
 
-    private List<DeviceCommand> toDeviceCommands(ComTaskExecutionComCommand commandRoot) {
-        List<CollectedData> collectedData = commandRoot.getCollectedData();
+    private List<DeviceCommand> toDeviceCommands(ComTaskExecutionComCommand comTaskExecutionComCommand) {
+        List<CollectedData> collectedData = comTaskExecutionComCommand.getCollectedData();
         List<ServerCollectedData> serverCollectedData = collectedData.stream().map(ServerCollectedData.class::cast).collect(Collectors.toList());
-        return new DeviceCommandFactoryImpl().newForAll(serverCollectedData, getDeviceCommandServiceProvider());
+        return getDeviceCommandFactory().newForAll(serverCollectedData, getDeviceCommandServiceProvider());
+    }
+
+    private DeviceCommandFactory getDeviceCommandFactory() {
+        if(this.deviceCommandFactory == null){
+            deviceCommandFactory = new DeviceCommandFactoryImpl();
+        }
+        return deviceCommandFactory;
+    }
+
+    public void setDeviceCommandFactory(DeviceCommandFactory deviceCommandFactory) {
+        this.deviceCommandFactory = deviceCommandFactory;
     }
 
     public DeviceCommandServiceProvider getDeviceCommandServiceProvider() {
@@ -681,6 +694,11 @@ public final class ExecutionContext implements JournalEntryFactory {
         @Override
         public EngineService engineService() {
             return serviceProvider.engineService();
+        }
+
+        @Override
+        public NlsService nlsService() {
+            return serviceProvider.nlsService();
         }
 
         @Override

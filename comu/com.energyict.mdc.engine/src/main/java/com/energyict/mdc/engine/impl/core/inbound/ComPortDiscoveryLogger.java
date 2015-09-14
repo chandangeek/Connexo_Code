@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.impl.logging.Configuration;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.config.InboundComPort;
@@ -119,13 +120,12 @@ public interface ComPortDiscoveryLogger {
      * Logs that a number of data elements that were collected by the
      * {@link InboundDeviceProtocol}
      * were filtered because that type of data was not configured
-     * to be collected on any of the inbound {@link com.energyict.mdc.tasks.ComTaskExecution}.
-     *
+     * to be collected on any of the inbound ComTaskExecution.
+     *  @param dataType         The type of data that will be dropped
      * @param deviceIdentifier The DeviceIdentifier discovered by the InboundDeviceProtocol
      * @param comPort The InboundComPort on which the communication was started
-     * @param numberOfItemsFiltered The number of items that was filtered
      */
-    @Configuration(format = "The data that was collected during discovery of device identified by ''{0}'' on port ''{1}'' was filtered (number of elements filtered: {2})", logLevel = LogLevel.INFO)
-    public void collectedDataWasFiltered (DeviceIdentifier deviceIdentifier, InboundComPort comPort, int numberOfItemsFiltered);
+    @Configuration(format = "The data of type ''{0}'' that was collected during discovery of device ''{1}'' on port ''{2}'' was dropped, because it is not configured on any of the inbound comtasks.", logLevel = LogLevel.WARN)
+    public void collectedDataWasFiltered(String dataType, DeviceIdentifier deviceIdentifier, ComPort comPort);
 
 }

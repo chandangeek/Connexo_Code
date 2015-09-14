@@ -1,13 +1,10 @@
 package com.energyict.mdc.engine.impl.monitor;
 
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.engine.exceptions.MessageSeeds;
-
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.time.TimeDuration;
 import org.joda.time.DateTimeConstants;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -83,27 +80,27 @@ public class PrettyPrintTimeDuration {
     }
 
     private enum TimeUnit {
-        YEAR(MessageSeeds.PRETTY_PRINT_TIMEDURATION_YEAR_SINGULAR, MessageSeeds.PRETTY_PRINT_TIMEDURATION_YEAR_PLURAL),
-        MONTH(MessageSeeds.PRETTY_PRINT_TIMEDURATION_MONTH_SINGULAR, MessageSeeds.PRETTY_PRINT_TIMEDURATION_MONTH_PLURAL),
-        DAY(MessageSeeds.PRETTY_PRINT_TIMEDURATION_DAY_SINGULAR, MessageSeeds.PRETTY_PRINT_TIMEDURATION_DAY_PLURAL),
-        HOUR(MessageSeeds.PRETTY_PRINT_TIMEDURATION_HOUR_SINGULAR, MessageSeeds.PRETTY_PRINT_TIMEDURATION_HOUR_PLURAL),
-        MINUTE(MessageSeeds.PRETTY_PRINT_TIMEDURATION_MINUTE_SINGULAR, MessageSeeds.PRETTY_PRINT_TIMEDURATION_MINUTE_PLURAL),
-        SECOND(MessageSeeds.PRETTY_PRINT_TIMEDURATION_SECOND_SINGULAR, MessageSeeds.PRETTY_PRINT_TIMEDURATION_SECOND_PLURAL);
+        YEAR(PrettyPrintTimeDurationTranslationKeys.YEAR_SINGULAR, PrettyPrintTimeDurationTranslationKeys.YEAR_PLURAL),
+        MONTH(PrettyPrintTimeDurationTranslationKeys.MONTH_SINGULAR, PrettyPrintTimeDurationTranslationKeys.MONTH_PLURAL),
+        DAY(PrettyPrintTimeDurationTranslationKeys.DAY_SINGULAR, PrettyPrintTimeDurationTranslationKeys.DAY_PLURAL),
+        HOUR(PrettyPrintTimeDurationTranslationKeys.HOUR_SINGULAR, PrettyPrintTimeDurationTranslationKeys.HOUR_PLURAL),
+        MINUTE(PrettyPrintTimeDurationTranslationKeys.MINUTE_SINGULAR, PrettyPrintTimeDurationTranslationKeys.MINUTE_PLURAL),
+        SECOND(PrettyPrintTimeDurationTranslationKeys.SECOND_SINGULAR, PrettyPrintTimeDurationTranslationKeys.SECOND_PLURAL);
 
-        private MessageSeed singular;
-        private MessageSeed plural;
+        private TranslationKey singular;
+        private TranslationKey plural;
 
-        TimeUnit(MessageSeed singular, MessageSeed plural) {
+        TimeUnit(TranslationKey singular, TranslationKey plural) {
             this.singular = singular;
             this.plural = plural;
         }
 
         public void appendValue (int value, StringBuilder builder, Thesaurus thesaurus) {
             if (this.isPlural(value)) {
-                this.append(builder, value, thesaurus, this.plural.getKey());
+                this.append(builder, value, thesaurus, this.plural);
             }
             else {
-                this.append(builder, value, thesaurus, this.singular.getKey());
+                this.append(builder, value, thesaurus, this.singular);
             }
         }
 
@@ -111,9 +108,8 @@ public class PrettyPrintTimeDuration {
             return value == 0 || value > 1;
         }
 
-        private void append (StringBuilder builder, int value, Thesaurus thesaurus, String translationKey) {
-            String pattern = thesaurus.getString(translationKey, translationKey);
-            builder.append(MessageFormat.format(pattern, value));
+        private void append (StringBuilder builder, int value, Thesaurus thesaurus, TranslationKey translationKey) {
+            builder.append(thesaurus.getFormat(translationKey).format(value));
         }
 
     }
@@ -192,7 +188,7 @@ public class PrettyPrintTimeDuration {
         }
 
         protected void addSeparatorIfNotLast (StringBuilder builder) {
-            builder.append(thesaurus.getString(MessageSeeds.PRETTY_PRINT_TIMEDURATION_SEPARATOR.getKey(), ", "));
+            builder.append(thesaurus.getFormat(PrettyPrintTimeDurationTranslationKeys.SEPARATOR).format());
         }
     }
 
@@ -209,7 +205,7 @@ public class PrettyPrintTimeDuration {
 
         @Override
         protected void addSeparatorIfNotLast (StringBuilder builder) {
-            builder.append(thesaurus.getString(MessageSeeds.PRETTY_PRINT_TIMEDURATION_LAST_SEPARATOR.getKey(), " and "));
+            builder.append(thesaurus.getFormat(PrettyPrintTimeDurationTranslationKeys.LAST_SEPARATOR).format());
         }
     }
 

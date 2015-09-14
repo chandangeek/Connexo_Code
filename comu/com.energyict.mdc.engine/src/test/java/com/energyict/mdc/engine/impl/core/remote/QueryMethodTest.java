@@ -162,48 +162,6 @@ public class QueryMethodTest {
     }
 
     @Test
-    public void testRefreshComPortWithoutModifications() throws IOException {
-        Date now = new Date();
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
-        OutboundComPort comPort = mock(OutboundComPort.class);
-        when(comPort.getId()).thenReturn(COMPORT_ID);
-        when(comPort.getModificationDate()).thenReturn(now.toInstant());
-        doReturn(Optional.of(comPort)).when(this.engineConfigurationService).findComPort(COMPORT_ID);
-
-        // Business method
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, COMPORT_ID);
-        parameters.put(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE, now.getTime());
-        Object refreshed = QueryMethod.RefreshComPort.execute(parameters, serviceProvider);
-
-        // Asserts
-        assertThat(refreshed).isNull();
-    }
-
-    @Test
-    public void testRefreshComPortWithModifications() throws IOException {
-        Date modificationDateBeforeChanges = new DateTime(2013, 4, 29, 11, 56, 8, 0).toDate();
-        Date modificationDateAfterChanges = new DateTime(2013, 4, 29, 12, 13, 59, 0).toDate();
-        ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);
-        OutboundComPort comPort = mock(OutboundComPort.class);
-        when(comPort.getId()).thenReturn(COMPORT_ID);
-        when(comPort.getModificationDate()).thenReturn(modificationDateAfterChanges.toInstant());
-        doReturn(Optional.of(comPort)).when(this.engineConfigurationService).findComPort(COMPORT_ID);
-
-        // Business method
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, COMPORT_ID);
-        parameters.put(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE, modificationDateBeforeChanges.getTime());
-        Object refreshed = QueryMethod.RefreshComPort.execute(parameters, serviceProvider);
-
-        // Asserts
-        assertThat(refreshed).isNotNull();
-        assertThat(refreshed).isSameAs(comPort);
-    }
-
-    @Test
     public void testComTaskExecutionStarted() throws IOException {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         QueryMethod.ServiceProvider serviceProvider = this.newServiceProvider(comServerDAO);

@@ -2,20 +2,22 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
-import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegisterList;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -26,6 +28,7 @@ public class PreStoreRegisters {
 
     private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
     private final ComServerDAO comServerDAO;
+    private List<RegisterIdentifier> unknownRegisters;
 
     public PreStoreRegisters(MdcReadingTypeUtilService mdcReadingTypeUtilService, ComServerDAO comServerDAO) {
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
@@ -43,23 +46,33 @@ public class PreStoreRegisters {
      * @return the preStored registers
      */
     public Map<DeviceIdentifier, List<Reading>> preStore(CollectedRegisterList collectedRegisterList) {
+        this.unknownRegisters = new ArrayList<>();
         Map<DeviceIdentifier, List<Reading>> processedReadings = new HashMap<>();
         for (CollectedRegister collectedRegister : collectedRegisterList.getCollectedRegisters()) {
+            Optional<OfflineRegister> offlineRegister = this.comServerDAO.findOfflineRegister(collectedRegister.getRegisterIdentifier());
             DeviceIdentifier deviceIdentifier = collectedRegister.getRegisterIdentifier().getDeviceIdentifier();
-            Reading reading = MeterDataFactory.createReadingForDeviceRegisterAndObisCode(collectedRegister);
-            if (!collectedRegister.isTextRegister() && collectedRegister.getCollectedQuantity() != null) {
-                Unit configuredUnit = this.mdcReadingTypeUtilService.getMdcUnitFor(collectedRegister.getReadingType().getMRID());
-                int scaler = getScaler(collectedRegister.getCollectedQuantity().getUnit(), configuredUnit);
-                OfflineRegister offlineRegister = comServerDAO.findOfflineRegister(collectedRegister.getRegisterIdentifier());
-                BigDecimal overflow = offlineRegister.getOverFlowValue();
-                Reading scaledReading = getScaledReading(scaler, reading);
-                Reading overflowCheckedReading = getOverflowCheckedReading(overflow, scaledReading);
-                addProcessedReadingFor(processedReadings, deviceIdentifier, overflowCheckedReading);
-            } else {
-                addProcessedReadingFor(processedReadings, deviceIdentifier, reading);
+            if (offlineRegister.isPresent()) {
+                Reading reading = MeterDataFactory.createReadingForDeviceRegisterAndObisCode(collectedRegister);
+                if (!collectedRegister.isTextRegister() && collectedRegister.getCollectedQuantity() != null) {
+                    Unit configuredUnit = this.mdcReadingTypeUtilService.getMdcUnitFor(collectedRegister.getReadingType().getMRID());
+                    int scaler = getScaler(collectedRegister.getCollectedQuantity().getUnit(), configuredUnit);
+                    BigDecimal overflow = offlineRegister.get().getOverFlowValue();
+                    Reading scaledReading = getScaledReading(scaler, reading);
+                    Reading overflowCheckedReading = getOverflowCheckedReading(overflow, scaledReading);
+                    addProcessedReadingFor(processedReadings, deviceIdentifier, overflowCheckedReading);
+                } else {
+                    addProcessedReadingFor(processedReadings, deviceIdentifier, reading);
+                }
+            }
+            else {
+                this.unknownRegisters.add(collectedRegister.getRegisterIdentifier());
             }
         }
         return processedReadings;
+    }
+
+    public List<RegisterIdentifier> getUnknownRegisters() {
+        return Collections.unmodifiableList(this.unknownRegisters);
     }
 
     private boolean addProcessedReadingFor(Map<DeviceIdentifier, List<Reading>> allProcessedReadings, DeviceIdentifier deviceIdentifier, Reading newReading) {

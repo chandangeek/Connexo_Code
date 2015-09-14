@@ -18,6 +18,12 @@ import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
+
 import java.sql.SQLException;
 import java.time.Clock;
 import java.util.ArrayList;
@@ -32,6 +38,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -66,6 +74,10 @@ public class RunningComServerImplTest {
     private EventAPIStatistics eventApiStatistics;
     @Mock
     private RunningComServerImpl.ServiceProvider serviceProvider;
+    @Mock
+    private NlsService nlsService;
+    @Mock
+    private Thesaurus thesaurus;
 
     private Clock clock = Clock.systemDefaultZone();
 
@@ -83,6 +95,11 @@ public class RunningComServerImplTest {
         when(this.serviceProvider.engineService()).thenReturn(this.engineService);
         when(this.serviceProvider.deviceService()).thenReturn(this.deviceService);
         when(this.serviceProvider.managementBeanFactory()).thenReturn(this.managementBeanFactory);
+        when(this.serviceProvider.nlsService()).thenReturn(this.nlsService);
+        when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit testing");
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
     }
 
     @Test

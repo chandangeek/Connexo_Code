@@ -1,11 +1,9 @@
 package com.energyict.mdc.engine.impl.web.queryapi;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.HostName;
@@ -41,7 +39,6 @@ import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.joda.time.DateTimeConstants;
 import org.json.JSONException;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
@@ -49,11 +46,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.time.Instant;
-import java.util.Date;
 
 import org.junit.*;
 import org.junit.rules.*;
@@ -241,87 +234,6 @@ public class WebSocketQueryApiServiceTest {
         assertThat(receivedMessage).doesNotContain(comServer.getName());
     }
 
-    /**
-     * Executes the {@link ComServerDAO#refreshComPort(ComPort)} method
-     * for a ComPort that was not changed.
-     */
-    @Test
-    public void testRefreshComPortWithoutChanges() throws SQLException, BusinessException, JSONException {
-        String onlineHostName = "online.testRefreshComPortWithoutChanges";
-        OnlineComServer onlineComServer = this.createOnlineComServer(onlineHostName);
-        RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
-        when(runningComServer.getComServer()).thenReturn(onlineComServer);
-        String remoteHostName = "remote.testRefreshComPortWithoutChanges";
-        RemoteComServer comServer = this.createRemoteComServerWithOneOutboundComPort(remoteHostName, onlineComServer);
-        OutboundComPort comPort = comServer.getOutboundComPorts().get(0);
-
-        WebSocketQueryApiService queryApiService = new WebSocketQueryApiService(runningComServer, mock(ComServerDAO.class), engineConfigurationService, connectionTaskService, communicationTaskService, transactionService);
-        TestConnection connection = new TestConnection();
-        queryApiService.onOpen(connection);
-        String queryId = "testRefreshComPortWithoutChanges";
-        String query = this.getRefreshComPortQueryString(queryId, comPort);
-
-        // Business method
-        queryApiService.onMessage(query);
-
-        // Asserts
-        String receivedMessage = connection.getReceivedMessage();
-        assertThat(receivedMessage).isNotNull();
-        assertThat(receivedMessage).contains(queryId);
-        assertThat(receivedMessage).doesNotContain(comPort.getName());
-    }
-
-    /**
-     * Executes the {@link ComServerDAO#refreshComPort(ComPort)} method
-     * for a ComPort that was changed.
-     */
-    @Test
-    public void testRefreshComPortWithChanges() throws SQLException, BusinessException, JSONException {
-        String onlineHostName = "online.testRefreshComPortWithChanges";
-        OnlineComServer onlineComServer = this.createOnlineComServer(onlineHostName);
-        RunningOnlineComServer runningComServer = mock(RunningOnlineComServer.class);
-        when(runningComServer.getComServer()).thenReturn(onlineComServer);
-        String remoteHostName = "remote.testRefreshComPortWithChanges";
-        RemoteComServer comServer = this.createRemoteComServerWithOneOutboundComPort(remoteHostName, onlineComServer);
-        OutboundComPort comPort = comServer.getOutboundComPorts().get(0);
-        Instant creationDate = comPort.getModificationDate();
-
-        WebSocketQueryApiService queryApiService = new WebSocketQueryApiService(runningComServer, mock(ComServerDAO.class), engineConfigurationService, connectionTaskService, communicationTaskService, transactionService);
-        TestConnection connection = new TestConnection();
-        queryApiService.onOpen(connection);
-        String queryId = "testRefreshComPortWithChanges";
-        String query = this.getRefreshComPortQueryString(queryId, comPort);
-
-        // Now update the ComPort's modification date
-        Date modificationDate = new Date(creationDate.toEpochMilli() + DateTimeConstants.MILLIS_PER_DAY);
-        this.updateComPortModificationDate(comPort, modificationDate);
-
-        // Business method
-        queryApiService.onMessage(query);
-
-        // Asserts
-        String receivedMessage = connection.getReceivedMessage();
-        assertThat(receivedMessage).isNotNull();
-        assertThat(receivedMessage).contains(queryId);
-        assertThat(receivedMessage).contains(comPort.getName());
-    }
-
-    private void updateComPortModificationDate(ComPort comPort, Date modificationDate) throws SQLException {
-        SqlBuilder sqlBuilder = new SqlBuilder();
-        sqlBuilder.append("update mdc_comport set modtime = ?");
-        sqlBuilder.bindLong(modificationDate.getTime());
-        sqlBuilder.append(" where id = ?");
-        sqlBuilder.bindLong(comPort.getId());
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            try (Connection connection = dataModel.getConnection(true)) {
-                try (PreparedStatement statement = sqlBuilder.getStatement(connection)) {
-                    statement.executeUpdate();
-                }
-            }
-            ctx.commit();
-        }
-    }
-
     private String getThisComServerQueryString(String queryId) throws JSONException {
         JSONWriter queryWriter = new JSONStringer().object();
         queryWriter.key(RemoteComServerQueryJSonPropertyNames.QUERY_ID).value(queryId);
@@ -335,16 +247,6 @@ public class WebSocketQueryApiServiceTest {
         queryWriter.key(RemoteComServerQueryJSonPropertyNames.QUERY_ID).value(queryId);
         queryWriter.key(RemoteComServerQueryJSonPropertyNames.METHOD).value(QueryMethod.GetComServer.name());
         queryWriter.key(RemoteComServerQueryJSonPropertyNames.HOSTNAME).value(hostName);
-        queryWriter.endObject();
-        return queryWriter.toString();
-    }
-
-    private String getRefreshComPortQueryString(String queryId, ComPort comPort) throws JSONException {
-        JSONWriter queryWriter = new JSONStringer().object();
-        queryWriter.key(RemoteComServerQueryJSonPropertyNames.QUERY_ID).value(queryId);
-        queryWriter.key(RemoteComServerQueryJSonPropertyNames.METHOD).value(QueryMethod.RefreshComPort.name());
-        queryWriter.key(RemoteComServerQueryJSonPropertyNames.COMPORT).value(comPort.getId());
-        queryWriter.key(RemoteComServerQueryJSonPropertyNames.MODIFICATION_DATE).value(comPort.getModificationDate().toEpochMilli());
         queryWriter.endObject();
         return queryWriter.toString();
     }
