@@ -21,7 +21,7 @@ import javax.ws.rs.core.UriInfo;
 import java.util.List;
 import java.util.Optional;
 
-@Path("/userdirectory")
+@Path("/userdirectories")
 public class UserDirectoryResource {
 
     private final UserService userService;
@@ -117,5 +117,5 @@ public class UserDirectoryResource {
         });
         return getUserDirectory(id,securityContext);
     }
-    
+
 }
