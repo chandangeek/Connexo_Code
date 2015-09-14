@@ -55,20 +55,22 @@ Ext.define('Dsh.controller.Main', {
             router = me.getController('Uni.controller.history.Router'),
             historian = me.getController('Dsh.controller.history.Workspace'); // Forces route registration.
 
-        var route = router.getRoute('dashboard');
-        Uni.store.MenuItems.add(
-            Ext.create('Uni.model.MenuItem', {
-                text: route.title,
-                glyph: 'home',
-                portal: 'dashboard',
-                index: 0
-            })
-        );
+        if (Mdc.privileges.Device.canView()) {
+            var route = router.getRoute('dashboard');
+            Uni.store.MenuItems.add(
+                Ext.create('Uni.model.MenuItem', {
+                    text: route.title,
+                    glyph: 'home',
+                    portal: 'dashboard',
+                    index: 0
+                })
+            );
+        }
 
         if (Mdc.privileges.Device.canOperateDevice()) {
             Uni.store.MenuItems.add(
                 Ext.create('Uni.model.MenuItem', {
-                    text: 'Workspace',
+                    text:  Uni.I18n.translate('general.workspace','DSH','Workspace'),
                     glyph: 'workspace',
                     portal: 'workspace',
                     index: 30
@@ -77,12 +79,12 @@ Ext.define('Dsh.controller.Main', {
 
             Uni.store.PortalItems.add(
                 Ext.create('Uni.model.PortalItem', {
-                    title: 'Data communication',
+                    title: Uni.I18n.translate('general.dataCommunication','DSH','Data communication'),
                     portal: 'workspace',
                     route: 'datacommunication',
                     items: [
                         {
-                            text: Uni.I18n.translate('title.connections', 'DSH', 'Connections'),
+                            text: Uni.I18n.translate('general.connections', 'DSH', 'Connections'),
                             href: router.getRoute('workspace/connections/details').buildUrl()
                         },
                         {
@@ -90,7 +92,7 @@ Ext.define('Dsh.controller.Main', {
                             href: router.getRoute('workspace/connections').buildUrl()
                         },
                         {
-                            text: Uni.I18n.translate('title.communications', 'DSH', 'Communications'),
+                            text: Uni.I18n.translate('general.communications', 'DSH', 'Communications'),
                             href: router.getRoute('workspace/communications/details').buildUrl()
                         },
                         {

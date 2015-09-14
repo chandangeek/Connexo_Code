@@ -8,7 +8,7 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
         {
             type: 'combobox',
             dataIndex: 'deviceGroups',
-            emptyText: Uni.I18n.translate('connection.widget.filter.deviceGroup', 'DSH', 'Device group'),
+            emptyText: Uni.I18n.translate('general.deviceGroup', 'DSH', 'Device group'),
             multiSelect: true,
             displayField: 'name',
             valueField: 'id',
@@ -18,7 +18,7 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
         {
             type: 'combobox',
             dataIndex: 'currentStates',
-            emptyText: Uni.I18n.translate('connection.widget.filter.currentState', 'DSH', 'Current state'),
+            emptyText: Uni.I18n.translate('general.currentState', 'DSH', 'Current state'),
             multiSelect: true,
             displayField: 'localizedValue',
             valueField: 'taskStatus',
@@ -28,7 +28,7 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
         {
             type: 'combobox',
             dataIndex: 'latestResults',
-            emptyText: Uni.I18n.translate('connection.widget.filter.latestResult', 'DSH', 'Latest result'),
+            emptyText: Uni.I18n.translate('general.latestResult', 'DSH', 'Latest result'),
             multiSelect: true,
             displayField: 'localizedValue',
             valueField: 'completionCode',
@@ -38,7 +38,7 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
         {
             type: 'combobox',
             dataIndex: 'comTasks',
-            emptyText: Uni.I18n.translate('connection.widget.filter.commTask', 'DSH', 'Communication task'),
+            emptyText: Uni.I18n.translate('general.commTask', 'DSH', 'Communication task'),
             multiSelect: true,
             displayField: 'name',
             valueField: 'id',
@@ -58,7 +58,7 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
         {
             type: 'combobox',
             dataIndex: 'deviceTypes',
-            emptyText: Uni.I18n.translate('connection.widget.filter.deviceType', 'DSH', 'Device type'),
+            emptyText: Uni.I18n.translate('general.deviceType', 'DSH', 'Device type'),
             multiSelect: true,
             displayField: 'name',
             valueField: 'id',

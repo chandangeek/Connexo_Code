@@ -14,7 +14,7 @@ Ext.define('Dsh.view.communicationsbulk.Step2', {
             items: [
                 {
                     name: 'action',
-                    boxLabel: '<b>' + Uni.I18n.translate('communication.bulk.actionRadioGroup.RunLabel', 'DSH', 'Run') + '</b>',
+                    boxLabel: '<b>' + Uni.I18n.translate('general.run', 'DSH', 'Run') + '</b>',
                     afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">'
                     + Uni.I18n.translate('communication.bulk.actionRadioGroup.RunDescription', 'DSH', 'The selected communications will be queued for the next scheduled run.')
                     + '</span>',
@@ -23,7 +23,7 @@ Ext.define('Dsh.view.communicationsbulk.Step2', {
                 },
                 {
                     name: 'action',
-                    boxLabel: '<b>' + Uni.I18n.translate('communication.bulk.actionRadioGroup.RunNowLabel', 'DSH', 'Run now') + '</b>',
+                    boxLabel: '<b>' + Uni.I18n.translate('general.runNow', 'DSH', 'Run now') + '</b>',
                     afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">'
                     + Uni.I18n.translate('communication.bulk.actionRadioGroup.RunNowDescription', 'DSH', 'The selected communications will be queued for an immediate run.')
                     + '</span>',

@@ -22,11 +22,8 @@ Ext.define('Dsh.view.connectionsbulk.Step1', {
                 store: 'Dsh.store.ConnectionTasksBuffered',
 
                 counterTextFn: function (count) {
-                    return Uni.I18n.translatePlural(
-                        'connection.bulk.counterText',
-                        count,
-                        'DSH',
-                        '{0} connections selected'
+                    return Uni.I18n.translatePlural('general.nrOfConnections.selected', count, 'DSH',
+                        'No connections selected', '{0} connection selected', '{0} connections selected'
                     );
                 },
 
@@ -43,7 +40,7 @@ Ext.define('Dsh.view.connectionsbulk.Step1', {
                 columns: [
                     {
                         itemId: 'Device',
-                        text: Uni.I18n.translate('connection.widget.details.device', 'DSH', 'Device'),
+                        text: Uni.I18n.translate('general.device', 'DSH', 'Device'),
                         dataIndex: 'device',
                         flex: 1,
                         renderer: function (val) {
@@ -53,7 +50,7 @@ Ext.define('Dsh.view.connectionsbulk.Step1', {
                     },
                     {
                         itemId: 'connectionMethod',
-                        text: Uni.I18n.translate('connection.widget.details.connectionMethod', 'DSH', 'Connection method'),
+                        text: Uni.I18n.translate('general.connectionMethod', 'DSH', 'Connection method'),
                         dataIndex: 'connectionMethod',
                         flex: 1,
                         renderer: function (val) {
@@ -62,7 +59,7 @@ Ext.define('Dsh.view.connectionsbulk.Step1', {
                     },
                     {
                         itemId: 'currentState',
-                        text: Uni.I18n.translate('connection.widget.details.currentState', 'DSH', 'Current state'),
+                        text: Uni.I18n.translate('general.currentState', 'DSH', 'Current state'),
                         dataIndex: 'currentState',
                         flex: 1,
                         renderer: function (val) {
@@ -71,7 +68,7 @@ Ext.define('Dsh.view.connectionsbulk.Step1', {
                     },
                     {
                         itemId: 'latestStatus',
-                        text: Uni.I18n.translate('connection.widget.details.latestStatus', 'DSH', 'Latest status'),
+                        text: Uni.I18n.translate('general.latestStatus', 'DSH', 'Latest status'),
                         dataIndex: 'latestStatus',
                         flex: 1,
                         renderer: function (val) {
@@ -80,7 +77,7 @@ Ext.define('Dsh.view.connectionsbulk.Step1', {
                     },
                     {
                         itemId: 'latestResult',
-                        text: Uni.I18n.translate('connection.widget.details.latestResult', 'DSH', 'Latest result'),
+                        text: Uni.I18n.translate('general.latestResult', 'DSH', 'Latest result'),
                         dataIndex: 'latestResult',
                         name: 'latestResult',
                         flex: 1,
@@ -106,7 +103,7 @@ Ext.define('Dsh.view.connectionsbulk.Step1', {
                     },
                     {
                         itemId: 'startDateTime',
-                        text: Uni.I18n.translate('connection.widget.details.startedOn', 'DSH', 'Started on'),
+                        text: Uni.I18n.translate('general.startedOn', 'DSH', 'Started on'),
                         dataIndex: 'startDateTime',
                         renderer: function (value) {
                             return value ? Uni.DateTime.formatDateTimeShort(value) : '';

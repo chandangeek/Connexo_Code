@@ -135,22 +135,22 @@ Ext.define('Dsh.controller.Connections', {
         gridActionMenu.removeAll();
         previewActionMenu.removeAll();
 
-            if (record.get('sessionId') !== 0) {
-                menuItems.push({
-                    text: Ext.String.format(Uni.I18n.translate('connection.widget.details.menuItem', 'MDC', 'View \'{0}\' log'), record.get('comTask').name),
-                    action: {
-                        action: 'viewlog',
-                        comTask: {
-                            mRID: record.get('device').id,
-                            sessionId: record.get('id'),
-                            comTaskId: record.get('comTask').id
-                        }
-                    },
-                    listeners: {
-                        click: me.viewCommunicationLog
+        if (record.get('sessionId') !== 0) {
+            menuItems.push({
+                text: Ext.String.format(Uni.I18n.translate('connection.widget.details.menuItem', 'DSH', 'View \'{0}\' log'), record.get('comTask').name),
+                action: {
+                    action: 'viewlog',
+                    comTask: {
+                        mRID: record.get('device').id,
+                        sessionId: record.get('id'),
+                        comTaskId: record.get('comTask').id
                     }
-                });
-            }
+                },
+                listeners: {
+                    click: me.viewCommunicationLog
+                }
+            });
+        }
 
         gridActionMenu.add(menuItems);
         previewActionMenu.add(menuItems);
@@ -172,7 +172,7 @@ Ext.define('Dsh.controller.Connections', {
 
             preview.loadRecord(record);
             preview.setTitle(title);
-            commPanel.setTitle(Uni.I18n.translate('connection.widget.details.communicationTasksOf', 'DSH', 'Communication tasks of') + title);
+            commPanel.setTitle(Uni.I18n.translate('connection.widget.details.communicationTasksOfX', 'DSH', 'Communication tasks of {0}',[title]));
 
             if (id) {
                 commStore.setConnectionId(id);
@@ -255,9 +255,7 @@ Ext.define('Dsh.controller.Connections', {
     connectionRun: function (record) {
         var me = this;
         record.run(function () {
-            me.getApplication().fireEvent('acknowledge',
-                Uni.I18n.translate('connection.run.now', 'MDC', 'Run succeeded')
-            );
+            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.runSucceeded', 'DSH', 'Run succeeded'));
             record.set('nextExecution', new Date());
             me.showOverview();
         });

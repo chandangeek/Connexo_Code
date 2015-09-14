@@ -16,7 +16,7 @@ Ext.define('Dsh.view.Connections', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('workspace.dataCommunication.connections.title', 'DSH', 'Connections'),
+            title: Uni.I18n.translate('general.connections', 'DSH', 'Connections'),
             dockedItems: [
                 {
                     dock: 'top',
@@ -65,10 +65,10 @@ Ext.define('Dsh.view.Connections', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('communication.widget.details.empty.title', 'DSH', 'No communications found'),
+                        title: Uni.I18n.translate('communication.empty.title', 'DSH', 'No communications found'),
                         reasons: [
-                            Uni.I18n.translate('communication.widget.details.empty.list.item1', 'DSH', 'No communications in the system.'),
-                            Uni.I18n.translate('communication.widget.details.empty.list.item2', 'DSH', 'No communications found due to applied filters.')
+                            Uni.I18n.translate('communication.empty.list.item1', 'DSH', 'No communications in the system.'),
+                            Uni.I18n.translate('communication.empty.list.item2', 'DSH', 'No communications found due to applied filters.')
                         ]
                     },
                     previewComponent: {

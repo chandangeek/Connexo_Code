@@ -22,11 +22,8 @@ Ext.define('Dsh.view.communicationsbulk.Step1', {
                 store: 'Dsh.store.CommunicationTasksBuffered',
 
                 counterTextFn: function (count) {
-                    return Uni.I18n.translatePlural(
-                        'communication.bulk.counterText',
-                        count,
-                        'DSH',
-                        '{0} communications selected'
+                    return Uni.I18n.translatePlural('general.nrOfCommunications.selected', count, 'DSH',
+                        'No communications selected', '{0} communication selected', '{0} communications selected'
                     );
                 },
 
@@ -49,7 +46,7 @@ Ext.define('Dsh.view.communicationsbulk.Step1', {
                     },
                     {
                         itemId: 'device',
-                        text: Uni.I18n.translate('communication.widget.details.device', 'DSH', 'Device'),
+                        text: Uni.I18n.translate('general.device', 'DSH', 'Device'),
                         dataIndex: 'device',
                         flex: 1,
                         renderer: function (val) {
@@ -58,7 +55,7 @@ Ext.define('Dsh.view.communicationsbulk.Step1', {
                     },
                     {
                         itemId: 'currentState',
-                        text: Uni.I18n.translate('communication.widget.details.currentState', 'DSH', 'Current state'),
+                        text: Uni.I18n.translate('general.currentState', 'DSH', 'Current state'),
                         dataIndex: 'currentState',
                         flex: 1,
                         renderer: function (val) {
@@ -67,7 +64,7 @@ Ext.define('Dsh.view.communicationsbulk.Step1', {
                     },
                     {
                         itemId: 'latestResult',
-                        text: Uni.I18n.translate('connection.widget.details.latestResult', 'DSH', 'Latest result'),
+                        text: Uni.I18n.translate('general.latestResult', 'DSH', 'Latest result'),
                         dataIndex: 'latestResult',
                         flex: 1,
                         renderer: function (val) {
@@ -76,7 +73,7 @@ Ext.define('Dsh.view.communicationsbulk.Step1', {
                     },
                     {
                         itemId: 'nextCommunication',
-                        text: Uni.I18n.translate('communication.widget.details.nextCommunication', 'DSH', 'Next communication'),
+                        text: Uni.I18n.translate('general.nextCommunication', 'DSH', 'Next communication'),
                         dataIndex: 'nextCommunication',
                         renderer: function (value) {
                             return value ? Uni.DateTime.formatDateTimeShort(value) : '';
@@ -85,7 +82,7 @@ Ext.define('Dsh.view.communicationsbulk.Step1', {
                     },
                     {
                         itemId: 'startTime',
-                        text: Uni.I18n.translate('communication.widget.details.startedOn', 'DSH', 'Started on'),
+                        text: Uni.I18n.translate('general.startedOn', 'DSH', 'Started on'),
                         dataIndex: 'startTime',
                         renderer: function (value) {
                             return value ? Uni.DateTime.formatDateTimeShort(value) : '';

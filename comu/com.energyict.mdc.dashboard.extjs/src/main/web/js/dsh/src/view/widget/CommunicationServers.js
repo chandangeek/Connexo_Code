@@ -24,7 +24,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                                     '<tr>',
                                         '<td style="padding-right: 5px;"><img src="/apps/dsh/resources/images/widget/{name}.png" /></td>',
                                         '<td>{children.length} {title}</td>',
-                                        '<td style="padding-left: 15px;"><img data-qtitle="{children.length} {title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" src="/apps/sky/resources/images/shared/icon-info-small.png" /></td>',
+                '<td style="padding-left: 15px;"><img data-qtitle="{children.length} {title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" src="/apps/sky/build/resources/images/shared/icon-info-small.png" /></td>',
                                     '</tr>',
                                 '<tpl else>',
                                     '<tr>',
@@ -38,7 +38,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                                     '<tr id="{comServerId}">',
                                         '<td style="padding-right: 5px;"><img src="/apps/dsh/resources/images/widget/{[parent.name]}.png" /></td>',
                                         '<td><a href="{href}">{title}</a></td>',
-                                        '<td style="padding-left: 15px;"><img data-qtitle="{title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" src="/apps/sky/resources/images/shared/icon-info-small.png" /></td>',
+                '<td style="padding-left: 15px;"><img data-qtitle="{title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" src="/apps/sky/build/resources/images/shared/icon-info-small.png" /></td>',
                                     '</tr>',
                                 '</tpl>',
                             '</tpl>',
@@ -62,11 +62,11 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
     serverTpl: new Ext.XTemplate(
         '<table>',
             '<tr>',
-                '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.server.name', 'DSH', 'Name') + '</td>',
+                '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('general.name', 'DSH', 'Name') + '</td>',
                 '<td>{comServerName}</td>',
             '</tr>',
             '<tr>',
-                '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.communicationServers.server.type', 'DSH', 'Type') + '</td>',
+                '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('general.type', 'DSH', 'Type') + '</td>',
                 '<td>{comServerType}</td>',
             '</tr>',
             '<tpl if="blockedSince">',
@@ -87,19 +87,48 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
         me.setLoading();
         targetContainer.removeAll();
         store.load(function () {
-            var title = '<h3>' + Uni.I18n.translatePlural('overview.widget.communicationServers.header', store.count(), 'DSH', 'Active communication servers ({0})') + '</h3>';
+            var title = '<h3>'
+                + Ext.String.format(Uni.I18n.translate('overview.widget.communicationServers.header', 'DSH', 'Active communication servers ({0})'), store.count())
+                + '</h3>';
             if(me.down('#connection-summary-title-panel')){
                 me.down('#connection-summary-title-panel').update(title);
             }
 
             var groups = store.getGroups().map(function (item) {
-                item.title = Uni.I18n.translate('overview.widget.communicationServers.title.' + item.name, 'DSH', item.name);
+                switch(item.name){
+                    case 'blocked' :
+                        item.title = Uni.I18n.translate('overview.widget.communicationServers.blocked', 'DSH', 'blocked');
+                        break;
+                    case 'inactive':
+                        item.title = Uni.I18n.translate('overview.widget.communicationServers.inactive', 'DSH', 'inactive');
+                        break;
+                    case 'running':
+                        item.title = Uni.I18n.translate('overview.widget.communicationServers.running', 'DSH', 'running');
+                        break;
+                    case 'stopped':
+                        item.title = Uni.I18n.translate('overview.widget.communicationServers.stopped', 'DSH', 'stopped');
+                        break;
+                }
                 item.expand = (item.name === 'blocked' && item.children && item.children.length < 5);
                 var html = '';
                 if (item.children) {
                     item.children = item.children.map(function (server) {
                         var data = server.getData();
-                        data.title = data.comServerName + ' ' + Uni.I18n.translate('overview.widget.communicationServers.status.' + item.name, 'DSH', item.name);
+                        data.title = data.comServerName + ' ';
+                        switch(item.name){
+                            case 'blocked' :
+                                data.title += Uni.I18n.translate('overview.widget.communicationServers.blocked', 'DSH', 'blocked');
+                                break;
+                            case 'inactive':
+                                data.title += Uni.I18n.translate('overview.widget.communicationServers.inactive', 'DSH', 'inactive');
+                                break;
+                            case 'running':
+                                data.title += Uni.I18n.translate('overview.widget.communicationServers.running', 'DSH', 'running');
+                                break;
+                            case 'stopped':
+                                data.title += Uni.I18n.translate('overview.widget.communicationServers.stopped', 'DSH', 'stopped');
+                                break;
+                        }
                         data.href = me.router.getRoute('administration/comservers/detail/overview').buildUrl({id: data.comServerId});
                         data.tooltip = me.serverTpl.apply(data);
                         html += data.tooltip;
@@ -107,7 +136,6 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                     });
                 }
                 item.tooltip = html;
-
                 return item;
             });
 
@@ -121,7 +149,7 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                     xtype: 'button',
                     itemId: 'lnk-view-all-communication-servers',
                     ui: 'link',
-                    text: Uni.I18n.translate('overview.widget.communicationServers.viewAll', 'DSH', 'View all'),
+                    text: Uni.I18n.translate('general.viewAll', 'DSH', 'View all'),
                     href: typeof me.router.getRoute('administration/comservers') !== 'undefined'
                         ? me.router.getRoute('administration/comservers').buildUrl() : ''
                 }

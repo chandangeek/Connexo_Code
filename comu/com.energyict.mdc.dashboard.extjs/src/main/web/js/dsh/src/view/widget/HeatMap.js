@@ -28,6 +28,11 @@ Ext.define('Dsh.view.widget.HeatMap', {
         var me = this;
         if (title && categories) {
             title = title[0].toUpperCase() + title.slice(1);
+            for(var i=0;i<categories.length;i++){
+                if (categories[i].search(/</) != -1) {
+                    categories[i] = categories[i].replace(/</g, '&lt;');
+                }
+            }
             me.chart.series[0].yAxis.update({title: {text: title}}, false);
             me.chart.series[0].yAxis.update({categories: categories}, false);
         }
@@ -95,7 +100,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
             Ext.each(store.getAt(0).data.data, function (item) {
                 ycat.push(item.displayName);
             });
-            me.setXAxis(ycat, 'Latest result');
+            me.setXAxis(ycat, Uni.I18n.translate('general.latestResult', 'DSH', 'Latest result'));
             me.setYAxis(xcat, xTitle);
             me.setChartData(me.storeToHighchartData(store));
         }
@@ -243,7 +248,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
 
                     s = '<table><tbody>'
                     s += '<tr>'
-                    s += '<td style="padding-right: 10px; text-align: right">' + Uni.I18n.translate('overview.widget.summary.numberOf', 'DSH', 'Number of') + ' ' + label + '</td>';
+                    s += '<td style="padding-right: 10px; text-align: right">' + Uni.I18n.translate('overview.widget.summary.numberOf', 'DSH', 'Number of {0}',[label]) + '</td>';
                     s += '<td style="padding-right: 1px; text-align: left"><b>' + Math.abs(this.point.value) + '</b></td>';
                     s += '</tr>'
                     s += '<tr>'

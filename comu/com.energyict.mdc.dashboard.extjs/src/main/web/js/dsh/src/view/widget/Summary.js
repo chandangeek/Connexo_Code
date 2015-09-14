@@ -91,7 +91,8 @@ Ext.define('Dsh.view.widget.Summary', {
             view = me.down('#summary-dataview'),
             targetContainer = me.down('#target-container'),
             total = record.get('total'),
-            target = record.get('target');
+            target = record.get('target'),
+            title = 'Title';
 
         view.total = total || 0;
         view.record = record;
@@ -114,7 +115,28 @@ Ext.define('Dsh.view.widget.Summary', {
         }
 
         view.bindStore(record.counters());
-        me.setTitle('<h3>' + Uni.I18n.translatePlural('overview.widget.' + me.parent + '.header', total, 'DSH', me.wTitle + ' ({0})') + '</h3>');
+
+        switch (me.parent) {
+            case 'connections':
+                title = Uni.I18n.translate('overview.widget.connections.header', 'DSH', 'Active connections ({0})', [total]);
+                break;
+            case 'communications':
+                title = Uni.I18n.translate('overview.widget.communications.header', 'DSH', 'Active communications ({0})', [total]);
+                break;
+            case 'communicationServers':
+                title = Uni.I18n.translate('overview.widget.communicationServers.header', 'DSH', 'Active communication servers ({0})', [total]);
+                break;
+            case 'favoriteDeviceGroups':
+                title = Uni.I18n.translate('overview.widget.favoriteDeviceGroups.header', 'DSH', 'My favorite device groups ({0})', [total]);
+                break;
+            case 'flaggedDevices':
+                title = Uni.I18n.translate('overview.widget.flaggedDevices.header', 'DSH', 'My flagged devices ({0})', [total]);
+                break;
+            case 'openDataCollectionIssues':
+                title = Uni.I18n.translate('overview.widget.openDataCollectionIssues.header', 'DSH', 'Open data collection issues ({0})', [total]);
+                break;
+        }
+        me.setTitle('<h3>' + title + '</h3>');
     },
 
     createUrl: function(basePath, filter) {
@@ -169,11 +191,11 @@ Ext.define('Dsh.view.widget.Summary', {
             },
             {
                 cls: 'large',
-                html: '<h4>' + Uni.I18n.translatePlural('overview.widget.' + me.parent + '.label.success', successRate, 'DSH', '<b>{0}%</b> success') + '</h4>'
+                html: '<h4>' + Uni.I18n.translate('overview.widget.label.success', 'DSH', '<b>{0}%</b> success', [successRate]) + '</h4>'
             },
             {
                 cls: direction,
-                html: Uni.I18n.translatePlural('overview.widget.' + me.parent + '.label.' + direction, Math.abs(diff), 'DSH', '<b>{0}%</b> ' + direction)
+                html: Uni.I18n.translate('overview.widget.percentage.label', 'DSH', '<b>{0}%</b>', [Math.abs(diff)])
             }
         ]);
         Ext.resumeLayouts(true);

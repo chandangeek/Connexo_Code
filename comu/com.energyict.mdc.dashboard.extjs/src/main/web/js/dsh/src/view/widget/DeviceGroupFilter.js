@@ -22,7 +22,7 @@ Ext.define('Dsh.view.widget.DeviceGroupFilter', {
                     'background-color': '#71adc7'
                 },
                 itemId: 'device-group',
-                label: Uni.I18n.translate('overview.widget.headerSection.deviceGroupLabel', 'DSH', 'Device group') + ': ',
+                label: Uni.I18n.translate('general.deviceGroup', 'DSH', 'Device group') + ': ',
                 arrowAlign: 'right',
                 groupName:null, // yellowfin reports use names instead of id
                 menuAlign: 'tl-bl',

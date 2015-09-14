@@ -98,7 +98,9 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
             store = elm.getStore();
 
         store.load(function () {
-            var title = '<h3>' + Uni.I18n.translatePlural('overview.widget.flaggedDevices.header', store.count(), 'DSH',  'My flagged devices ({0})') + '</h3>';
+            var title = '<h3>'
+                + Ext.String.format(Uni.I18n.translate('overview.widget.flaggedDevices.header', 'DSH',  'My flagged devices ({0})'), store.count())
+                + '</h3>';
             me.setTitle(title);
 
             store.each(function(item) {
