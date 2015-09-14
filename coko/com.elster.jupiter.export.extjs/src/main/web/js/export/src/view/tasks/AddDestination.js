@@ -11,7 +11,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
-            this.down('#save-destination-button').setText(Uni.I18n.translate('general.edit', 'DES', 'Edit'));
+            this.down('#save-destination-button').setText(Uni.I18n.translate('general.save', 'DES', 'Save'));
             this.down('#save-destination-button').action = 'editDestination';
         } else {
             this.edit = edit;
