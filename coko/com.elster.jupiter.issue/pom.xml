@@ -78,7 +78,7 @@
         </dependency>
         <!-- Drools dependencies -->
         <dependency>
-            <groupId>com.elster.jupiter.subsystem</groupId>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>drools-integration</artifactId>
             <type>pom</type>
         </dependency>
