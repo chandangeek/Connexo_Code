@@ -8,15 +8,15 @@ public enum FirmwareStatus {
 
     private String status;
 
-    private FirmwareStatus(String status) {
+    FirmwareStatus(String status) {
         this.status = status;
     }
 
     public String getStatus() {
         return status;
     }
-    
-    public static FirmwareStatus get(String status) {
+
+    public static FirmwareStatus from(String status) {
         for(FirmwareStatus s: values()) {
             if (s.getStatus().equals(status)) {
                 return s;
@@ -24,4 +24,5 @@ public enum FirmwareStatus {
         }
         throw new IllegalArgumentException("Firmware status " + status + " doesn't exist");
     }
+
 }

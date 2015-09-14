@@ -17,21 +17,24 @@ public class FirmwareVersionFilter {
         this.deviceType = deviceType;
     }
 
+    public DeviceType getDeviceType() {
+        return this.deviceType;
+    }
 
-    public void setFirmwareTypes(List<FirmwareType> firmwareTypes) {
+    public void addFirmwareTypes(List<FirmwareType> firmwareTypes) {
         this.firmwareTypes.addAll(firmwareTypes);
     }
 
-    public void setFirmwareStatuses(List<FirmwareStatus> firmwareStatuses) {
+    public void addFirmwareStatuses(List<FirmwareStatus> firmwareStatuses) {
         this.firmwareStatuses.addAll(firmwareStatuses);
     }
 
-    public void setFirmwareVersions(List<String> firmwareVersions) {
+    public void addFirmwareVersions(List<String> firmwareVersions) {
         this.firmwareVersions.addAll(firmwareVersions);
     }
 
     public List<String> getFirmwareVersions() {
-        return firmwareVersions;
+        return Collections.unmodifiableList(firmwareVersions);
     }
 
     public List<FirmwareType> getFirmwareTypes() {
@@ -42,7 +45,4 @@ public class FirmwareVersionFilter {
         return Collections.unmodifiableList(this.firmwareStatuses);
     }
 
-    public DeviceType getDeviceType() {
-        return this.deviceType;
-    }
 }

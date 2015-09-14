@@ -109,7 +109,7 @@ public class InMemoryPersistence {
                 new DataVaultModule(),
                 new InMemoryMessagingModule(),
                 new FiniteStateMachineModule(),
-                new MeteringModule(false),
+                new MeteringModule(),
                 new DeviceLifeCycleConfigurationModule(),
                 new ValidationModule(),
                 new EstimationModule(),
