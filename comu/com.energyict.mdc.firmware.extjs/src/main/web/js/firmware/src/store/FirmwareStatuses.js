@@ -10,6 +10,9 @@ Ext.define('Fwc.store.FirmwareStatuses', {
     proxy: {
         type: 'rest',
         url: '/api/fwc/field/firmwareStatuses',
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
         reader: {
             type: 'json',
             root: 'firmwareStatuses'

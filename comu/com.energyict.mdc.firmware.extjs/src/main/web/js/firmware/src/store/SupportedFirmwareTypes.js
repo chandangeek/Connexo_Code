@@ -14,6 +14,9 @@ Ext.define('Fwc.store.SupportedFirmwareTypes', {
             type: 'json',
             root: 'firmwareTypes'
         },
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
 
         setUrl: function (deviceTypeId) {
             this.url = this.urlTpl.replace('{deviceTypeId}', deviceTypeId);
