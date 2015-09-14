@@ -1,11 +1,11 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounters;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
 import java.util.ArrayList;
