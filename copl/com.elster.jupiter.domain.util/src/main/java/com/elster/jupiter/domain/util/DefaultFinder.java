@@ -9,6 +9,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.stream.StreamSupport;
  */
 public final class DefaultFinder<T> implements Finder<T> {
 
+    public static final int DEFAULT_MAX_PAGE_SIZE = 100;
     private final Condition condition;
     private final QueryExecutor<T> query;
 
@@ -132,7 +134,7 @@ public final class DefaultFinder<T> implements Finder<T> {
      * The iterator will use paging to avoid loading all results in a list
      */
     private class PagingIterator<E> implements Iterator<E> {
-        private final int pageSize=maxPageSize==null?100:maxPageSize;
+        private final int pageSize=maxPageSize==null? DEFAULT_MAX_PAGE_SIZE :Math.min(DEFAULT_MAX_PAGE_SIZE,maxPageSize);
         private int currentPage=0;
         private int currentItemInPage =0;
         private List<E> items = null;
