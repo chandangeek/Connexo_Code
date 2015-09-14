@@ -321,7 +321,7 @@ Ext.define('Dxp.controller.Tasks', {
             previewForm.loadRecord(record);
 
             if (record.data.properties && record.data.properties.length) {
-                previewForm.down('property-form').loadRecord(record.getTask());
+                previewForm.down('grouped-property-form').loadRecord(record.getTask());
             }
 
             Ext.resumeLayouts(true);
@@ -895,7 +895,7 @@ Ext.define('Dxp.controller.Tasks', {
                                 view.down('#run').hide();
                             }
                             if (rec.properties() && rec.properties().count()) {
-                                view.down('property-form').loadRecord(rec);
+                                view.down('grouped-property-form').loadRecord(rec);
                             }
                         }
                     });
