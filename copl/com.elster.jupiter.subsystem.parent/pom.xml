@@ -56,10 +56,6 @@
         </snapshotRepository>
     </distributionManagement>
 
-    <modules>
-        <module>drools-integration</module>
-    </modules>
-
     <build>
         <pluginManagement>
             <plugins>
