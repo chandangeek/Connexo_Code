@@ -37,7 +37,6 @@ public class FileImportOccurrenceInfo {
         this.duration = calculateDuration(startedOn, finishedOn);
         this.status = getStatusDescription(fileImportOccurrence.getStatus(), thesaurus);
         this.summary = fileImportOccurrence.getMessage();
-
     }
 
     public static FileImportOccurrenceInfo of(FileImportOccurrence fileImportOccurrence, Thesaurus thesaurus) {

@@ -1,10 +1,10 @@
 package com.elster.jupiter.fileimport.rest.impl;
 
 import com.elster.jupiter.fileimport.FileImportService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
