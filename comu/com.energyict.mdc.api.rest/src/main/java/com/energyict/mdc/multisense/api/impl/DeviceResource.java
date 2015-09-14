@@ -1,12 +1,7 @@
 package com.energyict.mdc.multisense.api.impl;
 
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PROPFIND;
-import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -14,6 +9,11 @@ import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.multisense.api.impl.utils.ResourceHelper;
+
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PROPFIND;
+import com.elster.jupiter.util.conditions.Condition;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -49,18 +49,16 @@ public class DeviceResource {
     private final DeviceService deviceService;
     private final DeviceInfoFactory deviceInfoFactory;
     private final DeviceConfigurationService deviceConfigurationService;
-    private final BatchService batchService;
     private final ExceptionFactory exceptionFactory;
     private final TopologyService topologyService;
     private final ResourceHelper resourceHelper;
 
 
     @Inject
-    public DeviceResource(DeviceService deviceService, DeviceInfoFactory deviceInfoFactory, DeviceConfigurationService deviceConfigurationService, BatchService batchService, ExceptionFactory exceptionFactory, TopologyService topologyService, ResourceHelper resourceHelper) {
+    public DeviceResource(DeviceService deviceService, DeviceInfoFactory deviceInfoFactory, DeviceConfigurationService deviceConfigurationService, ExceptionFactory exceptionFactory, TopologyService topologyService, ResourceHelper resourceHelper) {
         this.deviceService = deviceService;
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceConfigurationService = deviceConfigurationService;
-        this.batchService = batchService;
         this.exceptionFactory = exceptionFactory;
         this.topologyService = topologyService;
         this.resourceHelper = resourceHelper;
