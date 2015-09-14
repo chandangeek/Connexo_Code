@@ -1,49 +1,27 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-
 import java.time.Clock;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Path("/devices")
 public class DeviceResource {
@@ -82,7 +60,7 @@ public class DeviceResource {
     private boolean maySeeAny(SecurityContext securityContext) {
         return securityContext.isUserInRole(Privileges.BROWSE_ANY);
     }
-    
+
     private List<Meter> queryDevices(boolean maySeeAny, QueryParameters queryParameters) {
         Query<Meter> query = meteringService.getMeterQuery();
         if (!maySeeAny) {
@@ -91,14 +69,14 @@ public class DeviceResource {
         List<Meter> meters = queryService.wrap(query).select(queryParameters);
         return meters;
     }
-    
+
     private List<MeterInfo> convertToMeterInfo(List<Meter> meters) {
-    	List<MeterInfo> meterInfos = new ArrayList<MeterInfo>();
-    	for (Meter meter : meters) {
-    		MeterInfo mi = new MeterInfo(meter);
-    		meterInfos.add(mi);
-    	}
-    	return meterInfos;
+        List<MeterInfo> meterInfos = new ArrayList<MeterInfo>();
+        for (Meter meter : meters) {
+            MeterInfo mi = new MeterInfo(meter);
+            meterInfos.add(mi);
+        }
+        return meterInfos;
     }
 
 
@@ -107,12 +85,12 @@ public class DeviceResource {
     @Path("/{mRID}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public MeterInfos getDevice(@PathParam("mRID") String mRID, @Context SecurityContext securityContext) {
-    	MeterInfos result = null;
+        MeterInfos result = null;
         if (maySeeAny(securityContext)) {
-        	Optional<Meter> ometer = meteringService.findMeter(mRID);
-        	if ( ometer.isPresent()) {
-        		result = new MeterInfos(ometer.get());
-        	}
+            Optional<Meter> ometer = meteringService.findMeter(mRID);
+            if (ometer.isPresent()) {
+                result = new MeterInfos(ometer.get());
+            }
         }
         return result;
     }
