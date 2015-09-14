@@ -12,34 +12,41 @@ $button-step-label-background-color: $button-link-background-color !default;
 $button-step-active-color: #ffffff;
 $button-step-completed-color: #A0A0A0;
 $button-step-non-completed-color: #ffffff;
+$button-step-error-color: #ffffff;
 
 //-------------   regular colors
 $button-step-active-background-step-color: #70BB51;
 $button-step-completed-background-step-color: #D2D2D2;
 $button-step-non-completed-background-step-color: #686868;
+$button-step-error-background-step-color: #EB5642;
       //label
 $button-step-label-active-color: $button-step-active-background-step-color;
 $button-step-label-completed-color: $button-step-completed-background-step-color;
 $button-step-label-non-completed-color: $button-step-non-completed-background-step-color;
+$button-step-label-error-color: $button-step-error-background-step-color;
 
 
 //-------------   hover colors
 $button-step-active-background-step-color-over: #7ec162;
 $button-step-completed-background-step-color-over: #d6d6d6;
 $button-step-non-completed-background-step-color-over: #777777;
+$button-step-error-background-step-color-over: #D4402C;
       //label
 $button-step-label-active-color-over: $button-step-active-background-step-color-over;
 $button-step-label-completed-color-over: $button-step-completed-background-step-color-over;
 $button-step-label-non-completed-color-over: $button-step-non-completed-background-step-color-over;
+$button-step-label-error-color-over: $button-step-error-background-step-color-over;
 
 //-------------   pressed colors
 $button-step-active-background-step-color-pressed: #64a848;
 $button-step-completed-background-step-color-pressed: #bdbdbd;
 $button-step-non-completed-background-step-color-pressed: #5d5d5d;
+$button-step-error-background-step-color-pressed: #FB6E5C;
       //label
 $button-step-label-active-color-pressed: $button-step-active-background-step-color-pressed;
 $button-step-label-completed-color-pressed: $button-step-completed-background-step-color-pressed;
 $button-step-label-non-completed-color-pressed: $button-step-non-completed-background-step-color-pressed;
+$button-step-label-error-color-pressed: $button-step-error-background-step-color-pressed;
 
 
 
