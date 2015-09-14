@@ -138,6 +138,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         }
         return found.get();
     }
+
     @Override
     public List<UserDirectory> getUserDirectories() {
         return dataModel.mapper(UserDirectory.class).find();

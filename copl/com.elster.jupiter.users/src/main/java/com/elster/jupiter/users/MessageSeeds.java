@@ -14,7 +14,8 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_CAN_NOT_BE_EMPTY(1003, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
     FIELD_SIZE_BETWEEN_1_AND_80(1004, Keys.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
     ONLY_ONE_DEFAULT_KEY_PER_LOCALE_ALLOWED(1005, Keys.ONLY_ONE_DEFAULT_KEY_PER_LOCALE_ALLOWED, "Only one default key per locale is allowed", Level.SEVERE),
-    DUPLICATE_GROUP_NAME(1006, Keys.DUPLICATE_GROUP_NAME, "Duplicate name", Level.SEVERE)
+    DUPLICATE_GROUP_NAME(1006, Keys.DUPLICATE_GROUP_NAME, "Duplicate name", Level.SEVERE),
+    DUPLICATE_USER_DIRECTORY(1008,Keys.DUPLICATE_USER_DIRECTORY,"Duplicate name", Level.SEVERE)
     ;
 
     private final int number;
@@ -71,5 +72,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "FieldSizeBetween1and80";
         public static final String ONLY_ONE_DEFAULT_KEY_PER_LOCALE_ALLOWED = "OnlyOneDefaultKeyPerLocaleAllowed";
         public static final String DUPLICATE_GROUP_NAME = "DuplicateGroupName";
+        public static final String DUPLICATE_USER_DIRECTORY="Duplicate name";
     }
 }

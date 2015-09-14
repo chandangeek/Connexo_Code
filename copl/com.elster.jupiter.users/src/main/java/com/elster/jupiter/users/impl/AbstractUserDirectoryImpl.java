@@ -2,21 +2,27 @@ package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableMap;
 
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Map;
 
+@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_USER_DIRECTORY + "}")
 public abstract class AbstractUserDirectoryImpl implements UserDirectory {
     protected final UserService userService;
+    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String domain;
+    private String name;
     private boolean isDefault;
     private String prefix;
     protected final DataModel dataModel;
     private long version;
     private long id;
+    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String type;
     private Instant createTime;
     private Instant modTime;

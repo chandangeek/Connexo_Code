@@ -11,7 +11,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({java.lang.annotation.ElementType.TYPE})
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = {UniqueGroupNameValidator.class})
+@Constraint(validatedBy = {UniqueGroupNameValidator.class , UniqueAbstractLdapNameValid.class})
 public @interface UniqueName {
 
     String message() default "";
