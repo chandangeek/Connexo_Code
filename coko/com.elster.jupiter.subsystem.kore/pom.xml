@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.elster.jupiter.subsystem</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>kore</artifactId>
@@ -20,295 +20,23 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.elster.jupiter.subsystem</groupId>
-                <artifactId>platform</artifactId>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>kore.bom</artifactId>
                 <version>1.1.0-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>launcher</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-                <!-- provided scope for assembly purposes !!-->
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>bpmissueaction</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>cbo</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>config.extjs</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>data.lifecycle</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>estimation</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>estimation.rest</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>estimation.extjs</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>estimators</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>export</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>export.extjs</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>export.processors</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>export.rest</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>gogo</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>ids</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>issue</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>issue.extjs</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>issue.rest</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>kpi</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>metering</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>metering.cim</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>metering.groups</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>metering.imports</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>metering.rest</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>parties</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>parties.rest</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>system.app</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>system.app.help</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>systemadmin.extjs</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>systemadmin.rest</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>validation</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>validators</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>validation.rest</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>yellowfin</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>yellowfin.groups</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>yellowfin.rest</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>yellowfin.app</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>yellowfin.extjs</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>yellowfin.installer</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
-        <dependency>
-            <groupId>com.elster.jupiter.subsystem</groupId>
-            <artifactId>third-party</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
-            <type>zip</type>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Tomcat for Yellowfin and JBPM -->
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat</artifactId>
-            <version>7.0.59</version>
-            <type>zip</type>
-            <classifier>connexo</classifier>
-            <scope>provided</scope>
-        </dependency>
-        <!-- WSo2 identity server-->
-        <dependency>
-            <groupId>org.wso2</groupId>
-            <artifactId>wso2is</artifactId>
-            <version>4.5.0</version>
-            <type>zip</type>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Yet Another Java Service Wrapper-->
-        <dependency>
-            <groupId>org.rzo</groupId>
-            <artifactId>yajsw</artifactId>
-            <version>11.11</version>
-            <type>zip</type>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Packaged YellowFin jar -->
-        <dependency>
-            <groupId>com.elster.jupiter.thirdparty.apps.facts</groupId>
-            <artifactId>facts</artifactId>
-            <version>10.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter.thirdparty.apps.facts</groupId>
-            <artifactId>EncryptPassword</artifactId>
-            <version>10.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>yellowfin.installer</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Packaged jBPM stuff  -->
-        <dependency>
-            <groupId>com.elster.jupiter.thirdparty.apps.flow</groupId>
-            <artifactId>flow</artifactId>
-            <version>10.1</version>
-            <type>war</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter.thirdparty.apps.flow</groupId>
-            <artifactId>demows</artifactId>
-            <version>10.0</version>
-            <type>war</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter.thirdparty.apps.flow</groupId>
-            <artifactId>processes</artifactId>
-            <version>10.0</version>
-            <type>zip</type>
-            <scope>provided</scope>
-        </dependency>
+
         <dependency>
             <groupId>com.elster.jupiter.subsystem</groupId>
             <artifactId>platform</artifactId>
             <version>1.1.0-SNAPSHOT</version>
-            <type>pom</type>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>launcher</artifactId>
+            <type>zip</type>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -438,19 +166,11 @@
 
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>yellowfin</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>yellowfin.groups</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>yellowfin.rest</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>yellowfin.app</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -461,27 +181,10 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>default-cli</id>
-                        <goals>
-                            <goal>add-third-party</goal>
-                        </goals>
-                        <configuration>
-                            <includeTransitiveDependencies>true</includeTransitiveDependencies>
-                            <acceptPomPackaging>true</acceptPomPackaging>
-                            <thirdPartyFilename>connexo-platform-third-party.txt</thirdPartyFilename>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>connexo-platform</id>
+                        <id>connexo-kore</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
@@ -498,7 +201,7 @@
                         <descriptor>assembly/assembly.xml</descriptor>
                     </descriptors>
 
-                    <finalName>connexo-platform-v${project.version}</finalName>
+                    <finalName>connexo-kore-v${project.version}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
             </plugin>
