@@ -5,6 +5,9 @@ Ext.define('Dsh.store.filter.CommunicationSchedule', {
     proxy: {
         type: 'rest',
         url: '/api/dsr/field/comschedules',
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
         reader: {
             type: 'json',
             root: 'comSchedules'

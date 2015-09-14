@@ -5,6 +5,9 @@ Ext.define('Dsh.store.filter.CommunicationTask', {
     proxy: {
         type: 'rest',
         url: '/api/dsr/field/comtasks',
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
         reader: {
             type: 'json',
             root: 'comTasks'

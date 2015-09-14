@@ -5,6 +5,9 @@ Ext.define('Dsh.store.filter.ConnectionType', {
     proxy: {
         type: 'rest',
         url: '/api/dsr/field/connectiontypepluggableclasses',
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
         reader: {
             type: 'json',
             root: 'connectiontypepluggableclasses'
