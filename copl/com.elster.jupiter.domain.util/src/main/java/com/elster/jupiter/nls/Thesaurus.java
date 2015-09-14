@@ -1,5 +1,6 @@
 package com.elster.jupiter.nls;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import javax.validation.MessageInterpolator;
@@ -7,10 +8,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
 
+@ProviderType
 public interface Thesaurus extends MessageInterpolator {
-	
+
 	//
-	// Locale is obtained from security.thread 
+	// Locale is obtained from security.thread
 	// TODO:
 	//   - Add Locale to existing principal, action and module in security.thread (if no locale is set, return Locale.getDefault().
 	//   - update User with languageTag persistent attribute and <Optional> Locale getLocale() method
@@ -36,6 +38,8 @@ public interface Thesaurus extends MessageInterpolator {
 	String getComponent();
 
 	NlsMessageFormat getFormat(MessageSeed seed);
+
+	NlsMessageFormat getFormat(TranslationKey key);
 
     void addTranslations(Iterable<? extends Translation> translations);
 

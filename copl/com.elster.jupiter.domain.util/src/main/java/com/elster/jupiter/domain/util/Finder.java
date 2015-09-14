@@ -37,6 +37,12 @@ public interface Finder<T> {
         return this;
     }
 
+    /**
+     * Create stream over the results from the Finder. If the finder was paged, only the results from the requested page
+     * will be contained in the stream. If the Finder was unpaged, all results from the Finder will be contained in the stream.
+     *
+     * @return Stream containing found results.
+     */
     default Stream<T> stream() {
         return this.find().stream();
     }
