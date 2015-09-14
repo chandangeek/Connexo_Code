@@ -97,6 +97,11 @@ public class UserDirectoryResource {
         transactionService.execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
+                if(info.isDefault){
+                    UserDirectory fi = userService.findDefaultUserDirectory();
+                    fi.setDefault(false);
+                    fi.save();
+                }
                 LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
                 ldapUserDirectory.setBackupUrl(info.backupUrl);
                 ldapUserDirectory.setDomain(info.name);
@@ -112,4 +117,5 @@ public class UserDirectoryResource {
         });
         return getUserDirectory(id,securityContext);
     }
+    
 }
