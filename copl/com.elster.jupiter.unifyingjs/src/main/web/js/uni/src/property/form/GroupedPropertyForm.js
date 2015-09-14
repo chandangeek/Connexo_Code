@@ -51,20 +51,22 @@ Ext.define('Uni.property.form.GroupedPropertyForm', {
         });
         Ext.suspendLayouts();
         Ext.iterate(groups, function (groupName, groupItems) {
-            var namesArray = groupName.split('.'),
-                fieldContainer = {
-                    xtype: 'fieldcontainer',
-                    itemId: 'group-fieldcontainer',
-                    margin: 0
-                };
-            if (namesArray.length > 1) {
-                fieldContainer.fieldLabel = Uni.I18n.translate(namesArray[1], null, namesArray[1]);
-                fieldContainer.items = groupItems;
-                Ext.Array.each(groupItems, function (groupItem) {
-                    groupItem.setWidth(600);
-                    groupItem.labelAlign = 'left';
-                })
-            }
+            me.add(groupItems);
+
+            //var namesArray = groupName.split('.'),
+            //    fieldContainer = {
+            //        xtype: 'fieldcontainer',
+            //        itemId: 'group-fieldcontainer',
+            //        margin: 0
+            //    };
+            //if (namesArray.length > 1) {
+            //    fieldContainer.fieldLabel = Uni.I18n.translate(namesArray[1], null, namesArray[1]);
+            //    fieldContainer.items = groupItems;
+            //    Ext.Array.each(groupItems, function (groupItem) {
+            //        groupItem.setWidth(600);
+            //        groupItem.labelAlign = 'left';
+            //    })
+            //}
             //else {
             //    if (!me.addEditPage) {
             //        me.add({
@@ -80,7 +82,7 @@ Ext.define('Uni.property.form.GroupedPropertyForm', {
             //        });
             //    }
             //}
-            me.add(fieldContainer.items ? fieldContainer : groupItems);
+            //me.add(fieldContainer.items ? fieldContainer : groupItems);
         });
         Ext.resumeLayouts();
         this.initialised = true;
@@ -117,10 +119,10 @@ Ext.define('Uni.property.form.GroupedPropertyForm', {
 
     getPropertyField: function(key) {
         var me = this;
-        if (key.split('.').length === 3) {
-            return me.down('#group-fieldcontainer').getComponent(key);
-        } else {
+        //if (key.split('.').length === 3) {
+        //    return me.down('#group-fieldcontainer').getComponent(key);
+        //} else {
             return me.getComponent(key);
-        }
+        //}
     }
 });
