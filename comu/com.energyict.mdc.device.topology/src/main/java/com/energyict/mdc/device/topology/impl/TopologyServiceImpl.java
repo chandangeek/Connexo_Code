@@ -25,16 +25,16 @@ import com.energyict.mdc.device.topology.TopologyTimeslice;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
@@ -52,6 +52,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,8 +68,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-12-05 (10:40)
  */
-@Component(name="com.energyict.mdc.device.topology", service = {TopologyService.class, ServerTopologyService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + TopologyService.COMPONENT_NAME)
-public class TopologyServiceImpl implements ServerTopologyService, InstallService, TranslationKeyProvider {
+@Component(name="com.energyict.mdc.device.topology", service = {TopologyService.class, ServerTopologyService.class, InstallService.class, MessageSeedProvider.class}, property = "name=" + TopologyService.COMPONENT_NAME)
+public class TopologyServiceImpl implements ServerTopologyService, InstallService, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -98,12 +99,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(DeviceDataServices.COMPONENT_NAME);
-    }
-
-    @Override
-    public String getComponentName() {
-        return TopologyService.COMPONENT_NAME;
+        return Collections.singletonList(DeviceDataServices.COMPONENT_NAME);
     }
 
     @Override
@@ -112,7 +108,7 @@ public class TopologyServiceImpl implements ServerTopologyService, InstallServic
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 

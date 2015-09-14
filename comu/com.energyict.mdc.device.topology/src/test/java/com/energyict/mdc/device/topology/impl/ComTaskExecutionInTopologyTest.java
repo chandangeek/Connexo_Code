@@ -2,7 +2,6 @@ package com.energyict.mdc.device.topology.impl;
 
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
@@ -65,7 +64,7 @@ public class ComTaskExecutionInTopologyTest extends AbstractComTaskExecutionInTo
 
         // Asserts
         assertThat(comTaskExecution.usesDefaultConnectionTask()).isTrue();
-        assertThat(comTaskExecution.getConnectionTask()).isNull();
+        assertThat(comTaskExecution.getConnectionTask()).isEmpty();
     }
 
     @Test
@@ -88,7 +87,7 @@ public class ComTaskExecutionInTopologyTest extends AbstractComTaskExecutionInTo
 
         ComTaskExecution reloadedComTaskExecution = reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
         assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isTrue();
-        assertThat(reloadedComTaskExecution.getConnectionTask()).isNull();
+        assertThat(reloadedComTaskExecution.getConnectionTask()).isEmpty();
     }
 
     @Test
@@ -106,13 +105,13 @@ public class ComTaskExecutionInTopologyTest extends AbstractComTaskExecutionInTo
 
         Device reloadedDevice = getReloadedDevice(device);
         ComTaskExecution reloadedComTaskExecution = reloadedDevice.getComTaskExecutions().get(0);
-        assertThat(reloadedComTaskExecution.getConnectionTask().getId()).isEqualTo(connectionTask.getId());
+        assertThat(reloadedComTaskExecution.getConnectionTask().get().getId()).isEqualTo(connectionTask.getId());
 
         inMemoryPersistence.getConnectionTaskService().clearDefaultConnectionTask(device);
         Device finalReloadedDevice = getReloadedDevice(device);
         ComTaskExecution comTaskExecutionWithoutAConnectionTask = finalReloadedDevice.getComTaskExecutions().get(0);
 
-        assertThat(comTaskExecutionWithoutAConnectionTask.getConnectionTask()).isNull();
+        assertThat(comTaskExecutionWithoutAConnectionTask.getConnectionTask()).isEmpty();
     }
 
 }

@@ -20,7 +20,7 @@ public class MessageSeedsTest {
     @Test
     public void testAllMessageSeedsHaveUniqueId () {
         Set<Integer> uniqueIds = new HashSet<>();
-        for (com.energyict.mdc.device.data.exceptions.MessageSeeds messageSeed : com.energyict.mdc.device.data.exceptions.MessageSeeds.values()) {
+        for (com.energyict.mdc.device.data.impl.MessageSeeds messageSeed : com.energyict.mdc.device.data.impl.MessageSeeds.values()) {
             assertThat(uniqueIds).as(messageSeed.name() + " does not have a unique number").
                     doesNotContain(messageSeed.getNumber());
             uniqueIds.add(messageSeed.getNumber());
@@ -30,7 +30,7 @@ public class MessageSeedsTest {
     @Test
     public void testAllMessageSeedsHaveUniqueKeys () {
         Set<String> uniqueKeys = new HashSet<>();
-        for (com.energyict.mdc.device.data.exceptions.MessageSeeds messageSeed : com.energyict.mdc.device.data.exceptions.MessageSeeds.values()) {
+        for (com.energyict.mdc.device.data.impl.MessageSeeds messageSeed : com.energyict.mdc.device.data.impl.MessageSeeds.values()) {
             assertThat(uniqueKeys).as(messageSeed.name() + " does not have a unique key").
                     doesNotContain(messageSeed.getKey());
             uniqueKeys.add(messageSeed.getKey());
@@ -39,7 +39,7 @@ public class MessageSeedsTest {
 
     @Test
     public void testAllMessageSeedKeysAreWithinLengthLimit () {
-        for (com.energyict.mdc.device.data.exceptions.MessageSeeds messageSeed : com.energyict.mdc.device.data.exceptions.MessageSeeds.values()) {
+        for (com.energyict.mdc.device.data.impl.MessageSeeds messageSeed : com.energyict.mdc.device.data.impl.MessageSeeds.values()) {
             assertThat(messageSeed.getKey().length()).as(messageSeed.name() + " key is longer than max of 256").
                     isLessThanOrEqualTo(MAX_KEY_LENGTH);
         }

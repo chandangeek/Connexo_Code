@@ -2,7 +2,6 @@ package com.energyict.mdc.device.topology.impl;
 
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
@@ -68,7 +67,7 @@ public class ManuallyScheduledComTaskExecutionInTopologyTest extends AbstractCom
 
         // Asserts
         assertThat(comTaskExecution.usesDefaultConnectionTask()).isTrue();
-        assertThat(comTaskExecution.getConnectionTask()).isNull();
+        assertThat(comTaskExecution.getConnectionTask()).isEmpty();
     }
 
     @Test
@@ -92,7 +91,7 @@ public class ManuallyScheduledComTaskExecutionInTopologyTest extends AbstractCom
 
         ComTaskExecution reloadedComTaskExecution = this.reloadManuallyScheduledComTaskExecution(device, comTaskExecution);
         assertThat(reloadedComTaskExecution.usesDefaultConnectionTask()).isTrue();
-        assertThat(reloadedComTaskExecution.getConnectionTask()).isNull();
+        assertThat(reloadedComTaskExecution.getConnectionTask()).isEmpty();
     }
 
 }

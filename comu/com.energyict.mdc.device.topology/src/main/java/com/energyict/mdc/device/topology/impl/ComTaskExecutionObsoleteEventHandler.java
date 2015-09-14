@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.topology.impl;
 
-import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -67,9 +66,9 @@ public class ComTaskExecutionObsoleteEventHandler implements TopicHandler {
             .map(ConnectionTask::getExecutingComServer)
             .ifPresent(cs -> {
                 throw new ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException(
+                        comTaskExecution, defaultConnectionTask.get().getExecutingComServer(),
                         this.thesaurus,
-                        comTaskExecution,
-                        defaultConnectionTask.get().getExecutingComServer());
+                        MessageSeeds.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE);
             });
     }
 

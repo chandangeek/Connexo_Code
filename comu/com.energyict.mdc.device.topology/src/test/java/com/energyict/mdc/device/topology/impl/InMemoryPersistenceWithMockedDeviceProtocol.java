@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.topology.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
@@ -62,6 +61,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -155,7 +155,37 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new PartyModule(),
                 new UserModule(),
                 new IdsModule(),
-                new MeteringModule(),
+                new MeteringModule(
+                         "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0"
+                        ,"0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"
+                        ,"0.0.0.1.1.7.58.0.0.0.0.0.0.0.0.0.167.0"
+                        ,"0.0.0.1.1.7.58.0.0.0.0.0.0.0.0.0.42.0"
+                        ,"0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"
+                        ,"0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"
+                        ,"0.0.0.1.1.9.58.0.0.0.0.0.0.0.0.0.42.0"
+                        ,"0.0.0.12.0.3.109.0.0.0.0.0.0.0.0.0.109.0"
+                        ,"0.0.0.12.0.41.109.0.0.0.0.0.0.0.0.0.109.0"
+                        ,"0.0.0.12.0.41.118.0.0.0.0.0.0.0.0.0.109.0"
+                        ,"0.0.0.12.0.41.139.0.0.0.0.0.0.0.0.0.109.0"
+                        ,"0.0.0.12.0.7.46.0.0.0.0.0.0.0.0.0.23.0"
+                        ,"0.0.0.12.0.7.46.0.0.0.0.0.0.0.0.0.279.0"
+                        ,"0.0.0.12.0.7.46.0.0.0.0.0.0.0.0.0.6.0"
+                        ,"0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0"
+                        ,"0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.3.72.0"
+                        ,"0.0.0.9.1.1.12.0.0.0.0.2.0.0.0.0.72.0"
+                        ,"0.0.0.9.1.1.12.0.0.0.0.2.0.0.0.3.72.0"
+                        ,"0.0.0.9.19.1.12.0.0.0.0.1.0.0.0.0.72.0"
+                        ,"0.0.0.9.19.1.12.0.0.0.0.1.0.0.0.3.72.0"
+                        ,"0.0.0.9.19.1.12.0.0.0.0.2.0.0.0.0.72.0"
+                        ,"0.0.0.9.19.1.12.0.0.0.0.2.0.0.0.3.72.0"
+                        ,"0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"
+                        ,"0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"
+                        ,"0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.107.0"
+                        ,"0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.125.0"
+                        ,"0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.126.0"
+                        ,"0.2.0.6.0.7.58.0.0.0.0.0.0.0.0.0.39.0"
+                        ,"0.2.0.6.0.9.58.0.0.0.0.0.0.0.0.0.125.0"
+                ),
                 new MeteringGroupsModule(),
                 new InMemoryMessagingModule(),
                 new OrmModule(),
