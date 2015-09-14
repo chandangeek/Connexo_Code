@@ -30,5 +30,7 @@ public interface UserDirectory {
 
     void save();
 
+    void delete();
+
     User newUser(String userName, String description, boolean allowPwdChange);
 }

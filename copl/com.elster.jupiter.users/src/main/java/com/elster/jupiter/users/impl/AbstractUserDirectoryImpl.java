@@ -84,6 +84,10 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
         }
     }
 
+    public void delete(){
+        dataModel.remove(this);
+    }
+
     @Override
     public void setDomain(String domain) {
         this.domain = domain;
