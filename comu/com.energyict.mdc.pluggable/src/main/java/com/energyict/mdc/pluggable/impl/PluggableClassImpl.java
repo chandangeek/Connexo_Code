@@ -1,15 +1,5 @@
 package com.energyict.mdc.pluggable.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.Checks;
-
-import java.time.Clock;
-import java.time.Instant;
-
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.pluggable.PluggableClass;
@@ -18,13 +8,21 @@ import com.energyict.mdc.pluggable.exceptions.DuplicateNameException;
 import com.energyict.mdc.pluggable.exceptions.JavaClassNameIsRequiredException;
 import com.energyict.mdc.pluggable.exceptions.NameIsRequiredException;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Checks;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Provides an implementation for the {@link PluggableClass} interface.
@@ -76,22 +74,22 @@ public class PluggableClassImpl implements PluggableClass {
 
     private void validateJavaClassName (String javaClassName) {
         if (javaClassName == null || (javaClassName.trim().isEmpty())) {
-            throw new JavaClassNameIsRequiredException(this.thesaurus, this.getName());
+            throw new JavaClassNameIsRequiredException(MessageSeeds.NAME_IS_REQUIRED, this.thesaurus, this.getName());
         }
     }
 
     private void validateName(String newName) {
         if (newName == null) {
-            throw new NameIsRequiredException(this.thesaurus);
+            throw new NameIsRequiredException(MessageSeeds.NAME_IS_REQUIRED, this.thesaurus);
         }
         if (newName.trim().isEmpty()) {
-            throw new NameIsRequiredException(this.thesaurus);
+            throw new NameIsRequiredException(MessageSeeds.NAME_IS_REQUIRED, this.thesaurus);
         }
     }
 
     private void validateUniqueName(String name, PluggableClassType type) {
         if (!this.findOthersByName(name).isEmpty()) {
-            throw new DuplicateNameException(this.thesaurus, name, type);
+            throw new DuplicateNameException(MessageSeeds.ALREADY_EXISTS, this.thesaurus, name, type);
         }
     }
 
