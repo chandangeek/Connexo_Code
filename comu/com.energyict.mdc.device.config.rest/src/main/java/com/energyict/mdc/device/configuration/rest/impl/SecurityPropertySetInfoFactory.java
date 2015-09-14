@@ -1,12 +1,16 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.UserService;
+
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
 import javax.inject.Inject;
+import java.util.List;
 
 /**
  * Created by bvn on 9/12/14.
@@ -21,7 +25,7 @@ public class SecurityPropertySetInfoFactory {
         this.executionLevelInfoFactory = executionLevelInfoFactory;
     }
 
-    public SecurityPropertySetInfo from(SecurityPropertySet securityPropertySet) {
+    public SecurityPropertySetInfo from(SecurityPropertySet securityPropertySet, List<Group> allGroups) {
         SecurityPropertySetInfo securityPropertySetInfo = new SecurityPropertySetInfo();
         securityPropertySetInfo.id = securityPropertySet.getId();
         securityPropertySetInfo.name = securityPropertySet.getName();
@@ -32,9 +36,8 @@ public class SecurityPropertySetInfoFactory {
         securityPropertySetInfo.authenticationLevel = SecurityLevelInfo.from(authenticationDeviceAccessLevel, thesaurus);
         securityPropertySetInfo.encryptionLevel = SecurityLevelInfo.from(encryptionDeviceAccessLevel, thesaurus);
 
-        securityPropertySetInfo.executionLevels = executionLevelInfoFactory.from(securityPropertySet.getUserActions());
+        securityPropertySetInfo.executionLevels = executionLevelInfoFactory.from(securityPropertySet.getUserActions(), allGroups);
         return securityPropertySetInfo;
     }
-
 
 }

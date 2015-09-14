@@ -1,13 +1,5 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.RestValidationBuilder;
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.BusinessException;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.TranslatableApplicationException;
@@ -28,6 +20,13 @@ import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -45,7 +44,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -111,20 +109,10 @@ public class DeviceTypeResource {
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public DeviceTypeInfo createDeviceType(DeviceTypeInfo deviceTypeInfo) {
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = protocolPluggableService.findDeviceProtocolPluggableClassByName(deviceTypeInfo.deviceProtocolPluggableClassName);
-        if (Checks.is(deviceTypeInfo.deviceProtocolPluggableClassName).emptyOrOnlyWhiteSpace()) {
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME, deviceTypeInfo.deviceProtocolPluggableClassName);
-        }
-        if (!deviceProtocolPluggableClass.isPresent()) {
-            throw new LocalizedFieldValidationException(MessageSeeds.PROTOCOL_INVALID_NAME, DeviceTypeInfo.COMMUNICATION_PROTOCOL_NAME, deviceTypeInfo.deviceProtocolPluggableClassName);
-        }
         Optional<DeviceLifeCycle> deviceLifeCycleRef = deviceTypeInfo.deviceLifeCycleId != null ? resourceHelper.findDeviceLifeCycleById(deviceTypeInfo.deviceLifeCycleId) : Optional.empty();
-        DeviceType deviceType = null;
-        if (deviceLifeCycleRef.isPresent()) {
-            deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name, deviceProtocolPluggableClass.get(), deviceLifeCycleRef.get());
-        } else {
-            // fallback case
-            deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name, deviceProtocolPluggableClass.get());
-        }
+        DeviceType deviceType = deviceConfigurationService.newDeviceType(deviceTypeInfo.name,
+                deviceProtocolPluggableClass.isPresent() ? deviceProtocolPluggableClass.get() : null,
+                deviceLifeCycleRef.isPresent() ? deviceLifeCycleRef.get() : null);
         deviceType.save();
         return DeviceTypeInfo.from(deviceType);
     }
@@ -134,17 +122,40 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
-    public DeviceTypeInfo updateDeviceType(@PathParam("id") long id, DeviceTypeInfo deviceTypeInfo) {
+    public Response updateDeviceType(@PathParam("id") long id, DeviceTypeInfo deviceTypeInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         deviceType.setName(deviceTypeInfo.name);
         deviceType.setDeviceProtocolPluggableClass(deviceTypeInfo.deviceProtocolPluggableClassName);
         if (deviceTypeInfo.registerTypes != null) {
             updateRegisterTypeAssociations(deviceType, deviceTypeInfo.registerTypes);
         }
+        if (deviceTypeInfo.deviceLifeCycleId != null && (deviceType.getConfigurations().isEmpty() ||
+                deviceType.getConfigurations().stream().noneMatch(conf -> conf.isActive()))){
+            DeviceLifeCycle targetDeviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceTypeInfo.deviceLifeCycleId);
+            try {
+                deviceConfigurationService.changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
+            } catch (IncompatibleDeviceLifeCycleChangeException mappingEx){
+                DeviceLifeCycle oldDeviceLifeCycle = deviceType.getDeviceLifeCycle();
+                ChangeDeviceLifeCycleInfo info = getChangeDeviceLifeCycleFailInfo(mappingEx, oldDeviceLifeCycle, targetDeviceLifeCycle);
+                return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
+            }
+        }
         deviceType.save();
-        return DeviceTypeInfo.from(deviceType);
+        return Response.ok(DeviceTypeInfo.from(deviceType)).build();
     }
 
+    private ChangeDeviceLifeCycleInfo getChangeDeviceLifeCycleFailInfo(IncompatibleDeviceLifeCycleChangeException lifeCycleChangeError, DeviceLifeCycle currentDeviceLifeCycle, DeviceLifeCycle targetDeviceLifeCycle) {
+        ChangeDeviceLifeCycleInfo info = new ChangeDeviceLifeCycleInfo();
+        info.success = false;
+        info.message = thesaurus.getFormat(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE).format(targetDeviceLifeCycle.getName());
+        info.currentDeviceLifeCycle = new DeviceLifeCycleInfo(currentDeviceLifeCycle);
+        info.targetDeviceLifeCycle = new DeviceLifeCycleInfo(targetDeviceLifeCycle);
+        info.notMappableStates = lifeCycleChangeError.getMissingStates()
+                .stream()
+                .map(state -> new DeviceLifeCycleStateInfo(thesaurus, state))
+                .collect(Collectors.toList());
+        return info;
+    }
 
     @PUT
     @Path("/{id}/devicelifecycle")
@@ -161,15 +172,7 @@ public class DeviceTypeResource {
         try {
             deviceConfigurationService.changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
         } catch (IncompatibleDeviceLifeCycleChangeException mappingEx){
-            info.success = false;
-            String errorMessage = thesaurus.getString(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE.getKey(), MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE.getDefaultFormat());
-            info.message = new MessageFormat(errorMessage).format(new Object[]{targetDeviceLifeCycle.getName()}, new StringBuffer(), null).toString();
-            info.currentDeviceLifeCycle = new DeviceLifeCycleInfo(oldDeviceLifeCycle);
-            info.targetDeviceLifeCycle = new DeviceLifeCycleInfo(targetDeviceLifeCycle);
-            info.notMappableStates = mappingEx.getMissingStates()
-                    .stream()
-                    .map(state -> new DeviceLifeCycleStateInfo(thesaurus, state))
-                    .collect(Collectors.toList());
+            info = getChangeDeviceLifeCycleFailInfo(mappingEx, oldDeviceLifeCycle, targetDeviceLifeCycle);
             return Response.status(Response.Status.BAD_REQUEST).entity(info).build();
         }
         return Response.ok(DeviceTypeInfo.from(deviceType)).build();

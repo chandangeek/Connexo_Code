@@ -88,7 +88,6 @@ public class RegisterGroupResource {
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     public RegisterGroupInfo createRegisterGroup(RegisterGroupInfo registerGroupInfo, @Context UriInfo uriInfo) {
         RegisterGroup newGroup = this.masterDataService.newRegisterGroup(registerGroupInfo.name);
-        newGroup.save();
 
         return updateRegisterTypeInGroup(newGroup, registerGroupInfo, getBoolean(uriInfo, ALL));
 

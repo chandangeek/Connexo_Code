@@ -1,12 +1,12 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.security.Privileges;
+
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 
     FIELD_IS_REQUIRED(1, "RequiredField", "This field is required"),
     PROTOCOL_INVALID_NAME(2,"deviceType.no.such.protocol", "A protocol with name ''{0}'' does not exist"),
@@ -18,8 +18,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_CHANNEL_SPEC_FOUND(9, "NoChannelSpecFound", "No channel specification with id {0}"),
     INVALID_REFERENCE_TO_REGISTER_TYPE(10, "NoSuchRegisterType", "Register type could not be found"),
     DUPLICATE_OBISCODE(11, "DuplicateObisCode", "A register mapping with obis code ''{0}'', unit ''{1}'' and time of use ''{2}'' already exists"),
-    AS_SOON_AS_POSSIBLE(12, "asSoonAsPossible", "As soon a possible"),
-    MINIMIZE_CONNECTIONS(13, "minimizeConnections", "Minimize connections"),
     NO_SUCH_DEVICE(14, "noSuchDevice", "No device with id {0}"),
     DEVICE_DOES_NOT_MATCH_CONFIG(15, "deviceDoesNotMatchConfig", "Device does not match device configuration"),
     NO_SUCH_CONNECTION_TASK(16, "NoSuchConnectionTask", "No such connection task"),
@@ -30,20 +28,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     EXECUTE_COM_TASK_LEVEL2(22, Privileges.EXECUTE_COM_TASK_2, "Execute com task (level 2)"),
     EXECUTE_COM_TASK_LEVEL3(23, Privileges.EXECUTE_COM_TASK_3, "Execute com task (level 3)"),
     EXECUTE_COM_TASK_LEVEL4(24, Privileges.EXECUTE_COM_TASK_4, "Execute com task (level 4)"),
-    EDIT_DEVICE_SECURITY_PROPERTIES_1(25, Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_1, "Edit device security settings (level 1)"),
-    EDIT_DEVICE_SECURITY_PROPERTIES_2(26, Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_2, "Edit device security settings (level 2)"),
-    EDIT_DEVICE_SECURITY_PROPERTIES_3(27, Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_3, "Edit device security settings (level 3)"),
-    EDIT_DEVICE_SECURITY_PROPERTIES_4(28, Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_4, "Edit device security settings (level 4)"),
-    VIEW_DEVICE_SECURITY_PROPERTIES_1(29, Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_1, "View device security settings (level 1)"),
-    VIEW_DEVICE_SECURITY_PROPERTIES_2(30, Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_2, "View device security settings (level 2)"),
-    VIEW_DEVICE_SECURITY_PROPERTIES_3(31, Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_3, "View device security settings (level 3)"),
-    VIEW_DEVICE_SECURITY_PROPERTIES_4(32, Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_4, "View device security settings (level 4)"),
     UNKNOWN_PRIVILEGE_ID(33, "NoSuchExecutionLevels", "No such execution levels: {0}"),
     NO_SUCH_DEVICE_MESSAGE_SPEC(34, "NoSuchDeviceMessageSpec", "No such device message spec: {0}"),
-    EXECUTE_DEVICE_MESSAGE_LEVEL1(35, Privileges.EXECUTE_DEVICE_MESSAGE_1, "Level 1"),
-    EXECUTE_DEVICE_MESSAGE_LEVEL2(36, Privileges.EXECUTE_DEVICE_MESSAGE_2, "Level 2"),
-    EXECUTE_DEVICE_MESSAGE_LEVEL3(37, Privileges.EXECUTE_DEVICE_MESSAGE_3, "Level 3"),
-    EXECUTE_DEVICE_MESSAGE_LEVEL4(38, Privileges.EXECUTE_DEVICE_MESSAGE_4, "Level 4"),
     ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_0(100, Keys.ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_0, "Unrestricted authentication"),
     ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_1(103, Keys.ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_1, "Restricted authentication"),
     ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_2(105, Keys.ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_2, "Read only authentication"),
@@ -132,7 +118,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     SIMPLEPASSWORDSECURITYSUPPORT_AUTHENTICATIONLEVEL_0(200, Keys.SIMPLEPASSWORDSECURITYSUPPORT_AUTHENTICATIONLEVEL_0, "Password authentication"),
     WAVENISSECURITYSUPPORT_AUTHENTICATIONLEVEL_0(202, Keys.WAVENISSECURITYSUPPORT_AUTHENTICATIONLEVEL_0, "Wavenis authentication"),
     WAVENISSECURITYSUPPORT_ENCRYPTIONLEVEL_0(204, Keys.WAVENISSECURITYSUPPORT_ENCRYPTIONLEVEL_0, "Standard Wavenis encryption"),
-    DEFAULT(205, "Default", "Default"),
     NO_SUCH_DEVICE_LIFE_CYCLE(206, "NoSuchDeviceLifeCycle", "There is no device life cycle with id = {0}"),
     UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE(207, "UnableToChangeDeviceLifeCycle", "Unable to change device life cycle to \"{0}\""),
 
@@ -142,7 +127,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     private final String key;
     private final String format;
 
-    private MessageSeeds(int number, String key, String format) {
+    MessageSeeds(int number, String key, String format) {
         this.number = number;
         this.key = key;
         this.format = format;

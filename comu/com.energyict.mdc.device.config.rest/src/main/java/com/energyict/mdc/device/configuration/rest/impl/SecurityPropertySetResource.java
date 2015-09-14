@@ -3,6 +3,9 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.UserService;
+
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
@@ -41,13 +44,15 @@ public class SecurityPropertySetResource {
 
     private final ResourceHelper resourceHelper;
     private final Thesaurus thesaurus;
+    private final UserService userService;
     private final SecurityPropertySetInfoFactory securityPropertySetInfoFactory;
     private final Provider<ExecutionLevelResource> executionLevelResourceProvider;
 
     @Inject
-    public SecurityPropertySetResource(ResourceHelper resourceHelper, Thesaurus thesaurus, SecurityPropertySetInfoFactory securityPropertySetInfoFactory, Provider<ExecutionLevelResource> executionLevelResourceProvider) {
+    public SecurityPropertySetResource(ResourceHelper resourceHelper, Thesaurus thesaurus, UserService userService, SecurityPropertySetInfoFactory securityPropertySetInfoFactory, Provider<ExecutionLevelResource> executionLevelResourceProvider) {
         this.resourceHelper = resourceHelper;
         this.thesaurus = thesaurus;
+        this.userService = userService;
         this.securityPropertySetInfoFactory = securityPropertySetInfoFactory;
         this.executionLevelResourceProvider = executionLevelResourceProvider;
     }
@@ -58,15 +63,14 @@ public class SecurityPropertySetResource {
     public PagedInfoList getSecurityPropertySets(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        List<Group> groups = this.userService.getGroups();
         List<SecurityPropertySetInfo> securityPropertySetInfos =
                 ListPager.of(deviceConfiguration.getSecurityPropertySets(), new SecurityPropertySetComparator())
                          .from(queryParameters)
                          .find()
                          .stream()
-                         .map(securityPropertySetInfoFactory::from)
+                         .map(set -> securityPropertySetInfoFactory.from(set, groups))
                          .collect(toList());
-
-
 
         return PagedInfoList.fromPagedList("data", securityPropertySetInfos, queryParameters);
     }
@@ -80,7 +84,8 @@ public class SecurityPropertySetResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
         SecurityPropertySet securityPropertySet = resourceHelper.findSecurityPropertySetByIdOrThrowException(deviceConfiguration, securityPropertySetId);
 
-        return Response.status(Response.Status.OK).entity(securityPropertySetInfoFactory.from(securityPropertySet)).build();
+        List<Group> groups = this.userService.getGroups();
+        return Response.status(Response.Status.OK).entity(securityPropertySetInfoFactory.from(securityPropertySet, groups)).build();
     }
 
     @POST
@@ -105,7 +110,8 @@ public class SecurityPropertySetResource {
         this.addDefaultPrivileges(builder);
         SecurityPropertySet securityPropertySet = builder.build();
 
-        return Response.status(Response.Status.CREATED).entity(securityPropertySetInfoFactory.from(securityPropertySet)).build();
+        List<Group> groups = this.userService.getGroups();
+        return Response.status(Response.Status.CREATED).entity(securityPropertySetInfoFactory.from(securityPropertySet, groups)).build();
     }
 
     private void addDefaultPrivileges(SecurityPropertySetBuilder builder) {
@@ -128,7 +134,8 @@ public class SecurityPropertySetResource {
         securityPropertySetInfo.writeTo(securityPropertySet);
         securityPropertySet.update();
 
-        return Response.status(Response.Status.OK).entity(securityPropertySetInfoFactory.from(securityPropertySet)).build();
+        List<Group> groups = this.userService.getGroups();
+        return Response.status(Response.Status.OK).entity(securityPropertySetInfoFactory.from(securityPropertySet, groups)).build();
     }
 
     @DELETE

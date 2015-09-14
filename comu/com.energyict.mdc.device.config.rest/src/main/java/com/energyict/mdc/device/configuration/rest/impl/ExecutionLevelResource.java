@@ -6,6 +6,8 @@ import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.security.Privileges;
+
+import com.elster.jupiter.users.UserService;
 import com.google.common.base.Joiner;
 
 import javax.annotation.security.RolesAllowed;
@@ -33,12 +35,14 @@ import static com.elster.jupiter.util.streams.Functions.asStream;
  */
 public class ExecutionLevelResource {
     private final ResourceHelper resourceHelper;
+    private final UserService userService;
     private final ExceptionFactory exceptionFactory;
     private final ExecutionLevelInfoFactory executionLevelInfoFactory;
 
     @Inject
-    public ExecutionLevelResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, ExecutionLevelInfoFactory executionLevelInfoFactory) {
+    public ExecutionLevelResource(ResourceHelper resourceHelper, UserService userService, ExceptionFactory exceptionFactory, ExecutionLevelInfoFactory executionLevelInfoFactory) {
         this.resourceHelper = resourceHelper;
+        this.userService = userService;
         this.exceptionFactory = exceptionFactory;
         this.executionLevelInfoFactory = executionLevelInfoFactory;
     }
@@ -63,7 +67,7 @@ public class ExecutionLevelResource {
         } else {
             userActions=existingUserActions;
         }
-        List<ExecutionLevelInfo> userActionInfos = executionLevelInfoFactory.from(userActions);
+        List<ExecutionLevelInfo> userActionInfos = executionLevelInfoFactory.from(userActions, this.userService.getGroups());
         Map<String, Object> map = new HashMap<>();
         map.put("executionLevels", userActionInfos);
         return Response.ok(map).build();

@@ -1,7 +1,8 @@
 package com.energyict.mdc.device.configuration.rest;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
+
+import com.elster.jupiter.nls.Thesaurus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,4 +30,5 @@ public class SecurityLevelInfo {
         securityLevelInfos.addAll(deviceAccessLevels.stream().map(deviceAccessLevel -> SecurityLevelInfo.from(deviceAccessLevel, thesaurus)).collect(toList()));
         return securityLevelInfos;
     }
+
 }
