@@ -80,14 +80,12 @@ public class InstallerImpl {
     public void install() {
         createVaults();
         createRecordSpecs();
-        List<ServiceCategoryImpl> serviceCategories = createServiceCategories();
+        createServiceCategories();
         createReadingTypes();
         createPartyRoles();
         createAmrSystems();
         createEndDeviceEventTypes();
         createEventTypes();
-        createTranslations(serviceCategories);
-        createQueueTranslations();
         createQueues();
     }
 
@@ -249,27 +247,6 @@ public class InstallerImpl {
         return result;
 
     }
-
-    private void createTranslations(List<ServiceCategoryImpl> serviceCategories) {
-        List<Translation> translations = new ArrayList<>(serviceCategories.size());
-        for (ServiceCategoryImpl serviceCategory : serviceCategories) {
-            SimpleNlsKey nlsKey = SimpleNlsKey.key(MeteringService.COMPONENTNAME, Layer.DOMAIN, serviceCategory.getTranslationKey()).defaultMessage(serviceCategory.getKind().getDisplayName());
-            translations.add(SimpleTranslation.translation(nlsKey, Locale.ENGLISH, serviceCategory.getKind().getDisplayName()));
-        }
-        thesaurus.addTranslations(translations);
-    }
-
-    private void createQueueTranslations() {
-        this.thesaurus.addTranslations(
-                Arrays.asList(
-                        SimpleTranslation.translation(
-                                SimpleNlsKey.key(
-                                        MeteringService.COMPONENTNAME,
-                                        Layer.DOMAIN,
-                                        SwitchStateMachineEvent.SUBSCRIBER).defaultMessage(SwitchStateMachineEvent.SUBSCRIBER_TRANSLATION),
-                                Locale.ENGLISH, SwitchStateMachineEvent.SUBSCRIBER_TRANSLATION)));
-    }
-
 
     private void createQueues() {
         this.createQueue(SwitchStateMachineEvent.DESTINATION, SwitchStateMachineEvent.SUBSCRIBER);

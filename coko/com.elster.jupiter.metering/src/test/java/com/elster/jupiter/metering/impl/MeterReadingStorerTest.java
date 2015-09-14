@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.Meter;
@@ -13,12 +14,6 @@ import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Optional;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,9 +25,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import javax.inject.Provider;
-
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -101,6 +99,14 @@ public class MeterReadingStorerTest {
         HashMap<String, String> eventData = new HashMap<>();
         eventData.put("A", "B");
         endDeviceEvent.setEventData(eventData);
+        endDeviceEvent.setReason("reason");
+        endDeviceEvent.setSeverity("INFO");
+        endDeviceEvent.setStatus(Status.builder().at(DATE).reason("reason").value("3").build());
+        endDeviceEvent.setIssuerId("issuerid");
+        endDeviceEvent.setIssuerTrackingId("issuerTrackingid");
+        endDeviceEvent.setName("name");
+        endDeviceEvent.setDescription("description");
+        endDeviceEvent.setAliasName("alias");
         meterReading.addEndDeviceEvent(endDeviceEvent);
         MeterReadingStorer meterReadingStorer = new MeterReadingStorer(dataModel, meteringService, meter, meterReading, thesaurus, eventService, deviceEventFactory);
 
@@ -117,11 +123,19 @@ public class MeterReadingStorerTest {
         assertThat(actual.getCreatedDateTime()).isEqualTo(DATE);
         assertThat(actual.getProperties()).contains(entry("A", "B"));
 
+        assertThat(actual.getReason()).isEqualTo("reason");
+        assertThat(actual.getSeverity()).isEqualTo("INFO");
+        assertThat(actual.getStatus()).isEqualTo(Status.builder().at(DATE).reason("reason").value("3").build());
+        assertThat(actual.getIssuerID()).isEqualTo("issuerid");
+        assertThat(actual.getIssuerTrackingID()).isEqualTo("issuerTrackingid");
+        assertThat(actual.getName()).isEqualTo("name");
+        assertThat(actual.getDescription()).isEqualTo("description");
+        assertThat(actual.getAliasName()).isEqualTo("alias");
+
         ArgumentCaptor<EndDeviceEventRecordImpl> argumentCaptor = ArgumentCaptor.forClass(EndDeviceEventRecordImpl.class);
         verify(eventService).postEvent(eq(EventType.END_DEVICE_EVENT_CREATED.topic()), argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).isEqualTo(actual);
         verify(eventService).postEvent(eq(EventType.METERREADING_CREATED.topic()), anyObject());
     }
-
 
 }

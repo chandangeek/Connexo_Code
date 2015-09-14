@@ -78,7 +78,7 @@ public class UsagePointCrudTest {
                 new MockModule(),
                 inMemoryBootstrapModule,
                 new IdsModule(),
-                new MeteringModule(false),
+                new MeteringModule(),
                 new PartyModule(),
                 new EventsModule(),
                 new InMemoryMessagingModule(),

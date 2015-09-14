@@ -265,7 +265,7 @@ public class StateMachineSwitcher implements MessageHandler {
 
         @Override
         public String getText() {
-            return "select * from fsm_state where fsm = ? and name = s.name";
+            return "select * from fsm_state where fsm = ? and name = s.name and obsolete_timestamp is NULL";
         }
     }
 

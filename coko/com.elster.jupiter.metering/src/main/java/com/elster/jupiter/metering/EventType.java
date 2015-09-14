@@ -95,6 +95,7 @@ public enum EventType {
                     .scope("System")
                     .withProperty("readingTimestamp", ValueType.LONG, "readingTimestamp")
                     .withProperty("channelId", ValueType.LONG, "channelId")
+                    .withProperty("readingType", ValueType.STRING, "readingType")
                     .withProperty("readingQualityTypeCode", ValueType.STRING, "typeCode")
                     .create().save();
         }

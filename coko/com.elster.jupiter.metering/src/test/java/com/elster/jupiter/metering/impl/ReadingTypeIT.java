@@ -71,7 +71,7 @@ public class ReadingTypeIT {
                     inMemoryBootstrapModule,
                     new InMemoryMessagingModule(),
                     new IdsModule(),
-                    new MeteringModule(false,
+                    new MeteringModule(
                             "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", // no macro period, no measuring period
                             "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", // no macro period, measuring period =  15 min
                             "11.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", // macro period = day, no measuring period

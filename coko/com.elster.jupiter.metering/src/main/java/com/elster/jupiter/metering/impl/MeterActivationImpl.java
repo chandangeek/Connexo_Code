@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.Ranges.does;
@@ -268,20 +269,34 @@ public class MeterActivationImpl implements MeterActivation {
         return Optional.empty();
     }
 
-	@Override
-	public void setUsagePoint(UsagePoint usagePoint) {		
+	void setUsagePoint(UsagePoint usagePoint) {
 		if (this.usagePoint.isPresent()) {
 			throw new MeterAlreadyLinkedToUsagePoint(thesaurus, this);
 		}
-		this.usagePoint.set(usagePoint);
+        Optional<? extends MeterActivation> overlappingActivation = usagePoint.getMeterActivations().stream()
+                .filter(overlaps())
+                .findAny();
+        overlappingActivation.ifPresent(activation -> {
+            throw new RuntimeException("UsagePoint is already active at " + activation.getRange());
+        });
+        this.usagePoint.set(usagePoint);
 		this.save();
 	}
 
-	@Override
-	public void setMeter(Meter meter) {
+    private Predicate<MeterActivation> overlaps() {
+        return exists -> exists.getRange().isConnected(getRange()) && !exists.getRange().intersection(getRange()).isEmpty();
+    }
+
+	void setMeter(Meter meter) {
 		if (this.meter.isPresent()) {
 			throw new RuntimeException("MeterActivation is already linked with usagepoint");			
 		}
+        Optional<? extends MeterActivation> overlappingActivation = meter.getMeterActivations().stream()
+                .filter(overlaps())
+                .findAny();
+        overlappingActivation.ifPresent(activation -> {
+            throw new RuntimeException("UsagePoint is already active at " + activation.getRange());
+        });
 		this.meter.set(meter);
 		this.save();
 	}
