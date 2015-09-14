@@ -479,7 +479,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                     {
                                         itemId: 'timeFrame',
                                         xtype: 'combobox',
-                                        name: 'updatePeriod',
+                                        name: 'updateTimeFrame',
                                         //     store: 'Dxp.store.DaysWeeksMonths',
                                         store: 'Dxp.store.UpdateTimeframes',
 
