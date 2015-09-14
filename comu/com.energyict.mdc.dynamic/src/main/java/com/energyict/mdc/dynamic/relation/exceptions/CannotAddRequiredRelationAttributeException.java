@@ -2,6 +2,7 @@ package com.energyict.mdc.dynamic.relation.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt
@@ -14,8 +15,8 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class CannotAddRequiredRelationAttributeException extends LocalizedException {
 
-    public CannotAddRequiredRelationAttributeException(Thesaurus thesaurus, String attributeName, String relationTypeName) {
-        super(thesaurus, MessageSeeds.RELATION_ATTRIBUTE_TYPE_CANNOT_ADD_REQUIRED, attributeName, relationTypeName);
+    public CannotAddRequiredRelationAttributeException(String attributeName, String relationTypeName, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, attributeName, relationTypeName);
         this.set("attributeName", attributeName);
         this.set("relationTypeName", relationTypeName);
     }

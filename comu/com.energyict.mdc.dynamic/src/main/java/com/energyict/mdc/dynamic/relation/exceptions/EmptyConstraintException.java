@@ -1,8 +1,10 @@
 package com.energyict.mdc.dynamic.relation.exceptions;
 
+import com.energyict.mdc.dynamic.relation.Constraint;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.dynamic.relation.Constraint;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made to create a
@@ -13,8 +15,8 @@ import com.energyict.mdc.dynamic.relation.Constraint;
  */
 public class EmptyConstraintException extends LocalizedException {
 
-    public EmptyConstraintException(Thesaurus thesaurus, Constraint constraint) {
-        super(thesaurus, MessageSeeds.CONSTRAINT_WITHOUT_ATTRIBUTES, constraint.getName());
+    public EmptyConstraintException(Thesaurus thesaurus, Constraint constraint, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, constraint.getName());
         this.set("constraintName", constraint.getName());
     }
 

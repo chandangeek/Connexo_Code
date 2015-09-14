@@ -2,6 +2,7 @@ package com.energyict.mdc.dynamic.relation.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.sql.SQLException;
 
@@ -15,8 +16,8 @@ import java.sql.SQLException;
  */
 public class RelationTypeDDLException extends LocalizedException {
 
-    public RelationTypeDDLException(Thesaurus thesaurus, SQLException cause, String relationTypeName) {
-        super(thesaurus, MessageSeeds.DDL_ERROR, cause, relationTypeName);
+    public RelationTypeDDLException(SQLException cause, String relationTypeName, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, cause, relationTypeName);
         this.set("relationTypeName", relationTypeName);
     }
 

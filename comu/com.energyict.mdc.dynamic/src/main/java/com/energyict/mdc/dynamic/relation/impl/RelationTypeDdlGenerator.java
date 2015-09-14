@@ -80,7 +80,7 @@ public class RelationTypeDdlGenerator {
             dropAttributeColumn(attributeType);
         }
         catch (SQLException e) {
-            throw new RelationTypeDDLException(this.thesaurus, e, this.relationType.getName());
+            throw new RelationTypeDDLException(e, this.relationType.getName(), this.thesaurus, MessageSeeds.DDL_ERROR);
         }
     }
 
@@ -257,7 +257,7 @@ public class RelationTypeDdlGenerator {
             createAttributeIndex(attributeType);
         }
         catch (SQLException e) {
-            throw new RelationTypeDDLException(this.thesaurus, e, this.relationType.getName());
+            throw new RelationTypeDDLException(e, this.relationType.getName(), this.thesaurus, MessageSeeds.DDL_ERROR);
         }
     }
 
@@ -295,7 +295,7 @@ public class RelationTypeDdlGenerator {
             }
         }
         catch (SQLException e) {
-            throw new RelationTypeDDLException(this.thesaurus, e, this.relationType.getName());
+            throw new RelationTypeDDLException(e, this.relationType.getName(), this.thesaurus, MessageSeeds.DDL_ERROR);
         }
     }
 

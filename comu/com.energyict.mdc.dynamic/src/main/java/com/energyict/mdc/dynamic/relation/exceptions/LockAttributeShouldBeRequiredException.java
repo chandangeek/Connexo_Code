@@ -2,6 +2,7 @@ package com.energyict.mdc.dynamic.relation.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt
@@ -14,8 +15,8 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class LockAttributeShouldBeRequiredException extends LocalizedException {
 
-    public LockAttributeShouldBeRequiredException(Thesaurus thesaurus, String relationTypeName, String lockAttributeName) {
-        super(thesaurus, MessageSeeds.RELATION_TYPE_LOCK_ATTRIBUTE_IS_REQUIRED, relationTypeName, lockAttributeName);
+    public LockAttributeShouldBeRequiredException(String relationTypeName, String lockAttributeName, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, relationTypeName, lockAttributeName);
         this.set("relationTypeName", relationTypeName);
         this.set("lockAttributeName", lockAttributeName);
     }

@@ -2,6 +2,7 @@ package com.energyict.mdc.dynamic.relation.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when a value factory
@@ -14,8 +15,8 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class ValueFactoryCreationException extends LocalizedException {
 
-    public ValueFactoryCreationException(Thesaurus thesaurus, Throwable cause, String valueFactoryClassName) {
-        super(thesaurus, MessageSeeds.VALUEFACTORY_CREATION, cause, valueFactoryClassName);
+    public ValueFactoryCreationException(Throwable cause, String valueFactoryClassName, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, cause, valueFactoryClassName);
     }
 
 }

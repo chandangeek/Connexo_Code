@@ -20,7 +20,6 @@ import com.energyict.mdc.dynamic.relation.exceptions.CannotDeleteRelationType;
 import com.energyict.mdc.dynamic.relation.exceptions.DuplicateNameException;
 import com.energyict.mdc.dynamic.relation.exceptions.LockAttributeShouldBeReferenceTypeException;
 import com.energyict.mdc.dynamic.relation.exceptions.LockAttributeShouldBeRequiredException;
-import com.energyict.mdc.dynamic.relation.exceptions.MessageSeeds;
 import com.energyict.mdc.dynamic.relation.exceptions.NameContainsInvalidCharactersException;
 import com.energyict.mdc.dynamic.relation.exceptions.NameIsRequiredException;
 import com.energyict.mdc.dynamic.relation.exceptions.NameTooLongException;
@@ -308,7 +307,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         if (this.active && !shadow.getAttributeTypeShadows().getNewShadows().isEmpty()) {
             for (RelationAttributeTypeShadow relationAttributeTypeShadow : shadow.getAttributeTypeShadows().getNewShadows()) {
                 if (relationAttributeTypeShadow.getRequired() && hasAny()) {
-                    throw new CannotAddRequiredRelationAttributeException(this.thesaurus,relationAttributeTypeShadow.getName(), shadow.getName());
+                    throw new CannotAddRequiredRelationAttributeException(relationAttributeTypeShadow.getName(), shadow.getName(), this.thesaurus, MessageSeeds.RELATION_ATTRIBUTE_TYPE_CANNOT_ADD_REQUIRED);
                 }
             }
         }
@@ -319,7 +318,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
             return this.getBaseFactory().hasAny();
         }
         catch (SQLException e) {
-            throw new RelationTypeDDLException(this.thesaurus, e, this.getName());
+            throw new RelationTypeDDLException(e, this.getName(), this.thesaurus, MessageSeeds.DDL_ERROR);
         }
     }
 
@@ -496,7 +495,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         if (this.active) {
             List remainingRelations = this.getBaseFactory().findByRelationType();
             if (!remainingRelations.isEmpty()) {
-                throw new CannotDeleteRelationType(this.thesaurus, this);
+                throw new CannotDeleteRelationType(this, this.thesaurus, MessageSeeds.RELATION_TYPE_CANNOT_DELETE_WITH_EXISTING_INSTANCES);
             }
             this.validateDeleteAttributes();
             this.validateDeleteConstraints();
@@ -534,29 +533,29 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
     private void validateActivate() {
         RelationAttributeType attribType = getLockAttributeType();
         if (attribType == null) {
-            throw new NoLockAttributeException(this.thesaurus, this.getName());
+            throw new NoLockAttributeException(this.getName(), this.thesaurus, MessageSeeds.RELATION_TYPE_LOCK_ATTRIBUTE_IS_REQUIRED);
         }
         if (!attribType.isReference()) {
-            throw new LockAttributeShouldBeReferenceTypeException(this.thesaurus, this.getName(), attribType.getName());
+            throw new LockAttributeShouldBeReferenceTypeException(attribType.getName(), this.getName(), this.thesaurus, MessageSeeds.RELATION_TYPE_LOCK_ATTRIBUTE_IS_REQUIRED);
         }
         if (!attribType.isRequired()) {
-            throw new LockAttributeShouldBeRequiredException(this.thesaurus, this.getName(), attribType.getName());
+            throw new LockAttributeShouldBeRequiredException(this.getName(), attribType.getName(), this.thesaurus, MessageSeeds.RELATION_TYPE_LOCK_ATTRIBUTE_IS_REQUIRED);
         }
     }
 
     private void validateActivate(RelationTypeShadow shadow) {
         RelationAttributeTypeShadow attShadow = shadow.getLockAttributeTypeShadow();
         if (attShadow == null) {
-            throw new NoLockAttributeException(this.thesaurus, shadow.getName());
+            throw new NoLockAttributeException(shadow.getName(), this.thesaurus, MessageSeeds.RELATION_TYPE_LOCK_ATTRIBUTE_IS_REQUIRED);
         }
         if (!shadow.getAttributeTypeShadows().contains(attShadow)) {
-            throw new NoLockAttributeException(this.thesaurus, shadow.getName());
+            throw new NoLockAttributeException(shadow.getName(), this.thesaurus, MessageSeeds.RELATION_TYPE_LOCK_ATTRIBUTE_IS_REQUIRED);
         }
         if (attShadow.getObjectFactoryId() == 0) {
-            throw new LockAttributeShouldBeReferenceTypeException(this.thesaurus, shadow.getName(), attShadow.getName());
+            throw new LockAttributeShouldBeReferenceTypeException(attShadow.getName(), shadow.getName(), this.thesaurus, MessageSeeds.RELATION_TYPE_LOCK_ATTRIBUTE_IS_REQUIRED);
         }
         if (!attShadow.isRequired()) {
-            throw new LockAttributeShouldBeRequiredException(this.thesaurus, shadow.getName(), attShadow.getName());
+            throw new LockAttributeShouldBeRequiredException(shadow.getName(), attShadow.getName(), this.thesaurus, MessageSeeds.RELATION_TYPE_LOCK_ATTRIBUTE_IS_REQUIRED);
         }
     }
 
@@ -569,7 +568,7 @@ public class RelationTypeImpl extends PersistentNamedObject implements RelationT
         }
         catch (SQLException e) {
             RelationTypeImpl.this.active = false;
-            throw new RelationTypeDDLException(this.thesaurus, e, this.getName());
+            throw new RelationTypeDDLException(e, this.getName(), this.thesaurus, MessageSeeds.DDL_ERROR);
         }
     }
 

@@ -1,8 +1,10 @@
 package com.energyict.mdc.dynamic.relation.exceptions;
 
+import com.energyict.mdc.dynamic.relation.RelationAttributeType;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt
@@ -15,8 +17,8 @@ import com.energyict.mdc.dynamic.relation.RelationAttributeType;
  */
 public class RelationAttributeHasNullValuesException extends LocalizedException {
 
-    public RelationAttributeHasNullValuesException(Thesaurus thesaurus, RelationAttributeType rat) {
-        super(thesaurus, MessageSeeds.RELATION_ATTRIBUTE_TYPE_STORAGE_CONTAINS_NULL_VALUES, rat.getName(), rat.getRelationType().getName());
+    public RelationAttributeHasNullValuesException(RelationAttributeType rat, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, rat.getName(), rat.getRelationType().getName());
     }
 
 }

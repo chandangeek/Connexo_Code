@@ -2,6 +2,7 @@ package com.energyict.mdc.dynamic.relation.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
@@ -13,8 +14,8 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class MultipleNonRejectConstraintsNotAllowedException extends LocalizedException {
 
-    public MultipleNonRejectConstraintsNotAllowedException(Thesaurus thesaurus) {
-        super(thesaurus, MessageSeeds.CONSTRAINT_MULTIPLE_NON_REJECT_NOT_ALLOWED);
+    public MultipleNonRejectConstraintsNotAllowedException(Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed);
     }
 
 }
