@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.util.exception.MessageSeed;
 import org.osgi.service.component.annotations.Component;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,11 +33,9 @@ public class Translations implements TranslationKeyProvider, MessageSeedProvider
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(Labels.values());
-    }
-
-    private List<FormatterProperties> formatterProperties() {
-        return Arrays.asList(FormatterProperties.values());
+        List<TranslationKey> translationKeys = new ArrayList<>(Arrays.asList(Labels.values()));
+        translationKeys.addAll(Arrays.asList(FormatterProperties.values()));
+        return translationKeys;
     }
 
     @Override
