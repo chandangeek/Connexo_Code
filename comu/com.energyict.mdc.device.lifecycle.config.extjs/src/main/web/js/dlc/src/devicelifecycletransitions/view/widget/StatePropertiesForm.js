@@ -82,7 +82,7 @@ Ext.define('Dlc.devicelifecycletransitions.view.widget.StatePropertiesForm', {
         if (!Ext.isEmpty(item.radioGroup)) {
             isRadioChecker = true;
 
-            Ext.each(item.radioGroup, function (radioBtn) {
+            Ext.each(_.sortBy(item.radioGroup, function(itemRadio){return itemRadio.get('name')}), function (radioBtn) {
                 if (radioBtn.get('checked')) {
                     radioIsChecked = true
                 }
@@ -330,7 +330,7 @@ Ext.define('Dlc.devicelifecycletransitions.view.widget.StatePropertiesForm', {
                     }
                 ];
 
-                Ext.each(items, function (item) {
+                Ext.each(_.sortBy(items, function(item){return item.name}), function (item) {
                     if (item.isRequired) {
                         isAllOptional = false;
                     }
