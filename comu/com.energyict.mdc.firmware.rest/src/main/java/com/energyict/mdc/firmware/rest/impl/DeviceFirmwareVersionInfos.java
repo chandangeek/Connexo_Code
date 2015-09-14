@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class DeviceFirmwareVersionInfos {
     private Thesaurus thesaurus;
@@ -16,12 +17,16 @@ public class DeviceFirmwareVersionInfos {
 
     public DeviceFirmwareVersionInfos(Thesaurus thesaurus, Set<FirmwareType> supportedFirmwareTypes) {
         this.thesaurus = thesaurus;
-        this.firmwares = new ArrayList<>(supportedFirmwareTypes.size());
-        supportedFirmwareTypes.stream().forEach(firmwareType -> {
-            DeviceFirmwareVersionInfo meterFirmware = new DeviceFirmwareVersionInfo();
-            meterFirmware.firmwareType = new FirmwareTypeInfo(firmwareType, thesaurus);
-            this.firmwares.add(meterFirmware);
-        });
+        this.firmwares = supportedFirmwareTypes
+                .stream()
+                .map(this::newDeviceFirmwareVersionInfoFor)
+                .collect(Collectors.toList());
+    }
+
+    private DeviceFirmwareVersionInfo newDeviceFirmwareVersionInfoFor(FirmwareType firmwareType) {
+        DeviceFirmwareVersionInfo info = new DeviceFirmwareVersionInfo();
+        info.firmwareType = new FirmwareTypeInfo(firmwareType, this.thesaurus);
+        return info;
     }
 
     public void addActiveVersion(ActivatedFirmwareVersion activatedFirmwareVersion) {
