@@ -1,45 +1,41 @@
 package com.elster.jupiter.search.rest.impl;
 
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.search.rest.MessageSeeds;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableSet;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
+import javax.ws.rs.core.Application;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
-import javax.ws.rs.core.Application;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * Created by bvn on 6/1/15.
  */
 @Component(name = "com.elster.jupiter.search.rest",
-        service = {Application.class, TranslationKeyProvider.class},
+        service = {Application.class, MessageSeedProvider.class},
         immediate = true,
         property = {"alias=/jsr", "app=MDC", "name=" + SearchApplication.COMPONENT_NAME})
-public class SearchApplication extends Application implements TranslationKeyProvider{
-
-    private final Logger logger = Logger.getLogger(SearchApplication.class.getName());
+public class SearchApplication extends Application implements MessageSeedProvider {
 
     public static final String COMPONENT_NAME = "JSR";
 
     private volatile SearchService searchService;
     private volatile Thesaurus thesaurus;
     private volatile InfoFactoryService infoFactoryService;
-
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -73,22 +69,16 @@ public class SearchApplication extends Application implements TranslationKeyProv
     }
 
     @Override
-    public String getComponentName() {
-        return COMPONENT_NAME;
-    }
-
-    @Override
     public Layer getLayer() {
         return Layer.REST;
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 
     class HK2Binder extends AbstractBinder {
-
         @Override
         protected void configure() {
             bind(searchService).to(SearchService.class);

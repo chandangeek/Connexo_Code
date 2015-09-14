@@ -1,16 +1,16 @@
 package com.elster.jupiter.search.rest;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import java.text.MessageFormat;
 import java.util.logging.Level;
 
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 
-    NO_SUCH_SEARCH_DOMAIN(1, "NoSuchSearchDomain", "No such search domain could be found"),
+    NO_SUCH_SEARCH_DOMAIN(1, "NoSuchSearchDomain", "Search domain {0} does not exist"),
     NO_SUCH_PROPERTY(2, "NoSuchProperty", "No search criterion with name {0} exists in this domain"),
     INVALID_VALUE(3, "InvalidValue", "Invalid value"),
     AT_LEAST_ONE_CRITERIA(4, "AtLeastOneCriteria" , "At least one search criterion has to be provided");
