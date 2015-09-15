@@ -6,12 +6,12 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT-IT1</version>
     </parent>
 
     <artifactId>properties</artifactId>
     <packaging>bundle</packaging>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT-IT1</version>
     <name>[Jupiter] com.elster.jupiter.properties</name>
     <description>
         Provides support for dynamic attributes
