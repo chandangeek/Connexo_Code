@@ -51,8 +51,8 @@ class Installer {
                     .setScheduleExpressionString(CRON_STRING) //
                     .setDestination(getDestination())
                     .setPayLoad(YellowfinGroupsService.ADHOC_SEARCH_LIFE_CYCLE_QUEUE_TASK)
-                    .scheduleImmediately()
-                    .build().save();
+                    .scheduleImmediately(true)
+                    .build();
         }
         DestinationSpec destination = getDestination();
         if (!destination.isActive()) {

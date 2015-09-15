@@ -127,15 +127,14 @@ public class DynamicDeviceGroupImplIT {
         EndDevice endDevice = null;
         try(TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
-            endDevice = meteringService.findAmrSystem(1).get().newMeter("1", ED_MRID);
-            endDevice.save();
+            endDevice = meteringService.findAmrSystem(1).get().newMeter("1").setMRID(ED_MRID).create();
             ctx.commit();
         }
 
         QueryEndDeviceGroup queryEndDeviceGroup = null;
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            queryEndDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(Operator.EQUAL.compare("id", 15).or(Operator.EQUAL.compare("mRID", ED_MRID)));
+            queryEndDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(Operator.EQUAL.compare("id", 15).or(Operator.EQUAL.compare("mRID", ED_MRID))).create();
             queryEndDeviceGroup.setMRID("mine");
             queryEndDeviceGroup.setName("mine");
             queryEndDeviceGroup.setQueryProviderName(SimpleEndDeviceQueryProvider.SIMPLE_ENDDEVICE_QUERYPRVIDER);
