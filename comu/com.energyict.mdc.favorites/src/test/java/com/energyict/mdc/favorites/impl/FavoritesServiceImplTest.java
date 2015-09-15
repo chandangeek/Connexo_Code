@@ -1,32 +1,5 @@
 package com.energyict.mdc.favorites.impl;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.DeviceDataModule;
-import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
-import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.favorites.DeviceLabel;
-import com.energyict.mdc.favorites.FavoriteDeviceGroup;
-import com.energyict.mdc.favorites.FavoritesService;
-import com.energyict.mdc.favorites.LabelCategory;
-import com.energyict.mdc.io.impl.MdcIOModule;
-import com.energyict.mdc.issues.impl.IssuesModule;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.impl.MasterDataModule;
-import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
-import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-import com.energyict.mdc.scheduling.SchedulingModule;
-import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -66,9 +39,40 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
+import com.energyict.mdc.favorites.DeviceLabel;
+import com.energyict.mdc.favorites.FavoriteDeviceGroup;
+import com.energyict.mdc.favorites.FavoritesService;
+import com.energyict.mdc.favorites.LabelCategory;
+import com.energyict.mdc.io.impl.MdcIOModule;
+import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -78,13 +82,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 
-import org.junit.*;
-import org.junit.rules.*;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class FavoritesServiceImplTest {
 
@@ -118,18 +117,22 @@ public class FavoritesServiceImplTest {
         public String getModule() {
             return FavoritesService.COMPONENTNAME;
         }
+
         @Override
         public int getNumber() {
             return 0;
         }
+
         @Override
         public String getKey() {
             return "label.category.favorites";
         }
+
         @Override
         public String getDefaultFormat() {
             return "Favorites";
         }
+
         @Override
         public Level getLevel() {
             return Level.INFO;
@@ -206,11 +209,11 @@ public class FavoritesServiceImplTest {
             user = userService.createUser("user", "user descr");
             user1 = userService.createUser("user1", "user1 descr");
 
-            endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(Condition.TRUE);
-            endDeviceGroup.save();
+            endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(Condition.TRUE)
+                    .create();
 
-            endDeviceGroup1 = meteringGroupsService.createQueryEndDeviceGroup(Where.where("MRID").isEqualTo("ZABF0000100001"));
-            endDeviceGroup1.save();
+            endDeviceGroup1 = meteringGroupsService.createQueryEndDeviceGroup(Where.where("MRID").isEqualTo("ZABF0000100001"))
+                    .create();
 
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
             when(deviceProtocolPluggableClass.getId()).thenReturn(1L);
@@ -240,7 +243,7 @@ public class FavoritesServiceImplTest {
 
     @Test
     public void testInstall() {
-        FavoritesServiceImpl favDevicesServiceImpl = (FavoritesServiceImpl)favoritesService;
+        FavoritesServiceImpl favDevicesServiceImpl = (FavoritesServiceImpl) favoritesService;
         assertThat(favDevicesServiceImpl.getPrerequisiteModules()).contains("ORM", "USR", "NLS", "MTG", "DDC");
 
         //double installation
@@ -278,7 +281,7 @@ public class FavoritesServiceImplTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" +  MessageSeeds.Constants.CAN_NOT_BE_EMPTY + "}", property = "name", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CAN_NOT_BE_EMPTY + "}", property = "name", strict = false)
     public void testCreateLabelCategoryWithNullName() {
         try (TransactionContext context = getTransactionService().getContext()) {
             favoritesService.createLabelCategory(null);
@@ -286,7 +289,7 @@ public class FavoritesServiceImplTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" +  MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}", property = "name", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}", property = "name", strict = false)
     public void testCreateLabelCategoryWithEmptyName() {
         try (TransactionContext context = getTransactionService().getContext()) {
             favoritesService.createLabelCategory("");
@@ -294,7 +297,7 @@ public class FavoritesServiceImplTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" +  MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}", property = "name", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}", property = "name", strict = false)
     public void testCreateLabelCategoryWithTooLongName() {
         try (TransactionContext context = getTransactionService().getContext()) {
             favoritesService.createLabelCategory("1234567890123456789012345678901234567890123456789012345678901234567890123456789021");
@@ -302,7 +305,7 @@ public class FavoritesServiceImplTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(messageId = "{" +  MessageSeeds.Constants.DUPLICATE_LABEL_CATEGORY + "}", property = "name", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.DUPLICATE_LABEL_CATEGORY + "}", property = "name", strict = false)
     public void testDuplicateLabelCategory() {
         try (TransactionContext context = getTransactionService().getContext()) {
             favoritesService.createLabelCategory("category_name");
