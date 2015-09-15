@@ -45,9 +45,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
     protected void writeTo(ScheduledConnectionTask scheduledConnectionTask, PartialConnectionTask partialConnectionTask, EngineConfigurationService engineConfigurationService, MdcPropertyUtils mdcPropertyUtils) {
         super.writeTo(scheduledConnectionTask, partialConnectionTask, engineConfigurationService, mdcPropertyUtils);
         writeCommonFields(scheduledConnectionTask, engineConfigurationService);
-        if (!is(this.connectionStrategy).emptyOrOnlyWhiteSpace()) {
-            scheduledConnectionTask.setConnectionStrategy(ConnectionStrategy.valueOf(this.connectionStrategy));
-        }
+        scheduledConnectionTask.setConnectionStrategy(getConnectionStrategy());
         try {
             scheduledConnectionTask.setNextExecutionSpecsFrom(this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null);
         } catch (LocalizedFieldValidationException e) {
@@ -80,9 +78,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<Schedule
                     .findOutboundComPortPoolByName(this.comPortPool)
                     .ifPresent(scheduledConnectionTaskBuilder::setComPortPool);
         }
-        if (!is(this.connectionStrategy).emptyOrOnlyWhiteSpace()) {
-            scheduledConnectionTaskBuilder.setConnectionStrategy(ConnectionStrategy.valueOf(this.connectionStrategy));
-        }
+        scheduledConnectionTaskBuilder.setConnectionStrategy(getConnectionStrategy());
         scheduledConnectionTaskBuilder.setNextExecutionSpecsFrom(this.nextExecutionSpecs != null ? nextExecutionSpecs.asTemporalExpression() : null);
         scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(this.status);
         scheduledConnectionTaskBuilder.setSimultaneousConnectionsAllowed(this.allowSimultaneousConnections);
