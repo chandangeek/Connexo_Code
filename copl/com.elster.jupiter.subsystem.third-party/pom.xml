@@ -28,6 +28,13 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- Very important that the drools-integration pom is the first dependency
+             because of dependency version stuff (xjc, slf4j) -->
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>drools-integration</artifactId>
+            <type>pom</type>
+        </dependency>
         <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
@@ -305,11 +312,7 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>drools-integration</artifactId>
-            <type>pom</type>
-        </dependency>
+
     </dependencies>
     <build>
         <plugins>
