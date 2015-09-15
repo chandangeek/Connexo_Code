@@ -113,7 +113,7 @@ public class UsagePointProcessor {
         } else {
             Optional<UsagePoint> usagePointOptional = meteringService.findUsagePoint(usagePointFileInfo.getmRID());
             Optional<ServiceCategory> serviceCategory = meteringService.getServiceCategory(ServiceKind.valueOf(usagePointFileInfo.getServiceKind()));
-            usagePoint = usagePointOptional.isPresent() ? usagePointOptional.get() : serviceCategory.get().newUsagePoint(usagePointFileInfo.getmRID());
+            usagePoint = usagePointOptional.isPresent() ? usagePointOptional.get() : serviceCategory.get().newUsagePoint(usagePointFileInfo.getmRID()).create();
             if (usagePointFileInfo.getServiceLocationID() > 0) {
                 Optional<ServiceLocation> serviceLocation = meteringService.findServiceLocation(usagePointFileInfo.getServiceLocationID());
                 if (serviceLocation.isPresent()) {
