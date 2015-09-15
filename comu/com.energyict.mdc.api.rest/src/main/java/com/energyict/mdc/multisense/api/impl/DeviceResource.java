@@ -14,7 +14,9 @@ import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.multisense.api.impl.utils.ResourceHelper;
+import com.energyict.mdc.multisense.api.security.Privileges;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -80,6 +82,7 @@ public class DeviceResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{mrid}")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public DeviceInfo getDevice(@PathParam("mrid") String mRID, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
         return deviceService.findByUniqueMrid(mRID).map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fields.getFields())).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
     }
@@ -97,6 +100,7 @@ public class DeviceResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public PagedInfoList getDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).from(queryParameters).stream().map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fieldSelection.getFields())).collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceResource.class);
@@ -112,6 +116,7 @@ public class DeviceResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public Response createDevice(DeviceInfo info, @Context UriInfo uriInfo) {
         Optional<DeviceConfiguration> deviceConfiguration = Optional.empty();
         if (info.deviceConfiguration != null && info.deviceConfiguration.id != null) {
@@ -140,6 +145,7 @@ public class DeviceResource {
     @Path("/{mrid}")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public DeviceInfo updateDevice(@PathParam("mrid") String mrid, DeviceInfo info, @Context UriInfo uriInfo) {
         Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, info.version == null ? 0 : info.version).orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
         if (info.masterDevice!=null && info.masterDevice.mRID != null) {
@@ -167,6 +173,7 @@ public class DeviceResource {
     @DELETE
     @Path("/{mrid}")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public Response deleteDevice(@PathParam("mrid") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         device.delete();
@@ -175,6 +182,7 @@ public class DeviceResource {
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public List<String> getFields() {
         return deviceInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

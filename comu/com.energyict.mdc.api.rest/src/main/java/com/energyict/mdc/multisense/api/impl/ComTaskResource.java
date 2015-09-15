@@ -4,8 +4,10 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
+import com.energyict.mdc.multisense.api.security.Privileges;
 import com.energyict.mdc.tasks.TaskService;
 import java.util.List;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -39,6 +41,7 @@ public class ComTaskResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{comTaskId}")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public ComTaskInfo getComTask(@PathParam("comTaskId") long comTaskId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
          return taskService.findComTask(comTaskId)
                  .map(ct -> comTaskInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
@@ -47,6 +50,7 @@ public class ComTaskResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public PagedInfoList<ComTaskInfo> getComTasks(@BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         List<ComTaskInfo> infos = taskService.findAllComTasks().from(queryParameters).stream()
                 .map(ct -> comTaskInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
@@ -58,6 +62,7 @@ public class ComTaskResource {
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public List<String> getFields() {
         return comTaskInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

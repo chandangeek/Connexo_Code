@@ -41,8 +41,8 @@ public class DeviceConfigurationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
     @Path("/{deviceConfigId}")
+    @RolesAllowed({com.energyict.mdc.multisense.api.security.Privileges.PUBLIC_REST_API})
     public DeviceConfigurationInfo getDeviceConfiguration(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long id, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
         DeviceConfigurationInfo deviceConfigurationInfo = deviceConfigurationService.
                 findDeviceType(id)
@@ -56,7 +56,7 @@ public class DeviceConfigurationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
+    @RolesAllowed({com.energyict.mdc.multisense.api.security.Privileges.PUBLIC_REST_API})
     public PagedInfoList<DeviceConfigurationInfo> getHypermediaDeviceConfigurations(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters,
                                                            @BeanParam FieldSelection fields,@Context UriInfo uriInfo) {
         List<DeviceConfiguration> allDeviceConfigurations = deviceConfigurationService.

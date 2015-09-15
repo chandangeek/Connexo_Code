@@ -5,9 +5,11 @@ import com.elster.jupiter.rest.util.PROPFIND;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
+import com.energyict.mdc.multisense.api.security.Privileges;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import java.util.List;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -38,6 +40,7 @@ public class EncryptionDeviceAccessLevelResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{encryptionDeviceAccessLevelId}")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public DeviceAccessLevelInfo getEncryptionDeviceAccessLevel(
             @PathParam("deviceProtocolPluggableClassId") long deviceProtocolPluggableClassId,
             @PathParam("encryptionDeviceAccessLevelId") long encryptionDeviceAccessLevelId,
@@ -55,6 +58,7 @@ public class EncryptionDeviceAccessLevelResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public PagedInfoList<DeviceAccessLevelInfo> getEncryptionDeviceAccessLevels(
             @PathParam("deviceProtocolPluggableClassId") long deviceProtocolPluggableClassId,
             @PathParam("encryptionDeviceAccessLevelId") long encryptionDeviceAccessLevelId,
@@ -75,6 +79,7 @@ public class EncryptionDeviceAccessLevelResource {
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public List<String> getFields() {
         return encryptionDeviceAccessLevelInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

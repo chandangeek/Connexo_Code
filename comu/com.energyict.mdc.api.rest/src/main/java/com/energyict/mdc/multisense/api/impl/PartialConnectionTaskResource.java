@@ -9,7 +9,10 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
+import com.energyict.mdc.multisense.api.security.Privileges;
+
 import java.util.List;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -43,6 +46,7 @@ public class PartialConnectionTaskResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{id}")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public PartialConnectionTaskInfo getPartialConnectionTask(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigId, @PathParam("id") long id,
                                                               @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
         PartialConnectionTask partialConnectionTask = deviceConfigurationService.
@@ -61,6 +65,7 @@ public class PartialConnectionTaskResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public PagedInfoList<PartialConnectionTaskInfo> getPartialConnectionTasks(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigId,
                                                                               @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection, @BeanParam JsonQueryParameters queryParameters) {
         List<PartialConnectionTask> partialConnectionTasks = deviceConfigurationService.
@@ -85,6 +90,7 @@ public class PartialConnectionTaskResource {
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public List<String> getPartialConnectionTasks() {
         return partialConnectionTypeInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
