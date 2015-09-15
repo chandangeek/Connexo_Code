@@ -117,7 +117,6 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         if ((trustStorePath != null) && (trustStorePass != null)) {
             System.setProperty("javax.net.ssl.trustStore", trustStorePath);
             System.setProperty("javax.net.ssl.trustStorePassword", trustStorePass);
-
         }
     }
 
@@ -143,11 +142,12 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     public List<UserDirectory> getUserDirectories() {
         return dataModel.mapper(UserDirectory.class).find();
 
+
     }
 
     @Override
-    public List<LdapUserDirectory> getLdapDirectories() {
-        return dataModel.mapper(LdapUserDirectory.class).find();
+    public Query<UserDirectory> getLdapDirectories() {
+        return getQueryService().wrap(dataModel.query(UserDirectory.class));
     }
 
     @Override

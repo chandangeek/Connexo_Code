@@ -1,6 +1,7 @@
 package com.elster.jupiter.users;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.users.impl.AbstractLdapDirectoryImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -90,7 +91,7 @@ public interface UserService {
 
     List<UserDirectory> getUserDirectories();
 
-    List<LdapUserDirectory> getLdapDirectories();
+    Query<UserDirectory> getLdapDirectories();
 
     LdapUserDirectory getLdapUserDirectory(long id);
 
