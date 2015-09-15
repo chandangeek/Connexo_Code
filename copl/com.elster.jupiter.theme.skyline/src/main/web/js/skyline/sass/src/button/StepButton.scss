@@ -31,6 +31,17 @@
   );
 }
 
+@if $include-button-default-small-ui {
+  @include extjs-button-small-ui(
+    $ui: 'step-error',
+    $background-color: $button-step-error-background-step-color,
+    $color: $button-step-error-color,
+    $background-color-pressed: $button-step-error-background-step-color-pressed,
+    $background-color-over: $button-step-error-background-step-color-over,
+    $border-radius: $button-step-border-radius
+  );
+}
+
 
 @if $include-button-default-small-ui {
   @include extjs-button-small-ui(

@@ -112,4 +112,16 @@
   }
 
 
+  .step-error .navigation-item-number {
+    background-color: $menu-navigation-item-error-number-background-color;
+    border-color: $menu-navigation-item-error-number-border-color;
+    color: $menu-navigation-item-error-number-color;
+    font-weight: $menu-navigation-item-error-number-font-weight;
+  }
+
+  .step-error .#{$prefix}menu-item-text {
+    color: $menu-navigation-item-error-text-color !important;
+    font-weight: $menu-navigation-item-error-text-weight;
+  }
+
 }
