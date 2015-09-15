@@ -577,6 +577,26 @@ Ext.define('Dxp.controller.Tasks', {
             timeFrameRadioGroup = view.down('#export-updated'),
             continuousDataRadioGroup =  view.down('#continuous-data-radiogroup')
 
+        // --- Begin --- Take privileges update vs. update.schedule into account:
+        if (Dxp.privileges.DataExport.canUpdateSchedule() && !Dxp.privileges.DataExport.canUpdateFull()) {
+            view.down('#task-name').setDisabled(true);
+            view.down('#dxp-data-selector-container').setDisabled(true);
+            view.down('#device-group-container').setDisabled(true);
+            view.down('#readingTypesFieldContainer').setDisabled(true);
+            view.down('#readingTypesGridPanel').setDisabled(true);
+            view.down('#addReadingTypeButton').setDisabled(true);
+            view.down('#export-periods-container').setDisabled(true);
+            view.down('#continuous-data-container').setDisabled(true);
+            view.down('#updated-data-container').setDisabled(true);
+            view.down('#schedule-preview').setDisabled(true);
+            view.down('#data-selector-export-complete').setDisabled(true);
+            view.down('#data-selector-validated-data').setDisabled(true);
+            view.down('#formatter-container').setDisabled(true);
+            view.down('grouped-property-form').setDisabled(true);
+            view.down('#destinationsFieldcontainer').setDisabled(true);
+            view.down('#task-destinations-grid').setDisabled(true);
+        }
+        // ---  End  ---
 
         destinationsStore.removeAll();
 

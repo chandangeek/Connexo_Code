@@ -14,8 +14,8 @@ Ext.define('Dxp.privileges.DataExport', {
         'privilege.update.schedule.dataExportTask',
         'privilege.run.dataExportTask'],
     run:'privilege.run.dataExportTask',
-    update:['privilege.update.dataExportTask',
-        'privilege.update.schedule.dataExportTask'],
+    update: ['privilege.update.dataExportTask', 'privilege.update.schedule.dataExportTask'],
+    updateSchedule: 'privilege.update.schedule.dataExportTask',
     admin : ['privilege.administrate.dataExportTask'],
 
     all: function() {
@@ -27,7 +27,10 @@ Ext.define('Dxp.privileges.DataExport', {
     canView:function(){
         return Uni.Auth.checkPrivileges(Dxp.privileges.DataExport.view);
     },
-    canUpdate:function(){
-        return Uni.Auth.checkPrivileges(Dxp.privileges.DataExport.update);
+    canUpdateFull:function(){
+        return Uni.Auth.checkPrivileges('privilege.update.dataExportTask');
+    },
+    canUpdateSchedule:function(){
+        return Uni.Auth.checkPrivileges(Dxp.privileges.DataExport.updateSchedule);
     }
 });
