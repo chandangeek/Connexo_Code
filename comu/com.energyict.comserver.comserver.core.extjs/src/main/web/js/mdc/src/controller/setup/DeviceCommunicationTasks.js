@@ -114,12 +114,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
             menu.down('#changeUrgencyOfDeviceComTask').show();
         }
         if(menu.down('#runDeviceComTaskNow')) {
-            if (selection.data.connectionStrategyKey !== 'asSoonAsPossible') {
+            if (selection.data.connectionStrategyKey !== 'AS_SOON_AS_POSSIBLE') {
                 menu.down('#runDeviceComTaskNow').show();
             }
         }
         if(menu.down('#runDeviceComTask')) {
-            if (selection.data.connectionStrategyKey !== 'asSoonAsPossible') {
+            if (selection.data.connectionStrategyKey !== 'AS_SOON_AS_POSSIBLE') {
                 menu.down('#runDeviceComTask').show();
             }
         }
@@ -275,12 +275,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                             case 'plannedPriority':
                                 error.id = 'urgency';
                                 break;
-                        }
+                }
                     });
                     form.markInvalid(json.errors);
                 } else {
-                    me.showDeviceCommunicationTasksView(me.mrid);
-                }
+                me.showDeviceCommunicationTasksView(me.mrid);
+            }
             }
         });
     },

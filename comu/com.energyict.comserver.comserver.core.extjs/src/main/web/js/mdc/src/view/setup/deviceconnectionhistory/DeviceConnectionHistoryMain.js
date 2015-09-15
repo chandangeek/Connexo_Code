@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.deviceconnectionhistory.DeviceConnectionHistoryMain',
                 ui: 'large',
                 xtype: 'panel',
                 itemId: 'deviceConnectionHistoryPanel',
-                title: Ext.String.format(Uni.I18n.translate('deviceconnectionhistory.connectionHistory', 'MDC', 'History of \'{0}\''),this.connectionMethodName),
+                title: Uni.I18n.translate('deviceconnectionhistory.connectionHistory', 'MDC', "History of '{0}'",[this.connectionMethodName]),
                 items: [
                     {
                         xtype: 'preview-container',

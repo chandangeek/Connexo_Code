@@ -68,7 +68,7 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.ResultPanel', {
                     items: [
                         {
                             xtype: 'container',
-                            html: me.response.message + ':'
+                            html: me.response.message + (me.response.microChecks && me.response.microChecks.length ? ':' : '')
                         },
                         {
                             xtype: 'container',

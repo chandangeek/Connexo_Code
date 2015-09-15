@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.device.CommunicationActionMenu', {
             text: Uni.I18n.translate('general.run', 'MDC', 'Run'),
             action: 'run',
             visible: function() {
-                return this.record.get('connectionStrategyKey') === 'minimizeConnections';
+                return this.record.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS';
             }
         },
         {

@@ -10,7 +10,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
         'Mdc.view.setup.deviceloadprofiles.DataActionMenu',
         'Uni.grid.plugin.ShowConditionalToolTip'
     ],
-    height: 395,
     plugins: [
         'bufferedrenderer',
         'showConditionalToolTip'
