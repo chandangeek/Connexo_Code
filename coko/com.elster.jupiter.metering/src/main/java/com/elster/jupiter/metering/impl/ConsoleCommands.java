@@ -83,8 +83,9 @@ public class ConsoleCommands {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(amrSystemId).orElseThrow(() -> new IllegalArgumentException("amr System not found"));
-            Meter meter = amrSystem.newMeter(amrid, mrId);
-            meter.save();
+            amrSystem.newMeter(amrid)
+                    .setMRID(mrId)
+                    .create();
             context.commit();
         } finally {
             threadPrincipalService.clear();

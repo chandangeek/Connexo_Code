@@ -140,8 +140,7 @@ public class UsagePointDetailImplIT {
             ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
             DataModel dataModel = meteringService.getDataModel();
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-            UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID");
-            usagePoint.save();
+            UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID").create();
             assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
 
             //add details valid from 1 january 2014
@@ -201,8 +200,7 @@ public class UsagePointDetailImplIT {
             ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
             DataModel dataModel = meteringService.getDataModel();
             ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.GAS).get();
-            UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID");
-            usagePoint.save();
+            UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID").create();
             assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
 
             //add details valid from 1 january 2014

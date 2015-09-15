@@ -117,10 +117,13 @@ public class MeterImplIT {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext context = transactionService.getContext()) {
             FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
-            Meter meter = meteringService.findAmrSystem(1).get().newMeter(stateMachine, "amrID", "mRID");
 
             // Business method
-            meter.save();
+            Meter meter = meteringService.findAmrSystem(1).get()
+                    .newMeter("amrID")
+                    .setMRID("mRID")
+                    .setStateMachine(stateMachine)
+                    .create();
 
             // Asserts
             assertThat(meter.getFiniteStateMachine().isPresent()).isTrue();

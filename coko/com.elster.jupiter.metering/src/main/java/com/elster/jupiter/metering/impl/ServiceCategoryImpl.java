@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
@@ -80,8 +81,8 @@ public class ServiceCategoryImpl implements ServiceCategory {
         dataModel.update(this);
     }
 
-    public UsagePoint newUsagePoint(String mRid) {
-		return usagePointFactory.get().init(mRid,this);
+    public UsagePointBuilder newUsagePoint(String mRid) {
+		return new UsagePointBuilderImpl(usagePointFactory, mRid, this);
 	}
 
     @Override

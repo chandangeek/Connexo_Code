@@ -1,10 +1,9 @@
 package com.elster.jupiter.metering.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-
-import javax.inject.Provider;
-
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.DataModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,10 +11,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.orm.DataModel;
+import javax.inject.Provider;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceCategoryImplTest {
@@ -81,7 +80,7 @@ public class ServiceCategoryImplTest {
 
     @Test
     public void testNewUsagePoint() {
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId");
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId").create();
         assertThat(usagePoint).isInstanceOf(UsagePointImpl.class);
 
 

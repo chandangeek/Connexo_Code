@@ -13,23 +13,7 @@ public interface AmrSystem extends HasName {
      * @param amrId The identifier in the AmrSystem that is creating this Meter
      * @return The newly created Meter
      */
-	Meter newMeter(String amrId);
-
-    /**
-     * Creates a new Meter whose state is managed and determined by the specified {@link FiniteStateMachine}.
-     *
-     * @param stateMachine The FiniteStateMachine
-     * @param amrId The identifier in the AmrSystem that is creating this Meter
-     * @return The newly created Meter
-     * @since 1.1
-     */
-	Meter newMeter(FiniteStateMachine stateMachine, String amrId);
-
-	Meter newMeter(String amrId, String mRID);
-    /**
-     * @since 1.1
-     */
-	Meter newMeter(FiniteStateMachine stateMachine, String amrId, String mRID);
+	MeterBuilder newMeter(String amrId);
 
     EndDevice newEndDevice(String amrId);
     /**

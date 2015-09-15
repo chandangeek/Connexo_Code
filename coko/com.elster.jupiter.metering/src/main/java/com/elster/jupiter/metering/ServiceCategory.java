@@ -10,7 +10,7 @@ public interface ServiceCategory extends HasTranslatableName, HasAuditInfo {
 	String getAliasName();
 	String getDescription();
 	ServiceKind getKind();
-	UsagePoint newUsagePoint(String mRID);
+	UsagePointBuilder newUsagePoint(String mRID);
 
     UsagePointDetail newUsagePointDetail(UsagePoint usagePoint, Instant start);
 }

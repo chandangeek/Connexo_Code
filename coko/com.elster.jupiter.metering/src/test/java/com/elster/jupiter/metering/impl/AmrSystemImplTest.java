@@ -5,15 +5,15 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import java.time.Clock;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.inject.Provider;
+import java.time.Clock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -26,7 +26,7 @@ public class AmrSystemImplTest {
 
     private AmrSystemImpl amrSystem;
 
-    @Mock
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DataModel dataModel;
     @Mock
     private MeteringService meteringService;
@@ -62,7 +62,7 @@ public class AmrSystemImplTest {
     @Test
     public void testNewMeter() {
         String amrId = "amrId";
-        Meter meter = amrSystem.newMeter(amrId);
+        Meter meter = amrSystem.newMeter(amrId).create();
 
         assertThat(meter.getAmrId()).isEqualTo(amrId);
         assertThat(meter.getAmrSystem()).isEqualTo(amrSystem);

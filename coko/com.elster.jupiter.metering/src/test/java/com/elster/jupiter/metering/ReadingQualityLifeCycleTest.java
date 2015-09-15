@@ -24,7 +24,6 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -116,8 +115,7 @@ public class ReadingQualityLifeCycleTest {
         ZonedDateTime dateTime = ZonedDateTime.of(2014, 2, 1, 0, 0, 0, 0, ZoneId.systemDefault());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            meter = amrSystem.newMeter("myMeter");
-            meter.save();
+            meter = amrSystem.newMeter("myMeter").create();
             ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                     .accumulate(Accumulation.BULKQUANTITY)
                     .flow(FlowDirection.FORWARD)
