@@ -211,6 +211,22 @@ Ext.define('Dxp.model.DataExportTask', {
                     return '-';
                 }
             }
+        },
+        {
+            name: 'exportUpdateForPreview',
+            persist: false,
+            convert: function(value,record){
+                return record.getData().exportUpdate==='true'?
+                    Uni.I18n.translate('general.exportWithinWindowX', 'DES', "Export within the update window '{0}'",[record.getData().standardDataSelector.updatePeriod?record.getData().standardDataSelector.updatePeriod.name:Uni.I18n.translate('general.notDefined', 'DES', 'Not defined')]):
+                    Uni.I18n.translate('general.noExportForUpdated', 'DES', 'Do not export');
+            }
+        },
+        {
+            name: 'updatedValuesForPreview',
+            persist: false,
+            convert: function(value,record){
+                return record.getData().updateWindow?Uni.I18n.translate('general.exportValuesAndAdjacentX', 'DES', "updated values and adjacent data within timeframe '{0}'",[record.getData().updateWindow.name]):Uni.I18n.translate('general.updateValuesOnly', 'DES', 'updated values only');
+            }
         }
     ],
 

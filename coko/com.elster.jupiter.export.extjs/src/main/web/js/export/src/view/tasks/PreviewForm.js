@@ -165,13 +165,15 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.exportUpdate', 'DES', 'Updated data'),
-                        name: 'exportUpdate',
+                        name: 'exportUpdateForPreview',
                         hidden: true,
-                        itemId: 'updated-data',
-                        renderer: function (value) {
-                            return value==='true'?Uni.I18n.translate('general.exportWithinWindow', 'DES', 'Export within the update window'):
-                                Uni.I18n.translate('general.noExportForUpdated', 'DES', 'Do not export');
-                        }
+                        itemId: 'updated-data'
+                    },
+                    {
+                        fieldLabel: ' ',
+                        name: 'updatedValuesForPreview',
+                        hidden: true,
+                        itemId: 'updated-values'
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.missingData', 'DES', 'Missing data'),

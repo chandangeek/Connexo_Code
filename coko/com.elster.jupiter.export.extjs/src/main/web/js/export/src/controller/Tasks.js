@@ -232,7 +232,8 @@ Ext.define('Dxp.controller.Tasks', {
                     continuousDataPreview = detailsForm.down('#continuousData-preview'),
                     dataValidation = detailsForm.down('#data-selector-validated-data'),
                     missingData = detailsForm.down('#data-selector-export-complete'),
-                    updatedData = detailsForm.down('#updated-data');
+                    updatedData = detailsForm.down('#updated-data'),
+                    updatedValuesData = detailsForm.down('#updated-values');
 
                 actionsMenu.record = record;
                 actionsMenu.down('#view-details').hide();
@@ -259,6 +260,7 @@ Ext.define('Dxp.controller.Tasks', {
                     missingData.setVisible(false);
                     updatedData.setVisible(false);
                     continuousDataPreview.setVisible(false);
+                    updatedValuesData.setVisible(false);
                     selectorPropertyForm.loadRecord(record.getDataSelector());
 
                 } else {
@@ -270,6 +272,7 @@ Ext.define('Dxp.controller.Tasks', {
                     missingData.setVisible(true);
                     updatedData.setVisible(true);
                     continuousDataPreview.setVisible(true);
+                    updatedValuesData.setVisible(true);
                 }
             }
         });
@@ -644,7 +647,10 @@ Ext.define('Dxp.controller.Tasks', {
                                         category: 'relativeperiod.category.updateWindow'
                                     },
                                     callback: function () {
-                                        updateWindowCombo.setValue(updateWindowCombo.store.getById(record.getStandardDataSelector().data.updateWindow.id));
+                                        if(record.getData().exportUpdate==='true'){
+                                            updateWindowCombo.setValue(updateWindowCombo.store.getById(record.getStandardDataSelector().data.updatePeriod.id));
+                                            updatedDataRadioGroup.setValue({exportUpdate: record.getStandardDataSelector().get('exportUpdate')});
+                                        }
                                     }
                                 });
                                 timeframeCombo.store.load({
@@ -652,8 +658,12 @@ Ext.define('Dxp.controller.Tasks', {
                                         category: 'relativeperiod.category.updateTimeframe'
                                     },
                                     callback: function () {
-                                        timeFrameRadioGroup.setValue({updatedDataAndOrAdjacentData: true});
-                                        timeframeCombo.setValue(timeframeCombo.store.getById(record.getStandardDataSelector().data.updatePeriod.id));
+                                        if(record.getStandardDataSelector().data.updateWindow){
+                                            timeframeCombo.setValue(timeframeCombo.store.getById(record.getStandardDataSelector().data.updateWindow.id));
+                                            timeFrameRadioGroup.setValue({updatedDataAndOrAdjacentData: true});
+                                        }
+
+
                                     }
                                 });
 
@@ -668,7 +678,7 @@ Ext.define('Dxp.controller.Tasks', {
                                     }
                                 });
                                 missingData.setValue({exportComplete: record.getStandardDataSelector().get('exportComplete')});
-                                updatedDataRadioGroup.setValue({exportUpdate: record.getStandardDataSelector().get('exportUpdate')});
+
                                 continuousDataRadioGroup.setValue({exportContinuousData: record.getStandardDataSelector().get('exportContinuousData')});
 
                             } 
@@ -715,7 +725,8 @@ Ext.define('Dxp.controller.Tasks', {
             propertyForm = previewForm.down('#task-properties-preview'),
             dataValidation = previewForm.down('#data-selector-validated-data'),
             missingData = previewForm.down('#data-selector-export-complete'),
-            updatedData = previewForm.down('#updated-data');
+            updatedData = previewForm.down('#updated-data'),
+            updatedValuesData = previewForm.down('#updated-values');
 
         Ext.suspendLayouts();
 
@@ -752,6 +763,7 @@ Ext.define('Dxp.controller.Tasks', {
             dataValidation.hide();
             missingData.hide();
             updatedData.hide();
+            updatedValuesData.hide();
             selectorPropertyForm.loadRecord(record.getDataSelector());
         } else {
             selectorPropertyForm.hide();
@@ -761,6 +773,7 @@ Ext.define('Dxp.controller.Tasks', {
             dataValidation.show();
             missingData.show();
             updatedData.show();
+            updatedValuesData.show();
         }
 
 
@@ -1290,8 +1303,8 @@ Ext.define('Dxp.controller.Tasks', {
             //var dataSelectorCombo = form.down('#data-selector-combo');
 
             var selectorModel = Ext.create('Dxp.model.DataSelector', {
-                name: dataSelectorCombo.getValue(),
-            })
+                name: dataSelectorCombo.getValue()
+            });
             record.setDataSelector(selectorModel);
 
             var selectedDataSelector = dataSelectorCombo.findRecord(dataSelectorCombo.valueField, dataSelectorCombo.getValue());
@@ -1318,12 +1331,12 @@ Ext.define('Dxp.controller.Tasks', {
                     validatedDataOption: form.down('#data-selector-validated-data').getValue().validatedDataOption,
                     exportUpdate: form.down('#updated-data-trigger').getValue().exportUpdate,
                     updatePeriod: {
-                        id: form.down('#timeFrame').getValue(),
-                        name: form.down('#timeFrame').getRawValue()
-                    },
-                    updateWindow: timeFrameValue?{
                         id: form.down('#update-window').getValue(),
                         name: form.down('#update-window').getRawValue()
+                    },
+                    updateWindow: timeFrameValue?{
+                        id: form.down('#timeFrame').getValue(),
+                        name: form.down('#timeFrame').getRawValue()
                     }:{},
                     exportContinuousData: form.down('#continuous-data-radiogroup').getValue().exportContinuousData,
                     readingTypes: arrReadingTypes
@@ -1512,9 +1525,9 @@ Ext.define('Dxp.controller.Tasks', {
 
 
         view.down('#updated-data-trigger').setValue({exportUpdate: formModel.get('exportUpdate')});
-        view.down('#update-window').setValue(formModel.get('updatePeriod'));
+        view.down('#update-window').setValue(formModel.get('updateWindow'));
         if(formModel.get('updateWindow')){
-            view.down('#timeFrame').setValue(formModel.get('updateWindow'));
+            view.down('#timeFrame').setValue(formModel.get('updatePeriod'));
             view.down('#export-updated').setValue({updatedDataAndOrAdjacentData: true});
         }
         view.down('#continuous-data-radiogroup').setValue({exportContinuousData:formModel.get('exportContinuousData')});
