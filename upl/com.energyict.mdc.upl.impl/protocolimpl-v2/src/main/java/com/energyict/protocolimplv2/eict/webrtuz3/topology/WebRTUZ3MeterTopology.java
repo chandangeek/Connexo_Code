@@ -180,7 +180,7 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
     @Override
     public int getPhysicalAddress(String serialNumber) {
         if (serialNumber == null || serialNumber.isEmpty()) {
-            throw MdcManager.getComServerExceptionFactory().missingProperty("SerialNumber");
+            throw MdcManager.getComServerExceptionFactory().missingProperty("SerialNumber", new DeviceIdentifierById(meterProtocol.getOfflineDevice().getId()));
         }
 
         if (serialNumber.equals(meterProtocol.getDlmsSession().getProperties().getSerialNumber())) {

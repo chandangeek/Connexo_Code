@@ -45,7 +45,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         final String pskEncryptionKey = properties.getStringProperty(Beacon3100ConfigurationSupport.PSK_ENCRYPTION_KEY);
 
         if (pskEncryptionKey == null || pskEncryptionKey.isEmpty()) {
-            throw MdcManager.getComServerExceptionFactory().missingProperty(Beacon3100ConfigurationSupport.PSK_ENCRYPTION_KEY);
+            throw MdcManager.getComServerExceptionFactory().missingProperty(Beacon3100ConfigurationSupport.PSK_ENCRYPTION_KEY, this.getDeviceIdentifier());
         }
 
         final byte[] pskEncryptionKeyBytes = parseKey(pskEncryptionKey);
