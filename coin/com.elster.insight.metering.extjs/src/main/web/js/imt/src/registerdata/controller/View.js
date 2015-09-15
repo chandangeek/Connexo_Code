@@ -130,9 +130,7 @@ Ext.define('Imt.registerdata.controller.View', {
             previewContainer = me.getRegisterDataSetup().down('#previewComponentContainer');
         
         form.loadRecord(record);
-        var datestr = Uni.DateTime.formatDateLong(new Date(record.get('readingTime')))
-        			+ ' ' + Uni.I18n.translate('general.at', 'IMT', 'At').toLowerCase() + ' '
-        				+ Uni.DateTime.formatTimeLong(new Date(record.get('readingTime')));
+        var datestr = Uni.I18n.translate('general.dateattime', 'IMT', '{0} at {1}',[Uni.DateTime.formatDateLong(new Date(record.get('readingTime'))),Uni.DateTime.formatTimeLong(new Date(record.get('readingTime')))], false);
         widget.setTitle(datestr);
         previewContainer.removeAll();
         previewContainer.add(widget);
