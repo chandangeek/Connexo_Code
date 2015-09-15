@@ -153,9 +153,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
 
     private Meter createMeter(String amrId, String mrid) {
         AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
-        Meter meter = amrSystem.newMeter(amrId, mrid);
-        meter.save();
-        return meter;
+        return amrSystem.newMeter(amrId).setMRID(mrid).create();
     }
 
     private Issue getBaseIssue(CreationRule rule, Meter meter) {

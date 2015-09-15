@@ -1,10 +1,5 @@
 package com.energyict.mdc.issue.datacollection;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
-import org.junit.Test;
-
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.share.entity.CreationRule;
@@ -16,6 +11,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.templates.EventAggregationRuleTemplate;
+import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class EventAggregationRuleTemplateTest extends BaseTest {
 
@@ -34,9 +33,7 @@ public class EventAggregationRuleTemplateTest extends BaseTest {
     
     private Meter createMeter(String amrId, String mrid) {
         AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
-        Meter meter = amrSystem.newMeter(amrId, mrid);
-        meter.save();
-        return meter;
+        return amrSystem.newMeter(amrId).setMRID(mrid).create();
     }
 
     private Issue getBaseIssue(CreationRule rule, Meter meter) {
