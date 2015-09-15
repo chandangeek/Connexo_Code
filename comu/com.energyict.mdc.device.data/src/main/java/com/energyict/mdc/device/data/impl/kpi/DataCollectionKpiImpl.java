@@ -418,9 +418,8 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
                 taskBuilder.setScheduleExpression(this.toScheduleExpression(this.kpi.get()));
                 taskBuilder.setDestination(destination);
                 taskBuilder.setPayLoad(scheduledExcutionPayload());
-                taskBuilder.scheduleImmediately();
+                taskBuilder.scheduleImmediately(true);
                 RecurrentTask recurrentTask = taskBuilder.build();
-                recurrentTask.save();
                 this.setRecurrentTask(recurrentTask);
             }
         }

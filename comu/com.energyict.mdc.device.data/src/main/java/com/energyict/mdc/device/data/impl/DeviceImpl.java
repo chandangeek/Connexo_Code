@@ -887,10 +887,12 @@ public class DeviceImpl implements Device, CanLock {
 
     Meter createKoreMeter(AmrSystem amrSystem) {
         FiniteStateMachine stateMachine = this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine();
-        Meter meter = amrSystem.newMeter(stateMachine, String.valueOf(getId()), getmRID());
-        meter.setSerialNumber(getSerialNumber());
+        Meter meter = amrSystem.newMeter(String.valueOf(getId()))
+                .setMRID(getmRID())
+                .setStateMachine(stateMachine)
+                .setSerialNumber(getSerialNumber())
+                .create();
         meter.getLifecycleDates().setReceivedDate(this.clock.instant());
-        meter.save();
         return meter;
     }
 
