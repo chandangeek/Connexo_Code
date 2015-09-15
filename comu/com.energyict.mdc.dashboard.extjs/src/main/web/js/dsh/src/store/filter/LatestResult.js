@@ -5,6 +5,9 @@ Ext.define('Dsh.store.filter.LatestResult', {
     proxy: {
         type: 'rest',
         url: '/api/dsr/field/comsessionsuccessindicators',
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
         reader: {
             type: 'json',
             root: 'successIndicators'

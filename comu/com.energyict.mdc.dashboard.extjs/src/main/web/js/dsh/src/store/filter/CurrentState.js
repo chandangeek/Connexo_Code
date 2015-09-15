@@ -5,6 +5,9 @@ Ext.define('Dsh.store.filter.CurrentState', {
     proxy: {
         type: 'rest',
         url: '/api/dsr/field/taskstatus',
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
         reader: {
             type: 'json',
             root: 'taskStatuses'

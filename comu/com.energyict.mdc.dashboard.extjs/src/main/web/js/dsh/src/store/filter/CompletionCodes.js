@@ -4,6 +4,9 @@ Ext.define('Dsh.store.filter.CompletionCodes', {
     proxy: {
         type: 'rest',
         url: '/api/dsr/field/completioncodes',
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
         reader: {
             type: 'json',
             root: 'completionCodes'

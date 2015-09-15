@@ -5,6 +5,9 @@ Ext.define('Dsh.store.filter.CommPortPool', {
     proxy: {
         type: 'rest',
         url: '/api/dsr/field/comportpools',
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
         reader: {
             type: 'json',
             root: 'comPortPools'
