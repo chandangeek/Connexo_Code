@@ -11,7 +11,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
-            this.down('#save-destination-button').setText(Uni.I18n.translate('general.edit', 'DES', 'Edit'));
+            this.down('#save-destination-button').setText(Uni.I18n.translate('general.save', 'DES', 'Save'));
             this.down('#save-destination-button').action = 'editDestination';
         } else {
             this.edit = edit;
@@ -64,7 +64,11 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         name: 'method',
                         itemId: 'destination-methods-combo',
                         width: 500,
+                        emptyText: Uni.I18n.translate('addDataExportTask.destinationMethodPrompt', 'DES', 'Select a method...'),
+                        submitEmptyText: false,
                         required: true,
+                        forceSelection: true,
+                        allowBlank: false,
                         fieldLabel: Uni.I18n.translate('general.method', 'DES', 'Method'),
                         queryMode: 'local',
                         displayField: 'displayValue',

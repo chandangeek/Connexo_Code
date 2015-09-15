@@ -379,21 +379,21 @@ Ext.define('Dxp.controller.Tasks', {
         me.getApplication().fireEvent('changecontentevent', view);
 
         if (me.destinationToEdit) {
-            view.down('#save-destination-button').setText(Uni.I18n.translate('general.edit', 'DES', 'Edit'));
+            view.down('#save-destination-button').setText(Uni.I18n.translate('general.save', 'DES', 'Save'));
             view.down('#add-destination-form').setTitle(Uni.I18n.translate('dataExport.editDestination', 'DES', 'Edit destination'));
             me.showAllDestinationAttributes(false);
             var type = me.destinationToEdit.get('type');
             if (type === 'FILE') {
                 me.showFileDestinationAttributes(true);
                 view.down('#destination-methods-combo').setValue('FILE');
-                view.down('#destination-methods-combo').setReadOnly(true);
+                view.down('#destination-methods-combo').setDisabled(true);
                 view.down('#destination-file-name').setValue(me.destinationToEdit.get('fileName'));
                 view.down('#destination-file-extension').setValue(me.destinationToEdit.get('fileExtension'));
                 view.down('#destination-file-location').setValue(me.destinationToEdit.get('fileLocation'));
             } else if (type === 'EMAIL') {
                 me.showMailDestinationAttributes(true);
                 view.down('#destination-methods-combo').setValue('EMAIL');
-                view.down('#destination-methods-combo').setReadOnly(true);
+                view.down('#destination-methods-combo').setDisabled(true);
                 view.down('#destination-recipients').setValue(me.destinationToEdit.get('recipients'));
                 view.down('#destination-subject').setValue(me.destinationToEdit.get('subject'));
                 view.down('#destination-attachment-name').setValue(me.destinationToEdit.get('fileName'));
@@ -401,7 +401,7 @@ Ext.define('Dxp.controller.Tasks', {
             } else if (type === 'FTP'){
                 me.showFtpDestinationAttributes(true);
                 view.down('#destination-methods-combo').setValue('FTP');
-                view.down('#destination-methods-combo').setReadOnly(true);
+                view.down('#destination-methods-combo').setDisabled(true);
                 view.down('#destination-file-name').setValue(me.destinationToEdit.get('fileName'));
                 view.down('#destination-file-extension').setValue(me.destinationToEdit.get('fileExtension'));
                 view.down('#destination-file-location').setValue(me.destinationToEdit.get('fileLocation'));
@@ -411,7 +411,7 @@ Ext.define('Dxp.controller.Tasks', {
             }
         } else {
             me.destinationIndexToEdit = -1;
-            view.down('#destination-methods-combo').setValue('FILE');
+            me.showAllDestinationAttributes(false);
         }
     },
 
