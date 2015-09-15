@@ -4,11 +4,11 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.transaction.Transaction;
-import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.Optional;
 
 final class CreateUsagePointTransaction implements Transaction<UsagePoint> {
 
@@ -32,9 +32,6 @@ final class CreateUsagePointTransaction implements Transaction<UsagePoint> {
     }
 
     private UsagePoint doPerform(Optional<ServiceCategory> serviceCategory) {
-        UsagePoint usagePoint = serviceCategory.get().newUsagePoint(info.mRID);
-        //usagePoint.setPhaseCode(info.phaseCode);
-        usagePoint.save();
-        return usagePoint;
+        return serviceCategory.get().newUsagePoint(info.mRID).create();
     }
 }

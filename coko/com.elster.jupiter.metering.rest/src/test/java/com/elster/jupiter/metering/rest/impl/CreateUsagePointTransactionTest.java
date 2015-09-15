@@ -1,17 +1,20 @@
 package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.cbo.PhaseCode;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import java.util.Optional;
+import com.elster.jupiter.metering.UsagePointBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -30,10 +33,13 @@ public class CreateUsagePointTransactionTest {
     private ServiceCategory serviceCategory;
     @Mock
     private UsagePoint usagePoint;
+    private UsagePointBuilder usagePointBuilder;
 
     @Before
     public void setUp() {
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
+
+        usagePointBuilder = FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class);
 
         info = new UsagePointInfo();
         info.serviceCategory = ServiceKind.ELECTRICITY;
@@ -51,7 +57,7 @@ public class CreateUsagePointTransactionTest {
 
     @Test
     public void test() {
-        when(serviceCategory.newUsagePoint(MR_ID)).thenReturn(usagePoint);
+        when(serviceCategory.newUsagePoint(MR_ID)).thenReturn(usagePointBuilder);
 
         UsagePoint result = transaction.perform();
 
