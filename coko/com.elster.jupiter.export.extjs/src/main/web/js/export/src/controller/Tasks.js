@@ -484,7 +484,6 @@ Ext.define('Dxp.controller.Tasks', {
     showAddExportTask: function () {
         var me = this,
             view = Ext.create('Dxp.view.tasks.Add'),
-        //fileFormatterCombo = view.down('#file-formatter-combo'),
             dataSelectorCombo = view.down('#data-selector-combo'),
             deviceGroupCombo = view.down('#device-group-combo'),
             exportPeriodCombo = view.down('#export-period-combo'),
@@ -493,8 +492,6 @@ Ext.define('Dxp.controller.Tasks', {
             recurrenceTypeCombo = view.down('#recurrence-type'),
             destinationsStore = view.down('#task-destinations-grid').getStore(),
             readingTypesStore = view.down('#readingTypesGridPanel').getStore();
-
-        //me.destinationsArray = [];
 
         me.getApplication().fireEvent('changecontentevent', view);
 
@@ -541,10 +538,9 @@ Ext.define('Dxp.controller.Tasks', {
 
     showEditExportTask: function (taskId) {
         var me = this,
-
             router = me.getController('Uni.controller.history.Router'),
             view;
-        //me.destinationsArray = [];
+
         if (me.fromDetails) {
             view = Ext.create('Dxp.view.tasks.Add', {
                 edit: true,
@@ -557,6 +553,12 @@ Ext.define('Dxp.controller.Tasks', {
             })
         }
 
+        if (me.destinationToEdit) { // coming from an edit destination (that hence was cancelled), add the old one again
+            me.destinationsArray.push(me.destinationToEdit);
+            me.destinationToEdit = null;
+            me.destinationIndexToEdit = -1;
+        }
+
         var taskModel = me.getModel('Dxp.model.DataExportTask'),
             taskForm = view.down('#add-data-export-task-form'),
             fileFormatterCombo = view.down('#file-formatter-combo'),
@@ -567,7 +569,6 @@ Ext.define('Dxp.controller.Tasks', {
             emptyDestinationsLabel = view.down('#noDestinationsLabel'),
             destinationsGrid = view.down('#task-destinations-grid'),
             destinationsStore = view.down('#task-destinations-grid').getStore(),
-            readingTypesStore = view.down('#readingTypesGridPanel').getStore(),
             recurrenceTypeCombo = view.down('#recurrence-type'),
             missingData = view.down('#data-selector-export-complete'),
             updatedDataRadioGroup = view.down('#updated-data-trigger'),
@@ -577,7 +578,6 @@ Ext.define('Dxp.controller.Tasks', {
             continuousDataRadioGroup =  view.down('#continuous-data-radiogroup')
 
 
-        //readingTypesStore.removeAll();
         destinationsStore.removeAll();
 
         dataSelectorCombo.disabled = true;
@@ -595,14 +595,8 @@ Ext.define('Dxp.controller.Tasks', {
                         if (record.destinationsStore.count() > 0) {
                             emptyDestinationsLabel.hide();
                             destinationsGrid.store.add(record.destinations().data.items);
-
-                            /*Ext.each(record.destinations().data.items, function (record) {
-                             me.destinationsArray.push(record);
-                             });*/
-
                             destinationsGrid.show();
                         }
-
 
                         var dataSelector = record.get('dataSelector');
 
@@ -682,9 +676,6 @@ Ext.define('Dxp.controller.Tasks', {
                                 continuousDataRadioGroup.setValue({exportContinuousData: record.getStandardDataSelector().get('exportContinuousData')});
 
                             } 
-                            /*else {
-                             taskForm.down('#data-selector-properties').loadRecord(record.getDataSelector());
-                             }*/
                             fileFormatterCombo.setValue(fileFormatterCombo.store.getById(record.data.dataProcessor.name));
                             if (record.data.nextRun && (record.data.nextRun !== 0)) {
                                 view.down('#start-on').setValue(record.data.nextRun);
@@ -699,7 +690,6 @@ Ext.define('Dxp.controller.Tasks', {
                             if (record.properties() && record.properties().count()) {
                                 taskForm.down('grouped-property-form').loadRecord(record);
                             }
-
 
                         }
                         view.setLoading(false);
@@ -1087,8 +1077,8 @@ Ext.define('Dxp.controller.Tasks', {
 
     doAddDestinationToGrid: function (button,id) {
         var me = this;
-        //edit destination was cancelled, add the old one again
-        if (me.destinationToEdit) {
+
+        if (me.destinationToEdit) { //edit destination was cancelled, add the old one again
             me.destinationsArray.push(me.destinationToEdit);
             me.destinationToEdit = null;
             me.destinationIndexToEdit = -1;
@@ -1303,8 +1293,6 @@ Ext.define('Dxp.controller.Tasks', {
                 name: form.down('#file-formatter-combo').getValue()
             });
 
-            //var dataSelectorCombo = form.down('#data-selector-combo');
-
             var selectorModel = Ext.create('Dxp.model.DataSelector', {
                 name: dataSelectorCombo.getValue()
             });
@@ -1343,9 +1331,7 @@ Ext.define('Dxp.controller.Tasks', {
                 });
             } else {
                 record.set('standardDataSelector', null);
-                //record.setDataSelector(selectorModel);
                 selectorPropertyForm.updateRecord();
-
                 record.propertiesStore.add(selectorPropertyForm.getRecord().properties().data.items)
             }
             record.destinations();
@@ -1446,13 +1432,11 @@ Ext.define('Dxp.controller.Tasks', {
 
         formValues.readingTypes = arrReadingTypes;
         formValues.destinations = storeDestinations;
-        debugger;
         me.getStore('Dxp.store.Clipboard').set('addDataExportTaskValues', formValues);
 
     },
 
     setFormValues: function (view) {
-        debugger;
         var me = this,
             obj = me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues'),
             page = me.getAddPage(),
@@ -1472,7 +1456,6 @@ Ext.define('Dxp.controller.Tasks', {
             Ext.each(me.readingTypesArray, function (record) {
                 gridStore.add(record);
             });
-            //me.readingTypesArray = null;
         } else {
             if (!Ext.isEmpty(readingTypesArray)) {
                 Ext.each(readingTypesArray, function (readingType) {
@@ -1534,8 +1517,6 @@ Ext.define('Dxp.controller.Tasks', {
                 formItem.setValue(obj[formItem.name]);
             }
         });
-        //view.down('#recurrence-values numberfield').setValue({recurrence: formModel.get('recurrence-number')});
-        //view.down('#recurrence-values combobox').setValue({recurrence: formModel.get('recurrence-type')});
         Ext.resumeLayouts(true);
     },
 
