@@ -41,11 +41,10 @@ public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroup
     @Override
     public EndDeviceGroup create() {
         Log.write(this);
-        EndDeviceGroup endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(getCondition());
-        endDeviceGroup.setName(getName());
-        // dynamic
-        endDeviceGroup.setQueryProviderName("com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider");
-        endDeviceGroup.save();
+        EndDeviceGroup endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(getCondition())
+                .setName(getName())
+                .setQueryProviderName("com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider")
+                .create();
         return endDeviceGroup;
     }
 
