@@ -51,7 +51,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                 var result = null,
                     mainValidationInfo = data.mainValidationInfo;
 
-                if (mainValidationInfo.valueModificationFlag && data.reportedDateTime) {
+                if (mainValidationInfo && mainValidationInfo.valueModificationFlag && data.reportedDateTime) {
                     result = {
                         flag: mainValidationInfo.valueModificationFlag,
                         date: data.reportedDateTime
@@ -66,8 +66,8 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
             persist: false,
             mapping: function (data) {
                 return {
-                    main: data.mainValidationInfo.validationResult.split('.')[1],
-                    bulk: data.bulkValidationInfo.validationResult.split('.')[1]
+                    main: data.mainValidationInfo ? data.mainValidationInfo.validationResult.split('.')[1] : '',
+                    bulk: data.bulkValidationInfo ? data.bulkValidationInfo.validationResult.split('.')[1] : ''
                 }
             }
         },
@@ -78,7 +78,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                 var result = null,
                     bulkValidationInfo = data.bulkValidationInfo;
 
-                if (bulkValidationInfo.valueModificationFlag && data.reportedDateTime) {
+                if (bulkValidationInfo && bulkValidationInfo.valueModificationFlag && data.reportedDateTime) {
                     result = {
                         flag: bulkValidationInfo.valueModificationFlag,
                         date: data.reportedDateTime
@@ -100,7 +100,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                     bulk = data.bulkValidationInfo;
 
                 if (delta) {
-                    result.delta.suspect = delta.validationResult.split('.')[1] == 'suspect';
+                    result.delta.suspect = delta ? delta.validationResult.split('.')[1] == 'suspect' : false;
                     delta.validationResult == 'validationStatus.notValidated' ? result.delta.notValidated = true : result.delta.notValidated = false
 
                     if (delta.action == 'FAIL') {
