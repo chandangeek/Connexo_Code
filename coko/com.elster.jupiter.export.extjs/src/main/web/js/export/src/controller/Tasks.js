@@ -1094,11 +1094,13 @@ Ext.define('Dxp.controller.Tasks', {
             me.destinationIndexToEdit = -1;
             me.forwardToPreviousPage();
         } else {
-            var page = me.getAddDestinationPage();
-            var form = page.down('#add-destination-form');
-            var destinationModel;
-                var formValues = form.getForm().getValues();
-                if (formValues['method'] === 'FILE') {
+            var page = me.getAddDestinationPage(),
+                form = page.down('#add-destination-form'),
+                methodComboBoxValue = page.down('#destination-methods-combo').getValue(),
+                destinationModel,
+                formValues = form.getForm().getValues();
+
+                if (methodComboBoxValue === 'FILE') {
                     //tooltip & method duplicated from destination model, have not found another way!
                     destinationModel = Ext.create('Dxp.model.Destination', {
                         id: id?id:undefined,
@@ -1115,7 +1117,7 @@ Ext.define('Dxp.controller.Tasks', {
                             + Uni.I18n.translate('general.fileExtension', 'DES', 'File extension')
                             + ': ' + formValues['fileExtension']
                     })
-                } else if (formValues['method'] === 'EMAIL') {
+                } else if (methodComboBoxValue === 'EMAIL') {
                     destinationModel = Ext.create('Dxp.model.Destination', {
                         id: id?id:undefined,
                         type: 'EMAIL',
@@ -1133,7 +1135,7 @@ Ext.define('Dxp.controller.Tasks', {
                             + Uni.I18n.translate('general.fileExtension', 'DES', 'File extension')
                             + ': ' + formValues['attachmentExtension']
                     })
-                } else if (formValues['method'] === 'FTP') {
+                } else if (methodComboBoxValue === 'FTP') {
                     destinationModel = Ext.create('Dxp.model.Destination', {
                         id: id?id:undefined,
                         type: 'FTP',
@@ -1444,11 +1446,13 @@ Ext.define('Dxp.controller.Tasks', {
 
         formValues.readingTypes = arrReadingTypes;
         formValues.destinations = storeDestinations;
+        debugger;
         me.getStore('Dxp.store.Clipboard').set('addDataExportTaskValues', formValues);
 
     },
 
     setFormValues: function (view) {
+        debugger;
         var me = this,
             obj = me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues'),
             page = me.getAddPage(),
