@@ -1040,7 +1040,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2); // what is in here is checked in another test
         DeviceConfigConflictMapping deviceConfigConflictMapping1 = deviceType.getDeviceConfigConflictMappings().get(0);
         ConflictingConnectionMethodSolution conflictingConnectionMethodSolution1 = deviceConfigConflictMapping1.getConflictingConnectionMethodSolutions().get(0);
-        conflictingConnectionMethodSolution1.setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.ADD);
+        conflictingConnectionMethodSolution1.setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE);
 
         DeviceConfigConflictMapping deviceConfigConflictMapping2 = deviceType.getDeviceConfigConflictMappings().get(1);
         ConflictingConnectionMethodSolution conflictingConnectionMethodSolution3 = deviceConfigConflictMapping2.getConflictingConnectionMethodSolutions().get(0);
@@ -1049,16 +1049,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
         assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).hasSize(2);
 
-        assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).areExactly(1, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return deviceConfigConflictMapping.getConflictingConnectionMethodSolutions()
-                        .get(0).getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.ADD)
-                        && deviceConfigConflictMapping.isSolved();
-            }
-        });
-
-        assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).areExactly(1, new Condition<DeviceConfigConflictMapping>() {
+        assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).areExactly(2, new Condition<DeviceConfigConflictMapping>() {
             @Override
             public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
                 return deviceConfigConflictMapping.getConflictingConnectionMethodSolutions()
@@ -1074,16 +1065,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         DeviceType finalDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
         assertThat(finalDeviceType.getDeviceConfigConflictMappings()).hasSize(6);
 
-        assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(1, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return deviceConfigConflictMapping.getConflictingConnectionMethodSolutions()
-                        .get(0).getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.ADD)
-                        && deviceConfigConflictMapping.isSolved();
-            }
-        });
-
-        assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(1, new Condition<DeviceConfigConflictMapping>() {
+        assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(2, new Condition<DeviceConfigConflictMapping>() {
             @Override
             public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
                 return deviceConfigConflictMapping.getConflictingConnectionMethodSolutions()

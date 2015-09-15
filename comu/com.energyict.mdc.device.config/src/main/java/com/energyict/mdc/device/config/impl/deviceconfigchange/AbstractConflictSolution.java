@@ -29,12 +29,8 @@ public abstract class AbstractConflictSolution<S extends HasId> implements Confl
         this.dataModel = dataModel;
     }
 
-    /**
-     * Sets the dataSource to map when the action is set to {@link DeviceConfigConflictMapping.ConflictingMappingAction#NOT_DETERMINED_YET}
-     *
-     * @param dataSource the DataSource to map
-     */
-    abstract void setMappedDataSource(S dataSource);
+    abstract Reference<S> getOriginDataSourceReference();
+    abstract Reference<S> getDestinationDataSourceReference();
 
     public void update() {
         Save.UPDATE.save(dataModel, this);
@@ -45,6 +41,16 @@ public abstract class AbstractConflictSolution<S extends HasId> implements Confl
         return action;
     }
 
+    @Override
+    public S getOriginDataSource() {
+        return getOriginDataSourceReference().get();
+    }
+
+    @Override
+    public S getDestinationDataSource() {
+        return getDestinationDataSourceReference().get();
+    }
+
     void setConflictingMapping(DeviceConfigConflictMappingImpl conflictingMapping) {
         this.conflictingMapping.set(conflictingMapping);
     }
@@ -52,12 +58,21 @@ public abstract class AbstractConflictSolution<S extends HasId> implements Confl
     @Override
     public void setSolution(DeviceConfigConflictMapping.ConflictingMappingAction action) {
         this.action = action;
+        clearCorrespondingDataSource();
         this.conflictingMapping.get().recalculateSolvedState(this);
     }
 
     @Override
     public void setSolution(DeviceConfigConflictMapping.ConflictingMappingAction action, S dataSource) {
-        setMappedDataSource(dataSource);
+        this.getDestinationDataSourceReference().set(dataSource);
         setSolution(action);
+    }
+
+    private void clearCorrespondingDataSource() {
+        switch (this.action) {
+            case REMOVE:
+                this.getDestinationDataSourceReference().setNull();
+                break;
+        }
     }
 }

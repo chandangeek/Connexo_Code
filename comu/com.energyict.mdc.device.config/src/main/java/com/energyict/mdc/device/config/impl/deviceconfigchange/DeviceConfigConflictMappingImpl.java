@@ -16,10 +16,8 @@ import java.util.function.Predicate;
 
 /**
  * Straightforward implementation of a DeviceConfigConflictMapping
- *
- * TODO validate that there is only one solution per conflictingMethod or conflictingSecuritySet
- *
  */
+@OnlyOneSolutionPerDataSource(groups = {Save.Create.class, Save.Update.class})
 public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapping{
 
     private final DataModel dataModel;
@@ -42,7 +40,6 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
         public String fieldName() {
             return javaFieldName;
         }
-
     }
 
     @IsPresent
@@ -127,14 +124,18 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
         return conflictingConnectionMethodSolution -> conflictingConnectionMethodSolution.getConflictingMappingAction().equals(ConflictingMappingAction.NOT_DETERMINED_YET);
     }
 
-    public void newConflictingConnectionMethods(PartialConnectionTask origin, PartialConnectionTask destination) {
+    public ConflictingConnectionMethodSolution newConflictingConnectionMethods(PartialConnectionTask origin, PartialConnectionTask destination) {
         markAsNotSolved();
-        this.connectionMethodSolutions.add(dataModel.getInstance(ConflictingConnectionMethodSolutionImpl.class).initialize(this, origin, destination));
+        ConflictingConnectionMethodSolution connectionMethodSolution = dataModel.getInstance(ConflictingConnectionMethodSolutionImpl.class).initialize(this, origin, destination);
+        this.connectionMethodSolutions.add(connectionMethodSolution);
+        return connectionMethodSolution;
     }
 
-    public void newConflictingSecurityPropertySets(SecurityPropertySet origin, SecurityPropertySet destination) {
+    public ConflictingSecuritySetSolution newConflictingSecurityPropertySets(SecurityPropertySet origin, SecurityPropertySet destination) {
         markAsNotSolved();
-        this.securitySetSolutions.add(dataModel.getInstance(ConflictingSecuritySetSolutionImpl.class).initialize(this, origin, destination));
+        ConflictingSecuritySetSolution securitySetSolution = dataModel.getInstance(ConflictingSecuritySetSolutionImpl.class).initialize(this, origin, destination);
+        this.securitySetSolutions.add(securitySetSolution);
+        return securitySetSolution;
     }
 
     public void removeConnectionMethodSolution(ConflictingConnectionMethodSolution conflictingConnectionMethodSolution) {

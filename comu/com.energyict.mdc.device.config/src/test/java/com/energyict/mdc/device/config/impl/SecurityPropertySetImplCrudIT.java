@@ -716,7 +716,7 @@ public class SecurityPropertySetImplCrudIT {
     }
 
 
-    private static void enhanceEventServiceForConflictCalculation(){
+    private static void enhanceEventServiceForConflictCalculation() {
         doAnswer(invocationOnMock -> {
             LocalEvent localEvent = mock(LocalEvent.class);
             com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
@@ -822,7 +822,7 @@ public class SecurityPropertySetImplCrudIT {
 
         DeviceConfigConflictMapping deviceConfigConflictMapping1 = deviceType.getDeviceConfigConflictMappings().get(0);
         ConflictingSecuritySetSolution conflictingSecuritySetSolution1 = deviceConfigConflictMapping1.getConflictingSecuritySetSolutions().get(0);
-        conflictingSecuritySetSolution1.setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.ADD);
+        conflictingSecuritySetSolution1.setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE);
         DeviceConfigConflictMapping deviceConfigConflictMapping2 = deviceType.getDeviceConfigConflictMappings().get(1);
         ConflictingSecuritySetSolution conflictingSecuritySetSolution2 = deviceConfigConflictMapping2.getConflictingSecuritySetSolutions().get(0);
         conflictingSecuritySetSolution2.setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE);
@@ -830,16 +830,7 @@ public class SecurityPropertySetImplCrudIT {
         DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
         Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).hasSize(2);
 
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).areExactly(1, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return deviceConfigConflictMapping.getConflictingSecuritySetSolutions()
-                        .get(0).getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.ADD)
-                        && deviceConfigConflictMapping.isSolved();
-            }
-        });
-
-        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).areExactly(1, new Condition<DeviceConfigConflictMapping>() {
+        Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).areExactly(2, new Condition<DeviceConfigConflictMapping>() {
             @Override
             public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
                 return deviceConfigConflictMapping.getConflictingSecuritySetSolutions()
@@ -855,16 +846,7 @@ public class SecurityPropertySetImplCrudIT {
         DeviceType finalDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
         Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).hasSize(6);
 
-        Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(1, new Condition<DeviceConfigConflictMapping>() {
-            @Override
-            public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
-                return deviceConfigConflictMapping.getConflictingSecuritySetSolutions()
-                        .get(0).getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.ADD)
-                        && deviceConfigConflictMapping.isSolved();
-            }
-        });
-
-        Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(1, new Condition<DeviceConfigConflictMapping>() {
+        Assertions.assertThat(finalDeviceType.getDeviceConfigConflictMappings()).areExactly(2, new Condition<DeviceConfigConflictMapping>() {
             @Override
             public boolean matches(DeviceConfigConflictMapping deviceConfigConflictMapping) {
                 return deviceConfigConflictMapping.getConflictingSecuritySetSolutions()

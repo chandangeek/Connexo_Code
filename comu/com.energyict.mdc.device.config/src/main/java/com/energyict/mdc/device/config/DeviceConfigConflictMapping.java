@@ -15,7 +15,6 @@ import java.util.List;
  */
 public interface DeviceConfigConflictMapping extends HasId {
     enum ConflictingMappingAction {
-        ADD,
         REMOVE,
         MAP,
         NOT_DETERMINED_YET
