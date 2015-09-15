@@ -7,6 +7,7 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.InternalDirectoryImpl;
 import com.elster.jupiter.users.rest.UserDirectoryInfo;
 import com.elster.jupiter.users.rest.UserDirectoryInfos;
 import com.elster.jupiter.users.security.Privileges;
@@ -99,20 +100,35 @@ public class UserDirectoryResource {
                     fi.setDefault(false);
                     fi.save();
                 }
-                LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
-                ldapUserDirectory.setBackupUrl(info.backupUrl);
-                ldapUserDirectory.setDomain(info.name);
-                ldapUserDirectory.setUrl(info.url);
-                ldapUserDirectory.setSecurity(info.securityProtocol);
-                ldapUserDirectory.setBaseGroup(info.baseGroup);
-                ldapUserDirectory.setBaseUser(info.baseUser);
-                ldapUserDirectory.setDefault(info.isDefault);
-                ldapUserDirectory.setPrefix(info.prefix);
-                ldapUserDirectory.setType(info.type);
-                ldapUserDirectory.save();
+                if(info.name.equals("Local")){
+                    Optional<UserDirectory> userDirectory = userService.findUserDirectory(info.name);
+                    if(userDirectory.isPresent()){
+                        userDirectory.get().setDefault(true);
+                        userDirectory.get().save();
+                    }
+                }else {
+                    LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
+                    ldapUserDirectory.setBackupUrl(info.backupUrl);
+                    ldapUserDirectory.setDomain(info.name);
+                    ldapUserDirectory.setUrl(info.url);
+                    ldapUserDirectory.setSecurity(info.securityProtocol);
+                    ldapUserDirectory.setBaseGroup(info.baseGroup);
+                    ldapUserDirectory.setBaseUser(info.baseUser);
+                    ldapUserDirectory.setDefault(info.isDefault);
+                    ldapUserDirectory.setPrefix(info.prefix);
+                    ldapUserDirectory.setType(info.type);
+                    ldapUserDirectory.save();
+                }
             }
         });
-        return getUserDirectory(id,securityContext);
+        if(id == 0 ){
+            UserDirectory userDirectory = userService.findUserDirectory(info.name).get();
+            LdapUserDirectory ldapUserDirectory = userService.createApacheDirectory(userDirectory.getDomain());
+            ldapUserDirectory.setDefault(userDirectory.isDefault());
+            return new UserDirectoryInfo(ldapUserDirectory);
+        }else {
+            return getUserDirectory(id, securityContext);
+        }
     }
 
     @DELETE
