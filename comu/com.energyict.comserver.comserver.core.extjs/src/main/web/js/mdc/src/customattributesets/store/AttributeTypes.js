@@ -11,7 +11,7 @@ Ext.define('Mdc.customattributesets.store.AttributeTypes', {
         url: '/api/mds/customattributesets/domains',
         reader: {
             type: 'json',
-            root: 'domains'
+            root: 'domainExtensions'
         }
     }
 });

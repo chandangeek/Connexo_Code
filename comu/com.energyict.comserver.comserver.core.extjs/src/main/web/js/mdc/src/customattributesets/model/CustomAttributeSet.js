@@ -11,7 +11,6 @@ Ext.define('Mdc.customattributesets.model.CustomAttributeSet', {
         {name: 'domainName', type: 'string'},
         {name: 'isRequired', type: 'boolean'},
         {name: 'isVersioned', type: 'boolean'},
-        {name: 'status', type: 'boolean'},
         {name: 'viewPrivileges', type: 'auto'},
         {name: 'editPrivileges', type: 'auto'},
         {name: 'defaultViewPrivileges', type: 'auto'},

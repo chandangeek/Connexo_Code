@@ -2,21 +2,20 @@ Ext.define('Mdc.customattributesets.service.AttributeTransformer', {
     singleton: true,
 
     transform: function (attributes) {
-        var transformedAttributes = [];
+        var transformedAttributes = [],
+            attributeOrder = 1;
 
         Ext.each(attributes, function(attribute) {
-            var transformedAttribute = {},
-                valueFactory = attribute.valueFactory,
-                possibleValues = attribute.possibleValues;
+            var transformedAttribute = {};
 
             transformedAttribute.name = attribute.name;
             transformedAttribute.required = attribute.required;
-            if (valueFactory) {
-                transformedAttribute.customAttributeType = {};
-                transformedAttribute.customAttributeType.name = valueFactory.valueType;
-                if (possibleValues && !Ext.isEmpty(possibleValues.allValues)) transformedAttribute.customAttributeType.possibleValues = possibleValues.allValues;
-            }
-            if (possibleValues) transformedAttribute.defaultValue = possibleValues.default;
+            transformedAttribute.customAttributeType = {};
+            transformedAttribute.customAttributeType.name = attribute.typeSimpleName;
+            transformedAttribute.customAttributeType.possibleValues = attribute.allValues;
+            transformedAttribute.defaultValue = attribute.defaultValue;
+            transformedAttribute.order = attributeOrder;
+            attributeOrder += 1;
             transformedAttributes.push(transformedAttribute);
         });
 

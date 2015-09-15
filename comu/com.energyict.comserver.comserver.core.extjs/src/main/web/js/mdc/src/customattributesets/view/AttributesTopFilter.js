@@ -8,7 +8,7 @@ Ext.define('Mdc.customattributesets.view.AttributesTopFilter', {
         {
             type: 'combobox',
             minWidth: 200,
-            dataIndex: 'domain',
+            dataIndex: 'domainExtension',
             emptyText: Uni.I18n.translate('customattributesets.topfilter.customattributetypeempty', 'MDC', 'Custom attribute set type'),
             displayField: 'localizedValue',
             valueField: 'value',

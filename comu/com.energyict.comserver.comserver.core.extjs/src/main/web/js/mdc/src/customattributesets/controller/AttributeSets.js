@@ -39,9 +39,6 @@ Ext.define('Mdc.customattributesets.controller.AttributeSets', {
 
     init: function () {
         this.control({
-            'custom-attribute-sets-action-menu': {
-                activate: this.manageActiveMenuButtons
-            },
             'custom-attribute-sets-setup custom-attribute-sets-grid': {
                 select: this.showAttributes
             },
@@ -49,40 +46,12 @@ Ext.define('Mdc.customattributesets.controller.AttributeSets', {
                 click: this.editLevels
             },
             'custom-attribute-set-edit-levels': {
-                saverecord: this.saveLevels
-            },
-            'custom-attribute-sets-action-menu #custom-attribute-sets-activate': {
-                click: this.activateSet
-            },
-            'custom-attribute-sets-action-menu #custom-attribute-sets-deactivate': {
-                click: this.deactivateSet
+                saverecord: this.saveRecord
             }
         });
     },
 
-    saveLevels: function(record) {
-        this.saveRecord(record, 'editlevels');
-    },
-
-    activateSet: function(button) {
-        var record = this.getRecordFromBtn(button);
-
-        if (record) {
-            record.set('status', true);
-            this.saveRecord(record, 'activation');
-        }
-    },
-
-    deactivateSet: function(button) {
-        var record = this.getRecordFromBtn(button);
-
-        if (record) {
-            record.set('status', false);
-            this.saveRecord(record, 'activation');
-        }
-    },
-
-    saveRecord: function(record, param) {
+    saveRecord: function(record) {
         var me = this,
             setupPage = me.getPage(),
             attributeSetsGrid = me.getAttributeSetsGrid();
@@ -90,13 +59,6 @@ Ext.define('Mdc.customattributesets.controller.AttributeSets', {
         setupPage.setLoading(true);
 
         record.save({
-            params: {action: param},
-            success: function (record) {
-
-            },
-            failure: function (record, operation) {
-                console.log('activationFailed');
-            },
             callback: function () {
                 setupPage.setLoading(false);
                 attributeSetsGrid.getStore().load();
@@ -116,19 +78,6 @@ Ext.define('Mdc.customattributesets.controller.AttributeSets', {
         var actionMenu = button.up('custom-attribute-sets-action-menu');
 
         return actionMenu ? actionMenu.record : null;
-    },
-
-    manageActiveMenuButtons: function (menu) {
-        var record = menu.record,
-            activateBtn = menu.down('#custom-attribute-sets-activate'),
-            deactivateBtn = menu.down('#custom-attribute-sets-deactivate'),
-            status;
-
-        if (!Ext.isEmpty(record)) {
-            status = record.get('status');
-            activateBtn.setVisible(!status);
-            deactivateBtn.setVisible(status);
-        }
     },
 
     showAttributes: function (selectionModel, record) {

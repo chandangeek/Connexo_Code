@@ -20,7 +20,7 @@ Ext.define('Mdc.customattributesets.view.AttributeSetsGrid', {
             {
                 header: Uni.I18n.translate('general.type', 'MDC', 'Type'),
                 dataIndex: 'domainName',
-                flex: 1
+                flex: 2
             },
             {
                 header: Uni.I18n.translate('general.required', 'MDC', 'Required'),
@@ -45,7 +45,7 @@ Ext.define('Mdc.customattributesets.view.AttributeSetsGrid', {
             {
                 header: Uni.I18n.translate('customattributesets.timesliced', 'MDC', 'Time-Sliced'),
                 dataIndex: 'isVersioned',
-                flex: 2,
+                flex: 1,
                 renderer: function (value) {
                     return value ?
                         Uni.I18n.translate('general.yes', 'MDC', 'Yes') :
@@ -53,17 +53,8 @@ Ext.define('Mdc.customattributesets.view.AttributeSetsGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('general.status', 'MDC', 'Status'),
-                dataIndex: 'status',
-                flex: 1,
-                renderer: function (value) {
-                    return value ?
-                        Uni.I18n.translate('general.active', 'MDC', 'Active') :
-                        Uni.I18n.translate('general.noactive', 'MDC', 'Not active');
-                }
-            },
-            {
                 xtype: 'uni-actioncolumn',
+                privileges: Mdc.privileges.MasterData.admin,
                 menu: {
                     xtype: 'custom-attribute-sets-action-menu',
                     itemId: 'custom-attribute-sets-action-menu-id'

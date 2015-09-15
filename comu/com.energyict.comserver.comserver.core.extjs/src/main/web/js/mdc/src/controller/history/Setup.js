@@ -65,7 +65,7 @@ Ext.define('Mdc.controller.history.Setup', {
                 customattributesets: {
                     title: Uni.I18n.translate('general.customAttributeSets', 'MDC', 'Custom attribute sets'),
                     route: 'customattributesets',
-//                    privileges: Mdc.privileges.MasterData.view,
+                    privileges: Mdc.privileges.MasterData.view,
                     controller: 'Mdc.customattributesets.controller.AttributeSets',
                     action: 'showCustomAttributeSets'
                 },
