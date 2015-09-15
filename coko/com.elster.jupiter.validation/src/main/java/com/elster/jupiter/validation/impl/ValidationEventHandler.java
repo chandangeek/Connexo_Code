@@ -3,6 +3,7 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
+import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.StorerProcess;
@@ -21,8 +22,9 @@ import java.util.Map;
 @Component(name = "com.elster.jupiter.validation.validationeventhandler", service = Subscriber.class, immediate = true)
 public class ValidationEventHandler extends EventHandler<LocalEvent> {
 
-    private static final String CREATEDTOPIC = "com/elster/jupiter/metering/reading/CREATED";
-    private static final String REMOVEDTOPIC = "com/elster/jupiter/metering/reading/DELETED";
+    private static final String CREATEDTOPIC = EventType.READINGS_CREATED.topic();
+    private static final String REMOVEDTOPIC = EventType.READINGS_DELETED.topic();
+    private static final String ADVANCEDTOPIC = EventType.METER_ACTIVATION_ADVANCED.topic();
 
     private volatile ValidationServiceImpl validationService;
 
@@ -46,6 +48,35 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
         if (event.getType().getTopic().equals(REMOVEDTOPIC)) {
         	Channel.ReadingsDeletedEvent deleteEvent = (Channel.ReadingsDeletedEvent) event.getSource();
         	handleDeleteEvent(deleteEvent);
+        }
+        if (event.getType().getTopic().equals(ADVANCEDTOPIC)) {
+            EventType.MeterActivationAdvancedEvent advanceEvent = (EventType.MeterActivationAdvancedEvent) event.getSource();
+            handleAdvanceEvent(advanceEvent);
+        }
+    }
+
+    private void handleAdvanceEvent(EventType.MeterActivationAdvancedEvent advanceEvent) {
+        validationService.getIMeterActivationValidations(advanceEvent.getAdvanced())
+                .stream()
+                .forEach(iMeterActivationValidation -> {
+                    iMeterActivationValidation.getChannelValidations()
+                            .forEach(iChannelValidation -> iChannelValidation.updateLastChecked(advanceEvent.getAdvanced().getStart()));
+                    iMeterActivationValidation.save();
+                });
+        if (advanceEvent.getShrunk() != null) {
+            validationService.getIMeterActivationValidations(advanceEvent.getShrunk())
+                    .stream()
+                    .forEach(iMeterActivationValidation -> {
+                        iMeterActivationValidation.getChannelValidations()
+                                .forEach(iChannelValidation -> {
+                                    Instant end = advanceEvent.getShrunk().getEnd();
+                                    if (iChannelValidation.getLastChecked() != null && end.isBefore(iChannelValidation.getLastChecked())) {
+                                        iChannelValidation.updateLastChecked(end);
+                                    }
+                                    ;
+                                });
+                        iMeterActivationValidation.save();
+                    });
         }
     }
 

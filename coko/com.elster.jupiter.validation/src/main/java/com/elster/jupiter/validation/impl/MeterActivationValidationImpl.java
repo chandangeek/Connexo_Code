@@ -70,7 +70,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
 
     @Override
     public void setRuleSet(ValidationRuleSet ruleSet) {
-        this.ruleSet.set((IValidationRuleSet) ruleSet);       
+        this.ruleSet.set((IValidationRuleSet) ruleSet);
     }
 
     @Override
@@ -81,7 +81,7 @@ class MeterActivationValidationImpl implements IMeterActivationValidation {
         	.map(IChannelValidation::getLastChecked)
         	.min(Comparator.naturalOrder())
         	.filter(lastChecked -> lastChecked.isAfter(channelValidation.getLastChecked()))
-        	.ifPresent(lastChecked -> channelValidation.updateLastChecked(lastChecked));        
+        	.ifPresent(channelValidation::updateLastChecked);
         channelValidations.add(channelValidation);
         return channelValidation;
     }
