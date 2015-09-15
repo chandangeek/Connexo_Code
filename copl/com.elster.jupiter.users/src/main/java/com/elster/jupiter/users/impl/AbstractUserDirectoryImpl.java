@@ -85,7 +85,11 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
     }
 
     public void delete(){
-        dataModel.remove(this);
+        if(!isDefault()) {
+            dataModel.remove(this);
+        }else{
+            //message for not deleted
+        }
     }
 
     @Override
