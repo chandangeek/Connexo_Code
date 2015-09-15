@@ -3,8 +3,15 @@ package com.elster.jupiter.fileimport.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.fileimport.*;
-import com.elster.jupiter.messaging.*;
+import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.fileimport.FileImporterFactory;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
@@ -15,6 +22,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.User;
@@ -29,12 +37,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -53,6 +55,11 @@ import java.util.Collections;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -147,14 +154,16 @@ public class FileImportServiceIT {
     private DestinationSpec destination;
     @Mock
     private SubscriberSpec subscriberSpec;
+    @Mock
+    private TimeService timeService;
 
 
     private class MockModule extends AbstractModule {
 
         @Override
         protected void configure() {
+            bind(TimeService.class).toInstance(timeService);
             bind(FileImportService.class).to(FileImportServiceImpl.class).in(Scopes.SINGLETON);
-
         }
     }
 
