@@ -281,7 +281,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
 
         MeteringService meteringService = inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter newMeter = amrSystem.newMeter("Meter");
+        Meter newMeter = amrSystem.newMeter("Meter").create();
         ReadingType readingType1Min = meteringService.createReadingType("0.0.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 1-minute");
         ReadingType readingType3Min = meteringService.createReadingType("0.0.14.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 3-minute");
         ReadingType registerReadingType = meteringService.createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake register RT");
@@ -343,7 +343,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
 
         MeteringService meteringService = inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter newMeter = amrSystem.newMeter("Meter");
+        Meter newMeter = amrSystem.newMeter("Meter").create();
         ReadingType readingType = meteringService.createReadingType("0.0.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 1-minute");
         Channel channel = newMeter.activate(now).createChannel(readingType);
         
@@ -405,7 +405,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
 
         MeteringService meteringService = inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter newMeter = amrSystem.newMeter("Meter");
+        Meter newMeter = amrSystem.newMeter("Meter").create();
         ReadingType registerReadingType = meteringService.createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake register RT");
         MeterActivation meterActivation = newMeter.activate(now);
         Channel registerChannel = meterActivation.createChannel(registerReadingType);
@@ -509,7 +509,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
     public void testCloseIssue() {
         MeteringService meteringService = inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        Meter newMeter = amrSystem.newMeter("Meter");
+        Meter newMeter = amrSystem.newMeter("Meter").create();
         ReadingType readingType1Min = meteringService.createReadingType("0.0.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 1-minute");
         ReadingType readingType3Min = meteringService.createReadingType("0.0.14.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 3-minute");
         MeterActivation meterActivation = newMeter.activate(Instant.now());
