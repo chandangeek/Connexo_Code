@@ -49,7 +49,7 @@ public class UsagePointDataInfoFactory {
 
     public RegisterDataInfo createRegisterDataInfo(BaseReadingRecord brr) {
         RegisterDataInfo registerDataInfo = new RegisterDataInfo();
-        registerDataInfo.readingTime = brr.getReportedDateTime();
+        registerDataInfo.readingTime = brr.getTimeStamp();
         registerDataInfo.value = brr.getValue();
         return registerDataInfo;
     }
