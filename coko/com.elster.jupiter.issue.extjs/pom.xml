@@ -5,11 +5,11 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT-IT1</version>
     </parent>
 
     <artifactId>issue.extjs</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT-IT1</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.issue.extjs</name>
 
