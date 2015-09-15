@@ -6,11 +6,11 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT-IT1</version>
     </parent>
 
     <artifactId>kore.bom</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT-IT1</version>
     <packaging>pom</packaging>
     <name>[Jupiter] com.elster.jupiter.kore.bom</name>
 
@@ -20,7 +20,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>platform.bom</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -29,212 +29,212 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>bpmissueaction</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>cbo</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>config.extjs</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>data.lifecycle</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>estimation</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.0.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>estimation.extjs</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.0.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>estimation.rest</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.0.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>estimators</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.0.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>export</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <version>2.0.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>export.extjs</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>export.processors</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>export.rest</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>gogo</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>ids</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <version>2.0.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>issue</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <version>2.0.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>issue.extjs</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>issue.rest</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <version>2.0.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>kpi</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>metering</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <version>2.0.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>metering.cim</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>metering.groups</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <version>2.0.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>metering.imports</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <version>1.0.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>metering.rest</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>parties</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>parties.rest</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>system.app</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>system.app.help</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>systemadmin.extjs</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>systemadmin.rest</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>validation</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <version>2.0.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>validators</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <version>2.0.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>validation.rest</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <version>2.0.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>yellowfin.extjs</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>yellowfin.groups</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>yellowfin.rest</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>provided</scope>
             </dependency>
 
