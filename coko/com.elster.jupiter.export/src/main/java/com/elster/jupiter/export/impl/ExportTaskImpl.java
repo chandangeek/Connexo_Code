@@ -353,15 +353,10 @@ class ExportTaskImpl implements IExportTask {
                 .setName(UUID.randomUUID().toString())
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(dataExportService.getDestination())
-                .setPayLoad(getName());
-        if (scheduleImmediately) {
-            builder.scheduleImmediately();
-        }
+                .setPayLoad(getName())
+                .scheduleImmediately(scheduleImmediately)
+                .setFirstExecution(nextExecution);
         RecurrentTask task = builder.build();
-        if (nextExecution != null) {
-            task.setNextExecution(nextExecution);
-        }
-        task.save();
         recurrentTask.set(task);
         Save.CREATE.save(dataModel, this);
     }
