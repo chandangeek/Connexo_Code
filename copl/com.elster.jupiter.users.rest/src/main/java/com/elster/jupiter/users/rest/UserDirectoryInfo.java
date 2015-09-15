@@ -2,6 +2,8 @@ package com.elster.jupiter.users.rest;
 
 
 import com.elster.jupiter.users.LdapUserDirectory;
+import com.elster.jupiter.users.UserDirectory;
+import com.elster.jupiter.users.impl.AbstractLdapDirectoryImpl;
 
 public class UserDirectoryInfo {
 

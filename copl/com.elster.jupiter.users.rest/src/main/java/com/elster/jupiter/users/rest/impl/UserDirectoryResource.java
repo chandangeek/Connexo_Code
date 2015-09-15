@@ -1,34 +1,45 @@
 package com.elster.jupiter.users.rest.impl;
 
 
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.AbstractLdapDirectoryImpl;
 import com.elster.jupiter.users.impl.InternalDirectoryImpl;
 import com.elster.jupiter.users.rest.UserDirectoryInfo;
 import com.elster.jupiter.users.rest.UserDirectoryInfos;
 import com.elster.jupiter.users.security.Privileges;
+import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Path("/userdirectories")
 public class UserDirectoryResource {
 
     private final UserService userService;
     private final TransactionService transactionService;
+    private final RestQueryService restQueryService;
 
     @Inject
-    public UserDirectoryResource(UserService userService, TransactionService transactionService) {
+    public UserDirectoryResource(UserService userService, TransactionService transactionService,RestQueryService restQueryService) {
         this.transactionService = transactionService;
         this.userService = userService;
+        this.restQueryService = restQueryService;
     }
 
 
@@ -36,17 +47,24 @@ public class UserDirectoryResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE})
     public UserDirectoryInfos getUserDirectory(@Context UriInfo uriInfo) {
-        List<UserDirectory> userDirectory = userService.getUserDirectories();
-        List<LdapUserDirectory> ldapDirectories = userService.getLdapDirectories();
-        Optional<UserDirectory> usr = userDirectory.stream()
-                .filter(s -> s.getDomain().contains("Local"))
-                .findFirst();
-        if (usr.isPresent()) {
-            LdapUserDirectory ldapUserDirectory = userService.createApacheDirectory(usr.get().getDomain());
-            ldapUserDirectory.setDefault(usr.get().isDefault());
-            ldapDirectories.add(ldapUserDirectory);
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+        List<AbstractLdapDirectoryImpl> userDirectory = (List<AbstractLdapDirectoryImpl>)(List<?>)getUserDirectoriesQuery().select(queryParameters, Order.ascending("domain").toLowerCase());
+        List<LdapUserDirectory> ldapUserDirectories = new ArrayList<>();
+        for(int i=0; i<userDirectory.size();i++){
+            try {
+                ldapUserDirectories.add((LdapUserDirectory) userDirectory.get(i));
+            }catch (ClassCastException e ){
+                Optional<UserDirectory> usr = userService.findUserDirectory("Local");
+                if(usr.isPresent()){
+                    LdapUserDirectory ldapUserDirectory = userService.createApacheDirectory(usr.get().getDomain());
+                    ldapUserDirectory.setDefault(usr.get().isDefault());
+                    ldapUserDirectories.add(ldapUserDirectory);
+                }
+            }
         }
-        return new UserDirectoryInfos(ldapDirectories);
+        UserDirectoryInfos infos = new UserDirectoryInfos(queryParameters.clipToLimit(ldapUserDirectories));
+        infos.total = queryParameters.determineTotal(ldapUserDirectories.size());
+        return infos;
 
     }
 
@@ -142,5 +160,10 @@ public class UserDirectoryResource {
             context.commit();
             return Response.status(Response.Status.OK).build();
         }
+    }
+
+    private RestQuery<UserDirectory> getUserDirectoriesQuery() {
+        Query<UserDirectory> query = userService.getLdapDirectories();
+        return restQueryService.wrap(query);
     }
 }
