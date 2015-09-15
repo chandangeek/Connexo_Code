@@ -7,6 +7,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -26,6 +27,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.streams.ExtraCollectors;
@@ -354,6 +356,12 @@ public final class ChannelImpl implements ChannelContract {
         return ReadingQualityRecordImpl.from(dataModel, type, getCimChannel(readingType).orElseThrow(IllegalArgumentException::new), timestamp);
     }
 
+    ReadingQualityRecord copyReadingQuality(ReadingQualityRecord source) {
+        ReadingQualityRecordImpl readingQualityRecord = ReadingQualityRecordImpl.from(dataModel, source.getType(), getCimChannel(source.getReadingType()).get(), source.getReadingTimestamp());
+        readingQualityRecord.copy(source);
+        return readingQualityRecord;
+    }
+
     @Override
     public Optional<CimChannel> getCimChannel(ReadingType readingType) {
         Stream<CimChannel> main = mainReadingType.map(rt -> (CimChannel) new CimChannelAdapter(this, rt, dataModel, meteringService)).map(Stream::of).orElse(Stream.empty());
@@ -487,6 +495,7 @@ public final class ChannelImpl implements ChannelContract {
         if (getBulkQuantityReadingType().isPresent() && getCimChannel(getBulkQuantityReadingType().get()).isPresent()) {
             getCimChannel(getBulkQuantityReadingType().get()).get().confirmReadings(readings);
         }
+        Set<Instant> readingTimes = readings.stream().map(reading -> reading.getTimeStamp()).collect(Collectors.toSet());
     }
 
     @Override
@@ -499,17 +508,43 @@ public final class ChannelImpl implements ChannelContract {
         readingTimes.forEach(instant -> timeSeries.get().removeEntry(instant));
         qualityRecords.stream()
         	.filter(quality -> readingTimes.contains(quality.getReadingTimestamp()))
-            .forEach(ReadingQualityRecord::delete);
+            .forEach(qualityRecord -> qualityRecord.delete());
         ReadingQualityType rejected = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED);
         readingTimes.forEach(readingTime -> createReadingQuality(rejected, mainReadingType.get(), readingTime).save());
         eventService.postEvent(EventType.READINGS_DELETED.topic(), new ReadingsDeletedEventImpl(this,readingTimes));
     }
-    
+
+    void deleteReadings(List<? extends BaseReadingRecord> readings) {
+        if (readings.isEmpty()) {
+            return;
+        }
+        Set<Instant> readingTimes = readings.stream()
+                .map(BaseReading::getTimeStamp)
+                .collect(Collectors.toSet());
+        readingTimes.forEach(instant -> timeSeries.get().removeEntry(instant));
+    }
+
     @Override
 	public List<Instant> toList(Range<Instant> range) {
 		return timeSeries.get().toList(range);
 	}
-    
+
+    void copyReadings(List<BaseReadingRecord> readings) {
+        if (readings.isEmpty()) {
+            return;
+        }
+
+        TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
+
+        readings.stream()
+                .map(BaseReadingRecordImpl.class::cast)
+                .map(baseReadingRecord -> Pair.of(baseReadingRecord.getTimeStamp(), baseReadingRecord.getEntry().getValues()))
+                .forEach(pair -> storer.add(getTimeSeries(), pair.getFirst(), pair.getLast()));
+
+        storer.execute();
+
+    }
+
     public static class ReadingsDeletedEventImpl implements Channel.ReadingsDeletedEvent {
 		private ChannelImpl channel;
 		private Set<Instant> readingTimes;

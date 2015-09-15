@@ -196,5 +196,21 @@ public enum EventType {
         return eventTypeBuilder;
     }
 
+    public static class MeterActivationAdvancedEvent {
+        private final MeterActivation advanced;
+        private final MeterActivation shrunk;
 
+        public MeterActivationAdvancedEvent(MeterActivation advanced, MeterActivation shrunk) {
+            this.advanced = advanced;
+            this.shrunk = shrunk;
+        }
+
+        public MeterActivation getAdvanced() {
+            return advanced;
+        }
+
+        public MeterActivation getShrunk() {
+            return shrunk;
+        }
+    }
 }
