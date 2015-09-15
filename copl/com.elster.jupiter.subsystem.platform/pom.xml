@@ -6,11 +6,11 @@
     <parent>
         <groupId>com.elster.jupiter.subsystem</groupId>
         <artifactId>parent</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT-IT1</version>
     </parent>
 
     <artifactId>platform</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT-IT1</version>
     <packaging>pom</packaging>
     <name>[Jupiter Subsystem] com.elster.jupiter.subsystem.platform</name>
 
@@ -21,7 +21,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>platform.bom</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <version>1.1.0-SNAPSHOT-IT1</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -258,7 +258,7 @@
         <dependency>
             <groupId>com.elster.jupiter.subsystem</groupId>
             <artifactId>third-party</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+            <version>1.1.0-SNAPSHOT-IT1</version>
             <type>zip</type>
             <scope>provided</scope>
         </dependency>
