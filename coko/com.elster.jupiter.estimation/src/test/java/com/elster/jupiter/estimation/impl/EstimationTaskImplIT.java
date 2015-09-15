@@ -188,9 +188,12 @@ public class EstimationTaskImplIT {
         readingType = meteringService.getReadingType("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         anotherReadingType = meteringService.getReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
         try (TransactionContext context = transactionService.getContext()) {
-            endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("none");
-            endDeviceGroup.save();
-            anotherEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("also none");
+            endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup()
+                    .setName("none")
+                    .create();
+            anotherEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup()
+                    .setName("also none")
+                    .create();
             anotherEndDeviceGroup.save();
             context.commit();
         }
