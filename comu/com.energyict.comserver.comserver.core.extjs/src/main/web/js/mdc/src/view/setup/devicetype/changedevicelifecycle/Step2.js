@@ -35,10 +35,10 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Step2', {
             Ext.Array.each(result.notMappableStates, function (state) {
                 states += '<li style="margin-left: 20px">' + state.name + '</li>';
             });
-            me.down('#change-device-life-cycle-failed').setText('<h3>' + result.message + '</h3><br><a href="#/administration/devicelifecycles/' + result.currentDeviceLifeCycle.id + '">' +
-                result.currentDeviceLifeCycle.name + '</a> ' + Uni.I18n.translate('deviceLifeCycle.change.errorMsg1', 'MDC', 'has states that cannot be mapped to states of') +
-                ' <a href="#/administration/devicelifecycles/' + result.targetDeviceLifeCycle.id + '">' + result.targetDeviceLifeCycle.name + '</a> ' +
-                Uni.I18n.translate('deviceLifeCycle.change.errorMsg2', 'MDC', 'and there are devices in that states:') + '<br>' + states);
+            me.down('#change-device-life-cycle-failed').setText(Uni.I18n.translate('deviceLifeCycle.change.errorMsg1', 'MDC', '{0} has states that cannot be mapped to states of {1}',
+                ['<h3>' + result.message + '</h3><br><a href="#/administration/devicelifecycles/' + result.currentDeviceLifeCycle.id + '">' + result.currentDeviceLifeCycle.name + '</a>',
+                    '<a href="#/administration/devicelifecycles/' + result.targetDeviceLifeCycle.id + '">' + result.targetDeviceLifeCycle.name + '</a>']) +
+                + Uni.I18n.translate('deviceLifeCycle.change.errorMsg2', 'MDC', 'and there are devices in that states:') + '<br>' + states);
             me.down('#change-device-life-cycle-failed').show();
         }
     }

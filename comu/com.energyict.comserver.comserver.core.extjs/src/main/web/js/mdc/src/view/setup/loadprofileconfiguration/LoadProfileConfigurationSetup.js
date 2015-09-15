@@ -44,6 +44,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
+                            itemId: 'no-load-profile-configs',
                             title: Uni.I18n.translate('loadProfileConfigurations.empty.title', 'MDC', 'No load profile configurations found'),
                             reasons: [
                                 Uni.I18n.translate('loadProfileConfigurations.empty.list.item1', 'MDC', 'No load profile configurations have been defined yet.')

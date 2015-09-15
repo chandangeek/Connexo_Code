@@ -89,7 +89,7 @@ Ext.define('Mdc.view.setup.devicetransitionexecute.ResultPanel', {
                 },
                 handler: function () {
                     if(me.deviceRemoved === true){
-                        me.router.getRoute('search').forward();
+                        me.router.getRoute('devices').forward();
                     } else {
                         me.router.getRoute('devices/device').forward();
                     }

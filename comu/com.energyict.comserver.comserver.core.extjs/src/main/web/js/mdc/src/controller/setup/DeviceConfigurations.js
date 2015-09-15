@@ -399,7 +399,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
                 me.getApplication().fireEvent('changecontentevent', widget);
-                widget.down('#deviceConfigurationEditCreateTitle').setTitle(Uni.I18n.translate('general.adddeviceconfiguration', 'MDC', "Add device configuration"));
+                widget.down('#deviceConfigurationEditCreateTitle').setTitle(Uni.I18n.translate('general.addDeviceConfiguration', 'MDC', "Add device configuration"));
                 me.setRadioButtons(deviceType);
             }
         });

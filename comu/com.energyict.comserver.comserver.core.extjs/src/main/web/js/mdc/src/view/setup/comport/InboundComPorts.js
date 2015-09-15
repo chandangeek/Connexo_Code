@@ -7,7 +7,7 @@ Ext.define('Mdc.view.setup.comport.InboundComPorts', {
     initComponent: function () {
         this.columns = [
             {
-                text: Uni.I18n.translate('comports.inboundcomports','MDC','Inbound comports'),
+                text: Uni.I18n.translate('comports.inboundComports','MDC','Inbound comports'),
                 xtype: 'templatecolumn',
                 tpl: '<table width="100%" border = "0" style="color:dimgrey;font-size:x-small;line-height:110%">' +
                     '<caption style="color:black;font-size:small;line-height:200%;font-weight:bold;text-align:left;caption-side: left">' +

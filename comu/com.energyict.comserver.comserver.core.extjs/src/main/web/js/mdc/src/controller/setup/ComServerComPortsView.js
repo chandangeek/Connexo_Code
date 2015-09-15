@@ -98,7 +98,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             widget,
             addMenus;
 
-
         comPortModel.getProxy().url = url;
         comPortsStore.getProxy().url = url;
         widget = Ext.widget('comServerComPortsView', {
@@ -115,9 +114,15 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             addComPortPoolsStore.removeAll();
             comServerModel.load(id, {
                 success: function (record) {
-                    widget.setLoading(false);
-                    me.getApplication().fireEvent('comServerOverviewLoad', record);
-                    widget.down('comserversidemenu #comserverLink').setText(record.get('name'));
+                    comPortsStore.load({
+                        callback: function () {
+                            widget.down('comServerComPortsGrid').reconfigure(comPortsStore);
+                            widget.setLoading(false);
+                            me.getApplication().fireEvent('comServerOverviewLoad', record);
+                            widget.down('comserversidemenu #comserverLink').setText(record.get('name'));
+                        }
+                    })
+
                 }
             });
         }, false);

@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                 items: [
                     {
                         xtype: 'fieldset',
-                        title: Uni.I18n.translate('general.required','required','Required'),
+                        title: Uni.I18n.translate('general.required','MDC','Required'),
                         defaults: {
                             labelWidth: 200
                         },

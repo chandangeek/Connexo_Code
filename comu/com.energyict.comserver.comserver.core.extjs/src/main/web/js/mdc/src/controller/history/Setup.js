@@ -27,12 +27,12 @@ Ext.define('Mdc.controller.history.Setup', {
             }
         },
         administration: {
-            title: Uni.I18n.translate('general.Administration', 'MDC', 'Administration'),
+            title: Uni.I18n.translate('general.administration', 'MDC', 'Administration'),
             route: 'administration',
             disabled: true,
             items: {
                 logbooktypes: {
-                    title:  Uni.I18n.translate('general.logBookTypes', 'MDC', 'Logbook types'),
+                    title:  Uni.I18n.translate('general.logbookTypes', 'MDC', 'Logbook types'),
                     route: 'logbooktypes',
                     privileges: Mdc.privileges.MasterData.view,
                     controller: 'Mdc.controller.setup.SetupOverview',
@@ -77,7 +77,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showDeviceTypeCreateView'
                         },
                         view: {
-                            title: Uni.I18n.translate('general.Overview','MDC','Overview'),
+                            title: Uni.I18n.translate('general.overview','MDC','Overview'),
                             route: '{deviceTypeId}',
                             privileges: Mdc.privileges.DeviceType.view,
                             controller: 'Mdc.controller.setup.DeviceTypes',

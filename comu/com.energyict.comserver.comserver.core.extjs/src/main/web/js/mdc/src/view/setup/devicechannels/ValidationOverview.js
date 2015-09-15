@@ -39,7 +39,7 @@ Ext.define('Mdc.view.setup.devicechannels.ValidationOverview', {
                         field.show();
                         Ext.Array.each(value.suspectReason, function (rule) {
                             if (rule.key.deleted) {
-                                result += Ext.String.htmlEncode(rule.key.name) + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + ' - ' + rule.value + ' ' + Uni.I18n.translate('general.suspects', 'MDC', 'suspects') + '<br>';
+                                result += Ext.String.htmlEncode(rule.key.name) + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + ' - ' + Uni.I18n.translate('general.xsuspects', 'MDC', '{0} suspects',[rule.value]) + '<br>';
                             } else {
                                 if (Cfg.privileges.Validation.canViewOrAdministrate()) {
                                     url = me.router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({ruleSetId: rule.key.ruleSetVersion.ruleSet.id, versionId: rule.key.ruleSetVersion.id, ruleId: rule.key.id});
@@ -47,7 +47,7 @@ Ext.define('Mdc.view.setup.devicechannels.ValidationOverview', {
                                 } else {
                                     result = Ext.String.htmlEncode(rule.key.name);
                                 }
-                            }   result += ' - ' + Ext.String.htmlEncode(rule.value) + ' ' + Uni.I18n.translate('general.suspects', 'MDC', 'suspects') + '<br>';
+                            }   result += ' - ' +  Uni.I18n.translate('general.xsuspects', 'MDC', '{0} suspects',[rule.value]) + '<br>';
                         });
                         return result;
                     } else {

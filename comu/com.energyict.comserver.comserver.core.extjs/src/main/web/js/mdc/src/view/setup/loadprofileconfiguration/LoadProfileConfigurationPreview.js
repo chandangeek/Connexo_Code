@@ -87,8 +87,8 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
                             arguments = Ext.clone(me.router.arguments);
                             arguments.loadProfileConfigurationId = record.getId();
                             typesString = '<a href="'
-                            + me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').buildUrl(arguments)
-                            + '">0 ' + Uni.I18n.translate('general.channelconfigurations', 'MDC', 'channel configurations') + '</a>';
+                            + me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').buildUrl(arguments) + '">'
+                            + Uni.I18n.translatePlural('general.nrOfChannelConfigurations', 0, 'MDC', 'No channel configurations', '{0} channel configuration', '{0} channel configurations') + '</a>';
                         }
                         return typesString;
                     }

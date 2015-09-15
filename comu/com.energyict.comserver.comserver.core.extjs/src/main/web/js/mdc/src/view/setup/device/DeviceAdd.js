@@ -73,7 +73,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             typeAhead: true,
                             autoSelect: true,
                             labelAlign: 'right',
-                            fieldLabel: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
+                            fieldLabel: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
                             emptyText: Uni.I18n.translate('deviceAdd.type.value', 'MDC', 'Select a device type...'),
                             displayField: 'name',
                             valueField: 'id',
@@ -98,8 +98,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                                     configCombo.getStore().getProxy().setExtraParam('deviceType', valueId);
                                     if (configCombo.isDisabled()) {
                                         configCombo.enable();
-                                    }
-                                    else {
+                                    } else {
                                         configCombo.reset();
                                         configCombo.getStore().reload();
                                     }
@@ -129,15 +128,17 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                         },
                         {
                             xtype: 'combobox',
-                            required: true,
                             msgTarget: 'under',
                             itemId: 'deviceAddConfig',
                             name: 'deviceConfiguration',
                             autoSelect: true,
                             enabled: false,
                             labelAlign: 'right',
-                            fieldLabel: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
+                            fieldLabel: '&nbsp',
                             emptyText: Uni.I18n.translate('deviceAdd.config.value', 'MDC', 'Select a device configuration...'),
+                            afterSubTpl: '<div class="x-form-display-field"><i>'
+                                         + Uni.I18n.translate('deviceAdd.firstSelectDeviceType', 'MDC', 'First select a device type.')
+                                         + '</i></div>',
                             displayField: 'name',
                             valueField: 'id',
                             disabled: true,
