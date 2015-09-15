@@ -12,7 +12,6 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -278,19 +277,13 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     private void persistRecurrentTask() {
-        RecurrentTaskBuilder builder = taskService.newBuilder()
+        RecurrentTask task = taskService.newBuilder()
                 .setName(uuid)
                 .setDestination(dataValidationService.getDestination())
                 .setScheduleExpression(scheduleExpression)
-                .setPayLoad(uuid);
-        if (scheduleImmediately) {
-            builder.scheduleImmediately();
-        }
-        RecurrentTask task = builder.build();
-        if (nextExecution != null) {
-            task.setNextExecution(nextExecution);
-        }
-        task.save();
+                .setPayLoad(uuid)
+                .scheduleImmediately(scheduleImmediately)
+                .setFirstExecution(nextExecution).build();
         recurrentTask.set(task);
     }
 
