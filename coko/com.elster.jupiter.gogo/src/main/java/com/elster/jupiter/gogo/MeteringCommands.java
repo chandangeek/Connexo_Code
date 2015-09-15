@@ -98,13 +98,59 @@ public class MeteringCommands {
             @Override
             public Meter perform() {
                 AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-                Meter meter = amrSystem.newMeter(amrId, mrId);
-                meter.save();
+                Meter meter = amrSystem.newMeter(amrId)
+                        .setMRID(mrId)
+                        .create();
                 return meter;
             }
         });
         System.out.println("meter = " + meter);
         System.out.println(" id = " + meter.getId());
+    }
+
+    public void createUsagePoint(String mrid, String startDate) {
+        Optional<UsagePoint> usagePoint = executeTransaction(new Transaction<Optional<UsagePoint>>() {
+            @Override
+            public Optional<UsagePoint> perform() {
+                Optional<Meter> meter = meteringService.findMeter(mrid);
+                final Instant activationDate = parseEffectiveTimestamp(startDate);
+                if (!meter.isPresent()) {
+                    System.out.println("No meter found with mrid : " + mrid);
+                    return Optional.empty();
+                }
+                Optional<ServiceCategory> serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY);
+                if (serviceCategory.isPresent()) {
+                    UsagePoint newUsagePoint = serviceCategory.get().newUsagePoint(mrid).create();
+                    MeterActivation meterActivation = newUsagePoint.activate(activationDate);
+                    meterActivation.setMeter(meter.get());
+                    return Optional.of(newUsagePoint);
+                } else {
+                    System.out.println("No servicecategory found for ELECTRICITY, this should not happen ...");
+                    return Optional.empty();
+                }
+            }
+        });
+        if (usagePoint.isPresent()) {
+            System.out.println("New UsagePoint created with mrid : " + usagePoint.get().getMRID());
+        } else {
+            System.out.println("No UsagePoint created for " + mrid);
+        }
+    }
+
+    private Instant parseEffectiveTimestamp(String effectiveTimestamp) {
+        try {
+            if (effectiveTimestamp == null) {
+                return this.clock.instant();
+            } else {
+                return LocalDate
+                        .from(DateTimeFormatter.ISO_LOCAL_DATE.parse(effectiveTimestamp))
+                        .atStartOfDay(ZoneId.systemDefault())
+                        .toInstant();
+            }
+        } catch (DateTimeParseException e) {
+            System.out.println("Please respect the following format for the effective timestamp: " + DateTimeFormatter.ISO_LOCAL_DATE.toFormat().toString());
+            throw e;
+        }
     }
 
     public void createActivation(long id, String date, final String... readingTypes) {
