@@ -7,6 +7,8 @@ import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
+import java.time.Instant;
+
 /**
  * RecurrentTaskBuilder implementation that builds instances of RecurrentTaskImpl
  */
@@ -20,6 +22,7 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
     private String payload;
     private DestinationSpec destination;
     private boolean scheduleImmediately;
+    private Instant firstExecution;
     private final DataModel dataModel;
 
     public DefaultRecurrentTaskBuilder(DataModel dataModel, ScheduleExpressionParser scheduleExpressionParser) {
@@ -60,17 +63,26 @@ class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
     }
 
     @Override
-    public RecurrentTaskBuilder scheduleImmediately() {
-        scheduleImmediately = true;
+    public RecurrentTaskBuilder scheduleImmediately(boolean value) {
+        scheduleImmediately = value;
+        return this;
+    }
+
+    @Override
+    public RecurrentTaskBuilder setFirstExecution(Instant instant) {
+        firstExecution = instant;
         return this;
     }
 
     @Override
     public RecurrentTask build() {
         RecurrentTaskImpl recurrentTask = RecurrentTaskImpl.from(dataModel, name, scheduleExpression, destination, payload);
-        if (scheduleImmediately) {
+        if (firstExecution != null) {
+            recurrentTask.setNextExecution(firstExecution);
+        } else if (scheduleImmediately) {
             recurrentTask.updateNextExecution();
         }
+        recurrentTask.save();
         return recurrentTask;
     }
 }

@@ -202,12 +202,11 @@ public class RecurrentTaskIT {
             DestinationSpec destination = queueTableSpec.createDestinationSpec("Destiny", 60);
             RecurrentTask recurrentTask = taskService.newBuilder()
                     .setScheduleExpression(TEMPORAL_EXPRESSION)
-                    .scheduleImmediately()
+                    .scheduleImmediately(true)
                     .setName(NAME)
                     .setPayLoad(PAY_LOAD)
                     .setDestination(destination)
                     .build();
-            recurrentTask.save();
             id = recurrentTask.getId();
             context.commit();
         }
@@ -225,12 +224,11 @@ public class RecurrentTaskIT {
             DestinationSpec destination = queueTableSpec.createDestinationSpec("Destiny", 60);
             RecurrentTask recurrentTask = taskService.newBuilder()
                     .setScheduleExpressionString("0 0 18 * * ? *")
-                    .scheduleImmediately()
+                    .scheduleImmediately(true)
                     .setName(NAME)
                     .setPayLoad(PAY_LOAD)
                     .setDestination(destination)
                     .build();
-            recurrentTask.save();
             id = recurrentTask.getId();
             context.commit();
         }
@@ -251,20 +249,18 @@ public class RecurrentTaskIT {
             DestinationSpec destination = queueTableSpec.createDestinationSpec("Destiny", 60);
             RecurrentTask recurrentTask = taskService.newBuilder()
                     .setScheduleExpressionString("0 0 18 * * ? *")
-                    .scheduleImmediately()
+                    .scheduleImmediately(true)
                     .setName("DUPLICATED")
                     .setPayLoad(PAY_LOAD)
                     .setDestination(destination)
                     .build();
-            recurrentTask.save();
             RecurrentTask recurrentTask2 = taskService.newBuilder()
                     .setScheduleExpressionString("0 0 18 * * ? *")
-                    .scheduleImmediately()
+                    .scheduleImmediately(true)
                     .setName("DUPLICATED")
                     .setPayLoad(PAY_LOAD)
                     .setDestination(destination)
                     .build();
-            recurrentTask2.save();
             fail("violation expected");
         } catch (ConstraintViolationException cve) {
             ConstraintViolation<?> constraintViolation = cve.getConstraintViolations().iterator().next();
@@ -281,12 +277,11 @@ public class RecurrentTaskIT {
             DestinationSpec destination = queueTableSpec.createDestinationSpec("Destiny", 60);
             RecurrentTask recurrentTask = taskService.newBuilder()
                     .setScheduleExpressionString("0 0 18 * * ? *")
-                    .scheduleImmediately()
+                    .scheduleImmediately(true)
                     .setName(NAME)
                     .setPayLoad(PAY_LOAD)
                     .setDestination(destination)
                     .build();
-            recurrentTask.save();
             id = recurrentTask.getId();
             context.commit();
         }
@@ -336,12 +331,11 @@ public class RecurrentTaskIT {
             DestinationSpec destination = queueTableSpec.createDestinationSpec("Destiny", 60);
             RecurrentTask recurrentTask = taskService.newBuilder()
                     .setScheduleExpression(scheduleExpression)
-                    .scheduleImmediately()
+                    .scheduleImmediately(true)
                     .setName(NAME)
                     .setPayLoad(PAY_LOAD)
                     .setDestination(destination)
                     .build();
-            recurrentTask.save();
             id = recurrentTask.getId();
             context.commit();
         }

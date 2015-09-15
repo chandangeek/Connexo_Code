@@ -72,7 +72,7 @@ public class DefaultRecurrentTaskBuilderTest {
     @Test
     public void testCronStringAndScheduleImmediately() {
         RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
-                .scheduleImmediately()
+                .scheduleImmediately(true)
                 .setScheduleExpressionString(CRON_STRING)
                 .setName(NAME)
                 .setPayLoad(PAYLOAD)
@@ -84,7 +84,7 @@ public class DefaultRecurrentTaskBuilderTest {
     @Test
     public void testCronString() {
         RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
-                .scheduleImmediately()
+                .scheduleImmediately(true)
                 .setScheduleExpressionString(CRON_STRING)
                 .setName(NAME)
                 .setPayLoad(PAYLOAD)
@@ -97,7 +97,7 @@ public class DefaultRecurrentTaskBuilderTest {
     @Test
     public void testName() {
         RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
-                .scheduleImmediately()
+                .scheduleImmediately(true)
                 .setScheduleExpressionString(CRON_STRING)
                 .setName(NAME)
                 .setPayLoad(PAYLOAD)
@@ -109,7 +109,7 @@ public class DefaultRecurrentTaskBuilderTest {
     @Test
     public void testPayload() {
         RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
-                .scheduleImmediately()
+                .scheduleImmediately(true)
                 .setScheduleExpressionString(CRON_STRING)
                 .setName(NAME)
                 .setPayLoad(PAYLOAD)
@@ -121,7 +121,7 @@ public class DefaultRecurrentTaskBuilderTest {
     @Test
     public void testDestination() {
         RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
-                .scheduleImmediately()
+                .scheduleImmediately(true)
                 .setScheduleExpressionString(CRON_STRING)
                 .setName(NAME)
                 .setPayLoad(PAYLOAD)
