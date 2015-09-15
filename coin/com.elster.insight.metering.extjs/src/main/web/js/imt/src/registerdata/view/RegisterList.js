@@ -47,34 +47,9 @@ Ext.define('Imt.registerdata.view.RegisterList', {
             header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Last reading value'),
             flex: 1,
             dataIndex: 'lastReadingValue', 
-        },
-//        {
-//            xtype: 'uni-actioncolumn',
-//            menu: {
-//                xtype: 'registerActionMenu',
-//                itemId: 'registerActionMenu'
-//            }
-//        }
-    ];
-//        me.dockedItems = [
-//              {
-//                  xtype: 'pagingtoolbartop',
-//                  store: me.store,
-//                  dock: 'top',
-//                  displayMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.displayMsg', 'IMT', '{0} - {1} of {2} registers'),
-//                  displayMoreMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.displayMoreMsg', 'IMT', '{0} - {1} of more than {2} registers'),
-//                  emptyMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.emptyMsg', 'IMT', 'There are no registers')
-//              },
-//              {
-//                  xtype: 'pagingtoolbarbottom',
-//                  store: me.store,
-//                  params: [
-//                      {mRID: me.mRID}
-//                  ],
-//                  itemsPerPageMsg: Uni.I18n.translate('registerdata.pagingtoolbarbottom.itemsPerPage', 'IMT', 'Register configurations per page'),
-//                  dock: 'bottom'
-//              }
-//          ];
+        }
+        ];
+
         me.callParent(arguments);
     }
 });

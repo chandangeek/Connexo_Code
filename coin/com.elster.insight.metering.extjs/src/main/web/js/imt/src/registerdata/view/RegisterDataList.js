@@ -39,14 +39,7 @@ Ext.define('Imt.registerdata.view.RegisterDataList', {
             header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Delta Value'),
             flex: 1,
             dataIndex: 'deltaValue', 
-        },
-//        {
-//            xtype: 'uni-actioncolumn',
-//            menu: {
-//                xtype: 'registerActionMenu',
-//                itemId: 'registerActionMenu'
-//            }
-//        }
+        }
     ];
         me.dockedItems = [
               {
@@ -55,22 +48,8 @@ Ext.define('Imt.registerdata.view.RegisterDataList', {
                   dock: 'top',
                   isFullTotalCount: true,
                   noBottomPaging: true,
-                  displayMsg: '{2} reading(s)',
-//                  displayMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.displayMsg', 'IMT', '{0} - {1} of {2} registers'),
-//                  displayMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.displayMsg', 'IMT', '{2} register readings'),
-//                  displayMoreMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.displayMoreMsg', 'IMT', '{0} - {1} of more than {2} registers'),
-//                  emptyMsg: Uni.I18n.translate('registerdata.pagingtoolbartop.emptyMsg', 'IMT', 'There are no register readings')
-              },
-//              {
-//                  xtype: 'pagingtoolbarbottom',
-//                  store: me.store,
-//                  params: [
-//                          {mRID: me.mRID,
-//                          registerId: me.registerId}
-//                  ],
-//                  itemsPerPageMsg: Uni.I18n.translate('registerdata.pagingtoolbarbottom.itemsPerPage', 'IMT', 'Register readings per page'),
-//                  dock: 'bottom'
-//              }
+                  displayMsg: '{2} reading(s)'
+              }
           ];
         me.callParent(arguments);
     }
