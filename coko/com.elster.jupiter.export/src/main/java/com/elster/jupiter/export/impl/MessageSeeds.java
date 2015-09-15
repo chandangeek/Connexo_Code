@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
     NO_SUCH_READINGTYPE(1001, Keys.NO_SUCH_READINGTYPE, "Reading type {0} does not exist."),
-    FIELD_CAN_NOT_BE_EMPTY(1002, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty"),
+    FIELD_CAN_NOT_BE_EMPTY(1002, Keys.FIELD_CAN_NOT_BE_EMPTY, "This field is required"),
     FIELD_SIZE_BETWEEN_MIN_AND_MAX(1003, Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX, "Field should be between {min} and {max} characters"),
     NO_SUCH_FORMATTER(1004, Keys.NO_SUCH_FORMATTER, "Formatter {0} does not exist."),
     NAME_MUST_BE_UNIQUE(1005, Keys.NAME_MUST_BE_UNIQUE, "Data export task with such name already exists"),
