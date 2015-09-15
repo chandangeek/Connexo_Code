@@ -33,7 +33,7 @@ Ext.define('Cfg.controller.history.Validation', {
                             privileges: Cfg.privileges.Validation.view,
                             callback: function (route) {
                                 this.getApplication().on('loadRuleSet', function (record) {
-                                    route.setTitle(record.get('name'));
+                                    route.setTitle(Ext.htmlEncode(record.get('name')));
                                     return true;
                                 }, {single: true});
                                 return this;
@@ -135,7 +135,7 @@ Ext.define('Cfg.controller.history.Validation', {
                                                             action: 'showRuleOverview',
                                                             callback: function (route) {
                                                                 this.getApplication().on('loadRule', function (record) {
-                                                                    route.setTitle(record.get('name'));
+                                                                    route.setTitle(Ext.htmlEncode(record.get('name')));
                                                                     return true;
                                                                 }, {single: true});
                                                                 return this;
