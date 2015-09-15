@@ -1157,6 +1157,7 @@ Ext.define('Dxp.controller.Tasks', {
             formErrorsPanel = form.down('#form-errors'),
             propertyForm = form.down('grouped-property-form'),
             selectorPropertyForm = form.down('#data-selector-properties'),
+            dataSelectorCombo = form.down('#data-selector-combo'),
             lastDayOfMonth = false,
             startOnDate,
             timeUnitValue,
@@ -1166,40 +1167,40 @@ Ext.define('Dxp.controller.Tasks', {
 
         propertyForm.updateRecord();
 
-        var dataSelectorCombo = form.down('#data-selector-combo');
         var selectedDataSelector = dataSelectorCombo.findRecord(dataSelectorCombo.valueField, dataSelectorCombo.getValue());
-        if ((selectedDataSelector) && (!selectedDataSelector.get('isDefault'))) {
-            form.down('#export-period-combo').allowBlank = true;
-            form.down('#device-group-combo').allowBlank = true;
-        }
-
         var emptyReadingTypes = (selectedDataSelector) && (selectedDataSelector.get('isDefault')) && (page.down('#readingTypesGridPanel').getStore().data.items.length == 0);
         if (emptyReadingTypes) {
             form.down('#readingTypesFieldContainer').setActiveError(Uni.I18n.translate('dataExport.requiredField','DES','This field is required'));
-
-            form.getForm().markInvalid(
-                Ext.create('Object', {
-                    id: 'readingTypeDataSelector.value.readingTypes',
-                    msg: Uni.I18n.translate('dataExport.requiredField','DES','This field is required')
-                }));
-
-            formErrorsPanel.show();
+        } else {
+            form.down('#readingTypesFieldContainer').unsetActiveError();
         }
+        form.down('#readingTypesFieldContainer').doComponentLayout();
 
         var emptyDestinations = page.down('#task-destinations-grid').getStore().data.items.length == 0;
         if (emptyDestinations) {
             form.down('#destinationsFieldcontainer').setActiveError(Uni.I18n.translate('dataExport.requiredField','DES','This field is required'));
-
-            form.getForm().markInvalid(
-                Ext.create('Object', {
-                    id: 'destinationsFieldcontainer',
-                    msg: Uni.I18n.translate('dataExport.requiredField','DES','This field is required')
-                }));
-
-            formErrorsPanel.show();
+        } else {
+            form.down('#destinationsFieldcontainer').unsetActiveError();
         }
+        form.down('#destinationsFieldcontainer').doComponentLayout();
 
-        if ((form.isValid()) && (!emptyReadingTypes) && (!emptyDestinations)) {
+        var noDataSelectorChosen = !dataSelectorCombo.getValue() || dataSelectorCombo.getValue().length === 0;
+        if (noDataSelectorChosen) {
+            form.down('#dxp-data-selector-container').setActiveError(Uni.I18n.translate('dataExport.requiredField','DES','This field is required'));
+        } else {
+            form.down('#dxp-data-selector-container').unsetActiveError();
+            var formatterCombo = page.down('#file-formatter-combo'),
+                noFormatterChosen = !formatterCombo.getValue() || formatterCombo.getValue().length === 0;
+            if (noFormatterChosen) {
+                form.down('#formatter-container').setActiveError(Uni.I18n.translate('dataExport.requiredField','DES','This field is required'));
+            } else {
+                form.down('#formatter-container').unsetActiveError();
+            }
+            form.down('#formatter-container').doComponentLayout();
+        }
+        form.down('#dxp-data-selector-container').doComponentLayout();
+
+        if ((form.isValid()) && (!emptyReadingTypes) && (!emptyDestinations) && (!noFormatterChosen) && (!noDataSelectorChosen)) {
             var record = me.taskModel || Ext.create('Dxp.model.DataExportTask'),
                 readingTypesStore = page.down('#readingTypesGridPanel').getStore(),
                 arrReadingTypes = [];
@@ -1294,9 +1295,6 @@ Ext.define('Dxp.controller.Tasks', {
             })
             record.setDataSelector(selectorModel);
 
-            var selectedDataSelector = dataSelectorCombo.findRecord(dataSelectorCombo.valueField, dataSelectorCombo.getValue());
-
-
             if (selectedDataSelector.get('isDefault')) {
 
                 record.setStandardDataSelector(null);
@@ -1338,13 +1336,6 @@ Ext.define('Dxp.controller.Tasks', {
             record.destinations();
             record.destinationsStore.removeAll();
             record.destinationsStore.add(page.down('#task-destinations-grid').getStore().data.items);
-            /*record.destinationsStore.add([Ext.create('Dxp.model.Destination', {
-             fileName: 'test',
-             fileExtension: 'csv',
-             fileLocation: '.',
-             type: 'FILE',
-             })]);*/
-
 
             record.endEdit();
             record.save({

@@ -185,13 +185,14 @@ Ext.define('Dxp.view.tasks.Add', {
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.dataSelector', 'DES', 'Data selector'),
+                        itemId: 'dxp-data-selector-container',
                         required: true,
+                        msgTarget: 'under',
                         layout: 'hbox',
                         items: [
                             {
                                 xtype: 'combobox',
                                 itemId: 'data-selector-combo',
-                                allowBlank: false,
                                 name: 'readingTypeDataSelector.value.dataSelector',
                                 width: 235,
                                 queryMode: 'local',
@@ -227,7 +228,6 @@ Ext.define('Dxp.view.tasks.Add', {
                             {
                                 xtype: 'combobox',
                                 itemId: 'device-group-combo',
-                                allowBlank: false,
                                 name: 'readingTypeDataSelector.value.endDeviceGroup',
                                 width: 235,
                                 store: 'Dxp.store.DeviceGroups',
@@ -324,14 +324,12 @@ Ext.define('Dxp.view.tasks.Add', {
                             {
                                 xtype: 'combobox',
                                 itemId: 'export-period-combo',
-                                allowBlank: false,
                                 name: 'readingTypeDataSelector.value.exportPeriod',
                                 width: 235,
                                 queryMode: 'local',
                                 store: 'Dxp.store.ExportPeriods',
                                 editable: false,
                                 disabled: false,
-                                //allowBlank: false,
                                 emptyText: Uni.I18n.translate('addDataExportTask.exportWindowPrompt', 'DES', 'Select an export window...'),
                                 displayField: 'name',
                                 valueField: 'id'
@@ -594,6 +592,7 @@ Ext.define('Dxp.view.tasks.Add', {
                         itemId: 'formatter-container',
                         hidden: true,
                         required: true,
+                        msgTarget: 'under',
                         items: [
                             {
                                 xtype: 'combobox',
@@ -604,7 +603,6 @@ Ext.define('Dxp.view.tasks.Add', {
                                 hidden: true,
                                 store: 'Dxp.store.FileFormatters',
                                 editable: false,
-                                allowBlank: false,
                                 displayField: 'displayName',
                                 valueField: 'name'
                             },
