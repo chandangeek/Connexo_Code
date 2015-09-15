@@ -127,8 +127,7 @@ public class ValidationEvaluatorIT {
             	.code();
             ReadingType readingType1 = meteringService.getReadingType(readingType).get();
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            meter = amrSystem.newMeter("2331");
-            meter.save();
+            meter = amrSystem.newMeter("2331").create();
             meterActivation = meter.activate(date1);
             //meterActivation.createChannel(readingType1);
             ValidationService validationService = injector.getInstance(ValidationService.class);
