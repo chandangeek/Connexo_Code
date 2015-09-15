@@ -70,8 +70,8 @@ class Installer {
                     .setScheduleExpressionString("0 0 18 ? * 1L") // last sunday of the month at 18:00
                     .setDestination(getDestination())
                     .setPayLoad("Data Lifecycle")
-                    .scheduleImmediately()
-                    .build().save();
+                    .scheduleImmediately(true)
+                    .build();
         }
         DestinationSpec destination = getDestination();
         if (!destination.isActive()) {
