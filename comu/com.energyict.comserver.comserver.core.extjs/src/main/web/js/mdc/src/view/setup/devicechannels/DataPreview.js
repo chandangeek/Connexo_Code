@@ -215,7 +215,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 return !Ext.isEmpty(formatValue) ? formatValue + ' ' + measurementType + ' ' + validationResultText : '';
             }
         } else {
-            return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}',[validationResultText]);
+            return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}',[validationResultText], false);
         }
     },
 
@@ -227,7 +227,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         generalItems.push(
             {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),
-                name: 'interval_formatted'
+                name: 'interval_formatted',
+                htmlEncode: false
             },
             {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.readingTime', 'MDC', 'Reading time'),
