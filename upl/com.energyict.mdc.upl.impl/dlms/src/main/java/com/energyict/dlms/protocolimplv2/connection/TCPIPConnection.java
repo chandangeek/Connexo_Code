@@ -108,17 +108,34 @@ public class TCPIPConnection implements DlmsV2Connection {
         if (!usePolling) {
             wpdu = new WPDU();
 
+            //Read the header
             ByteBuffer header = readHeader();
-            readVersion(wpdu, header);
-            readSourceField(wpdu, header);
-            readDestinationField(wpdu, header);
-            int length = (header.getShort()  & 0x0FFFF);
+            wpdu.setVersion(header.getShort() & 0x0FFFF);
+            wpdu.setSource(header.getShort() & 0x0FFFF);
+            wpdu.setDestination(header.getShort() & 0x0FFFF);
+            int length = (header.getShort() & 0x0FFFF);
             wpdu.setLength(length);
 
+            //Read the rest of the frame (APDU)
             byte[] frame = new byte[length];
             int readBytes = readFixedNumberOfBytes(frame);
             if (readBytes != length) {
                 throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Attempted to read out full frame (" + length + " bytes), but received " + readBytes + " bytes instead..."));
+            }
+
+            //Now check if this frame has the correct version, source & destination
+            if (wpdu.getVersion() != WRAPPER_VERSION) {
+                throw new ProtocolException("Received WPDU with wrong WPDU version! Expected [" + WRAPPER_VERSION + "] but received [" + wpdu.getVersion() + "].");
+            }
+            int expectedSource = this.switchAddresses ? this.serverAddress : this.clientAddress;
+            if (wpdu.getSource() != expectedSource) {
+                //Invalid frame. Could be a late response that we considered missing (due to a timeout earlier). Ignore, read in the next full frame.
+                return receiveData();
+            }
+            int expectedDestination = switchAddresses ? this.clientAddress : this.serverAddress;
+            if (wpdu.getDestination() != expectedDestination) {
+                //Invalid frame. Could be a late response that we considered missing (due to a timeout earlier). Ignore, read in the next full frame.
+                return receiveData();
             }
 
             byte[] hdlcLegacyBytes = new byte[3];
@@ -270,29 +287,6 @@ public class TCPIPConnection implements DlmsV2Connection {
         }
 
         return comChannel.read(frame);
-    }
-
-    private void readDestinationField(WPDU wpdu, ByteBuffer header) throws ProtocolException {
-        wpdu.setDestination(header.getShort() & 0x0FFFF);
-        int address = switchAddresses ? this.clientAddress : this.serverAddress;
-        if (wpdu.getDestination() != address) {
-            throw new ProtocolException("Received WPDU with wrong destination address! Expected [" + address + "] but received [" + wpdu.getDestination() + "].");
-        }
-    }
-
-    private void readSourceField(WPDU wpdu, ByteBuffer header) throws ProtocolException {
-        wpdu.setSource(header.getShort() & 0x0FFFF);
-        int address = this.switchAddresses ? this.serverAddress : this.clientAddress;
-        if (wpdu.getSource() != address) {
-            throw new ProtocolException("Received WPDU with wrong source address! Expected [" + address + "] but received [" + wpdu.getSource() + "].");
-        }
-    }
-
-    private void readVersion(WPDU wpdu, ByteBuffer header) throws ProtocolException {
-        wpdu.setVersion(header.getShort() & 0x0FFFF);
-        if (wpdu.getVersion() != WRAPPER_VERSION) {
-            throw new ProtocolException("Received WPDU with wrong WPDU version! Expected [" + WRAPPER_VERSION + "] but received [" + wpdu.getVersion() + "].");
-        }
     }
 
     private ByteBuffer readHeader() throws IOException {
