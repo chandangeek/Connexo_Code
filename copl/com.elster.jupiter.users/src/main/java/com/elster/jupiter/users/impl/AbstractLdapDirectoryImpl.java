@@ -20,7 +20,7 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String url;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
-    private String backupurl;
+    private String backupUrl;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String security;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
@@ -65,7 +65,7 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
 
     @Override
     public String getBackupUrl(){
-        return backupurl;
+        return backupUrl;
     }
 
     @Override
@@ -85,7 +85,7 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
 
     @Override
     public void setBackupUrl(String backupUrl){
-        this.backupurl = backupUrl;
+        this.backupUrl = backupUrl;
     }
 
     @Override

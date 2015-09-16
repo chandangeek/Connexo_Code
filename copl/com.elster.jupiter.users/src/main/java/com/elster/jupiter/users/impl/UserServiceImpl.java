@@ -121,7 +121,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     private UserDirectory getUserDirectory(String domain) {
-        List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUAL.compare("domain", domain));
+        List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUAL.compare("name", domain));
         if (found.isEmpty()) {
             throw new NoDomainFoundException(thesaurus, domain);
         }
@@ -272,7 +272,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Override
     public User findOrCreateUser(String name, String domain, String directoryType) {
         Condition userCondition = Operator.EQUALIGNORECASE.compare("authenticationName", name);
-        Condition domainCondition = Operator.EQUALIGNORECASE.compare("userDirectory.domain", domain);
+        Condition domainCondition = Operator.EQUALIGNORECASE.compare("userDirectory.name", domain);
         List<User> users = dataModel.query(User.class, UserDirectory.class).select(userCondition.and(domainCondition));
         if (users.isEmpty()) {
             if (ApacheDirectoryImpl.TYPE_IDENTIFIER.equals(directoryType)) {

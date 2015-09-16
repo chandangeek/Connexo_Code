@@ -6,6 +6,8 @@ import java.util.Optional;
 public interface UserDirectory {
     public List<Group> getGroups(User user);
 
+    public List<String> getLdapUsers();
+
     public Optional<User> authenticate(String name, String password);
 
     boolean isManageGroupsInternal();

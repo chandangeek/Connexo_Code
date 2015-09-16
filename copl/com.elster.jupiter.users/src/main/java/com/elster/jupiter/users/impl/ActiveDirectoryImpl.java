@@ -101,4 +101,10 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         return result;
     }
 
+    @Override
+    public List<String> getLdapUsers() {
+
+        return null;
+    }
+
 }

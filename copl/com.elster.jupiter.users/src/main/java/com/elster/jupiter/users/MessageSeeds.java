@@ -12,9 +12,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_REALM_FOUND(1002, "domain.not.found", "No domain found with the name {0}.", Level.SEVERE),
     NO_REALMID_FOUND(1007, "domain.not.found", "No domain found with the id {0}.", Level.SEVERE),
     FIELD_CAN_NOT_BE_EMPTY(1003, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_80(1004, Keys.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_128(1010, Keys.FIELD_SIZE_BETWEEN_1_AND_128, "Field's text length should be between 1 and 128 symbols", Level.SEVERE),
-    FIELD_SIZE_BETWEEN_1_AND_4000(1009, Keys.FIELD_SIZE_BETWEEN_1_AND_4000, "Field's text length should be between 1 and 4000 symbols", Level.SEVERE),
+    FIELD_SIZE_BETWEEN_1_AND_80(1004, Keys.FIELD_SIZE_BETWEEN_1_AND_80, "Field text length should be between 1 and 80 symbols", Level.SEVERE),
+    FIELD_SIZE_BETWEEN_1_AND_128(1010, Keys.FIELD_SIZE_BETWEEN_1_AND_128, "Field text length should be between 1 and 128 symbols", Level.SEVERE),
+    FIELD_SIZE_BETWEEN_1_AND_4000(1009, Keys.FIELD_SIZE_BETWEEN_1_AND_4000, "Field text length should be between 1 and 4000 symbols", Level.SEVERE),
     ONLY_ONE_DEFAULT_KEY_PER_LOCALE_ALLOWED(1005, Keys.ONLY_ONE_DEFAULT_KEY_PER_LOCALE_ALLOWED, "Only one default key per locale is allowed", Level.SEVERE),
     DUPLICATE_GROUP_NAME(1006, Keys.DUPLICATE_GROUP_NAME, "Duplicate name", Level.SEVERE),
     DUPLICATE_USER_DIRECTORY(1008,Keys.DUPLICATE_USER_DIRECTORY,"Duplicate name", Level.SEVERE)

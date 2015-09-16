@@ -9,10 +9,7 @@ import javax.inject.Inject;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
+import javax.naming.directory.*;
 import javax.naming.ldap.*;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
@@ -165,5 +162,58 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         return urls;
     }
 
+    @Override
+    public List<String> getLdapUsers() {
+        List<String> urls = getUrls();
+        if(getSecurity()==null||getSecurity().toUpperCase().contains("NONE")){
+            return getLdapUsersSimple(urls);
+        }else if(getSecurity().toUpperCase().contains("SSL")) {
+            return getLdapUsersSSL(urls);
+        }else if(getSecurity().toUpperCase().contains("TLS")){
+            return getLdapUsersTLS(urls);
+        }else{
+            return null;
+        }
+    }
+
+    private List<String> getLdapUsersSimple(List<String> urls){
+        List<String> ldapUsers = new ArrayList<String>();
+        Hashtable<String, Object> env = new Hashtable<>();
+        env.putAll(commonEnvLDAP);
+        NamingEnumeration results = null;
+        env.put(Context.PROVIDER_URL, urls.get(0));
+        env.put(Context.SECURITY_PRINCIPAL,"uid=" + getDirectoryUser() + "," + getBaseUser());
+        env.put(Context.SECURITY_CREDENTIALS, getPassword());
+        try {
+            DirContext ctx = new InitialDirContext(env);
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            results = ctx.search(getBaseUser(),"(objectclass=person)", controls);
+            while (results.hasMore()) {
+                SearchResult searchResult = (SearchResult) results.next();
+                Attributes attributes = searchResult.getAttributes();
+                if (attributes.get("uid")!=null) {
+                    ldapUsers.add(attributes.get("uid").get().toString());
+                }
+            }
+            return ldapUsers;
+        } catch (NamingException e) {
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+                urls.remove(0);
+                return getLdapUsersSimple(urls);
+            }else {
+                return ldapUsers;
+            }
+        }
+    }
+
+
+    private List<String> getLdapUsersSSL(List<String> urls){
+        return null;
+    }
+
+    private List<String> getLdapUsersTLS(List<String> urls){
+        return null;
+    }
 
 }

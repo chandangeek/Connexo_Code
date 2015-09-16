@@ -35,6 +35,11 @@ public class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
     }
 
     @Override
+    public List<String> getLdapUsers() {
+        return null;
+    }
+
+    @Override
     public Optional<User> authenticate(String name, String password) {
         Optional<User> found = userService.findUser(name);
         if(!found.isPresent()){
