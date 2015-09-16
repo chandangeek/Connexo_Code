@@ -122,6 +122,7 @@ abstract public class MBus extends AbstractProtocol implements Discover {
     protected List doGetOptionalKeys() {
         List list = new ArrayList();
         list.add("SecondaryAddressing");
+        list.add("VirtualLoadProfile");
         list.add("DataQuantitiesAreZeroBased");
         return list;
     }
