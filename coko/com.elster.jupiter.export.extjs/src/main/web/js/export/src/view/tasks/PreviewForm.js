@@ -270,44 +270,37 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                                 toolTip ='';
                             if(value && value !== ''){
                                 nrOfDestinations = Uni.I18n.translatePlural('general.xDestinations', value.length,'DES','No destinations','{0} destination','{0} destinations');
-                                toolTip += '<ul>'
                                 Ext.Array.each(value, function(destination){
                                     switch (destination.type){
                                         case 'FILE':
-                                            toolTip += '<li>' + Uni.I18n.translate('destination.file','DES','Save file') +
+                                            toolTip += Uni.I18n.translate('destination.file','DES','Save file') +
                                                 ' (' +
                                                     Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileLocation))
                                                     + '/' + Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileName))
                                                     + '.' + destination.fileExtension +
-                                                ')' +
-                                                '</li>';
+                                                ')</BR>';
                                             break;
                                         case 'EMAIL':
-                                            toolTip += '<li>' + Uni.I18n.translate('destination.email','DES','Mail') +
+                                            toolTip += Uni.I18n.translate('destination.email','DES','Mail') +
                                                 ' (' + Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileName))
-                                                     + '.' + destination.fileExtension + ')</BR>' +
-                                                    '<ul>' +
-                                                        destination.recipients.split(/\n/).map(function(recipient){
-                                                            return '<li>' + recipient + '</li>';
-                                                        }).join('') +
-                                                    '</ul>' +
-                                                '</li>';
+                                                     + '.' + destination.fileExtension + ')</BR>'
+                                                     + destination.recipients.split(/\n/).map(function(recipient){
+                                                            return '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;' + recipient + '</BR>';
+                                                       }).join('');
                                             break;
                                         case 'FTP':
-                                            toolTip += '<li>' + Uni.I18n.translate('destination.ftp','DES','Ftp') +
+                                            toolTip += Uni.I18n.translate('destination.ftp','DES','Ftp') +
                                                 ' (' +
                                                     'ftp://' + destination.server + '/' + Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileLocation))
                                                     + '/' + Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileName))
                                                     + '.' + destination.fileExtension +
-                                                ')' +
-                                                '</li>';
+                                                ')</BR>';
                                             break;
                                         case 'FTPS':
                                             //implement whan ftps is implemented
                                             break;
                                     }
                                 });
-                                toolTip += '</ul>'
                             }
                             result += '<span data-qtip="' + toolTip + '">'+ nrOfDestinations +'</span>';
                             return result;
