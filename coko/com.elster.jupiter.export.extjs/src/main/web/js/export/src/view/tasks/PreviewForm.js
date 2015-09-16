@@ -274,15 +274,18 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                                 Ext.Array.each(value, function(destination){
                                     switch (destination.type){
                                         case 'FILE':
-                                            toolTip += '<li>' + Uni.I18n.translate('general.saveFile', 'DES', 'Save file') +
+                                            toolTip += '<li>' + Uni.I18n.translate('destination.file','DES','Save file') +
                                                 ' (' +
-                                                    destination.fileLocation + '/' + destination.fileName  + '.' + destination.fileExtension +
+                                                    Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileLocation))
+                                                    + '/' + Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileName))
+                                                    + '.' + destination.fileExtension +
                                                 ')' +
                                                 '</li>';
                                             break;
                                         case 'EMAIL':
-                                            toolTip += '<li>' + Uni.I18n.translate('general.mail', 'DES', 'Mail') +
-                                                ' (' + destination.fileName  + '.' + destination.fileExtension + ')<BR>' +
+                                            toolTip += '<li>' + Uni.I18n.translate('destination.email','DES','Mail') +
+                                                ' (' + Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileName))
+                                                     + '.' + destination.fileExtension + ')</BR>' +
                                                     '<ul>' +
                                                         destination.recipients.split(/\n/).map(function(recipient){
                                                             return '<li>' + recipient + '</li>';
@@ -291,9 +294,11 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                                                 '</li>';
                                             break;
                                         case 'FTP':
-                                            toolTip += '<li>' +Uni.I18n.translate('general.ftp', 'DES', 'FTP') +
+                                            toolTip += '<li>' + Uni.I18n.translate('destination.ftp','DES','Ftp') +
                                                 ' (' +
-                                                'ftp://' + destination.server + '/' + destination.fileLocation + '/' + destination.fileName  + '.' + destination.fileExtension +
+                                                    'ftp://' + destination.server + '/' + Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileLocation))
+                                                    + '/' + Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileName))
+                                                    + '.' + destination.fileExtension +
                                                 ')' +
                                                 '</li>';
                                             break;
