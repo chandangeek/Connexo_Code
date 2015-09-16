@@ -2,9 +2,7 @@ package com.elster.jupiter.users.rest.impl;
 
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
@@ -13,18 +11,18 @@ import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.AbstractLdapDirectoryImpl;
 import com.elster.jupiter.users.impl.InternalDirectoryImpl;
+import com.elster.jupiter.users.rest.LdapUsersInfo;
 import com.elster.jupiter.users.rest.UserDirectoryInfo;
 import com.elster.jupiter.users.rest.UserDirectoryInfos;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Order;
+import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -160,6 +158,17 @@ public class UserDirectoryResource {
             context.commit();
             return Response.status(Response.Status.OK).build();
         }
+    }
+
+    @GET
+    @Path("/{id}/allusers")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE})
+    public PagedInfoList getAllUsers(@BeanParam JsonQueryParameters queryParameters,@PathParam("id") long id,@Context SecurityContext securityContext) {
+        LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
+        List<String> ldapUsers = ldapUserDirectory.getLdapUsers();
+        Collections.sort(ldapUsers);
+        return PagedInfoList.fromCompleteList("allusers",ldapUsers,queryParameters);
     }
 
     private RestQuery<UserDirectory> getUserDirectoriesQuery() {
