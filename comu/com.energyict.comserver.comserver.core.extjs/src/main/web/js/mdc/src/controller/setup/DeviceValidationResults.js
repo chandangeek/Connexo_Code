@@ -91,10 +91,7 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             'mdc-device-validation-results-load-profile-register #btn-data-view-validate-now': {
                 click: this.validateNow
             }
-
         });
-
-        this.callParent();
     },
 
     showDeviceValidationResultsMainView: function (mRID, ruleSetId, versionId, ruleId, activeTab) {

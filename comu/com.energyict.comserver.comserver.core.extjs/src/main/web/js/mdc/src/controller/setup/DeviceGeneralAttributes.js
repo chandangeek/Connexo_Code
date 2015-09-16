@@ -32,7 +32,6 @@ Ext.define('Mdc.controller.setup.DeviceGeneralAttributes', {
                 showRestoreAllBtn: this.showRestoreAllBtn
             }
         });
-
     },
 
     showRestoreAllBtn: function(value) {

@@ -2,16 +2,18 @@ Ext.define('Mdc.controller.setup.Devices', {
     extend: 'Ext.app.Controller',
 
     requires: [
+        'Mdc.model.DeviceAttribute',
         'Mdc.model.Device',
         'Cfg.privileges.Validation'
     ],
     views: [
-        'setup.device.DeviceSetup',
-        'setup.device.DeviceMenu',
-        'setup.device.DeviceGeneralInformationPanel',
-        'setup.device.DeviceCommunicationTopologyPanel',
-        'setup.device.DeviceOpenIssuesPanel',
-        'setup.device.DeviceAdd'
+        'Mdc.view.setup.device.DeviceSetup',
+        'Mdc.view.setup.device.DeviceMenu',
+        'Mdc.view.setup.device.DeviceGeneralInformationPanel',
+        'Mdc.view.setup.device.DeviceCommunicationTopologyPanel',
+        'Mdc.view.setup.device.DeviceOpenIssuesPanel',
+        'Mdc.view.setup.device.DeviceAdd',
+        'Mdc.view.setup.device.DeviceAttributesForm'
     ],
 
     stores: [

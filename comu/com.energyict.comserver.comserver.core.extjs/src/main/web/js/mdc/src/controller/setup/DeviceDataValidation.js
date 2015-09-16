@@ -26,6 +26,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
     ],
     mRID: null,
     ruleSetId: null,
+
     init: function () {
         this.control({
             '#deviceDataValidationRulesSetGrid': {
@@ -53,8 +54,8 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
                 change: this.onValidationFromDateChange
             }
         });
-        this.callParent();
     },
+
     showDeviceDataValidationMainView: function (mRID) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0];

@@ -69,7 +69,5 @@ Ext.define('Mdc.controller.setup.DeviceLogbookOverview', {
                 }
             }
         });
-
-
     }
 });

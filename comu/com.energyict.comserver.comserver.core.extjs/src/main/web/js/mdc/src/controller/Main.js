@@ -5,8 +5,10 @@ Ext.define('Mdc.controller.Main', {
         'Uni.controller.Navigation',
         'Uni.store.MenuItems',
         'Mdc.dynamicprivileges.DeviceState',
-        'Mdc.dynamicprivileges.Stores',
+        'Mdc.dynamicprivileges.Stores'
+    ],
 
+    controllers: [
         'Mdc.controller.history.Setup',
         'Mdc.controller.setup.AddLogbookConfigurations',
         'Mdc.controller.setup.AddLogbookTypes',

@@ -43,11 +43,6 @@ Ext.define('Mdc.controller.setup.EstimationDeviceConfigurations', {
                 beforerender: me.onEstimationRuleSetMenuBeforeRender
             }
         });
-
-        var menu = Ext.ComponentQuery.query('estimation-rule-set-side-menu[sharedForMdc=true]')[0];
-        if (menu && menu.rendered) {
-            me.onEstimationRuleSetMenuBeforeRender(menu);
-        }
     },
 
     onEstimationRuleSetMenuBeforeRender: function (menu) {

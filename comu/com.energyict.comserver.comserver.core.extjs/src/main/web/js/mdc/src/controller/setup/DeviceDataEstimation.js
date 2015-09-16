@@ -20,6 +20,7 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
     ],
     mRID: null,
     device: null,
+
     init: function () {
         this.control({
             'deviceDataEstimationRulesSetGrid': {
@@ -37,8 +38,8 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
                 click: this.changeDataEstimationStatus
             }
         });
-        this.callParent();
     },
+
     showDeviceDataEstimationMainView: function (mRID) {
         var me = this;
         me.mRID = mRID;

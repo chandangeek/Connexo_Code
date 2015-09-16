@@ -34,7 +34,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
     stores: [
         'Mdc.store.LoadProfileTypesOnDeviceType',
         'LoadProfileTypesOnDeviceTypeAvailable',
-        'Intervals',
+        'Mdc.store.Intervals',
         'Mdc.store.LoadProfileTypes'
     ],
 
