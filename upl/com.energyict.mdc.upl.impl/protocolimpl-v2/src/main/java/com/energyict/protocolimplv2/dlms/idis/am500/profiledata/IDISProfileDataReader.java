@@ -115,12 +115,15 @@ public class IDISProfileDataReader {
                             break;  //Stop parsing, move on
                         }
                         previousTimeStamp = timeStamp;
-                        int status = structure.getInteger(1);
-                        List<IntervalValue> values = new ArrayList<>();
+                        
+                        final int status = structure.getInteger(1);
+                        final List<IntervalValue> values = new ArrayList<>();
+                        
                         for (int channel = 0; channel < channelInfos.size(); channel++) {
-                            value = new IntervalValue(structure.getInteger(channel + 2), status, getEiServerStatus(status));
+                            value = new IntervalValue(structure.getBigDecimalValue(channel + 2), status, getEiServerStatus(status));
                             values.add(value);
                         }
+                        
                         intervalDatas.add(new IntervalData(timeStamp, 0, 0, 0, values));
                     }
 
