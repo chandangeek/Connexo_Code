@@ -6,6 +6,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
@@ -26,8 +27,13 @@ import java.security.Key;
  */
 public class Beacon3100PushEventNotification extends PushEventNotification {
 
-    //TODO: support events from the meter too
-    //TODO junit test with trace from Alex
+    //TODO junit test with traces
+
+    /**
+     * The obiscode of the logbook to store the received events in
+     * Note that this one (Beacon main logbook) is different from the G3 gateway main logbook.
+     */
+    private static final ObisCode OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.1.255");
 
     protected DeviceProtocol newGatewayProtocol() {
         return new Beacon3100();
@@ -35,6 +41,14 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
 
     protected DlmsSession getDlmsSession(DeviceProtocol gatewayProtocol) {
         return ((Beacon3100) gatewayProtocol).getDlmsSession();
+    }
+
+    @Override
+    protected EventPushNotificationParser getEventPushNotificationParser() {
+        if (parser == null) {
+            parser = new EventPushNotificationParser(comChannel, getContext(), OBIS_STANDARD_EVENT_LOG);
+        }
+        return parser;
     }
 
     /**

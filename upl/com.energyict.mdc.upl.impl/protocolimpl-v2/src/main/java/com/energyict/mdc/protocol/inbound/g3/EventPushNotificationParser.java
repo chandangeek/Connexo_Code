@@ -26,7 +26,6 @@ import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayProperties;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierLikeSerialNumber;
@@ -47,12 +46,17 @@ import java.util.List;
  */
 public class EventPushNotificationParser {
 
+    /**
+     * The default obiscode of the logbook to store the received events in
+     */
+    private static final ObisCode DEFAULT_OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.0.255");
+
     private static final ObisCode EVENT_NOTIFICATION_OBISCODE = ObisCode.fromString("0.0.128.0.12.255");
     private static final int LAST_EVENT_ATTRIBUTE_NUMBER = 3;
-
     private final ComChannel comChannel;
     private final InboundDAO inboundDAO;
     private final InboundComPort inboundComPort;
+    private final ObisCode logbookObisCode;
     private CollectedLogBook collectedLogBook;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
     private DeviceIdentifier deviceIdentifier;
@@ -61,6 +65,14 @@ public class EventPushNotificationParser {
         this.comChannel = comChannel;
         this.inboundDAO = context.getInboundDAO();
         this.inboundComPort = context.getComPort();
+        this.logbookObisCode = DEFAULT_OBIS_STANDARD_EVENT_LOG;
+    }
+
+    public EventPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context, ObisCode logbookObisCode) {
+        this.comChannel = comChannel;
+        this.inboundDAO = context.getInboundDAO();
+        this.inboundComPort = context.getComPort();
+        this.logbookObisCode = logbookObisCode;
     }
 
     protected ComChannel getComChannel() {
@@ -119,6 +131,7 @@ public class EventPushNotificationParser {
         return DLMSCOSEMGlobals.COSEM_EVENTNOTIFICATIONRESUEST;
     }
 
+    //TODO this might change in the RTU3
     protected DeviceIdentifier getDeviceIdentifierBasedOnSystemTitle(byte[] systemTitle) {
         String serialNumber = new String(systemTitle);
         serialNumber = serialNumber.replace("DC", "");      //Strip off the "DC" prefix
@@ -224,7 +237,7 @@ public class EventPushNotificationParser {
 
         List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
         meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(new MeterEvent(dateTime, eiCode, protocolCode, description)));
-        collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, G3GatewayEvents.OBIS_STANDARD_EVENT_LOG));
+        collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
         collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
     }
 

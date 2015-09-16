@@ -55,9 +55,6 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     private static final int METER_HAS_LEFT = 0xC3;
     private static final int METER_JOIN_ATTEMPT = 0xC5;
 
-    private static final int METER_SERIAL_NUMBER_READOUT_SUCCESS = 0x36;
-    private static final int METER_SERIAL_NUMBER_READOUT_FAIL = 0x37;
-
     protected ComChannel tcpComChannel;
     protected InboundDiscoveryContext context;
     protected ComChannel comChannel;
@@ -87,14 +84,13 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public DiscoverResultType doDiscovery() {
-        parser = new EventPushNotificationParser(comChannel, getContext());
-        parser.parseInboundFrame();
-        collectedLogBook = parser.getCollectedLogBook();
+        getEventPushNotificationParser().parseInboundFrame();
+        collectedLogBook = getEventPushNotificationParser().getCollectedLogBook();
 
         if (isJoinAttempt() || isSuccessfulJoin() || isMeterLeft()) {
             DeviceProtocol gatewayProtocol = newGatewayProtocol();
             try {
-                gatewayProtocol = initializeGatewayProtocol(parser.getSecurityPropertySet(), gatewayProtocol);
+                gatewayProtocol = initializeGatewayProtocol(getEventPushNotificationParser().getSecurityPropertySet(), gatewayProtocol);
                 if (isJoinAttempt()) {
                     providePSK(getDlmsSession(gatewayProtocol));
                 } else if (isSuccessfulJoin() || isMeterLeft()) {
@@ -110,6 +106,13 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         }
 
         return DiscoverResultType.DATA;
+    }
+
+    protected EventPushNotificationParser getEventPushNotificationParser() {
+        if (parser == null) {
+            parser = new EventPushNotificationParser(comChannel, getContext());
+        }
+        return parser;
     }
 
     protected DeviceProtocol newGatewayProtocol() {

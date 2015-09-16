@@ -33,9 +33,6 @@ import com.energyict.protocolimplv2.nta.IOExceptionHandler;
  */
 public class G3GatewayEvents {
 
-	/** The OBIS code for the standard event log. */
-	public static final ObisCode OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.1.255");
-	
     private final DlmsSession dlmsSession;
 
     public G3GatewayEvents(DlmsSession dlmsSession) {
@@ -76,9 +73,6 @@ public class G3GatewayEvents {
 
     /**
      * Reads the logbook buffer and returns events that were added since the lastLogbook date.
-     * 
-     * @param 	obis				The OBIS code of the logbook.
-     * @param 	lastLogbook			The time of the last event we have for this logbook.
      * 
      * @return	An {@link Array} of {@link Structure}s.
      */
