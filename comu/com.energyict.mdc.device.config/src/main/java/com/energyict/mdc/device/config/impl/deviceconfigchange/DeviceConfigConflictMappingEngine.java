@@ -11,7 +11,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
- * Calculates the DeviceConfigConflictMappings
+ * Calculates the DeviceConfigConflictMappings. For each DeviceConfigChangeAction that has the actionType 'CONFLICT' an new
+ * <i>persistent</i> DeviceConfigConflictMapping will be created. The user can update these DeviceConfigConflictMappings
+ * with a proper solution for the conflicts.
  */
 public final class DeviceConfigConflictMappingEngine {
 
@@ -21,7 +23,7 @@ public final class DeviceConfigConflictMappingEngine {
     }
 
     public void reCalculateConflicts(DeviceType deviceType) {
-        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
 
         deviceConfigChangeActions.stream()
                 .forEach(conflictingAction -> {

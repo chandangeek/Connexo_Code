@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.config.impl.deviceconfigchange;
+package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 /**
  * Serves as a helper item to calculate the difference in T on a particular DeviceConfiguration
  */
-interface DeviceConfigChangeItem<T extends HasId> {
+public interface DeviceConfigChangeItem<T extends HasId> {
     DeviceConfiguration getOriginDeviceConfig();
 
     DeviceConfiguration getDestinationDeviceConfig();

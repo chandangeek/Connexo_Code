@@ -1,8 +1,11 @@
-package com.energyict.mdc.device.config.impl.deviceconfigchange;
+package com.energyict.mdc.device.config;
 
+import com.energyict.mdc.device.config.DeviceConfigChangeEngine;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigChangeAction;
+import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigChangeActionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import org.fest.assertions.core.Condition;
 import org.junit.Test;
@@ -35,7 +38,7 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
     @Test
     public void deviceTypeHasNoConfigsTest() {
         DeviceType deviceType = mockDeviceType();
-        assertThat(DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType)).isEmpty();
+        assertThat(DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType)).isEmpty();
     }
 
     @Test
@@ -46,7 +49,7 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         DeviceConfiguration deviceConfiguration3 = mock(DeviceConfiguration.class);
         DeviceConfiguration deviceConfiguration4 = mock(DeviceConfiguration.class);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2, deviceConfiguration3, deviceConfiguration4));
-        assertThat(DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType)).isEmpty();
+        assertThat(DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType)).isEmpty();
     }
 
     @Test
@@ -57,7 +60,7 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         DeviceConfiguration deviceConfiguration3 = mockActiveDeviceConfiguration();
         DeviceConfiguration deviceConfiguration4 = mockActiveDeviceConfiguration();
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2, deviceConfiguration3, deviceConfiguration4));
-        assertThat(DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType)).isEmpty();
+        assertThat(DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType)).isEmpty();
     }
 
     @Test
@@ -72,7 +75,7 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(name, connectionTypePluggableClass);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
         assertThat(deviceConfigChangeActions).hasSize(2);
         assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
@@ -108,7 +111,7 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(name2, connectionTypePluggableClass2);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
         assertThat(deviceConfigChangeActions).hasSize(4);
         assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
             @Override
@@ -149,7 +152,7 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(name1, connectionTypePluggableClass2);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
 
         assertThat(deviceConfigChangeActions).hasSize(4);
         assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
@@ -191,7 +194,7 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(name2, connectionTypePluggableClass1);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask2));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
 
         assertThat(deviceConfigChangeActions).hasSize(2);
         assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
@@ -223,7 +226,7 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         PartialConnectionTask partialConnectionTask3 = mockPartialConnectionTask(name1, connectionTypePluggableClass1);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask3));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
 
         assertThat(deviceConfigChangeActions).hasSize(4);
         assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
@@ -266,7 +269,7 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         PartialConnectionTask partialConnectionTask3 = mockPartialConnectionTask(name1, connectionTypePluggableClass1);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask3));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
 
         assertThat(deviceConfigChangeActions).hasSize(4);
         assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
@@ -365,7 +368,7 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         PartialConnectionTask partialConnectionTask6 = mockPartialConnectionTask(name3, connectionTypePluggableClass2);
         when(deviceConfiguration2.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask3, partialConnectionTask4, partialConnectionTask5, partialConnectionTask6));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2));
-        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
 
         assertThat(deviceConfigChangeActions).hasSize(8);
         assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
@@ -567,7 +570,7 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
         PartialConnectionTask partialConnectionTask14 = mockPartialConnectionTask(name12, connectionTypePluggableClass6);
         when(deviceConfiguration4.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask11, partialConnectionTask12, partialConnectionTask13, partialConnectionTask14));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2, deviceConfiguration3, deviceConfiguration4));
-        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateConfigChangeActions(deviceType);
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
 
         assertThat(deviceConfigChangeActions).hasSize(76);
         assertThat(deviceConfigChangeActions).haveExactly(1, new Condition<DeviceConfigChangeAction>() {
