@@ -55,7 +55,8 @@ public class DataExportTaskInfo {
         properties = propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataProcessorPropertySpecs(), dataExportTask.getProperties());
         lastExportOccurrence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus, timeService, propertyUtils)).orElse(null);
         dataExportTask.getDestinations().stream()
-                .forEach(destination -> destinations.add(typeOf(destination).toInfo(destination)));
+            .sorted((d1, d2) -> d1.getCreateTime().compareTo(d2.getCreateTime()))
+            .forEach(destination -> destinations.add(typeOf(destination).toInfo(destination)));
     }
 
     private DestinationType typeOf(DataExportDestination destination) {
