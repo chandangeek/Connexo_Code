@@ -34,7 +34,10 @@ public class UsagePointDataInfoFactory {
     public ChannelDataInfo createChannelDataInfo(BaseReadingRecord brr) {
         ChannelDataInfo channelIntervalInfo = new ChannelDataInfo();
 
-        Range<Instant> range = Ranges.openClosed(brr.getTimeStamp(), brr.getTimeStamp().plus(Duration.ofMinutes(brr.getReadingType().getMeasuringPeriod().getMinutes())));
+        Instant start = brr.getTimeStamp();
+        Instant end = brr.getTimeStamp().plus(Duration.ofMinutes(brr.getReadingType().getMeasuringPeriod().getMinutes()));
+        
+        Range<Instant> range = Ranges.openClosed(start, end);
         channelIntervalInfo.interval = IntervalInfo.from(range);
         channelIntervalInfo.readingTime = brr.getReportedDateTime();//.getReadingTime();
         channelIntervalInfo.intervalFlags = new ArrayList<>();
@@ -49,7 +52,7 @@ public class UsagePointDataInfoFactory {
 
     public RegisterDataInfo createRegisterDataInfo(BaseReadingRecord brr) {
         RegisterDataInfo registerDataInfo = new RegisterDataInfo();
-        registerDataInfo.readingTime = brr.getReportedDateTime();
+        registerDataInfo.readingTime = brr.getTimeStamp();
         registerDataInfo.value = brr.getValue();
         return registerDataInfo;
     }

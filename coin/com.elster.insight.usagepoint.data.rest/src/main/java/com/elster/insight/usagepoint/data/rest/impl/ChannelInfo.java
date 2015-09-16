@@ -33,8 +33,6 @@ public class ChannelInfo {
         info.id = channel.getId();
         
         info.interval = new TimeDurationInfo(new TimeDuration(channel.getMainReadingType().getMeasuringPeriod().getMinutes(), TimeUnit.MINUTES));
-        info.unitOfMeasure = channel.getMainReadingType().getUnit().toString();
-        
         
         info.unitOfMeasure = channel.getMainReadingType().getMultiplier().getSymbol() + channel.getMainReadingType().getUnit().getSymbol();
         
