@@ -58,6 +58,7 @@ public interface DeviceService {
      * @return the requested Device or null if none was found
      */
     public Optional<Device> findAndLockDeviceByIdAndVersion(long id, long version);
+
     public Optional<Device> findAndLockDeviceBymRIDAndVersion(String mrid, long version);
 
     /**
@@ -110,5 +111,14 @@ public interface DeviceService {
     public List<Device> findDevicesByConnectionTypeAndProperty(Class<? extends ConnectionType> connectionTypeClass, String propertyName, String propertyValue);
 
     public Query<Device> deviceQuery();
+
+    /**
+     * Change the DeviceConfiguration of the given device to the provided destinationDeviceConfiguration
+     *
+     * @param device                         the device to change it's configuration
+     * @param destinationDeviceConfiguration the configuration which should be applied
+     * @return the given device with the new configuration applied
+     */
+    public Device changeDeviceConfiguration(Device device, DeviceConfiguration destinationDeviceConfiguration);
 
 }

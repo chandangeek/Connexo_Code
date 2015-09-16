@@ -39,7 +39,7 @@ import static java.util.stream.Collectors.toList;
  * Date: 3/17/14
  * Time: 3:57 PM
  */
-public class LoadProfileImpl implements LoadProfile {
+public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
 
     private final DataModel dataModel;
 
@@ -131,6 +131,12 @@ public class LoadProfileImpl implements LoadProfile {
 
     private void updateLastReading() {
         this.dataModel.update(this, "lastReading");
+    }
+
+    @Override
+    public void setNewLoadProfileSpec(LoadProfileSpec loadProfileSpec) {
+        this.loadProfileSpec.set(loadProfileSpec);
+        this.dataModel.update(this, "loadProfileSpec");
     }
 
     abstract static class LoadProfileUpdater implements LoadProfile.LoadProfileUpdater {

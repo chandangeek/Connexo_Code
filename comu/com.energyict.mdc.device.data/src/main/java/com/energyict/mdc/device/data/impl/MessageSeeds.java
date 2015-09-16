@@ -108,6 +108,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_METER_ACTIVATION_AT(2078, Keys.NO_METER_ACTIVATION_AT, "There is no meter activation at {0}"),
     LAST_CHECKED_CANNOT_BE_NULL(2079, Keys.LAST_CHECKED_CANNOT_BE_NULL, "The new last checked timestamp cannot be null"),
     LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED(2080, Keys.LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED, "The new last checked {2,date,yyyy-MM-dd HH:mm:ss} cannot be after current last checked {1,date,yyyy-MM-dd HH:mm:ss}"),
+    CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG(2081, Keys.CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG, "You can not change the configuration of a device to the configuration it already has"),
     ;
 
     private final int number;
@@ -245,5 +246,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_METER_ACTIVATION_AT = "no.meteractivation";
         public static final String LAST_CHECKED_CANNOT_BE_NULL = "lastChecked.null";
         public static final String LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED = "lastChecked.after.currentLastChecked";
+        public static final String CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG = "cannotChangeDeviceToSameConfig";
     }
 }

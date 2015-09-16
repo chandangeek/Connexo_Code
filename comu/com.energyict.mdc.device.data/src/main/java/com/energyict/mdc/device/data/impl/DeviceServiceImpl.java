@@ -20,6 +20,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigToSameConfig;
 import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
 import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
@@ -231,5 +232,10 @@ public class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public Query<Device> deviceQuery() {
         return queryService.wrap(deviceDataModelService.dataModel().query(Device.class, DeviceConfiguration.class, DeviceType.class));
+    }
+
+    @Override
+    public Device changeDeviceConfiguration(Device device, DeviceConfiguration destinationDeviceConfiguration) {
+        return DeviceConfigChangeExecutor.getInstance().execute((DeviceImpl) device, destinationDeviceConfiguration);
     }
 }

@@ -56,18 +56,7 @@ import com.energyict.mdc.common.DatabaseException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -80,12 +69,7 @@ import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteComTaskExecutionWhichIsNotFromThisDevice;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
-import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
-import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
-import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
+import com.energyict.mdc.device.data.exceptions.*;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
@@ -168,7 +152,7 @@ import static java.util.stream.Collectors.toList;
 
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
 @UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_SCHEDULING + "}")
-public class DeviceImpl implements Device, CanLock {
+public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange {
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -333,8 +317,7 @@ public class DeviceImpl implements Device, CanLock {
         this.saveAllComTaskExecutions();
         if (alreadyPersistent) {
             this.notifyUpdated();
-        }
-        else {
+        } else {
             this.notifyCreated();
         }
     }
@@ -438,11 +421,11 @@ public class DeviceImpl implements Device, CanLock {
 
     private void removeDeviceFromGroup(EnumeratedEndDeviceGroup group, EndDevice endDevice) {
         group
-            .getEntries()
-            .stream()
-            .filter(each -> each.getEndDevice().getId() == endDevice.getId())
-            .findFirst()
-            .ifPresent(group::remove);
+                .getEntries()
+                .stream()
+                .filter(each -> each.getEndDevice().getId() == endDevice.getId())
+                .findFirst()
+                .ifPresent(group::remove);
     }
 
     private void deleteAllIssues() {
@@ -468,7 +451,7 @@ public class DeviceImpl implements Device, CanLock {
         this.getConnectionTaskImpls().forEach(PersistentIdObject::delete);
     }
 
-    private void deleteDeviceMessages(){
+    private void deleteDeviceMessages() {
         getMessages().stream().forEach(DeviceMessage::delete);
     }
 
@@ -556,6 +539,7 @@ public class DeviceImpl implements Device, CanLock {
     public void setYearOfCertification(Integer yearOfCertification) {
         this.yearOfCertification = yearOfCertification;
     }
+
     @Override
 
     public Integer getYearOfCertification() {
@@ -658,6 +642,31 @@ public class DeviceImpl implements Device, CanLock {
         return sqlBuilder;
     }
 
+    @Override
+    public void setNewDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
+        if (this.getDeviceConfiguration().getId() == deviceConfiguration.getId()) {
+            throw new CannotChangeDeviceConfigToSameConfig(thesaurus);
+        }
+        this.deviceConfiguration.set(deviceConfiguration);
+    }
+
+    @Override
+    public void createNewMeterActivation() {
+        activate(clock.instant());
+    }
+
+    @Override
+    public void removeLoadProfiles(List<LoadProfile> loadProfiles) {
+        this.loadProfiles.removeAll(loadProfiles);
+    }
+
+    @Override
+    public void addLoadProfiles(List<LoadProfileSpec> loadProfileSpecs) {
+        this.loadProfiles.addAll(
+                loadProfileSpecs.stream()
+                        .map(loadProfileSpec -> this.dataModel.getInstance(LoadProfileImpl.class).initialize(loadProfileSpec, this))
+                        .collect(Collectors.toList()));
+    }
 
     class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
 
@@ -815,10 +824,10 @@ public class DeviceImpl implements Device, CanLock {
 
 
     private Optional<PropertySpec> getPropertySpecForProperty(String name) {
-        return this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs().stream().filter(spec->spec.getName().equals(name)).findFirst();
+        return this.getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs().stream().filter(spec -> spec.getName().equals(name)).findFirst();
     }
 
-    private void addLocalProperties(TypedProperties properties,  List<PropertySpec> propertySpecs) {
+    private void addLocalProperties(TypedProperties properties, List<PropertySpec> propertySpecs) {
         for (PropertySpec propertySpec : propertySpecs) {
             DeviceProtocolProperty deviceProtocolProperty = findDevicePropertyFor(propertySpec);
             if (deviceProtocolProperty != null) {
@@ -854,8 +863,7 @@ public class DeviceImpl implements Device, CanLock {
         Optional<? extends MeterActivation> currentMeterActivation = meter.getCurrentMeterActivation();
         if (currentMeterActivation.isPresent()) {
             return currentMeterActivation.get().getUsagePoint();
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
@@ -975,7 +983,7 @@ public class DeviceImpl implements Device, CanLock {
         List<MeterActivation> meterActivations = this.getSortedMeterActivations(meter, Ranges.closed(interval.lowerEndpoint(), interval.upperEndpoint()));
         for (MeterActivation meterActivation : meterActivations) {
             Range<Instant> meterActivationInterval = meterActivation.getRange().intersection(interval);
-            meterHasData |= meterActivationInterval.lowerEndpoint()!=meterActivationInterval.upperEndpoint();
+            meterHasData |= meterActivationInterval.lowerEndpoint() != meterActivationInterval.upperEndpoint();
             ReadingType readingType = mdcChannel.getChannelSpec().getReadingType();
             List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(meterActivationInterval, readingType);
             for (IntervalReadingRecord meterReading : meterReadings) {
@@ -1024,9 +1032,9 @@ public class DeviceImpl implements Device, CanLock {
      * just a list of placeholders for each reading interval within the requestedInterval for all timestamps
      * that occur with the bounds of a meter activation and load profile's last reading.
      *
-     * @param loadProfile     The LoadProfile
+     * @param loadProfile       The LoadProfile
      * @param requestedInterval interval over which user wants to see readings
-     * @param meter           The Meter
+     * @param meter             The Meter
      * @return The map
      */
     private Map<Instant, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Range<Instant> requestedInterval, Meter meter) {
@@ -1035,24 +1043,24 @@ public class DeviceImpl implements Device, CanLock {
         TemporalAmount intervalLength = this.intervalLength(loadProfile);
         List<MeterActivation> allMeterActivations = new ArrayList<>(meter.getMeterActivations());
         allMeterActivations
-            .stream()
-            .filter(ma -> ma.overlaps(requestedInterval))
-            .forEach(affectedMeterActivation -> {
-                Range<Instant> requestedIntervalClippedToMeterActivation = requestedInterval.intersection(affectedMeterActivation.getRange());
-                ZonedDateTime requestStart = this.prefilledIntervalStart(loadProfile, affectedMeterActivation.getZoneId(), requestedIntervalClippedToMeterActivation);
-                ZonedDateTime requestEnd =
-                        ZonedDateTime.ofInstant(
-                                this.lastReadingClipped(loadProfile, requestedInterval),
-                                affectedMeterActivation.getZoneId());
-                Range<Instant> meterActivationInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
-                while (meterActivationInterval.contains(requestStart.toInstant())) {
-                    ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
-                    LoadProfileReadingImpl value = new LoadProfileReadingImpl();
-                    value.setRange(Ranges.openClosed(requestStart.toInstant(), readingTimestamp.toInstant()));
-                    loadProfileReadingMap.put(readingTimestamp.toInstant(), value);
-                    requestStart = readingTimestamp;
-                }
-            });
+                .stream()
+                .filter(ma -> ma.overlaps(requestedInterval))
+                .forEach(affectedMeterActivation -> {
+                    Range<Instant> requestedIntervalClippedToMeterActivation = requestedInterval.intersection(affectedMeterActivation.getRange());
+                    ZonedDateTime requestStart = this.prefilledIntervalStart(loadProfile, affectedMeterActivation.getZoneId(), requestedIntervalClippedToMeterActivation);
+                    ZonedDateTime requestEnd =
+                            ZonedDateTime.ofInstant(
+                                    this.lastReadingClipped(loadProfile, requestedInterval),
+                                    affectedMeterActivation.getZoneId());
+                    Range<Instant> meterActivationInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
+                    while (meterActivationInterval.contains(requestStart.toInstant())) {
+                        ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
+                        LoadProfileReadingImpl value = new LoadProfileReadingImpl();
+                        value.setRange(Ranges.openClosed(requestStart.toInstant(), readingTimestamp.toInstant()));
+                        loadProfileReadingMap.put(readingTimestamp.toInstant(), value);
+                        requestStart = readingTimestamp;
+                    }
+                });
         return loadProfileReadingMap;
     }
 
@@ -1071,23 +1079,23 @@ public class DeviceImpl implements Device, CanLock {
             }
             case WEEKS: {
                 return ZonedDateTime
-                            .ofInstant(requestedIntervalClippedToMeterActivation.lowerEndpoint(), zoneId)
-                            .toLocalDate()
-                            .with(ChronoField.DAY_OF_WEEK, 1)
-                            .atStartOfDay()
-                            .atZone(zoneId);
+                        .ofInstant(requestedIntervalClippedToMeterActivation.lowerEndpoint(), zoneId)
+                        .toLocalDate()
+                        .with(ChronoField.DAY_OF_WEEK, 1)
+                        .atStartOfDay()
+                        .atZone(zoneId);
             }
             case MONTHS: {
-                return prefilledIntervalStartWithIntervalMonth(loadProfile,zoneId,requestedIntervalClippedToMeterActivation);
+                return prefilledIntervalStartWithIntervalMonth(loadProfile, zoneId, requestedIntervalClippedToMeterActivation);
 
             }
             case YEARS: {
                 return ZonedDateTime
-                            .ofInstant(requestedIntervalClippedToMeterActivation.lowerEndpoint(), zoneId)
-                            .toLocalDate()
-                            .with(ChronoField.DAY_OF_YEAR, 1)
-                            .atStartOfDay()
-                            .atZone(zoneId);
+                        .ofInstant(requestedIntervalClippedToMeterActivation.lowerEndpoint(), zoneId)
+                        .toLocalDate()
+                        .with(ChronoField.DAY_OF_YEAR, 1)
+                        .atStartOfDay()
+                        .atZone(zoneId);
             }
             case MILLISECONDS:  //Intentional fall-through
             case SECONDS:   //Intentional fall-through
@@ -1107,10 +1115,10 @@ public class DeviceImpl implements Device, CanLock {
          */
         ZonedDateTime nextAttempt =
                 ZonedDateTime
-                    .ofInstant(
-                            requestedIntervalClippedToMeterActivation.lowerEndpoint(),
-                            zoneId)
-                    .truncatedTo(this.truncationUnit(loadProfile));    // round start time to interval boundary
+                        .ofInstant(
+                                requestedIntervalClippedToMeterActivation.lowerEndpoint(),
+                                zoneId)
+                        .truncatedTo(this.truncationUnit(loadProfile));    // round start time to interval boundary
         ZonedDateTime latestAttemptBefore = nextAttempt;
 
         while (nextAttempt.toInstant().isBefore(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt.toInstant().equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
@@ -1130,10 +1138,10 @@ public class DeviceImpl implements Device, CanLock {
          */
         ZonedDateTime nextAttempt =
                 ZonedDateTime
-                    .ofInstant(
-                            requestedIntervalClippedToMeterActivation.lowerEndpoint(),
-                            zoneId)
-                    .with(ChronoField.DAY_OF_MONTH, 1).toLocalDate().atStartOfDay(zoneId);
+                        .ofInstant(
+                                requestedIntervalClippedToMeterActivation.lowerEndpoint(),
+                                zoneId)
+                        .with(ChronoField.DAY_OF_MONTH, 1).toLocalDate().atStartOfDay(zoneId);
 
         while (nextAttempt.toInstant().isAfter(requestedIntervalClippedToMeterActivation.lowerEndpoint()) || nextAttempt.toInstant().equals(requestedIntervalClippedToMeterActivation.lowerEndpoint())) {
             nextAttempt = nextAttempt.minus(this.intervalLength(loadProfile));
@@ -1240,8 +1248,7 @@ public class DeviceImpl implements Device, CanLock {
     private Optional<Boolean> hasData(Meter meter) {
         if (meter.hasData()) {
             return Optional.of(true);
-        }
-        else {
+        } else {
             return Optional.of(false);
         }
     }
@@ -1266,7 +1273,7 @@ public class DeviceImpl implements Device, CanLock {
         Meter meter = this.findOrCreateKoreMeter(amrSystem);
         Optional<UsagePoint> usagePoint = meter.getUsagePoint(start);
         meter.getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.endAt(start));
-        if(usagePoint.isPresent()){
+        if (usagePoint.isPresent()) {
             return meter.activate(usagePoint.get(), start);
         } else {
             return meter.activate(start);
@@ -1294,12 +1301,10 @@ public class DeviceImpl implements Device, CanLock {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
                 return aspectFunction.apply(meter.get());
-            }
-            else {
+            } else {
                 return Optional.empty();
             }
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
@@ -1311,12 +1316,10 @@ public class DeviceImpl implements Device, CanLock {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
                 return aspectFunction.apply(meter.get());
-            }
-            else {
+            } else {
                 return Collections.emptyList();
             }
-        }
-        else {
+        } else {
             return Collections.emptyList();
         }
     }
@@ -1359,8 +1362,7 @@ public class DeviceImpl implements Device, CanLock {
             if (meter.getMeterActivations().isEmpty()) {
                 meter.activate(when);
             }
-        }
-        else {
+        } else {
             throw this.mdcAMRSystemDoesNotExist().get();
         }
     }
@@ -1381,8 +1383,7 @@ public class DeviceImpl implements Device, CanLock {
         Optional<? extends MeterActivation> meterActivation = meter.getMeterActivation(when);
         if (meterActivation.isPresent()) {
             return Optional.ofNullable(getChannel(meterActivation.get(), readingTypeSupplier.get()).orElse(null));
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
@@ -1412,8 +1413,7 @@ public class DeviceImpl implements Device, CanLock {
         if (meterActivation.isPresent()) {
             return this.getChannel(meterActivation.get(), readingType)
                     .orElseGet(() -> meterActivation.get().createChannel(readingType));
-        }
-        else {
+        } else {
             throw this.noMeterActivationAt(when).get();
         }
     }
@@ -1590,11 +1590,11 @@ public class DeviceImpl implements Device, CanLock {
 
     private void loadComTaskExecutions() {
         this.comTaskExecutions =
-            this.communicationTaskService
-                .findComTaskExecutionsByDevice(this)
-                .stream()
-                .map(comTaskExecution -> (ComTaskExecutionImpl) comTaskExecution)
-                .collect(Collectors.toList());
+                this.communicationTaskService
+                        .findComTaskExecutionsByDevice(this)
+                        .stream()
+                        .map(comTaskExecution -> (ComTaskExecutionImpl) comTaskExecution)
+                        .collect(Collectors.toList());
     }
 
     private void add(ComTaskExecutionImpl comTaskExecution) {
@@ -1725,7 +1725,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
-    public GatewayType getConfigurationGatewayType(){
+    public GatewayType getConfigurationGatewayType() {
         DeviceConfiguration configuration = getDeviceConfiguration();
         if (configuration == null) {
             return GatewayType.NONE;
@@ -1777,17 +1777,14 @@ public class DeviceImpl implements Device, CanLock {
                 Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
                 if (meter.isPresent()) {
                     return meter.get().getState(instant);
-                }
-                else {
+                } else {
                     // Kore meter was not created yet
                     throw new IllegalStateException("Kore meter was not created when this Device was created");
                 }
-            }
-            else {
+            } else {
                 return Optional.of(this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine().getInitialState());
             }
-        }
-        else {
+        } else {
             throw new IllegalStateException("MDC AMR system does not exist");
         }
     }
@@ -1804,12 +1801,10 @@ public class DeviceImpl implements Device, CanLock {
             Optional<Meter> meter = this.findKoreMeter(amrSystem.get());
             if (meter.isPresent()) {
                 return new CIMLifecycleDatesImpl(meter.get(), meter.get().getLifecycleDates());
-            }
-            else {
+            } else {
                 return new NoCimLifecycleDates();
             }
-        }
-        else {
+        } else {
             return new NoCimLifecycleDates();
         }
     }
@@ -1840,11 +1835,9 @@ public class DeviceImpl implements Device, CanLock {
     private DeviceLifeCycleChangeEvent newEventForMostRecent(Deque<StateTimeSlice> stateTimeSlices, Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents) {
         if (stateTimeSlices.isEmpty()) {
             return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
-        }
-        else if (deviceTypeChangeEvents.isEmpty()) {
+        } else if (deviceTypeChangeEvents.isEmpty()) {
             return DeviceLifeCycleChangeEventImpl.from(stateTimeSlices.removeFirst());
-        }
-        else {
+        } else {
             // Compare both timestamps and create event from the most recent one
             StateTimeSlice stateTimeSlice = stateTimeSlices.peekFirst();
             com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent deviceLifeCycleChangeEvent = deviceTypeChangeEvents.peekFirst();
@@ -1852,11 +1845,9 @@ public class DeviceImpl implements Device, CanLock {
                 // Give precedence to the device life cycle change but also consume the state change so the latter is ignored
                 stateTimeSlices.removeFirst();
                 return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
-            }
-            else if (stateTimeSlice.getPeriod().lowerEndpoint().isBefore(deviceLifeCycleChangeEvent.getTimestamp())) {
+            } else if (stateTimeSlice.getPeriod().lowerEndpoint().isBefore(deviceLifeCycleChangeEvent.getTimestamp())) {
                 return DeviceLifeCycleChangeEventImpl.from(stateTimeSlices.removeFirst());
-            }
-            else {
+            } else {
                 return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
             }
         }
@@ -1872,7 +1863,7 @@ public class DeviceImpl implements Device, CanLock {
         return createTime;
     }
 
-    private class InternalDeviceMessageBuilder implements DeviceMessageBuilder{
+    private class InternalDeviceMessageBuilder implements DeviceMessageBuilder {
 
         private final DeviceMessageImpl deviceMessage;
 
@@ -2035,10 +2026,10 @@ public class DeviceImpl implements Device, CanLock {
         }
 
         private void initExecutionsToDelete(Device device, ComSchedule comSchedule) {
-            for(ComTaskExecution comTaskExecution:device.getComTaskExecutions()){
-                if(!comTaskExecution.usesSharedSchedule()){
-                    for(ComTask comTask : comSchedule.getComTasks()){
-                        if(comTaskExecution.getComTasks().get(0).getId()==comTask.getId()){
+            for (ComTaskExecution comTaskExecution : device.getComTaskExecutions()) {
+                if (!comTaskExecution.usesSharedSchedule()) {
+                    for (ComTask comTask : comSchedule.getComTasks()) {
+                        if (comTaskExecution.getComTasks().get(0).getId() == comTask.getId()) {
                             this.executionsToDelete.add(comTaskExecution);
                         }
                     }
@@ -2049,7 +2040,7 @@ public class DeviceImpl implements Device, CanLock {
 
         @Override
         public ScheduledComTaskExecution add() {
-            for(ComTaskExecution comTaskExecutionToDelete:executionsToDelete){
+            for (ComTaskExecution comTaskExecutionToDelete : executionsToDelete) {
                 DeviceImpl.this.removeComTaskExecution(comTaskExecutionToDelete);
             }
             ScheduledComTaskExecution comTaskExecution = super.add();
@@ -2247,6 +2238,7 @@ public class DeviceImpl implements Device, CanLock {
             this.koreDevice.save();
         }
     }
+
     private class NoCimLifecycleDates implements CIMLifecycleDates {
         @Override
         public Optional<Instant> getManufacturedDate() {
