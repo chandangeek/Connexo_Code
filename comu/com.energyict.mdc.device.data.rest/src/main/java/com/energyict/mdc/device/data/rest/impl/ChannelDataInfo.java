@@ -29,6 +29,7 @@ public class ChannelDataInfo {
     public BigDecimal value;
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal collectedValue;
+    @JsonProperty("isBulk")
     public boolean isBulk;
 
     @JsonProperty("validationStatus")

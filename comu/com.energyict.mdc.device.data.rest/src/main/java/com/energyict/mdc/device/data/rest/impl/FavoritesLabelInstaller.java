@@ -1,8 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.energyict.mdc.favorites.FavoritesService;
+
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.energyict.mdc.favorites.FavoritesService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -39,7 +40,7 @@ public class FavoritesLabelInstaller implements InstallService {
 
     private void createLabelCategories() {
         try {
-            favoritesService.createLabelCategory(MessageSeeds.MDC_LABEL_CATEGORY_FAVORITES.getKey());
+            favoritesService.createLabelCategory(DefaultTranslationKey.MDC_LABEL_CATEGORY_FAVORITES.getKey());
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }

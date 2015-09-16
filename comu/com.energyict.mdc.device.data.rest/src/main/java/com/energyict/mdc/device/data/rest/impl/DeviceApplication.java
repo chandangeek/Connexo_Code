@@ -1,31 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.appserver.rest.AppServerHelper;
-import com.elster.jupiter.cbo.EndDeviceDomain;
-import com.elster.jupiter.cbo.EndDeviceEventorAction;
-import com.elster.jupiter.cbo.EndDeviceSubDomain;
-import com.elster.jupiter.cbo.EndDeviceType;
-import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.SimpleTranslationKey;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
-import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
@@ -37,8 +11,8 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfoFactory;
 import com.energyict.mdc.device.data.kpi.rest.KpiResource;
-import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfoFactory;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
+import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -54,6 +28,35 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.rest.AppServerHelper;
+import com.elster.jupiter.cbo.EndDeviceDomain;
+import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceSubDomain;
+import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
+import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -67,12 +70,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 
-@Component(name = "com.energyict.ddr.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/ddr", "app=MDC", "name=" + DeviceApplication.COMPONENT_NAME})
-public class DeviceApplication extends Application implements TranslationKeyProvider {
-
-    private final Logger logger = Logger.getLogger(DeviceApplication.class.getName());
+@Component(name = "com.energyict.ddr.rest", service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/ddr", "app=MDC", "name=" + DeviceApplication.COMPONENT_NAME})
+public class DeviceApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
 
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "DDR";
@@ -231,15 +231,14 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
+    @Override
     public List<TranslationKey> getKeys() {
         Set<String> uniqueIds = new HashSet<>();
         List<TranslationKey> keys = new ArrayList<>();
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            if (uniqueIds.add(messageSeed.getKey())) {
-                keys.add(messageSeed);
-            }
-        }
-
         for (EndDeviceType type : EndDeviceType.values()) {
             if (uniqueIds.add(type.toString())) {
                 keys.add(new SimpleTranslationKey(type.toString(), type.getMnemonic()));
@@ -260,8 +259,13 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 keys.add(new SimpleTranslationKey(eventOrAction.toString(), eventOrAction.getMnemonic()));
             }
         }
-        Arrays.stream(DefaultTranslationKey.values())
-                .forEach(keys::add);
+        keys.addAll(Arrays.asList(DefaultTranslationKey.values()));
+        keys.addAll(Arrays.asList(TaskStatusTranslationKeys.values()));
+        keys.addAll(Arrays.asList(ConnectionTaskSuccessIndicatorTranslationKeys.values()));
+        keys.addAll(Arrays.asList(ComSessionSuccessIndicatorTranslationKeys.values()));
+        keys.addAll(Arrays.asList(CompletionCodeTranslationKeys.values()));
+        keys.addAll(Arrays.asList(DeviceMessageStatusTranslationKeys.values()));
+        keys.addAll(Arrays.asList(ConnectionStrategyTranslationKeys.values()));
         return keys;
     }
 
