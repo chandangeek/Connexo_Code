@@ -146,7 +146,9 @@ public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInb
         if (text == null && isRequiredParameter(parameter)) {
             setResultType(ResultType.MISSING_PARAMETER);
             resultType.addAdditionInformation(parameter);
-            throw MdcManager.getComServerExceptionFactory().missingProperty(parameter, this.getDeviceIdentifier());
+            throw (getDeviceIdentifier() == null)
+                ? MdcManager.getComServerExceptionFactory().missingProperty(parameter)
+                : MdcManager.getComServerExceptionFactory().missingProperty(parameter, this.getDeviceIdentifier());
         }
         return text != null ? text : "";
     }
