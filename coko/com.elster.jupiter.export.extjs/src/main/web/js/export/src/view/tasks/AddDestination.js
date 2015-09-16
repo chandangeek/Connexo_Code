@@ -6,7 +6,8 @@ Ext.define('Dxp.view.tasks.AddDestination', {
     router: null,
     fieldIdsWithErrors:[],
     requires: [
-        'Dxp.view.common.ExportTagsInfoButton'
+        'Dxp.view.common.ExportTagsInfoButton',
+        'Uni.util.FormErrorMessage'
     ],
     setEdit: function (edit) {
         if (edit) {
@@ -36,16 +37,12 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                 },
                 items: [
                     {
+                        xtype: 'uni-form-error-message',
                         name: 'form-errors',
                         itemId: 'form-errors',
-                        ui: 'form-error-framed',
-                        layout: 'hbox',
                         margin: '0 0 10 0',
                         hidden: true,
-                        width: 500,
-                        defaults: {
-                            xtype: 'container'
-                        }
+                        width: 500
                     },
                     {
                         xtype: 'combo',
@@ -69,10 +66,17 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         required: true,
                         forceSelection: true,
                         allowBlank: false,
+                        editable: false,
                         fieldLabel: Uni.I18n.translate('general.method', 'DES', 'Method'),
                         queryMode: 'local',
                         displayField: 'displayValue',
                         valueField: 'value',
+                        listeners: {
+                            select: {
+                                fn: me.onMethodSelect,
+                                scope: me
+                            }
+                        }
                     },
 
                     {
@@ -84,7 +88,8 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         fieldLabel: Uni.I18n.translate('general.ftpServer', 'DES', 'FTP server'),
                         allowBlank: false,
                         enforceMaxLength: true,
-                        maxLength: 80
+                        maxLength: 80,
+                        msgTarget: 'under'
                     },
                     {
                         xtype: 'textfield',
@@ -95,7 +100,8 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         fieldLabel: Uni.I18n.translate('general.user', 'DES', 'User'),
                         allowBlank: false,
                         enforceMaxLength: true,
-                        maxLength: 80
+                        maxLength: 80,
+                        msgTarget: 'under',
                     },
                     {
                         xtype: 'password-field',
@@ -114,7 +120,6 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         layout: 'hbox',
                         required: true,
                         itemId: 'dxp-file-name-container',
-                        msgTarget: 'under',
                         items: [
                             {
                                 xtype: 'textfield',
@@ -124,12 +129,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                                 allowBlank: false,
                                 enforceMaxLength: true,
                                 maxLength: 80,
-                                listeners: {
-                                    blur: {
-                                        fn: me.fileNameValidation,
-                                        scope: me
-                                    }
-                                }
+                                msgTarget: 'under'
                             },
                             {
                                 xtype: 'dxp-export-tags-info-button'
@@ -147,13 +147,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         allowBlank: false,
                         enforceMaxLength: true,
                         maxLength: 80,
-                        msgTarget: 'under',
-                        listeners: {
-                            blur: {
-                                fn: me.fileExtensionValidation,
-                                scope: me
-                            }
-                        }
+                        msgTarget: 'under'
                     },
 
                     {
@@ -162,7 +156,6 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         layout: 'hbox',
                         required: true,
                         itemId: 'dxp-file-location-container',
-                        msgTarget: 'under',
                         items: [
                             {
                                 xtype: 'textfield',
@@ -172,12 +165,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                                 allowBlank: false,
                                 enforceMaxLength: true,
                                 maxLength: 80,
-                                listeners: {
-                                    blur: {
-                                        fn: me.fileLocationValidation,
-                                        scope: me
-                                    }
-                                }
+                                msgTarget: 'under'
                             },
                             {
                                 xtype: 'dxp-export-tags-info-button'
@@ -195,7 +183,8 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         fieldLabel: Uni.I18n.translate('dataExport.recipients', 'DES', 'To'),
                         allowBlank: false,
                         enforceMaxLength: true,
-                        maxLength: 80
+                        maxLength: 80,
+                        msgTarget: 'under'
                     },
 
                     {
@@ -207,7 +196,8 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         fieldLabel: Uni.I18n.translate('general.subject', 'DES', 'Subject'),
                         allowBlank: false,
                         enforceMaxLength: true,
-                        maxLength: 80
+                        maxLength: 80,
+                        msgTarget: 'under'
                     },
 
                     {
@@ -216,7 +206,6 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         layout: 'hbox',
                         required: true,
                         itemId: 'dxp-attachment-name-container',
-                        msgTarget: 'under',
                         items: [
                             {
                                 xtype: 'textfield',
@@ -226,12 +215,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                                 allowBlank: false,
                                 enforceMaxLength: true,
                                 maxLength: 80,
-                                listeners: {
-                                    blur: {
-                                        fn: me.attachmentNameValidation,
-                                        scope: me
-                                    }
-                                }
+                                msgTarget: 'under'
                             },
                             {
                                 xtype: 'dxp-export-tags-info-button'
@@ -249,13 +233,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         allowBlank: false,
                         enforceMaxLength: true,
                         maxLength: 80,
-                        msgTarget: 'under',
-                        listeners: {
-                            blur: {
-                                fn: me.attachmentExtensionValidation,
-                                scope: me
-                            }
-                        }
+                        msgTarget: 'under'
                     },
 
                     {
@@ -268,6 +246,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                                 xtype: 'button',
                                 itemId: 'save-destination-button',
                                 text: Uni.I18n.translate('general.add', 'DES', 'Add'),
+                                disabled: true,
                                 ui: 'action'
                             },
                             {
@@ -285,58 +264,114 @@ Ext.define('Dxp.view.tasks.AddDestination', {
         me.setEdit(me.edit);
     },
 
-    fileNameValidation: function(field) {
-        this.fieldValidation(
-            field,
+    onMethodSelect: function(combo, selectedItems) {
+        var me = this,
+            addBtn = me.down('#save-destination-button');
+
+        addBtn.setDisabled(selectedItems.length===0);
+        // Reset all error indications
+        switch(selectedItems[0].get('value')) {
+            case 'FILE':
+                me.isFieldValid('#destination-file-name', true, "");
+                me.isFieldValid('#destination-file-extension', true, "");
+                me.isFieldValid('#destination-file-location', true, "");
+                break;
+            case 'EMAIL':
+                me.isFieldValid('#destination-recipients', true, "");
+                me.isFieldValid('#destination-subject', true, "");
+                me.isFieldValid('#destination-attachment-name', true, "");
+                me.isFieldValid('#destination-attachment-extension', true, "");
+                break;
+            case 'FTP':
+                me.isFieldValid('#ftp-server', true, "");
+                me.isFieldValid('#user-field', true, "");
+                me.isFieldValid('#destination-file-name', true, "");
+                me.isFieldValid('#destination-file-extension', true, "");
+                me.isFieldValid('#destination-file-location', true, "");
+                break;
+            default:
+                break;
+        }
+    },
+
+    isFileNameValid: function() {
+        return this.isRegexFieldValid(
+            '#destination-file-name',
             /[#\<\>$\+%\!`\&\*'\|\{\}\?"\=\/:\\@\s]/,
-            Uni.I18n.translate('dataExport.invalidCharacters.fileName','DES',"This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=/:\\"),
-            '#dxp-file-name-container'
+            Uni.I18n.translate('dataExport.invalidCharacters.fileName', 'DES', "This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=/:\\")
         );
     },
 
-    fileLocationValidation: function(field) {
-        this.fieldValidation(
-            field,
+    isFileLocationValid: function() {
+        return this.isRegexFieldValid(
+            '#destination-file-location',
             /[#\<\>$\+%\!`\&\*'\|\{\}\?"\=:@\s]/,
-            Uni.I18n.translate('dataExport.invalidCharacters.fileLocation','DES',"This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=:"),
-            '#dxp-file-location-container'
+            Uni.I18n.translate('dataExport.invalidCharacters.fileLocation', 'DES', "This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=:")
         );
     },
 
-    fileExtensionValidation: function(field) {
-        this.fieldValidation(
-            field,
+    isFileExtensionValid: function() {
+        return this.isRegexFieldValid(
+            '#destination-file-extension',
             /[#\<\>$\+%\!`\&\*'\|\{\}\?"\=\/:\\@\s]/,
-            Uni.I18n.translate('dataExport.invalidCharacters.fileName','DES',"This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=/:\\"),
-            '#destination-file-extension'
+            Uni.I18n.translate('dataExport.invalidCharacters.fileName', 'DES', "This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=/:\\")
         );
     },
 
-    attachmentNameValidation: function(field) {
-        this.fieldValidation(
-            field,
+    isAttachmentNameValid: function() {
+        return this.isRegexFieldValid(
+            '#destination-attachment-name',
             /[#\<\>$\+%\!`\&\*'\|\{\}\?"\=\/:\\@\s]/,
-            Uni.I18n.translate('dataExport.invalidCharacters.fileName','DES',"This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=/:\\"),
-            '#dxp-attachment-name-container'
+            Uni.I18n.translate('dataExport.invalidCharacters.fileName', 'DES', "This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=/:\\")
         );
     },
 
-    attachmentExtensionValidation: function(field) {
-        this.fieldValidation(
-            field,
+    isAttachmentExtensionValid: function() {
+        return this.isRegexFieldValid(
+            '#destination-attachment-extension',
             /[#\<\>$\+%\!`\&\*'\|\{\}\?"\=\/:\\@\s]/,
-            Uni.I18n.translate('dataExport.invalidCharacters.fileName','DES',"This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=/:\\"),
-            '#destination-attachment-extension'
+            Uni.I18n.translate('dataExport.invalidCharacters.fileName', 'DES', "This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=/:\\")
         );
     },
 
-    fieldValidation: function(field, regexOfInvalidChars, errorMsg, errorMsgComponentId) {
+    isRecipientsValid: function() {
+        return this.isFieldNonEmpty('#destination-recipients');
+    },
+
+    isSubjectValid: function() {
+        return this.isFieldNonEmpty('#destination-subject');
+    },
+
+    isServerNameValid: function() {
+        return this.isFieldNonEmpty('#ftp-server');
+    },
+
+    isUserNameValid: function() {
+        return this.isFieldNonEmpty('#user-field');
+    },
+
+    isFieldNonEmpty: function(fieldId) {
+        var me= this,
+            field = me.down(fieldId);
+        return me.isFieldValid(
+            fieldId,
+            field.getValue() !== null && field.getValue().length > 0,
+            Uni.I18n.translate('dataExport.requiredField', 'DES', 'This field is required')
+        );
+    },
+
+    isRegexFieldValid: function(fieldId, regexOfInvalidChars, errorMsg) {
         var me = this,
             component,
-            value = field.getValue(),
+            value = me.down(fieldId).getValue(),
             allowedTags = [];
 
-        // a. First remove the allowed tags
+        // a. First, check for emptyness
+        if (value === null || value.length === 0) {
+            return me.isFieldValid(fieldId, false, Uni.I18n.translate('dataExport.requiredField','DES','This field is required'));
+        }
+
+        // b. Then remove the allowed tags
         allowedTags.push('<date>');
         allowedTags.push('<time>');
         allowedTags.push('<sec>');
@@ -356,44 +391,61 @@ Ext.define('Dxp.view.tasks.AddDestination', {
             value = value.replace(allowedTags[i], '');
         }
 
-        // b. Then check for invalid characters
-        component = me.down(errorMsgComponentId);
-        if (value.search(regexOfInvalidChars) !== -1) {
-            component.setActiveError(errorMsg);
-            me.showErrorPanel();
-            if (me.fieldIdsWithErrors.indexOf(errorMsgComponentId) === -1) {
-                me.fieldIdsWithErrors.push(errorMsgComponentId);
-            }
-        } else {
+        // c. Then check for invalid characters
+        return me.isFieldValid(fieldId, value.search(regexOfInvalidChars) === -1, errorMsg);
+    },
+
+    isFieldValid: function(fieldId, conditionToBeValid, errorMsg) {
+        var me = this,
+            component = me.down(fieldId);
+
+        if (conditionToBeValid) {
             component.unsetActiveError();
-            if (me.fieldIdsWithErrors.indexOf(errorMsgComponentId) !== -1) {
-                me.fieldIdsWithErrors.splice(me.fieldIdsWithErrors.indexOf(errorMsgComponentId), 1);
+            if (me.fieldIdsWithErrors.indexOf(fieldId) !== -1) {
+                me.fieldIdsWithErrors.splice(me.fieldIdsWithErrors.indexOf(fieldId), 1);
             }
             if (me.fieldIdsWithErrors.length === 0) {
-                me.hideErrorPanel();
+                me.down('#form-errors').hide();
+            }
+        } else {
+            component.setActiveError(errorMsg);
+            me.down('#form-errors').show();
+            if (me.fieldIdsWithErrors.indexOf(fieldId) === -1) {
+                me.fieldIdsWithErrors.push(fieldId);
             }
         }
         component.doComponentLayout();
+        return conditionToBeValid;
     },
 
-    showErrorPanel: function () {
+    isFormValid: function() {
         var me = this,
-            formErrorsPlaceHolder = me.down('#form-errors');
+            methodBox = me.down('#destination-methods-combo');
 
-        formErrorsPlaceHolder.hide();
-        formErrorsPlaceHolder.removeAll();
-        formErrorsPlaceHolder.add({
-            html: Uni.I18n.translate('general.formErrors', 'DES', 'There are errors on this page that require your attention.')
-        });
-        formErrorsPlaceHolder.show();
-    },
-
-    hideErrorPanel: function () {
-        var me = this,
-            formErrorsPlaceHolder = me.down('#form-errors');
-
-        formErrorsPlaceHolder.hide();
-        formErrorsPlaceHolder.removeAll();
+        switch (methodBox.getValue()) {
+            case 'FILE':
+                // Intentionally done in multiple lines:
+                var valid1 = me.isFileNameValid();
+                var valid2 = me.isFileExtensionValid();
+                var valid3 = me.isFileLocationValid();
+                return valid1 && valid2 && valid3;
+            case 'EMAIL':
+                // Intentionally done in multiple lines:
+                var valid1 = me.isRecipientsValid();
+                var valid2 = me.isSubjectValid();
+                var valid3 = me.isAttachmentNameValid();
+                var valid4 = me.isAttachmentExtensionValid();
+                return valid1 && valid2 && valid3 && valid4;
+            case 'FTP':
+                var valid1 = me.isServerNameValid();
+                var valid2 = me.isUserNameValid();
+                var valid3 = me.isFileNameValid();
+                var valid4 = me.isFileExtensionValid();
+                var valid5 = me.isFileLocationValid();
+                return valid1 && valid2 && valid3 && valid4 && valid5;
+            default:
+                return true;
+        }
     }
 
 });

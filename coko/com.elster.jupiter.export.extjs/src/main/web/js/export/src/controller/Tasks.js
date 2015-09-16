@@ -106,6 +106,8 @@ Ext.define('Dxp.controller.Tasks', {
     destinationToEdit: null,
     destinationIndexToEdit: -1,
 
+    requiredFieldText: Uni.I18n.translate('dataExport.requiredField','DES','This field is required'),
+
     init: function () {
         this.control({
             'data-export-tasks-add #recurrence-trigger': {
@@ -380,6 +382,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         if (me.destinationToEdit) {
             view.down('#save-destination-button').setText(Uni.I18n.translate('general.save', 'DES', 'Save'));
+            view.down('#save-destination-button').setDisabled(false);
             view.down('#add-destination-form').setTitle(Uni.I18n.translate('dataExport.editDestination', 'DES', 'Edit destination'));
             me.showAllDestinationAttributes(false);
             var type = me.destinationToEdit.get('type');
@@ -1087,13 +1090,17 @@ Ext.define('Dxp.controller.Tasks', {
     addDestinationToGrid: function (button) {
         var me = this,
             id;
+
+        if (!me.getAddDestinationPage().isFormValid()) {
+            return;
+        }
+
         if(me.destinationToEdit){
             id = me.destinationToEdit.get('id');
         }
         me.destinationToEdit = null;
         me.doAddDestinationToGrid(button,id);
     },
-
 
     doAddDestinationToGrid: function (button,id) {
         var me = this;
@@ -1195,7 +1202,7 @@ Ext.define('Dxp.controller.Tasks', {
         var selectedDataSelector = dataSelectorCombo.findRecord(dataSelectorCombo.valueField, dataSelectorCombo.getValue());
         var emptyReadingTypes = (selectedDataSelector) && (selectedDataSelector.get('isDefault')) && (page.down('#readingTypesGridPanel').getStore().data.items.length == 0);
         if (emptyReadingTypes) {
-            form.down('#readingTypesFieldContainer').setActiveError(Uni.I18n.translate('dataExport.requiredField','DES','This field is required'));
+            form.down('#readingTypesFieldContainer').setActiveError(me.requiredFieldText);
         } else {
             form.down('#readingTypesFieldContainer').unsetActiveError();
         }
@@ -1203,7 +1210,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         var emptyDestinations = page.down('#task-destinations-grid').getStore().data.items.length == 0;
         if (emptyDestinations) {
-            form.down('#destinationsFieldcontainer').setActiveError(Uni.I18n.translate('dataExport.requiredField','DES','This field is required'));
+            form.down('#destinationsFieldcontainer').setActiveError(me.requiredFieldText);
         } else {
             form.down('#destinationsFieldcontainer').unsetActiveError();
         }
@@ -1211,13 +1218,13 @@ Ext.define('Dxp.controller.Tasks', {
 
         var noDataSelectorChosen = !dataSelectorCombo.getValue() || dataSelectorCombo.getValue().length === 0;
         if (noDataSelectorChosen) {
-            form.down('#dxp-data-selector-container').setActiveError(Uni.I18n.translate('dataExport.requiredField','DES','This field is required'));
+            form.down('#dxp-data-selector-container').setActiveError(me.requiredFieldText);
         } else {
             form.down('#dxp-data-selector-container').unsetActiveError();
             var formatterCombo = page.down('#file-formatter-combo'),
                 noFormatterChosen = !formatterCombo.getValue() || formatterCombo.getValue().length === 0;
             if (noFormatterChosen) {
-                form.down('#formatter-container').setActiveError(Uni.I18n.translate('dataExport.requiredField','DES','This field is required'));
+                form.down('#formatter-container').setActiveError(me.requiredFieldText);
             } else {
                 form.down('#formatter-container').unsetActiveError();
             }
