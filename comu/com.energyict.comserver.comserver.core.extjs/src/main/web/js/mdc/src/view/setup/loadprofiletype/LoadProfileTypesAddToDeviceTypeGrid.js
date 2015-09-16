@@ -3,7 +3,6 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypesAddToDeviceTypeGrid',
     alias: 'widget.loadProfileTypesAddToDeviceTypeGrid',
     store: 'LoadProfileTypesOnDeviceTypeAvailable',
     overflowY: 'auto',
-    height: 600,
 
     intervalStore: null,
     deviceTypeId: undefined,
