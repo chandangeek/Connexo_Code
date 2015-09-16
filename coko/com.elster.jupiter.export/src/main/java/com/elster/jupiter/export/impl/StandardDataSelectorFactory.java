@@ -34,7 +34,7 @@ public class StandardDataSelectorFactory implements DataSelectorFactory {
 
     @Override
     public DataSelector createDataSelector(Map<String, Object> properties, Logger logger) {
-        return DelegatingDataSelector.INSTANCE;
+        return new DelegatingDataSelector(logger);
     }
 
     @Override
@@ -65,13 +65,21 @@ public class StandardDataSelectorFactory implements DataSelectorFactory {
         return SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, ReadingTypeDataSelectorImpl.class.getName());
     }
 
-    private enum DelegatingDataSelector implements DataSelector {
+    private class DelegatingDataSelector implements DataSelector {
 
-        INSTANCE;
+        private final Logger logger;
+
+        private DelegatingDataSelector(Logger logger) {
+            this.logger = logger;
+        }
+
 
         @Override
         public Stream<ExportData> selectData(DataExportOccurrence dataExportOccurrence) {
-            return dataExportOccurrence.getTask().getReadingTypeDataSelector().orElseThrow(IllegalStateException::new).selectData(dataExportOccurrence);
+            return dataExportOccurrence.getTask().getReadingTypeDataSelector()
+                    .map(IReadingTypeDataSelector.class::cast)
+                    .map(readingTypeDataSelector -> readingTypeDataSelector.asDataSelector(logger, thesaurus))
+                    .orElseThrow(IllegalStateException::new).selectData(dataExportOccurrence);
         }
     }
 }

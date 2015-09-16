@@ -11,7 +11,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
-public interface ReadingTypeDataSelector extends DataSelector, HasAuditInfo {
+public interface ReadingTypeDataSelector extends HasAuditInfo {
 
     long getId();
 

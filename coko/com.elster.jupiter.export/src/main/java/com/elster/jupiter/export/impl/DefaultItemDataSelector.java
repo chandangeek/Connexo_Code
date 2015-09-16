@@ -15,7 +15,11 @@ import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -23,12 +27,17 @@ import com.google.common.collect.TreeRangeSet;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,10 +49,17 @@ class DefaultItemDataSelector implements ItemDataSelector {
 
     private final Clock clock;
     private final ValidationService validationService;
+    private final Logger logger;
+    private final Thesaurus thesaurus;
+    private final DateTimeFormatter timeFormatter = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withZone(ZoneId.systemDefault());
+    private final TransactionService transactionService;
 
-    public DefaultItemDataSelector(Clock clock, ValidationService validationService) {
+    public DefaultItemDataSelector(Clock clock, ValidationService validationService, Logger logger, Thesaurus thesaurus, TransactionService transactionService) {
         this.clock = clock;
         this.validationService = validationService;
+        this.logger = logger;
+        this.thesaurus = thesaurus;
+        this.transactionService = transactionService;
     }
 
     @Override
@@ -56,8 +72,18 @@ class DefaultItemDataSelector implements ItemDataSelector {
         handleValidatedDataOption(item, strategy, readings, exportInterval);
 
         if (strategy.isExportCompleteData() && !isComplete(item, exportInterval, readings)) {
+            String fromDate = exportInterval.hasLowerBound() ? timeFormatter.format(exportInterval.lowerEndpoint()) : "";
+            String toDate = exportInterval.hasUpperBound() ? timeFormatter.format(exportInterval.upperEndpoint()) : "";
+            try (TransactionContext context = transactionService.getContext()) {
+                MessageSeeds.MISSING_WINDOW.log(logger, thesaurus, fromDate, toDate);
+                context.commit();
+            }
             return Optional.empty();
         }
+        if (!strategy.isExportCompleteData()) {
+            logMissings(item, exportInterval, readings);
+        }
+
 
         if (!readings.isEmpty()) {
             MeterReadingImpl meterReading = asMeterReading(item, readings);
@@ -112,6 +138,55 @@ class DefaultItemDataSelector implements ItemDataSelector {
                 .collect(Collectors.toSet());
         readings.removeIf(baseReadingRecord -> invalids.contains(baseReadingRecord.getTimeStamp()));
     }
+
+    private void logMissings(IReadingTypeDataExportItem item, Range<Instant> exportInterval, List<? extends BaseReadingRecord> readings) {
+        if (!item.getReadingType().isRegular()) {
+            return;
+        }
+        Set<Instant> instants = new TreeSet<>(item.getReadingContainer().toList(item.getReadingType(), exportInterval));
+        readings.stream()
+                .map(BaseReadingRecord::getTimeStamp)
+                .forEach(instants::remove);
+        if (instants.isEmpty()) {
+            return;
+        }
+        TemporalAmount intervalLength = item.getReadingType().getIntervalLength().get();
+        List<ZonedDateTime> zonedDateTimes = instants.stream()
+                .map(instant -> ZonedDateTime.ofInstant(instant, item.getReadingContainer().getZoneId()))
+                .collect(Collectors.toList());
+        int firstMissingIndex = 0;
+        ZonedDateTime start = zonedDateTimes.get(firstMissingIndex);
+        for (int i = 0; i < zonedDateTimes.size() - 1; i++) {
+            start = start.plus(intervalLength);
+            if (!start.equals(zonedDateTimes.get(i + 1)))  {
+                logMissing(zonedDateTimes, firstMissingIndex, i, intervalLength);
+                firstMissingIndex = i + 1;
+                start = zonedDateTimes.get(i + 1);
+            }
+        }
+        logMissing(zonedDateTimes, firstMissingIndex, zonedDateTimes.size() - 1, intervalLength);
+    }
+
+    private void logMissing(List<ZonedDateTime> zonedDateTimes, int startIndex, int endIndex, TemporalAmount intervalLength) {
+        boolean isSingleInterval = endIndex - startIndex == 1;
+        if (isSingleInterval) {
+            doLogMissing(zonedDateTimes, startIndex, startIndex, intervalLength);
+        } else {
+            doLogMissing(zonedDateTimes, startIndex, endIndex, intervalLength);
+        }
+    }
+
+    private void doLogMissing(List<ZonedDateTime> zonedDateTimes, int startIndex, int endIndex, TemporalAmount intervalLength) {
+        ZonedDateTime startTimeToLog = zonedDateTimes.get(startIndex).minus(intervalLength);
+        ZonedDateTime endTimeToLog = zonedDateTimes.get(endIndex);
+        try (TransactionContext context = transactionService.getContext()) {
+            MessageSeeds.MISSING_WINDOW.log(logger, thesaurus,
+                    timeFormatter.format(startTimeToLog),
+                    timeFormatter.format(endTimeToLog));
+            context.commit();
+        }
+    }
+
 
     private boolean isComplete(IReadingTypeDataExportItem item, Range<Instant> exportInterval, List<? extends BaseReadingRecord> readings) {
         Set<Instant> instants = new HashSet<>(item.getReadingContainer().toList(item.getReadingType(), exportInterval));

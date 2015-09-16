@@ -99,8 +99,7 @@ public class SingleDeviceDataSelectorFactory implements DataSelectorFactory {
 
         @Override
         public Stream<ExportData> selectData(DataExportOccurrence dataExportOccurrence) {
-            //todo: to be implemented
-            return dataExportOccurrence.getTask().getReadingTypeDataSelector().orElseThrow(IllegalStateException::new).selectData(dataExportOccurrence);
+            return null;
         }
     }
 }

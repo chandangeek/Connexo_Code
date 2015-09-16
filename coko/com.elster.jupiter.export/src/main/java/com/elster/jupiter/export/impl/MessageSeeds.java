@@ -27,7 +27,9 @@ public enum MessageSeeds implements MessageSeed {
     PARENT_BREAKING_PATH_NOT_ALLOWED(1016, Keys.PARENT_BREAKING_PATH, "Paths that navigate above parent are not allowed here"),
     INVALIDCHARS_EXCEPTION(1017, Keys.INVALIDCHARS_EXCEPTION, "Characters {0} are not allowed."),
     DUPLICATE_IMPORT_SCHEDULE(1018, Keys.DUPLICATE_EXPORT_TASK, "Name must be unique"),
-    FTP_IO(1019, Keys.FTP_FAILURE, "Failure while doing IO on ftp server {0}, port {1}.");
+    FTP_IO(1019, Keys.FTP_FAILURE, "Failure while doing IO on ftp server {0}, port {1}."),
+    MISSING_INTERVAL(1020, "dataexport.item.missinginterval", "The interval {0} with missing data is not exported", Level.INFO),
+    MISSING_WINDOW(1020, "dataexport.item.missinginterval", "The export window {0} - {1} with missing data is not exported", Level.INFO);
     
     private final int number;
     private final String key;

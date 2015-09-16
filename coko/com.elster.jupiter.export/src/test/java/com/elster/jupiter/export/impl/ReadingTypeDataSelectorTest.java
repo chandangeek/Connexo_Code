@@ -52,6 +52,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -124,6 +125,8 @@ public class ReadingTypeDataSelectorTest {
     private FormattedData formattedData;
     @Mock
     private ValidationService validationService;
+    @Mock
+    private Logger logger;
 
     @Before
     public void setUp() {
@@ -207,7 +210,7 @@ public class ReadingTypeDataSelectorTest {
         obsoleteItem = selector.addExportItem(meter3, readingType1);
         when(task.getReadingTypeDataSelector()).thenReturn(Optional.of(selector));
 
-        selector.selectData(dataExportOccurrence);
+        selector.asDataSelector(logger, thesaurus).selectData(dataExportOccurrence);
 
         InOrder inOrder = inOrder(obsoleteItem);
         inOrder.verify(obsoleteItem).deactivate();
@@ -223,7 +226,7 @@ public class ReadingTypeDataSelectorTest {
         obsoleteItem = selector.addExportItem(meter3, readingType1);
         when(task.getReadingTypeDataSelector()).thenReturn(Optional.of(selector));
 
-        selector.selectData(dataExportOccurrence);
+        selector.asDataSelector(logger, thesaurus).selectData(dataExportOccurrence);
 
         InOrder inOrder = inOrder(existingItem);
         inOrder.verify(existingItem).activate();
@@ -239,7 +242,7 @@ public class ReadingTypeDataSelectorTest {
         obsoleteItem = selector.addExportItem(meter3, readingType1);
         when(task.getReadingTypeDataSelector()).thenReturn(Optional.of(selector));
 
-        selector.selectData(dataExportOccurrence);
+        selector.asDataSelector(logger, thesaurus).selectData(dataExportOccurrence);
 
         assertThat(selector.getExportItems())
                 .hasSize(3)

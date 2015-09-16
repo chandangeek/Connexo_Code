@@ -3,6 +3,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
+import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
@@ -13,6 +14,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.JournalEntry;
@@ -40,6 +42,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -102,33 +105,39 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     }
 
     @Override
-    public Stream<ExportData> selectData(DataExportOccurrence occurrence) {
-        IExportTask task = exportTask.get();
-        Set<IReadingTypeDataExportItem> activeItems;
-        Map<IReadingTypeDataExportItem, Optional<Instant>> lastRuns;
-        try (TransactionContext context = transactionService.getContext()) {
-            activeItems = getActiveItems(occurrence);
+    public DataSelector asDataSelector(Logger logger, Thesaurus thesaurus) {
+        return new DataSelector() {
+            @Override
+            public Stream<ExportData> selectData(DataExportOccurrence occurrence) {
+                IExportTask task = exportTask.get();
+                Set<IReadingTypeDataExportItem> activeItems;
+                Map<IReadingTypeDataExportItem, Optional<Instant>> lastRuns;
+                try (TransactionContext context = transactionService.getContext()) {
+                    activeItems = getActiveItems(occurrence);
 
-            getExportItems().stream()
-                    .filter(item -> !activeItems.contains(item))
-                    .peek(IReadingTypeDataExportItem::deactivate)
-                    .forEach(IReadingTypeDataExportItem::update);
-            lastRuns = activeItems.stream()
-                    .collect(Collectors.toMap(Function.identity(), ReadingTypeDataExportItem::getLastRun));
-            activeItems.stream()
-                    .peek(IReadingTypeDataExportItem::activate)
-                    .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                    .forEach(IReadingTypeDataExportItem::update);
-            context.commit();
-        }
+                    getExportItems().stream()
+                            .filter(item -> !activeItems.contains(item))
+                            .peek(IReadingTypeDataExportItem::deactivate)
+                            .forEach(IReadingTypeDataExportItem::update);
+                    lastRuns = activeItems.stream()
+                            .collect(Collectors.toMap(Function.identity(), ReadingTypeDataExportItem::getLastRun));
+                    activeItems.stream()
+                            .peek(IReadingTypeDataExportItem::activate)
+                            .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+                            .forEach(IReadingTypeDataExportItem::update);
+                    context.commit();
+                }
 
-        DefaultItemDataSelector defaultItemDataSelector = new DefaultItemDataSelector(clock, validationService);
-        return activeItems.stream()
-                .flatMap(item -> Stream.of(
-                        defaultItemDataSelector.selectData(occurrence, item),
-                        lastRuns.get(item).flatMap(since -> defaultItemDataSelector.selectDataForUpdate(occurrence, item, since))))
-                .flatMap(Functions.asStream());
+                DefaultItemDataSelector defaultItemDataSelector = new DefaultItemDataSelector(clock, validationService, logger, thesaurus, transactionService);
+                return activeItems.stream()
+                        .flatMap(item -> Stream.of(
+                                defaultItemDataSelector.selectData(occurrence, item),
+                                lastRuns.get(item).flatMap(since -> defaultItemDataSelector.selectDataForUpdate(occurrence, item, since))))
+                        .flatMap(Functions.asStream());
+            }
+        };
     }
+
 
     private Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
         return decorate(getEndDeviceGroup()

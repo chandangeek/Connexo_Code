@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.time.RelativePeriod;
@@ -28,6 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -40,6 +42,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -104,6 +107,10 @@ public class ReadingTypeDataSelectorImplTest {
     private ValidationEvaluator validationEvaluator;
     @Mock
     private ReadingQualityRecord suspectReadingQuality;
+    @Mock
+    private Logger logger;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
@@ -152,6 +159,7 @@ public class ReadingTypeDataSelectorImplTest {
         doReturn(UPDATE_WINDOW_INTERVAL).when(updateWindow).getOpenClosedInterval(UPDATED_RECORD_TIME);
         doReturn(validationEvaluator).when(validationService).getEvaluator();
         doReturn(Optional.of(occurrence)).when(occurrence).getDefaultSelectorOccurrence();
+        doReturn(true).when(validationEvaluator).isValidationEnabled(any(), any());
     }
 
     @After
@@ -169,11 +177,11 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-        collect = selector.selectData(occurrence).collect(Collectors.toList());
+        collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(4);
 
@@ -206,11 +214,11 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-        collect = selector.selectData(occurrence).collect(Collectors.toList());
+        collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(4);
 
@@ -247,7 +255,7 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(1);
 
@@ -271,11 +279,11 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-        collect = selector.selectData(occurrence).collect(Collectors.toList());
+        collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(3);
 
@@ -318,11 +326,11 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-        collect = selector.selectData(occurrence).collect(Collectors.toList());
+        collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(4);
 
@@ -371,11 +379,11 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-        collect = selector.selectData(occurrence).collect(Collectors.toList());
+        collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(4);
 
@@ -424,11 +432,11 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(1);
 
-        collect = selector.selectData(occurrence).collect(Collectors.toList());
+        collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(3);
 
