@@ -56,7 +56,7 @@ public enum TableSpecs {
             Table<UserDirectory> table = dataModel.addTable(name(), UserDirectory.class);
 			table.map(AbstractUserDirectoryImpl.IMPLEMENTERS);
 			Column idColumn = table.addAutoIdColumn();
-			Column domain = table.column("DOMAIN").type("varchar(128)").notNull().map("domain").add();
+			Column domain = table.column("DOMAIN").type("varchar(128)").notNull().map("name").add();
             table.addDiscriminatorColumn("DIRECTORY_TYPE", "char(3)");
 //			table.column("DIRECTORY_TYPE").type("char(3)").notNull().map("type").add();
             table.column("IS_DEFAULT").bool().map("isDefault").add();

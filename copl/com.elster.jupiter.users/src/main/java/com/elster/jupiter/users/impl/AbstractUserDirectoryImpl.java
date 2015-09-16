@@ -2,12 +2,14 @@ package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableMap;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Map;
 
@@ -15,9 +17,10 @@ import java.util.Map;
 public abstract class AbstractUserDirectoryImpl implements UserDirectory {
     protected final UserService userService;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    private String domain;
+    @Size(max = 128, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_128 + "}")
     private String name;
     private boolean isDefault;
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String prefix;
     protected final DataModel dataModel;
     private long version;
@@ -47,7 +50,7 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
 
     @Override
     public String getDomain() {
-        return domain;
+        return name;
     }
 
     @Override
@@ -94,7 +97,7 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
 
     @Override
     public void setDomain(String domain) {
-        this.domain = domain;
+        this.name = domain;
     }
 
     @Override

@@ -25,16 +25,29 @@ public class UniqueAbstractLdapNameValid implements ConstraintValidator<UniqueNa
 
     @Override
     public boolean isValid(AbstractUserDirectoryImpl abstractUserDirectory, ConstraintValidatorContext constraintValidatorContext) {
-        return true;
+        return abstractUserDirectory == null || checkValidity(abstractUserDirectory,constraintValidatorContext);
     }
 
     private boolean checkValidity(AbstractUserDirectoryImpl abstractUserDirectory , ConstraintValidatorContext constraintValidatorContext) {
 
         Optional<? extends UserDirectory> alreadyExisting = userService.findUserDirectory(abstractUserDirectory.getDomain());
 
-        return !alreadyExisting.isPresent();
+        return !alreadyExisting.isPresent() || !checkExisting(abstractUserDirectory,(AbstractLdapDirectoryImpl) alreadyExisting.get(), constraintValidatorContext);
 
     }
+
+    private boolean checkExisting(AbstractUserDirectoryImpl abstractUserDirectory, AbstractUserDirectoryImpl alreadyExisting, ConstraintValidatorContext context) {
+        if (areNotTheSame(abstractUserDirectory, alreadyExisting)) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(message).addPropertyNode("name").addConstraintViolation();
+            return true;
+        }
+        return false;
+    }
+    private boolean areNotTheSame(AbstractUserDirectoryImpl abstractUserDirectory, AbstractUserDirectoryImpl alreadyExisting) {
+        return abstractUserDirectory.getId() != alreadyExisting.getId();
+    }
+
 
 
 }
