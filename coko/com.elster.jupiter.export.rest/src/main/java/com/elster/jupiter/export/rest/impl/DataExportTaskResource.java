@@ -137,7 +137,11 @@ public class DataExportTaskResource {
                         builder.addProperty(spec.getName()).withValue(value);
                     });
         } else {
-            DataExportTaskBuilder.StandardSelectorBuilder selectorBuilder = builder.selectingStandard()
+                if (info.standardDataSelector.exportUpdate && info.standardDataSelector.updatePeriod.id == null) {
+                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateWindow");
+                }
+
+                DataExportTaskBuilder.StandardSelectorBuilder selectorBuilder = builder.selectingStandard()
                     .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
                     .fromUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod))
                     .withUpdateWindow(getRelativePeriod(info.standardDataSelector.updateWindow))
@@ -204,6 +208,10 @@ public class DataExportTaskResource {
             task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
 
             if (info.standardDataSelector != null) {
+                if (info.standardDataSelector.exportUpdate && info.standardDataSelector.updatePeriod.id == null) {
+                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateWindow");
+                }
+
                 ReadingTypeDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
                 selector.setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod));
                 selector.setExportUpdate(info.standardDataSelector.exportUpdate);
