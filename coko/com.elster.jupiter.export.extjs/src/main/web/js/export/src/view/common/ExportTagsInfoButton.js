@@ -14,7 +14,7 @@ Ext.define('Dxp.view.common.ExportTagsInfoButton', {
 
         me.tooltip = Ext.String.format(
             Uni.I18n.translate('general.possibleTags', 'DES', 'Possible tags')
-            + ':</br></br><table>'
+            + ':<br><br><table>'
             + '<tr><td>&lt;date&gt;</td>            <td>:</td><td>{0}</td></tr>'
             + '<tr><td>&lt;time&gt;</td>            <td>:</td><td>{1}</td></tr>'
             + '<tr><td>&lt;sec&gt;</td>             <td>:</td><td>{2}</td></tr>'

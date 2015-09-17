@@ -120,25 +120,12 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                         itemId: 'data-selector-readingTypes-preview',
                         renderer: function (value) {
                             if (value) {
-                                return Uni.I18n.translatePlural('general.nrOfReadingTypes', value.length, 'DES', 'No reading types', '1 reading type', '{0} reading types');
-                            }
-                        },
-                        listeners: {
-                            boxready: function (field) {
-                                field.inputEl.on({
-                                    mouseover: function (e) {
-                                        var str = '';
-                                        Ext.Array.each(field.value, function (item) {
-                                            str += item.fullAliasName + '<br>';
-                                        });
-                                        var tip = field.up('form').myTooltip;
-                                        tip.update(str);
-                                        tip.showAt(e.getXY());
-                                    },
-                                    mouseout: function () {
-                                        field.up('form').myTooltip.hide();
-                                    }
+                                var tooltipText = '';
+                                Ext.Array.each(value, function (item) {
+                                    tooltipText += item.fullAliasName + '<br>';
                                 });
+                                return Uni.I18n.translatePlural('general.nrOfReadingTypes', value.length, 'DES', 'No reading types', '1 reading type', '{0} reading types')
+                                    + '<span class="uni-icon-info-small" style="display: inline-block; width: 16px; height: 16px; margin: 0 0 0 10px" data-qtip="' + tooltipText + '"></span>';
                             }
                         }
                     },

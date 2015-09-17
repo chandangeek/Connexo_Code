@@ -298,7 +298,8 @@ Ext.define('Dxp.view.tasks.AddDestination', {
         return this.isRegexFieldValid(
             '#destination-file-name',
             /[#\<\>$\+%\!`\&\*'\|\{\}\?"\=\/:\\@\s]/,
-            Uni.I18n.translate('dataExport.invalidCharacters.fileName', 'DES', "This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=/:\\")
+            Uni.I18n.translate('dataExport.invalidCharacters.fileName', 'DES',
+                "This field contains a space or one of the following invalid characters: {0}", "#<>$+%!`&*'|?\{@\}\"=/:\\", false)
         );
     },
 
@@ -306,7 +307,8 @@ Ext.define('Dxp.view.tasks.AddDestination', {
         return this.isRegexFieldValid(
             '#destination-file-location',
             /[#\<\>$\+%\!`\&\*'\|\{\}\?"\=:@\s]/,
-            Uni.I18n.translate('dataExport.invalidCharacters.fileLocation', 'DES', "This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=:")
+            Uni.I18n.translate('dataExport.invalidCharacters.fileLocation', 'DES',
+                "This field contains a space or one of the following invalid characters: {0}", "#<>$+%!`&*'|?{@}\"=:", false)
         );
     },
 
@@ -314,7 +316,8 @@ Ext.define('Dxp.view.tasks.AddDestination', {
         return this.isRegexFieldValid(
             '#destination-file-extension',
             /[#\<\>$\+%\!`\&\*'\|\{\}\?"\=\/:\\@\s]/,
-            Uni.I18n.translate('dataExport.invalidCharacters.fileName', 'DES', "This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=/:\\")
+            Uni.I18n.translate('dataExport.invalidCharacters.fileName', 'DES',
+                "This field contains a space or one of the following invalid characters: {0}", "#<>$+%!`&*'|?{@}\"=/:\\", false)
         );
     },
 
@@ -322,7 +325,8 @@ Ext.define('Dxp.view.tasks.AddDestination', {
         return this.isRegexFieldValid(
             '#destination-attachment-name',
             /[#\<\>$\+%\!`\&\*'\|\{\}\?"\=\/:\\@\s]/,
-            Uni.I18n.translate('dataExport.invalidCharacters.fileName', 'DES', "This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=/:\\")
+            Uni.I18n.translate('dataExport.invalidCharacters.fileName', 'DES',
+                "This field contains a space or one of the following invalid characters: {0}", "#<>$+%!`&*'|?{@}\"=/:\\", false)
         );
     },
 
@@ -330,7 +334,8 @@ Ext.define('Dxp.view.tasks.AddDestination', {
         return this.isRegexFieldValid(
             '#destination-attachment-extension',
             /[#\<\>$\+%\!`\&\*'\|\{\}\?"\=\/:\\@\s]/,
-            Uni.I18n.translate('dataExport.invalidCharacters.fileName', 'DES', "This field contains a space or one of the following invalid characters: #<>$+%!`&*'|?\{@\}\"=/:\\")
+            Uni.I18n.translate('dataExport.invalidCharacters.fileName', 'DES',
+                "This field contains a space or one of the following invalid characters: {0}", "#<>$+%!`&*'|?{@}\"=/:\\", false)
         );
     },
 
