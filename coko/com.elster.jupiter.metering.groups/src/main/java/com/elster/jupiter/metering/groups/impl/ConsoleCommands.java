@@ -30,7 +30,7 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
-@Component(name = "com.elster.jupiter.metering.groups.console", service = ConsoleCommands.class, property = {"osgi.command.scope=metering", "osgi.command.function=createEnumeratedEndDeviceGroup", "osgi.command.function=updateEnumeratedEndDeviceGroup", "osgi.command.function=endDeviceGroups"}, immediate = true)
+@Component(name = "com.elster.jupiter.metering.groups.console", service = ConsoleCommands.class, property = {"osgi.command.scope=metering", "osgi.command.function=createEnumeratedEndDeviceGroup", "osgi.command.function=updateEnumeratedEndDeviceGroup", "osgi.command.function=createEnumeratedUsagePointGroup", "osgi.command.function=updateEnumeratedUsagePointGroup", "osgi.command.function=endDeviceGroups"}, immediate = true)
 public class ConsoleCommands {
 
     private volatile MeteringGroupsService meteringGroupsService;
