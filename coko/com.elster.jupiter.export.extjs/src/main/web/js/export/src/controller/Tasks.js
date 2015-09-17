@@ -301,6 +301,7 @@ Ext.define('Dxp.controller.Tasks', {
 
         taskModel.load(currentTaskId, {
             success: function (record) {
+                me.getApplication().fireEvent('dataexporttaskload', record);
                 view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
             }
         });
