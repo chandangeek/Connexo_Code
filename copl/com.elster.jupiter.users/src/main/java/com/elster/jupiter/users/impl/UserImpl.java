@@ -51,16 +51,17 @@ public class UserImpl implements User {
         return dataModel.getInstance(UserImpl.class).init(userDirectory, authenticationName, description, false);
     }*/
 
-    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, boolean allowPwdChange) {
-        return from(dataModel, userDirectory, authenticationName, null, allowPwdChange);
+    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, boolean allowPwdChange,boolean status) {
+        return from(dataModel, userDirectory, authenticationName, null, allowPwdChange,status);
     }
 
-    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, String description, boolean allowPwdChange) {
-        return dataModel.getInstance(UserImpl.class).init(userDirectory, authenticationName, description, allowPwdChange);
+    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, String description, boolean allowPwdChange,boolean status) {
+        return dataModel.getInstance(UserImpl.class).init(userDirectory, authenticationName, description, allowPwdChange,status);
     }
 
-    UserImpl init(UserDirectory userDirectory, String authenticationName, String description, boolean allowPwdChange) {
+    UserImpl init(UserDirectory userDirectory, String authenticationName, String description, boolean allowPwdChange,boolean status) {
         validateAuthenticationName(authenticationName);
+        this.status = status;
         this.userDirectory.set(userDirectory);
         this.authenticationName = authenticationName;
         this.description = description;
@@ -310,6 +311,11 @@ public class UserImpl implements User {
     @Override
     public boolean getStatus(){
         return status;
+    }
+
+    @Override
+    public void setStatus(boolean status){
+        this.status = status;
     }
 
     @Override

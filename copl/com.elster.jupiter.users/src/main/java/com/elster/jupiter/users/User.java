@@ -69,6 +69,8 @@ public interface User extends Principal, HasName {
 
     boolean getStatus();
 
+    void setStatus(boolean status);
+
     String getLanguage();
 
     Instant getCreationDate();

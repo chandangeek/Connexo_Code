@@ -89,7 +89,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.put(Context.SECURITY_CREDENTIALS, password);
         try {
             new InitialDirContext(env);
-            return Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER));
+            return Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER,true));
         } catch (NamingException e) {
             if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
                 urls.remove(0);
@@ -109,7 +109,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.put(Context.SECURITY_PROTOCOL,"ssl");
         try {
             new InitialDirContext(env);
-            return Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER));
+            return Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER,true));
         } catch (NamingException e) {
             if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
                 urls.remove(0);
@@ -132,7 +132,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             tls.negotiate();
             env.put(Context.SECURITY_PRINCIPAL,"uid=" + name + "," + getBaseUser());
             env.put(Context.SECURITY_CREDENTIALS, password);
-            Optional<User> user = Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER));
+            Optional<User> user = Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER,true));
             return user;
         }catch(IOException | NamingException e){
             if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
@@ -216,7 +216,40 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
 
 
     private List<LdapUser> getLdapUsersSSL(List<String> urls){
-        return null;
+        Hashtable<String, Object> env = new Hashtable<>();
+        env.putAll(commonEnvLDAP);
+        List<LdapUser> ldapUsers = new ArrayList<>();
+        env.put(Context.PROVIDER_URL, urls.get(0));
+        NamingEnumeration results = null;
+        env.put(Context.SECURITY_PRINCIPAL,"uid=" + getDirectoryUser() + "," + getBaseUser());
+        env.put(Context.SECURITY_CREDENTIALS, getPassword());
+        env.put(Context.SECURITY_PROTOCOL,"ssl");
+        try {
+            String userName;
+            DirContext ctx = new InitialDirContext(env);
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            results = ctx.search(getBaseUser(),"(objectclass=person)", controls);
+            while (results.hasMore()) {
+                LdapUser ldapUser = new LdapUserImpl();
+                SearchResult searchResult = (SearchResult) results.next();
+                Attributes attributes = searchResult.getAttributes();
+                if (attributes.get("uid")!=null) {
+                    userName = attributes.get("uid").get().toString();
+                    ldapUser.setUsername(userName);
+                    ldapUser.setStatus(true);
+                    ldapUsers.add(ldapUser);
+                }
+            }
+            return ldapUsers;
+        } catch (NamingException e) {
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+                urls.remove(0);
+                return getLdapUsersSSL(urls);
+            }else {
+                return ldapUsers;
+            }
+        }
     }
 
     private List<LdapUser> getLdapUsersTLS(List<String> urls){

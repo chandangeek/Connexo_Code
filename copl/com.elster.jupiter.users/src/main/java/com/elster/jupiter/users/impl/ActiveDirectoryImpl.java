@@ -79,7 +79,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.put(Context.SECURITY_CREDENTIALS, password);
         try {
             new InitialDirContext(env);
-            return Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER));
+            return Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER,true));
         } catch (NamingException e) {
             return Optional.empty();
         }

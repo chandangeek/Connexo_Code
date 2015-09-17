@@ -162,9 +162,6 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Override
     public List<User> getAllUsers(long id){
         List<User> found = dataModel.mapper(User.class).find().stream().filter(s->s.getUserDirectoryId() == id).collect(Collectors.toList());
-        if(found.isEmpty()){
-            throw new NoDefaultDomainException(thesaurus);
-        }
         return found;
     }
 
@@ -200,24 +197,24 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Override
     public User createUser(String name, String description) {
         InternalDirectoryImpl directory = (InternalDirectoryImpl) this.findUserDirectory(getRealm()).orElse(null);
-        UserImpl result = directory.newUser(name, description, false);
+        UserImpl result = directory.newUser(name, description, false,true);
         result.save();
         return result;
     }
 
     @Override
-    public User createApacheDirectoryUser(String name, String domain) {
+    public User createApacheDirectoryUser(String name, String domain,boolean status) {
         ApacheDirectoryImpl directory = (ApacheDirectoryImpl) this.findUserDirectory(domain).orElse(null);
-        UserImpl result = directory.newUser(name, domain, false);
+        UserImpl result = directory.newUser(name, domain, false,status);
         result.save();
 
         return result;
     }
 
     @Override
-    public User createActiveDirectoryUser(String name, String domain) {
+    public User createActiveDirectoryUser(String name, String domain,boolean status) {
         ActiveDirectoryImpl directory = (ActiveDirectoryImpl) this.findUserDirectory(domain).orElse(null);
-        UserImpl result = directory.newUser(name, domain, false);
+        UserImpl result = directory.newUser(name, domain, false,status);
         result.save();
 
         return result;
@@ -279,18 +276,21 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     @Override
-    public User findOrCreateUser(String name, String domain, String directoryType) {
+    public User findOrCreateUser(String name, String domain, String directoryType,boolean status) {
         Condition userCondition = Operator.EQUALIGNORECASE.compare("authenticationName", name);
         Condition domainCondition = Operator.EQUALIGNORECASE.compare("userDirectory.name", domain);
         List<User> users = dataModel.query(User.class, UserDirectory.class).select(userCondition.and(domainCondition));
         if (users.isEmpty()) {
             if (ApacheDirectoryImpl.TYPE_IDENTIFIER.equals(directoryType)) {
-                return createApacheDirectoryUser(name, domain);
+                return createApacheDirectoryUser(name, domain,status);
             }
             if (ActiveDirectoryImpl.TYPE_IDENTIFIER.equals(directoryType)) {
-                return createActiveDirectoryUser(name, domain);
+                return createActiveDirectoryUser(name, domain,status);
             }
-            return createUser(name, domain);
+        }
+        if(users.get(0).getStatus() != status){
+            users.get(0).setStatus(status);
+            users.get(0).save();
         }
         return users.get(0);
     }

@@ -101,7 +101,7 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
     }
 
     @Override
-    public UserImpl newUser(String userName, String description, boolean allowPwdChange) {
-        return UserImpl.from(dataModel, this, userName, description, allowPwdChange);
+    public UserImpl newUser(String userName, String description, boolean allowPwdChange,boolean status) {
+        return UserImpl.from(dataModel, this, userName, description, allowPwdChange,status);
     }
 }

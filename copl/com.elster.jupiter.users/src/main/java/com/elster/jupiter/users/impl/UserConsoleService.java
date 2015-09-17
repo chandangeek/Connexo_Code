@@ -31,7 +31,7 @@ public class UserConsoleService {
          try ( TransactionContext context = transactionService.getContext()){
 
              UserDirectory userDirectory = userService.findDefaultUserDirectory();
-             User user = userDirectory.newUser(name, "", false);
+             User user = userDirectory.newUser(name, "", false,true);
              user.setPassword(pass);
              user.save();
              context.commit();
