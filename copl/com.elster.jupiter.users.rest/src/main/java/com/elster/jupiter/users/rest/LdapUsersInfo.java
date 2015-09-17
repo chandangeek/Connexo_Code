@@ -5,7 +5,7 @@ import com.elster.jupiter.users.LdapUser;
 public class LdapUsersInfo {
 
     public String name;
-    public String status;
+    public boolean status;
 
     public LdapUsersInfo(){
 
