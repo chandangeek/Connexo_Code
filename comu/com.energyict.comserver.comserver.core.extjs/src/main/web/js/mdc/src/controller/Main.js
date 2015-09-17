@@ -103,7 +103,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceTransitionExecute',
         'Mdc.controller.setup.DeviceAttributes',
         'Mdc.usagepointmanagement.controller.UsagePoint',
-        'Mdc.customattributesets.controller.AttributeSets'
+        'Mdc.customattributesets.controller.AttributeSets',
+        'Mdc.devicetypecustomattributes.controller.AttributeSets'
     ],
 
     refs: [

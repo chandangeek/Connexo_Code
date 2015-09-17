@@ -38,6 +38,16 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
                         href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations'
                     }
                 ]
+            },
+            {
+                title: Uni.I18n.translate('devicetypemenu.customattribute', 'MDC', 'Custom attribute'),
+                items: [
+                    {
+                        text: Uni.I18n.translate('devicetypemenu.customattribute.sets', 'MDC', 'Custom attribute sets'),
+                        itemId: 'configurationsLink',
+                        href: '#/administration/devicetypes/' + this.deviceTypeId + '/customattributesets'
+                    }
+                ]
             }
         ];
         this.callParent(this);

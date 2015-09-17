@@ -16,7 +16,9 @@ Ext.define('Mdc.customattributesets.service.LevelMap', {
         var string = '';
 
         Ext.each(privilegesArr, function(privilege, index) {
-            if (index != 0 ) string += ' - ';
+            if (index != 0 ) {
+                string += ' - ';
+            }
             string += Mdc.customattributesets.service.LevelMap.getTranslation(privilege);
         });
         return string;

@@ -32,7 +32,7 @@ Ext.define('Mdc.customattributesets.view.widget.LevelsSelector', {
         var me = this,
             levels = [];
 
-        Ext.each(me.items.items, function(checkbox) {
+        me.items.each(function(checkbox) {
             if (checkbox.getValue()) {
                 levels.push(checkbox.itemId)
             }

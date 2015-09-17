@@ -86,9 +86,11 @@ Ext.define('Mdc.customattributesets.controller.AttributeSets', {
             attributesGridPanel = me.getAttributesGridPanel(),
             attributesStore = attributesGrid.getStore();
 
+        Ext.suspendLayouts();
         attributesGridPanel.setTitle(Uni.I18n.translate('customattributesets.attributesof', 'MDC', 'Attributes of \'{0}\'', [Ext.String.htmlEncode(record.get('name'))]));
         attributesStore.removeAll();
         attributesStore.add(Mdc.customattributesets.service.AttributeTransformer.transform(record.get('attributes')));
+        Ext.resumeLayouts();
     },
 
     showCustomAttributeSets: function () {

@@ -531,6 +531,22 @@ Ext.define('Mdc.controller.history.Setup', {
                                             action: 'addRegisterMappings'
                                         }
                                     }
+                                },
+                                customattributesets: {
+                                    title: Uni.I18n.translate('general.customAttributeSets', 'MDC', 'Custom attribute sets'),
+                                    route: 'customattributesets',
+                                    privileges: Mdc.privileges.DeviceType.view,
+                                    controller: 'Mdc.devicetypecustomattributes.controller.AttributeSets',
+                                    action: 'showCustomAttributeSets',
+                                    items: {
+                                        add: {
+                                            title: Uni.I18n.translate('general.addCustomAttributeSets','MDC','Add custom attribute sets'),
+                                            route: 'add',
+                                            privileges: Mdc.privileges.DeviceType.admin,
+                                            controller: 'Mdc.devicetypecustomattributes.controller.AttributeSets',
+                                            action: 'showAddCustomAttributeSets'
+                                        }
+                                    }
                                 }
                             }
                         }
