@@ -193,8 +193,6 @@ public class ChannelResource {
             IntervalReadingRecord channelReading = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst()).orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
             return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, status, deviceValidation, channelReading);
         });
-        List<VeeReadingInfo> list = new ArrayList<>();
-        list.add(veeReadingInfo.orElseGet(VeeReadingInfo::new));
         return Response.ok(veeReadingInfo.orElseGet(VeeReadingInfo::new)).build();
     }
 

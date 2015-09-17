@@ -1,10 +1,14 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
@@ -15,6 +19,7 @@ import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfo;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
@@ -24,6 +29,7 @@ import com.google.common.collect.ImmutableList;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -41,15 +47,24 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
  */
 public class ValidationInfoFactory {
 
+    private static final List<QualityCodeCategory> QUALITY_CODE_CATEGORIES = Arrays.asList(
+            QualityCodeCategory.DIAGNOSTICS,
+            QualityCodeCategory.POWERQUALITY,
+            QualityCodeCategory.TAMPER,
+            QualityCodeCategory.DATACOLLECTION
+    );
+
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
     private final PropertyUtils propertyUtils;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public ValidationInfoFactory(ValidationRuleInfoFactory validationRuleInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, PropertyUtils propertyUtils) {
+    public ValidationInfoFactory(ValidationRuleInfoFactory validationRuleInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, PropertyUtils propertyUtils, Thesaurus thesaurus) {
         this.validationRuleInfoFactory = validationRuleInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.propertyUtils = propertyUtils;
+        this.thesaurus = thesaurus;
     }
 
     DetailedValidationRuleInfo createDetailedValidationRuleInfo(ValidationRule validationRule, Long total) {
@@ -209,12 +224,28 @@ public class ValidationInfoFactory {
         VeeReadingInfo veeReadingInfo = createVeeReadingInfo(channel, dataValidationStatus, deviceValidation);
         veeReadingInfo.mainValidationInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getReadingQualities());
         veeReadingInfo.mainValidationInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getReadingQualities());
+        veeReadingInfo.readingQualities = getReadingQualities(reading);
         if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
             veeReadingInfo.bulkValidationInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getBulkReadingQualities());
             veeReadingInfo.bulkValidationInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getBulkReadingQualities());
         }
         return veeReadingInfo;
     }
+
+    private List<IdWithNameInfo> getReadingQualities(IntervalReadingRecord intervalReadingRecord) {
+        return intervalReadingRecord.getReadingQualities().stream()
+                .filter(ReadingQualityRecord::isActual)
+                .map(ReadingQuality::getType)
+                .distinct()
+                .filter(type -> type.system().isPresent())
+                .filter(type -> type.qualityIndex().isPresent())
+                .filter(type -> QUALITY_CODE_CATEGORIES.contains(type.category().get()))
+                .map(type -> Pair.of(type.getCode(), type.qualityIndex().get()))
+                .map(pair -> new IdWithNameInfo(pair.getFirst(),
+                        thesaurus.getStringBeyondComponent(pair.getLast().getTranslationKey().getKey(), pair.getLast().getTranslationKey().getDefaultFormat())))
+                .collect(Collectors.toList());
+    }
+
 
     MinimalVeeReadingValueInfo createMainVeeReadingInfo(DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading) {
         MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
@@ -289,4 +320,42 @@ public class ValidationInfoFactory {
             suspectReasonMap.compute(r, (k, v) -> v + 1);
         });
     }
+
+    MinimalVeeReadingInfo createMinimalVeeReadingInfo(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation) {
+        MinimalVeeReadingInfo veeReadingInfo = new MinimalVeeReadingInfo();
+        veeReadingInfo.dataValidated = dataValidationStatus.completelyValidated();
+        veeReadingInfo.mainValidationInfo = createMainVeeReadingInfo(dataValidationStatus, deviceValidation);
+        veeReadingInfo.mainValidationInfo = createBulkVeeReadingInfo(channel, dataValidationStatus, deviceValidation);
+        return veeReadingInfo;
+    }
+
+    MinimalVeeReadingValueInfo createMainVeeReadingInfo(DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation) {
+        MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
+        veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
+        veeReadingInfo.action = decorate(dataValidationStatus.getReadingQualities()
+                .stream())
+                .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
+                .map(quality -> quality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
+                .sorted(Comparator.<ValidationAction>reverseOrder())
+                .findFirst()
+                .orElse(null);
+        return veeReadingInfo;
+    }
+
+    MinimalVeeReadingValueInfo createBulkVeeReadingInfo(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation) {
+        if (channel.getReadingType().getCalculatedReadingType().isPresent()) {
+            MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
+            veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
+            veeReadingInfo.action = decorate(dataValidationStatus.getBulkReadingQualities()
+                    .stream())
+                    .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
+                    .map(quality -> quality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
+                    .sorted(Comparator.<ValidationAction>reverseOrder())
+                    .findFirst()
+                    .orElse(null);
+            return veeReadingInfo;
+        }
+        return null;
+    }
+
 }
