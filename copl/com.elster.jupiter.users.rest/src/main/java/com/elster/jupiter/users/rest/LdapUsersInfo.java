@@ -1,6 +1,8 @@
 package com.elster.jupiter.users.rest;
 
 import com.elster.jupiter.users.LdapUser;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.impl.UserImpl;
 
 public class LdapUsersInfo {
 
@@ -15,4 +17,10 @@ public class LdapUsersInfo {
         name = ldapUser.getUserName();
         status = ldapUser.getStatus();
     }
+
+    public LdapUsersInfo(User ldapUser){
+        name = ldapUser.getName();
+        status = ldapUser.getStatus();
+    }
+
 }

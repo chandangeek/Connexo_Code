@@ -181,8 +181,14 @@ public class UserDirectoryResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE})
     public PagedInfoList getAllUsers(@BeanParam JsonQueryParameters queryParameters,@PathParam("id") long id,@Context SecurityContext securityContext) {
-        List<UserImpl> users = userService.getAllUsers(id);
-        return null;
+        List<User> users = userService.getAllUsers(id);
+        List<LdapUsersInfo> ldapUsersInfos = ListPager.of(users)
+                .paged(queryParameters.getStart().orElse(null), queryParameters.getLimit().orElse(null))
+                .find()
+                .stream()
+                .map(LdapUsersInfo::new)
+                .collect(toList());
+        return PagedInfoList.fromCompleteList("allusers",ldapUsersInfos,queryParameters);
     }
 
     private RestQuery<UserDirectory> getUserDirectoriesQuery() {
