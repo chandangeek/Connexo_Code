@@ -6,11 +6,10 @@ import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.users.LdapUserDirectory;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserDirectory;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.*;
 import com.elster.jupiter.users.impl.AbstractLdapDirectoryImpl;
+import com.elster.jupiter.users.impl.UserImpl;
+import com.elster.jupiter.users.rest.LdapUsersInfo;
 import com.elster.jupiter.users.rest.UserDirectoryInfo;
 import com.elster.jupiter.users.rest.UserDirectoryInfos;
 import com.elster.jupiter.users.security.Privileges;
@@ -24,6 +23,8 @@ import javax.ws.rs.core.*;
 import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Path("/userdirectories")
 public class UserDirectoryResource {
@@ -165,11 +166,14 @@ public class UserDirectoryResource {
     @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE})
     public PagedInfoList getExtUsers(@BeanParam JsonQueryParameters queryParameters,@PathParam("id") long id,@Context SecurityContext securityContext) {
         LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
-        List<String> ldapUsers = ldapUserDirectory.getLdapUsers();
-        if(!ldapUsers.isEmpty()) {
-            Collections.sort(ldapUsers);
-        }
-        return PagedInfoList.fromCompleteList("extusers",ldapUsers,queryParameters);
+        List<LdapUser> ldapUsers = ldapUserDirectory.getLdapUsers();
+        List<LdapUsersInfo> ldapUsersInfos = ListPager.of(ldapUsers)
+                .paged(queryParameters.getStart().orElse(null), queryParameters.getLimit().orElse(null))
+                .find()
+                .stream()
+                .map(LdapUsersInfo::new)
+                .collect(toList());
+        return PagedInfoList.fromCompleteList("extusers",ldapUsersInfos,queryParameters);
     }
 
     @GET
@@ -177,7 +181,7 @@ public class UserDirectoryResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE})
     public PagedInfoList getAllUsers(@BeanParam JsonQueryParameters queryParameters,@PathParam("id") long id,@Context SecurityContext securityContext) {
-        List<User> users = userService.getAllUsers(id);
+        List<UserImpl> users = userService.getAllUsers(id);
         return null;
     }
 
