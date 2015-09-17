@@ -377,6 +377,11 @@
                 <artifactId>commons-csv</artifactId>
                 <version>1.0</version>
             </dependency>
+            <dependency>
+                <groupId>com.enterprisedt</groupId>
+                <artifactId>edtftpj-pro</artifactId>
+                <version>4.8.1</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
