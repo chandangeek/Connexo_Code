@@ -253,7 +253,51 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     private List<LdapUser> getLdapUsersTLS(List<String> urls){
-        return null;
+        Hashtable<String, Object> env = new Hashtable<>();
+        List<LdapUser> ldapUsers = new ArrayList<>();
+        env.putAll(commonEnvLDAP);
+        NamingEnumeration results = null;
+        env.put(Context.PROVIDER_URL, urls.get(0));
+        try{
+            String userName;
+            LdapContext ctx = new InitialLdapContext(env, null);
+            ExtendedRequest tlsRequest = new StartTlsRequest();
+            ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
+            tls = (StartTlsResponse)tlsResponse;
+            tls.negotiate();
+            env.put(Context.SECURITY_PRINCIPAL,"uid=" + getDirectoryUser() + "," + getBaseUser());
+            env.put(Context.SECURITY_CREDENTIALS, getPassword());
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            results = ctx.search(getBaseUser(),"(objectclass=person)", controls);
+            while (results.hasMore()) {
+                LdapUser ldapUser = new LdapUserImpl();
+                SearchResult searchResult = (SearchResult) results.next();
+                Attributes attributes = searchResult.getAttributes();
+                if (attributes.get("uid")!=null) {
+                    userName = attributes.get("uid").get().toString();
+                    ldapUser.setUsername(userName);
+                    ldapUser.setStatus(true);
+                    ldapUsers.add(ldapUser);
+                }
+            }
+            return ldapUsers;
+        }catch(IOException | NamingException e){
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+                urls.remove(0);
+                return getLdapUsersTLS(urls);
+            }else {
+                return ldapUsers;
+            }
+        }finally {
+            if(tls != null){
+                try {
+                    tls.close();
+                }catch (IOException e){
+
+                }
+            }
+        }
     }
 
 }
