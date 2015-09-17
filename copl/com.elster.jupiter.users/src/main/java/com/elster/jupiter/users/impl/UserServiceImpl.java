@@ -160,6 +160,15 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     @Override
+    public List<UserImpl> getAllUsers(long id){
+        List<UserImpl> found = dataModel.query(UserImpl.class).select(Operator.EQUAL.compare("userDirectory", id));
+        if(found.isEmpty()){
+            throw new NoDefaultDomainException(thesaurus);
+        }
+        return found;
+    }
+
+    @Override
     public Optional<User> authenticateBase64(String base64) {
         if (base64 == null || base64.isEmpty()) {
             return Optional.empty();

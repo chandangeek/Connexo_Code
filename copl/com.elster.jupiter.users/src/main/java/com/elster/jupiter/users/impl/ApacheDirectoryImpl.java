@@ -2,6 +2,7 @@ package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.LdapUser;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
@@ -163,7 +164,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     @Override
-    public List<String> getLdapUsers() {
+    public List<LdapUser> getLdapUsers() {
         List<String> urls = getUrls();
         if(getSecurity()==null||getSecurity().toUpperCase().contains("NONE")){
             return getLdapUsersSimple(urls);
@@ -176,25 +177,32 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         }
     }
 
-    private List<String> getLdapUsersSimple(List<String> urls){
-        List<String> ldapUsers = new ArrayList<String>();
+    private List<LdapUser> getLdapUsersSimple(List<String> urls){
         Hashtable<String, Object> env = new Hashtable<>();
+        List<LdapUser> ldapUsers = new ArrayList<>();
         env.putAll(commonEnvLDAP);
         NamingEnumeration results = null;
         env.put(Context.PROVIDER_URL, urls.get(0));
         env.put(Context.SECURITY_PRINCIPAL,"uid=" + getDirectoryUser() + "," + getBaseUser());
         env.put(Context.SECURITY_CREDENTIALS, getPassword());
         try {
+            String userName;
+            String status = "Active";
             DirContext ctx = new InitialDirContext(env);
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
             results = ctx.search(getBaseUser(),"(objectclass=person)", controls);
             while (results.hasMore()) {
+                LdapUser ldapUser = new LdapUserImpl();
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
                 if (attributes.get("uid")!=null) {
-                    ldapUsers.add(attributes.get("uid").get().toString());
+                    userName = attributes.get("uid").get().toString();
+                    ldapUser.setUsername(userName);
+                    ldapUser.setStatus(status);
+                    ldapUsers.add(ldapUser);
                 }
+
             }
             return ldapUsers;
         } catch (NamingException e) {
@@ -208,11 +216,11 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
 
-    private List<String> getLdapUsersSSL(List<String> urls){
+    private List<LdapUser> getLdapUsersSSL(List<String> urls){
         return null;
     }
 
-    private List<String> getLdapUsersTLS(List<String> urls){
+    private List<LdapUser> getLdapUsersTLS(List<String> urls){
         return null;
     }
 

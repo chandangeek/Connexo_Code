@@ -2,6 +2,7 @@ package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.LdapUser;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
@@ -11,10 +12,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -102,7 +100,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     @Override
-    public List<String> getLdapUsers() {
+    public List<LdapUser> getLdapUsers() {
 
         return null;
     }
