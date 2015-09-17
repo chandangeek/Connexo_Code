@@ -1,9 +1,6 @@
 package com.elster.jupiter.export.rest.impl;
 
-import com.elster.jupiter.export.DataExportOccurrence;
-import com.elster.jupiter.export.DataExportStatus;
-import com.elster.jupiter.export.DefaultSelectorOccurrence;
-import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.*;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
@@ -17,6 +14,8 @@ import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.ON_REQUEST;
@@ -93,6 +92,7 @@ public class DataExportTaskHistoryInfo {
             task.properties = propertyUtils.convertPropertySpecsToPropertyInfos(version.getPropertySpecs(), version.getProperties(dataExportOccurrence.getTriggerTime()));
         }
 
+
     }
 
     private void populateForReadingTypeDataExportTask(ExportTask version, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {
@@ -103,6 +103,16 @@ public class DataExportTaskHistoryInfo {
                 task.standardDataSelector.readingTypes.add(new ReadingTypeInfo(readingType));
             }
         });
+        version.getDestinations(dataExportOccurrence.getTriggerTime()).stream()
+                .sorted((d1, d2) -> d1.getCreateTime().compareTo(d2.getCreateTime()))
+                .forEach(destination -> task.destinations.add(typeOf(destination).toInfo(destination)));
+    }
+
+    private DestinationType typeOf(DataExportDestination destination) {
+        return Arrays.stream(DestinationType.values())
+                .filter(type -> type.getDestinationClass().isInstance(destination))
+                .findAny()
+                .orElseThrow(IllegalArgumentException::new);
     }
 
     private void setStatusOnDate(DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {
