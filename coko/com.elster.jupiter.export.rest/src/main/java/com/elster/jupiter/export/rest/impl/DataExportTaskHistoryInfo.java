@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.NONRECURRENT;
 import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.ON_REQUEST;
 import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.SCHEDULED;
 
@@ -96,7 +97,9 @@ public class DataExportTaskHistoryInfo {
             task.properties = propertyUtils.convertPropertySpecsToPropertyInfos(version.getPropertySpecs(), version.getProperties(dataExportOccurrence.getTriggerTime()));
         }
 
-
+        if (dataExportOccurrence.wasScheduled() && task.nextRun==null) {
+            this.trigger = NONRECURRENT.translate(thesaurus);
+        }
     }
 
     private void populateForReadingTypeDataExportTask(ExportTask version, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {

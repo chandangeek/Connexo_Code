@@ -75,7 +75,8 @@ public enum MessageSeeds implements MessageSeed {
 
     public enum Labels {
         SCHEDULED("dataexporttask.occurrence.scheduled", "Scheduled"),
-        ON_REQUEST("dataexporttask.occurrence.onrequest", "On request");
+        ON_REQUEST("dataexporttask.occurrence.onrequest", "On request"),
+        NONRECURRENT("dataexporttask.occurrence.nonrecurrent", "Nonrecurrent");
 
         private final String key;
         private final String defaultTranslation;
