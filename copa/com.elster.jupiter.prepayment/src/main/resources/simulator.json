@@ -1,0 +1,24 @@
+{
+  "simulator": {
+    "outputFrequency": 5,
+    "destinationFilePath": "/tmp",
+    "connexoUrl": "http://localhost:8085/api/v1.0/dda/usagepoints",
+    "usagePoints": [
+      {
+        "readingType": "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0",
+        "consumption": 3000,
+        "mRID": "up1",
+        "device_mRID": "mrid1",
+        "status": "connected"
+      },
+      {
+        "readingType": "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0",
+        "consumption": 1400,
+        "mRID": "up2",
+        "device_mRID": "mrid2",
+        "status": "disconnected"
+      }
+    ]
+  }
+}
+
