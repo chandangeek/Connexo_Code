@@ -50,29 +50,29 @@ Ext.define('Dxp.model.Destination', {
                 switch(data.type) {
                     case 'FILE':
                         return Uni.I18n.translate('general.fileLocation', 'DES', 'File location')
-                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(data.fileLocation)) + '</br>'
+                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(data.fileLocation)) + '<br>'
                             + Uni.I18n.translate('general.fileName', 'DES', 'File name')
-                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(data.fileName)) + '</br>'
+                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(data.fileName)) + '<br>'
                             + Uni.I18n.translate('general.fileExtension', 'DES', 'File extension')
                             + ': ' + data.fileExtension;
                     case 'EMAIL':
                         return Uni.I18n.translate('dataExportdestinations.recipients', 'DES', 'Recipients')
-                            + ': ' + data.recipients + '</br>'
+                            + ': ' + data.recipients + '<br>'
                             + Uni.I18n.translate('general.subject', 'DES', 'Subject')
-                            + ': ' + data.subject + '</br>'
+                            + ': ' + data.subject + '<br>'
                             + Uni.I18n.translate('general.fileName', 'DES', 'File name')
-                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(data.fileName)) + '</br>'
+                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(data.fileName)) + '<br>'
                             + Uni.I18n.translate('general.fileExtension', 'DES', 'File extension')
                             + ': ' + data.fileExtension;
                     case 'FTP':
                         return Uni.I18n.translate('dataExportdestinations.ftpServer', 'DES', 'FTP server')
-                            + ': ' + data.server + '</br>'
+                            + ': ' + data.server + '<br>'
                             + Uni.I18n.translate('general.user', 'DES', 'User')
-                            + ': ' + data.user + '</br>'
+                            + ': ' + data.user + '<br>'
                             + Uni.I18n.translate('general.fileName', 'DES', 'File name')
-                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(data.fileName)) + '</br>'
+                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(data.fileName)) + '<br>'
                             + Uni.I18n.translate('general.fileExtension', 'DES', 'File extension')
-                            + ': ' + data.fileExtension + '</br>'
+                            + ': ' + data.fileExtension + '<br>'
                             + Uni.I18n.translate('general.fileLocation', 'DES', 'File location')
                             + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(data.fileLocation));
                     default:

@@ -1173,9 +1173,9 @@ Ext.define('Dxp.controller.Tasks', {
                         method: Uni.I18n.translate('destination.file','DES','Save file'),
                         destination: formValues['fileLocation'] + '/' + formValues['fileName'] + '.' + formValues['fileExtension'],
                         tooltiptext: Uni.I18n.translate('general.fileLocation', 'DES', 'File location')
-                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileLocation'])) + '</br>'
+                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileLocation'])) + '<br>'
                             + Uni.I18n.translate('general.fileName', 'DES', 'File name')
-                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileName'])) + '</br>'
+                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileName'])) + '<br>'
                             + Uni.I18n.translate('general.fileExtension', 'DES', 'File extension')
                             + ': ' + formValues['fileExtension']
                     })
@@ -1190,10 +1190,10 @@ Ext.define('Dxp.controller.Tasks', {
                         method: Uni.I18n.translate('destination.email','DES','Mail'),
                         destination: formValues['recipients'],
                         tooltiptext: Uni.I18n.translate('dataExportdestinations.recipients', 'DES', 'Recipients')
-                            + ': ' + formValues['recipients'] + '</br>'
-                            + Uni.I18n.translate('general.subject', 'DES', 'Subject') + ': ' + formValues['subject'] + '</br>'
+                            + ': ' + formValues['recipients'] + '<br>'
+                            + Uni.I18n.translate('general.subject', 'DES', 'Subject') + ': ' + formValues['subject'] + '<br>'
                             + Uni.I18n.translate('general.fileName', 'DES', 'File name')
-                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['attachmentName'])) + '</br>'
+                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['attachmentName'])) + '<br>'
                             + Uni.I18n.translate('general.fileExtension', 'DES', 'File extension')
                             + ': ' + formValues['attachmentExtension']
                     })
@@ -1210,12 +1210,12 @@ Ext.define('Dxp.controller.Tasks', {
                         method: Uni.I18n.translate('destination.ftp','DES','Ftp'),
                         destination: formValues['server'],
                         tooltiptext: Uni.I18n.translate('dataExportdestinations.ftpServer', 'DES', 'FTP server')
-                            + ': ' + formValues['server'] + '</br>'
-                            + Uni.I18n.translate('general.user', 'DES', 'User') + ': ' + formValues['user'] + '</br>'
+                            + ': ' + formValues['server'] + '<br>'
+                            + Uni.I18n.translate('general.user', 'DES', 'User') + ': ' + formValues['user'] + '<br>'
                             + Uni.I18n.translate('general.fileName', 'DES', 'File name')
-                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileName'])) + '</br>'
+                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileName'])) + '<br>'
                             + Uni.I18n.translate('general.fileExtension', 'DES', 'File extension')
-                            + ': ' + formValues['fileExtension'] + '</br>'
+                            + ': ' + formValues['fileExtension'] + '<br>'
                             + Uni.I18n.translate('general.fileLocation', 'DES', 'File location')
                             + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileLocation']))
                     })

@@ -15,14 +15,14 @@ Ext.define('Dxp.view.tasks.DestinationsField', {
                             Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileLocation))
                             + '/' + Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileName))
                             + '.' + destination.fileExtension +
-                            ')</BR>';
+                            ')<br>';
                         break;
                     case 'EMAIL':
                         toolTip += Uni.I18n.translate('destination.email','DES','Mail') +
                             ' (' + Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileName))
-                            + '.' + destination.fileExtension + ')</BR>'
+                            + '.' + destination.fileExtension + ')<br>'
                             + destination.recipients.split(/\n/).map(function(recipient){
-                                return '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;' + recipient + '</BR>';
+                                return '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;' + recipient + '<br>';
                             }).join('');
                         break;
                     case 'FTP':
@@ -31,7 +31,7 @@ Ext.define('Dxp.view.tasks.DestinationsField', {
                             'ftp://' + destination.server + '/' + Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileLocation))
                             + '/' + Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileName))
                             + '.' + destination.fileExtension +
-                            ')</BR>';
+                            ')<br>';
                         break;
                     case 'FTPS':
                         //implement whan ftps is implemented
@@ -39,7 +39,8 @@ Ext.define('Dxp.view.tasks.DestinationsField', {
                 }
             });
         }
-        result += '<span data-qtip="' + toolTip + '">'+ nrOfDestinations +'</span>';
+        result += nrOfDestinations;
+        result += '<span class="uni-icon-info-small" style="display: inline-block; width: 16px; height: 16px; margin: 0 0 0 10px" data-qtip="' + toolTip +'"></span>';
         return result;
     }
 });
