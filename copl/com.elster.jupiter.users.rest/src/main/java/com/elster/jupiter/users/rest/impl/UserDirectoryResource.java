@@ -7,6 +7,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.LdapUserDirectory;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.AbstractLdapDirectoryImpl;
@@ -159,14 +160,25 @@ public class UserDirectoryResource {
     }
 
     @GET
+    @Path("/{id}/extusers")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE})
+    public PagedInfoList getExtUsers(@BeanParam JsonQueryParameters queryParameters,@PathParam("id") long id,@Context SecurityContext securityContext) {
+        LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
+        List<String> ldapUsers = ldapUserDirectory.getLdapUsers();
+        if(!ldapUsers.isEmpty()) {
+            Collections.sort(ldapUsers);
+        }
+        return PagedInfoList.fromCompleteList("extusers",ldapUsers,queryParameters);
+    }
+
+    @GET
     @Path("/{id}/allusers")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE})
     public PagedInfoList getAllUsers(@BeanParam JsonQueryParameters queryParameters,@PathParam("id") long id,@Context SecurityContext securityContext) {
-        LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
-        List<String> ldapUsers = ldapUserDirectory.getLdapUsers();
-        Collections.sort(ldapUsers);
-        return PagedInfoList.fromCompleteList("allusers",ldapUsers,queryParameters);
+        List<User> users = userService.getAllUsers(id);
+        return null;
     }
 
     private RestQuery<UserDirectory> getUserDirectoriesQuery() {
