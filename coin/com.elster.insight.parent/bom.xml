@@ -15,6 +15,19 @@
     <packaging>pom</packaging>
     <name>[Insight] insight.parent</name>
 
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <jetty-server.version>7.6.3.v20120416</jetty-server.version>
+        <json.version>20090211</json.version>
+        <!-- next line is the argLine for the maven-surefire-plugin
+             but it must be declared as a property because of the jacoco plugin (defined$
+             see http://docs.codehaus.org/display/SONAR/JaCoCo+Plugin
+             -->
+        <argLine>-Xms512m -Xmx1024m</argLine>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -50,6 +63,27 @@
                 <version>1.0.0-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>
+
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>properties</artifactId>
+                <version>2.0.0-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>${json.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>devtools.rest</artifactId>
+                <version>1.1.0-SNAPSHOT</version>
+                <scope>test</scope>
+            </dependency>
+
 
 
         </dependencies>

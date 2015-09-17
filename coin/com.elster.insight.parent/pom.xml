@@ -19,18 +19,6 @@
         <url>www.elster.com</url>
     </organization>
 
-    <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <jetty-server.version>7.6.3.v20120416</jetty-server.version>
-        <json.version>20090211</json.version>
-        <!-- next line is the argLine for the maven-surefire-plugin
-             but it must be declared as a property because of the jacoco plugin (defined in jupiter parent)
-             see http://docs.codehaus.org/display/SONAR/JaCoCo+Plugin
-             -->
-        <argLine>-Xms512m -Xmx1024m</argLine>
-    </properties>
-
     <issueManagement>
         <system>Jira</system>
         <url>http://jira.eict.vpdc</url>
@@ -44,74 +32,12 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.elster.jupiter.subsystem</groupId>
-                <artifactId>kore</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
+                <groupId>com.elster</groupId>
+                <artifactId>insight.bom</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <dependency>
-                <groupId>com.elster</groupId>
-                <artifactId>insight.common</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.elster</groupId>
-                <artifactId>insight.usagepoint.data</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.json</groupId>
-                <artifactId>json</artifactId>
-                <version>${json.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>devtools.rest</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-                <scope>test</scope>
-            </dependency>
-
-
-
-           <!-- 
-                Once there is a bundle that contains test, it's forseen 
-                that we'll need at least some of these dependencies so
-                leave for now and clean up later
-
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>devtools</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>devtools.persistence</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>bootstrap.h2</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>messaging.h2</artifactId>
-                <version>1.1.0-SNAPSHOT</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.google.jimfs</groupId>
-                <artifactId>jimfs</artifactId>
-                <version>1.0</version>
-                <scope>test</scope>
-            </dependency>
--->
         </dependencies>
 
     </dependencyManagement>
