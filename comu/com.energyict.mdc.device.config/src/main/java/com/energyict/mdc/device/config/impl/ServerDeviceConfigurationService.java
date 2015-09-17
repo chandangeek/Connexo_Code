@@ -21,7 +21,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-02-18 (16:36)
  */
-public interface ServerDeviceConfigurationService extends DeviceConfigurationService {
+public interface ServerDeviceConfigurationService extends DeviceConfigurationService, ReferencePropertySpecFinderProvider {
 
     public Thesaurus getThesaurus();
 
