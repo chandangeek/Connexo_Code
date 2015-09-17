@@ -32,8 +32,8 @@ import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSuppor
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
-import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.RegisterFactory;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -41,6 +41,7 @@ import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetIm
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -58,6 +59,8 @@ public class Beacon3100 extends AbstractDlmsProtocol {
     private static final ObisCode FRAMECOUNTER_OBISCODE = ObisCode.fromString("0.0.43.1.1.255");
     private static final String MIRROR_LOGICAL_DEVICE_PREFIX = "ELS-MIR-";
     private static final String GATEWAY_LOGICAL_DEVICE_PREFIX = "ELS-UGW-";
+    private static final String UTF_8 = "UTF-8";
+    private static final int MAC_ADDRESS_LENGTH = 8;    //In bytes
 
     private Beacon3100Messaging beacon3100Messaging;
     private G3GatewayEvents g3GatewayEvents;
@@ -206,9 +209,12 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         }
 
         for (SAPAssignmentItem sapAssignmentItem : sapAssignmentList) {
-            final String logicalDeviceName = sapAssignmentItem.getLogicalDeviceName();
-            if (isGatewayLogicalDevice(logicalDeviceName)) {
-                final String macAddress = ProtocolTools.getHexStringFromBytes(logicalDeviceName.substring(logicalDeviceName.length() - 8).getBytes(), "");  //Last 8 bytes = the MAC address!
+
+            byte[] logicalDeviceNameBytes = sapAssignmentItem.getLogicalDeviceNameBytes();
+
+            if (hasLogicalDevicePrefix(logicalDeviceNameBytes, GATEWAY_LOGICAL_DEVICE_PREFIX)) {
+                byte[] logicalNameMacBytes = ProtocolTools.getSubArray(logicalDeviceNameBytes, GATEWAY_LOGICAL_DEVICE_PREFIX.length(), GATEWAY_LOGICAL_DEVICE_PREFIX.length() + MAC_ADDRESS_LENGTH);
+                final String macAddress = ProtocolTools.getHexStringFromBytes(logicalNameMacBytes, "");
                 DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);
                 deviceTopology.addSlaveDevice(slaveDeviceIdentifier);   //Using callHomeId as a general property
                 deviceTopology.addAdditionalCollectedDeviceInfo(
@@ -230,15 +236,19 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         return deviceTopology;
     }
 
-    private boolean isGatewayLogicalDevice(String logicalDeviceName) {
-        return logicalDeviceName.startsWith(GATEWAY_LOGICAL_DEVICE_PREFIX);
+    private boolean hasLogicalDevicePrefix(byte[] logicalDeviceNameBytes, String expectedPrefix) {
+        byte[] actualPrefixBytes = ProtocolTools.getSubArray(logicalDeviceNameBytes, 0, expectedPrefix.length());
+        String actualPrefix = new String(actualPrefixBytes, Charset.forName(UTF_8));
+        return actualPrefix.equals(expectedPrefix);
     }
 
     private long findMatchingMirrorLogicalDevice(String gatewayMacAddress, List<SAPAssignmentItem> sapAssignmentList) {
         for (SAPAssignmentItem sapAssignmentItem : sapAssignmentList) {
-            final String logicalDeviceName = sapAssignmentItem.getLogicalDeviceName();
-            if (logicalDeviceName.startsWith(MIRROR_LOGICAL_DEVICE_PREFIX)) {
-                final String mirrorMacAddress = ProtocolTools.getHexStringFromBytes(logicalDeviceName.substring(logicalDeviceName.length() - 8).getBytes(), "");
+            byte[] logicalDeviceNameBytes = sapAssignmentItem.getLogicalDeviceNameBytes();
+            if (hasLogicalDevicePrefix(logicalDeviceNameBytes, MIRROR_LOGICAL_DEVICE_PREFIX)) {
+                byte[] logicalNameMacBytes = ProtocolTools.getSubArray(logicalDeviceNameBytes, MIRROR_LOGICAL_DEVICE_PREFIX.length(), MIRROR_LOGICAL_DEVICE_PREFIX.length() + MAC_ADDRESS_LENGTH);
+                final String mirrorMacAddress = ProtocolTools.getHexStringFromBytes(logicalNameMacBytes, "");
+
                 if (gatewayMacAddress.equals(mirrorMacAddress)) {
                     return sapAssignmentItem.getSap();
                 }
