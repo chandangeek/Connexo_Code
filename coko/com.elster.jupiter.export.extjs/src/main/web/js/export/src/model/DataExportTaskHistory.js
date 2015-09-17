@@ -127,7 +127,75 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
                 }
                 return '-';
             }
+        },
+        {
+            name: 'dataSelector',
+            persist: false,
+            mapping: function(data) {
+                return data.task.dataSelector;
+            }
+        },
+        {
+            name: 'exportPeriod',
+            persist: false,
+            mapping: function(data){
+                if(data.task.standardDataSelecto){
+                    return data.task.standardDataSelector?data.task.standardDataSelector.exportPeriod.name:'';
+                } else {
+                     return '';
+                }
+            }
+        },
+        {
+            name: 'exportUpdateForPreview',
+            persist: false,
+            convert: function(value,record){
+                if(record.data.task.standardDataSelector){
+                    return record.data.task.standardDataSelector.exportUpdate==='true'?
+                        Uni.I18n.translate('general.exportWithinWindowX', 'DES', "Export within the update window '{0}'",[record.data.task.standardDataSelector.updatePeriod?record.data.task.standardDataSelector.updatePeriod.name:Uni.I18n.translate('general.notDefined', 'DES', 'Not defined')]):
+                        Uni.I18n.translate('general.noExportForUpdated', 'DES', 'Do not export');
+                } else {
+                    return '';
+                }
+            }
+        },
+        {
+            name: 'updatedValuesForPreview',
+            persist: false,
+            convert: function(value,record){
+                if(record.data.task.standardDataSelector){
+                    return record.data.task.standardDataSelector.updateWindow?Uni.I18n.translate('general.exportValuesAndAdjacentX', 'DES', "updated values and adjacent data within timeframe '{0}'",[record.data.task.standardDataSelector.updateWindow.name]):Uni.I18n.translate('general.updateValuesOnly', 'DES', 'updated values only');
+                }
+            }
+        },
+        {
+            name: 'exportComplete',
+            persist: false,
+            mapping: function (data) {
+                if ((data.task.standardDataSelector)) {
+                    return data.task.standardDataSelector.exportComplete?'true':'false';
+                }
+            }
+        },
+        {
+            name: 'validatedDataOption',
+            persist: false,
+            mapping: function (data) {
+                if ((data.task.standardDataSelector)) {
+                    return data.task.standardDataSelector.validatedDataOption;
+                } else {
+                    return null;
+                }
+            }
+        },
+        {
+            name: 'destinations',
+            persist: false,
+            mapping: function (data) {
+                return data.task.destinations;
+            }
         }
+
     ],
 
     associations: [

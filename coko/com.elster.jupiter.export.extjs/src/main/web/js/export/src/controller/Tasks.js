@@ -74,6 +74,10 @@ Ext.define('Dxp.controller.Tasks', {
             selector: 'data-export-tasks-add'
         },
         {
+            ref: 'historyPreviewForm',
+            selector: 'dxp-tasks-history-preview-form'
+        },
+        {
             ref: 'addDestinationPage',
             selector: 'data-export-add-destination'
         },
@@ -323,6 +327,47 @@ Ext.define('Dxp.controller.Tasks', {
             } else {
                 previewForm.down('#reason-field').hide();
             }
+
+            // TODO: Fix properties stuff.
+
+            //if (record.task.properties() && record.task.properties().count()) {
+            //    previewForm.down('#task-properties-preview').loadRecord(record);
+            //}
+
+            if ((record.getTask().getDataSelector()) && (record.getTask().getDataSelector().properties()) && (record.getTask().getDataSelector().properties().count())) {
+                previewForm.down('#data-selector-properties-preview').show();
+                previewForm.down('#data-selector-deviceGroup-preview').hide();
+                previewForm.down('#data-selector-readingTypes-preview').hide();
+                previewForm.down('#data-selector-exportPeriod-preview').hide();
+                previewForm.down('#continuousData-preview').hide();
+                previewForm.down('#updated-data').hide();
+                previewForm.down('#updated-values').hide();
+                previewForm.down('#data-selector-export-complete').hide();
+                previewForm.down('#data-selector-validated-data').hide();
+                //dataValidation.hide();
+                //missingData.hide();
+                //updatedData.hide();
+                //updatedValuesData.hide();
+                previewForm.down('#data-selector-properties-preview').loadRecord(record.getTask().getDataSelector());
+            } else {
+                previewForm.down('#data-selector-properties-preview').hide();
+                previewForm.down('#data-selector-deviceGroup-preview').show();
+                previewForm.down('#data-selector-readingTypes-preview').show();
+                previewForm.down('#data-selector-exportPeriod-preview').show();
+                previewForm.down('#continuousData-preview').show();
+                previewForm.down('#updated-data').show();
+                previewForm.down('#updated-values').show();
+                previewForm.down('#data-selector-export-complete').show();
+                previewForm.down('#data-selector-validated-data').show();
+                //dataValidation.show();
+                //missingData.show();
+                //updatedData.show();
+                //updatedValuesData.show();
+            }
+
+
+
+
             previewForm.loadRecord(record);
 
             if (record.data.properties && record.data.properties.length) {
