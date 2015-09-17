@@ -22,6 +22,8 @@ public interface MeteringGroupsService {
     Optional<EnumeratedUsagePointGroup> findEnumeratedUsagePointGroup(long id);
 
     Optional<UsagePointGroup> findUsagePointGroup(String mRID);
+    
+    Optional<UsagePointGroup> findUsagePointGroupByName(String name);
 
     QueryEndDeviceGroup createQueryEndDeviceGroup(Condition condition);
 

@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.groups;
 
 import java.time.Instant;
+import java.util.List;
 
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.associations.Effectivity;
@@ -19,5 +20,7 @@ public interface EnumeratedUsagePointGroup extends UsagePointGroup {
     Entry add(UsagePoint usagePoint, Range<Instant> range);
 
     void remove(Entry entry);
+    
+    List<? extends Entry> getEntries();
 
 }

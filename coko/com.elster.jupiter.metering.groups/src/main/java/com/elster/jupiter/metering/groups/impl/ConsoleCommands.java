@@ -1,17 +1,6 @@
 package com.elster.jupiter.metering.groups.impl;
 
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.util.time.Interval;
-import com.google.common.collect.Range;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import static com.elster.jupiter.util.streams.Functions.asStream;
 
 import java.time.Clock;
 import java.util.ArrayList;
@@ -24,7 +13,22 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
-import static com.elster.jupiter.util.streams.Functions.asStream;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 @Component(name = "com.elster.jupiter.metering.groups.console", service = ConsoleCommands.class, property = {"osgi.command.scope=metering", "osgi.command.function=createEnumeratedEndDeviceGroup", "osgi.command.function=updateEnumeratedEndDeviceGroup", "osgi.command.function=endDeviceGroups"}, immediate = true)
 public class ConsoleCommands {
@@ -54,6 +58,26 @@ public class ConsoleCommands {
             threadPrincipalService.clear();
         }
     }
+    
+    public void createEnumeratedUsagePointGroup(String name, long... ids) {
+        final EnumeratedUsagePointGroup group = meteringGroupsService.createEnumeratedUsagePointGroup(name);
+        final List<EnumeratedUsagePointGroup.Entry> entries = new ArrayList<>();
+        for (long id : ids) {
+            Optional<UsagePoint> usagePoint = meteringService.findUsagePoint(id);
+            if (usagePoint.isPresent()) {
+                EnumeratedUsagePointGroup.Entry entry = group.add(usagePoint.get(), Range.atLeast(clock.instant()));
+                entries.add(entry);
+            }
+        }
+        threadPrincipalService.set(() -> "console");
+        try {
+            transactionService.execute(VoidTransaction.of(group::save));
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
 
     public void updateEnumeratedEndDeviceGroup(String name, long... ids) {
         EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName(name).orElseThrow(() -> new IllegalArgumentException("group not found"));
@@ -65,7 +89,7 @@ public class ConsoleCommands {
                 .collect(Collectors.toList());
 
         Map<Long, EnumeratedEndDeviceGroup.Entry> currentEntries = enumeratedEndDeviceGroup.getEntries().stream()
-                .collect(mapper());
+                .collect(endDeviceMapper());
 
         // remove those no longer mapped
         currentEntries.entrySet().stream()
@@ -85,9 +109,43 @@ public class ConsoleCommands {
             threadPrincipalService.clear();
         }
     }
+    
+    public void updateEnumeratedUsagePointGroup(String name, long... ids) {
+        UsagePointGroup usagePointGroup = meteringGroupsService.findUsagePointGroupByName(name).orElseThrow(() -> new IllegalArgumentException("group not found"));
+        final EnumeratedUsagePointGroup enumeratedUsagePointGroup = (EnumeratedUsagePointGroup) usagePointGroup;
+        LongStream usagePointIds = Arrays.stream(ids);
+        List<UsagePoint> usagePoints = usagePointIds.mapToObj(meteringService::findUsagePoint)
+                .flatMap(asStream())
+                .collect(Collectors.toList());
 
-    private Collector<EnumeratedEndDeviceGroup.Entry, ?, Map<Long, EnumeratedEndDeviceGroup.Entry>> mapper() {
+        Map<Long, EnumeratedUsagePointGroup.Entry> currentEntries = enumeratedUsagePointGroup.getEntries().stream()
+                .collect(usagePointMapper());
+
+        // remove those no longer mapped
+        currentEntries.entrySet().stream()
+                .filter(entry -> usagePoints.stream().mapToLong(UsagePoint::getId).noneMatch(id -> id == entry.getKey()))
+                .forEach(entry -> enumeratedUsagePointGroup.remove(entry.getValue()));
+
+        // add new ones
+        usagePoints.stream()
+                .filter(usagePoint -> !currentEntries.containsKey(usagePoint.getId()))
+                .forEach(usagePoint -> enumeratedUsagePointGroup.add(usagePoint, Interval.sinceEpoch().toClosedRange()));
+        threadPrincipalService.set(() -> "console");
+        try {
+            transactionService.execute(VoidTransaction.of(enumeratedUsagePointGroup::save));
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
+    private Collector<EnumeratedEndDeviceGroup.Entry, ?, Map<Long, EnumeratedEndDeviceGroup.Entry>> endDeviceMapper() {
         return Collectors.toMap(entry -> entry.getEndDevice().getId(), Function.identity());
+    }
+    
+    private Collector<EnumeratedUsagePointGroup.Entry, ?, Map<Long, EnumeratedUsagePointGroup.Entry>> usagePointMapper() {
+        return Collectors.toMap(entry -> entry.getUsagePoint().getId(), Function.identity());
     }
 
     public void endDeviceGroups() {

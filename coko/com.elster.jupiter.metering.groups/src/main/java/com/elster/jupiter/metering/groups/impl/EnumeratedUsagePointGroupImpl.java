@@ -1,5 +1,14 @@
 package com.elster.jupiter.metering.groups.impl;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import javax.inject.Inject;
+
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
@@ -11,21 +20,10 @@ import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Function;
-
-import java.time.Instant;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
-
-import javax.inject.Inject;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup implements EnumeratedUsagePointGroup {
 
@@ -39,8 +37,13 @@ public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup imple
     EnumeratedUsagePointGroupImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
+    
+    @Override
+    public List<EntryImpl> getEntries() {
+        return doGetEntries();
+    }
 
-    private List<EntryImpl> getEntries() {
+    private List<EntryImpl> doGetEntries() {
         if (entries == null) {
             List<Entry> entryList = dataModel.mapper(Entry.class).find("usagePointGroup", this);
             entries = new ArrayList<>(entryList.size());
