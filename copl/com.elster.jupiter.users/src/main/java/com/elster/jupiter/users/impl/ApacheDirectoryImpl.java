@@ -187,7 +187,6 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.put(Context.SECURITY_CREDENTIALS, getPassword());
         try {
             String userName;
-            String status = "Active";
             DirContext ctx = new InitialDirContext(env);
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -199,7 +198,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                 if (attributes.get("uid")!=null) {
                     userName = attributes.get("uid").get().toString();
                     ldapUser.setUsername(userName);
-                    ldapUser.setStatus(status);
+                    ldapUser.setStatus(true);
                     ldapUsers.add(ldapUser);
                 }
 

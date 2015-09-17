@@ -10,9 +10,9 @@ import javax.inject.Inject;
 public class LdapUserImpl implements LdapUser {
 
     private String username;
-    private String status;
+    private boolean status;
 
-    LdapUserImpl init(String username, String status){
+    LdapUserImpl init(String username, boolean status){
         this.username = username;
         this.status = status;
         return this;
@@ -28,12 +28,12 @@ public class LdapUserImpl implements LdapUser {
     }
 
     @Override
-    public void setStatus(String status) {
+    public void setStatus(boolean status) {
         this.status = status;
     }
 
     @Override
-    public String getStatus() {
+    public boolean getStatus() {
         return status;
     }
 }

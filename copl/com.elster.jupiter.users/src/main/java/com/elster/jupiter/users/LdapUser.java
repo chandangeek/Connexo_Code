@@ -7,7 +7,7 @@ public interface LdapUser {
 
     String getUserName();
 
-    void setStatus(String status);
+    void setStatus(boolean status);
 
-    String getStatus();
+    boolean getStatus();
 }
