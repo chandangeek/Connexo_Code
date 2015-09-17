@@ -82,7 +82,7 @@ public interface UserService {
 
     UserDirectory findDefaultUserDirectory();
 
-    List<UserImpl> getAllUsers(long id);
+    List<User> getAllUsers(long id);
 
     LdapUserDirectory createActiveDirectory(String domain);
 

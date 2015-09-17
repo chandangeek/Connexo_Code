@@ -160,8 +160,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     @Override
-    public List<UserImpl> getAllUsers(long id){
-        List<UserImpl> found = dataModel.query(UserImpl.class).select(Operator.EQUAL.compare("userDirectory", id));
+    public List<User> getAllUsers(long id){
+        List<User> found = dataModel.mapper(User.class).find().stream().filter(s->s.getUserDirectoryId() == id).collect(Collectors.toList());
         if(found.isEmpty()){
             throw new NoDefaultDomainException(thesaurus);
         }

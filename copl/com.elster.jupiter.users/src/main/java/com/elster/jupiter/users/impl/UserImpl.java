@@ -167,6 +167,11 @@ public class UserImpl implements User {
         return builder.build();
     }
 
+    @Override
+    public long getUserDirectoryId(){
+        return userDirectory.get().getId();
+    }
+
     public void save() {
         if (id == 0) {
             dataModel.mapper(User.class).persist(this);
@@ -300,6 +305,11 @@ public class UserImpl implements User {
     @Override
     public String getDomain() {
         return userDirectory.get().getDomain();
+    }
+
+    @Override
+    public boolean getStatus(){
+        return status;
     }
 
     @Override
