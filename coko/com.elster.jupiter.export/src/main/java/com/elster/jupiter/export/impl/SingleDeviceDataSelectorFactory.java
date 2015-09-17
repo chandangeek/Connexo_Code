@@ -27,9 +27,9 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-//@Component(name = "com.elster.jupiter.export.processor.SingleDeviceDataSelectorFactory",
-//        service = DataSelectorFactory.class, property = { DataExportService.DATA_TYPE_PROPERTY + "="+ DataExportService.STANDARD_DATA_TYPE},
-//        immediate = true)
+@Component(name = "com.elster.jupiter.export.processor.SingleDeviceDataSelectorFactory",
+        service = DataSelectorFactory.class, property = { DataExportService.DATA_TYPE_PROPERTY + "="+ DataExportService.STANDARD_DATA_TYPE},
+        immediate = true)
 public class SingleDeviceDataSelectorFactory implements DataSelectorFactory {
 
     private volatile TransactionService transactionService;
