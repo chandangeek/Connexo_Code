@@ -102,6 +102,9 @@ public interface CommunicationSessionProperties {
      * <p/>
      * Polling: check inputstream.available periodically, read number of bytes if available.
      * Non polling: use blocking read calls on the inputstream without checking
+     * <p/>
+     * Also, in case of non-polling for TCP IP communication, frames that have a wrong WPDU source or destination will be fully read & ignored.
+     * After that, the connection layer will attempt to read out the next full frame, so the normal protocol sequence can continue.
      */
     public boolean isUsePolling();
 }

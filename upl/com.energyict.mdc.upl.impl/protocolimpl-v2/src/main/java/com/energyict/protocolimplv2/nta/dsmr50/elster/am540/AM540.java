@@ -16,11 +16,7 @@ import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -62,6 +58,8 @@ import java.util.List;
  * Copyrights EnergyICT
  * V2 version of the AM540 protocol.
  * This version adds breaker & relais support and other IDIS features.
+ * <p/>
+ * Note that this is a hybrid between DSMR5.0 and IDISP2.
  *
  * @author khe
  * @since 17/12/2014 - 14:30

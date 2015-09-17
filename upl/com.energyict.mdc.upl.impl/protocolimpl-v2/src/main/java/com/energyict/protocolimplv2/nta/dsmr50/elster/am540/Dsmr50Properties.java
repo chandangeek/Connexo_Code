@@ -62,6 +62,15 @@ public class Dsmr50Properties extends DlmsProperties {
         }
     }
 
+    /**
+     * In case of non-polling for TCP IP communication, frames that have a wrong WPDU source or destination will be fully read & ignored.
+     * After that, the connection layer will attempt to read out the next full frame, so the normal protocol sequence can continue.
+     */
+    @Override
+    public boolean isUsePolling() {
+        return false;
+    }
+
     public boolean getCheckNumberOfBlocksDuringFirmwareResume() {
         return getProperties().getTypedProperty(Dsmr50ConfigurationSupport.CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, Dsmr50ConfigurationSupport.DEFAULT_CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME);
     }

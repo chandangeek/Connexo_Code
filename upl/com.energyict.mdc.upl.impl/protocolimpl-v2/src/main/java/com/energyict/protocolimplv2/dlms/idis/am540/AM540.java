@@ -38,6 +38,7 @@ public class AM540 extends AM130 {
 
     private AM540Cache am540Cache;
 
+
     @Override
     public String getProtocolDescription() {
         return "AM540 DLMS (IDIS P2)";
