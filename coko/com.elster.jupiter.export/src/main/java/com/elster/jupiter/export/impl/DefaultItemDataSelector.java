@@ -180,7 +180,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
         ZonedDateTime startTimeToLog = zonedDateTimes.get(startIndex).minus(intervalLength);
         ZonedDateTime endTimeToLog = zonedDateTimes.get(endIndex);
         try (TransactionContext context = transactionService.getContext()) {
-            MessageSeeds.MISSING_WINDOW.log(logger, thesaurus,
+            MessageSeeds.MISSING_INTERVAL.log(logger, thesaurus,
                     timeFormatter.format(startTimeToLog),
                     timeFormatter.format(endTimeToLog));
             context.commit();
