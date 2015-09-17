@@ -343,6 +343,7 @@
                             <includeTransitiveDependencies>true</includeTransitiveDependencies>
                             <acceptPomPackaging>true</acceptPomPackaging>
                             <thirdPartyFilename>connexo-platform-third-party.txt</thirdPartyFilename>
+                            <excludedGroups>com.enterprisedt|com.elster|com.yellowfin</excludedGroups>
                         </configuration>
                     </execution>
                 </executions>
