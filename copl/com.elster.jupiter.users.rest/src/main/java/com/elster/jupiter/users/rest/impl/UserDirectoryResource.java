@@ -10,6 +10,7 @@ import com.elster.jupiter.users.*;
 import com.elster.jupiter.users.impl.AbstractLdapDirectoryImpl;
 import com.elster.jupiter.users.impl.UserImpl;
 import com.elster.jupiter.users.rest.LdapUsersInfo;
+import com.elster.jupiter.users.rest.LdapUsersInfos;
 import com.elster.jupiter.users.rest.UserDirectoryInfo;
 import com.elster.jupiter.users.rest.UserDirectoryInfos;
 import com.elster.jupiter.users.security.Privileges;
@@ -177,10 +178,10 @@ public class UserDirectoryResource {
     }
 
     @GET
-    @Path("/{id}/allusers")
+    @Path("/{id}/users")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE})
-    public PagedInfoList getAllUsers(@BeanParam JsonQueryParameters queryParameters,@PathParam("id") long id,@Context SecurityContext securityContext) {
+    public PagedInfoList getUsers(@BeanParam JsonQueryParameters queryParameters,@PathParam("id") long id,@Context SecurityContext securityContext) {
         List<User> users = userService.getAllUsers(id);
         List<LdapUsersInfo> ldapUsersInfos = ListPager.of(users)
                 .paged(queryParameters.getStart().orElse(null), queryParameters.getLimit().orElse(null))
@@ -188,9 +189,21 @@ public class UserDirectoryResource {
                 .stream()
                 .map(LdapUsersInfo::new)
                 .collect(toList());
-        return PagedInfoList.fromCompleteList("allusers",ldapUsersInfos,queryParameters);
+        return PagedInfoList.fromCompleteList("users",ldapUsersInfos,queryParameters);
     }
 
+    @PUT
+    @Path("/{id}/users")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE})
+    public PagedInfoList saveUsers(LdapUsersInfos infos ,@PathParam("id") long id,@Context SecurityContext securityContext) {
+        try (TransactionContext context = transactionService.getContext()) {
+            LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
+            infos.ldapUsers.stream().forEach(s -> userService.findOrCreateUser(s.name, ldapUserDirectory.getDomain(), ldapUserDirectory.getType()));
+            context.commit();
+        }
+        return null;
+    }
     private RestQuery<UserDirectory> getUserDirectoriesQuery() {
         Query<UserDirectory> query = userService.getLdapDirectories();
         return restQueryService.wrap(query);
