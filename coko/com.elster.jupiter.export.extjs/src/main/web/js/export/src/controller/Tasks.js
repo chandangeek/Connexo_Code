@@ -242,7 +242,6 @@ Ext.define('Dxp.controller.Tasks', {
                     updatedValuesData = detailsForm.down('#updated-values');
 
                 actionsMenu.record = record;
-                actionsMenu.down('#view-details').hide();
                 view.down('#tasks-view-menu #tasks-view-link').setText(record.get('name'));
                 me.getApplication().fireEvent('dataexporttaskload', record);
                 detailsForm.loadRecord(record);
@@ -330,9 +329,9 @@ Ext.define('Dxp.controller.Tasks', {
 
             // TODO: Fix properties stuff.
 
-            //if (record.task.properties() && record.task.properties().count()) {
-            //    previewForm.down('#task-properties-preview').loadRecord(record);
-            //}
+            if (record.getTask().properties() && record.getTask().properties().count()) {
+                previewForm.down('#task-properties-preview').loadRecord(record.getTask());
+            }
 
             if ((record.getTask().getDataSelector()) && (record.getTask().getDataSelector().properties()) && (record.getTask().getDataSelector().properties().count())) {
                 previewForm.down('#data-selector-properties-preview').show();
