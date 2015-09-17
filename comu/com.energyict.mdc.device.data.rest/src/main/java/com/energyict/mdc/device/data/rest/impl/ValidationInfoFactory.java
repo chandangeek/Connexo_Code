@@ -325,7 +325,7 @@ public class ValidationInfoFactory {
         MinimalVeeReadingInfo veeReadingInfo = new MinimalVeeReadingInfo();
         veeReadingInfo.dataValidated = dataValidationStatus.completelyValidated();
         veeReadingInfo.mainValidationInfo = createMainVeeReadingInfo(dataValidationStatus, deviceValidation);
-        veeReadingInfo.mainValidationInfo = createBulkVeeReadingInfo(channel, dataValidationStatus, deviceValidation);
+        veeReadingInfo.bulkValidationInfo = createBulkVeeReadingInfo(channel, dataValidationStatus, deviceValidation);
         return veeReadingInfo;
     }
 
