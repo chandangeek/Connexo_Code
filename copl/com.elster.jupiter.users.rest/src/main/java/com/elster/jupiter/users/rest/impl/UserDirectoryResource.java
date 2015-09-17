@@ -85,15 +85,14 @@ public class UserDirectoryResource {
             } else {
                 ldapUserDirectory = userService.createActiveDirectory(info.name);
             }
-            ldapUserDirectory.setDirectoryUser("admin");
+            ldapUserDirectory.setDirectoryUser(info.directoryUser);
             ldapUserDirectory.setSecurity(info.securityProtocol);
-            ldapUserDirectory.setPassword("admin");
+            ldapUserDirectory.setPassword(info.password);
             ldapUserDirectory.setBaseGroup(info.baseGroup);
             ldapUserDirectory.setBaseUser(info.baseUser);
             ldapUserDirectory.setUrl(info.url);
             ldapUserDirectory.setBackupUrl(info.backupUrl);
             ldapUserDirectory.setDefault(info.isDefault);
-            ldapUserDirectory.setPrefix(info.prefix);
             ldapUserDirectory.save();
             context.commit();
             return info;
@@ -124,12 +123,13 @@ public class UserDirectoryResource {
                     LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
                     ldapUserDirectory.setBackupUrl(info.backupUrl);
                     ldapUserDirectory.setDomain(info.name);
+                    ldapUserDirectory.setPassword(info.password);
                     ldapUserDirectory.setUrl(info.url);
+                    ldapUserDirectory.setDirectoryUser(info.directoryUser);
                     ldapUserDirectory.setSecurity(info.securityProtocol);
                     ldapUserDirectory.setBaseGroup(info.baseGroup);
                     ldapUserDirectory.setBaseUser(info.baseUser);
                     ldapUserDirectory.setDefault(info.isDefault);
-                    ldapUserDirectory.setPrefix(info.prefix);
                     ldapUserDirectory.setType(info.type);
                     ldapUserDirectory.save();
                 }

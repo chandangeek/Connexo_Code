@@ -9,7 +9,6 @@ public class UserDirectoryInfo {
 
     public long id;
     public String name;
-    public String prefix;
     public String url;
     public boolean isDefault;
     public String securityProtocol;
@@ -17,6 +16,8 @@ public class UserDirectoryInfo {
     public String baseUser;
     public String baseGroup;
     public String type;
+    public String password;
+    public String directoryUser;
 
     public UserDirectoryInfo(){
 
@@ -25,7 +26,6 @@ public class UserDirectoryInfo {
     public UserDirectoryInfo(LdapUserDirectory ldapUserDirectory){
         id = ldapUserDirectory.getId();
         name = ldapUserDirectory.getDomain();
-        prefix = ldapUserDirectory.getPrefix();
         url = ldapUserDirectory.getUrl();
         isDefault = ldapUserDirectory.isDefault();
         securityProtocol = ldapUserDirectory.getSecurity();
@@ -33,6 +33,8 @@ public class UserDirectoryInfo {
         baseGroup = ldapUserDirectory.getBaseGroup();
         baseUser = ldapUserDirectory.getBaseUser();
         type = ldapUserDirectory.getType();
+        password = ldapUserDirectory.getPassword();
+        directoryUser = ldapUserDirectory.getDirectoryUser();
     }
 
 
