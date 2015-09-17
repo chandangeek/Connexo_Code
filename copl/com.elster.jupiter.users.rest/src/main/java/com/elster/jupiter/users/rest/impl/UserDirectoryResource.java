@@ -10,8 +10,6 @@ import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.AbstractLdapDirectoryImpl;
-import com.elster.jupiter.users.impl.InternalDirectoryImpl;
-import com.elster.jupiter.users.rest.LdapUsersInfo;
 import com.elster.jupiter.users.rest.UserDirectoryInfo;
 import com.elster.jupiter.users.rest.UserDirectoryInfos;
 import com.elster.jupiter.users.security.Privileges;
