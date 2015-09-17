@@ -78,6 +78,10 @@ public class DataExportTaskHistoryInfo {
         task.populate(version, thesaurus, timeService, propertyUtils);
         if (version != null) {
             populateForReadingTypeDataExportTask(version, dataExportOccurrence, thesaurus);
+            version.getDestinations(dataExportOccurrence.getTriggerTime()).stream()
+                    .sorted((d1, d2) -> d1.getCreateTime().compareTo(d2.getCreateTime()))
+                    .forEach(destination -> task.destinations.add(typeOf(destination).toInfo(destination)));
+            task.properties = propertyUtils.convertPropertySpecsToPropertyInfos(version.getDataProcessorPropertySpecs(), version.getProperties());
         }
         Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(dataExportOccurrence.getTriggerTime());
         if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
@@ -103,9 +107,6 @@ public class DataExportTaskHistoryInfo {
                 task.standardDataSelector.readingTypes.add(new ReadingTypeInfo(readingType));
             }
         });
-        version.getDestinations(dataExportOccurrence.getTriggerTime()).stream()
-                .sorted((d1, d2) -> d1.getCreateTime().compareTo(d2.getCreateTime()))
-                .forEach(destination -> task.destinations.add(typeOf(destination).toInfo(destination)));
     }
 
     private DestinationType typeOf(DataExportDestination destination) {
