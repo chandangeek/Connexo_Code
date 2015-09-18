@@ -6,7 +6,7 @@ import com.elster.jupiter.issue.share.entity.AssignmentRule;
 import com.elster.jupiter.users.User;
 
 public enum  AssignmentRuleTpl implements Template<AssignmentRule, AssignmentRuleBuilder>{
-    DEFAULT_TO_BOB("Assign all issues to BOB (default)", UserTpl.BOB, null, AssignmentRule.ASSIGNMENTRULE_TO_BOB),
+    DEFAULT_TO_MONICA("Assign all issues to Monica (default)", UserTpl.MONICA, null, AssignmentRule.ASSIGNMENTRULE_TO_MONICA),
     UNBOUND_REASON_TO_SAM("Assign 'Unknown outbound device' issues to SAM", UserTpl.SAM, "reason.unknown.outbound.device", AssignmentRule.ASSIGNMENTRULE_TO_SAM),
     ;
 
@@ -34,7 +34,7 @@ public enum  AssignmentRuleTpl implements Template<AssignmentRule, AssignmentRul
     }
 
     private static class AssignmentRule {
-        public static final String ASSIGNMENTRULE_TO_BOB =
+        public static final String ASSIGNMENTRULE_TO_MONICA =
                 "import com.elster.jupiter.issue.share.entity.IssueForAssign;\n" +
                         "rule \"Assign to @USERID (default)\"\n" +
                         "salience 0\n" +

@@ -78,9 +78,10 @@ public class CreateCollectRemoteDataSetupCommand {
         createLoadProfileTypes();
         createComTasks();
         createComSchedules();
+        createDeviceStructure();
         createCreationRules();
         createAssignmentRules();
-        createDeviceStructure();
+
         createDeviceGroups();
         createKpi();
     }

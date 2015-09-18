@@ -20,6 +20,8 @@ public enum UserTpl implements Template<User, UserBuilder> {
     KURT ("Kurt", Locale.ENGLISH.toLanguageTag(), Arrays.asList(UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR)),
     EDUARDO ("Eduardo", Locale.US.toLanguageTag(), Arrays.asList(UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR)),
     BOB ("Bob", Locale.US.toLanguageTag(), Arrays.asList(UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR)),
+    MICHELLE ("Michelle", Locale.FRENCH.toLanguageTag(), Arrays.asList(UserRoles.METER_OPERATOR)),
+    FRANK ("Frank", Locale.ENGLISH.toLanguageTag(), Arrays.asList(UserRoles.METER_OPERATOR)),
     ;
 
     private String name;
@@ -46,6 +48,7 @@ public enum UserTpl implements Template<User, UserBuilder> {
         public static final String ADMINISTRATORS = "Administrators";
         public static final String METER_EXPERT = "Meter expert";
         public static final String METER_OPERATOR = "Meter operator";
+        public static final String READ_ONLY = "Read only";
 
         private UserRoles() {}
     }

@@ -8,6 +8,7 @@ import com.elster.jupiter.datavault.impl.DataVaultServiceImpl;
 import com.elster.jupiter.demo.impl.ConsoleUser;
 import com.elster.jupiter.demo.impl.DemoServiceImpl;
 import com.elster.jupiter.demo.impl.UnableToCreate;
+import com.elster.jupiter.demo.impl.commands.SetupFirmwareManagementCommand;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
@@ -23,10 +24,14 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.impl.DataExportServiceImpl;
 import com.elster.jupiter.export.impl.ExportModule;
 import com.elster.jupiter.export.processor.impl.StandardCsvDataFormatterFactory;
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
+import com.elster.jupiter.fileimport.impl.FileImportServiceImpl;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
@@ -53,10 +58,12 @@ import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.*;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.elster.jupiter.validation.impl.ValidationServiceImpl;
@@ -72,6 +79,8 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+//import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+//import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -83,17 +92,29 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.DeviceServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
+import com.energyict.mdc.device.data.importers.impl.attributes.connection.ConnectionAttributesImportFactory;
+import com.energyict.mdc.device.data.importers.impl.attributes.security.SecurityAttributesImportFactory;
+import com.energyict.mdc.device.data.importers.impl.devices.activation.DeviceActivationDeactivationImportFactory;
+import com.energyict.mdc.device.data.importers.impl.devices.commission.DeviceCommissioningImportFactory;
+import com.energyict.mdc.device.data.importers.impl.devices.decommission.DeviceDecommissioningImportFactory;
+import com.energyict.mdc.device.data.importers.impl.devices.installation.DeviceInstallationImporterFactory;
+import com.energyict.mdc.device.data.importers.impl.devices.remove.DeviceRemoveImportFactory;
+import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
+import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.device.lifecycle.impl.DeviceLifeCycleModule;
 import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.engine.impl.EngineModule;
 import com.energyict.mdc.favorites.impl.FavoritesModule;
+import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.firmware.impl.FirmwareModule;
-import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.io.impl.SerialIONoModemComponentServiceImpl;
@@ -101,6 +122,9 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionModule;
 import com.energyict.mdc.issue.datacollection.impl.templates.AbstractDataCollectionTemplate;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+import com.energyict.mdc.issue.datavalidation.impl.DataValidationIssueCreationRuleTemplate;
+import com.energyict.mdc.issue.datavalidation.impl.IssueDataValidationModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -114,6 +138,7 @@ import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
+import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -153,10 +178,8 @@ import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -275,6 +298,7 @@ public class DemoTest {
                 new ValidationModule(),
                 new EstimationModule(),
                 new DeviceLifeCycleConfigurationModule(),
+                new DeviceLifeCycleModule(),
                 new DeviceConfigurationModule(),
                 new DeviceDataModule(),
                 new MasterDataModule(),
@@ -283,6 +307,7 @@ public class DemoTest {
                 new SchedulingModule(),
                 new ProtocolApiModule(),
                 new IssueDataCollectionModule(),
+                new IssueDataValidationModule(),
                 new TopologyModule(),
                 new FavoritesModule(),
                 new FirmwareModule(),
@@ -397,8 +422,8 @@ public class DemoTest {
         assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_GMAC.getValue());
         assertThat(securityPropertySet.getEncryptionDeviceAccessLevel().getId()).isEqualTo(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue());
         assertThat(securityPropertySet.getUserActions()).containsExactly(
-            DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
-            DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
+                DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
+                DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
         assertThat(configuration.getPartialOutboundConnectionTasks()).hasSize(1);
         PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
         assertThat(connectionTask.getName()).isEqualTo(CONNECTION_METHOD_NAME);
@@ -504,8 +529,8 @@ public class DemoTest {
         assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_MD5.getValue());
         assertThat(securityPropertySet.getEncryptionDeviceAccessLevel().getId()).isEqualTo(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue());
         assertThat(securityPropertySet.getUserActions()).containsExactly(
-            DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
-            DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
+                DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
+                DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
         assertThat(configuration.getPartialOutboundConnectionTasks().isEmpty()).isTrue();
         assertThat(configuration.getComTaskEnablements()).hasSize(4);
         for (ComTaskEnablement enablement : configuration.getComTaskEnablements()) {
@@ -600,6 +625,102 @@ public class DemoTest {
         }
     }
 
+    @Test
+    public void testCreateDefaultLifeCycleCommand(){
+        FiniteStateMachineService finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
+        DeviceConfigurationService deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
+        DeviceLifeCycleConfigurationService  deviceLifeCycleConfigurationService = injector.getInstance(DeviceLifeCycleConfigurationService.class);
+        DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
+
+        demoService.createDemoData("DemoServ", "host", "2015-01-01");
+        demoService.createDefaultDeviceLifeCycle("2015-01-01");
+
+        Optional<DeviceLifeCycle> defaultDeviceLifeCycle = deviceLifeCycleConfigurationService.findDefaultDeviceLifeCycle();
+        assertThat(defaultDeviceLifeCycle.isPresent()).isTrue();
+
+        assertThat(deviceConfigurationService.findAllDeviceTypes().stream().noneMatch(x -> x.getDeviceLifeCycle().getId() != defaultDeviceLifeCycle.get().getId()));
+
+        //won't work as there is no appServer running now
+//        DeviceService deviceService = injector.getInstance(DeviceService.class);
+//        //Some devices could not be activated due to missing security settings: that's why we test we have at least one active device
+//        assertThat(deviceService.deviceQuery().select(Condition.TRUE, Order.NOORDER)
+//                   .stream()
+//                   .filter(x -> x.getState().getName().equals("dlc.default.active"))
+//                   .findFirst()
+//                   .isPresent()).isTrue();
+    }
+
+
+    @Test
+    public void testFirmwareManagementSetup(){
+        DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
+
+        demoService.createDemoData("DemoServ", "host", "2015-01-01");
+        demoService.setupUpFirmwareManagement();
+
+        DeviceConfigurationService deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
+        //All device types (except the excluded ones) shoud have 2 firmware versions
+        assertThat(DecoratedStream.decorate(deviceConfigurationService.findAllDeviceTypes().stream().filter(((Predicate<DeviceType>)SetupFirmwareManagementCommand::isExcluded).negate()))
+                .flatMap(x -> this.getFirmwareVersions(x).stream()).count()).isEqualTo(10L);
+
+        FirmwareService firmwareService = injector.getInstance(FirmwareService.class);
+        Set<ProtocolSupportedFirmwareOptions> supportedOptions = EnumSet.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE,
+                ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
+
+
+        assertThat(deviceConfigurationService.findAllDeviceTypes().stream().filter(((Predicate<DeviceType>)SetupFirmwareManagementCommand::isExcluded).negate())
+                .filter(x -> firmwareService.getSupportedFirmwareOptionsFor(x).containsAll(supportedOptions)).count()).isEqualTo(5);
+    }
+
+    @Test
+    public void testRuleCreation(){
+        IssueDataValidationService issueDataValidationService = injector.getInstance(IssueDataValidationService.class);
+
+        IssueService issueService = injector.getInstance(IssueService.class);
+        IssueCreationService issueCreationService = issueService.getIssueCreationService();
+
+        DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
+        demoService.createDemoData("DemoServ", "host", "2015-01-01");
+
+        assertThat(issueCreationService.getCreationRuleQuery().select(Condition.TRUE)).hasSize(4);
+    }
+    @Test
+    public void testCreateImportersCommand(){
+        FileImportService fileImportService = injector.getInstance(FileImportService.class);
+
+        DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
+
+        demoService.createDemoData("DemoServ", "host", "2015-01-01");
+        demoService.createImporters();
+
+        assertThat(fileImportService.getImportSchedules()).hasSize(9);
+    }
+
+    @Test
+    public void testCreateDemoUserCommand(){
+        UserService userService = injector.getInstance(UserService.class);
+
+        DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
+
+        demoService.createDemoData("DemoServ", "host", "2015-01-01");
+        demoService.createDemoUser("MyDemoUser");
+
+        Optional<Group> group = userService.getGroup("Demo Users");
+        assertThat(group.isPresent()).isTrue();
+        assertThat(group.get().getPrivileges().isEmpty()).isFalse();
+
+        Optional<User> user = userService.findUser("MyDemoUser");
+        assertThat(user.isPresent()).isTrue();
+        assertThat(user.get().getGroups()).hasSize(1);
+        assertThat(user.get().isMemberOf("Demo Users")).isTrue();
+
+    }
+
+    private List<FirmwareVersion> getFirmwareVersions(DeviceType deviceType){
+        FirmwareService firmwareService = injector.getInstance(FirmwareService.class);
+        return firmwareService.findAllFirmwareVersions(new FirmwareVersionFilter(deviceType)).find();
+    }
+
     protected void doPreparations() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             createOracleTablesSubstitutes();
@@ -659,21 +780,37 @@ public class DemoTest {
         defaultValidatorFactory.setNlsService(injector.getInstance(NlsService.class));
         ((ValidationServiceImpl) injector.getInstance(ValidationService.class)).addResource(defaultValidatorFactory);
 
+        FileImportService fileImportService = injector.getInstance(FileImportService.class);
+        ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(DeviceDecommissioningImportFactory.class));
+        ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(DeviceShipmentImporterFactory.class));
+        ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(DeviceReadingsImporterFactory.class));
+        ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(ConnectionAttributesImportFactory.class));
+        ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(DeviceCommissioningImportFactory.class));
+        ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(DeviceActivationDeactivationImportFactory.class));
+        ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(SecurityAttributesImportFactory.class));
+        ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(DeviceInstallationImporterFactory.class));
+        ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(DeviceRemoveImportFactory.class));
+
         ((DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class)).setQueryService(injector.getInstance(QueryService.class));
         ((DataExportServiceImpl) injector.getInstance(DataExportService.class)).addFormatter(injector.getInstance(StandardCsvDataFormatterFactory.class), ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_DATA_TYPE));
 
         injector.getInstance(IssueDataCollectionService.class);
+        injector.getInstance(IssueDataValidationService.class);
         fixIssueTemplates();
     }
 
     private void fixIssueTemplates() {
         AbstractDataCollectionTemplate template = injector.getInstance(BasicDataCollectionRuleTemplate.class);
+        DataValidationIssueCreationRuleTemplate dataValidationIssueCreationRuleTemplate = injector.getInstance(DataValidationIssueCreationRuleTemplate.class);
+
         IssueServiceImpl issueService = (IssueServiceImpl) injector.getInstance(IssueService.class);
         issueService.addCreationRuleTemplate(template);
+        issueService.addCreationRuleTemplate(dataValidationIssueCreationRuleTemplate);
     }
 
     private void createDefaultStuff() {
         injector.getInstance(FirmwareService.class);
+
         MdcAppInstaller mdcAppInstaller = new MdcAppInstaller();
         mdcAppInstaller.setUserService(injector.getInstance(UserService.class));
         mdcAppInstaller.createDefaultRoles();
