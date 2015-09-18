@@ -6,16 +6,12 @@ import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEve
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.nls.impl.NlsServiceImpl;
 import com.elster.jupiter.transaction.TransactionService;
 
 import java.sql.SQLException;
 
 import org.junit.*;
-import org.junit.rules.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
@@ -30,11 +26,6 @@ import static org.junit.Assert.*;
 public class DeviceLifeCycleTranslationsIT {
 
     private static InMemoryPersistence inMemoryPersistence;
-
-    @Rule
-    public TestRule transactionalRule = new TransactionalRule(getTransactionService());
-    @Rule
-    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     @BeforeClass
     public static void initialize() {
@@ -51,7 +42,6 @@ public class DeviceLifeCycleTranslationsIT {
         return inMemoryPersistence.getTransactionService();
     }
 
-    @Transactional
     @Test
     public void installerUsedCorrectTranslationsForTransitions() {
         DeviceLifeCycleConfigurationServiceImpl service = this.getTestInstance();
