@@ -18,6 +18,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
             {
                 xtype: 'button',
                 text: Uni.I18n.translate('loadprofileconfiguration.loadprofilechaneelconfiguationsadd', 'MDC', 'Add channel configuration'),
+                itemId: 'add-channel-configuration-to-load-profile-configuration-btn',
                 privileges: Mdc.privileges.DeviceType.admin,
                 action: 'addchannelconfiguration',
                 href: me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels/add').buildUrl()
