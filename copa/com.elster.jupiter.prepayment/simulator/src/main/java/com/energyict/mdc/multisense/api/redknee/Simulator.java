@@ -25,17 +25,17 @@ public class Simulator {
             Configuration configuration = simulator.readConfiguration(args.length>0?args[0]:"simulator.json");
             System.out.println(configuration);
             ConsumptionExportGenerator generator = new ConsumptionExportGenerator();
-            RknApplication rknApplication = new RknApplication(generator);
+            RknApplication rknApplication = new RknApplication(generator, configuration);
             ResourceConfig resourceConfig = ResourceConfig.forApplication(rknApplication);
             resourceConfig.register(JacksonFeature.class);
-            resourceConfig.register(ObjectMapper.class);
             generator.setConfiguration(configuration);
             generator.start();
             simulator.startJetty(resourceConfig);
         } catch (FileNotFoundException e) {
-            System.err.println("simulator.json not found");
+            System.err.println("Configuration not found.");
+            System.err.println("Either make sure the current directory contains the configuration file 'simulator.json' or provide the file as argument to the simulator.");
         } catch (IOException e) {
-            System.err.println("Error while reading simulator.json: " + e);
+            System.err.println("Error while reading configuration: " + e);
         } catch (Exception e) {
             System.err.println("Failed to start Jetty: " + e);
         }
@@ -62,19 +62,6 @@ public class Simulator {
 
         Server jettyServer = JettyHttpContainerFactory.createServer(baseUri, config);
 
-
-
-//        Server jettyServer = new Server(8080);
-//        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-//        context.setContextPath("/");
-//
-//        jettyServer.setHandler(context);
-//
-//        ServletHolder jerseyServlet = context.addServlet(org.glassfish.jersey.servlet.ServletContainer.class, "/*");
-//        jerseyServlet.setInitOrder(0);
-//
-//        // Tells the Jersey Servlet which REST service/class to load.
-//        jerseyServlet.setInitParameter("jersey.config.server.provider.classnames", RknProxyResource.class.getCanonicalName());
         try {
             jettyServer.start();
             jettyServer.join();

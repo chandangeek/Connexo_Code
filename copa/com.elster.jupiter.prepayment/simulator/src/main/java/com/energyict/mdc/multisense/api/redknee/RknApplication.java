@@ -3,6 +3,7 @@ package com.energyict.mdc.multisense.api.redknee;
 import jersey.repackaged.com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
+import javax.inject.Named;
 import javax.ws.rs.core.Application;
 import java.util.Collections;
 import java.util.HashSet;
@@ -13,9 +14,11 @@ import java.util.Set;
  */
 public class RknApplication extends Application {
     private final ConsumptionExportGenerator consumptionExportGenerator;
+    private final Configuration configuration;
 
-    public RknApplication(ConsumptionExportGenerator consumptionExportGenerator) {
+    public RknApplication(ConsumptionExportGenerator consumptionExportGenerator, Configuration configuration) {
         this.consumptionExportGenerator = consumptionExportGenerator;
+        this.configuration = configuration;
     }
 
     public Set<Class<?>> getClasses() {
@@ -30,14 +33,12 @@ public class RknApplication extends Application {
         return Collections.unmodifiableSet(hashSet);
     }
 
+    @Named
     class HK2Binder extends AbstractBinder {
 
         @Override
         protected void configure() {
             bind(consumptionExportGenerator).to(ConsumptionExportGenerator.class);
-        }
+            bind(configuration.getConnexoUrl()).named("connexoUrl");}
     }
-
-
-
 }
