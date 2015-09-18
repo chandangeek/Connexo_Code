@@ -334,7 +334,7 @@ Ext.define('Usr.controller.UserDirectories', {
                 me.getApplication().fireEvent('changecontentevent', usersView);
 
                 if (!me.userDirectoryUsersStoreLoaded) {
-                    userDirectoryUsersStore.loadData([],false);
+                    userDirectoryUsersStore.loadData([], false);
                     userDirectoryUsersStore.getProxy().setUrl(userDirectoryId);
                     userDirectoryUsersStore.load({
                         scope: this,
@@ -459,7 +459,6 @@ Ext.define('Usr.controller.UserDirectories', {
     },
 
     displayInfo: function (panel) {
-
         infoDialog = Ext.create('widget.window', {
             title: Uni.I18n.translate('userDirectories.userInfoTitle', 'USR', 'LDAP user info'),
             closable: true,
@@ -520,17 +519,12 @@ Ext.define('Usr.controller.UserDirectories', {
                         if (!userDirectoryExtUsersStore.getAt(rowIndex).get('status')) {
                             record.beginEdit();
                             record.set('status', false);
-                            record.set('statusDisplay', Uni.I18n.translate('userDirectories.userStatus.inactiveDeleted', 'USR', 'Inactive (deleted)'));
+                            record.set('statusDisplay', Uni.I18n.translate('userDirectories.userStatus.inactiveDeleted', 'USR', 'Inactive'));
                             record.endEdit();
                         }
                     }
                 });
-
             }
         });
-
-
     }
-
-
 });

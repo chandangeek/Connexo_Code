@@ -78,18 +78,6 @@ Ext.define('Usr.controller.history.UserManagement', {
                             privileges: Usr.privileges.Users.admin,
                             action: 'showAddUserDirectory'
                         },
-                        /*userdirectory: {
-                            title: Uni.I18n.translate('general.userDirectory', 'USR', 'User directory'),
-                            route: '{userDirectoryId}',
-                            controller: 'Usr.controller.UserDirectories',
-                            callback: function (route) {
-                                this.getApplication().on('userDirectoryload', function (record) {
-                                    route.setTitle(record.get('name'));
-                                    return true;
-                                }, {single: true});
-                                return this;
-                            }
-                        },*/
                         edit: {
                             title: Uni.I18n.translate('general.edit', 'USR', 'Edit'),
                             route: '{userDirectoryId}/edit',
@@ -116,7 +104,6 @@ Ext.define('Usr.controller.history.UserManagement', {
                                     route.setTitle(Ext.String.format(Uni.I18n.translate('userDirectories.synchronize', 'USR', 'Synchronize \'{0}\''), record.get('name')));
                                     return true;
                                 }, {single: true});
-
                                 return this;
                             },
                             items: {
