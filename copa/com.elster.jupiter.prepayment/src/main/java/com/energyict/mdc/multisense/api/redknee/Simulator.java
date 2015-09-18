@@ -2,7 +2,9 @@ package com.energyict.mdc.multisense.api.redknee;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.jetty.server.Server;
+import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -24,9 +26,12 @@ public class Simulator {
             System.out.println(configuration);
             ConsumptionExportGenerator generator = new ConsumptionExportGenerator();
             RknApplication rknApplication = new RknApplication(generator);
+            ResourceConfig resourceConfig = ResourceConfig.forApplication(rknApplication);
+            resourceConfig.register(JacksonFeature.class);
+            resourceConfig.register(ObjectMapper.class);
             generator.setConfiguration(configuration);
             generator.start();
-            simulator.startJetty(rknApplication);
+            simulator.startJetty(resourceConfig);
         } catch (FileNotFoundException e) {
             System.err.println("simulator.json not found");
         } catch (IOException e) {
@@ -56,6 +61,7 @@ public class Simulator {
         ResourceConfig config = ResourceConfig.forApplication(rknApplication);
 
         Server jettyServer = JettyHttpContainerFactory.createServer(baseUri, config);
+
 
 
 //        Server jettyServer = new Server(8080);
