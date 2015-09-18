@@ -67,7 +67,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 select: this.showPreview,
                 beforeedit: this.beforeEditRecord,
                 edit: this.resumeEditorFieldValidation,
-                canceledit: this.resumeEditorFieldValidation
+                canceledit: this.resumeEditorFieldValidation,
+                selectionchange: this.onDataGridSelectionChange
             },
             '#deviceLoadProfileChannelData #deviceLoadProfileChannelGraphView': {
                 resize: this.onGraphResize
@@ -89,7 +90,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 click: this.estimateReading
             },
             'channel-data-bulk-action-menu': {
-                beforeshow: this.checkSuspects,
                 click: this.chooseBulkAction
             }
         });
@@ -276,14 +276,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 me.getPage().down('#deviceLoadProfileChannelDataGrid').getPlugin('cellplugin').startEdit(menu.record, 1);
                 break;
             case 'removeReading':
-                menu.record.set('value', null);
-                menu.record.set('intervalFlags', []);
-                menu.record.get('confirmed') && menu.record.set('confirmed', false);
-                menu.record.get('mainValidationInfo').validationResult = 'validationStatus.ok';
-                grid.getView().refreshNode(grid.getStore().indexOf(menu.record));
-                point = chart.get(menu.record.get('interval').start);
-                point.update({ y: NaN });
-                me.showButtons();
+                me.removeReadings(menu.record);
                 break;
             case 'estimateValue':
                 me.estimateValue(menu.record);
@@ -304,9 +297,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     saveChannelDataChanges: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            changedData = me.getChangedData(me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData'));
+            changedData = me.getChangedData(me.getStore('Mdc.store.ChannelOfLoadProfileOfDeviceData')),
+            viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
-        me.getPage().setLoading();
+        viewport.setLoading();
         if (!Ext.isEmpty(changedData)) {
             Ext.Ajax.request({
                 url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data', encodeURIComponent(router.arguments.mRID), router.arguments.channelId),
@@ -318,7 +312,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicechannels.successSavingMessage', 'MDC', 'Channel data have been saved'));
                 },
                 failure: function (response) {
-                    me.getPage().setLoading(false);
+                    viewport.setLoading(false);
                     var failureResponseText;
 
                     if (response.status == 400) {
@@ -403,7 +397,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             me.getPage().down('#save-changes-button').isHidden() && me.showButtons();
 
             if (!event.record.get('value')) {
-                point.update({ y: NaN });
+                point.update({ y: null });
             } else {
                 if (event.record.get('plotBand')) {
                     chart.xAxis[0].removePlotBand(event.record.get('interval').start);
@@ -571,7 +565,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         me.getReadingEstimationWindow().down('#error-label').show();
                         var listOfFailedReadings = [];
                         Ext.Array.each(responseText.readings, function (readingTimestamp) {
-                            listOfFailedReadings.push( + ' ' + Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[Uni.DateTime.formatDateShort(new Date(readingTimestamp)),Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false).toLowerCase());
+                            listOfFailedReadings.push(Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[Uni.DateTime.formatDateShort(new Date(readingTimestamp)),Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false).toLowerCase());
                         });
                         me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #FF0000">' +
                             Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0} with {1}',
@@ -620,30 +614,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         } else {
             menu.down('#confirm-value').setVisible(mainStatus || bulkStatus);
         }
-        if (menu.record.get('mainModificationState') == null && !menu.record.get('value') && !menu.record.get('collectedValue')) {
-            menu.down('#remove-reading') && menu.down('#remove-reading').hide();
-        } else {
-            menu.down('#remove-reading') && menu.down('#remove-reading').setVisible(true);
+
+        if (menu.down('#remove-reading')) {
+            menu.down('#remove-reading').setVisible(menu.record.get('value') || menu.record.get('collectedValue'));
         }
-    },
-
-    checkSuspects: function (menu) {
-        var me = this,
-            records = me.getPage().down('deviceLoadProfileChannelDataGrid').getSelectionModel().getSelection();
-
-        var suspects = records.filter(function(record) {
-            var validationResult = record.get('validationResult');
-                return (validationResult && validationResult.main == 'suspect')
-                    || (validationResult && validationResult.bulk == 'suspect');
-        });
-
-        menu.down('#estimate-value').setVisible(suspects.length);
-
-        var confirms = suspects.filter(function(record) {
-            return !record.get('confirmed') && !record.isModified('value') && !record.isModified('collectedValue')
-        });
-
-        menu.down('#confirm-value').setVisible(confirms.length);
     },
 
     chooseBulkAction: function (menu, item) {
@@ -656,6 +630,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 break;
             case 'confirmValue':
                 me.confirmValue(records, true);
+                break;
+            case 'removeReadings':
+                me.removeReadings(records, true);
                 break;
         }
     },
@@ -706,5 +683,56 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }
 
         me.getPage().down('#save-changes-button').isHidden() && me.showButtons();
+    },
+
+    removeReadings: function (records) {
+        var me = this,
+            point,
+            grid = me.getPage().down('deviceLoadProfileChannelDataGrid'),
+            store = grid.getStore(),
+            gridView = grid.getView(),
+            chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart;
+
+        Ext.suspendLayouts();
+        Ext.Array.each(records, function (record) {
+            record.beginEdit();
+            record.set('value', null);
+            record.set('collectedValue', null);
+            record.set('intervalFlags', []);
+            if (record.get('confirmed')) {
+                record.set('confirmed', false);
+            }
+            record.data.validationInfo.mainValidationInfo.validationResult = 'validationStatus.ok';
+            record.endEdit(true);
+            gridView.refreshNode(store.indexOf(record));
+            point = chart.get(record.get('interval').start);
+            point.update({y: null}, false);
+        });
+        chart.redraw();
+        me.showButtons();
+        Ext.resumeLayouts(true);
+    },
+
+    onDataGridSelectionChange: function (selectionModel, selectedRecords) {
+        var me = this,
+            button = me.getPage().down('#device-channel-data-bulk-action-button'),
+            menu = button.down('menu');
+
+        var suspects = selectedRecords.filter(function (record) {
+            var validationInfo = record.get('validationInfo');
+            return (validationInfo.mainValidationInfo.validationResult && validationInfo.mainValidationInfo.validationResult.split('.')[1] == 'suspect')
+                || (validationInfo.bulkValidationInfo.validationResult && validationInfo.bulkValidationInfo.validationResult.split('.')[1] == 'suspect');
+        });
+        menu.down('#estimate-value').setVisible(suspects.length);
+
+        var confirms = suspects.filter(function (record) {
+            return !record.get('confirmed') && !record.isModified('value') && !record.isModified('collectedValue')
+        });
+
+        menu.down('#confirm-value').setVisible(confirms.length);
+        menu.down('#remove-readings').setVisible(_.find(selectedRecords, function (record) {
+            return record.get('value') || record.get('collectedValue')
+        }));
+        button.setDisabled(!menu.query('menuitem[hidden=false]').length);
     }
 });

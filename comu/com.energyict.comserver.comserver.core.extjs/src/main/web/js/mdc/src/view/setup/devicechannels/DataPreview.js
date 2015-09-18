@@ -14,7 +14,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     updateForm: function (record) {
         var me = this,
             intervalEnd = record.get('interval_end'),
-            title =  Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[Uni.DateTime.formatDateLong(intervalEnd),Uni.DateTime.formatTimeLong(intervalEnd)]).toLowerCase(),
+            title =  Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[Uni.DateTime.formatDateLong(intervalEnd),Uni.DateTime.formatTimeLong(intervalEnd)], false).toLowerCase(),
             mainValidationInfo,
             bulkValidationInfo,
             router = me.router
@@ -221,7 +221,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 return !Ext.isEmpty(formatValue) ? formatValue + ' ' + measurementType + ' ' + validationResultText : '';
             }
         } else {
-            return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}',[validationResultText]);
+            return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}',[validationResultText], false);
         }
     },
 
@@ -240,7 +240,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                         + ' - ' +
                         Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[Uni.DateTime.formatDateLong(new Date(value.end)),Uni.DateTime.formatTimeLong(new Date(value.end))]).toLowerCase()
                         : '';
-                }
+                },
+                htmlEncode: false
             },
             {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.readingTime', 'MDC', 'Reading time'),

@@ -16,6 +16,12 @@ Ext.define('Mdc.view.setup.devicechannels.DataBulkActionMenu', {
             hidden: true,
             text: Uni.I18n.translate('general.estimateValue', 'MDC', 'Estimate value'),
             action: 'estimateValue'
+        },
+        {
+            itemId: 'remove-readings',
+            hidden: true,
+            text: Uni.I18n.translate('general.removeReadings', 'MDC', 'Remove readings'),
+            action: 'removeReadings'
         }
     ]
 });

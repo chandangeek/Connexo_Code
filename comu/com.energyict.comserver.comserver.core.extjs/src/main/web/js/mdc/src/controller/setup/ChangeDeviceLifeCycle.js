@@ -39,8 +39,11 @@ Ext.define('Mdc.controller.setup.ChangeDeviceLifeCycle', {
             });
 
         if (router.queryParams.previousRoute) {
-            Uni.util.History.suspendEventsForNextCall();
-            window.location.replace(router.getRoute().buildUrl(router.arguments, null));
+            setTimeout(function () { // make redirect after executing this method
+                Uni.util.History.setParsePath(false);
+                Uni.util.History.suspendEventsForNextCall();
+                window.location.replace(router.getRoute().buildUrl(router.arguments, null));
+            }, 0);
         }
         me.getApplication().fireEvent('changecontentevent', view);
         view.setLoading();

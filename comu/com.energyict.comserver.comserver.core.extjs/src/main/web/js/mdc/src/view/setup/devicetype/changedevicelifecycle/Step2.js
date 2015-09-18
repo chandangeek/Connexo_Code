@@ -26,19 +26,21 @@ Ext.define('Mdc.view.setup.devicetype.changedevicelifecycle.Step2', {
         me.callParent(arguments);
     },
     setResultMessage: function (result, success) {
-        var me = this;
+        var me = this,
+            states = '';
 
         if (success) {
             me.update('<h3>' + Uni.I18n.translate('deviceLifeCycle.change.successMsg', 'MDC', 'Successfully changed device life cycle') + '</h3>');
         } else {
-            var states = '';
-            Ext.Array.each(result.notMappableStates, function (state) {
-                states += '<li style="margin-left: 20px">' + state.name + '</li>';
-            });
-            me.down('#change-device-life-cycle-failed').setText(Uni.I18n.translate('deviceLifeCycle.change.errorMsg1', 'MDC', '{0} has states that cannot be mapped to states of {1}',
-                ['<h3>' + result.message + '</h3><br><a href="#/administration/devicelifecycles/' + result.currentDeviceLifeCycle.id + '">' + result.currentDeviceLifeCycle.name + '</a>',
-                    '<a href="#/administration/devicelifecycles/' + result.targetDeviceLifeCycle.id + '">' + result.targetDeviceLifeCycle.name + '</a>']) +
-                + Uni.I18n.translate('deviceLifeCycle.change.errorMsg2', 'MDC', 'and there are devices in that states:') + '<br>' + states);
+            if (result.notMappableStates && result.notMappableStates.length) {
+                states = '<ul>';
+                Ext.Array.each(result.notMappableStates, function (state) {
+                    states += '<li style="margin-left: 20px">' + state.name + '</li>';
+                });
+                states += '</ul>';
+            }
+
+            me.down('#change-device-life-cycle-failed').setText(Uni.I18n.translate('deviceLifeCycle.change.errorMsg', 'MDC', '{0} has states that cannot be mapped to states of {1} and there are devices in that states: {2}', ['<h3>' + result.message + '</h3><br><a href="#/administration/devicelifecycles/' + result.currentDeviceLifeCycle.id + '">' + result.currentDeviceLifeCycle.name + '</a>', '<a href="#/administration/devicelifecycles/' + result.targetDeviceLifeCycle.id + '">' + result.targetDeviceLifeCycle.name + '</a>', states], false));
             me.down('#change-device-life-cycle-failed').show();
         }
     }

@@ -37,6 +37,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 },
                 {
                     xtype: 'reading-type-combo',
+                    itemId: 'reading-type-field',
                     required: true,
                     allowBlank: false,
                     submitValue: false
@@ -62,6 +63,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 },
                 {
                     xtype: 'textfield',
+                    itemId: 'overflow-value-field',
                     required: true,
                     allowBlank: false,
                     fieldLabel: 'Overflow value',
@@ -107,6 +109,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
         this.down('#LoadProfileChannelAction').add(
             {
                 xtype: 'button',
+                itemId: 'add-chanel-configuration-btn',
                 name: 'loadprofilechannelaction',
                 text: this.loadProfileConfigurationChannelAction,
                 action: this.loadProfileConfigurationChannelAction,
