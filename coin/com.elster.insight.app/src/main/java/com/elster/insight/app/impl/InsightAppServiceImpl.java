@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -19,7 +18,6 @@ import com.elster.insight.app.InsightAppService;
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.DefaultStartPage;
-import com.elster.jupiter.http.whiteboard.FileResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -27,10 +25,8 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.HasName;
 
 @Component(
         name = "com.elster.insight.app",
@@ -89,9 +85,9 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService,
     }
 
     private void assignPrivilegesToDefaultRoles() {
-        List<Privilege> availablePrivileges = getApplicationPrivileges();
-        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, MeteringService.COMPONENTNAME, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
-        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MeteringService.COMPONENTNAME, availablePrivileges.stream().map(HasName::getName).toArray(String[]::new));
+        List<String> availablePrivileges = getApplicationPrivileges();
+        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, MeteringService.COMPONENTNAME, availablePrivileges.stream().toArray(String[]::new));
+        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MeteringService.COMPONENTNAME, availablePrivileges.stream().toArray(String[]::new));
     }
 
     private boolean isAllowed(User user) {
@@ -99,9 +95,19 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService,
         //List<Privilege> appPrivileges = getApplicationPrivileges();
         //return user.getPrivileges().stream().anyMatch(appPrivileges::contains);
     }
-
-    private List<Privilege> getApplicationPrivileges() {
-        return userService.getResources(MeteringService.COMPONENTNAME).stream().flatMap(resource -> resource.getPrivileges().stream()).collect(Collectors.toList());
+    private List<String> getApplicationPrivileges(){
+        return Arrays.asList(
+            //validation
+            com.elster.jupiter.validation.security.Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,
+            com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION,
+            com.elster.jupiter.validation.security.Privileges.VALIDATE_MANUAL,
+            com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE,
+            com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION,
+            //com.elster.jupiter.metering.security - usage points
+            com.elster.jupiter.metering.security.Privileges.ADMIN_ANY,
+            com.elster.jupiter.metering.security.Privileges.ADMIN_OWN,
+            com.elster.jupiter.metering.security.Privileges.BROWSE_ANY,
+            com.elster.jupiter.metering.security.Privileges.BROWSE_OWN);
     }
 
     @Override
