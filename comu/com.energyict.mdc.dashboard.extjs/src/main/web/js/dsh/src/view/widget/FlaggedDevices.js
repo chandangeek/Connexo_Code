@@ -13,7 +13,7 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
         '<table>',
         '<tr>',
         '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.flaggedDevices.device.mrid', 'DSH', 'MRID') + '</td>',
-        '<td>{mRID}</td>',
+        '<td>{[Ext.htmlEncode(values.mRID)]}</td>',
         '</tr>',
         '<tr>',
         '<td style="text-align: right; padding-right: 10px; white-space: nowrap">' + Uni.I18n.translate('overview.widget.flaggedDevices.device.serialNumber', 'DSH', 'Serial number') + '</td>',
@@ -47,7 +47,7 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
             '<table  style="margin: 5px 0 10px 0">',
             '<tpl for=".">',
                 '<tr id="{mRID}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" class="device">',
-                    '<td width="100%"><a href="{href}">{mRID}</a></td>',
+                    '<td width="100%"><a href="{href}">{[Ext.htmlEncode(values.mRID)]}</a></td>',
                     '<td>',
                     '<a data-qtip="'+
                     Uni.I18n.translate('overview.widget.flaggedDevices.unflag', 'DSH', 'Click to remove from the list of flagged devices') +
@@ -104,7 +104,7 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
             me.setTitle(title);
 
             store.each(function(item) {
-                item.set('href', me.router.getRoute('devices/device').buildUrl({mRID: item.getId()}));
+                item.set('href', me.router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(item.getId())}));
                 item.set('tooltip', me.tooltipTpl.apply(item.getData(true)));
             });
 
