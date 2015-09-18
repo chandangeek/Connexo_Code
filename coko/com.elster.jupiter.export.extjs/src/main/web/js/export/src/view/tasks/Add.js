@@ -240,7 +240,7 @@ Ext.define('Dxp.view.tasks.Add', {
                             },
                             {
                                 xtype: 'component',
-                                html: Uni.I18n.translate('general.noDeviceGroup', 'DES', 'No device group defined yet.'),
+                                html: Uni.I18n.translate('general.noDeviceGroup', 'DES', 'No device group defined yet'),
                                 itemId: 'no-device',
                                 hidden: true,
                                 width: 235,
