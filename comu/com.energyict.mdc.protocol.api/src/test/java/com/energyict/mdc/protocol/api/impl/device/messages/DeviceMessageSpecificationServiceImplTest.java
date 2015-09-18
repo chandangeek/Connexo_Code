@@ -1,13 +1,5 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
-import com.elster.jupiter.datavault.DataVaultService;
-import com.elster.jupiter.datavault.LegacyDataVaultProvider;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.HasId;
@@ -23,6 +15,17 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
+import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.datavault.LegacyDataVaultProvider;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeService;
+
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -30,11 +33,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.assertj.core.api.Condition;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -66,6 +68,8 @@ public class DeviceMessageSpecificationServiceImplTest {
     private OrmService ormService;
     @Mock
     private DataModel dataModel;
+    @Mock
+    private TimeService timeService;
 
     @Before
     public void setUp() throws Exception {
@@ -208,7 +212,7 @@ public class DeviceMessageSpecificationServiceImplTest {
     }
 
     private DeviceMessageSpecificationService newServiceWithRealPropertSpecService () {
-        PropertySpecServiceImpl propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(), dataVaultService, ormService);
+        PropertySpecServiceImpl propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(), dataVaultService, this.timeService, ormService);
         propertySpecService.addFactoryProvider(new FinderProvider());
         return new DeviceMessageSpecificationServiceImpl(propertySpecService, nlsService);
     }
