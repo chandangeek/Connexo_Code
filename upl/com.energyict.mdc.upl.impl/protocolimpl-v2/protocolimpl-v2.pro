@@ -81,6 +81,18 @@
 	public *;
 	protected *;
 }
+-keep public class com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.* {
+   public *;
+   protected *;
+}
+-keep public class com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.* {
+   public *;
+   protected *;
+}
+-keep public class com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.* {
+   public *;
+   protected *;
+}
 -keepnames class com.energyict.protocolimplv2.eict.rtuplusserver.idis.RtuPlusServer
 -keepnames class com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP
 -keepnames class com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540
