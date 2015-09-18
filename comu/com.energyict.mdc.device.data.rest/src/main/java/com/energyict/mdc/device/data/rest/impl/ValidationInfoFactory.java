@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
@@ -259,6 +260,9 @@ public class ValidationInfoFactory {
                 .sorted(Comparator.<ValidationAction>reverseOrder())
                 .findFirst()
                 .orElse(null);
+        veeReadingInfo.estimatedByRule = dataValidationStatus.getReadingQualities().stream()
+                .map(ReadingQuality::getType)
+                .anyMatch(ReadingQualityType::hasEstimatedCategory);
         return veeReadingInfo;
     }
 
@@ -275,6 +279,9 @@ public class ValidationInfoFactory {
                     .sorted(Comparator.<ValidationAction>reverseOrder())
                     .findFirst()
                     .orElse(null);
+            veeReadingInfo.estimatedByRule = dataValidationStatus.getBulkReadingQualities().stream()
+                    .map(ReadingQuality::getType)
+                    .anyMatch(ReadingQualityType::hasEstimatedCategory);
             return veeReadingInfo;
         }
         return null;
@@ -339,6 +346,9 @@ public class ValidationInfoFactory {
                 .sorted(Comparator.<ValidationAction>reverseOrder())
                 .findFirst()
                 .orElse(null);
+        veeReadingInfo.estimatedByRule = dataValidationStatus.getReadingQualities().stream()
+                .map(ReadingQuality::getType)
+                .anyMatch(ReadingQualityType::hasEstimatedCategory);
         return veeReadingInfo;
     }
 
@@ -353,6 +363,9 @@ public class ValidationInfoFactory {
                     .sorted(Comparator.<ValidationAction>reverseOrder())
                     .findFirst()
                     .orElse(null);
+            veeReadingInfo.estimatedByRule = dataValidationStatus.getBulkReadingQualities().stream()
+                    .map(ReadingQuality::getType)
+                    .anyMatch(ReadingQualityType::hasEstimatedCategory);
             return veeReadingInfo;
         }
         return null;
