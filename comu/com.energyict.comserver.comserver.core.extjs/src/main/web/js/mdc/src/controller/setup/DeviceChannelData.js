@@ -702,7 +702,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             if (record.get('confirmed')) {
                 record.set('confirmed', false);
             }
-            record.data.validationInfo.mainValidationInfo.validationResult = 'validationStatus.ok';
+            record.get('mainValidationInfo').validationResult = 'validationStatus.ok';
             record.endEdit(true);
             gridView.refreshNode(store.indexOf(record));
             point = chart.get(record.get('interval').start);
@@ -718,10 +718,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             button = me.getPage().down('#device-channel-data-bulk-action-button'),
             menu = button.down('menu');
 
+        Ext.suspendLayouts();
         var suspects = selectedRecords.filter(function (record) {
-            var validationInfo = record.get('validationInfo');
-            return (validationInfo.mainValidationInfo.validationResult && validationInfo.mainValidationInfo.validationResult.split('.')[1] == 'suspect')
-                || (validationInfo.bulkValidationInfo.validationResult && validationInfo.bulkValidationInfo.validationResult.split('.')[1] == 'suspect');
+            var validationResult = record.get('validationResult');
+            return (validationResult.main == 'suspect')
+                || (validationResult.bulk == 'suspect');
         });
         menu.down('#estimate-value').setVisible(suspects.length);
 
@@ -734,5 +735,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             return record.get('value') || record.get('collectedValue')
         }));
         button.setDisabled(!menu.query('menuitem[hidden=false]').length);
+        Ext.resumeLayouts();
     }
 });
