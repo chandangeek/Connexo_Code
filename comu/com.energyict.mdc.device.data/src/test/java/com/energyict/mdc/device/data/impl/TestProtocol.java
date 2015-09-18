@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.impl.BasicPropertySpec;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.*;
 import com.energyict.mdc.protocol.api.device.data.*;
@@ -21,6 +23,9 @@ import java.util.*;
  * Time: 08:22
  */
 public class TestProtocol implements DeviceProtocol {
+
+    public static final String SECURITY_PROPERTY_SPEC_PASSWORD = "Password";
+
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
 
@@ -150,7 +155,11 @@ public class TestProtocol implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getSecurityPropertySpecs() {
-        return Collections.emptyList();
+        return Collections.singletonList(getUnSecurePasswordPropertySpec());
+    }
+
+    private PropertySpec getUnSecurePasswordPropertySpec() {
+        return new BasicPropertySpec(SECURITY_PROPERTY_SPEC_PASSWORD, new StringFactory());
     }
 
     @Override
@@ -173,7 +182,7 @@ public class TestProtocol implements DeviceProtocol {
 
             @Override
             public List<PropertySpec> getSecurityProperties() {
-                return Collections.emptyList();
+                return Collections.singletonList(getUnSecurePasswordPropertySpec());
             }
         });
     }
@@ -200,7 +209,7 @@ public class TestProtocol implements DeviceProtocol {
 
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
-        return null;
+        return getUnSecurePasswordPropertySpec();
     }
 
     @Override

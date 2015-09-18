@@ -6,7 +6,9 @@ import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.Channel;
@@ -34,6 +36,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -51,6 +54,8 @@ import static org.mockito.Mockito.when;
 public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
     private static ConnectionTypePluggableClass outboundIpConnectionTypePluggableClass;
+    private final String connectionTaskCreatedTopic = "com/energyict/mdc/device/config/partial(.*)connectiontask/CREATED";
+    private final String securitySetCreatedTopic = "com/energyict/mdc/device/config/securitypropertyset/CREATED";
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -71,23 +76,13 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         });
     }
 
-//    @Before
-//    public void setup() {
-//        System.out.println("Number of configs before test: " + deviceType.getConfigurations().size());
-//        final List<DeviceConfiguration> configurations = deviceType.getConfigurations();
-//        configurations.stream().forEach(deviceConfiguration -> {
-//            inMemoryPersistence.getDeviceService().findDevicesByDeviceConfiguration(deviceConfiguration).find().stream().forEach(Device::delete);
-//            deviceConfiguration.deactivate();
-//            deviceType.removeConfiguration(deviceConfiguration);
-//        });
-//    }
-
-    @After
-    public void after() {
-        inMemoryPersistence.getDeviceService().deviceQuery().select(com.elster.jupiter.util.conditions.Condition.TRUE).stream()
-                .forEach(device -> device.getConnectionTasks().stream()
-                        .forEach(connectionTask -> System.out.println(connectionTask.getPartialConnectionTask().getPluggableClass().getName())));
-        System.out.println("Number of configs after remove in aftermethod: " + deviceType.getConfigurations().size());
+    @Before
+    public void setup() {
+        final List<DeviceConfiguration> configurations = this.deviceType.getConfigurations();
+        configurations.stream().forEach(deviceConfiguration -> {
+            deviceConfiguration.deactivate();
+            this.deviceType.removeConfiguration(deviceConfiguration);
+        });
     }
 
     private static <T extends ConnectionType> ConnectionTypePluggableClass registerConnectionTypePluggableClass(Class<T> connectionTypeClass) {
@@ -114,14 +109,15 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
      * The event mechanism is not really in place in these tests, so this method allows you to trigger
      * the event itself to update the conflicts
      *
-     * @param connectionMethod the object that initially should have triggered
+     * @param eventObject the object that initially should have triggered
+     * @param topic       the topic to filter on
      */
-    private void updateConflictsFor(PartialScheduledConnectionTaskImpl connectionMethod) {
+    private void updateConflictsFor(HasId eventObject, String topic) {
         LocalEvent localEvent = mock(LocalEvent.class);
         com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
-        when(eventType.getTopic()).thenReturn("com/energyict/mdc/device/config/partial(.*)connectiontask/CREATED");
+        when(eventType.getTopic()).thenReturn(topic);
         when(localEvent.getType()).thenReturn(eventType);
-        when(localEvent.getSource()).thenReturn(connectionMethod);
+        when(localEvent.getSource()).thenReturn(eventObject);
         inMemoryPersistence.getDeviceConfigConflictMappingHandler().onEvent(localEvent);
     }
 
@@ -438,7 +434,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
         secondDeviceConfiguration.activate();
 
-        updateConflictsFor(mySecondConnectionTask);
+        updateConflictsFor(mySecondConnectionTask, connectionTaskCreatedTopic);
 
         assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2);
 
@@ -460,7 +456,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, connectionTaskName, outboundIpPool);
         secondDeviceConfiguration.activate();
 
-        updateConflictsFor(mySecondConnectionTask);
+        updateConflictsFor(mySecondConnectionTask, connectionTaskCreatedTopic);
         assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
@@ -483,7 +479,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
         secondDeviceConfiguration.activate();
 
-        updateConflictsFor(mySecondConnectionTask);
+        updateConflictsFor(mySecondConnectionTask, connectionTaskCreatedTopic);
         final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
         deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE, mySecondConnectionTask);
 
@@ -507,7 +503,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
         secondDeviceConfiguration.activate();
 
-        updateConflictsFor(mySecondConnectionTask);
+        updateConflictsFor(mySecondConnectionTask, connectionTaskCreatedTopic);
         final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
         deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.MAP, mySecondConnectionTask);
 
@@ -531,7 +527,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
         secondDeviceConfiguration.activate();
 
-        updateConflictsFor(mySecondConnectionTask);
+        updateConflictsFor(mySecondConnectionTask, connectionTaskCreatedTopic);
         final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
         deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.MAP, mySecondConnectionTask);
 
@@ -564,13 +560,42 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         final SecurityPropertySet secondSecurityPropertySet = secondDeviceConfiguration.createSecurityPropertySet("None").encryptionLevel(0).authenticationLevel(0).build();
         secondDeviceConfiguration.activate();
 
-//        updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
+        updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
 
         assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2);
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
         device.save();
         Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfiguration(device, secondDeviceConfiguration);
+    }
+
+    @Test
+    @Transactional
+    public void changeConfigWithNoConflictingSecurityPropertySetsAndValidProperties() {
+        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+        final String securityPropertySetName = "NoSecurity";
+        final SecurityPropertySet firstSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, securityPropertySetName);
+        firstDeviceConfiguration.activate();
+        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
+        final SecurityPropertySet secondSecurityPropertySet = createSecurityPropertySet(secondDeviceConfiguration, securityPropertySetName);
+        secondDeviceConfiguration.activate();
+
+        updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
+        assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+        device.save();
+        TypedProperties securityProperties = TypedProperties.empty();
+        securityProperties.setProperty("Password", "12345678");
+        device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfiguration(device, secondDeviceConfiguration);
+
+        assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
+        assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet).get(0).getName()).isEqualTo("Password");
+    }
+
+    private SecurityPropertySet createSecurityPropertySet(DeviceConfiguration deviceConfiguration, String securityPropertySetName) {
+        return deviceConfiguration.createSecurityPropertySet(securityPropertySetName).encryptionLevel(0).authenticationLevel(0).addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1).addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1).build();
     }
 
     private DeviceConfigConflictMapping getDeviceConfigConflictMapping(DeviceConfiguration firstDeviceConfiguration, DeviceConfiguration secondDeviceConfiguration) {

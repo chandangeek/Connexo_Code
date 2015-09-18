@@ -3,40 +3,32 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
-import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
-import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingHandler;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.OutboundNoParamsConnectionTypeImpl;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import org.junit.*;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.EnumSet;
 import java.util.TimeZone;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -67,7 +59,7 @@ public abstract class PersistenceIntegrationTest {
     private DeviceCommunicationConfiguration deviceCommunicationConfiguration;
 
     protected static DeviceProtocolPluggableClass deviceProtocolPluggableClass;
-    protected static DeviceProtocol deviceProtocol;
+    protected static DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
     protected static InMemoryIntegrationPersistence inMemoryPersistence;
 
     EnumSet<DeviceMessageId> deviceMessageIds;
@@ -77,10 +69,17 @@ public abstract class PersistenceIntegrationTest {
         inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();
         inMemoryPersistence.initializeDatabase("PersistenceIntegrationTest.mdc.device.data", false);
-        deviceProtocol = mock(DeviceProtocol.class);
-        deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
-        when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
-        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+//        deviceProtocol = mock(DeviceProtocol.class);
+//        deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+//        when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
+//        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+
+        try (TransactionContext context = getTransactionService().getContext()) {
+            deviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService().newDeviceProtocolPluggableClass("MyTestProtocol", TestProtocol.class.getName());
+            deviceProtocolPluggableClass.save();
+            context.commit();
+        }
+
     }
 
     @AfterClass
@@ -118,10 +117,6 @@ public abstract class PersistenceIntegrationTest {
         deviceMessageIds.stream().forEach(deviceConfiguration::createDeviceMessageEnablement);
         deviceConfiguration.activate();
         SecurityPropertySetBuilder securityPropertySetBuilder = deviceConfiguration.createSecurityPropertySet("No Security");
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3);
-        securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4);
         securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1);
         securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
         securityPropertySetBuilder.addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3);

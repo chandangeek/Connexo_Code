@@ -57,7 +57,9 @@ import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConfl
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.impl.events.TestProtocolWithRequiredStringAndOptionalNumericDialectProperties;
 import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
+import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
+import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
 import com.energyict.mdc.device.data.impl.tasks.InboundIpConnectionTypeImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
 import com.energyict.mdc.device.data.impl.tasks.ModemConnectionType;
@@ -289,6 +291,8 @@ public class InMemoryIntegrationPersistence {
             List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
             finders.add(new ConnectionTaskFinder(dataModel));
             finders.add(new ProtocolDialectPropertiesFinder(dataModel));
+            finders.add(new DeviceFinder(dataModel));
+            finders.add(new SecuritySetFinder(deviceConfigurationService));
             return finders;
         });
     }
@@ -316,6 +320,7 @@ public class InMemoryIntegrationPersistence {
         this.eventAdmin = mock(EventAdmin.class);
         this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
         when(this.principal.getName()).thenReturn(testName);
+        when(((User) this.principal).hasPrivilege(any(), anyString())).thenReturn(true);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
         this.thesaurus = mock(Thesaurus.class);

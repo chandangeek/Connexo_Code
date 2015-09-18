@@ -8,15 +8,12 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static org.fest.reflect.core.Reflection.field;
 
 /**
  * Applies the actual change in DeviceConfiguration for a single Device
@@ -42,7 +39,6 @@ public final class DeviceConfigChangeExecutor {
         performLoadProfileSpecChanges(device, originDeviceConfiguration, destinationDeviceConfiguration);
         performLogBookSpecChanges(device, originDeviceConfiguration, destinationDeviceConfiguration);
         performConnectionTaskChanges(device, originDeviceConfiguration, destinationDeviceConfiguration);
-
 
         device.save();
         return device;
