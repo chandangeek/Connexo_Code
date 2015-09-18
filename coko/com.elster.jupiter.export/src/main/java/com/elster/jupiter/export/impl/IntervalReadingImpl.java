@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.util.units.Quantity;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -48,7 +49,8 @@ class IntervalReadingImpl implements IntervalReading {
 
     @Override
     public BigDecimal getValue() {
-        return decorated.getQuantity(readingType).getValue();
+        Quantity qty = decorated.getQuantity(readingType);
+        return qty == null ? null : decorated.getQuantity(readingType).getValue();
     }
 
     @Override
