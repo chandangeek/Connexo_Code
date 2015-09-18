@@ -5,6 +5,8 @@ import java.io.Serializable;
 public class BasicPropertySpec implements PropertySpec, Serializable {
 
     protected String name;
+    protected String displayName;
+    protected String description;
     protected boolean required;
     protected ValueFactory valueFactory;
     protected PropertySpecPossibleValues possibleValues;
@@ -13,9 +15,19 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
         this(name, false, valueFactory);
     }
 
+    /**
+     * Todo: remove as part of COPL-1151
+     * @deprecated Replace by calls to {@link #BasicPropertySpec(String, String, boolean, ValueFactory)} as part of COPL-1151
+     */
+    @Deprecated
     public BasicPropertySpec(String name, boolean required, ValueFactory valueFactory) {
+        this(name, name, required, valueFactory);
+    }
+
+    public BasicPropertySpec(String name, String description, boolean required, ValueFactory valueFactory) {
         super();
         this.name = name;
+        this.description = description;
         this.required = required;
         this.valueFactory = valueFactory;
     }
@@ -25,9 +37,29 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
         return name;
     }
 
-    // Allow subclasses or friendly builders to specify required or optional
+    // Allow subclasses or friendly builders to specify name
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    // Allow subclasses or friendly builders to specify display name
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
+    // Allow subclasses or friendly builders to specify description
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public boolean isRequired() {
