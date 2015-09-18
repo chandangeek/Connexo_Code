@@ -31,6 +31,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -244,6 +245,7 @@ public class AdapterDeviceProtocolDialectTest {
             bind(LicenseService.class).toInstance(licenseService);
             bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
             bind(MeteringService.class).toInstance(meteringService);
+            bind(TimeService.class).toInstance(mock(TimeService.class));
             bind(DataModel.class).toProvider(() -> dataModel);
         }
     }

@@ -54,6 +54,7 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -62,7 +63,6 @@ import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
 import org.joda.time.DateMidnight;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
@@ -398,6 +398,7 @@ public class DeviceProtocolPluggableClassImplTest {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
             bind(UserService.class).toInstance(userService);
+            bind(TimeService.class).toInstance(mock(TimeService.class));
             bind(MeteringService.class).toInstance(meteringService);
             bind(InboundDeviceProtocolService.class).toInstance(mock(InboundDeviceProtocolService.class));
             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
@@ -406,12 +407,7 @@ public class DeviceProtocolPluggableClassImplTest {
             bind(DeviceProtocolMessageService.class).toInstance(mock(DeviceProtocolMessageService.class));
             bind(DeviceProtocolSecurityService.class).toInstance(mock(DeviceProtocolSecurityService.class));
             bind(DeviceCacheMarshallingService.class).toInstance(mock(DeviceCacheMarshallingService.class));
-            bind(DataModel.class).toProvider(new Provider<DataModel>() {
-                @Override
-                public DataModel get() {
-                    return dataModel;
-                }
-            });
+            bind(DataModel.class).toProvider(() -> dataModel);
         }
 
     }

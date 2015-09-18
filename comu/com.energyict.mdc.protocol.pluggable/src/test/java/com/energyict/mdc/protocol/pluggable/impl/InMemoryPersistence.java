@@ -33,6 +33,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -41,7 +42,6 @@ import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -218,6 +218,7 @@ public class InMemoryPersistence {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
+            bind(TimeService.class).toInstance(mock(TimeService.class));
             bind(DeviceProtocolMessageService.class).toInstance(deviceProtocolMessageService);
             bind(ConnectionTypeService.class).toInstance(connectionTypeService);
             bind(DeviceProtocolSecurityService.class).toInstance(deviceProtocolSecurityService);
@@ -225,12 +226,7 @@ public class InMemoryPersistence {
             bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
             bind(DeviceCacheMarshallingService.class).toInstance(deviceCacheMarshallingService);
-            bind(DataModel.class).toProvider(new Provider<DataModel>() {
-                @Override
-                public DataModel get() {
-                    return dataModel;
-                }
-            });
+            bind(DataModel.class).toProvider(() -> dataModel);
         }
 
     }
