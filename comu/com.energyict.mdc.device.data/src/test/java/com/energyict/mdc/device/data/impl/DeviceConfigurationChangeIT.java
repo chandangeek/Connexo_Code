@@ -3,31 +3,44 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
+import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigToSameConfig;
+import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import org.assertj.core.api.Condition;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -37,13 +50,87 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
+    private static ConnectionTypePluggableClass outboundIpConnectionTypePluggableClass;
+
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
     @Rule
     public TestRule expectedErrorRule = new ExpectedExceptionRule();
+
     private String readingTypeMRID1 = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
     private String readingTypeMRID2 = "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private TimeDuration scheduledConnectionTaskInterval = TimeDuration.minutes(15);
 
+    @BeforeClass
+    public static void registerConnectionTypePluggableClasses() {
+        inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                outboundIpConnectionTypePluggableClass = registerConnectionTypePluggableClass(OutboundIpConnectionTypeImpl.class);
+            }
+        });
+    }
+
+//    @Before
+//    public void setup() {
+//        System.out.println("Number of configs before test: " + deviceType.getConfigurations().size());
+//        final List<DeviceConfiguration> configurations = deviceType.getConfigurations();
+//        configurations.stream().forEach(deviceConfiguration -> {
+//            inMemoryPersistence.getDeviceService().findDevicesByDeviceConfiguration(deviceConfiguration).find().stream().forEach(Device::delete);
+//            deviceConfiguration.deactivate();
+//            deviceType.removeConfiguration(deviceConfiguration);
+//        });
+//    }
+
+    @After
+    public void after() {
+        inMemoryPersistence.getDeviceService().deviceQuery().select(com.elster.jupiter.util.conditions.Condition.TRUE).stream()
+                .forEach(device -> device.getConnectionTasks().stream()
+                        .forEach(connectionTask -> System.out.println(connectionTask.getPartialConnectionTask().getPluggableClass().getName())));
+        System.out.println("Number of configs after remove in aftermethod: " + deviceType.getConfigurations().size());
+    }
+
+    private static <T extends ConnectionType> ConnectionTypePluggableClass registerConnectionTypePluggableClass(Class<T> connectionTypeClass) {
+        ConnectionTypePluggableClass connectionTypePluggableClass =
+                inMemoryPersistence.getProtocolPluggableService()
+                        .newConnectionTypePluggableClass(connectionTypeClass.getSimpleName(), connectionTypeClass.getName());
+        connectionTypePluggableClass.save();
+        return connectionTypePluggableClass;
+    }
+
+    private LoadProfileType createLoadProfileType(String loadProfileName, ObisCode obisCode, RegisterType... registerTypes) {
+        LoadProfileType loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(loadProfileName, obisCode, TimeDuration.minutes(15), Arrays.asList(registerTypes));
+        loadProfileType.save();
+        return loadProfileType;
+    }
+
+    private LogBookType createLogBookType(String logBookName, ObisCode obisCode) {
+        LogBookType logBookType = inMemoryPersistence.getMasterDataService().newLogBookType(logBookName, obisCode);
+        logBookType.save();
+        return logBookType;
+    }
+
+    /**
+     * The event mechanism is not really in place in these tests, so this method allows you to trigger
+     * the event itself to update the conflicts
+     *
+     * @param connectionMethod the object that initially should have triggered
+     */
+    private void updateConflictsFor(PartialScheduledConnectionTaskImpl connectionMethod) {
+        LocalEvent localEvent = mock(LocalEvent.class);
+        com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
+        when(eventType.getTopic()).thenReturn("com/energyict/mdc/device/config/partial(.*)connectiontask/CREATED");
+        when(localEvent.getType()).thenReturn(eventType);
+        when(localEvent.getSource()).thenReturn(connectionMethod);
+        inMemoryPersistence.getDeviceConfigConflictMappingHandler().onEvent(localEvent);
+    }
+
+    private OutboundComPortPool createOutboundIpComPortPool(String name) {
+        OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
+        ipComPortPool.setActive(true);
+        ipComPortPool.save();
+        return ipComPortPool;
+    }
 
     @Test
     @Transactional
@@ -214,12 +301,6 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         });
     }
 
-    private LoadProfileType createLoadProfileType(String loadProfileName, ObisCode obisCode, RegisterType... registerTypes) {
-        LoadProfileType loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(loadProfileName, obisCode, TimeDuration.minutes(15), Arrays.asList(registerTypes));
-        loadProfileType.save();
-        return loadProfileType;
-    }
-
     @Test
     @Transactional
     public void changeConfigWithSingleOtherLoadProfileSpecTest() {
@@ -287,12 +368,223 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
                 return channel.getChannelSpec().getId() == secondDeviceConfiguration.getChannelSpecs().get(0).getId();
             }
         });
-        assertThat(modifiedDevice.getLoadProfiles().get(0).getChannels()).haveExactly(1, new Condition<Channel>(){
+        assertThat(modifiedDevice.getLoadProfiles().get(0).getChannels()).haveExactly(1, new Condition<Channel>() {
             @Override
             public boolean matches(Channel channel) {
                 return channel.getChannelSpec().getId() == secondDeviceConfiguration.getChannelSpecs().get(1).getId();
             }
         });
+    }
+
+    @Test
+    @Transactional
+    public void changeConfigWithSingleOtherLogBookSpecTest() {
+        final LogBookType logBookType1 = createLogBookType("MyFirstLogBookType", ObisCode.fromString("0.0.99.98.0.255"));
+        final LogBookType logBookType2 = createLogBookType("MySecondLogBookType", ObisCode.fromString("1.0.99.98.0.255"));
+
+        enhanceDeviceTypeWithLogBookTypes(this.deviceType, logBookType1, logBookType2);
+        DeviceType.DeviceConfigurationBuilder firstConfigBuilder = deviceType.newConfiguration("FirstDeviceConfiguration");
+        enhanceConfigBuilderWithLogBookTypes(firstConfigBuilder, logBookType1);
+        DeviceConfiguration firstDeviceConfiguration = firstConfigBuilder.add();
+        firstDeviceConfiguration.activate();
+        DeviceType.DeviceConfigurationBuilder secondDeviceConfigBuilder = deviceType.newConfiguration("SecondDeviceConfiguration");
+        enhanceConfigBuilderWithLogBookTypes(secondDeviceConfigBuilder, logBookType2);
+        DeviceConfiguration secondDeviceConfiguration = secondDeviceConfigBuilder.add();
+        secondDeviceConfiguration.activate();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+        device.save();
+
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfiguration(device, secondDeviceConfiguration);
+
+        assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
+        assertThat(modifiedDevice.getLogBooks()).hasSize(1);
+        assertThat(modifiedDevice.getLogBooks().get(0).getLogBookSpec().getId()).isEqualTo(secondDeviceConfiguration.getLogBookSpecs().get(0).getId());
+    }
+
+    @Test
+    @Transactional
+    public void changeConfigWithSingleSameLogBookSpecTest() {
+        final LogBookType logBookType1 = createLogBookType("MyFirstLogBookType", ObisCode.fromString("0.0.99.98.0.255"));
+
+        enhanceDeviceTypeWithLogBookTypes(this.deviceType, logBookType1);
+        DeviceType.DeviceConfigurationBuilder firstConfigBuilder = deviceType.newConfiguration("FirstDeviceConfiguration");
+        enhanceConfigBuilderWithLogBookTypes(firstConfigBuilder, logBookType1);
+        DeviceConfiguration firstDeviceConfiguration = firstConfigBuilder.add();
+        firstDeviceConfiguration.activate();
+        DeviceType.DeviceConfigurationBuilder secondDeviceConfigBuilder = deviceType.newConfiguration("SecondDeviceConfiguration");
+        enhanceConfigBuilderWithLogBookTypes(secondDeviceConfigBuilder, logBookType1);
+        DeviceConfiguration secondDeviceConfiguration = secondDeviceConfigBuilder.add();
+        secondDeviceConfiguration.activate();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+        device.save();
+
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfiguration(device, secondDeviceConfiguration);
+
+        assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
+        assertThat(modifiedDevice.getLogBooks()).hasSize(1);
+        assertThat(modifiedDevice.getLogBooks().get(0).getLogBookSpec().getId()).isEqualTo(secondDeviceConfiguration.getLogBookSpecs().get(0).getId());
+    }
+
+    @Test(expected = CannotChangeDeviceConfigStillUnresolvedConflicts.class)
+    @Transactional
+    public void changeConfigWhileThereAreStillConflictingMappingsTest() {
+        final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
+        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
+        final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
+        firstDeviceConfiguration.activate();
+        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
+        final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
+        secondDeviceConfiguration.activate();
+
+        updateConflictsFor(mySecondConnectionTask);
+
+        assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2);
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+        device.save();
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfiguration(device, secondDeviceConfiguration);
+    }
+
+    @Test
+    @Transactional
+    public void changeConfigWithNoConflictConnectionMethods() {
+        final String connectionTaskName = "MyDefaultConnectionTaskName";
+
+        final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
+        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
+        final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, connectionTaskName, outboundIpPool);
+        firstDeviceConfiguration.activate();
+        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
+        final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, connectionTaskName, outboundIpPool);
+        secondDeviceConfiguration.activate();
+
+        updateConflictsFor(mySecondConnectionTask);
+        assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+        device.save();
+        final ScheduledConnectionTask originalScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(myFirstConnectionTask).setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfiguration(device, secondDeviceConfiguration);
+
+        assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
+        assertThat(modifiedDevice.getConnectionTasks().get(0).getPartialConnectionTask().getId()).isEqualTo(mySecondConnectionTask.getId());
+    }
+
+    @Test
+    @Transactional
+    public void changeConfigWithConflictAndResolvedRemoveActionTest() {
+        final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
+        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
+        final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
+        firstDeviceConfiguration.activate();
+        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
+        final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
+        secondDeviceConfiguration.activate();
+
+        updateConflictsFor(mySecondConnectionTask);
+        final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
+        deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE, mySecondConnectionTask);
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+        device.save();
+        final ScheduledConnectionTask originalScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(myFirstConnectionTask).setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfiguration(device, secondDeviceConfiguration);
+
+        assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
+        assertThat(modifiedDevice.getConnectionTasks()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void changeConfigWithConflictAndResolvedMapActionTest() {
+        final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
+        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
+        final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
+        firstDeviceConfiguration.activate();
+        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
+        final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
+        secondDeviceConfiguration.activate();
+
+        updateConflictsFor(mySecondConnectionTask);
+        final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
+        deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.MAP, mySecondConnectionTask);
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+        device.save();
+        final ScheduledConnectionTask originalScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(myFirstConnectionTask).setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfiguration(device, secondDeviceConfiguration);
+
+        assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
+        assertThat(modifiedDevice.getConnectionTasks().get(0).getPartialConnectionTask().getId()).isEqualTo(mySecondConnectionTask.getId());
+    }
+
+    @Test
+    @Transactional
+    public void changeConfigWithConflictAndResolvedMapWithPropertiesTest() {
+        final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
+        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
+        final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
+        firstDeviceConfiguration.activate();
+        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
+        final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
+        secondDeviceConfiguration.activate();
+
+        updateConflictsFor(mySecondConnectionTask);
+        final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
+        deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.MAP, mySecondConnectionTask);
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+        device.save();
+        final String ipAddressValue = "10.0.66.99";
+        final BigDecimal portNumberValue = new BigDecimal(1235L);
+        final String ipAddressPropertyName = "ipAddress";
+        final String portNumberPropertyName = "port";
+        final ScheduledConnectionTask originalScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(myFirstConnectionTask)
+                .setProperty(ipAddressPropertyName, ipAddressValue)
+                .setProperty(portNumberPropertyName, portNumberValue)
+                .add();
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfiguration(device, secondDeviceConfiguration);
+
+        assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
+        assertThat(modifiedDevice.getConnectionTasks().get(0).getPartialConnectionTask().getId()).isEqualTo(mySecondConnectionTask.getId());
+        assertThat(modifiedDevice.getConnectionTasks().get(0).getProperty(ipAddressPropertyName).getValue()).isEqualTo(ipAddressValue);
+        assertThat(modifiedDevice.getConnectionTasks().get(0).getProperty(portNumberPropertyName).getValue()).isEqualTo(portNumberValue);
+    }
+
+
+    @Test(expected = CannotChangeDeviceConfigStillUnresolvedConflicts.class)
+    @Transactional
+    public void changeConfigWhileThereAreStillSecuritySetConflictingMappingsTest() {
+        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+        final SecurityPropertySet firstSecurityPropertySet = firstDeviceConfiguration.createSecurityPropertySet("NoSecurity").encryptionLevel(0).authenticationLevel(0).build();
+        firstDeviceConfiguration.activate();
+        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
+        final SecurityPropertySet secondSecurityPropertySet = secondDeviceConfiguration.createSecurityPropertySet("None").encryptionLevel(0).authenticationLevel(0).build();
+        secondDeviceConfiguration.activate();
+
+//        updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
+
+        assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2);
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+        device.save();
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfiguration(device, secondDeviceConfiguration);
+    }
+
+    private DeviceConfigConflictMapping getDeviceConfigConflictMapping(DeviceConfiguration firstDeviceConfiguration, DeviceConfiguration secondDeviceConfiguration) {
+        return deviceType.getDeviceConfigConflictMappings().stream().filter(getDeviceConfigConflictMappingPredicate(firstDeviceConfiguration, secondDeviceConfiguration)).findFirst().get();
+    }
+
+    private Predicate<DeviceConfigConflictMapping> getDeviceConfigConflictMappingPredicate(DeviceConfiguration firstDeviceConfiguration, DeviceConfiguration secondDeviceConfiguration) {
+        return deviceConfigConflictMapping -> deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == firstDeviceConfiguration.getId() && deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == secondDeviceConfiguration.getId();
+    }
+
+    private PartialScheduledConnectionTaskImpl createPartialConnectionTask(DeviceConfiguration firstDeviceConfiguration, String connectionTaskName, OutboundComPortPool comPortPool) {
+        final PartialScheduledConnectionTaskBuilder partialScheduledConnectionTaskBuilder = firstDeviceConfiguration.newPartialScheduledConnectionTask(connectionTaskName, outboundIpConnectionTypePluggableClass, scheduledConnectionTaskInterval, ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+        partialScheduledConnectionTaskBuilder.comPortPool(comPortPool);
+        return partialScheduledConnectionTaskBuilder.build();
     }
 
     private RegisterType getRegisterTypeForReadingType(String readingTypeMRID) {
@@ -301,6 +593,11 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
     private void enhanceDeviceTypeWithRegisterTypes(DeviceType deviceType, RegisterType... registerType) {
         Stream.of(registerType).forEach(deviceType::addRegisterType);
+        deviceType.save();
+    }
+
+    private void enhanceDeviceTypeWithLogBookTypes(DeviceType deviceType, LogBookType... logBookTypes) {
+        Stream.of(logBookTypes).forEach(deviceType::addLogBookType);
         deviceType.save();
     }
 
@@ -317,7 +614,15 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         Stream.of(loadProfileTypes).forEach(getLoadProfileSpec(deviceConfigBuilder));
     }
 
-    private Consumer<LoadProfileType> getLoadProfileSpec(DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder){
+    private void enhanceConfigBuilderWithLogBookTypes(DeviceType.DeviceConfigurationBuilder deviceConfigBuilder, LogBookType... logBookTypes) {
+        Stream.of(logBookTypes).forEach(getLogBookSpec(deviceConfigBuilder));
+    }
+
+    private Consumer<LogBookType> getLogBookSpec(DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder) {
+        return deviceConfigurationBuilder::newLogBookSpec;
+    }
+
+    private Consumer<LoadProfileType> getLoadProfileSpec(DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder) {
         return loadProfileType -> {
             LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfigurationBuilder.newLoadProfileSpec(loadProfileType);
             loadProfileType.getChannelTypes().stream().forEach(channelType -> deviceConfigurationBuilder.newChannelSpec(channelType, loadProfileSpecBuilder));

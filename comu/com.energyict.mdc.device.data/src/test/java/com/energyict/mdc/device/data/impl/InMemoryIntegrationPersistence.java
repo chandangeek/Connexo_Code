@@ -10,6 +10,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
@@ -52,6 +53,7 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingHandler;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.impl.events.TestProtocolWithRequiredStringAndOptionalNumericDialectProperties;
 import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
@@ -161,6 +163,7 @@ public class InMemoryIntegrationPersistence {
     private IssueService issueService;
     private Thesaurus thesaurus;
     private BatchService batchService;
+    private Injector injector;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -188,7 +191,7 @@ public class InMemoryIntegrationPersistence {
         Properties properties = new Properties();
         properties.put("protocols", "all");
         when(license.getLicensedValues()).thenReturn(properties);
-        Injector injector = Guice.createInjector(
+        injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
                 new ThreadSecurityModule(this.principal),
@@ -316,6 +319,8 @@ public class InMemoryIntegrationPersistence {
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
         this.thesaurus = mock(Thesaurus.class);
+        this.issueService = mock(IssueService.class, RETURNS_DEEP_STUBS);
+        when(this.issueService.findStatus(any())).thenReturn(Optional.<IssueStatus>empty());
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -444,7 +449,7 @@ public class InMemoryIntegrationPersistence {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
-            bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
+            bind(IssueService.class).toInstance(issueService);
             bind(Thesaurus.class).toInstance(thesaurus);
             bind(DataModel.class).toProvider(new Provider<DataModel>() {
                 @Override
@@ -477,5 +482,9 @@ public class InMemoryIntegrationPersistence {
 
     public BatchService getBatchService() {
         return batchService;
+    }
+
+    public DeviceConfigConflictMappingHandler getDeviceConfigConflictMappingHandler(){
+        return injector.getInstance(DeviceConfigConflictMappingHandler.class);
     }
 }

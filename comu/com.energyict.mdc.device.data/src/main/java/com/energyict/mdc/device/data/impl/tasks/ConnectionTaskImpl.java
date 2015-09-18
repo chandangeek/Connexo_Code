@@ -14,17 +14,7 @@ import com.energyict.mdc.device.data.exceptions.IncompatiblePartialConnectionTas
 import com.energyict.mdc.device.data.exceptions.NestedRelationTransactionException;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
 import com.energyict.mdc.device.data.exceptions.RelationIsAlreadyObsoleteException;
-import com.energyict.mdc.device.data.impl.CreateEventType;
-import com.energyict.mdc.device.data.impl.DeleteEventType;
-import com.energyict.mdc.device.data.impl.EventType;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.impl.PersistentIdObject;
-import com.energyict.mdc.device.data.impl.PropertyCache;
-import com.energyict.mdc.device.data.impl.PropertyFactory;
-import com.energyict.mdc.device.data.impl.RelationTransactionExecutor;
-import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
-import com.energyict.mdc.device.data.impl.SimpleRelationTransactionExecutor;
-import com.energyict.mdc.device.data.impl.UpdateEventType;
+import com.energyict.mdc.device.data.impl.*;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
@@ -57,6 +47,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import javax.validation.ConstraintViolationException;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -87,6 +78,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     extends PersistentIdObject<ConnectionTask>
     implements
         ServerConnectionTask<CPPT, PCTT>,
+        ServerConnectionTaskForConfigChange<CPPT, PCTT>,
         ConnectionTaskPropertyProvider,
         CanLock,
         DefaultRelationParticipant,
@@ -113,9 +105,10 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Instant lastCommunicationStart;
     private Instant lastSuccessfulCommunicationEnd;
     private transient PropertyCache<ConnectionType, ConnectionTaskProperty> cache;
+    @Min(groups = {Save.Create.class, Save.Update.class}, value = 1, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED + "}")
     private long pluggableClassId;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED + "}")
-    private ConnectionTypePluggableClass pluggableClass;
+//    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED + "}")
+    private transient ConnectionTypePluggableClass pluggableClass;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED + "}")
     private Reference<CPPT> comPortPool = ValueReference.absent();
     private Reference<ComServer> comServer = ValueReference.absent();
@@ -904,6 +897,14 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     protected TimeZone getClocksTimeZone() {
         return TimeZone.getTimeZone(this.clock.getZone());
+    }
+
+    @Override
+    public void setNewPartialConnectionTask(PCTT partialConnectionTask) {
+        this.partialConnectionTask.set(partialConnectionTask);
+        this.pluggableClass = partialConnectionTask.getPluggableClass();
+        this.pluggableClassId = this.pluggableClass.getId();
+        getDataModel().update(this, "partialConnectionTask", "pluggableClassId");
     }
 
     /**

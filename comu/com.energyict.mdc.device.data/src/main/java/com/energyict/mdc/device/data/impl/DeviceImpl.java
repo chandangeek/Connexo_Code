@@ -47,6 +47,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
@@ -643,10 +644,24 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
     }
 
     @Override
-    public void setNewDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
-        if (this.getDeviceConfiguration().getId() == deviceConfiguration.getId()) {
-            throw new CannotChangeDeviceConfigToSameConfig(thesaurus);
+    public void validateDeviceCanChangeConfig(DeviceConfiguration destinationDeviceConfiguration) {
+        if (this.getDeviceConfiguration().getId() == destinationDeviceConfiguration.getId()) {
+            throw new CannotChangeDeviceConfigToSameConfig(thesaurus, this);
         }
+        checkIfAllConflictsAreSolved(this.getDeviceConfiguration(), destinationDeviceConfiguration);
+    }
+
+
+    private void checkIfAllConflictsAreSolved(DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration) {
+        originDeviceConfiguration.getDeviceType().getDeviceConfigConflictMappings().stream()
+                .filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == originDeviceConfiguration.getId()
+                        && deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == destinationDeviceConfiguration.getId())
+                .filter(Predicates.not(DeviceConfigConflictMapping::isSolved)).findFirst()
+                .ifPresent(deviceConfigConflictMapping1 -> {throw new CannotChangeDeviceConfigStillUnresolvedConflicts(thesaurus, this, destinationDeviceConfiguration);});
+    }
+
+    @Override
+    public void setNewDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
         this.deviceConfiguration.set(deviceConfiguration);
     }
 
@@ -665,6 +680,19 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
         this.loadProfiles.addAll(
                 loadProfileSpecs.stream()
                         .map(loadProfileSpec -> this.dataModel.getInstance(LoadProfileImpl.class).initialize(loadProfileSpec, this))
+                        .collect(Collectors.toList()));
+    }
+
+    @Override
+    public void removeLogBooks(List<LogBook> logBooks) {
+        this.logBooks.removeAll(logBooks);
+    }
+
+    @Override
+    public void addLogBooks(List<LogBookSpec> logBookSpecs) {
+        this.logBooks.addAll(
+                logBookSpecs.stream()
+                        .map(logBookSpec -> this.dataModel.getInstance(LogBookImpl.class).initialize(logBookSpec, this))
                         .collect(Collectors.toList()));
     }
 

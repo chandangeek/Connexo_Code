@@ -25,7 +25,7 @@ import java.util.Optional;
  * Date: 25/03/14
  * Time: 15:50
  */
-public class LogBookImpl implements LogBook {
+public class LogBookImpl implements ServerLogBookForConfigChange {
 
     private final DataModel dataModel;
 
@@ -118,6 +118,12 @@ public class LogBookImpl implements LogBook {
         }
         filter.logBookId = this.getId();
         return this.device.get().getDeviceEventsByFilter(filter);
+    }
+
+    @Override
+    public void setNewLogBookSpec(LogBookSpec logBookSpec) {
+        this.logBookSpec.set(logBookSpec);
+        this.dataModel.update(this, "logBookSpec");
     }
 
     abstract static class LogBookUpdater implements LogBook.LogBookUpdater {
