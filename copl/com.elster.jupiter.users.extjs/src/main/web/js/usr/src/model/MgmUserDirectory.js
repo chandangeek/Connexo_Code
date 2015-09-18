@@ -1,111 +1,60 @@
 Ext.define('Usr.model.MgmUserDirectory', {
     extend: 'Ext.data.Model',
     fields: [
-    /*    'id',
+       'id',
         'name',
-        'prefix',
         'url',
         'isDefault',
         'securityProtocol',
+        {
+            name: 'securityProtocolDisplay',
+            persist: false,
+            convert: function (value, record) {
+                switch(record.get('securityProtocol')) {
+                    case 'NONE':
+                        return Uni.I18n.translate('userDirectories.securityProtocol.none', 'USR', 'None');
+                        break;
+                    case 'SSL':
+                        return Uni.I18n.translate('userDirectories.securityProtocol.ssl', 'USR', 'SSL');
+                        break;
+                    case 'TLS':
+                        return Uni.I18n.translate('userDirectories.securityProtocol.none', 'USR', 'TLS');
+                        break;
+                    default:
+                        return record.get('securityProtocol');
+                }
+            }
+        },
         'type',
         {
             name: 'typeDisplay',
             persist: false,
             convert: function (value, record) {
+                if (record.get('id') === 0) {
+                    return Uni.I18n.translate('userDirectories.type.internal', 'USR', 'Internal');
+                }
                 switch(record.get('type')) {
                     case 'ACD':
-                        return Uni.I18n.translate('userDirectories.type.apacheDirectory', 'USR', 'Apache directory');
+                        return Uni.I18n.translate('userDirectories.type.activeDirectory', 'USR', 'Active Directory');
                         break;
                     case 'APD':
-                        return Uni.I18n.translate('userDirectories.type.apacheDS', 'USR', 'Apache DS');
+                        return Uni.I18n.translate('userDirectories.type.apacheDS', 'USR', 'LDAP');
                         break;
                     default:
                         return Uni.I18n.translate('userDirectories.type.none', 'USR', 'None');
                 }
             }
         },
+        'directoryUser',
+        'password',
         'backupUrl',
         'baseUser',
         'baseGroup'
-        */
-
-        'importDirectory',
-        'inProcessDirectory',
-        'successDirectory',
-        'failureDirectory',
-        'pathMatcher',
-
-        'id',
-        'name',
-        {
-            name: 'isDefault',
-            convert: function (value, record) {
-                return true;
-            }
-        },
-        {
-            name: 'prefix',
-            convert: function (value, record) {
-                return record.get('importDirectory');
-            }
-        },
-        {
-            name: 'url',
-            convert: function (value, record) {
-                return record.get('inProcessDirectory');
-            }
-        },
-        {
-            name: 'securityProtocol',
-            convert: function (value, record) {
-                return 'SSL';
-            }
-        },
-        {
-            name: 'type',
-            convert: function (value, record) {
-                return 'APD';
-            }
-        },
-        {
-            name: 'typeDisplay',
-            persist: false,
-            convert: function (value, record) {
-                switch(record.get('type')) {
-                    case 'ACD':
-                        return Uni.I18n.translate('userDirectories.type.activeDirectory', 'USR', 'Active directory');
-                        break;
-                    case 'APD':
-                        return Uni.I18n.translate('userDirectories.type.apacheDS', 'USR', 'Apache DS');
-                        break;
-                    default:
-                        return Uni.I18n.translate('userDirectories.type.none', 'USR', 'None');
-                }
-            }
-        },
-        {
-            name: 'backupUrl',
-            convert: function (value, record) {
-                return record.get('successDirectory');
-            }
-        },
-        {
-            name: 'baseUser',
-            convert: function (value, record) {
-                return record.get('failureDirectory');
-            }
-        },
-        {
-            name: 'baseGroup',
-            convert: function (value, record) {
-                return record.get('pathMatcher');
-            }
-        }
     ],
     
     proxy: {
         type: 'rest',
-        url: '/api/fir/importservices',
+        url: '/api/usr/userdirectories',
         reader: {
             type: 'json'
         }

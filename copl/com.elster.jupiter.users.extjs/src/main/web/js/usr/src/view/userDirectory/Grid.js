@@ -29,6 +29,7 @@ Ext.define('Usr.view.userDirectory.Grid', {
             },
             {
                 xtype: 'uni-actioncolumn',
+                privileges: Usr.privileges.Users.admin,
                 menu: {
                     xtype: 'usr-user-directory-action-menu',
                     itemId: 'mnu-user-directory-action-menu'
@@ -49,7 +50,8 @@ Ext.define('Usr.view.userDirectory.Grid', {
                         xtype: 'button',
                         text: Uni.I18n.translate('general.addUserDirectory', 'USR', 'Add user directory'),
                         privileges: Usr.privileges.Users.admin,
-                        href: '#/administration/userdirectories/add'
+                        href: '#/administration/userdirectories/add',
+                        itemId: 'btn-add-user-directory'
                     }
                 ]
             },

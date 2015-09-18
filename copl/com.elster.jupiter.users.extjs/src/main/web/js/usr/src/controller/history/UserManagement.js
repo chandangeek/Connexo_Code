@@ -69,7 +69,7 @@ Ext.define('Usr.controller.history.UserManagement', {
                     route: 'userDirectories',
                     controller: 'Usr.controller.UserDirectories',
                     action: 'showUserDirectories',
-                    privileges: Usr.privileges.Users.admin,
+                    privileges: Usr.privileges.Users.view,
                     items: {
                         add: {
                             title: Uni.I18n.translate('general.addUserDirectory', 'USR', 'Add user directory'),
@@ -92,7 +92,7 @@ Ext.define('Usr.controller.history.UserManagement', {
                         },*/
                         edit: {
                             title: Uni.I18n.translate('general.edit', 'USR', 'Edit'),
-                            route: '{id}/edit',
+                            route: '{userDirectoryId}/edit',
                             controller: 'Usr.controller.UserDirectories',
                             privileges: Usr.privileges.Users.admin,
                             action: 'showEditImportService',
@@ -107,17 +107,26 @@ Ext.define('Usr.controller.history.UserManagement', {
                         },
                         synchronize: {
                             title: Uni.I18n.translate('general.synchronize', 'USR', 'Synchronize'),
-                            route: '{id}/synchronize',
+                            route: '{userDirectoryId}/synchronize',
                             controller: 'Usr.controller.UserDirectories',
                             privileges: Usr.privileges.Users.admin,
-                            action: 'synchronizeUserDirectory',
+                            action: 'showSynchronizeUserDirectory',
                             callback: function (route) {
-                                this.getApplication().on('editUserDirectory', function (record) {
+                                this.getApplication().on('synchronizeUserDirectory', function (record) {
                                     route.setTitle(Ext.String.format(Uni.I18n.translate('userDirectories.synchronize', 'USR', 'Synchronize \'{0}\''), record.get('name')));
                                     return true;
                                 }, {single: true});
 
                                 return this;
+                            },
+                            items: {
+                                addUsers: {
+                                    title: Uni.I18n.translate('general.selectUsers', 'USR', 'Select users'),
+                                    route: 'addUsers',
+                                    controller: 'Usr.controller.UserDirectories',
+                                    privileges: Usr.privileges.Users.admin,
+                                    action: 'showSelectUsers'
+                                }
                             }
                         }
 

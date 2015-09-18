@@ -7,7 +7,6 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
     ],
 
     edit: false,
-    importServiceRecord: null,
     setEdit: function (edit, returnLink) {
         if (edit) {
             this.edit = edit;
@@ -28,7 +27,7 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                 xtype: 'form',
                 itemId: 'frm-add-user-directory',
                 ui: 'large',
-                width: '100%',
+                //width: '100%',
                 defaults: {
                     labelWidth: 250,
                     width: 600,
@@ -53,19 +52,17 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                     },
                     {
                         xtype: 'textfield',
-                        name: 'prefix',
-                        itemId: 'txt-prefix',
-                        //required: true,
-                        allowBlank: false,
-                        fieldLabel: Uni.I18n.translate('userDirectories.prefix', 'USR', 'Prefix')
-                    },
-                    {
-                        xtype: 'textfield',
                         name: 'url',
                         itemId: 'txt-url',
                         required: true,
                         allowBlank: false,
-                        fieldLabel: Uni.I18n.translate('userDirectories.url', 'USR', 'Url')
+                        fieldLabel: Uni.I18n.translate('userDirectories.url', 'USR', 'URL')
+                    },
+                    {
+                        xtype: 'textfield',
+                        name: 'backupUrl',
+                        itemId: 'txt-backupUrl',
+                        fieldLabel: Uni.I18n.translate('userDirectories.backupURL', 'USR', 'Backup URL')
                     },
                     {
                         xtype: 'container',
@@ -99,6 +96,7 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                     },
                     {
                         xtype: 'radiogroup',
+                        itemId: 'rdo-user-directory-type',
                         required: true,
                         fieldLabel: Uni.I18n.translate('userDirectories.type', 'USR', 'Type'),
                         columns: 1,
@@ -108,41 +106,84 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                         },
                         items: [
                             {
-                                boxLabel: Uni.I18n.translate('userDirectories.type.activeDirectory', 'USR', 'Active directory'),
+                                boxLabel: Uni.I18n.translate('userDirectories.type.activeDirectory', 'USR', 'Active Directory'),
                                 inputValue: 'ACD',
                                 checked: true
                             },
                             {
-                                boxLabel: Uni.I18n.translate('userDirectories.type.apacheDS', 'USR', 'Apache DS'),
+                                boxLabel: Uni.I18n.translate('userDirectories.type.apacheDS', 'USR', 'LDAP'),
                                 inputValue: 'APD'
                             }
                         ]
                     },
                     {
+                        xtype: 'container',
+                        margin: '0 0 8 0',
+                        layout: {
+                            type: 'hbox',
+                            align: 'left'
+                        },
+                        width: 700,
+                        items: [
+                            {
+                                xtype: 'textfield',
+                                name: 'directoryUser',
+                                itemId: 'txt-userName',
+                                required: true,
+                                labelWidth: 250,
+                                width: 600,
+                                enforceMaxLength: true,
+                                fieldLabel: Uni.I18n.translate('userDirectories.userName', 'USR', 'User')
+                            },
+                            {
+                                xtype: 'box',
+                                itemId: 'txt-user-name-info',
+                                cls: 'uni-info-icon',
+                                autoEl: {
+                                    tag: 'img',
+                                    src: "../sky/build/resources/images/shared/icon-info-small.png",
+                                    width: 16,
+                                    height: 16
+                                },
+                                margin: '6 0 0 10',
+                                style: {
+                                    cursor: 'pointer'
+                                },
+                                listeners: {
+                                    el: {
+                                        click: function () {
+                                            var me = Ext.getCmp(this.id);
+                                            me.up('contentcontainer').fireEvent('displayinfo', me);
+                                        }
+                                    }
+                                }
+                            }
+
+                        ]
+                    },
+                    {
                         xtype: 'textfield',
-                        name: 'backupUrl',
-                        itemId: 'txt-backupUrl',
-                        fieldLabel: Uni.I18n.translate('userDirectories.backupURL', 'USR', 'Backup URL')
+                        name: 'password',
+                        itemId: 'txt-userPassword',
+                        required: true,
+                        inputType: 'password',
+                        fieldLabel: Uni.I18n.translate('userDirectories.userPassword', 'USR', 'Password')
                     },
                     {
                         xtype: 'textfield',
                         name: 'baseUser',
                         itemId: 'txt-baseUser',
-                        fieldLabel: Uni.I18n.translate('userDirectories.baseUser', 'USR', 'Base user')
+                        fieldLabel: Uni.I18n.translate('userDirectories.baseUser', 'USR', 'User base DN')
                     },
                     {
                         xtype: 'textfield',
                         name: 'baseGroup',
                         itemId: 'txt-baseGroup',
-                        fieldLabel: Uni.I18n.translate('userDirectories.baseGroup', 'USR', 'Base group')
+                        fieldLabel: Uni.I18n.translate('userDirectories.baseGroup', 'USR', 'Group base DN')
                     },
                     {
-                        xtype: 'fieldcontainer',
-                        ui: 'actions',
-                        margin: '20 0 0 0',
-                        fieldLabel: '&nbsp',
-                        labelAlign: 'right',
-                        labelWidth: 260,
+                        xtype: 'container',
+                        margin: '0 0 0 265',
                         layout: 'hbox',
                         items: [
                             {

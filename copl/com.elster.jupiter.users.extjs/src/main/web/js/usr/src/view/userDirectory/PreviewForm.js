@@ -1,11 +1,6 @@
 Ext.define('Usr.view.userDirectory.PreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.usr-user-directory-preview-form',
-    requires: [
-        'Uni.property.form.Property',
-        'Uni.form.field.Duration',
-        'Uni.property.form.GroupedPropertyForm'
-    ],
 
     initComponent: function () {
         var me = this;
@@ -21,22 +16,66 @@ Ext.define('Usr.view.userDirectory.PreviewForm', {
                     {
                         xtype: 'container',
                         layout: {
-                            type: 'vbox',
+                            type: 'column',
                             align: 'stretch'
-                        },
-                        defaults: {
-                            labelWidth: 150
                         },
                         items: [
                             {
-                                xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('general.name', 'USR', 'Name'),
-                                name: 'name',
-                                itemId: 'usr-user-directory-name'
+                                xtype: 'container',
+                                columnWidth: 0.5,
+                                layout: {
+                                    type: 'vbox',
+                                    align: 'stretch'
+                                },
+                                defaults: {
+                                    labelWidth: 150
+                                },
+                                items: [
+
+                                    {
+                                        xtype: 'displayfield',
+                                        fieldLabel: Uni.I18n.translate('general.name', 'USR', 'Name'),
+                                        name: 'name',
+                                        itemId: 'usr-user-directory-name'
+                                    },
+                                    {
+                                        xtype: 'container',
+                                        itemId: 'ctn-user-directory-properties1',
+                                        layout: {
+                                            type: 'vbox',
+                                            align: 'stretch'
+                                        },
+                                        defaults: {
+                                            labelWidth: 150
+                                        },
+                                        items:
+                                            [
+                                                {
+                                                    xtype: 'displayfield',
+                                                    fieldLabel: Uni.I18n.translate('userDirectories.type', 'USR', 'Type'),
+                                                    name: 'typeDisplay',
+                                                    itemId: 'usr-user-directory-type'
+                                                },
+                                                {
+                                                    xtype: 'displayfield',
+                                                    name: 'baseUser',
+                                                    itemId: 'usr-user-directory-user-base-dn',
+                                                    fieldLabel: Uni.I18n.translate('userDirectories.baseUser', 'USR', 'User base DN')
+                                                },
+                                                {
+                                                    xtype: 'displayfield',
+                                                    name: 'baseGroup',
+                                                    itemId: 'usr-user-directory-group-base-dn',
+                                                    fieldLabel: Uni.I18n.translate('userDirectories.baseGroup', 'USR', 'Group base DN')
+                                                }
+                                        ]
+                                    }
+                                ]
                             },
                             {
                                 xtype: 'container',
-                                itemId: 'ctn-user-directory-properties',
+                                columnWidth: 0.5,
+                                itemId: 'ctn-user-directory-properties2',
                                 layout: {
                                     type: 'vbox',
                                     align: 'stretch'
@@ -47,21 +86,21 @@ Ext.define('Usr.view.userDirectory.PreviewForm', {
                                 items: [
                                     {
                                         xtype: 'displayfield',
-                                        fieldLabel: Uni.I18n.translate('userDirectories.prefix', 'USR', 'Prefix'),
-                                        name: 'prefix',
-                                        itemId: 'usr-user-directory-prefix'
+                                        fieldLabel: Uni.I18n.translate('userDirectories.securityProtocol', 'USR', 'Security protocol'),
+                                        name: 'securityProtocolDisplay',
+                                        itemId: 'usr-user-directory-security-protocol'
                                     },
                                     {
                                         xtype: 'displayfield',
-                                        fieldLabel: Uni.I18n.translate('userDirectories.url', 'USR', 'Url'),
+                                        fieldLabel: Uni.I18n.translate('userDirectories.url', 'USR', 'URL'),
                                         name: 'url',
                                         itemId: 'usr-user-directory-url'
                                     },
                                     {
                                         xtype: 'displayfield',
-                                        fieldLabel: Uni.I18n.translate('userDirectories.securityProtocol', 'USR', 'Security protocol'),
-                                        name: 'securityProtocol',
-                                        itemId: 'usr-user-directory-security-protocol'
+                                        fieldLabel: Uni.I18n.translate('userDirectories.backupURL', 'USR', 'Backup URL'),
+                                        name: 'backupUrl',
+                                        itemId: 'usr-user-directory-backup-url'
                                     }
                                 ]
                             }

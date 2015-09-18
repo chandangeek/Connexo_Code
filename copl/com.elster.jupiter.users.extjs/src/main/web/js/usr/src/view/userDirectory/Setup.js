@@ -29,7 +29,7 @@ Ext.define('Usr.view.userDirectory.Setup', {
                         itemId: 'ctr-no-user-directory',
                         title: Uni.I18n.translate('userDirectories.empty.title', 'USR', 'No user directory found'),
                         reasons: [
-                            Uni.I18n.translate('userDirectories.empty.list.item1', 'USR', 'No user directories have been defined yet.'),
+                            Uni.I18n.translate('userDirectories.empty.list.item1', 'USR', 'No user directories have been added yet.'),
                             Uni.I18n.translate('userDirectories.empty.list.item2', 'USR', 'User directories exist, but you do not have permission to view them.')
                         ],
                         stepItems: [

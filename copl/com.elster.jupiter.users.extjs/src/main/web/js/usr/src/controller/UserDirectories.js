@@ -1,21 +1,26 @@
 Ext.define('Usr.controller.UserDirectories', {
     extend: 'Ext.app.Controller',
     requires: [
-        'Usr.store.MgmUserDirectories'
+        'Usr.store.MgmUserDirectories',
+        'Usr.view.userDirectory.AddUsersGrid'
     ],
     views: [
         'Usr.view.userDirectory.Setup',
-        'Usr.view.userDirectory.AddUserDirectory'/*,
-         'Usr.view.userDirectory.Details',
-         'Usr.view.userDirectory.Menu'*/
+        'Usr.view.userDirectory.AddUserDirectory',
+        'Usr.view.userDirectory.Synchronize',
+        'Usr.view.userDirectory.AddUsersSetup'
     ],
     stores: [
         'Usr.store.MgmUserDirectories',
-        'Usr.store.SecurityProtocols'
+        'Usr.store.SecurityProtocols',
+        'Usr.store.MgmUserDirectoryUsers',
+        'Usr.store.MgmUserDirectoryExtUsers'
     ],
     models: [
         'Usr.model.MgmUserDirectory',
-         'Usr.model.MgmUserDirectory'
+        'Usr.model.MgmUserDirectory',
+        'Usr.model.MgmUserDirectoryUser',
+        'Usr.model.MgmUserDirectoryUsers'
     ],
     refs: [
         {
@@ -25,25 +30,26 @@ Ext.define('Usr.controller.UserDirectories', {
         {
             ref: 'addPage',
             selector: 'usr-add-user-directory'
-        }, /*,
-         {
-         ref: 'detailsImportService',
-         selector: 'fin-details-import-service'
-         },*/
+        },
         {
             ref: 'userDirectoriesGrid',
             selector: '#grd-user-directories'
         },
         {
+            ref: 'userDirectoriyUsersGrid',
+            selector: '#grd-user-directory-users'
+        },
+        {
             ref: 'userDirectoryPreviewContainerPanel',
             selector: '#pnl-user-directory-preview-form'
-        }/*,
-         {
-         ref: 'userDirectoryOverview',
-         selector: '#frm-import-service-details'
-         }*/
+        },
+        {
+            ref: 'addExtUsersGrid',
+            selector: '#pnl-select-users #grd-add-ext-users'
+        }
     ],
     localDomainName: 'Local',
+    userDirectoryUsersStoreLoaded: false,
     init: function () {
         this.control({
             'usr-user-directories-setup usr-user-directories-grid': {
@@ -55,6 +61,21 @@ Ext.define('Usr.controller.UserDirectories', {
             },
             'usr-add-user-directory #btn-add': {
                 click: this.addUserDirectory
+            },
+            '#frm-user-directory-users #btn-save-user': {
+                click: this.saveUsers
+            },
+            'usr-add-users-grid #btn-add-ext-user': {
+                click: this.addExtUsers
+            },
+            'usr-add-user-directory': {
+                displayinfo: this.displayInfo
+            },
+            '#btn-user-directory-synchronize-users': {
+                click: this.synchronizeUsers
+            },
+            '#btn-user-directory-add-users': {
+                click: this.selectUsers
             }
         });
     },
@@ -65,7 +86,6 @@ Ext.define('Usr.controller.UserDirectories', {
                 router: me.getController('Uni.controller.history.Router')
             });
         me.getApplication().fireEvent('changecontentevent', view);
-
     },
 
     showPreview: function (selectionModel, record) {
@@ -76,8 +96,9 @@ Ext.define('Usr.controller.UserDirectories', {
 
         Ext.suspendLayouts();
         preview.setTitle(record.get('name'));
-        previewForm = page.down('usr-user-directory-preview-form'),
-        previewForm.down('#ctn-user-directory-properties').setVisible(record.get('name') != me.localDomainName);
+        previewForm = page.down('usr-user-directory-preview-form');
+        previewForm.down('#ctn-user-directory-properties1').setVisible(record.get('name') != me.localDomainName);
+        previewForm.down('#ctn-user-directory-properties2').setVisible(record.get('name') != me.localDomainName);
         previewForm.loadRecord(record);
         preview.down('usr-user-directory-action-menu').record = record;
         Ext.resumeLayouts();
@@ -89,6 +110,7 @@ Ext.define('Usr.controller.UserDirectories', {
 
         switch (item.action) {
             case 'synchronizeUserDirectory':
+                me.userDirectoryUsersStoreLoaded = false;
                 location.href = '#/administration/userdirectories/' + record.get('id') + '/synchronize';
                 break;
             case 'editUserDirectory':
@@ -103,7 +125,7 @@ Ext.define('Usr.controller.UserDirectories', {
         }
     },
 
-    onShowUserDirectoryMenu: function(menu){
+    onShowUserDirectoryMenu: function (menu) {
         var me = this,
             editUserDirectory = menu.down('#edit-user-directory'),
             synchronizeUserDirectory = menu.down('#synchronize-user-directory'),
@@ -134,8 +156,8 @@ Ext.define('Usr.controller.UserDirectories', {
         confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('general.remove', 'USR', 'Remove')
         }).show({
-            title: Ext.String.format(Uni.I18n.translate('userDirectories.remove.title', 'FIM', 'Remove \'{0}\'?'), record.get('name')),
-            msg: Uni.I18n.translate('userDirectories.remove.message', 'FIM', 'This user directory will no longer be available.'),
+            title: Ext.String.format(Uni.I18n.translate('userDirectories.remove.title', 'USR', 'Remove \'{0}\'?'), record.get('name')),
+            msg: Uni.I18n.translate('userDirectories.remove.message', 'USR', 'This user directory will no longer be available.'),
             fn: function (state) {
                 if (state === 'confirm') {
                     me.removeUserDirectory(record);
@@ -158,7 +180,8 @@ Ext.define('Usr.controller.UserDirectories', {
                     userDirectoriesGrid.down('pagingtoolbartop').totalCount = 0;
                     userDirectoriesGrid.down('pagingtoolbarbottom').resetPaging();
                     userDirectoriesGrid.getStore().load();
-                } else {
+                }
+                else {
                     me.getController('Uni.controller.history.Router').getRoute('administration/userdirectories').forward();
                 }
                 view.setLoading(false);
@@ -171,11 +194,10 @@ Ext.define('Usr.controller.UserDirectories', {
         });
     },
 
-    setAsDefault: function (record){
+    setAsDefault: function (record) {
         var me = this;
 
         record.set('isDefault', true);
-
         record.save({
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('userDirectories.acknowlegment.setAsDefault', 'USR', 'User directory set as default'));
@@ -209,7 +231,7 @@ Ext.define('Usr.controller.UserDirectories', {
 
             userDirectoryRecord.save({
                 success: function () {
-                    me.getController('Uni.controller.history.Router').getRoute('administration/userdirectories').buildUrl();
+                    me.getController('Uni.controller.history.Router').getRoute('administration/userdirectories').forward();
 
                     if (button.action === 'edit') {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('userDirectories.successMsg.saved', 'USR', 'User directory saved'));
@@ -247,6 +269,7 @@ Ext.define('Usr.controller.UserDirectories', {
         addUserDirectoryForm = addUserDirectoryView.down('#frm-add-user-directory');
         addUserDirectoryForm.setTitle(Uni.I18n.translate('userDirectories.add', 'USR', 'Add user directory'));
 
+
         me.getApplication().fireEvent('changecontentevent', addUserDirectoryView);
     },
 
@@ -266,6 +289,11 @@ Ext.define('Usr.controller.UserDirectories', {
             securityProtocolCombo.down('#no-security-protocol').show();
         }
 
+        var nameField = addUserDirectoryView.down('#txt-name');
+        if (nameField) {
+            nameField.setDisabled(true);
+        }
+
         var userDirectory = me.getModel('Usr.model.MgmUserDirectory');
         userDirectory.load(userDirectoryId, {
             success: function (userDirectoryRecord) {
@@ -277,13 +305,232 @@ Ext.define('Usr.controller.UserDirectories', {
 
                 addUserDirectoryForm.loadRecord(userDirectoryRecord);
                 me.getApplication().fireEvent('changecontentevent', addUserDirectoryView);
+                addUserDirectoryView.setLoading(false);
+            },
+            failure: function (record, operation) {
+            }
+        });
+        addUserDirectoryView.setLoading();
+    },
+
+    showSynchronizeUserDirectory: function (userDirectoryId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            usersView, usersForm, addUserButton, userDirectoryUsersStore;
+
+        usersView = Ext.create('Usr.view.userDirectory.Synchronize', {});
+        usersView.setLoading();
+
+        userDirectoryUsersStore = me.getStore('Usr.store.MgmUserDirectoryUsers');
+        usersForm = usersView.down('#frm-user-directory-users');
+
+        var userDirectory = me.getModel('Usr.model.MgmUserDirectory');
+        userDirectory.load(userDirectoryId, {
+            success: function (userDirectoryRecord) {
+                usersForm.setTitle(Ext.String.format(Uni.I18n.translate('userDirectories.editSynchronize', 'USR', 'Synchronize \'{0}\''), userDirectoryRecord.get('name')));
+                addUserButton = usersForm.down('#btn-user-directory-add-users');
+                addUserButton.href = router.getRoute('administration/userdirectories/synchronize/addUsers').buildUrl({userDirectoryId: userDirectoryId})
+                me.getApplication().fireEvent('synchronizeUserDirectory', userDirectoryRecord);
+                me.getApplication().fireEvent('changecontentevent', usersView);
+
+                if (!me.userDirectoryUsersStoreLoaded) {
+                    userDirectoryUsersStore.loadData([],false);
+                    userDirectoryUsersStore.getProxy().setUrl(userDirectoryId);
+                    userDirectoryUsersStore.load({
+                        scope: this,
+                        callback: function (records, operation, success) {
+                            me.userDirectoryUsersStoreLoaded = true;
+                            usersView.setLoading(false);
+                        }
+                    });
+                }
+                else {
+                    usersView.setLoading(false);
+                }
+            }
+        });
+
+    },
+
+    showSelectUsers: function (userDirectoryId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            allUsersForm, cancelAddExtUserButton, addExtUsersGrid,
+            userDirectoryExtUsersStore = me.getStore('Usr.store.MgmUserDirectoryExtUsers'),
+            userDirectoryUsersStore = me.getStore('Usr.store.MgmUserDirectoryUsers'),
+            allUsersView = Ext.create('Usr.view.userDirectory.AddUsersSetup', {userDirectoryId: userDirectoryId});
+
+        cancelAddExtUserButton = allUsersView.down('#grd-add-ext-users #btn-cancel-add-ext-users');
+        cancelAddExtUserButton.href = router.getRoute('administration/userdirectories/synchronize').buildUrl({userDirectoryId: userDirectoryId})
+
+        me.getApplication().fireEvent('changecontentevent', allUsersView);
+        addExtUsersGrid = me.getAddExtUsersGrid();
+
+        userDirectoryExtUsersStore.getProxy().setUrl(userDirectoryId);
+        userDirectoryExtUsersStore.load({
+            callback: function (records, operation, success) {
+
+                if (router.queryParams && router.queryParams.users) {
+                    var users = router.queryParams.users;
+                    if (typeof users === 'string') {
+                        users = [users];
+                    }
+                    users.forEach(function (user) {
+                        var rowIndex = userDirectoryExtUsersStore.find('name', user);
+                        if (rowIndex != -1) {
+                            userDirectoryExtUsersStore.removeAt(rowIndex);
+                        }
+                    });
+                }
+
+                allUsersView.setLoading(false);
             }
         });
     },
 
-    synchronizeUserDirectory: function () {
-        var me = this;
-        me.getApplication().fireEvent('acknowledge', 'synchronizeUserDirectory');
+    saveUsers: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            userDirectoryUsersStore = me.getStore('Usr.store.MgmUserDirectoryUsers'),
+            usersList = [];
+
+        var users = Ext.create(Usr.model.MgmUserDirectoryUsers);
+
+        userDirectoryUsersStore.each(function (record) {
+            var user = Ext.create(Usr.model.MgmUserDirectoryUser);
+            user.set('name', record.get('name'));
+            user.set('status', record.get('status'));
+
+            usersList.push(user);
+        });
+        users.ldapUsers().add(usersList);
+        users.getProxy().setUrl(router.arguments.userDirectoryId);
+        users.save({
+            success: function (record) {
+                me.userDirectoryUsersStoreLoaded = false;
+                router.getRoute('administration/userdirectories').forward();
+            },
+            failure: function (record, operation) {
+
+            }
+        });
+    },
+
+    addExtUsers: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            userDirectoryUsersStore = me.getStore('Usr.store.MgmUserDirectoryUsers');
+
+        if (!me.userDirectoryUsersStoreLoaded) {
+            userDirectoryUsersStore.getProxy().setUrl(router.arguments.userDirectoryId);
+            userDirectoryUsersStore.load({
+                callback: function (records, operation, success) {
+                    me.mergeUsersList();
+                }
+            });
+        }
+        else {
+            me.mergeUsersList();
+        }
+    },
+
+    mergeUsersList: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            userDirectoryExtUsersStore = me.getStore('Usr.store.MgmUserDirectoryExtUsers'),
+            userDirectoryUsersStore = me.getStore('Usr.store.MgmUserDirectoryUsers');
+
+        me.userDirectoryUsersStoreLoaded = true;
+        addExtUsersGrid = me.getAddExtUsersGrid();
+        userDirectoryExtUsersStore.each(function (record) {
+
+            if (addExtUsersGrid.getSelectionModel().isSelected(record)) {
+                if (userDirectoryUsersStore.find('name', record.get('name')) == -1) {
+                    var user = Ext.create('Usr.model.MgmUserDirectoryUser');
+                    user.set('name', record.get('name'));
+                    user.set('status', false);
+                    user.set('statusDisplay', Uni.I18n.translate('userDirectories.userStatus.inactive', 'USR', 'Inactive'));
+                    userDirectoryUsersStore.add(user);
+                }
+            }
+        });
+
+        router.getRoute('administration/userdirectories/synchronize').forward({userDirectoryId: router.arguments.userDirectoryId});
+    },
+
+    displayInfo: function (panel) {
+
+        infoDialog = Ext.create('widget.window', {
+            title: Uni.I18n.translate('userDirectories.userInfoTitle', 'USR', 'LDAP user info'),
+            closable: true,
+            overflowY: 'auto',
+            modal: true,
+            width: 420,
+            height: 120,
+            layout: {
+                type: 'border',
+                padding: 5
+            },
+            items: [
+                {
+                    xtype: 'container',
+                    html: Uni.I18n.translate('userDirectories.userInfoContent', 'USR', 'An LDAP username with sufficient privileges to view the sections of the directory that contain the information for LDAP users.')
+                }
+            ]
+        });
+
+        infoDialog.show();
+    },
+
+    selectUsers: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            userDirectoryUsersStore = me.getStore('Usr.store.MgmUserDirectoryUsers'),
+            users = [];
+
+        userDirectoryUsersStore.each(function (record) {
+            users.push(record.get('name'));
+        });
+
+        router.getRoute('administration/userdirectories/synchronize/addUsers').forward({userDirectoryId: router.arguments.userDirectoryId}, {users: users});
+    },
+
+    synchronizeUsers: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            userDirectoryUsersStore = me.getStore('Usr.store.MgmUserDirectoryUsers'),
+            userDirectoryExtUsersStore = me.getStore('Usr.store.MgmUserDirectoryExtUsers'),
+            userDirectoryId = router.arguments.userDirectoryId;
+
+        userDirectoryExtUsersStore.getProxy().setUrl(userDirectoryId);
+        userDirectoryExtUsersStore.load({
+            callback: function (records, operation, success) {
+
+                userDirectoryUsersStore.each(function (record) {
+                    var rowIndex = userDirectoryExtUsersStore.find('name', record.get('name'));
+                    if (rowIndex == -1) {
+                        record.beginEdit();
+                        record.set('status', false);
+                        record.set('statusDisplay', Uni.I18n.translate('userDirectories.userStatus.inactive', 'USR', 'Inactive'));
+                        record.endEdit();
+
+                    }
+
+                    else if (record.get('status')) {
+                        if (!userDirectoryExtUsersStore.getAt(rowIndex).get('status')) {
+                            record.beginEdit();
+                            record.set('status', false);
+                            record.set('statusDisplay', Uni.I18n.translate('userDirectories.userStatus.inactiveDeleted', 'USR', 'Inactive (deleted)'));
+                            record.endEdit();
+                        }
+                    }
+                });
+
+            }
+        });
+
+
     }
+
 
 });

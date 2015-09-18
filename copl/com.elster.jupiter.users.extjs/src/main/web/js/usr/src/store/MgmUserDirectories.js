@@ -5,11 +5,11 @@ Ext.define('Usr.store.MgmUserDirectories', {
 
     proxy: {
         type: 'rest',
-        url: '/api/fir/importservices',
+        url: '/api/usr/userdirectories',
         timeout: 240000,
         reader: {
             type: 'json',
-            root: 'importSchedules'
+            root: 'userDirectories'
         }
     }
 
