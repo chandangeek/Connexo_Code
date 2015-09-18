@@ -84,14 +84,17 @@
 -keep public class com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.* {
    public *;
    protected *;
+   private *;
 }
 -keep public class com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.* {
    public *;
    protected *;
+   private *;
 }
 -keep public class com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.* {
    public *;
    protected *;
+   private *;
 }
 -keepnames class com.energyict.protocolimplv2.eict.rtuplusserver.idis.RtuPlusServer
 -keepnames class com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP
