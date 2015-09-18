@@ -1,7 +1,7 @@
 {
     "name": "com.elster.insight.metering.extjs",
     "type": "code",
-    "creator": "Elster Insight Project",
+    "creator": "Elster Jupiter Project",
     "summary": "Metering EXTJS package",
     "detailedDescription": "Screens for CRUD operations on metering objects",
     "version": "1.0.0",
