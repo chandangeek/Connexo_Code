@@ -1,8 +1,5 @@
 package com.energyict.mdc.dynamic.impl;
 
-import com.elster.jupiter.properties.RelativePeriodFactory;
-import com.elster.jupiter.time.RelativePeriod;
-import com.elster.jupiter.time.TimeService;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.HasId;
@@ -12,6 +9,7 @@ import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -20,12 +18,14 @@ import com.elster.jupiter.properties.CanFindByStringKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.RelativePeriodFactory;
 import com.elster.jupiter.properties.TimeZoneFactory;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.TimeService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -33,7 +33,6 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
-
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.TimeZone;
@@ -52,23 +51,25 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     private volatile DataModel dataModel;
     private volatile DataVaultService dataVaultService;
     private volatile TimeService timeService;
-
-    @Reference
-    public void setTimeService(TimeService timeService) {
-        this.timeService = timeService;
-    }
-
+    private volatile com.elster.jupiter.properties.PropertySpecService basicPropertySpecService;
+    private Map<Class<? extends CanFindByLongPrimaryKey>, CanFindByLongPrimaryKey<? extends HasId>> finders = new ConcurrentHashMap<>();
 
     public PropertySpecServiceImpl() {
     }
 
     @Inject
-    public PropertySpecServiceImpl(com.elster.jupiter.properties.PropertySpecService basicPropertySpec, DataVaultService dataVaultService, OrmService ormService) {
+    public PropertySpecServiceImpl(com.elster.jupiter.properties.PropertySpecService basicPropertySpec, DataVaultService dataVaultService, TimeService timeService, OrmService ormService) {
         this();
         this.setBasicPropertySpecService(basicPropertySpec);
         this.setOrmService(ormService);
         this.setDataVaultService(dataVaultService);
+        this.setTimeService(timeService);
         this.activate();
+    }
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
     }
 
     @Reference
@@ -97,10 +98,6 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         };
     }
 
-
-    private volatile Map<Class<? extends CanFindByLongPrimaryKey>, CanFindByLongPrimaryKey<? extends HasId>> finders = new ConcurrentHashMap<>();
-    private volatile com.elster.jupiter.properties.PropertySpecService basicPropertySpecService;
-
     @Override
     public PropertySpec basicPropertySpec(String name, boolean required, ValueFactory valueFactory) {
         return basicPropertySpecService.basicPropertySpec(name, required, valueFactory);
@@ -108,7 +105,12 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     @Override
     public PropertySpec basicPropertySpec(String name, boolean required, Class<? extends ValueFactory> valueFactoryClass) {
-        return new com.elster.jupiter.properties.BasicPropertySpec(name, required, getValueFactory(valueFactoryClass));
+        return this.basicPropertySpec(name, "", required, valueFactoryClass);
+    }
+
+    @Override
+    public PropertySpec basicPropertySpec(String name, String description, boolean required, Class<? extends ValueFactory> valueFactoryClass) {
+        return new com.elster.jupiter.properties.BasicPropertySpec(name, description, required, getValueFactory(valueFactoryClass));
     }
 
     @Override
@@ -148,27 +150,43 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     @Override
     public PropertySpec timeDurationPropertySpec(String name, boolean required, TimeDuration defaultValue) {
+        return this.timeDurationPropertySpec(name, "", required, defaultValue);
+    }
+
+    @Override
+    public PropertySpec timeDurationPropertySpec(String name, String description, boolean required, TimeDuration defaultValue) {
         PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new TimeDurationValueFactory());
         if (required) {
             builder.markRequired();
         }
         return builder
                 .name(name)
+                .description(description)
                 .setDefaultValue(defaultValue)
                 .finish();
     }
 
     @Override
     public PropertySpec obisCodePropertySpecWithValues(String name, boolean required, ObisCode... values) {
-        return this.obisCodePropertySpecWithValues(name, required, false, values);
+        return this.obisCodePropertySpecWithValues(name, "", required, false, values);
+    }
+
+    @Override
+    public PropertySpec obisCodePropertySpecWithValues(String name, String description, boolean required, ObisCode... values) {
+        return this.obisCodePropertySpecWithValues(name, description, required, false, values);
     }
 
     @Override
     public PropertySpec obisCodePropertySpecWithValuesExhaustive(String name, boolean required, ObisCode... values) {
-        return this.obisCodePropertySpecWithValues(name, required, true, values);
+        return this.obisCodePropertySpecWithValues(name, "", required, true, values);
     }
 
-    private PropertySpec obisCodePropertySpecWithValues(String name, boolean required, boolean exhaustive, ObisCode... values) {
+    @Override
+    public PropertySpec obisCodePropertySpecWithValuesExhaustive(String name, String description, boolean required, ObisCode... values) {
+        return this.obisCodePropertySpecWithValues(name, description, required, true, values);
+    }
+
+    private PropertySpec obisCodePropertySpecWithValues(String name, String description, boolean required, boolean exhaustive, ObisCode... values) {
         PropertySpecBuilder builder = PropertySpecBuilderImpl.forClass(new ObisCodeValueFactory());
         if (required) {
             builder.markRequired();
@@ -176,12 +194,17 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         if (exhaustive) {
             builder.markExhaustive();
         }
-        return builder.name(name).addValues(values).finish();
+        return builder.name(name).description(description).addValues(values).finish();
     }
 
     @Override
     public PropertySpec referencePropertySpec(String name, boolean required, FactoryIds factoryId) {
-        return new JupiterReferencePropertySpec(name, required, this.finderFor(factoryId));
+        return this.referencePropertySpec(name, "", required, factoryId);
+    }
+
+    @Override
+    public PropertySpec referencePropertySpec(String name, String description, boolean required, FactoryIds factoryId) {
+        return new JupiterReferencePropertySpec(name, description, required, this.finderFor(factoryId));
     }
 
     private CanFindByLongPrimaryKey<? extends HasId> finderFor(FactoryIds factoryId) {
@@ -232,12 +255,20 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     public ValueFactory getValueFactory(Class<? extends ValueFactory> valueFactoryClass) {
         return dataModel.getInstance(valueFactoryClass);
     }
+
     @Override
     public PropertySpec booleanPropertySpec(String name, boolean required, Boolean defaultValue) {
-        PropertySpecBuilder booleanPropertySpecBuilder = PropertySpecBuilderImpl.
-                forClass(new BooleanFactory()).
-                name(name).
-                setDefaultValue(defaultValue);
+        return this.booleanPropertySpec(name, "", required, defaultValue);
+    }
+
+    @Override
+    public PropertySpec booleanPropertySpec(String name, String description, boolean required, Boolean defaultValue) {
+        PropertySpecBuilder booleanPropertySpecBuilder =
+                PropertySpecBuilderImpl
+                    .forClass(new BooleanFactory())
+                    .name(name)
+                    .description(description)
+                    .setDefaultValue(defaultValue);
         if (required) {
             booleanPropertySpecBuilder.markRequired();
         }
@@ -246,13 +277,24 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     @Override
     public PropertySpec timeZonePropertySpec(String name, boolean required, TimeZone defaultValue) {
+        return this.timeZonePropertySpec(name, "", required, defaultValue);
+    }
+
+    @Override
+    public PropertySpec timeZonePropertySpec(String name, String description, boolean required, TimeZone defaultValue) {
         TimeZone[] possibleValues = {
                 TimeZone.getTimeZone("GMT"),
                 TimeZone.getTimeZone("Europe/Brussels"),
                 TimeZone.getTimeZone("EST"),
                 TimeZone.getTimeZone("Europe/Moscow")};
-        PropertySpecBuilder timeZonePropertySpecBuilder = PropertySpecBuilderImpl
-                .forClass(new TimeZoneFactory()).name(name).setDefaultValue(defaultValue).markExhaustive().addValues(possibleValues);
+        PropertySpecBuilder timeZonePropertySpecBuilder =
+                PropertySpecBuilderImpl
+                    .forClass(new TimeZoneFactory())
+                    .name(name)
+                    .description(description)
+                    .setDefaultValue(defaultValue)
+                    .markExhaustive()
+                    .addValues(possibleValues);
         if (required) {
             timeZonePropertySpecBuilder.markRequired();
         }
@@ -287,7 +329,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     public PropertySpec boundedLongPropertySpec(String name, boolean required, Long lowerLimit, Long upperLimit) {
         return basicPropertySpecService.boundedLongPropertySpec(name,required,lowerLimit,upperLimit);
     }
-    
+
     @Override
     public <T extends HasIdAndName> PropertySpec stringReferencePropertySpec(String name, boolean required, CanFindByStringKey<T> finder, T... values) {
         return basicPropertySpecService.stringReferencePropertySpec(name, required, finder, values);

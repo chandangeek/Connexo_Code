@@ -1,13 +1,14 @@
 package com.energyict.mdc.dynamic.impl;
 
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.properties.ValueRequiredException;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.dynamic.EncryptedStringFactory;
 import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.PasswordFactory;
+
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.ValueRequiredException;
 
 /**
  * Provides an implementation for the {@link com.elster.jupiter.properties.PropertySpec} interface.
@@ -20,6 +21,10 @@ public class BasicPropertySpec extends com.elster.jupiter.properties.BasicProper
 
     public BasicPropertySpec(String name, ValueFactory valueFactory) {
         this(name, false, valueFactory);
+    }
+
+    public BasicPropertySpec(String name, String description, boolean required, ValueFactory valueFactory) {
+        super(name, description, required, valueFactory);
     }
 
     public BasicPropertySpec(String name, boolean required, ValueFactory valueFactory) {
