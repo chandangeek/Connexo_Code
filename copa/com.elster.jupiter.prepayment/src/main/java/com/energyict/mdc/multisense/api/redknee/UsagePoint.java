@@ -41,8 +41,16 @@ public class UsagePoint {
                 ", mRID='" + mRID + '\'' +
                 "}\n";
     }
+
+    public void connect() {
+        this.status = Status.connected;
+    }
+
+    public void disconnect() {
+        this.status = Status.disconnected;
+    }
 }
 
 enum Status {
-    connected, disconnected
+    connected, disconnected, armed
 }

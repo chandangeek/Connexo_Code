@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -52,6 +53,10 @@ public class ConsumptionExportGenerator {
         this.usagePoints = new ArrayList<>(configuration.getUsagePoints());
         this.intervalInSeconds = configuration.getOutputFrequency();
 
+    }
+
+    public Optional<UsagePoint> getUsagePoint(String mRID) {
+        return usagePoints.stream().filter(usagePoint -> usagePoint.getmRID().equals(mRID)).findAny();
     }
 
     class FileGeneratorTask implements Runnable {
