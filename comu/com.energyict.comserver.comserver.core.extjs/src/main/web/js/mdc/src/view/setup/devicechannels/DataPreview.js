@@ -52,7 +52,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             } else {
                 me.setReadingQualities(me.down('#mainReadingQualities'), record.get('mainValidationInfo'));
                 me.setReadingQualities(me.down('#bulkReadingQualities'), record.get('bulkValidationInfo'));
-                me.setGeneralReadingQualities(me.down('#generalReadingQualities'), me.up('tabbedDeviceChannelsView').channel.get('validationInfo'));
+                me.setGeneralReadingQualities(me.down('#generalReadingQualities'), record.get('readingQualities'));
                 me.down('#readingDataValidated').setValue(record.get('dataValidated'));
             }
 
@@ -143,7 +143,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             me = this,
             url;
 
-        if (!Ext.isEmpty(value.suspectReason)) {
+        if (value && !Ext.isEmpty(value.suspectReason)) {
             field.show();
             Ext.Array.each(value.suspectReason, function (rule) {
                 if (rule.key.deleted) {
@@ -233,11 +233,25 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         generalItems.push(
             {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),
-                name: 'interval_formatted'
+                name: 'interval',
+                renderer: function (value) {
+                    return value
+                        ? Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[Uni.DateTime.formatDateLong(new Date(value.start)),Uni.DateTime.formatTimeLong(new Date(value.start))]).toLowerCase()
+                        + ' - ' +
+                        Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[Uni.DateTime.formatDateLong(new Date(value.end)),Uni.DateTime.formatTimeLong(new Date(value.end))]).toLowerCase()
+                        : '';
+                }
             },
             {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.readingTime', 'MDC', 'Reading time'),
-                name: 'readingTime_formatted'
+                name: 'readingTime',
+                renderer: function (value, field) {
+                    return value
+                        ? Uni.DateTime.formatDateLong(new Date(value))
+                    + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
+                    + Uni.DateTime.formatTimeLong(new Date(value))
+                        : '';
+                }
             },
             {
                 xtype: 'interval-flags-displayfield',

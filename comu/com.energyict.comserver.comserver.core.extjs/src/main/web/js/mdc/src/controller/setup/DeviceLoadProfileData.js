@@ -68,7 +68,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             dataStore = me.getStore('Mdc.store.LoadProfilesOfDeviceData'),
             router = me.getController('Uni.controller.history.Router'),
             widget,
-            tabWidget,
             defer = {
                 param: null,
                 callback: null,
@@ -114,42 +113,51 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 var all = dataIntervalAndZoomLevels.get('all'),
                     intervalStart = dataIntervalAndZoomLevels.getIntervalStart((me.loadProfileModel.get('lastReading') || new Date().getTime()));
 
-                tabWidget = Ext.widget('tabbedDeviceLoadProfilesView',{
+                widget = Ext.widget('tabbedDeviceLoadProfilesView',{
                     device: device,
                     loadProfileId: loadProfileId,
                     toggleId: 'loadProfileLink',
-                    router: router
-                });
-                widget = Ext.widget('deviceLoadProfilesData', {
                     router: router,
-                    loadProfile: record,
-                    channels: record.get('channels'),
-                    device: device,
-                    filter: {
-                        fromDate: intervalStart,
-                        duration: all.count + all.timeUnit,
-                        durationStore: durationsStore
+                    title: record.get('name'),
+                    widget: {
+                        xtype: 'deviceLoadProfilesData',
+                        router: router,
+                        loadProfile: record,
+                        channels: record.get('channels'),
+                        device: device,
+                        isTable: isTable,
+                        widget: isTable ? {
+                            xtype: 'deviceLoadProfilesTableView',
+                            router: router,
+                            channels: record.get('channels')
+                        } : {
+                            xtype: 'deviceLoadProfilesGraphView',
+                            router: router
+                        },
+                        filter: {
+                            fromDate: intervalStart,
+                            duration: all.count + all.timeUnit,
+                            durationStore: durationsStore
+                        }
                     }
                 });
 
-                tabWidget.down('#loadProfileTabPanel').setTitle(record.get('name'));
-                tabWidget.down('#loadProfile-data').add(widget);
-                me.getApplication().fireEvent('changecontentevent', tabWidget);
+                Ext.suspendLayouts();
+                me.getApplication().fireEvent('changecontentevent', widget);
                 tabController.showTab(1);
-                Ext.getBody().mask(Uni.I18n.translate('general.loading', 'MDC', 'Loading...'));
+                Ext.resumeLayouts(true);
+
                 widget.setLoading();
-                widget.down('#deviceLoadProfilesGraphViewBtn').setDisabled(!isTable);
-                widget.down('#deviceLoadProfilesTableViewBtn').setDisabled(isTable);
-                widget.down('#deviceLoadProfilesTableView').setVisible(isTable);
-                widget.down('#deviceLoadProfilesGraphView').setVisible(!isTable);
                 dataStore.on('load', function () {
                     if (!widget.isDestroyed) {
+                        Ext.suspendLayouts();
                         if (!isTable) {
                             me.showGraphView(record);
                         }
+
                         widget.down('#readingsCount') && widget.down('#readingsCount').setVisible(widget.down('#deviceLoadProfilesTableView').isVisible() && dataStore.count());
+                        Ext.resumeLayouts(true);
                         widget.setLoading(false);
-                        Ext.getBody().unmask();
                     }
                 }, me);
 
@@ -278,9 +286,6 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                     Ext.iterate(record.get('channelData'), function (key, value) {
                         if (channelDataArrays[key]) {
                             if (value) {
-                                if (value.indexOf(',') !== -1) {
-                                    value = value.replace(',', '');
-                                }
                                 channelDataArrays[key].unshift([record.get('interval').start, parseFloat(value)]);
                             } else {
                                 channelDataArrays[key].unshift([record.get('interval').start, null]);

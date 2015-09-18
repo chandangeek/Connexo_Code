@@ -7,8 +7,10 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.TabbedDeviceLoadProfilesView', {
     ],
     router: null,
     title: null,
+
     initComponent: function () {
         var me = this;
+
         me.content = [
             {
                 xtype: 'tabpanel',
@@ -22,7 +24,8 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.TabbedDeviceLoadProfilesView', {
                     },
                     {
                         title: Uni.I18n.translate('deviceloadprofiles.readings', 'MDC', 'Readings'),
-                        itemId: 'loadProfile-data'
+                        itemId: 'loadProfile-data',
+                        items: me.widget
                     }],
                 listeners: {
                     afterrender: function(panel){

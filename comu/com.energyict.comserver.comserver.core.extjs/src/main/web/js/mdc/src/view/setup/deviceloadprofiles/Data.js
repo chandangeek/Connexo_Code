@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
-    extend: 'Uni.view.container.ContentContainer',
+    extend: 'Ext.panel.Panel',
     alias: 'widget.deviceLoadProfilesData',
     itemId: 'deviceLoadProfilesData',
     requires: [
@@ -11,51 +11,42 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.Data', {
     router: null,
     loadProfile: null,
     channels: null,
+    layout: 'fit',
 
     initComponent: function () {
         var me = this;
 
-        me.content = {
-            ui: 'large',
-            tools: [
-                {
-                    xtype: 'button',
-                    itemId: 'deviceLoadProfilesTableViewBtn',
-                    text: Uni.I18n.translate('deviceloadprofiles.tableView', 'MDC', 'Table view'),
-                    action: 'showTableView',
-                    ui: 'link'
-                },
-                {
-                    xtype: 'tbtext',
-                    text: '|'
-                },
-                {
-                    xtype: 'button',
-                    itemId: 'deviceLoadProfilesGraphViewBtn',
-                    text: Uni.I18n.translate('deviceloadprofiles.graphView', 'MDC', 'Graph view'),
-                    action: 'showGraphView',
-                    disabled: true,
-                    ui: 'link'
-                }
-            ],
-            tbar: {
-                xtype: 'mdc-loadprofiles-topfilter',
-                itemId: 'deviceloadprofilesdatafilterpanel',
-                hasDefaultFilters: true,
-                filterDefault: me.filter
+        me.tools = [
+            {
+                xtype: 'button',
+                itemId: 'deviceLoadProfilesTableViewBtn',
+                text: Uni.I18n.translate('deviceloadprofiles.tableView', 'MDC', 'Table view'),
+                action: 'showTableView',
+                disabled: me.isTable,
+                ui: 'link'
             },
-            items: [
-                {
-                    xtype: 'deviceLoadProfilesTableView',
-                    router: me.router,
-                    channels: me.channels
-                },
-                {
-                    xtype: 'deviceLoadProfilesGraphView',
-                    router: me.router
-                }
-            ]
+            {
+                xtype: 'tbtext',
+                text: '|'
+            },
+            {
+                xtype: 'button',
+                itemId: 'deviceLoadProfilesGraphViewBtn',
+                text: Uni.I18n.translate('deviceloadprofiles.graphView', 'MDC', 'Graph view'),
+                action: 'showGraphView',
+                disabled: !me.isTable,
+                ui: 'link'
+            }
+        ];
+
+        me.tbar = {
+            xtype: 'mdc-loadprofiles-topfilter',
+            itemId: 'deviceloadprofilesdatafilterpanel',
+            hasDefaultFilters: true,
+            filterDefault: me.filter
         };
+
+        me.items = me.widget;
 
         me.callParent(arguments);
     }

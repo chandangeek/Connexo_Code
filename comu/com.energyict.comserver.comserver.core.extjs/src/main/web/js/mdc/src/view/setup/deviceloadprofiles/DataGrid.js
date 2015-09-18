@@ -7,12 +7,14 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.view.setup.deviceloadprofiles.DataActionMenu',
-        'Uni.grid.plugin.ShowConditionalToolTip'
+        'Mdc.view.setup.deviceloadprofiles.DataActionMenu'
     ],
     plugins: [
-        'bufferedrenderer',
-        'showConditionalToolTip'
+        {
+            ptype: 'bufferedrenderer',
+            trailingBufferZone: 12,
+            leadingBufferZone: 24
+        }
     ],
     viewConfig: {
         enableTextSelection: true
@@ -59,8 +61,9 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                 minWidth: 150,
                 flex: 1,
                 renderer: function (data, metaData, record) {
-                    if (record.data.channelValidationData && record.data.channelValidationData[channel.id]) {
-                        var result = record.data.channelValidationData[channel.id].mainValidationInfo.validationResult,
+                    var validationData = record.get('channelValidationData');
+                    if (validationData && validationData[channel.id]) {
+                        var result = validationData[channel.id].mainValidationInfo.validationResult,
                             status = result.split('.')[1],
                             cls = 'icon-validation-cell';
                         if (status === 'suspect') {
@@ -70,12 +73,13 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                             cls +=  ' icon-validation-black'
                         }
                         metaData.tdCls = cls;
-                        if (record.data.channelValidationData[channel.id].mainValidationInfo.estimatedByRule) {
-                            return !Ext.isEmpty(data[channel.id]) ? data[channel.id] + ' ' +
+                        if (validationData[channel.id].mainValidationInfo.estimatedByRule) {
+                            return !Ext.isEmpty(data[channel.id]) ? Uni.Number.formatNumber(data[channel.id], -1) + ' ' +
                                 '<span style="margin: 0 0 0 10px; font-size: 16px; color: #33CC33; position: absolute" class="icon-play4"</span>' : '';
                         }
                     }
-                    return !Ext.isEmpty(data[channel.id]) ? data[channel.id] : '';
+
+                    return !Ext.isEmpty(data[channel.id]) ? Uni.Number.formatNumber(data[channel.id], -1) : '';
                 }
             });
         });
