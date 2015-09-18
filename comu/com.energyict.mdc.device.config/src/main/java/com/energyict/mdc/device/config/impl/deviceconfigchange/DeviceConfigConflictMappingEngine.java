@@ -69,7 +69,7 @@ public final class DeviceConfigConflictMappingEngine {
                 .filter(sameOriginConflict(conflictingAction)).findFirst();
         // if not exists, create it
         if (!existingSecurityPropertySetConflictSolution.isPresent()) {
-            conflictMapping.newConflictingSecurityPropertySets(((SecurityPropertySet) conflictingAction.getOrigin()), ((SecurityPropertySet) conflictingAction.getDestination()));
+            conflictMapping.newConflictingSecurityPropertySets(((SecurityPropertySet) conflictingAction.getOrigin()));
         }
     }
 
@@ -79,7 +79,7 @@ public final class DeviceConfigConflictMappingEngine {
                 .filter(sameOriginConflict(conflictingAction)).findFirst();
         // if not exists, create it
         if (!existingConnectionMethodConflictSolution.isPresent()) {
-            conflictMapping.newConflictingConnectionMethods(((PartialConnectionTask) conflictingAction.getOrigin()), ((PartialConnectionTask) conflictingAction.getDestination()));
+            conflictMapping.newConflictingConnectionMethods(((PartialConnectionTask) conflictingAction.getOrigin()));
         }
     }
 

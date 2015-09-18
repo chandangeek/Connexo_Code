@@ -56,10 +56,10 @@ public class ConflictingConnectionMethodSolutionImpl extends AbstractConflictSol
         return destinationConnectionMethod;
     }
 
-    public ConflictingConnectionMethodSolution initialize(DeviceConfigConflictMappingImpl deviceConfigConflictMapping, PartialConnectionTask origin, PartialConnectionTask destination) {
+    public ConflictingConnectionMethodSolution initialize(DeviceConfigConflictMappingImpl deviceConfigConflictMapping, PartialConnectionTask origin) {
         setConflictingMapping(deviceConfigConflictMapping);
         this.originConnectionMethod.set(origin);
-        this.destinationConnectionMethod.set(destination);
+        this.destinationConnectionMethod.setNull();
         this.action = DeviceConfigConflictMapping.ConflictingMappingAction.NOT_DETERMINED_YET;
         return this;
     }

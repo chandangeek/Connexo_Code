@@ -53,10 +53,10 @@ public class ConflictingSecuritySetSolutionImpl extends AbstractConflictSolution
         return destinationSecurityPropertySet;
     }
 
-    public ConflictingSecuritySetSolution initialize(DeviceConfigConflictMappingImpl deviceConfigConflictMapping, SecurityPropertySet origin, SecurityPropertySet destination) {
+    public ConflictingSecuritySetSolution initialize(DeviceConfigConflictMappingImpl deviceConfigConflictMapping, SecurityPropertySet origin) {
         setConflictingMapping(deviceConfigConflictMapping);
         this.originSecurityPropertySet.set(origin);
-        this.destinationSecurityPropertySet.set(destination);
+        this.destinationSecurityPropertySet.setNull();
         this.action = DeviceConfigConflictMapping.ConflictingMappingAction.NOT_DETERMINED_YET;
         return this;
     }

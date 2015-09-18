@@ -59,7 +59,7 @@ public class DeviceConfigConflictMappingImplIT extends AbstractConflictIT {
 
         // Create you own conflict
         DeviceConfigConflictMappingImpl deviceConfigConflictMapping = (DeviceConfigConflictMappingImpl) deviceType.getDeviceConfigConflictMappings().get(0);
-        deviceConfigConflictMapping.newConflictingConnectionMethods(origin, destination);
+        deviceConfigConflictMapping.newConflictingConnectionMethods(origin);
         AbstractConflictSolution solution = mock(AbstractConflictSolution.class);
         deviceConfigConflictMapping.recalculateSolvedState(solution);
     }
