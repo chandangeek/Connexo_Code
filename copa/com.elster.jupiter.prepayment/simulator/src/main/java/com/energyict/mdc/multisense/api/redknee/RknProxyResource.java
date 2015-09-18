@@ -68,7 +68,7 @@ public class RknProxyResource {
                 register(basicAuthentication);
         try {
             return jerseyClient.
-                    target(connexoUrl+"/"+mrid+"/contacter").
+                    target(connexoUrl+"/"+mrid+"/contactor").
                     request(MediaType.APPLICATION_JSON).
                     put(Entity.json(contactorInfo));
         }

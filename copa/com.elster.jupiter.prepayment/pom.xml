@@ -19,5 +19,6 @@
 
     <modules>
 	<module>simulator</module>
+	<module>api</module>
     </modules>
 </project>
