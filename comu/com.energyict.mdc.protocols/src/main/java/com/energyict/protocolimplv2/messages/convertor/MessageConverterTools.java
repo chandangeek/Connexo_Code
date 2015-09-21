@@ -61,6 +61,11 @@ public class MessageConverterTools {
         }
 
         @Override
+        public String getDescription() {
+            return "";
+        }
+
+        @Override
         public ValueFactory<String> getValueFactory() {
             return new StringFactory();
         }
@@ -90,4 +95,5 @@ public class MessageConverterTools {
             return null;
         }
     }
+
 }
