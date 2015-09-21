@@ -192,9 +192,10 @@ public class UserDirectoryResource {
         return PagedInfoList.fromCompleteList("users",ldapUsersInfos,queryParameters);
     }
 
-    @PUT
+    @POST
     @Path("/{id}/users")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE})
     public PagedInfoList saveUsers(LdapUsersInfos infos ,@PathParam("id") long id,@Context SecurityContext securityContext) {
         try (TransactionContext context = transactionService.getContext()) {
