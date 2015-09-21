@@ -32,6 +32,7 @@ import com.energyict.mdc.protocol.api.impl.device.messages.ClockDeviceMessage;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageSpecificationServiceImpl;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.nls.Layer;
@@ -39,6 +40,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.time.TimeService;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -46,7 +48,6 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.TimeZone;
 
-import com.energyict.mdc.protocol.api.services.IdentificationService;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
@@ -108,6 +109,8 @@ public class OfflineDeviceImplTest {
     private Thesaurus thesaurus;
     @Mock
     private DataVaultService dataVaultService;
+    @Mock
+    private TimeService timeService;
     @Mock
     private OrmService ormService;
     @Mock
@@ -180,7 +183,7 @@ public class OfflineDeviceImplTest {
     public void setupDeviceMessageService() {
         when(this.thesaurus.getString(anyString(), anyString())).thenReturn("Translation not supported in unit testing");
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
-        PropertySpecService propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(), dataVaultService, ormService);
+        PropertySpecService propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(), dataVaultService, timeService, ormService);
         this.deviceMessageSpecificationService = new DeviceMessageSpecificationServiceImpl(propertySpecService, this.nlsService);
     }
 
