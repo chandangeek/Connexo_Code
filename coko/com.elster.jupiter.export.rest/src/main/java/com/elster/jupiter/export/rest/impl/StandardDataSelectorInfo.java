@@ -17,8 +17,9 @@ public class StandardDataSelectorInfo {
     public MeterGroupInfo deviceGroup;
     public RelativePeriodInfo exportPeriod;
     public boolean exportContinuousData;
-    public boolean exportUpdate;
+    public boolean exportUpdate; // only used from FE to BE
     public boolean exportComplete;
+    public boolean exportAdjacentData;
     public RelativePeriodInfo updatePeriod;
     public RelativePeriodInfo updateWindow;
     public ValidatedDataOption validatedDataOption;

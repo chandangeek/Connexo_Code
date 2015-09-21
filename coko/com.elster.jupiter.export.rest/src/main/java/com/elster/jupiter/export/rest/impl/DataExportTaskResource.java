@@ -137,6 +137,9 @@ public class DataExportTaskResource {
                         builder.addProperty(spec.getName()).withValue(value);
                     });
         } else {
+                if (info.standardDataSelector.exportAdjacentData && info.standardDataSelector.updateWindow.id == null) {
+                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateTimeFrame");
+                }
                 if (info.standardDataSelector.exportUpdate && info.standardDataSelector.updatePeriod.id == null) {
                     throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateWindow");
                 }
@@ -208,6 +211,9 @@ public class DataExportTaskResource {
             task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
 
             if (info.standardDataSelector != null) {
+                if (info.standardDataSelector.exportAdjacentData && info.standardDataSelector.updateWindow.id == null) {
+                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateTimeFrame");
+                }
                 if (info.standardDataSelector.exportUpdate && info.standardDataSelector.updatePeriod.id == null) {
                     throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateWindow");
                 }
