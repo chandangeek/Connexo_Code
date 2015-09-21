@@ -844,9 +844,14 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     private void remove(PartialConnectionTaskImpl partialConnectionTask) {
         partialConnectionTask.validateDelete();
+        getServerDeviceType().removeConflictsFor(partialConnectionTask);
         if (partialConnectionTasks.remove(partialConnectionTask) && getId() > 0) {
             this.getEventService().postEvent(partialConnectionTask.deleteEventType().topic(), partialConnectionTask);
         }
+    }
+
+    private ServerDeviceType getServerDeviceType() {
+        return (ServerDeviceType) deviceType.get();
     }
 
     @Override
@@ -985,6 +990,7 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     public void removeSecurityPropertySet(SecurityPropertySet propertySet) {
         if (propertySet != null) {
             ((SecurityPropertySetImpl) propertySet).validateDelete();
+            getServerDeviceType().removeConflictsFor(propertySet);
             securityPropertySets.remove(propertySet);
             if (this.getId() > 0) {
                 getEventService().postEvent(((PersistentIdObject) propertySet).deleteEventType().topic(), propertySet);

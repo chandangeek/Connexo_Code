@@ -38,4 +38,17 @@ public interface ServerDeviceType extends DeviceType {
      */
     void removeDeviceConfigConflictMappings(List<DeviceConfigConflictMapping> deviceConfigConflictMappings);
 
+    /**
+     * Cleans up the DeviceConfigConflictMapping which use the given partialConnectionTask
+     *
+     * @param partialConnectionTask the partialConnectionTask
+     */
+    void removeConflictsFor(PartialConnectionTask partialConnectionTask);
+
+    /**
+     * Cleans up the DeviceConfigConflictMapping which uses the given SecurityPropertySet
+     *
+     * @param securityPropertySet the SecurityPropertySet
+     */
+    void removeConflictsFor(SecurityPropertySet securityPropertySet);
 }
