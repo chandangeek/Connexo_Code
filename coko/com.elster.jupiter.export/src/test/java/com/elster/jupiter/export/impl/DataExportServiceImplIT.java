@@ -216,11 +216,11 @@ public class DataExportServiceImplIT {
             timeService = injector.getInstance(TimeService.class);
             meteringService = injector.getInstance(MeteringService.class);
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-            NlsServiceImpl nlsService = (NlsServiceImpl) injector.getInstance(NlsService.class);
-            nlsService.addTranslationKeyProvider(dataExportService);
-            nlsService.addMessageSeedProvider(dataExportService);
             return null;
         });
+        NlsServiceImpl nlsService = (NlsServiceImpl) injector.getInstance(NlsService.class);
+        nlsService.addTranslationKeyProvider(dataExportService);
+        nlsService.addMessageSeedProvider(dataExportService);
         readingType = meteringService.getReadingType("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         anotherReadingType = meteringService.getReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
         dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_DATA_TYPE));
