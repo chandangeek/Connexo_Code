@@ -1596,12 +1596,16 @@ Ext.define('Dxp.controller.Tasks', {
         var me = this,
             relativeRegexp = /administration\/relativeperiods\/add/,
             destinationRegexp = /administration\/dataexporttasks\/(.*)\/destination/,
-            readingRegexp = /administration\/dataexporttasks\/(.*)\/readingtypes/;
+            readingRegexp = /administration\/dataexporttasks\/(.*)\/readingtypes/,
+            editTaskRegexp = /administration\/dataexporttasks\/(.*)\/edit/;
 
-        Ext.util.History.un('change', this.checkRoute, this);
-
-        if (token.search(relativeRegexp) == -1 && token.search(readingRegexp) == -1 && token.search(destinationRegexp) == -1) {
-            me.getStore('Dxp.store.Clipboard').clear('addDataExportTaskValues');
+        if (token.search(relativeRegexp) === -1 &&
+            token.search(readingRegexp) === -1 &&
+            token.search(destinationRegexp) === -1 &&
+            token.search(editTaskRegexp) === -1
+        ) { // If the new destination is non of the above four...
+            me.getStore('Dxp.store.Clipboard').clear('addDataExportTaskValues'); // ...clear the clipboard and
+            Ext.util.History.un('change', this.checkRoute, this); // ...stop listening
         }
     },
 
