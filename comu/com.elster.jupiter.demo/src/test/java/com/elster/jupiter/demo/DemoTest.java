@@ -656,7 +656,7 @@ public class DemoTest {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
         demoService.createDemoData("DemoServ", "host", "2015-01-01");
-        demoService.setupUpFirmwareManagement();
+        demoService.setUpFirmwareManagement();
 
         DeviceConfigurationService deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
         //All device types (except the excluded ones) shoud have 2 firmware versions

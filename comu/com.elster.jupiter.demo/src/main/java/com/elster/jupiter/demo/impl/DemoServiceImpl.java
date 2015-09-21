@@ -75,6 +75,8 @@ import java.time.Clock;
         "osgi.command.function=addRegisterReadings",
         "osgi.command.function=createG3Gateway",
         "osgi.command.function=createG3SlaveDevice",
+        "osgi.command.function=createDefaultDeviceLifeCycle",
+        "osgi.command.function=setUpFirmwareManagement",
         "osgi.command.function=createImporters",
         "osgi.command.function=createDemoUser"
 }, immediate = true)
@@ -649,6 +651,10 @@ public class DemoServiceImpl {
         });
     }
 
+    public void createDefaultDeviceLifeCycle(){
+        System.err.println("Usage: createDefaultDeviceLifeCycle <startDate, e.g. 2015-01-01>");
+    }
+
     public void createDefaultDeviceLifeCycle(String lastCheckedDate){
         executeTransaction(() -> {
             CreateDefaultDeviceLifeCycleCommand command = injector.getInstance(CreateDefaultDeviceLifeCycleCommand.class);
@@ -657,7 +663,7 @@ public class DemoServiceImpl {
         });
     }
 
-    public void setupUpFirmwareManagement(){
+    public void setUpFirmwareManagement(){
         executeTransaction(() -> {
             SetupFirmwareManagementCommand command = injector.getInstance(SetupFirmwareManagementCommand.class);
             command.run();

@@ -34,7 +34,8 @@ public class CreateDemoUserCommand {
         if (userName == null){
             throw new IllegalStateException("User name is not set");
         }
-        Group group = userService.createGroup(DEMO_USER_ROLE, DEMO_USER_ROLE_DESCRIPTION);
+
+        Group group = userService.findGroup(DEMO_USER_ROLE).orElseGet(()->userService.createGroup(DEMO_USER_ROLE, DEMO_USER_ROLE_DESCRIPTION));
         grantViewPrivilegesToGroup();
 
         User user  = userService.createUser(this.userName,"Demo User");
