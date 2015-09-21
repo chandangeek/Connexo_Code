@@ -99,7 +99,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         } catch (NamingException e) {
             if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
                 urls.remove(0);
-                return authenticateSimple(name,password,urls);
+                return authenticateSimple(name, password, urls);
             }else {
                 return Optional.empty();
             }
@@ -168,7 +168,8 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
     }
 
     private String getRealDomain(String baseDN) {
-        return baseDN.toLowerCase().replace("dc=","").replace(",",".");
+        String normalizedDN = baseDN.toLowerCase();
+        return normalizedDN.substring(normalizedDN.indexOf("dc=")).replace("dc=","").replace(",",".");
     }
 
     private String getRealGroupName(String rdn) {
@@ -183,8 +184,140 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
 
     @Override
     public List<LdapUser> getLdapUsers() {
-
-        return null;
+        List<String> urls = getUrls();
+        if(getSecurity()==null||getSecurity().toUpperCase().contains("NONE")){
+            return getLdapUsersSimple(urls);
+        }else if(getSecurity().toUpperCase().contains("SSL")) {
+            return getLdapUsersSSL(urls);
+        }else if(getSecurity().toUpperCase().contains("TLS")){
+            return getLdapUsersTLS(urls);
+        }else{
+            return null;
+        }
     }
+
+    private List<LdapUser> getLdapUsersSimple(List<String> urls){
+        Hashtable<String, Object> env = new Hashtable<>();
+        List<LdapUser> ldapUsers = new ArrayList<>();
+        env.putAll(commonEnvLDAP);
+        NamingEnumeration results = null;
+        env.put(Context.PROVIDER_URL, urls.get(0));
+        env.put(Context.SECURITY_PRINCIPAL,  getDirectoryUser());
+        env.put(Context.SECURITY_CREDENTIALS, getPassword());
+        try {
+            String userName;
+            DirContext ctx = new InitialDirContext(env);
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            results = ctx.search(getBaseUser(),"(objectclass=person)", controls);
+            while (results.hasMore()) {
+                LdapUser ldapUser = new LdapUserImpl();
+                SearchResult searchResult = (SearchResult) results.next();
+                Attributes attributes = searchResult.getAttributes();
+                if (attributes.get("sAMAccountName")!=null) {
+                    userName = attributes.get("sAMAccountName").get().toString();
+                    ldapUser.setUsername(userName);
+                    ldapUser.setStatus(true);
+                    ldapUsers.add(ldapUser);
+                }
+
+            }
+            return ldapUsers;
+        } catch (NamingException e) {
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+                urls.remove(0);
+                return getLdapUsersSimple(urls);
+            }else {
+                return ldapUsers;
+            }
+        }
+    }
+
+
+    private List<LdapUser> getLdapUsersSSL(List<String> urls){
+        Hashtable<String, Object> env = new Hashtable<>();
+        env.putAll(commonEnvLDAP);
+        List<LdapUser> ldapUsers = new ArrayList<>();
+        env.put(Context.PROVIDER_URL, urls.get(0));
+        NamingEnumeration results = null;
+        env.put(Context.SECURITY_PRINCIPAL,  getDirectoryUser());
+        env.put(Context.SECURITY_CREDENTIALS, getPassword());
+        env.put(Context.SECURITY_PROTOCOL,"ssl");
+        try {
+            String userName;
+            DirContext ctx = new InitialDirContext(env);
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            results = ctx.search(getBaseUser(),"(objectclass=person)", controls);
+            while (results.hasMore()) {
+                LdapUser ldapUser = new LdapUserImpl();
+                SearchResult searchResult = (SearchResult) results.next();
+                Attributes attributes = searchResult.getAttributes();
+                if (attributes.get("sAMAccountName")!=null) {
+                    userName = attributes.get("sAMAccountName").get().toString();
+                    ldapUser.setUsername(userName);
+                    ldapUser.setStatus(true);
+                    ldapUsers.add(ldapUser);
+                }
+            }
+            return ldapUsers;
+        } catch (NamingException e) {
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+                urls.remove(0);
+                return getLdapUsersSSL(urls);
+            }else {
+                return ldapUsers;
+            }
+        }
+    }
+
+    private List<LdapUser> getLdapUsersTLS(List<String> urls){
+        Hashtable<String, Object> env = new Hashtable<>();
+        List<LdapUser> ldapUsers = new ArrayList<>();
+        env.putAll(commonEnvLDAP);
+        NamingEnumeration results = null;
+        env.put(Context.PROVIDER_URL, urls.get(0));
+        try{
+            String userName;
+            LdapContext ctx = new InitialLdapContext(env, null);
+            ExtendedRequest tlsRequest = new StartTlsRequest();
+            ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
+            tls = (StartTlsResponse)tlsResponse;
+            tls.negotiate();
+            env.put(Context.SECURITY_PRINCIPAL,  getDirectoryUser());
+            env.put(Context.SECURITY_CREDENTIALS, getPassword());
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            results = ctx.search(getBaseUser(),"(objectclass=person)", controls);
+            while (results.hasMore()) {
+                LdapUser ldapUser = new LdapUserImpl();
+                SearchResult searchResult = (SearchResult) results.next();
+                Attributes attributes = searchResult.getAttributes();
+                if (attributes.get("sAMAccountName")!=null) {
+                    userName = attributes.get("sAMAccountName").get().toString();
+                    ldapUser.setUsername(userName);
+                    ldapUser.setStatus(true);
+                    ldapUsers.add(ldapUser);
+                }
+            }
+            return ldapUsers;
+        }catch(IOException | NamingException e){
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+                urls.remove(0);
+                return getLdapUsersTLS(urls);
+            }else {
+                return ldapUsers;
+            }
+        }finally {
+            if(tls != null){
+                try {
+                    tls.close();
+                }catch (IOException e){
+
+                }
+            }
+        }
+    }
+
 
 }
