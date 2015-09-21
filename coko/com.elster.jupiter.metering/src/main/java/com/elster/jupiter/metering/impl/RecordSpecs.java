@@ -31,8 +31,7 @@ public enum RecordSpecs {
 			recordSpec.addFieldSpec("Value", NUMBER);
 		}
 		
-		@Override
-		Object[] toArray(BaseReading reading, ProcessStatus status) {
+		private Object[] toArray(BaseReading reading, ProcessStatus status) {
 			Object[] result = new Object[3];
 			result[0] = status.getBits();
 			if (reading instanceof IntervalReading) {
@@ -67,19 +66,6 @@ public enum RecordSpecs {
 		@Override
 		void addFieldSpecs(RecordSpec recordSpec) {
 			recordSpec.addDerivedFieldSpec("Value", "Bulk", NUMBER, FieldDerivationRule.DELTAFROMPREVIOUS);
-		}
-		
-		@Override
-		Object[] toArray(BaseReading reading, ProcessStatus status) {
-			Object[] result = new Object[4];
-			result[0] = status.getBits();
-			if (reading instanceof IntervalReading) {
-				result[1] = ((IntervalReading) reading).getProfileStatus().getBits();
-			} else {
-				result[1] = 0L;
-			}
-			result[status.get(ProcessStatus.Flag.EDITED) ? 2 : 3] = reading.getValue();
-			return result;
 		}
 
 		@Override
@@ -118,11 +104,6 @@ public enum RecordSpecs {
 			recordSpec.addFieldSpec("Value5", NUMBER);
 			recordSpec.addFieldSpec("Value6", NUMBER);
 		}
-		
-		@Override
-		Object[] toArray(BaseReading reading, ProcessStatus status) {
-			throw new UnsupportedOperationException();
-		}
 
 		@Override
 		Object[] toArray(BaseReading reading, int slotIndex, ProcessStatus status) {
@@ -157,8 +138,7 @@ public enum RecordSpecs {
 			recordSpec.addFieldSpec("Text", TEXT);
 		}
 		
-		@Override
-		Object[] toArray(BaseReading reading, ProcessStatus status) {
+		private Object[] toArray(BaseReading reading, ProcessStatus status) {
 			Object[] result = new Object[3];
 			result[0] = status.getBits();
 			result[1] = reading.getValue();
@@ -195,8 +175,7 @@ public enum RecordSpecs {
 			 recordSpec.addFieldSpec("To Time", INSTANT);
 		}
 		
-		@Override
-		Object[] toArray(BaseReading reading, ProcessStatus status) {
+		private Object[] toArray(BaseReading reading, ProcessStatus status) {
 			Object[] result = new Object[5];
 			result[0] = status.getBits();
 			result[1] = reading.getValue();
@@ -282,8 +261,6 @@ public enum RecordSpecs {
 	abstract int slotOffset();
 
 	abstract void addFieldSpecs(RecordSpec recordSpec);
-	
-	abstract Object[] toArray(BaseReading reading, ProcessStatus status);
 
 	abstract Object[] toArray(BaseReading reading, int slotIndex, ProcessStatus status);
 

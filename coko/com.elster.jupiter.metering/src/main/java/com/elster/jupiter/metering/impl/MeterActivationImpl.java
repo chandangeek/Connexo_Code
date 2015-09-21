@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
@@ -308,6 +309,11 @@ public final class MeterActivationImpl implements MeterActivation {
 		this.save();
 	}
 
+	@Override
+	public List<Instant> toList(ReadingType readingType, Range<Instant> exportInterval) {
+		return Optional.ofNullable(getChannel(readingType)).map(channel -> channel.toList(exportInterval)).orElseGet(Collections::emptyList);
+	}
+
     @Override
     public void advanceStartDate(Instant startTime) {
         if (!startTime.isBefore(getRange().lowerEndpoint())) {
@@ -421,5 +427,18 @@ public final class MeterActivationImpl implements MeterActivation {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+	@Override
+	public List<ReadingQualityRecord> getReadingQualities(ReadingQualityType readingQualityType, ReadingType readingType, Range<Instant> interval) {
+		return Optional.ofNullable(getChannel(readingType))
+				.flatMap(channel -> channel.getCimChannel(readingType))
+				.map(cimChannel -> cimChannel.findActualReadingQuality(readingQualityType, interval))
+				.orElse(Collections.emptyList());
+	}
+
+    @Override
+    public List<MeterActivation> getMeterActivations() {
+        return Collections.singletonList(this);
     }
 }
