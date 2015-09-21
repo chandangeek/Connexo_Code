@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.MeterAlreadyActive;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.readings.MeterReading;
@@ -31,9 +32,11 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
 
@@ -199,5 +202,19 @@ public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter
         return getCurrentMeterActivation()
                 .map(MeterActivation::getZoneId)
                 .orElse(ZoneId.systemDefault());
+    }
+
+    @Override
+    public List<Instant> toList(ReadingType readingType, Range<Instant> exportInterval) {
+        return getCurrentMeterActivation()
+                .map(meterActivation -> meterActivation.toList(readingType, exportInterval))
+                .orElseGet(Collections::emptyList);
+    }
+
+    @Override
+    public List<ReadingQualityRecord> getReadingQualities(ReadingQualityType readingQualityType, ReadingType readingType, Range<Instant> interval) {
+        return meterActivations.stream()
+                .flatMap(meterActivation -> meterActivation.getReadingQualities(readingQualityType, readingType, interval).stream())
+                .collect(Collectors.toList());
     }
 }

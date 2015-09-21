@@ -271,7 +271,8 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
         dataModel.mapper(ReadingType.class).persist(this);
 	}
 
-	Optional<TemporalAmount> getIntervalLength() {
+	@Override
+	public Optional<TemporalAmount> getIntervalLength() {
         switch (getMacroPeriod()) {
             case MONTHLY:
                 return Optional.of(Period.ofMonths(1));

@@ -171,11 +171,6 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public Object[] toArray(BaseReading reading, ProcessStatus status) {
-        return getRecordSpecDefinition().toArray(reading, status);
-    }
-
-    @Override
     public Object[] toArray(BaseReading reading, ReadingType readingType, ProcessStatus status) {
         int index = getReadingTypes().indexOf(readingType);
         if (index < 0) {
@@ -501,7 +496,10 @@ public final class ChannelImpl implements ChannelContract {
         	.filter(quality -> readingTimes.contains(quality.getReadingTimestamp()))
             .forEach(ReadingQualityRecord::delete);
         ReadingQualityType rejected = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED);
-        readingTimes.forEach(readingTime -> createReadingQuality(rejected, mainReadingType.get(), readingTime).save());
+        readingTimes.forEach(readingTime -> {
+            createReadingQuality(rejected, mainReadingType.get(), readingTime).save();
+            getBulkQuantityReadingType().ifPresent(bulkReadingType -> createReadingQuality(rejected, bulkReadingType, readingTime).save());
+        });
         eventService.postEvent(EventType.READINGS_DELETED.topic(), new ReadingsDeletedEventImpl(this,readingTimes));
     }
     
