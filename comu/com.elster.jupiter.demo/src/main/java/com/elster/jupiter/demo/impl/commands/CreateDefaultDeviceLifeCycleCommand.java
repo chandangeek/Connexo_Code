@@ -62,26 +62,14 @@ public class CreateDefaultDeviceLifeCycleCommand {
             throw new UnableToCreate("Please specify at which date the validation of devices need to start");
         }
         // Make sure the default device life cycle exists
-        Optional<DeviceLifeCycle> found = DLCconfigurationService.findDefaultDeviceLifeCycle();
-        if (!found.isPresent()) {
-            defaultLifeCycle = DLCconfigurationService.newDefaultDeviceLifeCycle("dlc.standard.device.life.cycle");
-        }else{
-            defaultLifeCycle = found.get();
-        }
+        defaultLifeCycle = DLCconfigurationService.findDefaultDeviceLifeCycle().orElseGet(()->DLCconfigurationService.newDefaultDeviceLifeCycle("dlc.standard.device.life.cycle"));
         // Use this one as device life cycle for each existing device type
-        //Todo
-        //deviceConfigurationService.findAllDeviceTypes().stream().forEach(this::setDeviceLifeCycleToDefault);
+        deviceConfigurationService.findAllDeviceTypes().stream().forEach(deviceType -> deviceConfigurationService.changeDeviceLifeCycle(deviceType,defaultLifeCycle));
         // Set all devices to the 'Active' state
         deviceService.deviceQuery().select(Condition.TRUE, Order.NOORDER)
                 .stream()
                 .forEach(x -> this.setDeviceToState(x, DefaultCustomStateTransitionEventType.ACTIVATED));
     }
-
-//    private void setDeviceLifeCycleToDefault(DeviceType deviceType) {
-//        if (deviceType instanceof ServerDeviceType) {
-//            ((ServerDeviceType) deviceType).updateDeviceLifeCycle(defaultLifeCycle);
-//        }
-//    }
 
     private void setDeviceToState(Device device, DefaultCustomStateTransitionEventType eventType) {
         Optional<ExecutableAction> action =  deviceLifeCycleService.getExecutableActions(device, eventType.findOrCreate(finiteStateMachineService));
