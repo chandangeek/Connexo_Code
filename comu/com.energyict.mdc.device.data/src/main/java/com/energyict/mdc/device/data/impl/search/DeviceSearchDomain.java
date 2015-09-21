@@ -111,8 +111,8 @@ public class DeviceSearchDomain implements SearchDomain {
                 injector.getInstance(MasterResourceIdentifierSearchableProperty.class).init(this),
                 injector.getInstance(SerialNumberSearchableProperty.class).init(this),
                 deviceTypeSearchableProperty,
-                injector.getInstance(DeviceConfigurationSearchableProperty.class).init(this, deviceTypeSearchableProperty),
-                injector.getInstance(StateNameSearchableProperty.class).init(this, deviceTypeSearchableProperty));
+                injector.getInstance(DeviceConfigurationSearchableProperty.class).init(this, deviceTypeSearchableProperty)/*,
+                injector.getInstance(StateNameSearchableProperty.class).init(this, deviceTypeSearchableProperty)*/);
     }
 
     private Collection<? extends SearchableProperty> connectionTypeProperties() {
