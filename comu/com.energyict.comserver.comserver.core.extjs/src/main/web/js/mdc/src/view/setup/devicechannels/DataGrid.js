@@ -171,7 +171,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
 
         metaData.tdCls = cls;
         if (!Ext.isEmpty(v)) {
-            var value = Uni.Number.formatNumber(v, -1);
+            var value = Uni.Number.formatNumber(v.toString(), -1);
             if (validationInfo.estimatedByRule && !record.isModified('value')) {
                 return !Ext.isEmpty(value) ? value + '<span style="margin: 0 0 0 10px; font-size: 16px; color: #33CC33; position: absolute" class="icon-play4"</span>' : '';
             } else if (validationInfo.isConfirmed && !record.isModified('value')) {

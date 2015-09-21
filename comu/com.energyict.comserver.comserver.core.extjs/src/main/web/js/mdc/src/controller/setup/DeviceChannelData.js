@@ -384,7 +384,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart,
             point = chart.get(event.record.get('interval').start),
             grid = me.getPage().down('deviceLoadProfileChannelDataGrid'),
-            value = parseFloat(event.record.get('value')),
+            value = event.record.get('value'),
             collectedValue = event.record.get('collectedValue'),
             condition = (isNaN(point.y) && isNaN(value)) ? false : (point.y != value),
             updatedObj;
@@ -540,7 +540,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         record.save({
             callback: function (rec, operation, success) {
                 Ext.Ajax.resumeEvent('requestexception');
-                var responseText = Ext.decode(operation.response.responseText, true);
+                var responseText = Ext.decode(operation.response.responseText, true),
+                    chart = me.getPage().down('#deviceLoadProfileChannelGraphView').chart;
+
+                Ext.suspendLayouts();
                 if (success) {
                     if (!Ext.isArray(readings)) {
                         me.updateEstimatedValues(record, readings, responseText[0]);
@@ -575,6 +578,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         me.getReadingEstimationWindow().down('#property-form').markInvalid(responseText.errors);
                     }
                 }
+                Ext.resumeLayouts(true);
             }
         });
     },
