@@ -39,6 +39,7 @@ public final class DeviceConfigChangeExecutor {
         performLoadProfileSpecChanges(device, originDeviceConfiguration, destinationDeviceConfiguration);
         performLogBookSpecChanges(device, originDeviceConfiguration, destinationDeviceConfiguration);
         performConnectionTaskChanges(device, originDeviceConfiguration, destinationDeviceConfiguration);
+        performSecurityPropertySetChanges(device, originDeviceConfiguration, destinationDeviceConfiguration);
 
         device.save();
         return device;
@@ -60,6 +61,11 @@ public final class DeviceConfigChangeExecutor {
         device.lock();
         device.validateDeviceCanChangeConfig(destinationDeviceConfiguration);
         device.createNewMeterActivation();
+    }
+
+    private void performSecurityPropertySetChanges(ServerDeviceForConfigChange device, DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration) {
+        //TODO implement
+//        d
     }
 
     private void performConnectionTaskChanges(ServerDeviceForConfigChange device, DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration) {
