@@ -4,8 +4,8 @@
 
     <parent>
         <groupId>com.elster.jupiter</groupId>
-        <artifactId>parent</artifactId>
-        <version>1.0.3</version>
+        <artifactId>platform</artifactId>
+        <version>1.0.5-SNAPSHOT</version>
     </parent>
     <artifactId>http.whiteboard</artifactId>
     <version>1.0.4-SNAPSHOT</version>
@@ -52,27 +52,22 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>rest.util</artifactId>
-            <version>1.0.3</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>users</artifactId>
-            <version>1.0.4</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>transaction</artifactId>
-            <version>1.0.3</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>systemadmin</artifactId>
-            <version>1.0.4</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>events</artifactId>
-            <version>1.0.3</version>
         </dependency>
     </dependencies>
 </project>
