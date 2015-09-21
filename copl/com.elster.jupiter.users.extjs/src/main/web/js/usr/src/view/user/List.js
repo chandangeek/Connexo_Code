@@ -25,7 +25,7 @@ Ext.define('Usr.view.user.List', {
                 {
                     header: Uni.I18n.translate('general.name', 'USR', 'Name'),
                     dataIndex: 'authenticationName',
-                    flex: 3
+                    flex: 2
                 },
                 {
                     header: Uni.I18n.translate('general.description', 'USR', 'Description'),
@@ -33,14 +33,24 @@ Ext.define('Usr.view.user.List', {
                     flex: 5
                 },
                 {
-                    header: Uni.I18n.translate('user.domain', 'USR', 'Domain'),
+                    header: Uni.I18n.translate('user.userdirectory', 'USR', 'User directory'),
                     dataIndex: 'domain',
+                    flex: 2
+                },
+                {
+                    header: Uni.I18n.translate('user.status', 'USR', 'Status'),
+                    dataIndex: 'statusDisplay',
                     flex: 2
                 },
                 {
                     xtype: 'uni-actioncolumn',
                     privileges: Usr.privileges.Users.admin,
-                    items: 'Usr.view.user.UserActionMenu'
+
+                    menu: {
+                        xtype: 'user-action-menu',
+                        itemId: 'user-action-menu'
+                    }
+                    //items: 'Usr.view.user.UserActionMenu'
                 }
             ]
         };

@@ -65,7 +65,12 @@ Ext.define('Usr.view.user.Details', {
                                 {
                                     xtype: 'displayfield',
                                     name: 'domain',
-                                    fieldLabel: Uni.I18n.translate('user.domain', 'USR', 'Domain')
+                                    fieldLabel: Uni.I18n.translate('user.userdirectory', 'USR', 'User directory')
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'statusDisplay',
+                                    fieldLabel: Uni.I18n.translate('user.status', 'USR', 'Status')
                                 },
                                 {
                                     xtype: 'displayfield',
