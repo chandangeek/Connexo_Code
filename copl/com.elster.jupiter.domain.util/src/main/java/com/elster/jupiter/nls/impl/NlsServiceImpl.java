@@ -154,7 +154,6 @@ public class NlsServiceImpl implements NlsService, InstallService {
             if (installed) {
                 try {
                     this.setPrincipal();
-                    threadPrincipalService.set("INSTALL-translation", provider.getClass().getName());
                     try (TransactionContext context = this.transactionService.getContext()) {
                         this.doInstallProvider(provider);
                         context.commit();
