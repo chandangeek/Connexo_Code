@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
+import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.common.DlmsProtocolProperties;
@@ -19,9 +20,13 @@ import java.util.List;
  */
 public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
 
+    public static final String AARQ_TIMEOUT_PROPERTY = "AARQTimeout";
+    public static final String AARQ_RETRIES_PROPERTY = "AARQRetries";
     public static final String USE_EQUIPMENT_IDENTIFIER_AS_SERIAL = "UseEquipmentIdentifierAsSerialNumber";
+
     public static final boolean USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE = false;
     public static final BigDecimal DEFAULT_SERVER_LOWER_MAC_ADDRESS = BigDecimal.valueOf(17);
+    public static final int NOT_USED_AARQ_TIMEOUT = 0;
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
@@ -44,7 +49,9 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 this.actualLogicalDeviceIdPropertySpec(),
                 this.nodeAddressPropertySpec(),
                 this.pskPropertySpec(),
-                this.useEquipmentIdentifierAsSerialNumberPropertySpec()
+                this.useEquipmentIdentifierAsSerialNumberPropertySpec(),
+                this.aarqTimeoutPropertySpec(),
+                this.aarqRetriesPropertySpec()
         );
     }
 
@@ -70,5 +77,13 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
 
     private PropertySpec useEquipmentIdentifierAsSerialNumberPropertySpec() {
         return PropertySpecFactory.notNullableBooleanPropertySpec(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE);
+    }
+
+    private PropertySpec aarqTimeoutPropertySpec() {
+        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(AARQ_TIMEOUT_PROPERTY, new TimeDuration(NOT_USED_AARQ_TIMEOUT));
+    }
+
+    private PropertySpec aarqRetriesPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(AARQ_RETRIES_PROPERTY, BigDecimal.valueOf(2));
     }
 }

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms.idis.am540.properties;
 
+import com.energyict.cbo.TimeDuration;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.protocol.MeterProtocol;
@@ -99,5 +100,13 @@ public class AM540Properties extends IDISProperties {
     public boolean useBeaconGatewayDeviceDialect() {
         String dialectName = getProperties().getStringProperty(DeviceProtocolDialect.DEVICE_PROTOCOL_DIALECT_NAME);
         return dialectName != null && dialectName.equals(DeviceProtocolDialectNameEnum.BEACON_GATEWAY_TCP_DLMS_PROTOCOL_DIALECT_NAME.getName());
+    }
+
+    public int getAARQRetries() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.AARQ_RETRIES_PROPERTY, BigDecimal.valueOf(2)).intValue();
+    }
+
+    public long getAARQTimeout() {
+        return getProperties().getTypedProperty(AM540ConfigurationSupport.AARQ_TIMEOUT_PROPERTY, new TimeDuration(AM540ConfigurationSupport.NOT_USED_AARQ_TIMEOUT)).getMilliSeconds();
     }
 }

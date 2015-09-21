@@ -1,9 +1,12 @@
 package com.energyict.protocolimplv2.dlms.idis.am540;
 
 import com.energyict.cbo.ConfigurationSupport;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
@@ -126,6 +129,49 @@ public class AM540 extends AM130 {
     protected void disconnectFromPublicClient(DlmsSession publicDlmsSession) {
         if (!getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
             super.disconnectFromPublicClient(publicDlmsSession);
+        }
+    }
+
+    /**
+     * Add extra retries to the association request.
+     * If the request was rejected because by the meter the previous association was still open, this retry mechanism will solve the problem.
+     *
+     * @param dlmsSession
+     */
+    protected void connectWithRetries(DlmsSession dlmsSession) {
+        int tries = 0;
+        while (true) {
+            ComServerExecutionException exception;
+            try {
+                if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
+                    dlmsSession.getDlmsV2Connection().connectMAC();
+                    dlmsSession.createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
+                }
+                return;
+            } catch (ComServerExecutionException e) {
+                if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
+                    throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
+                } else if (MdcManager.getComServerExceptionFactory().isConnectionCommunicationException(e)) {
+                    throw e;
+                } else if (MdcManager.getComServerExceptionFactory().isDataEncryptionException(e)) {
+                    throw e;
+                }
+                exception = e;
+            }
+
+            //Release and retry the AARQ in case of ACSE exception
+            if (++tries > getDlmsSessionProperties().getAARQRetries()) {
+                getLogger().severe("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries.");
+                throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(exception);
+            } else {
+                getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
+                try {
+                    dlmsSession.getAso().releaseAssociation();
+                } catch (ComServerExecutionException e) {
+                    dlmsSession.getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
+                    // Absorb exception: in 99% of the cases we expect an exception here ...
+                }
+            }
         }
     }
 
