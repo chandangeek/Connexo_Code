@@ -9,6 +9,8 @@ import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 
 import javax.inject.Inject;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Straightforward implementation of a ConflictingConnectionMethodSolution
@@ -20,6 +22,11 @@ public class ConflictingConnectionMethodSolutionImpl extends AbstractConflictSol
      * Created a static field for this so it can be used in the javaxValidation annotation
      */
     static final String DESTINATION_CONNECTION_METHOD_FIELD_NAME = "destinationConnectionMethod";
+
+    @Override
+    public List<PartialConnectionTask> getMappableToDataSources() {
+        return getConflictingMapping().getDestinationDeviceConfiguration().getPartialConnectionTasks().stream().filter(partialConnectionTask -> partialConnectionTask.getPluggableClass().getId() == getOriginDataSource().getPluggableClass().getId()).collect(Collectors.toList());
+    }
 
     public enum Fields {
         CONFLICTINGMAPPING("conflictingMapping"),
@@ -56,10 +63,10 @@ public class ConflictingConnectionMethodSolutionImpl extends AbstractConflictSol
         return destinationConnectionMethod;
     }
 
-    public ConflictingConnectionMethodSolution initialize(DeviceConfigConflictMappingImpl deviceConfigConflictMapping, PartialConnectionTask origin, PartialConnectionTask destination) {
+    public ConflictingConnectionMethodSolution initialize(DeviceConfigConflictMappingImpl deviceConfigConflictMapping, PartialConnectionTask origin) {
         setConflictingMapping(deviceConfigConflictMapping);
         this.originConnectionMethod.set(origin);
-        this.destinationConnectionMethod.set(destination);
+        this.destinationConnectionMethod.setNull();
         this.action = DeviceConfigConflictMapping.ConflictingMappingAction.NOT_DETERMINED_YET;
         return this;
     }

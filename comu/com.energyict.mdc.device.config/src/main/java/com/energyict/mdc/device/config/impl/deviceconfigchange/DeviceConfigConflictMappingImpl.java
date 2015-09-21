@@ -124,16 +124,16 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
         return conflictingConnectionMethodSolution -> conflictingConnectionMethodSolution.getConflictingMappingAction().equals(ConflictingMappingAction.NOT_DETERMINED_YET);
     }
 
-    public ConflictingConnectionMethodSolution newConflictingConnectionMethods(PartialConnectionTask origin, PartialConnectionTask destination) {
+    public ConflictingConnectionMethodSolution newConflictingConnectionMethods(PartialConnectionTask origin) {
         markAsNotSolved();
-        ConflictingConnectionMethodSolution connectionMethodSolution = dataModel.getInstance(ConflictingConnectionMethodSolutionImpl.class).initialize(this, origin, destination);
+        ConflictingConnectionMethodSolution connectionMethodSolution = dataModel.getInstance(ConflictingConnectionMethodSolutionImpl.class).initialize(this, origin);
         this.connectionMethodSolutions.add(connectionMethodSolution);
         return connectionMethodSolution;
     }
 
-    public ConflictingSecuritySetSolution newConflictingSecurityPropertySets(SecurityPropertySet origin, SecurityPropertySet destination) {
+    public ConflictingSecuritySetSolution newConflictingSecurityPropertySets(SecurityPropertySet origin) {
         markAsNotSolved();
-        ConflictingSecuritySetSolution securitySetSolution = dataModel.getInstance(ConflictingSecuritySetSolutionImpl.class).initialize(this, origin, destination);
+        ConflictingSecuritySetSolution securitySetSolution = dataModel.getInstance(ConflictingSecuritySetSolutionImpl.class).initialize(this, origin);
         this.securitySetSolutions.add(securitySetSolution);
         return securitySetSolution;
     }

@@ -2,6 +2,8 @@ package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.common.HasId;
 
+import java.util.List;
+
 /**
  * Copyrights EnergyICT
  * Date: 08.09.15
@@ -12,6 +14,8 @@ public interface ConflictingSolution<S extends HasId> {
     DeviceConfigConflictMapping.ConflictingMappingAction getConflictingMappingAction();
 
     S getOriginDataSource();
+
+    List<S> getMappableToDataSources();
 
     S getDestinationDataSource();
 

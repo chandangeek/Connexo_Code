@@ -75,4 +75,8 @@ public abstract class AbstractConflictSolution<S extends HasId> implements Confl
                 break;
         }
     }
+
+    protected DeviceConfigConflictMapping getConflictingMapping() {
+        return conflictingMapping.get();
+    }
 }

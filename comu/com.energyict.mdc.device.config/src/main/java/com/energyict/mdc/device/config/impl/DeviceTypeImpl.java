@@ -233,6 +233,26 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.deviceConfigConflictMappings.removeAll(deviceConfigConflictMappings);
     }
 
+    @Override
+    public void removeConflictsFor(PartialConnectionTask partialConnectionTask) {
+        this.deviceConfigConflictMappings.stream().filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == partialConnectionTask.getConfiguration().getId() || deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == partialConnectionTask.getConfiguration().getId())
+                .forEach(deviceConfigConflictMapping -> {
+                    List<ConflictingConnectionMethodSolution> conflictsWithGivenConnectionTask = deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().stream().filter(conflictingConnectionMethodSolution -> conflictingConnectionMethodSolution.getOriginDataSource().getId() == partialConnectionTask.getId()
+                            || (conflictingConnectionMethodSolution.getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.MAP) && conflictingConnectionMethodSolution.getDestinationDataSource().getId() == partialConnectionTask.getId())).collect(Collectors.toList());
+                    conflictsWithGivenConnectionTask.stream().forEach(deviceConfigConflictMapping::removeConnectionMethodSolution);
+                });
+    }
+
+    @Override
+    public void removeConflictsFor(SecurityPropertySet securityPropertySet) {
+        this.deviceConfigConflictMappings.stream().filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == securityPropertySet.getDeviceConfiguration().getId() || deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == securityPropertySet.getDeviceConfiguration().getId())
+                .forEach(deviceConfigConflictMapping -> {
+                    List<ConflictingSecuritySetSolution> conflictsWithGivenSecurityPropertySet = deviceConfigConflictMapping.getConflictingSecuritySetSolutions().stream().filter(securitySetSolutionPredicate -> securitySetSolutionPredicate.getOriginDataSource().getId() == securityPropertySet.getId()
+                            || (securitySetSolutionPredicate.getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.MAP) && securitySetSolutionPredicate.getDestinationDataSource().getId() == securityPropertySet.getId())).collect(Collectors.toList());
+                    conflictsWithGivenSecurityPropertySet.stream().forEach(deviceConfigConflictMapping::removeSecuritySetSolution);
+                });
+    }
+
     private void closeCurrentDeviceLifeCycle(Instant now) {
         DeviceLifeCycleInDeviceType deviceLifeCycleInDeviceType = this.deviceLifeCycle.effective(now).get();
         deviceLifeCycleInDeviceType.close(now);

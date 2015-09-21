@@ -9,6 +9,8 @@ import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 
 import javax.inject.Inject;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Straightforward implementation ofa ConflictingSecuritySetSolution
@@ -17,6 +19,11 @@ import javax.inject.Inject;
 public class ConflictingSecuritySetSolutionImpl extends AbstractConflictSolution<SecurityPropertySet> implements ConflictingSecuritySetSolution {
 
     static final String DESTINATION_SECURITY_PROPERTY_SET_FIELD_NAME = "destinationSecurityPropertySet";
+
+    @Override
+    public List<SecurityPropertySet> getMappableToDataSources() {
+        return getConflictingMapping().getDestinationDeviceConfiguration().getSecurityPropertySets().stream().filter(securityPropertySet -> securityPropertySet.getAuthenticationDeviceAccessLevel().getId() == getOriginDataSource().getAuthenticationDeviceAccessLevel().getId() && securityPropertySet.getEncryptionDeviceAccessLevel().getId() == getOriginDataSource().getEncryptionDeviceAccessLevel().getId()).collect(Collectors.toList());
+    }
 
     public enum Fields {
         CONFLICTINGMAPPING("conflictingMapping"),
@@ -53,10 +60,10 @@ public class ConflictingSecuritySetSolutionImpl extends AbstractConflictSolution
         return destinationSecurityPropertySet;
     }
 
-    public ConflictingSecuritySetSolution initialize(DeviceConfigConflictMappingImpl deviceConfigConflictMapping, SecurityPropertySet origin, SecurityPropertySet destination) {
+    public ConflictingSecuritySetSolution initialize(DeviceConfigConflictMappingImpl deviceConfigConflictMapping, SecurityPropertySet origin) {
         setConflictingMapping(deviceConfigConflictMapping);
         this.originSecurityPropertySet.set(origin);
-        this.destinationSecurityPropertySet.set(destination);
+        this.destinationSecurityPropertySet.setNull();
         this.action = DeviceConfigConflictMapping.ConflictingMappingAction.NOT_DETERMINED_YET;
         return this;
     }
