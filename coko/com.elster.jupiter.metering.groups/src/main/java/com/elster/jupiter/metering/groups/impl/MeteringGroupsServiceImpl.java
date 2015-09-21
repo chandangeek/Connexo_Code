@@ -144,6 +144,11 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     public Optional<EnumeratedUsagePointGroup> findEnumeratedUsagePointGroup(long id) {
         return dataModel.mapper(EnumeratedUsagePointGroup.class).getOptional(id);
     }
+    
+    @Override
+    public List<UsagePointGroup> findUsagePointGroups() {
+        return dataModel.mapper(UsagePointGroup.class).find();
+    }
 
     @Override
     public Optional<UsagePointGroup> findUsagePointGroup(String mRID) {

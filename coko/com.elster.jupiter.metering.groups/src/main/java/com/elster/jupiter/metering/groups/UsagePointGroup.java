@@ -32,4 +32,6 @@ public interface UsagePointGroup extends IdentifiedObject {
     void setAliasName(String aliasName);
 
     void save();
+    
+    boolean isDynamic();
 }

@@ -54,6 +54,7 @@ public interface MeteringGroupsService {
     Query<EndDeviceGroup> getQueryEndDeviceGroupQuery();
 
     List<EndDeviceGroup> findEndDeviceGroups();
+    List<UsagePointGroup> findUsagePointGroups();
 
     Optional<EndDeviceQueryProvider> pollEndDeviceQueryProvider(String name, Duration duration) throws InterruptedException;
 
