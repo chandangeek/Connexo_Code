@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.NONRECURRENT;
+import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.NONRECURRING;
 import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.ON_REQUEST;
 import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.SCHEDULED;
 
@@ -98,7 +98,7 @@ public class DataExportTaskHistoryInfo {
         }
 
         if (dataExportOccurrence.wasScheduled() && task.nextRun==null) {
-            this.trigger = NONRECURRENT.translate(thesaurus);
+            this.trigger = NONRECURRING.translate(thesaurus);
         }
     }
 
