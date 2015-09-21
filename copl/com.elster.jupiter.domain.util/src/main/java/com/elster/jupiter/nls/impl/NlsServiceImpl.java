@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.NestedTransactionException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -128,9 +129,14 @@ public class NlsServiceImpl implements NlsService, InstallService {
                 try {
                     setPrincipal();
                     threadPrincipalService.set("INSTALL-translation", provider.getComponentName());
+                    // Attempt to setup a new transaction, required when a new bundle is activated
                     try (TransactionContext context = this.transactionService.getContext()) {
                         doInstallProvider(provider);
                         context.commit();
+                    }
+                    catch (NestedTransactionException e) {
+                        // Fails if we were already in transaction mode when installing a License, simply try again
+                        doInstallProvider(provider);
                     }
                 } finally {
                     clearPrincipal();
@@ -154,9 +160,14 @@ public class NlsServiceImpl implements NlsService, InstallService {
             if (installed) {
                 try {
                     this.setPrincipal();
+                    // Attempt to setup a new transaction, required when a new bundle is activated
                     try (TransactionContext context = this.transactionService.getContext()) {
                         this.doInstallProvider(provider);
                         context.commit();
+                    }
+                    catch (NestedTransactionException e) {
+                        // Fails if we were already in transaction mode when installing a License, simply try again
+                        doInstallProvider(provider);
                     }
                 }
                 finally {
