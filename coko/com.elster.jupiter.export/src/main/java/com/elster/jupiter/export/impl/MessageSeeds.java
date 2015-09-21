@@ -29,8 +29,12 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_IMPORT_SCHEDULE(1018, Keys.DUPLICATE_EXPORT_TASK, "Name must be unique"),
     FTP_IO(1019, Keys.FTP_FAILURE, "Failure while doing IO on ftp server {0}, port {1}."),
     MISSING_INTERVAL(1020, "dataexport.item.missinginterval", "The interval(s) starting from {0} till {1} with missing data are not exported", Level.INFO),
-    MISSING_WINDOW(1020, "dataexport.item.missingwindow", "The export window starting from {0} till {1} with missing data is not exported", Level.INFO);
-    
+    MISSING_WINDOW(1021, "dataexport.item.missingwindow", "The export window starting from {0} till {1} with missing data is not exported", Level.INFO),
+
+    SUSPECT_INTERVAL(1022, "dataexport.item.suspectinterval", "The interval(s) starting from {0} till {1} with suspect/not validated data are not exported", Level.INFO),
+    SUSPECT_WINDOW(1023, "dataexport.item.suspectwindow", "The export window starting from {0} till {1} with suspect/not validated data is not exported", Level.INFO);
+
+
     private final int number;
     private final String key;
     private final String defaultFormat;

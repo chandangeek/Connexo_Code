@@ -72,12 +72,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
         handleValidatedDataOption(item, strategy, readings, exportInterval);
 
         if (strategy.isExportCompleteData() && !isComplete(item, exportInterval, readings)) {
-            String fromDate = exportInterval.hasLowerBound() ? timeFormatter.format(exportInterval.lowerEndpoint()) : "";
-            String toDate = exportInterval.hasUpperBound() ? timeFormatter.format(exportInterval.upperEndpoint()) : "";
-            try (TransactionContext context = transactionService.getContext()) {
-                MessageSeeds.MISSING_WINDOW.log(logger, thesaurus, fromDate, toDate);
-                context.commit();
-            }
+            logExportWindow(MessageSeeds.MISSING_WINDOW, exportInterval);
             return Optional.empty();
         }
         if (!strategy.isExportCompleteData()) {
@@ -107,7 +102,17 @@ class DefaultItemDataSelector implements ItemDataSelector {
 
     private void handleExcludeItem(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval) {
         if (hasUnvalidatedReadings(item, readings) || hasSuspects(item, interval)) {
+            logExportWindow(MessageSeeds.SUSPECT_WINDOW, interval);
             readings.clear();
+        }
+    }
+
+    private void logExportWindow(MessageSeeds messageSeeds, Range<Instant> interval) {
+        String fromDate = interval.hasLowerBound() ? timeFormatter.format(interval.lowerEndpoint()) : "";
+        String toDate = interval.hasUpperBound() ? timeFormatter.format(interval.upperEndpoint()) : "";
+        try (TransactionContext context = transactionService.getContext()) {
+            messageSeeds.log(logger, thesaurus, fromDate, toDate);
+            context.commit();
         }
     }
 
@@ -130,13 +135,36 @@ class DefaultItemDataSelector implements ItemDataSelector {
 
         if (!lastChecked.isPresent()) {
             readings.clear();
+            logExportWindow(MessageSeeds.SUSPECT_INTERVAL, interval);
             return;
         }
+        Set<Instant> afterLastChecked = readings.stream()
+                .map(BaseReadingRecord::getTimeStamp)
+                .filter(timestamp -> timestamp.isAfter(lastChecked.get()))
+                .collect(Collectors.toCollection(TreeSet::new));
+        if (!afterLastChecked.isEmpty()) {
+            logInvalids(item, afterLastChecked);
+        }
+
         lastChecked.ifPresent(date -> readings.removeIf(baseReadingRecord -> baseReadingRecord.getTimeStamp().isAfter(date)));
 
-        Set<Instant> invalids = getSuspects(item, interval)
-                .collect(Collectors.toSet());
+        Set<Instant> invalids = getSuspects(item, interval).collect(Collectors.toCollection(TreeSet::new));
+        if (!invalids.isEmpty()) {
+            logInvalids(item, invalids);
+        }
+
         readings.removeIf(baseReadingRecord -> invalids.contains(baseReadingRecord.getTimeStamp()));
+    }
+
+    private void logInvalids(IReadingTypeDataExportItem item, Set<Instant> instants) {
+        if (!item.getReadingType().isRegular()) {
+            return;
+        }
+        TemporalAmount intervalLength = item.getReadingType().getIntervalLength().get();
+        List<ZonedDateTime> zonedDateTimes = instants.stream()
+                .map(instant -> ZonedDateTime.ofInstant(instant, item.getReadingContainer().getZoneId()))
+                .collect(Collectors.toList());
+        logIntervals(zonedDateTimes, intervalLength, MessageSeeds.SUSPECT_INTERVAL);
     }
 
     private void logMissings(IReadingTypeDataExportItem item, Range<Instant> exportInterval, List<? extends BaseReadingRecord> readings) {
@@ -154,33 +182,37 @@ class DefaultItemDataSelector implements ItemDataSelector {
         List<ZonedDateTime> zonedDateTimes = instants.stream()
                 .map(instant -> ZonedDateTime.ofInstant(instant, item.getReadingContainer().getZoneId()))
                 .collect(Collectors.toList());
-        int firstMissingIndex = 0;
-        ZonedDateTime start = zonedDateTimes.get(firstMissingIndex);
+        logIntervals(zonedDateTimes, intervalLength, MessageSeeds.MISSING_INTERVAL);
+    }
+
+    private void logIntervals(List<ZonedDateTime> zonedDateTimes,  TemporalAmount intervalLength, MessageSeeds messageSeed) {
+        int firstIndex = 0;
+        ZonedDateTime start = zonedDateTimes.get(firstIndex);
         for (int i = 0; i < zonedDateTimes.size() - 1; i++) {
             start = start.plus(intervalLength);
             if (!start.equals(zonedDateTimes.get(i + 1)))  {
-                logMissing(zonedDateTimes, firstMissingIndex, i, intervalLength);
-                firstMissingIndex = i + 1;
+                logInterval(zonedDateTimes, firstIndex, i, intervalLength, messageSeed);
+                firstIndex = i + 1;
                 start = zonedDateTimes.get(i + 1);
             }
         }
-        logMissing(zonedDateTimes, firstMissingIndex, zonedDateTimes.size() - 1, intervalLength);
+        logInterval(zonedDateTimes, firstIndex, zonedDateTimes.size() - 1, intervalLength, messageSeed);
     }
 
-    private void logMissing(List<ZonedDateTime> zonedDateTimes, int startIndex, int endIndex, TemporalAmount intervalLength) {
+    private void logInterval(List<ZonedDateTime> zonedDateTimes, int startIndex, int endIndex, TemporalAmount intervalLength, MessageSeeds messageSeed) {
         boolean isSingleInterval = endIndex - startIndex == 1;
         if (isSingleInterval) {
-            doLogMissing(zonedDateTimes, startIndex, startIndex, intervalLength);
+            doLogInterval(zonedDateTimes, startIndex, startIndex, intervalLength, messageSeed);
         } else {
-            doLogMissing(zonedDateTimes, startIndex, endIndex, intervalLength);
+            doLogInterval(zonedDateTimes, startIndex, endIndex, intervalLength, messageSeed);
         }
     }
 
-    private void doLogMissing(List<ZonedDateTime> zonedDateTimes, int startIndex, int endIndex, TemporalAmount intervalLength) {
+    private void doLogInterval(List<ZonedDateTime> zonedDateTimes, int startIndex, int endIndex, TemporalAmount intervalLength, MessageSeeds messageSeed) {
         ZonedDateTime startTimeToLog = zonedDateTimes.get(startIndex).minus(intervalLength);
         ZonedDateTime endTimeToLog = zonedDateTimes.get(endIndex);
         try (TransactionContext context = transactionService.getContext()) {
-            MessageSeeds.MISSING_INTERVAL.log(logger, thesaurus,
+            messageSeed.log(logger, thesaurus,
                     timeFormatter.format(startTimeToLog),
                     timeFormatter.format(endTimeToLog));
             context.commit();
