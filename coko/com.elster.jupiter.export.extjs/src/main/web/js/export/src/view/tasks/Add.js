@@ -478,7 +478,6 @@ Ext.define('Dxp.view.tasks.Add', {
                                         itemId: 'timeFrame',
                                         xtype: 'combobox',
                                         name: 'updateTimeFrame',
-                                        //     store: 'Dxp.store.DaysWeeksMonths',
                                         store: 'Dxp.store.UpdateTimeframes',
 
                                         queryMode: 'local',
@@ -488,15 +487,6 @@ Ext.define('Dxp.view.tasks.Add', {
                                         width: 200,
                                         editable: false,
                                         emptyText: Uni.I18n.translate('general.updateWinding', 'DES', 'Select a time frame...')
-                                        //    width: 100,
-                                        //    listeners: {
-                                        //        focus: {
-                                        //            fn: function () {
-                                        //                var radioButton = Ext.ComponentQuery.query('data-export-tasks-add #every')[0];
-                                        //                radioButton.setValue(true);
-                                        //            }
-                                        //        }
-                                        //    }
                                     },
                                     {
                                         xtype: 'displayfield',

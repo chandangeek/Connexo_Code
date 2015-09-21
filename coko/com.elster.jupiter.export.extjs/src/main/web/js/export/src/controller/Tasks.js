@@ -1394,6 +1394,7 @@ Ext.define('Dxp.controller.Tasks', {
                         id: form.down('#update-window').getValue(),
                         name: form.down('#update-window').getRawValue()
                     },
+                    exportAdjacentData: timeFrameValue,
                     updateWindow: timeFrameValue?{
                         id: form.down('#timeFrame').getValue(),
                         name: form.down('#timeFrame').getRawValue()
@@ -1597,13 +1598,15 @@ Ext.define('Dxp.controller.Tasks', {
             relativeRegexp = /administration\/relativeperiods\/add/,
             destinationRegexp = /administration\/dataexporttasks\/(.*)\/destination/,
             readingRegexp = /administration\/dataexporttasks\/(.*)\/readingtypes/,
-            editTaskRegexp = /administration\/dataexporttasks\/(.*)\/edit/;
+            editTaskRegexp = /administration\/dataexporttasks\/(.*)\/edit/,
+            addTaskRegexp = /administration\/dataexporttasks\/add/;
 
         if (token.search(relativeRegexp) === -1 &&
             token.search(readingRegexp) === -1 &&
             token.search(destinationRegexp) === -1 &&
-            token.search(editTaskRegexp) === -1
-        ) { // If the new destination is non of the above four...
+            token.search(editTaskRegexp) === -1 &&
+            token.search(addTaskRegexp) === -1
+        ) { // If the new destination is non of the above five...
             me.getStore('Dxp.store.Clipboard').clear('addDataExportTaskValues'); // ...clear the clipboard and
             Ext.util.History.un('change', this.checkRoute, this); // ...stop listening
         }
