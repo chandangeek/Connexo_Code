@@ -35,13 +35,7 @@ class FtpDestinationImpl extends AbstractDataExportDestination implements FtpDes
         }
 
         private void copyFile(StructureMarker structureMarker, Path path) {
-            try {
-                ftpClientService.getFtpFactory(getServer(), 21, getUser(), getPassword()).runInSession(remoteFileSystem -> {
-                    doCopy(path, determineTargetFile(structureMarker, remoteFileSystem));
-                });
-            } catch (IOException e) {
-                throw new FtpIOException(getThesaurus(), getServer(), port, e);
-            }
+            doCopy(path, determineTargetFile(structureMarker, remoteFileSystem));
         }
 
         private Path determineTargetFile(StructureMarker structureMarker, FileSystem remoteFileSystem) {
