@@ -6,7 +6,7 @@ Ext.define('Imt.registerdata.view.Preview', {
 
     requires: [
         'Imt.registerdata.view.ActionMenu',
-        'Uni.form.field.ReadingTypeDisplay',
+        'Uni.form.field.ReadingTypeDisplay'
     ],
 
     initComponent: function () {
@@ -50,16 +50,16 @@ Ext.define('Imt.registerdata.view.Preview', {
                                             }
                                             return '-';
                                         }
-                                    },
+                                    }
                                 ]
 
                             },
                             {
                                 fieldLabel: Uni.I18n.translate('general.lastValue', 'IMT', 'Last value'),
                                 name: 'lastReadingValue'
-                            },
+                            }
                         ]
-                    },
+                    }
                 ]
             }
         ];

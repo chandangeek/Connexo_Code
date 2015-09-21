@@ -20,7 +20,7 @@ Ext.define('Imt.controller.Main', {
         'Imt.usagepointmanagement.model.UsagePoint',
         'Imt.devicemanagement.model.Device',
         'Imt.channeldata.model.Channel',
-        'Imt.registerdata.model.Register',
+        'Imt.registerdata.model.Register'
     ],
     controllers: [
 		'Imt.usagepointmanagement.controller.View',

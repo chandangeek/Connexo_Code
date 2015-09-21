@@ -28,17 +28,17 @@ Ext.define('Imt.registerdata.view.RegisterDataList', {
                     return Uni.DateTime.formatDateTimeLong(new Date(value));
                 }
                 return '-';
-            },
+            }
         },
         {
             header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Reading Value'),
             flex: 1,
-            dataIndex: 'value', 
+            dataIndex: 'value'
         },
         {
             header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Delta Value'),
             flex: 1,
-            dataIndex: 'deltaValue', 
+            dataIndex: 'deltaValue'
         }
     ];
         me.dockedItems = [

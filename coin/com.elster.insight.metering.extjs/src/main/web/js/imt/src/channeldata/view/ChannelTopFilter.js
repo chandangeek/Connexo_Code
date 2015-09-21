@@ -3,7 +3,10 @@ Ext.define('Imt.channeldata.view.ChannelTopFilter', {
     xtype: 'imt-channeldata-topfilter',
     store: 'Imt.channeldata.store.ChannelData',
     filterDefault: {},
-
+    requires: [
+        'Uni.grid.FilterPanelTop',
+        'Imt.channeldata.store.ChannelData'
+    ],
     initComponent: function() {
         var me = this;
 

@@ -23,7 +23,7 @@ Ext.define('Imt.registerdata.view.RegisterDataSetup', {
                         itemId: 'usage-point-management-side-menu',
                         router: me.router,
                         mRID: me.mRID,
-                        registerId: me.registerId,
+                        registerId: me.registerId
                     }
                 ]
             }
@@ -52,7 +52,7 @@ Ext.define('Imt.registerdata.view.RegisterDataSetup', {
                         xtype: 'registerDataList',
                         router: me.router,
                         mRID: me.mRID,
-                        registerId: me.registerId,
+                        registerId: me.registerId
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',

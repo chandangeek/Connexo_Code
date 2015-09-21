@@ -35,7 +35,7 @@ Ext.define('Imt.devicemanagement.view.DeviceAttributesFormMain', {
                     {
                         name: 'name',
                         itemId: 'fld-up-name',
-                        fieldLabel: Uni.I18n.translate('deviceManagement.generalAttributes.name', 'IMT', 'Name'),
+                        fieldLabel: Uni.I18n.translate('deviceManagement.generalAttributes.name', 'IMT', 'Name')
 //                        renderer: function (value) {
 //                            return value ? value : '-';
 //                        }
@@ -77,7 +77,7 @@ Ext.define('Imt.devicemanagement.view.DeviceAttributesFormMain', {
  //                      			this.hide(); 
                        			return '-';
                        		}
-                        },
+                        }
                     },
                     {
                         name: 'removedDate',
@@ -90,7 +90,7 @@ Ext.define('Imt.devicemanagement.view.DeviceAttributesFormMain', {
                       		} else {
                       			this.hide(); //return '-';
                        		}
-                        },
+                        }
                     },
                     {
                         name: 'retiredDate',
@@ -103,7 +103,7 @@ Ext.define('Imt.devicemanagement.view.DeviceAttributesFormMain', {
                       		} else {
                       			this.hide(); //return '-';
                        		}
-                        },
+                        }
                     },
 
                     {

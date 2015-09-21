@@ -144,5 +144,5 @@ Ext.define('Imt.channeldata.view.ChannelGraph', {
             series: series
         });
 
-    },
+    }
 });

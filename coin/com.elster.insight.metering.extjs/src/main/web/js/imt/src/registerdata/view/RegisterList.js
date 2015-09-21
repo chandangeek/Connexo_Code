@@ -41,12 +41,12 @@ Ext.define('Imt.registerdata.view.RegisterList', {
                     return Uni.DateTime.formatDateTimeLong(new Date(value));
                 }
                 return '-';
-            },
+            }
         },
         {
             header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Last reading value'),
             flex: 1,
-            dataIndex: 'lastReadingValue', 
+            dataIndex: 'lastReadingValue'
         }
         ];
 

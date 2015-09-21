@@ -4,6 +4,6 @@ Ext.define('Imt.registerdata.model.RegisterData', {
     fields: [
              {name: 'value', type: 'auto'},
              {name: 'readingTime', type: 'auto'},
-             {name: 'deltaValue', type: 'auto'},
+             {name: 'deltaValue', type: 'auto'}
          ]
 });

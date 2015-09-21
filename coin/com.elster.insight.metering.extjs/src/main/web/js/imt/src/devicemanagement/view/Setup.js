@@ -13,7 +13,7 @@ Ext.define('Imt.devicemanagement.view.Setup', {
             ui: 'large',
             itemId: 'deviceSetupPanel',
             layout: {
-                type: 'fit',
+                type: 'fit'
 //                align: 'stretch'
             }
         }
@@ -31,7 +31,7 @@ Ext.define('Imt.devicemanagement.view.Setup', {
                     {
                         xtype: 'device-management-side-menu',
                         itemId: 'device-management-side-menu',
-                        router: me.router,
+                        router: me.router
  //                       mRID: me.mRID
                     }
                 ]

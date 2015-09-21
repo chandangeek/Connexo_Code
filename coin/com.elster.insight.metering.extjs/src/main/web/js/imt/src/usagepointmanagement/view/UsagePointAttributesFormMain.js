@@ -59,7 +59,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormMain', {
                     {
                         name: 'serviceCategory',
                         itemId: 'fld-up-serviceCategory',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.serviceCategory', 'IMT', 'Service category'),
+                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.serviceCategory', 'IMT', 'Service category')
                     },
                     {
                         name: 'isSdp',

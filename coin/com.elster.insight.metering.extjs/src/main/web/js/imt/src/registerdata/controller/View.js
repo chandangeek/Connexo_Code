@@ -34,7 +34,7 @@ Ext.define('Imt.registerdata.controller.View', {
         {ref: 'registerDataOverviewLink', selector: '#register-data-overview-link'},
         {ref: 'registerDataList', selector: '#registerDataList'},
         {ref: 'registerDataSetup', selector: '#registerDataSetup'},
-        {ref: 'registerDataPreview', selector: '#registerDataPreview'},
+        {ref: 'registerDataPreview', selector: '#registerDataPreview'}
     ],
     init: function () {
         var me = this;
@@ -44,7 +44,7 @@ Ext.define('Imt.registerdata.controller.View', {
             },
             '#registerDataList': {
                 select: me.onRegisterDataListSelect
-            },
+            }
         });
     },
     showUsagePointRegisters: function (mRID) {
@@ -135,8 +135,6 @@ Ext.define('Imt.registerdata.controller.View', {
         previewContainer.removeAll();
         previewContainer.add(widget);
    	
-    },
-    
-    
+    }
 });
 
