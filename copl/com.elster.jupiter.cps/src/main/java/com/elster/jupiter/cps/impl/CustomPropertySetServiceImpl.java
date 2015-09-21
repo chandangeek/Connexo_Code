@@ -490,7 +490,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
          * @return The unique name for the primary key constraint
          */
         private String primaryKeyConstraintName(CustomPropertySet customPropertySet) {
-            return "PK_CPS_" + customPropertySet.getId().hashCode();
+            return "PK_CPS_" + Math.abs(customPropertySet.getId().hashCode());
         }
 
         /**
@@ -502,7 +502,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
          * @return The unique name for the foreign key constraint
          */
         private String customPropertySetForeignKeyName(CustomPropertySet customPropertySet) {
-            return "FK_CPS_" + customPropertySet.getId().hashCode();
+            return "FK_CPS_" + Math.abs(customPropertySet.getId().hashCode());
         }
 
     }
