@@ -717,7 +717,7 @@ Ext.define('Dxp.controller.Tasks', {
                                         category: 'relativeperiod.category.updateWindow'
                                     },
                                     callback: function () {
-                                        if(record.getData().exportUpdate==='true'){
+                                        if(record.getStandardDataSelector().data.updatePeriod && record.getStandardDataSelector().data.updatePeriod.id!==0){
                                             updateWindowCombo.setValue(updateWindowCombo.store.getById(record.getStandardDataSelector().data.updatePeriod.id));
                                             updatedDataRadioGroup.setValue({exportUpdate: record.getStandardDataSelector().get('exportUpdate')});
                                         }
@@ -1585,8 +1585,8 @@ Ext.define('Dxp.controller.Tasks', {
 
         view.down('#updated-data-trigger').setValue({exportUpdate: formModel.get('exportUpdate')});
         view.down('#update-window').setValue(formModel.get('updateWindow'));
-        if(formModel.get('updateWindow')){
-            view.down('#timeFrame').setValue(formModel.get('updatePeriod'));
+        if(formModel.get('updateTimeFrame')){
+            view.down('#timeFrame').setValue(formModel.get('updateTimeFrame'));
             view.down('#export-updated').setValue({updatedDataAndOrAdjacentData: true});
         }
         view.down('#continuous-data-radiogroup').setValue({exportContinuousData:formModel.get('exportContinuousData')});
