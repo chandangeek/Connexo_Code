@@ -35,17 +35,18 @@ public class CreateDemoUserCommand {
             throw new IllegalStateException("User name is not set");
         }
 
-        Group group = userService.findGroup(DEMO_USER_ROLE).orElseGet(()->userService.createGroup(DEMO_USER_ROLE, DEMO_USER_ROLE_DESCRIPTION));
-        grantViewPrivilegesToGroup();
+        Group group = userService.findGroup(DEMO_USER_ROLE).orElseGet(this::createAndGrantViewPrivilegesToGroup);
 
-        User user  = userService.createUser(this.userName,"Demo User");
+        User user  = userService.findUser(userName).orElseGet(() -> userService.createUser(this.userName, "Demo User"));
         // Make the user a member of the 'Demo Users' group with all its privileges
         user.join(group);
-
+        System.out.println("==> created 'Demo' user " + userName);
     }
 
-    private void grantViewPrivilegesToGroup(){
+    private Group createAndGrantViewPrivilegesToGroup(){
+        Group group = userService.createGroup(DEMO_USER_ROLE, DEMO_USER_ROLE_DESCRIPTION);
         userService.getPrivilegeQuery().select(viewPrivilegesCondition(), Order.ascending("resource")).stream().forEach(x -> userService.grantGroupWithPrivilege(DEMO_USER_ROLE, APPLICATION, new String[] {x.getName()}));
+        return group;
     }
 
     private Condition viewPrivilegesCondition(){

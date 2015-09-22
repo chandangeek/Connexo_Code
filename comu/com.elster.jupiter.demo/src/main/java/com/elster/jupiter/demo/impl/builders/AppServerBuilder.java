@@ -5,6 +5,7 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 
 import javax.inject.Inject;
@@ -51,9 +52,13 @@ public class AppServerBuilder extends NamedBuilder<AppServer, AppServerBuilder> 
     public AppServer create() {
         Log.write(this);
         AppServer appServer = appService.createAppServer(getName(), cronExpressionParser.parse("0 0 * * * ? *").get());
-        messageService.getSubscribers().stream().forEach(subscriber -> appServer.createSubscriberExecutionSpec(subscriber, this.threadCount));
+        messageService.getSubscribers().stream().forEach(subscriber -> appServer.createSubscriberExecutionSpec(subscriber, getThreadCount(subscriber)));
         dataExportService.setExportDirectory(appServer, Paths.get(exportPath));
         appServer.activate();
         return appServer;
+    }
+
+    private int getThreadCount(SubscriberSpec subscriber){
+        return this.threadCount;
     }
 }

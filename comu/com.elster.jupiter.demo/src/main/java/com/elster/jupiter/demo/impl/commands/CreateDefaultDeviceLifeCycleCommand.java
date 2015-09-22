@@ -1,13 +1,13 @@
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.UnableToCreate;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.*;
@@ -28,10 +28,10 @@ import java.util.stream.Collectors;
  */
 public class CreateDefaultDeviceLifeCycleCommand {
 
+    private final ThreadPrincipalService threadPrincipalService;
     private final DeviceLifeCycleConfigurationService DLCconfigurationService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceLifeCycleService deviceLifeCycleService;
-    private final FiniteStateMachineService finiteStateMachineService;
     private final DeviceService deviceService;
     private final Clock clock;
 
@@ -42,14 +42,14 @@ public class CreateDefaultDeviceLifeCycleCommand {
     public CreateDefaultDeviceLifeCycleCommand(DeviceLifeCycleConfigurationService DLCconfigurationService,
                                                DeviceConfigurationService deviceConfigurationService,
                                                DeviceLifeCycleService deviceLifeCycleService,
-                                               FiniteStateMachineService finiteStateMachineService,
                                                DeviceService deviceService,
+                                               ThreadPrincipalService threadPrincipalService,
                                                Clock clock) {
         this.DLCconfigurationService = DLCconfigurationService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceLifeCycleService = deviceLifeCycleService;
-        this.finiteStateMachineService = finiteStateMachineService;
         this.deviceService = deviceService;
+        this.threadPrincipalService = threadPrincipalService;
         this.clock = clock;
     }
 
@@ -64,14 +64,46 @@ public class CreateDefaultDeviceLifeCycleCommand {
         // Make sure the default device life cycle exists
         defaultLifeCycle = DLCconfigurationService.findDefaultDeviceLifeCycle().orElseGet(()->DLCconfigurationService.newDefaultDeviceLifeCycle("dlc.standard.device.life.cycle"));
         // Use this one as device life cycle for each existing device type
-        deviceConfigurationService.findAllDeviceTypes().stream().forEach(deviceType -> deviceConfigurationService.changeDeviceLifeCycle(deviceType,defaultLifeCycle));
-        // Set all devices to the 'Active' state
-        deviceService.deviceQuery().select(Condition.TRUE, Order.NOORDER)
-                .stream()
-                .forEach(x -> this.setDeviceToState(x, DefaultCustomStateTransitionEventType.ACTIVATED));
+        // And set all devices of this type to the 'Active State'
+        deviceConfigurationService.findAllDeviceTypes().stream().forEach(type -> changeDeviceLifeCycle(type, deviceService.deviceQuery().select(Operator.EQUAL.compare("deviceType", type))));
     }
 
+    private void changeDeviceLifeCycle(DeviceType deviceType, List<Device> devices){
+        long now = Clock.systemDefaultZone().millis();
+        System.out.println(" ==> changing device life cycle for deviceType " + deviceType.getName() + " and activating all devices of this type");
+
+        deviceConfigurationService.changeDeviceLifeCycle(deviceType, defaultLifeCycle);
+        System.out.println(" ==> changing device life cycle for deviceType " + deviceType.getName() + " took "+ (Clock.systemDefaultZone().millis() - now) + " ms.");
+        List<AuthorizedStandardTransitionAction> authorizedActions =
+                defaultLifeCycle.getAuthorizedActions(defaultLifeCycle.getFiniteStateMachine().getInitialState()).stream()
+                    .filter(action -> action instanceof AuthorizedStandardTransitionAction)
+                    .map(action -> (AuthorizedStandardTransitionAction) action)
+                    .filter(action -> action.getStateTransition().getTo().getName().equals(DefaultState.ACTIVE.getKey()))
+                    .collect(Collectors.toList());
+        if (!authorizedActions.isEmpty()){
+            now = Clock.systemDefaultZone().millis();
+            AuthorizedStandardTransitionAction authorizedActionToExecute = authorizedActions.get(0);
+            List<ExecutableActionProperty> properties =
+                    DecoratedStream
+                        .decorate(authorizedActionToExecute.getActions().stream())
+                        .flatMap(ma -> this.deviceLifeCycleService.getPropertySpecsFor(ma).stream())
+                        .distinct(PropertySpec::getName)
+                        .map(ps -> this.toExecutableActionProperty(ps, clock.instant()))
+                        .collect(Collectors.toList());
+
+            System.out.println(" ==> Finding the executable action propertiessetting took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
+
+            now = Clock.systemDefaultZone().millis();
+            devices.stream().forEach(x -> deviceLifeCycleService.execute(authorizedActionToExecute, x, clock.instant(), properties));
+            System.out.println(" ==> Setting the 'Active' State to all devices of device type "+ deviceType.getName()+" took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
+        }
+    }
+
+/*
+
     private void setDeviceToState(Device device, DefaultCustomStateTransitionEventType eventType) {
+        long now = Clock.systemDefaultZone().millis();
+        System.out.println(" ==> changing device state for device " + device.getName() + "(MRID: "+ device.getmRID()+"): "+ device.getState().getName());
         Optional<ExecutableAction> action =  deviceLifeCycleService.getExecutableActions(device, eventType.findOrCreate(finiteStateMachineService));
         if (action.isPresent() && action.get().getAction() instanceof AuthorizedTransitionAction){
             AuthorizedTransitionAction authorizedTransitionAction = (AuthorizedTransitionAction) action.get().getAction();
@@ -84,14 +116,14 @@ public class CreateDefaultDeviceLifeCycleCommand {
                         .collect(Collectors.toList());
             try {
                 action.get().execute(clock.instant(), properties);
-                System.out.println(" ==> device state for device " + device.getName() + "(MRID: "+ device.getmRID()+"): "+ device.getState().getName());
+                System.out.println(" ==> Set device state for device " + device.getName() + "(MRID: " + device.getmRID() + "): " + device.getState().getName() + "(in  " + (Clock.systemDefaultZone().millis() - now) + " ms)");
             }catch(Exception exception){
                 System.err.println("!!! ==> Activating device " + device.getName() + "(MRID: "+ device.getmRID()+") failed");
                 exception.printStackTrace();
             }
         }
     }
-
+*/
      private ExecutableActionProperty toExecutableActionProperty(PropertySpec propertySpec, Instant effectiveTimestamp) {
         try {
             if (DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key().equals(propertySpec.getName())) {

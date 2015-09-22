@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 
 public class CreateDemoDataCommand {
     private final Provider<CreateCollectRemoteDataSetupCommand> createCollectRemoteDataSetupCommandProvider;
@@ -24,6 +25,10 @@ public class CreateDemoDataCommand {
     private final Provider<CreateDeviceCommand> createDeviceCommandProvider;
     private final Provider<CreateDeliverDataSetupCommand> createDeliverDataSetupCommandProvider;
     private final Provider<ValidateStartDateCommand> validateStartDateCommandProvider;
+    private final Provider<CreateDefaultDeviceLifeCycleCommand> createDefaultDeviceLifeCycleCommandProvider;
+    private final Provider<CreateDemoUserCommand> createDemoUserCommandProvider;
+    private final Provider<SetupFirmwareManagementCommand> setupFirmwareManagementCommandProvider;
+    private final Provider<CreateImportersCommand> createImportersCommandProvider;
 
     private String comServerName;
     private String host;
@@ -39,7 +44,11 @@ public class CreateDemoDataCommand {
             Provider<CreateValidationSetupCommand> createValidationSetupCommandProvider,
             Provider<CreateDeviceCommand> createDeviceCommandProvider,
             Provider<CreateDeliverDataSetupCommand> createDeliverDataSetupCommandProvider,
-            Provider<ValidateStartDateCommand> validateStartDateCommandProvider) {
+            Provider<ValidateStartDateCommand> validateStartDateCommandProvider,
+            Provider<CreateDefaultDeviceLifeCycleCommand> createDefaultDeviceLifeCycleCommandProvider,
+            Provider<CreateDemoUserCommand> createDemoUserCommandProvider,
+            Provider<SetupFirmwareManagementCommand> setupFirmwareManagementCommandProvider,
+            Provider<CreateImportersCommand> createImportersCommandProvider) {
         this.createCollectRemoteDataSetupCommandProvider = createCollectRemoteDataSetupCommandProvider;
         this.createUserManagementCommandProvider = createUserManagementCommandProvider;
         this.createApplicationServerCommandProvider = createApplicationServerCommandProvider;
@@ -49,6 +58,10 @@ public class CreateDemoDataCommand {
         this.createDeviceCommandProvider = createDeviceCommandProvider;
         this.createDeliverDataSetupCommandProvider = createDeliverDataSetupCommandProvider;
         this.validateStartDateCommandProvider = validateStartDateCommandProvider;
+        this.createDefaultDeviceLifeCycleCommandProvider = createDefaultDeviceLifeCycleCommandProvider;
+        this.createDemoUserCommandProvider = createDemoUserCommandProvider;
+        this.setupFirmwareManagementCommandProvider = setupFirmwareManagementCommandProvider;
+        this.createImportersCommandProvider = createImportersCommandProvider;
     }
 
     public void setComServerName(String comServerName) {
@@ -70,13 +83,17 @@ public class CreateDemoDataCommand {
     public void run(){
         validateStartDateCommand();
         createUserManagementCommand();
+        createDemoUserCommand("DemoUser1", "DemoUser2", "DemoUser3", "DemoUser4", "DemoUser5");
         createCollectRemoteDataSetupCommand();
         createValidationSetupCommand();
         createApplicationServerCommand();
+        createDefaultDeviceLifeCycleCommand();
         createNtaConfigCommand();
         createMockedDataDeviceCommand();
         uploadAllData();
         createDeliverDataSetupCommand();
+        setupFirmwareManagementCommand();
+        createImportersCommand();
     }
 
     private void validateStartDateCommand(){
@@ -103,6 +120,20 @@ public class CreateDemoDataCommand {
 
     private void createUserManagementCommand(){
         CreateUserManagementCommand command = this.createUserManagementCommandProvider.get();
+        command.run();
+    }
+
+    private void createDemoUserCommand(String... usernames){
+        CreateDemoUserCommand command = this.createDemoUserCommandProvider.get();
+        for (String name: usernames){
+            command.setUserName(name);
+            command.run();
+        }
+    }
+
+    private void createDefaultDeviceLifeCycleCommand(){
+        CreateDefaultDeviceLifeCycleCommand command = this.createDefaultDeviceLifeCycleCommandProvider.get();
+        command.setLastCheckedDate(this.startDate);
         command.run();
     }
 
@@ -145,5 +176,15 @@ public class CreateDemoDataCommand {
     private void createDeliverDataSetupCommand(){
         CreateDeliverDataSetupCommand createDeliverDataSetupCommand = this.createDeliverDataSetupCommandProvider.get();
         createDeliverDataSetupCommand.run();
+    }
+
+    private void setupFirmwareManagementCommand(){
+        SetupFirmwareManagementCommand setupFirmwareManagementCommand = this.setupFirmwareManagementCommandProvider.get();
+        setupFirmwareManagementCommand.run();
+    }
+
+    private void createImportersCommand(){
+        CreateImportersCommand importersCommand = this.createImportersCommandProvider.get();
+        importersCommand.run();
     }
 }
