@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ChannelSpecLinkType;
@@ -49,6 +48,7 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
@@ -68,6 +68,7 @@ import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -122,6 +123,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile MasterDataService masterDataService;
+    private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile SchedulingService schedulingService;
     private volatile UserService userService;
@@ -137,7 +139,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -153,6 +155,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setSchedulingService(schedulingService);
         this.setValidationService(validationService);
         this.setEstimationService(estimationService);
+        this.setFiniteStateMachineService(finiteStateMachineService);
         this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         this.activate();
         this.install();
@@ -565,6 +568,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Reference
+    public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
+        this.finiteStateMachineService = finiteStateMachineService;
+    }
+
+    @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
@@ -754,7 +762,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
         finders.add(new DeviceTypeFinder(this));
         finders.add(new DeviceConfigurationFinder(this));
-        finders.add(new DeviceStateFinder(deviceLifeCycleConfigurationService));
+        finders.add(new FiniteStateFinder(this.finiteStateMachineService));
         return finders;
     }
 
