@@ -150,9 +150,6 @@ public class MeterActivationImpl implements MeterActivation {
 			return Collections.emptyList();
 		}
 		Range<Instant> active = range.intersection(getRange());
-		if (active.hasUpperBound() && since.isAfter(active.upperEndpoint())) {
-			return Collections.emptyList();
-		}
 		Channel channel = getChannel(readingType);
 		if (channel == null) {
 			return Collections.emptyList();
