@@ -312,6 +312,10 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.enterprisedt</groupId>
+            <artifactId>edtftpj-pro</artifactId>
+        </dependency>
 
     </dependencies>
     <build>
