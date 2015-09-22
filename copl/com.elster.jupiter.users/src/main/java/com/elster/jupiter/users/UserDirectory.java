@@ -9,9 +9,13 @@ public interface UserDirectory {
 
     public List<LdapUser> getLdapUsers();
 
+    public boolean getLdapUserStatus(String userName);
+
     public Optional<User> authenticate(String name, String password);
 
     boolean isManageGroupsInternal();
+
+    void setManageGroupsInternal(boolean manageGroupsInternal);
 
     String getDomain();
 

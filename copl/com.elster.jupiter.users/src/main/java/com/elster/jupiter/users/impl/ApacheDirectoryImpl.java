@@ -1,10 +1,7 @@
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.LdapUser;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.*;
 
 import javax.inject.Inject;
 import javax.naming.Context;
@@ -18,6 +15,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.security.KeyStore;
 import java.util.*;
 
@@ -89,9 +87,9 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.put(Context.SECURITY_CREDENTIALS, password);
         try {
             new InitialDirContext(env);
-            return Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER,true));
+            return userService.findUser(name);
         } catch (NamingException e) {
-            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException")||e.toString().contains("MalformedURLException"))){
                 urls.remove(0);
                 return authenticateSimple(name,password,urls);
             }else {
@@ -109,9 +107,9 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.put(Context.SECURITY_PROTOCOL,"ssl");
         try {
             new InitialDirContext(env);
-            return Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER,true));
+            return userService.findUser(name);
         } catch (NamingException e) {
-            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException")||e.toString().contains("MalformedURLException"))){
                 urls.remove(0);
                 return authenticateSSL(name, password, urls);
             }else {
@@ -132,10 +130,9 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             tls.negotiate();
             env.put(Context.SECURITY_PRINCIPAL,"uid=" + name + "," + getBaseUser());
             env.put(Context.SECURITY_CREDENTIALS, password);
-            Optional<User> user = Optional.of(userService.findOrCreateUser(name, this.getDomain(), TYPE_IDENTIFIER,true));
-            return user;
+            return userService.findUser(name);
         }catch(IOException | NamingException e){
-            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException")||e.toString().contains("MalformedURLException"))){
                 urls.remove(0);
                 return authenticateTLS(name, password, urls);
             }else {
@@ -167,7 +164,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     public List<LdapUser> getLdapUsers() {
         List<String> urls = getUrls();
         if(getSecurity()==null||getSecurity().toUpperCase().contains("NONE")){
-            return getLdapUsersSimple(urls);
+                return getLdapUsersSimple(urls);
         }else if(getSecurity().toUpperCase().contains("SSL")) {
             return getLdapUsersSSL(urls);
         }else if(getSecurity().toUpperCase().contains("TLS")){
@@ -205,11 +202,11 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             }
             return ldapUsers;
         } catch (NamingException e) {
-            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException")||e.toString().contains("MalformedURLException"))){
                 urls.remove(0);
                 return getLdapUsersSimple(urls);
             }else {
-                return ldapUsers;
+                throw new LdapServerException(userService.getThesaurus());
             }
         }
     }
@@ -243,11 +240,11 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             }
             return ldapUsers;
         } catch (NamingException e) {
-            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException")||e.toString().contains("MalformedURLException"))){
                 urls.remove(0);
                 return getLdapUsersSSL(urls);
             }else {
-                return ldapUsers;
+                throw new LdapServerException(userService.getThesaurus());
             }
         }
     }
@@ -283,11 +280,11 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             }
             return ldapUsers;
         }catch(IOException | NamingException e){
-            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException"))){
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException")||e.toString().contains("MalformedURLException"))){
                 urls.remove(0);
                 return getLdapUsersTLS(urls);
             }else {
-                return ldapUsers;
+                throw new LdapServerException(userService.getThesaurus());
             }
         }finally {
             if(tls != null){
@@ -297,6 +294,136 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
 
                 }
             }
+        }
+    }
+
+
+    private boolean getLdapUserStatusSimple(String user, List<String> urls){
+        Hashtable<String, Object> env = new Hashtable<>();
+        env.putAll(commonEnvLDAP);
+        NamingEnumeration results = null;
+        env.put(Context.PROVIDER_URL, urls.get(0));
+        env.put(Context.SECURITY_PRINCIPAL,"uid=" + getDirectoryUser() + "," + getBaseUser());
+        env.put(Context.SECURITY_CREDENTIALS, getPassword());
+        try {
+            DirContext ctx = new InitialDirContext(env);
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
+            results = ctx.search(getBaseUser(),"(uid="+user+")", controls);
+            while (results.hasMore()) {
+                SearchResult searchResult = (SearchResult) results.next();
+                Attributes attributes = searchResult.getAttributes();
+                if (attributes.get("pwdAccountLockedTime")!=null) {
+                    if(attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")){
+                        return false;
+                    }
+                }else{
+                    return true;
+                }
+            }
+            return false;
+        } catch (NamingException e) {
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException")||e.toString().contains("MalformedURLException"))){
+                urls.remove(0);
+                return getLdapUserStatusSimple(user, urls);
+            }else {
+                throw new LdapServerException(userService.getThesaurus());
+            }
+        }
+    }
+
+    private boolean getLdapUserStatusSSL(String user,List<String> urls){
+        Hashtable<String, Object> env = new Hashtable<>();
+        env.putAll(commonEnvLDAP);
+        env.put(Context.PROVIDER_URL, urls.get(0));
+        NamingEnumeration results = null;
+        env.put(Context.SECURITY_PRINCIPAL,"uid=" + getDirectoryUser() + "," + getBaseUser());
+        env.put(Context.SECURITY_CREDENTIALS, getPassword());
+        env.put(Context.SECURITY_PROTOCOL,"ssl");
+        try {
+            DirContext ctx = new InitialDirContext(env);
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            results = ctx.search(getBaseUser(),"(uid="+user+")", controls);
+            while (results.hasMore()) {
+                SearchResult searchResult = (SearchResult) results.next();
+                Attributes attributes = searchResult.getAttributes();
+                if (attributes.get("pwdAccountLockedTime")!=null) {
+                    if(attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")){
+                        return false;
+                    }
+                }else{
+                    return true;
+                }
+            }
+            return false;
+        } catch (NamingException e) {
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException")||e.toString().contains("MalformedURLException"))){
+                urls.remove(0);
+                return getLdapUserStatusSSL(user,urls);
+            }else {
+                throw new LdapServerException(userService.getThesaurus());
+            }
+        }
+    }
+
+    private boolean getLdapUserStatusTLS(String user,List<String> urls){
+        Hashtable<String, Object> env = new Hashtable<>();
+        env.putAll(commonEnvLDAP);
+        NamingEnumeration results = null;
+        env.put(Context.PROVIDER_URL, urls.get(0));
+        try{
+            LdapContext ctx = new InitialLdapContext(env, null);
+            ExtendedRequest tlsRequest = new StartTlsRequest();
+            ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
+            tls = (StartTlsResponse)tlsResponse;
+            tls.negotiate();
+            env.put(Context.SECURITY_PRINCIPAL,"uid=" + getDirectoryUser() + "," + getBaseUser());
+            env.put(Context.SECURITY_CREDENTIALS, getPassword());
+            SearchControls controls = new SearchControls();
+            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            results = ctx.search(getBaseUser(),"(uid="+user+")", controls);
+            while (results.hasMore()) {
+                SearchResult searchResult = (SearchResult) results.next();
+                Attributes attributes = searchResult.getAttributes();
+                if (attributes.get("pwdAccountLockedTime")!=null) {
+                    if(attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")){
+                        return false;
+                    }
+                }else{
+                    return true;
+                }
+            }
+            return false;
+        }catch(IOException | NamingException e){
+            if((urls.size()>1)&&(e.toString().contains("CommunicationException")||e.toString().contains("ServiceUnavailableException")||e.toString().contains("MalformedURLException"))){
+                urls.remove(0);
+                return getLdapUserStatusTLS(user,urls);
+            }else {
+                throw new LdapServerException(userService.getThesaurus());
+            }
+        }finally {
+            if(tls != null){
+                try {
+                    tls.close();
+                }catch (IOException e){
+
+                }
+            }
+        }
+    }
+
+    @Override
+    public boolean getLdapUserStatus(String userName) {
+        List<String> urls = getUrls();
+        if(getSecurity()==null||getSecurity().toUpperCase().contains("NONE")){
+            return getLdapUserStatusSimple(userName,urls);
+        }else if(getSecurity().toUpperCase().contains("SSL")) {
+            return getLdapUserStatusSSL(userName,urls);
+        }else if(getSecurity().toUpperCase().contains("TLS")){
+            return getLdapUserStatusTLS(userName,urls);
+        }else{
+            return false;
         }
     }
 

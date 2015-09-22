@@ -64,4 +64,13 @@ public class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
         return true;
     }
 
+    @Override
+    public void setManageGroupsInternal(boolean manageGroupsInternal){
+    }
+
+    @Override
+    public boolean getLdapUserStatus(String user){
+        return false;
+    }
+
 }

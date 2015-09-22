@@ -105,4 +105,9 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         return null;
     }
 
+    @Override
+    public boolean getLdapUserStatus(String user){
+        return false;
+    }
+
 }

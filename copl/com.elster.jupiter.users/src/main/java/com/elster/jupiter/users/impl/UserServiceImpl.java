@@ -139,6 +139,11 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     @Override
+    public Thesaurus getThesaurus(){
+        return thesaurus;
+    }
+
+    @Override
     public List<UserDirectory> getUserDirectories() {
         return dataModel.mapper(UserDirectory.class).find();
 
@@ -161,7 +166,11 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public List<User> getAllUsers(long id){
-        List<User> found = dataModel.mapper(User.class).find().stream().filter(s->s.getUserDirectoryId() == id).collect(Collectors.toList());
+        List<User> found = dataModel.mapper(User.class).find()
+                .stream()
+                .filter(s->s.getUserDirectoryId() == id)
+                .sorted((s1,s2)-> s1.getName().compareTo(s2.getName()))
+                .collect(Collectors.toList());
         return found;
     }
 
@@ -272,7 +281,12 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     public Optional<User> findUser(String authenticationName) {
         Condition condition = Operator.EQUALIGNORECASE.compare("authenticationName", authenticationName);
         List<User> users = dataModel.query(User.class, UserInGroup.class).select(condition);
-        return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
+        if(!users.isEmpty()){
+            if(users.get(0).getStatus()){
+                return Optional.of(users.get(0));
+            }
+        }
+        return Optional.empty();
     }
 
     @Override

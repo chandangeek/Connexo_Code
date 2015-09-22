@@ -1,5 +1,6 @@
 package com.elster.jupiter.users.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -13,7 +14,10 @@ import javax.validation.constraints.Size;
 import java.util.Hashtable;
 
 public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImpl implements LdapUserDirectory{
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @Size(max = 128, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_128 + "}")
     private String directoryUser;
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String password;
     private String description;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
@@ -41,6 +45,11 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     @Override
     public boolean isManageGroupsInternal() {
         return manageGroupsInternal;
+    }
+
+    @Override
+    public void setManageGroupsInternal(boolean manageGroupsInternal){
+        this.manageGroupsInternal = manageGroupsInternal;
     }
 
     @Override

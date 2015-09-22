@@ -1,6 +1,7 @@
 package com.elster.jupiter.users;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.impl.AbstractLdapDirectoryImpl;
 import com.elster.jupiter.users.impl.UserImpl;
 
@@ -97,6 +98,8 @@ public interface UserService {
     Query<UserDirectory> getLdapDirectories();
 
     LdapUserDirectory getLdapUserDirectory(long id);
+
+    Thesaurus getThesaurus();
 
     UserPreferencesService getUserPreferencesService();
 

@@ -62,7 +62,7 @@ public enum TableSpecs {
             table.column("IS_DEFAULT").bool().map("isDefault").add();
 			Column prefix = table.column("PREFIX").type("varchar(128)").map("prefix").add();
             table.column("GROUPS_INTERNAL").type("char(1)").conversion(CHAR2BOOLEAN).map("manageGroupsInternal").add();
-            table.column("DIRECTORY_USER").type("varchar(4000)").map("directoryUser").add();
+            table.column("DIRECTORY_USER").type("varchar(128)").map("directoryUser").add();
             table.column("PASSWORD").type("varchar(128)").map("password").add();
             table.column("URL").type("varchar(4000)").map("url").add();
             table.column("BACKUPURL").type("varchar(4000)").map("backupUrl").add();
@@ -90,7 +90,7 @@ public enum TableSpecs {
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addModTimeColumn("MODTIME", "modTime");
 			table.primaryKey("USR_PK_USER").on(idColumn).add();
-			table.unique("USR_U_USERAUTHNAME").on(authenticationNameColumn).add();
+			table.unique("USR_U_USERAUTHNAME").on(authenticationNameColumn, userDirColumn).add();
             table.foreignKey("USR_FK_USER_USERDIR").references(USR_USERDIRECTORY.name()).onDelete(CASCADE).map("userDirectory").on(userDirColumn).add();
 		}
 	},
