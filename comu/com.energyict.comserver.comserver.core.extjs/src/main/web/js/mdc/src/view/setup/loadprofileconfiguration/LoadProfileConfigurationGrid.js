@@ -55,6 +55,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid
             items: [
                 {
                     text: Uni.I18n.translate('loadProfileConfigurations.add', 'MDC', 'Add load profile configuration'),
+                    itemId: 'add-load-profile-configuration-to-device-configuration-btn',
                     privileges: Mdc.privileges.DeviceType.admin,
                     action: 'addloadprofileconfiguration'
                 }

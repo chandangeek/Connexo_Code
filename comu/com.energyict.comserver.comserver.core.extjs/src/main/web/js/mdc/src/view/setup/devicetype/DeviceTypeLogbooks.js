@@ -23,6 +23,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'grid',
+                        itemId: 'device-type-logbook-types-grid',
                         store: 'LogbookTypesOfDeviceType',
                         columns: {
                             defaults: {
@@ -58,6 +59,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                                 items: [
                                     {
                                         xtype: 'button',
+                                        itemId: 'add-logbook-types-btn',
                                         margin: '10 0 0 0',
                                         text: Uni.I18n.translate('logbooktype.addLogbookType', 'MDC', 'Add logbook types'),
                                         privileges: Mdc.privileges.DeviceType.admin,
@@ -82,6 +84,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'device-type-logbook-types-empty-msg',
                         title: Uni.I18n.translate('logbooktype.empty.title', 'MDC', 'No logbook types found'),
                         reasons: [
                             Uni.I18n.translate('logbooktype.empty.list.item1', 'MDC', 'No logbook types have been defined yet.')
@@ -90,6 +93,7 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                             {
                                 text: Uni.I18n.translate('logbooktype.addLogbookType', 'MDC', 'Add logbook types'),
                                 privileges: Mdc.privileges.DeviceType.admin,
+                                itemId: 'empty-msg-add-logbook-types-btn',
                                 action: 'add',
                                 listeners: {
                                     click: {

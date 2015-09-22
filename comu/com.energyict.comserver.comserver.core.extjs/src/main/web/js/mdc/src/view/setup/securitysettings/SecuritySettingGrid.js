@@ -58,6 +58,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingGrid', {
                 items: [
                     {
                         xtype: 'button',
+                        itemId: 'add-security-setting-to-device-configuration-btn',
                         text:  Uni.I18n.translate('securitySetting.addSecuritySetting','MDC','Add security setting'),
                         privileges: Mdc.privileges.DeviceType.admin,
                         action: 'addsecurityaction',                       

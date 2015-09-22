@@ -25,6 +25,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'grid',
+                        itemId: 'device-configuration-logbooks-grid',
                         store: 'LogbookConfigurations',
                         columns: {
                             defaults: {
@@ -60,6 +61,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                                 items: [
                                     {
                                         xtype: 'button',
+                                        itemId: 'add-logbook-configuration-to-device-configuration-btn',
                                         margin: '10 0 0 0',
                                         text: Uni.I18n.translate('deviceconfiguration.addLogbookConfiguration', 'MDC', 'Add logbook configuration'),
                                         privileges: Mdc.privileges.DeviceType.admin,
@@ -84,6 +86,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
+                        itemId: 'device-configuration-logbooks-empty-msg',
                         title: Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.title', 'MDC', 'No logbook configuration found'),
                         reasons: [
                             Uni.I18n.translate('deviceconfiguration.logbookConfiguration.empty.list.item1', 'MDC', 'No logbook configuration have been defined yet.'),
@@ -93,6 +96,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
                                 text: Uni.I18n.translate('deviceconfiguration.addLogbookConfiguration', 'MDC', 'Add logbook configuration'),
                                 privileges: Mdc.privileges.DeviceType.admin,
                                 action: 'add',
+                                itemId: 'empty-msg-add-logbook-configuration-to-device-configuration-btn',
                                 listeners: {
                                     click: {
                                         fn: function () {

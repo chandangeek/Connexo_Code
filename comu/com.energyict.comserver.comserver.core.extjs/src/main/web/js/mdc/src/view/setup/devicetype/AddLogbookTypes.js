@@ -35,6 +35,7 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
+                            itemId: 'logbook-type-add-empty-msg',
                             title: Uni.I18n.translate('logbooktypes.empty.title', 'MDC', 'No logbook types found'),
                             reasons: [
                                 Uni.I18n.translate('logbooktypes.empty.list.item1', 'MDC', 'No logbook types are defined yet'),
@@ -43,6 +44,7 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                             stepItems: [
                                 {
                                     text: Uni.I18n.translate('logbooktype.managelogbooktypes', 'MDC', 'Manage logbook types'),
+                                    itemId: 'empty-msg-logbook-type-add-btn',
                                     href: me.router.getRoute('administration/logbooktypes').buildUrl()
                                 }
                             ]
@@ -81,6 +83,7 @@ Ext.define('Mdc.view.setup.devicetype.AddLogbookTypes', {
                                 items: [
                                     {
                                         text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                        itemId: 'logbook-type-add-btn',
                                         xtype: 'button',
                                         action: 'add',
                                         ui: 'action'

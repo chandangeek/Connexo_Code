@@ -47,6 +47,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
+                            itemId: 'device-configuration-security-settings-empty-msg',
                             title: Uni.I18n.translate('securitySetting.NoSecuritySettingsFound','MDC','No security settings found'),
                             reasons: [
                                 Uni.I18n.translate('securitySetting.reason1','MDC','No security settings have been defined yet.')
@@ -60,7 +61,8 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSetup', {
                             ]
                         },
                         previewComponent: {
-                            xtype: 'securitySettingPreview'
+                            xtype: 'securitySettingPreview',
+                            itemId: 'security-setting-preview'
                         }
                     },
                     {

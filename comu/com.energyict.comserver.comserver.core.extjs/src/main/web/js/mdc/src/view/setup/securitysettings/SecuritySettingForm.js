@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
     extend: 'Uni.view.container.ContentContainer',
     requires: [
         'Ext.form.field.TextArea',
-        'Ext.button.Button',
+        'Ext.button.Button'
     ],
     alias: 'widget.securitySettingForm',
     config: {
@@ -42,6 +42,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                         {
                             xtype: 'textfield',
                             name: 'name',
+                            itemId: 'name-field',
                             required: true,
                             regex: /[a-zA-Z0-9]+/,
                             allowBlank: false,
@@ -126,6 +127,7 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
         this.down('#SecurityAction').add(
             {
                 xtype: 'button',
+                itemId: 'device-configuration-security-setting-action-btn',
                 ui: 'action',
                 name: 'securityaction',
                 action: this.securityAction,
