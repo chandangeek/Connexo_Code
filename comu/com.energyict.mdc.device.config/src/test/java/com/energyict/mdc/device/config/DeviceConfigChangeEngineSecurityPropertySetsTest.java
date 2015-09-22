@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigChangeAction;
-import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigChangeActionType;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import org.fest.assertions.core.Condition;
@@ -120,8 +118,8 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
 
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel1 = mockAuthenticationLevel(102);
         EncryptionDeviceAccessLevel encryptionDeviceAccessLevel1 = mockEncryptionLevel(44856);
-        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel2 = mockAuthenticationLevel(102);
-        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel2 = mockEncryptionLevel(44856);
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel2 = mockAuthenticationLevel(101);
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel2 = mockEncryptionLevel(4445632);
         DeviceType deviceType = mockDeviceType();
         DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
         SecurityPropertySet securityPropertySet1 = mockSecurityPropertySet(name, authenticationDeviceAccessLevel1, encryptionDeviceAccessLevel1);

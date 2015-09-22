@@ -1,11 +1,5 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.device.config.DeviceConfigChangeEngine;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigChangeAction;
-import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigChangeActionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import org.fest.assertions.core.Condition;
 import org.junit.Test;
