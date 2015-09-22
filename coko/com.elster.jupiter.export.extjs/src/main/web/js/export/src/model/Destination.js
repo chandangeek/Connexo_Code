@@ -21,7 +21,7 @@ Ext.define('Dxp.model.Destination', {
                     case 'EMAIL':
                         return Uni.I18n.translate('destination.email','DES','Mail');
                     case 'FTP':
-                        return Uni.I18n.translate('destination.ftp','DES','Ftp');
+                        return Uni.I18n.translate('destination.ftp','DES','FTP');
                     default:
                         return 'unknown';
                 }

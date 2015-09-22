@@ -1230,7 +1230,7 @@ Ext.define('Dxp.controller.Tasks', {
                         fileName: formValues['fileName'],
                         fileExtension: formValues['fileExtension'],
                         fileLocation: formValues['fileLocation'],
-                        method: Uni.I18n.translate('destination.ftp','DES','Ftp'),
+                        method: Uni.I18n.translate('destination.ftp','DES','FTP'),
                         destination: formValues['server'],
                         tooltiptext: Uni.I18n.translate('dataExportdestinations.ftpServer', 'DES', 'FTP server')
                             + ': ' + formValues['server'] + '<br>'

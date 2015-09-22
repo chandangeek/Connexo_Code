@@ -26,7 +26,7 @@ Ext.define('Dxp.view.tasks.DestinationsField', {
                             }).join('');
                         break;
                     case 'FTP':
-                        toolTip += Uni.I18n.translate('destination.ftp','DES','Ftp') +
+                        toolTip += Uni.I18n.translate('destination.ftp','DES','FTP') +
                             ' (' +
                             'ftp://' + destination.server + '/' + Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileLocation))
                             + '/' + Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileName))
