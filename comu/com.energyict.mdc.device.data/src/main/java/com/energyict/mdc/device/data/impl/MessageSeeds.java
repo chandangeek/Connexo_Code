@@ -108,6 +108,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_METER_ACTIVATION_AT(2078, Keys.NO_METER_ACTIVATION_AT, "There is no meter activation at {0}"),
     LAST_CHECKED_CANNOT_BE_NULL(2079, Keys.LAST_CHECKED_CANNOT_BE_NULL, "The new last checked timestamp cannot be null"),
     LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED(2080, Keys.LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED, "The new last checked {2,date,yyyy-MM-dd HH:mm:ss} cannot be after current last checked {1,date,yyyy-MM-dd HH:mm:ss}"),
+    DUPLICATE_COMTASK(2081, Keys.DUPLICATE_COMTASK, "One or more communication tasks in the communication schedule are already scheduled on the device"),
     ;
 
     private final int number;
@@ -212,6 +213,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String PRIORITY_NOT_IN_RANGE = "priorityNotInRange";
         public static final String UNIQUE_ADDHOC_COMTASKS_PER_DEVICE = "uniqueComTasksPerDevice";
         public static final String DUPLICATE_COMTASK_SCHEDULING = "duplicateComTaskScheduling";
+        public static final String DUPLICATE_COMTASK = "duplicateComTask";
         public static final String COMTASK_CONFIGURATION_INCONSISTENT = "comTaskConfigurationInconsistent";
         public static final String COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION = "comTasksMustBeEnabledByConfiguration";
         public static final String VETO_COM_SCHEDULE_DELETION = "comTaskExecution.comSchedule.inUse";
