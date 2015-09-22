@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 public enum MessageSeeds implements MessageSeed {
     NO_DEFAULT_REALM(1001, "domain.no.default", "No default domain found.", Level.SEVERE),
     NO_REALM_FOUND(1002, "domain.not.found", "No domain found with the name {0}.", Level.SEVERE),
-    NO_REALMID_FOUND(1007, "domain.not.found", "No domain found with the id {0}.", Level.SEVERE),
+    NO_REALMID_FOUND(1007, "domain.id.not.found", "No domain found with the id {0}.", Level.SEVERE),
     NO_LDAP_FOUND(1011, "ldap.not.found", "Connection to LDAP failed.", Level.SEVERE),
     FIELD_CAN_NOT_BE_EMPTY(1003, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
     FIELD_SIZE_BETWEEN_1_AND_80(1004, Keys.FIELD_SIZE_BETWEEN_1_AND_80, "Field text length should be between 1 and 80 symbols", Level.SEVERE),
