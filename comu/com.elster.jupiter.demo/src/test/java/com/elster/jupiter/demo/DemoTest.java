@@ -91,6 +91,7 @@ import com.elster.jupiter.export.impl.DataExportServiceImpl;
 import com.elster.jupiter.export.impl.ExportModule;
 import com.elster.jupiter.export.processor.impl.StandardCsvDataFormatterFactory;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -608,6 +609,7 @@ public class DemoTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             createOracleTablesSubstitutes();
             injector.getInstance(DataVaultServiceImpl.class);
+            injector.getInstance(FiniteStateMachineService.class);
             createRequiredProtocols();
             createDefaultStuff();
             injector.getInstance(DemoServiceImpl.class);

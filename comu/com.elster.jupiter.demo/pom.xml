@@ -257,11 +257,6 @@
     </dependency>
     <dependency>
       <groupId>com.elster.jupiter</groupId>
-      <artifactId>bootstrap.h2</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.elster.jupiter</groupId>
       <artifactId>parties</artifactId>
       <scope>test</scope>
     </dependency>
@@ -315,9 +310,9 @@
       <artifactId>json</artifactId>
     </dependency>
     <dependency>
-    <groupId>com.google.inject</groupId>
-    <artifactId>guice</artifactId>
-    <version>4.0-beta5</version>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+      <version>4.0-beta5</version>
     </dependency>
   </dependencies>
 
