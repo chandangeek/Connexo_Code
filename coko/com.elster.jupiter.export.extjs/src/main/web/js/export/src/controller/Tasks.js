@@ -277,7 +277,11 @@ Ext.define('Dxp.controller.Tasks', {
                     missingData.setVisible(true);
                     updatedData.setVisible(true);
                     continuousDataPreview.setVisible(true);
-                    updatedValuesData.setVisible(true);
+                    if(record.getData().exportUpdate==='false'){
+                        updatedValuesData.setVisible(false);
+                    } else {
+                        updatedValuesData.setVisible(true);
+                    }
                 }
             }
         });
@@ -356,7 +360,11 @@ Ext.define('Dxp.controller.Tasks', {
                 previewForm.down('#data-selector-exportPeriod-preview').show();
                 previewForm.down('#continuousData-preview').show();
                 previewForm.down('#updated-data').show();
-                previewForm.down('#updated-values').show();
+                if(record.getData().task.standardDataSelector.exportUpdate===false){
+                    previewForm.down('#updated-values').hide();
+                } else {
+                    previewForm.down('#updated-values').show();
+                }
                 previewForm.down('#data-selector-export-complete').show();
                 previewForm.down('#data-selector-validated-data').show();
                 //dataValidation.show();
