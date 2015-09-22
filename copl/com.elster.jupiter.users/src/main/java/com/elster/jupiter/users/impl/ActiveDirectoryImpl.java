@@ -94,7 +94,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             new InitialDirContext(env);
             return findUser(name);
         } catch (NamingException e) {
-            if ((urls.size() > 1) && (e.toString().contains("CommunicationException") || e.toString().contains("ServiceUnavailableException") || e.toString().contains("MalformedURLException"))) {
+            if (urls.size() > 1) {
                 urls.remove(0);
                 return authenticateSimple(name, password, urls);
             } else {
@@ -114,7 +114,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             new InitialDirContext(env);
             return findUser(name);
         } catch (NamingException e) {
-            if ((urls.size() > 1) && (e.toString().contains("CommunicationException") || e.toString().contains("ServiceUnavailableException") || e.toString().contains("MalformedURLException"))) {
+            if (urls.size() > 1) {
                 urls.remove(0);
                 return authenticateSSL(name, password, urls);
             } else {
@@ -138,7 +138,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             env.put(Context.SECURITY_CREDENTIALS, password);
             return findUser(name);
         } catch (IOException | NamingException e) {
-            if ((urls.size() > 1) && (e.toString().contains("CommunicationException") || e.toString().contains("ServiceUnavailableException") || e.toString().contains("MalformedURLException"))) {
+            if (urls.size() > 1) {
                 urls.remove(0);
                 return authenticateTLS(name, password, urls);
             } else {
@@ -222,11 +222,11 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             }
             return ldapUsers;
         } catch (NamingException e) {
-            if ((urls.size() > 1) && (e.toString().contains("CommunicationException") || e.toString().contains("ServiceUnavailableException") || e.toString().contains("MalformedURLException"))) {
+            if (urls.size() > 1){
                 urls.remove(0);
                 return getLdapUsersSimple(urls);
             } else {
-                return ldapUsers;
+                throw new LdapServerException(userService.getThesaurus());
             }
         }
     }
@@ -260,11 +260,11 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             }
             return ldapUsers;
         } catch (NamingException e) {
-            if ((urls.size() > 1) && (e.toString().contains("CommunicationException") || e.toString().contains("ServiceUnavailableException") || e.toString().contains("MalformedURLException"))) {
+            if (urls.size() > 1) {
                 urls.remove(0);
                 return getLdapUsersSSL(urls);
             } else {
-                return ldapUsers;
+                throw new LdapServerException(userService.getThesaurus());
             }
         }
     }
@@ -301,11 +301,11 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             }
             return ldapUsers;
         } catch (IOException | NamingException e) {
-            if ((urls.size() > 1) && (e.toString().contains("CommunicationException") || e.toString().contains("ServiceUnavailableException") || e.toString().contains("MalformedURLException"))) {
+            if (urls.size() > 1) {
                 urls.remove(0);
                 return getLdapUsersTLS(urls);
             } else {
-                return ldapUsers;
+                throw new LdapServerException(userService.getThesaurus());
             }
         } finally {
             if (tls != null) {
@@ -344,7 +344,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             }
             return false;
         } catch (NamingException e) {
-            if ((urls.size() > 1) && (e.toString().contains("CommunicationException") || e.toString().contains("ServiceUnavailableException") || e.toString().contains("MalformedURLException"))) {
+            if (urls.size() > 1) {
                 urls.remove(0);
                 return getLdapUserStatusSimple(user, urls);
             } else {
@@ -379,7 +379,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             }
             return false;
         } catch (NamingException e) {
-            if ((urls.size() > 1) && (e.toString().contains("CommunicationException") || e.toString().contains("ServiceUnavailableException") || e.toString().contains("MalformedURLException"))) {
+            if (urls.size() > 1) {
                 urls.remove(0);
                 return getLdapUserStatusSSL(user, urls);
             } else {
@@ -418,7 +418,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             }
             return false;
         } catch (IOException | NamingException e) {
-            if ((urls.size() > 1) && (e.toString().contains("CommunicationException") || e.toString().contains("ServiceUnavailableException") || e.toString().contains("MalformedURLException"))) {
+            if (urls.size() > 1) {
                 urls.remove(0);
                 return getLdapUserStatusTLS(user, urls);
             } else {
