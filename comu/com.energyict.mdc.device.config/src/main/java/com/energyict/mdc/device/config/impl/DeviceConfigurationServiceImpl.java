@@ -754,6 +754,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
         finders.add(new DeviceTypeFinder(this));
         finders.add(new DeviceConfigurationFinder(this));
+        finders.add(new DeviceStateFinder(deviceLifeCycleConfigurationService));
         return finders;
     }
 
