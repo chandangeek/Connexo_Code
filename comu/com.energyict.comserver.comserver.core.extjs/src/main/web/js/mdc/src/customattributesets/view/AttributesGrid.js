@@ -42,7 +42,7 @@ Ext.define('Mdc.customattributesets.view.AttributesGrid', {
             },
             {
                 header: Uni.I18n.translate('general.description', 'MDC', 'Description'),
-                dataIndex: 'defaultValue',
+                dataIndex: 'description',
                 flex: 1
             }
         ];
