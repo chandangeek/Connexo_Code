@@ -3,7 +3,6 @@ package com.elster.jupiter.users.impl;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;

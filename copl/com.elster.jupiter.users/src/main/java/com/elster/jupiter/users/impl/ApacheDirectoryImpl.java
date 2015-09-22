@@ -2,7 +2,6 @@ package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.*;
-import org.hibernate.validator.internal.constraintvalidators.URLValidator;
 
 import javax.inject.Inject;
 import javax.naming.Context;
@@ -10,15 +9,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.*;
 import javax.naming.ldap.*;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManagerFactory;
-import javax.validation.ConstraintValidatorContext;
-
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.security.KeyStore;
 import java.util.*;
 
 public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
@@ -91,7 +82,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         try {
             new InitialDirContext(env);
             return findUser(name);
-        } catch (NamingException e) {
+        } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
                 return authenticateSimple(name, password, urls);
@@ -111,7 +102,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
         try {
             new InitialDirContext(env);
             return findUser(name);
-        } catch (NamingException e) {
+        } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
                 return authenticateSSL(name, password, urls);
@@ -134,7 +125,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             env.put(Context.SECURITY_PRINCIPAL, "uid=" + name + "," + getBaseUser());
             env.put(Context.SECURITY_CREDENTIALS, password);
             return findUser(name);
-        } catch (IOException | NamingException e) {
+        } catch (NumberFormatException | IOException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
                 return authenticateTLS(name, password, urls);
@@ -209,7 +200,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
 
             }
             return ldapUsers;
-        } catch (NamingException e) {
+        } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
                 return getLdapUsersSimple(urls);
@@ -252,7 +243,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                 }
             }
             return ldapUsers;
-        } catch (NamingException e) {
+        } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
                 return getLdapUsersSSL(urls);
@@ -297,7 +288,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                 }
             }
             return ldapUsers;
-        } catch (IOException | NamingException e) {
+        } catch (NumberFormatException | IOException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
                 return getLdapUsersTLS(urls);
@@ -340,7 +331,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                 }
             }
             return true;
-        } catch (NamingException e) {
+        } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
                 return getLdapUserStatusSimple(user, urls);
@@ -375,7 +366,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                 }
             }
             return true;
-        } catch (NamingException e) {
+        } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
                 return getLdapUserStatusSSL(user, urls);
@@ -413,7 +404,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                 }
             }
             return true;
-        } catch (IOException | NamingException e) {
+        } catch (NumberFormatException | IOException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
                 return getLdapUserStatusTLS(user, urls);

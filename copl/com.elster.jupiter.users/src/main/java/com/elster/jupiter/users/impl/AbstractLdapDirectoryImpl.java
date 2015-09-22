@@ -1,6 +1,5 @@
 package com.elster.jupiter.users.impl;
 
-import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -9,7 +8,6 @@ import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.UserService;
 
 import javax.naming.Context;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Hashtable;

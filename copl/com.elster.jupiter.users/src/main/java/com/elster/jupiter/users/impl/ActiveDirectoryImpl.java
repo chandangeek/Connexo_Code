@@ -93,7 +93,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         try {
             new InitialDirContext(env);
             return findUser(name);
-        } catch (NamingException e) {
+        } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
                 return authenticateSimple(name, password, urls);
@@ -113,7 +113,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         try {
             new InitialDirContext(env);
             return findUser(name);
-        } catch (NamingException e) {
+        } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
                 return authenticateSSL(name, password, urls);
@@ -137,7 +137,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             env.put(Context.SECURITY_PRINCIPAL, name + "@" + getRealDomain(getBaseUser()));
             env.put(Context.SECURITY_CREDENTIALS, password);
             return findUser(name);
-        } catch (IOException | NamingException e) {
+        } catch (NumberFormatException | IOException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
                 return authenticateTLS(name, password, urls);
@@ -221,7 +221,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
 
             }
             return ldapUsers;
-        } catch (NamingException e) {
+        } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1){
                 urls.remove(0);
                 return getLdapUsersSimple(urls);
@@ -259,7 +259,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
                 }
             }
             return ldapUsers;
-        } catch (NamingException e) {
+        } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
                 return getLdapUsersSSL(urls);
@@ -300,7 +300,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
                 }
             }
             return ldapUsers;
-        } catch (IOException | NamingException e) {
+        } catch (NumberFormatException | IOException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
                 return getLdapUsersTLS(urls);
@@ -343,7 +343,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
                 }
             }
             return false;
-        } catch (NamingException e) {
+        } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
                 return getLdapUserStatusSimple(user, urls);
@@ -378,7 +378,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
                 }
             }
             return false;
-        } catch (NamingException e) {
+        } catch (NumberFormatException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
                 return getLdapUserStatusSSL(user, urls);
@@ -417,7 +417,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
                 }
             }
             return false;
-        } catch (IOException | NamingException e) {
+        } catch (NumberFormatException | IOException | NamingException e) {
             if (urls.size() > 1) {
                 urls.remove(0);
                 return getLdapUserStatusTLS(user, urls);
