@@ -461,7 +461,17 @@ Ext.define('Dxp.controller.Tasks', {
                 view.down('#destination-file-name').setValue(me.destinationToEdit.get('fileName'));
                 view.down('#destination-file-extension').setValue(me.destinationToEdit.get('fileExtension'));
                 view.down('#destination-file-location').setValue(me.destinationToEdit.get('fileLocation'));
-                view.down('#ftp-server').setValue(me.destinationToEdit.get('server'));
+                view.down('#hostname').setValue(me.destinationToEdit.get('server'));
+                view.down('#user-field').setValue(me.destinationToEdit.get('user'));
+                view.down('#password-field').setValue(me.destinationToEdit.get('password'));
+            }  else if (type === 'FTP'){
+                me.showFtpDestinationAttributes(true);
+                view.down('#destination-methods-combo').setValue('FTPS');
+                view.down('#destination-methods-combo').setDisabled(true);
+                view.down('#destination-file-name').setValue(me.destinationToEdit.get('fileName'));
+                view.down('#destination-file-extension').setValue(me.destinationToEdit.get('fileExtension'));
+                view.down('#destination-file-location').setValue(me.destinationToEdit.get('fileLocation'));
+                view.down('#hostname').setValue(me.destinationToEdit.get('server'));
                 view.down('#user-field').setValue(me.destinationToEdit.get('user'));
                 view.down('#password-field').setValue(me.destinationToEdit.get('password'));
             }
@@ -510,14 +520,14 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('#dxp-file-name-container').setVisible(visible);
         page.down('#destination-file-extension').setVisible(visible);
         page.down('#dxp-file-location-container').setVisible(visible);
-        page.down('#ftp-server').setVisible(visible);
+        page.down('#hostname').setVisible(visible);
         page.down('#user-field').setVisible(visible);
         page.down('#password-field').setVisible(visible);
 
         page.down('#dxp-file-name-container').disabled = !visible;
         page.down('#destination-file-extension').disabled = !visible;
         page.down('#dxp-file-location-container').disabled = !visible;
-        page.down('#ftp-server').disabled = !visible;
+        page.down('#hostname').disabled = !visible;
         page.down('#user-field').disabled = !visible;
         page.down('#password-field').disabled = !visible;
     },
@@ -532,6 +542,8 @@ Ext.define('Dxp.controller.Tasks', {
         } else if (method === 'EMAIL') {
             me.showMailDestinationAttributes(true);
         } else if (method === 'FTP') {
+            me.showFtpDestinationAttributes(true);
+        } else if (method === 'FTPS') {
             me.showFtpDestinationAttributes(true);
         }
 
@@ -787,6 +799,7 @@ Ext.define('Dxp.controller.Tasks', {
             selectorPropertyForm = previewForm.down('#data-selector-properties-preview'),
             deviceGroup = previewForm.down('#data-selector-deviceGroup-preview'),
             exportPeriod = previewForm.down('#data-selector-exportPeriod-preview'),
+            continuousData = previewForm.down('#continuousData-preview'),
             readingTypes = previewForm.down('#data-selector-readingTypes-preview'),
             propertyForm = previewForm.down('#task-properties-preview'),
             dataValidation = previewForm.down('#data-selector-validated-data'),
@@ -825,6 +838,7 @@ Ext.define('Dxp.controller.Tasks', {
             selectorPropertyForm.show();
             deviceGroup.hide();
             exportPeriod.hide();
+            continuousData.hide();
             readingTypes.hide();
             dataValidation.hide();
             missingData.hide();
@@ -835,6 +849,7 @@ Ext.define('Dxp.controller.Tasks', {
             selectorPropertyForm.hide();
             deviceGroup.show();
             exportPeriod.show();
+            continuousData.show();
             readingTypes.show();
             dataValidation.show();
             missingData.show();
@@ -1226,6 +1241,28 @@ Ext.define('Dxp.controller.Tasks', {
                             + ': ' + formValues['fileExtension'] + '<br>'
                             + Uni.I18n.translate('general.fileLocation', 'DES', 'File location')
                             + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileLocation']))
+                    })
+                } else if (methodComboBoxValue === 'FTPS') {
+                    destinationModel = Ext.create('Dxp.model.Destination', {
+                        id: id?id:undefined,
+                        type: 'FTPS',
+                        server: formValues['server'],
+                        user: formValues['user'],
+                        password: formValues['password'],
+                        fileName: formValues['fileName'],
+                        fileExtension: formValues['fileExtension'],
+                        fileLocation: formValues['fileLocation'],
+                        method: Uni.I18n.translate('destination.ftps','DES','FTPS'),
+                        destination: formValues['server'],
+                        tooltiptext: Uni.I18n.translate('dataExportdestinations.ftpsServer', 'DES', 'FTPS server')
+                        + ': ' + formValues['server'] + '<br>'
+                        + Uni.I18n.translate('general.user', 'DES', 'User') + ': ' + formValues['user'] + '<br>'
+                        + Uni.I18n.translate('general.fileName', 'DES', 'File name')
+                        + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileName'])) + '<br>'
+                        + Uni.I18n.translate('general.fileExtension', 'DES', 'File extension')
+                        + ': ' + formValues['fileExtension'] + '<br>'
+                        + Uni.I18n.translate('general.fileLocation', 'DES', 'File location')
+                        + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileLocation']))
                     })
                 }
                 me.destinationsArray.push(destinationModel);
