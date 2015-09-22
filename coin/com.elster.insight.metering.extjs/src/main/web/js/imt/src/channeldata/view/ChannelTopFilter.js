@@ -5,6 +5,7 @@ Ext.define('Imt.channeldata.view.ChannelTopFilter', {
     filterDefault: {},
     requires: [
         'Uni.grid.FilterPanelTop',
+        'Uni.grid.filtertop.Duration',
         'Imt.channeldata.store.ChannelData'
     ],
     initComponent: function() {

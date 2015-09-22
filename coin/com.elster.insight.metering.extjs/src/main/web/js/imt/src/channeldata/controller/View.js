@@ -4,7 +4,8 @@ Ext.define('Imt.channeldata.controller.View', {
         'Imt.channeldata.store.Channel',
         'Imt.channeldata.store.ChannelData',
         'Imt.channeldata.view.Setup',
-        'Imt.channeldata.view.DataSetup'
+        'Imt.channeldata.view.DataSetup',
+        'Imt.channeldata.view.ChannelTopFilter'
     ],
     models: [
         'Imt.usagepointmanagement.model.UsagePoint',
