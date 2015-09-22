@@ -13,12 +13,12 @@ Ext.define('Usr.view.user.UserActionMenu', {
         },
         {
             itemId: 'activate-user',
-            text: Uni.I18n.translate('general.activate', 'APR', 'Activate'),
+            text: Uni.I18n.translate('general.activate', 'USR', 'Activate'),
             action: 'activate'
         },
         {
             itemId: 'deactivate-user',
-            text: Uni.I18n.translate('general.deactivate', 'APR', 'Deactivate'),
+            text: Uni.I18n.translate('general.deactivate', 'USR', 'Deactivate'),
             action: 'activate'
         }
     ]

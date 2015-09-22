@@ -122,7 +122,7 @@ Ext.define('Usr.controller.User', {
             },
             failure: function (response) {
                 if (response.status == 400) {
-                    var errorText = Uni.I18n.translate('users.error.unknown', 'APR', 'Unknown error occurred');
+                    var errorText = Uni.I18n.translate('users.error.unknown', 'USR', 'Unknown error occurred');
                     if (!Ext.isEmpty(response.statusText)) {
                         errorText = response.statusText;
                     }
