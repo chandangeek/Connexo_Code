@@ -6,6 +6,7 @@ Ext.define('Mdc.customattributesets.model.Attribute', {
         {name: 'required', type: 'boolean'},
         {name: 'order', type: 'integer'},
         {name: 'customAttributeType', type: 'auto'},
-        {name: 'defaultValue', type: 'string'}
+        {name: 'defaultValue', type: 'string'},
+        {name: 'description', type: 'string'}
     ]
 });

@@ -14,6 +14,7 @@ Ext.define('Mdc.customattributesets.service.AttributeTransformer', {
             transformedAttribute.customAttributeType.name = attribute.typeSimpleName;
             transformedAttribute.customAttributeType.possibleValues = attribute.allValues;
             transformedAttribute.defaultValue = attribute.defaultValue;
+            transformedAttribute.description = attribute.description;
             transformedAttribute.order = attributeOrder;
             attributeOrder += 1;
             transformedAttributes.push(transformedAttribute);
