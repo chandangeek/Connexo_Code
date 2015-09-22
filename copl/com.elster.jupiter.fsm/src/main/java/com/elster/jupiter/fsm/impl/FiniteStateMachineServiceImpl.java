@@ -423,6 +423,11 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     }
 
     @Override
+    public Optional<State> findFiniteStateById(long id) {
+        return this.dataModel.mapper(State.class).getOptional(id);
+    }
+
+    @Override
     public String getModuleName() {
         return FiniteStateMachineService.COMPONENT_NAME;
     }
