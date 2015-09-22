@@ -4,6 +4,12 @@ package com.energyict.mdc.multisense.api.redknee;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -19,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 public class ConsumptionExportGenerator {
 //    private final String csvFormat = "D,{0,string},{1,string},{2,string},{3,string},{4},{5,string},{6,number}";
     private final String csvFormat = "D,{0},{1},{2},{3},{4,number,#},{5},{6,number,#}";
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     private ScheduledThreadPoolExecutor executor;
     private ScheduledFuture<?> scheduledFuture;
@@ -62,22 +69,25 @@ public class ConsumptionExportGenerator {
     class FileGeneratorTask implements Runnable {
         @Override
         public void run() {
-            Date now = new Date();
+            ZonedDateTime now = ZonedDateTime.now();
             String actualPath = (path==null || path.trim().isEmpty()) ? System.getProperty("java.io.tmpdir") : path;
-            String fileName = actualPath + "/ICE-" + now.getTime() + ".dat";
+            String fileName = actualPath + "/ICE_CIM_profile1_" +
+                    now.format(dateTimeFormatter) + "_" +
+                    now.toEpochSecond() + ".dat";
             try (FileWriter writer = new FileWriter(fileName)) {
+                writer.write("# 1.0.0\n");
                 System.out.println("Writing file " + fileName);
                 usagePoints.stream()
                     .map(usagePoint ->
-                        MessageFormat.format(csvFormat,
-                                usagePoint.getDevice_mRID(),
-                                usagePoint.getmRID(),
-                                usagePoint.getReadingType(),
-                                "3.0.0",
-                                now.getTime(),
-                                "+00:00",
-                                usagePoint.getStatus()==Status.connected?usagePoint.getConsumption():0L
-                        )
+                                    MessageFormat.format(csvFormat,
+                                            usagePoint.getDevice_mRID(),
+                                            usagePoint.getmRID(),
+                                            usagePoint.getReadingType(),
+                                            "3.0.0",
+                                            now.toEpochSecond(),
+                                            now.getOffset(),
+                                            usagePoint.getStatus() == Status.connected ? usagePoint.getConsumption() : 0L
+                                    )
                     ).forEach((str) -> {
                     try {
                         System.out.println(str);

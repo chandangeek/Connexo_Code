@@ -106,16 +106,6 @@ public class PrepaymentApplication extends Application implements TranslationKey
         this.clock = clock;
     }
 
-//    @Activate
-//    public void activate(BundleContext bundleContext) throws Exception {
-//    }
-//
-//    @Deactivate
-//    public void deactivate() throws Exception {
-//        logger.info("Stopping generator due to shutdown");
-//        consumptionExportGenerator.shutdown();
-//    }
-
     class HK2Binder extends AbstractBinder {
 
         @Override
