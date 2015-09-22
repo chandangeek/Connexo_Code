@@ -173,7 +173,7 @@ public class UserDirectoryResource {
                 .paged(queryParameters.getStart().orElse(null), queryParameters.getLimit().orElse(null))
                 .find()
                 .stream()
-                .sorted((s1,s2)-> s1.getUserName().compareTo(s2.getUserName()))
+                .sorted((s1,s2)-> s1.getUserName().toLowerCase().compareTo(s2.getUserName().toLowerCase()))
                 .map(LdapUsersInfo::new)
                 .collect(toList());
         return PagedInfoList.fromCompleteList("extusers",ldapUsersInfos,queryParameters);
