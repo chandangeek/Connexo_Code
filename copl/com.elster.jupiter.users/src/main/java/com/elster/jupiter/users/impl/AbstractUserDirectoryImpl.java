@@ -86,7 +86,6 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
     }
 
     public void save() {
-//        version count
         if (getId() == 0) {
             Save.CREATE.save(dataModel, this);
         } else {
@@ -97,8 +96,6 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
     public void delete(){
         if(!isDefault()) {
             dataModel.remove(this);
-        }else{
-            //message for not deleted
         }
     }
 
