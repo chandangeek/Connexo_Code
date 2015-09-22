@@ -52,13 +52,8 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     private volatile DataModel dataModel;
     private volatile DataVaultService dataVaultService;
     private volatile TimeService timeService;
-    private volatile Map<Class<? extends CanFindByLongPrimaryKey>, CanFindByLongPrimaryKey<? extends HasId>> finders = new ConcurrentHashMap<>();
     private volatile com.elster.jupiter.properties.PropertySpecService basicPropertySpecService;
-
-    @Reference
-    public void setTimeService(TimeService timeService) {
-        this.timeService = timeService;
-    }
+    private Map<FactoryIds, CanFindByLongPrimaryKey<? extends HasId>> finders = new ConcurrentHashMap<>();
 
     // For OSGi purposes
     public PropertySpecServiceImpl() {
@@ -66,11 +61,12 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     // For testing purposes
     @Inject
-    public PropertySpecServiceImpl(com.elster.jupiter.properties.PropertySpecService basicPropertySpec, DataVaultService dataVaultService, OrmService ormService) {
+    public PropertySpecServiceImpl(com.elster.jupiter.properties.PropertySpecService basicPropertySpec, DataVaultService dataVaultService, OrmService ormService, TimeService timeService) {
         this();
         this.setBasicPropertySpecService(basicPropertySpec);
         this.setOrmService(ormService);
         this.setDataVaultService(dataVaultService);
+        this.setTimeService(timeService);
         this.activate();
     }
 
@@ -82,6 +78,11 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     @Reference
     public void setDataVaultService(DataVaultService dataVaultService) {
         this.dataVaultService = dataVaultService;
+    }
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
     }
 
     @Activate
@@ -190,12 +191,13 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     private CanFindByLongPrimaryKey<? extends HasId> finderFor(FactoryIds factoryId) {
-        for (CanFindByLongPrimaryKey<? extends HasId> finder : finders.values()) {
-            if (factoryId.equals(finder.factoryId())) {
-                return finder;
-            }
+        CanFindByLongPrimaryKey<? extends HasId> finder = this.finders.get(factoryId);
+        if (finder != null) {
+            return finder;
         }
-        throw new NoFinderComponentFoundException(factoryId);
+        else {
+            throw new NoFinderComponentFoundException(factoryId);
+        }
     }
 
     @Override
@@ -206,9 +208,11 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider) {
-        for (CanFindByLongPrimaryKey<? extends HasId> finder : factoryProvider.finders()) {
-            finders.put(finder.getClass(), finder);
-        }
+        factoryProvider.finders().stream().forEach(this::addFinder);
+    }
+
+    private void addFinder(CanFindByLongPrimaryKey<? extends HasId> finder) {
+        this.finders.put(finder.factoryId(), finder);
     }
 
     @Reference
@@ -218,9 +222,11 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     @SuppressWarnings("unused")
     public void removeFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider) {
-        for (CanFindByLongPrimaryKey<? extends HasId> finder : factoryProvider.finders()) {
-            this.finders.remove(finder);
-        }
+        factoryProvider.finders().stream().forEach(this::removeFinder);
+    }
+
+    private void removeFinder(CanFindByLongPrimaryKey<? extends HasId> finder) {
+        this.finders.remove(finder.factoryId());
     }
 
     @Override
