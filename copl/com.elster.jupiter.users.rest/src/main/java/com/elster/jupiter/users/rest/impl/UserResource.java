@@ -25,9 +25,7 @@ import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.*;
 import com.elster.jupiter.users.rest.PrivilegeInfos;
 import com.elster.jupiter.users.rest.UserInfo;
 import com.elster.jupiter.users.rest.UserInfos;
@@ -129,6 +127,26 @@ public class UserResource {
         info.id = id;
         transactionService.execute(new UpdateUserTransaction(info, userService));
         return getUser(info.id);
+    }
+
+    @PUT
+    @Path("/{id}/activate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE})
+    public Response activateUser(@PathParam("id") long id) {
+
+        Optional<User> user = userService.getUser(id);
+
+        if(!userService.findUserDirectory(user.get().getDomain()).get().getLdapUserStatus(user.get().getName()))
+            throw new FailToActivateUser(userService.getThesaurus());
+        UserInfo info = new UserInfo(user.get());
+        info.active = true;
+        transactionService.execute(new UpdateUserTransaction(info, userService));
+        user = userService.getUser(id);
+
+        return Response.status(Response.Status.OK).entity(new UserInfos(user.get())).build();
+
     }
 
     private RestQuery<User> getUserRestQuery() {
