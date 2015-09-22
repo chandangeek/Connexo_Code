@@ -45,7 +45,7 @@ Ext.define('Uni.form.field.CustomAttributeSetSelector', {
                     {
                         xtype: 'button',
                         itemId: 'custom-attribute-set-selector-show-less',
-                        text: Uni.I18n.translate('general.showMore', 'UNI', 'Show less'),
+                        text: Uni.I18n.translate('general.showLess', 'UNI', 'Show less'),
                         handler: function () {
                             me.showLessAttributes();
                         }
