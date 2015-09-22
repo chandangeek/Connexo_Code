@@ -83,7 +83,7 @@ public class DeviceConfigurationSearchableProperty extends AbstractSearchableDev
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.DEVICE_CONFIGURATION.getDisplayName(this.thesaurus);
+        return this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_CONFIGURATION).format();
     }
 
     @Override

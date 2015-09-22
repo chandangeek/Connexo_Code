@@ -72,7 +72,7 @@ public class MasterResourceIdentifierSearchableProperty extends AbstractSearchab
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.DEVICE_MRID.getDisplayName(this.thesaurus);
+        return this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_MRID).format();
     }
 
     @Override

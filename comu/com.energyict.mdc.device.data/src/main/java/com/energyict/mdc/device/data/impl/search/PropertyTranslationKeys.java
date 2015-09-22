@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.impl.search;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 
 /**
@@ -35,10 +34,6 @@ public enum PropertyTranslationKeys implements TranslationKey {
     @Override
     public String getDefaultFormat() {
         return this.defaultFormat;
-    }
-
-    public String getDisplayName(Thesaurus thesaurus) {
-        return thesaurus.getString(this.key, this.defaultFormat);
     }
 
 }

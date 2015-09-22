@@ -72,7 +72,7 @@ public class SerialNumberSearchableProperty extends AbstractSearchableDeviceProp
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.DEVICE_SERIAL_NUMBER.getDisplayName(this.thesaurus);
+        return this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_SERIAL_NUMBER).format();
     }
 
     @Override

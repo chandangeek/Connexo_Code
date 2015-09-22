@@ -1,29 +1,34 @@
 package com.energyict.mdc.device.data.impl.search;
 
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.dynamic.PropertySpecService;
+
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.Predicates;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
+import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
+import java.util.stream.Stream;
 
 /**
  * Exposes the name of the current {@link State}
@@ -45,13 +50,13 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
     private SearchableProperty parent;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private List<StateInfo> stateNames = Collections.emptyList();
+    private List<DeviceState> states = Collections.emptyList();
 
-    static class StateInfo implements HasId {
+    static class DeviceState implements HasId, HasName {
         private long id;
         private String name;
 
-        public StateInfo(long id, String name) {
+        DeviceState(long id, String name) {
             this.id = id;
             this.name = name;
         }
@@ -61,6 +66,7 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
             return id;
         }
 
+        @Override
         public String getName() {
             return name;
         }
@@ -106,17 +112,17 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.DEVICE_STATUS.getDisplayName(this.thesaurus);
+        return this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_STATUS).format();
     }
 
     @Override
     protected boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof StateInfo;
+        return value instanceof DeviceState;
     }
 
     @Override
     protected String toDisplayAfterValidation(Object value) {
-        return ((StateInfo)value).getName();
+        return ((DeviceState)value).getName();
     }
 
     @Override
@@ -124,8 +130,8 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
         return this.propertySpecService.referencePropertySpec(
                 VIRTUAL_FIELD_NAME,
                 false,
-                FactoryIds.DEVICE_STATE,
-                this.stateNames);
+                FactoryIds.FINITE_STATE,
+                this.states);
     }
 
     @Override
@@ -151,41 +157,39 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
         }
     }
 
-    private void refreshWithConstrictionValues(List<Object> list) {
-        this.validateAllParentsAreDeviceTypes(list);
+    private void refreshWithConstrictionValues(List<Object> deviceTypes) {
+        this.validateAllParentsAreDeviceTypes(deviceTypes);
         DisplayStrategy displayStrategy;
-        if (list.size() > 1) {
+        if (deviceTypes.size() > 1) {
             displayStrategy = DisplayStrategy.WITH_LIFE_CYCLE;
         }
         else {
             displayStrategy = DisplayStrategy.NAME_ONLY;
         }
-        Set<StateInfo> stateNames = new LinkedHashSet<>();
-        for (Object o : list) {
-            DeviceType deviceType = (DeviceType) o;
-            stateNames.addAll(this.stateNamesIn(deviceType, displayStrategy));
-        }
-        this.stateNames = stateNames.stream().sorted((state1, state2) -> state1.getName().compareToIgnoreCase(state2.getName())).collect(Collectors.toList());
-    }
-
-    private Set<StateInfo> stateNamesIn(DeviceType deviceType, DisplayStrategy displayStrategy) {
-        return deviceType
-                    .getDeviceLifeCycle()
-                    .getFiniteStateMachine()
-                .getStates()
-                    .stream()
-                    .map(s -> displayStrategy.toDisplay(s, deviceType, this.thesaurus))
-                    .collect(Collectors.toSet());
+        this.states = deviceTypes.stream()
+                .map(DeviceType.class::cast)
+                .flatMap(deviceType1 -> this.getDeviceStatesFor(deviceType1, displayStrategy))
+                .sorted((state1, state2) -> state1.getName().compareToIgnoreCase(state2.getName()))
+                .collect(Collectors.toList());
     }
 
     private void validateAllParentsAreDeviceTypes(List<Object> list) {
         Optional<Object> anyDeviceType =
-            list.stream()
-                .filter(Predicates.not(DeviceType.class::isInstance))
-                .findAny();
+                list.stream()
+                        .filter(Predicates.not(DeviceType.class::isInstance))
+                        .findAny();
         if (anyDeviceType.isPresent()) {
             throw new IllegalArgumentException("Parents are expected to be of type " + DeviceType.class.getName());
         }
+    }
+
+    private Stream<DeviceState> getDeviceStatesFor(DeviceType deviceType, DisplayStrategy displayStrategy) {
+        return deviceType
+                .getDeviceLifeCycle()
+                .getFiniteStateMachine()
+                .getStates()
+                .stream()
+                .map(s -> displayStrategy.toDisplay(s, deviceType, this.thesaurus));
     }
 
     @Override
@@ -216,15 +220,15 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
     private enum DisplayStrategy {
         NAME_ONLY {
             @Override
-            public StateInfo toDisplay(State state, DeviceType deviceType, Thesaurus thesaurus) {
-                return new StateInfo(state.getId(), getStateName(state, thesaurus)) ;
+            public DeviceState toDisplay(State state, DeviceType deviceType, Thesaurus thesaurus) {
+                return new DeviceState(state.getId(), getStateName(state, thesaurus)) ;
             }
         },
 
         WITH_LIFE_CYCLE {
             @Override
-            public StateInfo toDisplay(State state, DeviceType deviceType, Thesaurus thesaurus) {
-                return new StateInfo(state.getId(), getStateName(state, thesaurus) + "(" + deviceType.getDeviceLifeCycle().getName() + ")");
+            public DeviceState toDisplay(State state, DeviceType deviceType, Thesaurus thesaurus) {
+                return new DeviceState(state.getId(), getStateName(state, thesaurus) + "(" + deviceType.getDeviceLifeCycle().getName() + ")");
             }
         };
 
@@ -237,7 +241,7 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
             }
         }
 
-        public abstract StateInfo toDisplay(State state, DeviceType deviceType, Thesaurus thesaurus);
+        public abstract DeviceState toDisplay(State state, DeviceType deviceType, Thesaurus thesaurus);
     }
 
 }
