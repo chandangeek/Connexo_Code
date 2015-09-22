@@ -112,8 +112,8 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
     }
 
     private Pair<Instant, List<FormattedExportData>> processData(ExportData exportData) {
-        StructureMarker main = dataExportService.forRoot(tag);
-        StructureMarker update = dataExportService.forRoot(updateTag);
+        StructureMarker main = dataExportService.forRoot(tag).withPeriodOf(exportData.getStructureMarker());
+        StructureMarker update = dataExportService.forRoot(updateTag).withPeriodOf(exportData.getStructureMarker());
         MeterReading data = ((MeterReadingData) exportData).getMeterReading();
         List<Reading> readings = data.getReadings();
         List<IntervalBlock> intervalBlocks = data.getIntervalBlocks();
