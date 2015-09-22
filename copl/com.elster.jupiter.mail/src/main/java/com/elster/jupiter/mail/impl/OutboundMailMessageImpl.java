@@ -61,7 +61,9 @@ public class OutboundMailMessageImpl implements OutboundMailMessage {
     private MimeMessage tryToMessage(IMailService.MailSession session) throws MessagingException {
         MimeMessage message = session.createMessage();
         message.setFrom(mailService.getFrom());
-        message.setReplyTo(new Address[]{replyTo.asAddress()});
+        if (replyTo != null) {
+            message.setReplyTo(new Address[]{replyTo.asAddress()});
+        }
         message.setSubject(subject);
         recipients.stream()
                 .map(MailAddress::asAddress)
