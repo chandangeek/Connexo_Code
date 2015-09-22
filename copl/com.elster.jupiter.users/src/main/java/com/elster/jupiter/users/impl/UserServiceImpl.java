@@ -169,7 +169,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         List<User> found = dataModel.mapper(User.class).find()
                 .stream()
                 .filter(s->s.getUserDirectoryId() == id)
-                .sorted((s1,s2)-> s1.getName().compareTo(s2.getName()))
+                .sorted((s1,s2)-> s1.getName().toLowerCase().compareTo(s2.getName().toLowerCase()))
                 .collect(Collectors.toList());
         return found;
     }
