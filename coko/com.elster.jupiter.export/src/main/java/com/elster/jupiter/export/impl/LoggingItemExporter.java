@@ -51,10 +51,12 @@ class LoggingItemExporter implements ItemExporter {
         String mrid = item.getReadingContainer().getMeter(occurrence.getTriggerTime()).map(Meter::getMRID).orElse("");
         String readingType = item.getReadingType().getAliasName();
         try {
-            List<FormattedExportData> data = decorated.exportItem(occurrence, meterReadingData);
-            Range<Instant> range = determineExportInterval(occurrence, item);
+            Range<Instant> range = ((IReadingTypeDataSelector) occurrence.getTask().getReadingTypeDataSelector().get()).adjustedExportPeriod(occurrence, item);
             String fromDate = range.hasLowerBound() ? timeFormatter.format(range.lowerEndpoint()) : "";
             String toDate = range.hasUpperBound() ? timeFormatter.format(range.upperEndpoint()) : "";
+
+            List<FormattedExportData> data = decorated.exportItem(occurrence, meterReadingData);
+
             transactionService.execute(VoidTransaction.of(() -> MessageSeeds.ITEM_EXPORTED_SUCCESFULLY.log(logger, thesaurus, mrid, readingType, fromDate, toDate)));
             return data;
         } catch (DataExportException e) {
