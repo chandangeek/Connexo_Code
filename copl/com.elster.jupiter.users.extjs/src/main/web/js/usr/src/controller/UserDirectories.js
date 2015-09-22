@@ -356,6 +356,7 @@ Ext.define('Usr.controller.UserDirectories', {
         cancelAddExtUserButton = allUsersView.down('#grd-add-ext-users #btn-cancel-add-ext-users');
         cancelAddExtUserButton.href = router.getRoute('administration/userdirectories/synchronize').buildUrl({userDirectoryId: userDirectoryId})
 
+        userDirectoryExtUsersStore.loadData([], false);
         me.getApplication().fireEvent('changecontentevent', allUsersView);
         addExtUsersGrid = me.getAddExtUsersGrid();
 
