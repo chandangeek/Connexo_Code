@@ -96,6 +96,7 @@ public class UserDirectoryResource {
             ldapUserDirectory.setUrl(info.url);
             ldapUserDirectory.setBackupUrl(info.backupUrl);
             ldapUserDirectory.setDefault(info.isDefault);
+            ldapUserDirectory.setManageGroupsInternal(true);
             ldapUserDirectory.save();
             context.commit();
             return info;
@@ -172,6 +173,7 @@ public class UserDirectoryResource {
                 .paged(queryParameters.getStart().orElse(null), queryParameters.getLimit().orElse(null))
                 .find()
                 .stream()
+                .sorted((s1,s2)-> s1.getUserName().compareTo(s2.getUserName()))
                 .map(LdapUsersInfo::new)
                 .collect(toList());
         return PagedInfoList.fromCompleteList("extusers",ldapUsersInfos,queryParameters);
@@ -192,9 +194,10 @@ public class UserDirectoryResource {
         return PagedInfoList.fromCompleteList("users",ldapUsersInfos,queryParameters);
     }
 
-    @PUT
+    @POST
     @Path("/{id}/users")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE})
     public PagedInfoList saveUsers(LdapUsersInfos infos ,@PathParam("id") long id,@Context SecurityContext securityContext) {
         try (TransactionContext context = transactionService.getContext()) {
