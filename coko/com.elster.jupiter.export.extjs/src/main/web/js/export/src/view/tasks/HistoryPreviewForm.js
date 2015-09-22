@@ -196,7 +196,7 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('general.outputFormat', 'DES', 'Output format'),
+                        fieldLabel: Uni.I18n.translate('general.dataFormatter', 'DES', 'Data formatter'),
                         name: 'dataProcessor',
                         renderer: function (value) {
                             if (value) {
