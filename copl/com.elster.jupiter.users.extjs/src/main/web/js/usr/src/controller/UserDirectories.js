@@ -215,39 +215,32 @@ Ext.define('Usr.controller.UserDirectories', {
             addUserDirectoryForm = addPage.down('#frm-add-user-directory'),
             formErrorsPanel = addUserDirectoryForm.down('#form-errors');
 
-        if (!addUserDirectoryForm.isValid()) {
-            formErrorsPanel.show();
-        } else {
-            if (!formErrorsPanel.isHidden()) {
-                formErrorsPanel.hide();
-            }
+        addUserDirectoryForm.updateRecord(userDirectoryRecord);
+        userDirectoryRecord.beginEdit();
+        userDirectoryRecord.set('securityProtocolInfo', {
+            name: addUserDirectoryForm.down('#cbo-security-protocol').getValue()
+        });
+        userDirectoryRecord.endEdit();
 
-            addUserDirectoryForm.updateRecord(userDirectoryRecord);
-            userDirectoryRecord.beginEdit();
-            userDirectoryRecord.set('securityProtocolInfo', {
-                name: addUserDirectoryForm.down('#cbo-security-protocol').getValue()
-            });
-            userDirectoryRecord.endEdit();
+        userDirectoryRecord.save({
+            success: function () {
+                me.getController('Uni.controller.history.Router').getRoute('administration/userdirectories').forward();
 
-            userDirectoryRecord.save({
-                success: function () {
-                    me.getController('Uni.controller.history.Router').getRoute('administration/userdirectories').forward();
-
-                    if (button.action === 'edit') {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('userDirectories.successMsg.saved', 'USR', 'User directory saved'));
-                    } else {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('userDirectories.successMsg.added', 'USR', 'User directory added'));
-                    }
-                },
-                failure: function (record, operation) {
-                    var json = Ext.decode(operation.response.responseText, true);
-                    if (json && json.errors) {
-                        addUserDirectoryForm.getForm().markInvalid(json.errors);
-                    }
-                    formErrorsPanel.show();
+                if (button.action === 'edit') {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('userDirectories.successMsg.saved', 'USR', 'User directory saved'));
+                } else {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('userDirectories.successMsg.added', 'USR', 'User directory added'));
                 }
-            })
-        }
+            },
+            failure: function (record, operation) {
+                var json = Ext.decode(operation.response.responseText, true);
+                if (json && json.errors) {
+                    addUserDirectoryForm.getForm().markInvalid(json.errors);
+                }
+                formErrorsPanel.show();
+            }
+        })
+
     },
 
     showAddUserDirectory: function () {
@@ -376,7 +369,7 @@ Ext.define('Usr.controller.UserDirectories', {
                         users = [users];
                     }
                     users.forEach(function (user) {
-                        var rowIndex = userDirectoryExtUsersStore.find('name', user);
+                        var rowIndex = userDirectoryExtUsersStore.findExact('name', user);
                         if (rowIndex != -1) {
                             userDirectoryExtUsersStore.removeAt(rowIndex);
                         }
@@ -445,7 +438,7 @@ Ext.define('Usr.controller.UserDirectories', {
         userDirectoryExtUsersStore.each(function (record) {
 
             if (addExtUsersGrid.getSelectionModel().isSelected(record)) {
-                if (userDirectoryUsersStore.find('name', record.get('name')) == -1) {
+                if (userDirectoryUsersStore.findExact('name', record.get('name')) == -1) {
                     var user = Ext.create('Usr.model.MgmUserDirectoryUser');
                     user.set('name', record.get('name'));
                     user.set('status', false);
@@ -506,7 +499,7 @@ Ext.define('Usr.controller.UserDirectories', {
             callback: function (records, operation, success) {
 
                 userDirectoryUsersStore.each(function (record) {
-                    var rowIndex = userDirectoryExtUsersStore.find('name', record.get('name'));
+                    var rowIndex = userDirectoryExtUsersStore.findExact('name', record.get('name'));
                     if (rowIndex == -1) {
                         record.beginEdit();
                         record.set('status', false);
