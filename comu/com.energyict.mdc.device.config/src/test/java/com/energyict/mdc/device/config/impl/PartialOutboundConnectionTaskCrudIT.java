@@ -3,7 +3,6 @@ package com.energyict.mdc.device.config.impl;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.FactoryIds;
-import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -85,6 +84,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
@@ -227,7 +227,7 @@ public class PartialOutboundConnectionTaskCrudIT {
             NlsService nlsService = injector.getInstance(NlsService.class);
             PropertySpecServiceImpl propertySpecService = (PropertySpecServiceImpl) injector.getInstance(PropertySpecService.class);
             initializeConnectionTypes(propertySpecService);
-            injector.getInstance(FiniteStateMachineService.class);
+            FiniteStateMachineService finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringService.class);
             injector.getInstance(MdcReadingTypeUtilService.class);
             engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
@@ -254,6 +254,7 @@ public class PartialOutboundConnectionTaskCrudIT {
                     injector.getInstance(ValidationService.class),
                     injector.getInstance(EstimationService.class),
                     injector.getInstance(MasterDataService.class),
+                    finiteStateMachineService,
                     injector.getInstance(DeviceLifeCycleConfigurationService.class));
             DataModel dataModel = deviceConfigurationService.getDataModel();
             createOracleAliases(dataModel.getConnection(true));
