@@ -92,7 +92,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.put(Context.SECURITY_CREDENTIALS, password);
         try {
             new InitialDirContext(env);
-            return userService.findUser(name);
+            return findUser(name);
         } catch (NamingException e) {
             if ((urls.size() > 1) && (e.toString().contains("CommunicationException") || e.toString().contains("ServiceUnavailableException") || e.toString().contains("MalformedURLException"))) {
                 urls.remove(0);
@@ -112,7 +112,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.put(Context.SECURITY_PROTOCOL, "ssl");
         try {
             new InitialDirContext(env);
-            return userService.findUser(name);
+            return findUser(name);
         } catch (NamingException e) {
             if ((urls.size() > 1) && (e.toString().contains("CommunicationException") || e.toString().contains("ServiceUnavailableException") || e.toString().contains("MalformedURLException"))) {
                 urls.remove(0);
@@ -136,7 +136,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             tls.negotiate();
             env.put(Context.SECURITY_PRINCIPAL, name + "@" + getRealDomain(getBaseUser()));
             env.put(Context.SECURITY_CREDENTIALS, password);
-            return userService.findUser(name);
+            return findUser(name);
         } catch (IOException | NamingException e) {
             if ((urls.size() > 1) && (e.toString().contains("CommunicationException") || e.toString().contains("ServiceUnavailableException") || e.toString().contains("MalformedURLException"))) {
                 urls.remove(0);

@@ -5,14 +5,19 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.users.MessageSeeds;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.google.common.collect.ImmutableMap;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_USER_DIRECTORY + "}")
 public abstract class AbstractUserDirectoryImpl implements UserDirectory {
@@ -105,5 +110,17 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
     @Override
     public UserImpl newUser(String userName, String description, boolean allowPwdChange,boolean status) {
         return UserImpl.from(dataModel, this, userName, description, allowPwdChange,status);
+    }
+
+    protected Optional<User> findUser(String name) {
+        Condition userCondition = Operator.EQUALIGNORECASE.compare("authenticationName", name);
+        Condition domainCondition = Operator.EQUALIGNORECASE.compare("userDirectory.name", this.name);
+        Condition activeCondition = Operator.EQUALIGNORECASE.compare("status", true);
+        List<User> users = dataModel.query(User.class, UserDirectory.class).select(userCondition.and(domainCondition).and(activeCondition));
+        if(users.isEmpty()){
+            return Optional.empty();
+        }else {
+            return Optional.of(users.get(0));
+        }
     }
 }
