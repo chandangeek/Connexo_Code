@@ -199,13 +199,13 @@ public class UserDirectoryResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE})
-    public PagedInfoList saveUsers(LdapUsersInfos infos ,@PathParam("id") long id,@Context SecurityContext securityContext) {
+    public Response saveUsers(LdapUsersInfos infos ,@PathParam("id") long id,@Context SecurityContext securityContext) {
         try (TransactionContext context = transactionService.getContext()) {
             LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
             infos.ldapUsers.stream().forEach(s -> userService.findOrCreateUser(s.name, ldapUserDirectory.getDomain(), ldapUserDirectory.getType(),s.status));
             context.commit();
         }
-        return null;
+        return Response.status(Response.Status.OK).build();
     }
     private RestQuery<UserDirectory> getUserDirectoriesQuery() {
         Query<UserDirectory> query = userService.getLdapDirectories();
