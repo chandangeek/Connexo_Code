@@ -47,6 +47,8 @@ Ext.define('Uni.view.grid.SelectionGrid', {
      * Text used for the uncheck all button.
      */
     uncheckText: Uni.I18n.translate('general.uncheckAll', 'UNI', 'Uncheck all'),
+    checkText: Uni.I18n.translate('general.checkAll', 'UNI', 'Check all'),
+    checkAllButtonPresent: false,
 
     initComponent: function () {
         var me = this;
@@ -75,6 +77,19 @@ Ext.define('Uni.view.grid.SelectionGrid', {
                         items: [
                             {
                                 xtype: 'button',
+                                itemId: 'checkAllButton',
+                                text: me.checkText,
+                                action: 'checkAll',
+                                margin: '0 0 0 8',
+                                hidden: !me.checkAllButtonPresent
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'container',
+                        items: [
+                            {
+                                xtype: 'button',
                                 itemId: 'uncheckAllButton',
                                 text: me.uncheckText,
                                 action: 'uncheckAll',
@@ -90,6 +105,10 @@ Ext.define('Uni.view.grid.SelectionGrid', {
         me.callParent(arguments);
 
         me.getUncheckAllButton().on('click', me.onClickUncheckAllButton, me);
+        if (me.checkAllButtonPresent) {
+            me.getCheckAllButton().on('click', me.onClickCheckAllButton, me);
+        }
+
         me.on('selectionchange', me.onSelectionChange, me);
 
         me.addComponentInToolbar();
@@ -102,12 +121,22 @@ Ext.define('Uni.view.grid.SelectionGrid', {
         button.setDisabled(true);
     },
 
+    onClickCheckAllButton: function (button) {
+        var me = this;
+
+        me.view.getSelectionModel().selectAll();
+        button.setDisabled(true);
+    },
+
     onSelectionChange: function () {
         var me = this,
             selection = me.view.getSelectionModel().getSelection();
 
         me.getSelectionCounter().setText(me.counterTextFn(selection.length));
         me.getUncheckAllButton().setDisabled(selection.length === 0);
+        if (me.checkAllButtonPresent) {
+            me.getCheckAllButton().setDisabled(me.getStore().getCount() === selection.length);
+        }
     },
 
     getSelectionCounter: function () {
@@ -116,6 +145,10 @@ Ext.define('Uni.view.grid.SelectionGrid', {
 
     getUncheckAllButton: function () {
         return this.down('#uncheckAllButton');
+    },
+
+    getCheckAllButton: function () {
+        return this.down('#checkAllButton');
     },
 
     getTopToolbarContainer: function () {
