@@ -20,7 +20,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigToSameConfig;
+import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeExecutor;
 import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
 import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;

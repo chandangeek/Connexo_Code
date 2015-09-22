@@ -99,15 +99,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
-    @BeforeClass
-    public static void setup() {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            deviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService().newDeviceProtocolPluggableClass("MyTestProtocol", TestProtocol.class.getName());
-            deviceProtocolPluggableClass.save();
-            context.commit();
-        }
-    }
-
     @Before
     public void setupMasterData() {
         this.setupReadingTypes();

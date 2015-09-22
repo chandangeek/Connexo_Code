@@ -110,6 +110,7 @@ public enum MessageSeeds implements MessageSeed {
     LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED(2080, Keys.LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED, "The new last checked {2,date,yyyy-MM-dd HH:mm:ss} cannot be after current last checked {1,date,yyyy-MM-dd HH:mm:ss}"),
     CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG(2081, Keys.CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG, "You can not change the configuration of device {0} to the configuration it already has"),
     CANNOT_CHANGE_DEVICE_CONFIG_NOT_ALL_CONFLICTS_SOLVED(2082, Keys.CANNOT_CHANGE_DEVICE_CONFIG_NOT_ALL_CONFLICTS_SOLVED, "You can not change the configuration of device {0} to the configuration {1} because there are still unsolved conflicts"),
+    CANNOT_CHANGE_DEVICE_CONFIG_TO_OTHER_DEVICE_TYPE(2083, Keys.CANNOT_CHANGE_DEVICE_CONFIG_TO_OTHER_DEVICE_TYPE, "You can not change the configuration of a device to a configuration of another devicetype"),
     ;
 
     private final int number;
@@ -249,5 +250,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED = "lastChecked.after.currentLastChecked";
         public static final String CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG = "cannotChangeDeviceToSameConfig";
         public static final String CANNOT_CHANGE_DEVICE_CONFIG_NOT_ALL_CONFLICTS_SOLVED = "cannotChangeConfigStillUnsolvedConflicts";
+        public static final String CANNOT_CHANGE_DEVICE_CONFIG_TO_OTHER_DEVICE_TYPE = "cannotChangeToConfigOfOtherDeviceType";
     }
 }

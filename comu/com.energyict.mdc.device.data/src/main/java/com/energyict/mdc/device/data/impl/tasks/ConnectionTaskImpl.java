@@ -15,6 +15,7 @@ import com.energyict.mdc.device.data.exceptions.NestedRelationTransactionExcepti
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
 import com.energyict.mdc.device.data.exceptions.RelationIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.impl.*;
+import com.energyict.mdc.device.data.impl.configchange.ServerConnectionTaskForConfigChange;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
@@ -48,7 +49,6 @@ import com.google.common.collect.Range;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;

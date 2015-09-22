@@ -72,7 +72,7 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         assertThat(comTaskExecution.getMaxNumberOfTries()).isEqualTo(maxNrOfTries);
         assertThat(comTaskExecution.getObsoleteDate()).isNull();
         assertThat(comTaskExecution.getPlannedPriority()).isEqualTo(comTaskEnablementPriority);
-        assertThat(comTaskExecution.getProtocolDialectConfigurationProperties().getId()).isEqualTo(protocolDialectConfigurationProperties.getId());
+        assertThat(comTaskExecution.getProtocolDialectConfigurationProperties().getId()).isEqualTo(comTaskEnablement.getProtocolDialectConfigurationProperties().getId());
         assertThat(comTaskExecution.isAdHoc()).isTrue();
         assertThat(comTaskExecution.usesSharedSchedule()).isFalse();
         assertThat(comTaskExecution.isExecuting()).isFalse();

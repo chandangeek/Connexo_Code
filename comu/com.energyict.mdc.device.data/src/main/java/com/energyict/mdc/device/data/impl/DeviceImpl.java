@@ -71,6 +71,8 @@ import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.*;
+import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
+import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertyServiceForConfigChange;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
@@ -646,7 +648,10 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
     @Override
     public void validateDeviceCanChangeConfig(DeviceConfiguration destinationDeviceConfiguration) {
         if (this.getDeviceConfiguration().getId() == destinationDeviceConfiguration.getId()) {
-            throw new CannotChangeDeviceConfigToSameConfig(thesaurus, this);
+            throw DeviceConfigurationChangeException.cannotChangeToSameConfig(thesaurus, this);
+        }
+        if (destinationDeviceConfiguration.getDeviceType().getId() != getDeviceType().getId()) {
+            throw DeviceConfigurationChangeException.cannotChangeToConfigOfOtherDeviceType(thesaurus);
         }
         checkIfAllConflictsAreSolved(this.getDeviceConfiguration(), destinationDeviceConfiguration);
     }
@@ -694,6 +699,16 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
                 logBookSpecs.stream()
                         .map(logBookSpec -> this.dataModel.getInstance(LogBookImpl.class).initialize(logBookSpec, this))
                         .collect(Collectors.toList()));
+    }
+
+    @Override
+    public void updateSecurityProperties(SecurityPropertySet origin, SecurityPropertySet destination) {
+        ((ServerSecurityPropertyServiceForConfigChange) securityPropertyService).updateSecurityPropertiesWithNewSecurityPropertySet(this, origin, destination);
+    }
+
+    @Override
+    public void deleteSecurityPropertiesFor(SecurityPropertySet securityPropertySet) {
+        ((ServerSecurityPropertyServiceForConfigChange) securityPropertyService).deleteSecurityPropertiesFor(this, securityPropertySet);
     }
 
     class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {

@@ -35,15 +35,6 @@ public class LogBookImplTest extends PersistenceIntegrationTest {
 
     private LogBookType logBookType;
 
-    @BeforeClass
-    public static void setup() {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            deviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService().newDeviceProtocolPluggableClass("MyTestProtocol", TestProtocol.class.getName());
-            deviceProtocolPluggableClass.save();
-            context.commit();
-        }
-    }
-
     private Device createSimpleDeviceWithLogBook() {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLogBooks, "DeviceName", "MyUniqueID");
         device.save();

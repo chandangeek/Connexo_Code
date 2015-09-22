@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.impl;
+package com.energyict.mdc.device.data.impl.configchange;
 
 import com.energyict.mdc.device.config.LogBookSpec;
 import com.energyict.mdc.device.data.LogBook;

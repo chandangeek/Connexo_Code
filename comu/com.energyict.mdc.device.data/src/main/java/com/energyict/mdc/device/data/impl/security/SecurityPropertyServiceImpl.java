@@ -1,5 +1,13 @@
 package com.energyict.mdc.device.data.impl.security;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -8,26 +16,12 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.exceptions.NestedRelationTransactionException;
 import com.energyict.mdc.device.data.exceptions.SecurityPropertyException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.dynamic.relation.CompositeFilterCriterium;
-import com.energyict.mdc.dynamic.relation.FilterAspect;
-import com.energyict.mdc.dynamic.relation.Relation;
-import com.energyict.mdc.dynamic.relation.RelationDynamicAspect;
-import com.energyict.mdc.dynamic.relation.RelationSearchFilter;
-import com.energyict.mdc.dynamic.relation.RelationTransaction;
-import com.energyict.mdc.dynamic.relation.RelationType;
-import com.energyict.mdc.dynamic.relation.SimpleFilterCriterium;
+import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertyServiceForConfigChange;
+import com.energyict.mdc.dynamic.relation.*;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames;
-
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.streams.Functions;
-import com.elster.jupiter.util.streams.Predicates;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -39,10 +33,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.DEVICE_ATTRIBUTE_NAME;
-import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.SECURITY_PROPERTY_SET_ATTRIBUTE_NAME;
-import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.STATUS_ATTRIBUTE_NAME;
+import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAttributeTypeNames.*;
 
 
 /**
@@ -52,7 +45,7 @@ import static com.energyict.mdc.protocol.pluggable.SecurityPropertySetRelationAt
  * @since 2014-05-14 (16:25)
  */
 @Component(name = "com.energyict.mdc.device.data.security", service = SecurityPropertyService.class, property = "name=SecurityPropertyService")
-public class SecurityPropertyServiceImpl implements SecurityPropertyService {
+public class SecurityPropertyServiceImpl implements SecurityPropertyService, ServerSecurityPropertyServiceForConfigChange {
 
     private volatile Clock clock;
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -91,8 +84,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
     public List<SecurityProperty> getSecurityProperties(Device device, Instant when, SecurityPropertySet securityPropertySet) {
         if (securityPropertySet.currentUserIsAllowedToViewDeviceProperties()) {
             return this.getSecurityPropertiesIgnoringPrivileges(device, when, securityPropertySet);
-        }
-        else {
+        } else {
             return Collections.emptyList();
         }
     }
@@ -117,8 +109,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
             List<Relation> relations = relationType.findByFilter(searchFilter);
             if (relations.isEmpty()) {
                 return Optional.empty();
-            }
-            else {
+            } else {
                 for (Relation relation : relations) {
                     if (relation.getPeriod().contains(activeDate)) {
                         return Optional.of(relation);
@@ -126,8 +117,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
                 }
                 return Optional.empty();
             }
-        }
-        else {
+        } else {
             // No RelationType means there are no security properties
             return Optional.empty();
         }
@@ -160,8 +150,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
                             relation.getPeriod(),
                             // Status is a required attribute on the relation should it cannot be null
                             status));
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
@@ -175,8 +164,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
     public boolean securityPropertiesAreValid(Device device, SecurityPropertySet securityPropertySet) {
         if (this.hasRequiredProperties(securityPropertySet)) {
             return !this.isMissingOrIncomplete(device, securityPropertySet);
-        }
-        else {
+        } else {
             return true;
         }
     }
@@ -199,17 +187,16 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
     private boolean isMissingOrIncomplete(Device device, SecurityPropertySet securityPropertySet) {
         List<SecurityProperty> securityProperties = this.getSecurityPropertiesIgnoringPrivileges(device, this.clock.instant(), securityPropertySet);
         return securityProperties.isEmpty()
-            || securityProperties
-                    .stream()
-                    .anyMatch(Predicates.not(SecurityProperty::isComplete));
+                || securityProperties
+                .stream()
+                .anyMatch(Predicates.not(SecurityProperty::isComplete));
     }
 
     @Override
     public void setSecurityProperties(Device device, SecurityPropertySet securityPropertySet, TypedProperties properties) {
         if (securityPropertySet.currentUserIsAllowedToEditDeviceProperties()) {
             this.doSetSecurityProperties(device, securityPropertySet, properties);
-        }
-        else {
+        } else {
             throw new SecurityPropertyException(securityPropertySet, this.thesaurus, MessageSeeds.USER_IS_NOT_ALLOWED_TO_EDIT_SECURITY_PROPERTIES);
         }
     }
@@ -226,11 +213,9 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
         transaction.set(STATUS_ATTRIBUTE_NAME, isSecurityPropertySetComplete(securityPropertySet, properties));
         try {
             transaction.execute();
-        }
-        catch (BusinessException e) {
+        } catch (BusinessException e) {
             throw new NestedRelationTransactionException(e, transaction.getRelationType().getName(), this.thesaurus, MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }
@@ -265,14 +250,40 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
         relations.stream().forEach(relation -> {
             try {
                 relation.delete();
-            }
-            catch (BusinessException e) {
+            } catch (BusinessException e) {
                 throw new NestedRelationTransactionException(e, relationType.getName(), this.thesaurus, MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 throw new UnderlyingSQLFailedException(e);
             }
         });
     }
 
+    @Override
+    public void updateSecurityPropertiesWithNewSecurityPropertySet(Device device, SecurityPropertySet originSecurityPropertySet, SecurityPropertySet destinationSecurityPropertySet) {
+        this.findActiveProperties(device, originSecurityPropertySet, clock.instant())
+                .ifPresent(relation -> {
+                    final TypedProperties typedProperties = TypedProperties.empty();
+                    originSecurityPropertySet.getPropertySpecs().stream()
+                            .map(propertySpec -> getSecurityPropertyKeyValuePair(propertySpec, relation))
+                            .flatMap(optionalPair -> optionalPair.isPresent() ? Stream.of(optionalPair.get()) : Stream.empty())
+                            .forEach(pair -> typedProperties.setProperty(pair.getFirst(), pair.getLast()));
+                    setSecurityProperties(device, destinationSecurityPropertySet, typedProperties);
+                    deleteSecurityPropertiesFor(device, relation.getRelationType(), originSecurityPropertySet);
+                });
+    }
+
+    @Override
+    public void deleteSecurityPropertiesFor(Device device, SecurityPropertySet securityPropertySet) {
+        RelationType relationType = this.findSecurityPropertyRelationType(device);
+        deleteSecurityPropertiesFor(device, relationType, securityPropertySet);
+    }
+
+    private Optional<Pair<String, Object>> getSecurityPropertyKeyValuePair(PropertySpec propertySpec, Relation relation) {
+        Object propertyValue = relation.get(propertySpec.getName());
+        if (propertyValue != null) {
+            return Optional.of(Pair.of(propertySpec.getName(), propertyValue));
+        } else {
+            return Optional.empty();
+        }
+    }
 }

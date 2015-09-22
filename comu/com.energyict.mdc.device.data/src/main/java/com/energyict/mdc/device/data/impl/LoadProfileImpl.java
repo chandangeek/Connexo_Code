@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.ChannelDataUpdater;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.impl.configchange.ServerLoadProfileForConfigChange;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;

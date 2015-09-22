@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.energyict.mdc.device.data.impl.configchange.ServerLogBookForConfigChange;
 import com.google.common.collect.Range;
 
 import com.energyict.mdc.common.ObisCode;

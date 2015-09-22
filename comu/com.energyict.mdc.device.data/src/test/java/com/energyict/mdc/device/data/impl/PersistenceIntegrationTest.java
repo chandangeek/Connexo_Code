@@ -69,17 +69,11 @@ public abstract class PersistenceIntegrationTest {
         inMemoryPersistence = new InMemoryIntegrationPersistence();
         initializeClock();
         inMemoryPersistence.initializeDatabase("PersistenceIntegrationTest.mdc.device.data", false);
-//        deviceProtocol = mock(DeviceProtocol.class);
-//        deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
-//        when(deviceProtocolPluggableClass.getId()).thenReturn(DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID);
-//        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-
         try (TransactionContext context = getTransactionService().getContext()) {
             deviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService().newDeviceProtocolPluggableClass("MyTestProtocol", TestProtocol.class.getName());
             deviceProtocolPluggableClass.save();
             context.commit();
         }
-
     }
 
     @AfterClass

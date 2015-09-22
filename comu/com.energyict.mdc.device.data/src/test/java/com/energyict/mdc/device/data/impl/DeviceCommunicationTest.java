@@ -69,8 +69,6 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
             inboundNoParamsPluggableClass.save();
             ipConnectionTypePluggableClass = inMemoryPersistence.getProtocolPluggableService().newConnectionTypePluggableClass("IPConnectionType", OutboundIpConnectionTypeImpl.class.getName());
             ipConnectionTypePluggableClass.save();
-            deviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService().newDeviceProtocolPluggableClass("MyTestProtocol", TestProtocol.class.getName());
-            deviceProtocolPluggableClass.save();
             context.commit();
         }
     }
