@@ -53,8 +53,8 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     public static final String VALID_STRING = "valid";
     public static final String INVALID_STRING = "suspect";
-    public static final String SEMICOLON_VALUE = "semicolon";
-    public static final String COMMA_VALUE = "comma";
+    public static final String SEMICOLON_VALUE = "Semicolon (;)";
+    public static final String COMMA_VALUE = "Comma (,)";
     public static final String SEMICOLON_SEPARATOR = ";";
     public static final String COMMA_SEPARATOR = ",";
     public static final String DEFAULT_SEPARATOR = COMMA_SEPARATOR;
