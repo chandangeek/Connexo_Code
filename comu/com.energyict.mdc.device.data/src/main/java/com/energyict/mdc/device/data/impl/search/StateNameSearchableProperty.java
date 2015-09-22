@@ -3,7 +3,9 @@ package com.energyict.mdc.device.data.impl.search;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
@@ -15,13 +17,11 @@ import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+
 import java.text.MessageFormat;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 
@@ -45,7 +45,26 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
     private SearchableProperty parent;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private String[] stateNames = new String[0];
+    private List<StateInfo> stateNames = Collections.emptyList();
+
+    static class StateInfo implements HasId {
+        private long id;
+        private String name;
+
+        public StateInfo(long id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        @Override
+        public long getId() {
+            return id;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
 
     @Inject
     public StateNameSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
@@ -92,19 +111,20 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
 
     @Override
     protected boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof String;
+        return value instanceof StateInfo;
     }
 
     @Override
     protected String toDisplayAfterValidation(Object value) {
-        return String.valueOf(value);
+        return ((StateInfo)value).getName();
     }
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.stringPropertySpecWithValues(
+        return this.propertySpecService.referencePropertySpec(
                 VIRTUAL_FIELD_NAME,
                 false,
+                FactoryIds.DEVICE_STATE,
                 this.stateNames);
     }
 
@@ -135,24 +155,24 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
         this.validateAllParentsAreDeviceTypes(list);
         DisplayStrategy displayStrategy;
         if (list.size() > 1) {
-            displayStrategy = DisplayStrategy.WITH_DEVICE_TYPE;
+            displayStrategy = DisplayStrategy.WITH_LIFE_CYCLE;
         }
         else {
             displayStrategy = DisplayStrategy.NAME_ONLY;
         }
-        Set<String> stateNames = new HashSet<>();
+        Set<StateInfo> stateNames = new LinkedHashSet<>();
         for (Object o : list) {
             DeviceType deviceType = (DeviceType) o;
             stateNames.addAll(this.stateNamesIn(deviceType, displayStrategy));
         }
-        this.stateNames = stateNames.toArray(new String[stateNames.size()]);
+        this.stateNames = stateNames.stream().sorted((state1, state2) -> state1.getName().compareToIgnoreCase(state2.getName())).collect(Collectors.toList());
     }
 
-    private Set<String> stateNamesIn(DeviceType deviceType, DisplayStrategy displayStrategy) {
+    private Set<StateInfo> stateNamesIn(DeviceType deviceType, DisplayStrategy displayStrategy) {
         return deviceType
                     .getDeviceLifeCycle()
                     .getFiniteStateMachine()
-                    .getStates()
+                .getStates()
                     .stream()
                     .map(s -> displayStrategy.toDisplay(s, deviceType, this.thesaurus))
                     .collect(Collectors.toSet());
@@ -188,7 +208,7 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
         sqlBuilder.add(this.toSqlFragment(now));
         sqlBuilder.closeBracket();
         sqlBuilder.append(" AND ");
-        sqlBuilder.add(this.toSqlFragment("fs.name", condition, now));
+        sqlBuilder.add(this.toSqlFragment("fs.id", condition, now));
         sqlBuilder.closeBracket();
         return sqlBuilder;
     }
@@ -196,23 +216,28 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
     private enum DisplayStrategy {
         NAME_ONLY {
             @Override
-            public String toDisplay(State state, DeviceType deviceType, Thesaurus thesaurus) {
-                return getStateName(state, thesaurus);
+            public StateInfo toDisplay(State state, DeviceType deviceType, Thesaurus thesaurus) {
+                return new StateInfo(state.getId(), getStateName(state, thesaurus)) ;
             }
         },
 
-        WITH_DEVICE_TYPE {
+        WITH_LIFE_CYCLE {
             @Override
-            public String toDisplay(State state, DeviceType deviceType, Thesaurus thesaurus) {
-                return getStateName(state, thesaurus) + "(" + deviceType.getName() + ")";
+            public StateInfo toDisplay(State state, DeviceType deviceType, Thesaurus thesaurus) {
+                return new StateInfo(state.getId(), getStateName(state, thesaurus) + "(" + deviceType.getDeviceLifeCycle().getName() + ")");
             }
         };
 
         protected String getStateName(State state, Thesaurus thesaurus) {
-            return thesaurus.getStringBeyondComponent(state.getName(), state.getName());
+            Optional<DefaultState> defaultState = DefaultState.from(state);
+            if (defaultState.isPresent()) {
+                return thesaurus.getStringBeyondComponent(defaultState.get().getKey(), defaultState.get().getKey());
+            } else {
+                return state.getName();
+            }
         }
 
-        public abstract String toDisplay(State state, DeviceType deviceType, Thesaurus thesaurus);
+        public abstract StateInfo toDisplay(State state, DeviceType deviceType, Thesaurus thesaurus);
     }
 
 }
