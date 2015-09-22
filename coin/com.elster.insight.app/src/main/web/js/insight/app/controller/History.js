@@ -11,7 +11,7 @@ Ext.define('InsightApp.controller.History', {
                 	title: Uni.I18n.translate('general.usagePointAdd', 'INS', 'Add Usage Point'),
                     route: 'add',
                     controller: 'Imt.usagepointmanagement.controller.Edit',
-                    action: 'createUsagePoint',
+                    action: 'createUsagePoint'
             	},
            		view: {
            			title: Uni.I18n.translate('general.usagePointView', 'INS', 'View Usage Point'),
@@ -45,7 +45,7 @@ Ext.define('InsightApp.controller.History', {
                                         }, {single: true});
 
                                         return this;
-                                    },
+                                    }
                                 }
                             }
            			    },
@@ -67,7 +67,7 @@ Ext.define('InsightApp.controller.History', {
                                         }, {single: true});
 
                                         return this;
-                                    },
+                                    }
                                 }                                    
                             }
            			    }
