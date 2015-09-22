@@ -553,7 +553,7 @@ public class ManuallyScheduledComTaskExecutionImplTest extends AbstractComTaskEx
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_SCHEDULING + "}", strict = false)
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK + "}", strict = false)
     public void comTaskAlreadyScheduledViaComScheduleTest() {
         TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.hours(3));
         ComTaskEnablement comTaskEnablement = enableComTask(true);
