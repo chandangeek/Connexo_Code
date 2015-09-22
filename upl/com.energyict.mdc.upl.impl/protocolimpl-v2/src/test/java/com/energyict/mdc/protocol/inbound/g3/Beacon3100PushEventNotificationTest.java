@@ -40,9 +40,11 @@ import java.util.List;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class BeaconPushEventNotificationTest extends TestCase {
+public class Beacon3100PushEventNotificationTest extends TestCase {
 
     private static final byte[] EVENT_SERIAL_NUMBER_READOUT = ProtocolTools.getBytesFromHexString("00010001000100A3C2004E2C000080000CFF03020509203031303534323530333730313030313632313334313537333030303239373831090C07DF0910030632243A000000120000120037095E7B224D657465724964656E746966696572223A22303230303A303046463A464530303A30313037222C22526573756C74223A22457865637574696F6E206F66207072656C696D696E6172792070726F746F636F6C206661696C65642E227D", "");
+    private static final byte[] EVENT_METER_REGISTERED = ProtocolTools.getBytesFromHexString("0001000100010086C2004E2C000080000CFF03020509203031303534323530333730313030313632313334313537333030303236363435090C07DF0818010C260E310000001200001200C209414E6F6465205B303230303A303046463A464530303A303030305D205B3078303030315D206861732072656769737465726564206F6E20746865206E6574776F726B", "");
+    private static final DeviceTopology DEVICE_TOPOLOGY = new DeviceTopology(null);
 
     @Mock
     private final DummyComChannel voidTcpComChannel = spy(new DummyComChannel());
@@ -103,6 +105,42 @@ public class BeaconPushEventNotificationTest extends TestCase {
         verify(voidTcpComChannel, times(0)).close();
     }
 
+    @Test
+    public void testMeterRegistered() throws Exception {
+
+        List<SecurityProperty> securityProperties = createSecurityProperties();
+        when(inboundDAO.getDeviceProtocolSecurityProperties(Matchers.<DeviceIdentifier>any(), Matchers.<InboundComPort>any())).thenReturn(securityProperties);
+
+        MockPushEventNotification discoveryProtocol = new MockPushEventNotification();
+        SynchroneousComChannel comChannel = createComChannel(EVENT_METER_REGISTERED);
+
+        //Business methods
+        discoveryProtocol.initComChannel(comChannel);
+        discoveryProtocol.initializeDiscoveryContext(context);
+        InboundDeviceProtocol.DiscoverResultType discoverResultType = discoveryProtocol.doDiscovery();
+
+        //Asserts
+        assertEquals(InboundDeviceProtocol.DiscoverResultType.DATA, discoverResultType);
+        assertEquals(0, discoveryProtocol.getProvidePSKMethodCalled());
+        assertEquals(new DeviceIdentifierBySerialNumber("01054250370100162134157300026645"), discoveryProtocol.getDeviceIdentifier());
+        assertEquals(2, discoveryProtocol.getCollectedData().size());
+        CollectedData collectedLogBook = discoveryProtocol.getCollectedData().get(0);
+        assertEquals(DeviceLogBook.class, collectedLogBook.getClass());
+
+        MeterProtocolEvent meterProtocolEvent = ((CollectedLogBook) collectedLogBook).getCollectedMeterEvents().get(0);
+        assertEquals(1440419894000L, meterProtocolEvent.getTime().getTime());
+        assertEquals("Node [0200:00FF:FE00:0000] [0x0001] has registered on the network", meterProtocolEvent.getMessage());
+        assertEquals(0, meterProtocolEvent.getEiCode());
+        assertEquals(194, meterProtocolEvent.getProtocolCode());
+
+        assertEquals(DEVICE_TOPOLOGY, discoveryProtocol.getCollectedData().get(1));
+
+        assertEquals(1, mockBeacon3100Protocol.getTerminateMethodCalled());
+        assertEquals(1, mockBeacon3100Protocol.getLogOffMethodCalled());
+        assertEquals(1, mockBeacon3100Protocol.getDeviceTopologyMethodCalled());
+        verify(voidTcpComChannel, times(1)).close();
+    }
+
     private SynchroneousComChannel createComChannel(byte[] inboundFrame) {
         SynchroneousComChannel comChannel = new SynchroneousComChannel(new MockedInputStream(inboundFrame), mock(OutputStream.class));
         TypedProperties comChannelProperties = TypedProperties.empty();
@@ -151,10 +189,12 @@ public class BeaconPushEventNotificationTest extends TestCase {
 
         private int terminateMethodCalled = 0;
         private int logOffMethodCalled = 0;
+        private int deviceTopologyMethodCalled = 0;
 
         @Override
         public CollectedTopology getDeviceTopology() {
-            return new DeviceTopology(null);
+            deviceTopologyMethodCalled++;
+            return DEVICE_TOPOLOGY;
         }
 
         @Override
@@ -165,6 +205,10 @@ public class BeaconPushEventNotificationTest extends TestCase {
         @Override
         public void terminate() {
             terminateMethodCalled++;
+        }
+
+        public int getDeviceTopologyMethodCalled() {
+            return deviceTopologyMethodCalled;
         }
 
         public int getTerminateMethodCalled() {

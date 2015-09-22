@@ -5,7 +5,6 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.common.DlmsProtocolProperties;
@@ -47,11 +46,12 @@ import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540Messag
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.profiles.AM540LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.registers.Dsmr50RegisterFactory;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540Cache;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -60,6 +60,8 @@ import java.util.List;
  * This version adds breaker & relais support and other IDIS features.
  * <p/>
  * Note that this is a hybrid between DSMR5.0 and IDISP2.
+ * <p/>
+ * The frame counter is not read out (no register in the meter has it), it is stored in the device cache so it can be re-used in the next communication session
  *
  * @author khe
  * @since 17/12/2014 - 14:30
@@ -72,6 +74,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     private IDISMeterTopology meterTopology;
     private LoadProfileBuilder loadProfileBuilder;
     private Dsmr50RegisterFactory registerFactory;
+    private AM540Cache am540Cache;
 
     public AM540() {
         super();
@@ -110,19 +113,19 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     }
 
     @Override
-    public DLMSCache getDeviceCache() {
-        if (this.dlmsCache == null || !(this.dlmsCache instanceof AM540Cache)) {
-            this.dlmsCache = new AM540Cache();
+    public AM540Cache getDeviceCache() {
+        if (this.am540Cache == null) {
+            am540Cache = new AM540Cache(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
         }
-        ((AM540Cache) this.dlmsCache).setFrameCounter(getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
-        return this.dlmsCache;
+        this.am540Cache.setFrameCounter(getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
+        return this.am540Cache;
     }
 
     @Override
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
         if ((deviceProtocolCache != null) && (deviceProtocolCache instanceof AM540Cache)) {
-            this.dlmsCache = (AM540Cache) deviceProtocolCache;
-            this.initialFrameCounter = ((AM540Cache) this.dlmsCache).getFrameCounter();
+            am540Cache = (AM540Cache) deviceProtocolCache;
+            this.initialFrameCounter = this.am540Cache.getFrameCounter();
         }
     }
 
@@ -130,21 +133,26 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
      * Method to check whether the cache needs to be read out or not, if so the read will be forced
      */
     protected void checkCacheObjects() {
-        boolean readCache = getDlmsSessionProperties().isReadCache();
-        if ((((DLMSCache) getDeviceCache()).getObjectList() == null) || (readCache)) {
-            if (readCache) {
+        getDeviceCache().setConnectionToBeaconMirror(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
+
+        //Refresh the object list if it doesn't exist or if the property is enabled
+        if ((getDeviceCache().getObjectList() == null) || (getDlmsSessionProperties().isReadCache())) {
+
+            //For beacon mirror logical device, always read the actual object list. Same for when the property is enabled.
+            if (getDlmsSessionProperties().isReadCache() || getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
                 getLogger().info("ForcedToReadCache property is true, reading cache!");
                 readObjectList();
-                ((DLMSCache) getDeviceCache()).saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
+                getDeviceCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
             } else {
+                //In case of actual meter, use a hard coded object list to avoid heavy load on the PLC network
                 getLogger().info("Cache does not exist, using hardcoded copy of object list");
                 UniversalObject[] objectList = new AM540ObjectList().getObjectList();
-                ((DLMSCache) getDeviceCache()).saveObjectList(objectList);
+                getDeviceCache().saveObjectList(objectList);
             }
         } else {
             getLogger().info("Cache exist, will not be read!");
         }
-        getDlmsSession().getMeterConfig().setInstantiatedObjectList(((DLMSCache) getDeviceCache()).getObjectList());
+        getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDeviceCache().getObjectList());
     }
 
     @Override
@@ -170,6 +178,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
             ComServerExecutionException exception;
             try {
                 if (getDlmsSession().getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
+                    getDlmsSession().getDlmsV2Connection().connectMAC();
                     getDlmsSession().createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
                 }
                 return;
@@ -177,6 +186,8 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
                 if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
                     throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
                 } else if (MdcManager.getComServerExceptionFactory().isConnectionCommunicationException(e)) {
+                    throw e;
+                } else if (MdcManager.getComServerExceptionFactory().isDataEncryptionException(e)) {
                     throw e;
                 }
                 exception = e;
@@ -264,7 +275,12 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> list) {
-        return getAM540Messaging().executePendingMessages(list);
+        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+            IOException cause = new IOException("When connected to the mirror logical device, execution of device commands is not allowed.");
+            throw MdcManager.getComServerExceptionFactory().notAllowedToExecuteCommand("send of device messages", cause);
+        } else {
+            return getAM540Messaging().executePendingMessages(list);
+        }
     }
 
     @Override
@@ -301,12 +317,35 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
         return this.am540Messaging;
     }
 
+    /**
+     * Read out the serial number, this can either be of the module (equipment identifier) or of the connected e-meter.
+     * Note that reading out this register from the mirror logical device in the Beacon, the obiscode must always be 0.0.96.1.0.255
+     */
     @Override
     public String getSerialNumber() {
-        if (getDlmsSessionProperties().useEquipmentIdentifierAsSerialNumber()) {
-            return getMeterInfo().getEquipmentIdentifier();
-        } else {
+        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect() || !getDlmsSessionProperties().useEquipmentIdentifierAsSerialNumber()) {
             return getMeterInfo().getSerialNr();
+        } else {
+            return getMeterInfo().getEquipmentIdentifier();
+        }
+    }
+
+    @Override
+    public Date getTime() {
+        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+            return new Date();  //Don't read out the clock of the mirror logical device, it does not know the actual meter time.
+        } else {
+            return super.getTime();
+        }
+    }
+
+    @Override
+    public void setTime(Date timeToSet) {
+        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+            IOException cause = new IOException("When connected to the mirror logical device, writing of the clock is not allowed.");
+            throw MdcManager.getComServerExceptionFactory().notAllowedToExecuteCommand("date/time change", cause);
+        } else {
+            super.setTime(timeToSet);
         }
     }
 

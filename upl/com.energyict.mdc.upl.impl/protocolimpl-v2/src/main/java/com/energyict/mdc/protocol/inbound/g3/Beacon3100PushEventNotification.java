@@ -1,5 +1,7 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -15,6 +17,8 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.GeneralSecurityException;
 import java.security.Key;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Does pretty much the same as the PushEventNotification of the G3 gateway,
@@ -27,13 +31,15 @@ import java.security.Key;
  */
 public class Beacon3100PushEventNotification extends PushEventNotification {
 
-    //TODO junit test with traces
+    //TODO junit test with encrypted traces
 
     /**
      * The obiscode of the logbook to store the received events in
      * Note that this one (Beacon main logbook) is different from the G3 gateway main logbook.
      */
     private static final ObisCode OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.1.255");
+    private static final String PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY = "ProvideProtocolJavaClassName";
+    private boolean provideProtocolJavaClasName = true;
 
     protected DeviceProtocol newGatewayProtocol() {
         return new Beacon3100();
@@ -71,6 +77,19 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         return OctetString.fromByteArray(aesWrap(pskBytes, pskEncryptionKeyBytes));
     }
 
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        final List<PropertySpec> optionalProperties = new ArrayList<>(super.getOptionalProperties());
+        optionalProperties.add(PropertySpecFactory.notNullableBooleanPropertySpec(PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY, true));
+        return optionalProperties;
+    }
+
+    @Override
+    public void addProperties(TypedProperties properties) {
+        super.addProperties(properties);
+        this.provideProtocolJavaClasName = properties.<Boolean>getTypedProperty(PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY, true);
+    }
+
     /**
      * Extension of the structure: also add the protocol java class name of the slave device.
      * The Beacon3100 then uses this to read out the e-meter serial number using the public client.
@@ -78,7 +97,12 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
     @Override
     protected Structure createMacAndKeyPair(OctetString macAddressOctetString, OctetString wrappedPSKKey, DeviceIdentifier slaveDeviceIdentifier) {
         final Structure macAndKeyPair = super.createMacAndKeyPair(macAddressOctetString, wrappedPSKKey, slaveDeviceIdentifier);
-        macAndKeyPair.addDataType(OctetString.fromString(context.getInboundDAO().getDeviceProtocol(slaveDeviceIdentifier)));
+
+        //Only add the protcool java class name if it is indicated by the property.
+        if (provideProtocolJavaClasName) {
+            macAndKeyPair.addDataType(OctetString.fromString(context.getInboundDAO().getDeviceProtocol(slaveDeviceIdentifier)));
+        }
+
         return macAndKeyPair;
     }
 
