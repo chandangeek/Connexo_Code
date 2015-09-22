@@ -82,7 +82,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
 
         if (!readings.isEmpty()) {
             MeterReadingImpl meterReading = asMeterReading(item, readings);
-            return Optional.of(new MeterReadingData(item, meterReading, structureMarker(item, readings.get(0).getTimeStamp())));
+            return Optional.of(new MeterReadingData(item, meterReading, structureMarker(item, readings.get(0).getTimeStamp(), exportInterval)));
         }
         return Optional.empty();
     }
@@ -270,8 +270,9 @@ class DefaultItemDataSelector implements ItemDataSelector {
                 .orElse(false);
     }
 
-    private StructureMarker structureMarker(IReadingTypeDataExportItem item, Instant instant) {
+    private StructureMarker structureMarker(IReadingTypeDataExportItem item, Instant instant, Range<Instant> exportInterval) {
         return DefaultStructureMarker.createRoot(clock, item.getReadingContainer().getMeter(instant).map(Meter::getMRID).orElse(""))
+                .withPeriod(exportInterval)
                 .child(item.getReadingContainer().getUsagePoint(instant).map(UsagePoint::getMRID).orElse(""))
                 .child(item.getReadingType().getMRID() == null ? "" : item.getReadingType().getMRID())
                 .child("export");
