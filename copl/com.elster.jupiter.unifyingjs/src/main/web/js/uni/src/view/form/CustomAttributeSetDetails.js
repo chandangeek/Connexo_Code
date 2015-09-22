@@ -22,8 +22,8 @@ Ext.define('Uni.view.form.CustomAttributeSetDetails', {
             name: 'isVersioned',
             renderer: function (value) {
                 return value ?
-                    Uni.I18n.translate('general.yes', 'MDC', 'Yes') :
-                    Uni.I18n.translate('general.no', 'MDC', 'No');
+                    Uni.I18n.translate('general.yes', 'UNI', 'Yes') :
+                    Uni.I18n.translate('general.no', 'UNI', 'No');
             }
         },
         {
