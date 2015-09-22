@@ -143,6 +143,9 @@ public class DataExportTaskResource {
                 if (info.standardDataSelector.exportUpdate && info.standardDataSelector.updatePeriod.id == null) {
                     throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateWindow");
                 }
+                if (info.destinations.isEmpty()) {
+                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
+                }
 
                 DataExportTaskBuilder.StandardSelectorBuilder selectorBuilder = builder.selectingStandard()
                     .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
@@ -216,6 +219,9 @@ public class DataExportTaskResource {
                 }
                 if (info.standardDataSelector.exportUpdate && info.standardDataSelector.updatePeriod.id == null) {
                     throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateWindow");
+                }
+                if (info.destinations.isEmpty()) {
+                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
                 }
 
                 ReadingTypeDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
