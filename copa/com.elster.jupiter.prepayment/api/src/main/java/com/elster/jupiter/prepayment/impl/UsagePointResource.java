@@ -7,11 +7,13 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 
 import javax.inject.Inject;
@@ -25,6 +27,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * Created by bvn on 9/16/15.
@@ -44,8 +47,8 @@ public class UsagePointResource {
     }
 
     @PUT
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     public Response updateContactor(@PathParam("mrid") String mRID, ContactorInfo contactorInfo) {
 
         UsagePoint usagePoint = meteringService.findUsagePoint(mRID).orElseThrow(() -> new WebApplicationException("No such usagepoint", Response.Status.NOT_FOUND));
@@ -54,9 +57,12 @@ public class UsagePointResource {
         Device device = deviceService.findByUniqueMrid(meter.getMRID()).orElseThrow(() -> new WebApplicationException("No such meter", Response.Status.NOT_FOUND));
         DeviceMessageId deviceMessageId = getMessageId(contactorInfo);
         ComTaskEnablement comTaskEnablement = getComTaskEnablementForDeviceMessage(device, deviceMessageId);
+        Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
+                .filter(cte -> cte.getComTasks().stream()
+                        .anyMatch(comTask -> comTask.getId() == comTaskEnablement.getComTask().getId()))
+                .findFirst();
         createDeviceMessageOnDevice(contactorInfo, device, deviceMessageId);
-        ManuallyScheduledComTaskExecution adHocComTaskExecution = createAdHocComTaskExecution(device, comTaskEnablement);
-        adHocComTaskExecution.runNow();
+        existingComTaskExecution.orElseGet(()->createAdHocComTaskExecution(device, comTaskEnablement)).runNow();
 
         return Response.status(Response.Status.ACCEPTED).build();
     }

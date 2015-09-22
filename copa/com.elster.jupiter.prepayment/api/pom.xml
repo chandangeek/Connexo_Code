@@ -83,6 +83,14 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.scheduling</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fsm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.device.data</artifactId>
         </dependency>
         <dependency>
