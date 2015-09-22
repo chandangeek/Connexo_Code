@@ -196,6 +196,11 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                     userName = attributes.get("uid").get().toString();
                     ldapUser.setUsername(userName);
                     ldapUser.setStatus(true);
+                    if (attributes.get("pwdAccountLockedTime")!=null) {
+                        if (attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")) {
+                            ldapUser.setStatus(false);
+                        }
+                    }
                     ldapUsers.add(ldapUser);
                 }
 
@@ -235,6 +240,11 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                     userName = attributes.get("uid").get().toString();
                     ldapUser.setUsername(userName);
                     ldapUser.setStatus(true);
+                    if (attributes.get("pwdAccountLockedTime")!=null) {
+                        if (attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")) {
+                            ldapUser.setStatus(false);
+                        }
+                    }
                     ldapUsers.add(ldapUser);
                 }
             }
@@ -275,6 +285,11 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                     userName = attributes.get("uid").get().toString();
                     ldapUser.setUsername(userName);
                     ldapUser.setStatus(true);
+                    if (attributes.get("pwdAccountLockedTime")!=null) {
+                        if (attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")) {
+                            ldapUser.setStatus(false);
+                        }
+                    }
                     ldapUsers.add(ldapUser);
                 }
             }
