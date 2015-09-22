@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
     NO_DEFAULT_REALM(1001, "domain.no.default", "No default domain found.", Level.SEVERE),
+    FAIL_ACTIVATE_USER(1012, "fail.activate.user", "Fail to activate user.", Level.SEVERE),
     NO_REALM_FOUND(1002, "domain.not.found", "No domain found with the name {0}.", Level.SEVERE),
     NO_REALMID_FOUND(1007, "domain.id.not.found", "No domain found with the id {0}.", Level.SEVERE),
     NO_LDAP_FOUND(1011, "ldap.not.found", "Connection to LDAP failed.", Level.SEVERE),

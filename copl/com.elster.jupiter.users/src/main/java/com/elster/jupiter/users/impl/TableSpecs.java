@@ -58,7 +58,6 @@ public enum TableSpecs {
 			Column idColumn = table.addAutoIdColumn();
 			Column domain = table.column("DOMAIN").type("varchar(128)").notNull().map("name").add();
             table.addDiscriminatorColumn("DIRECTORY_TYPE", "char(3)");
-//			table.column("DIRECTORY_TYPE").type("char(3)").notNull().map("type").add();
             table.column("IS_DEFAULT").bool().map("isDefault").add();
 			Column prefix = table.column("PREFIX").type("varchar(128)").map("prefix").add();
             table.column("GROUPS_INTERNAL").type("char(1)").conversion(CHAR2BOOLEAN).map("manageGroupsInternal").add();

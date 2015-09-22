@@ -166,12 +166,11 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public List<User> getAllUsers(long id){
-        List<User> found = dataModel.mapper(User.class).find()
+        return dataModel.mapper(User.class).find()
                 .stream()
                 .filter(s->s.getUserDirectoryId() == id)
                 .sorted((s1,s2)-> s1.getName().toLowerCase().compareTo(s2.getName().toLowerCase()))
                 .collect(Collectors.toList());
-        return found;
     }
 
     @Override
@@ -465,7 +464,12 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public Optional<UserDirectory> findUserDirectory(String domain) {
-        return dataModel.mapper(UserDirectory.class).find().stream().filter(s -> s.getDomain().equals(domain)).findAny();
+        List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUAL.compare("name", domain));
+        if(found.isEmpty()){
+            return Optional.empty();
+        }else{
+            return Optional.of(found.get(0));
+        }
     }
 
     @Reference
