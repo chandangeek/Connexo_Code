@@ -787,6 +787,7 @@ Ext.define('Dxp.controller.Tasks', {
             selectorPropertyForm = previewForm.down('#data-selector-properties-preview'),
             deviceGroup = previewForm.down('#data-selector-deviceGroup-preview'),
             exportPeriod = previewForm.down('#data-selector-exportPeriod-preview'),
+            continuousData = previewForm.down('#continuousData-preview'),
             readingTypes = previewForm.down('#data-selector-readingTypes-preview'),
             propertyForm = previewForm.down('#task-properties-preview'),
             dataValidation = previewForm.down('#data-selector-validated-data'),
@@ -825,6 +826,7 @@ Ext.define('Dxp.controller.Tasks', {
             selectorPropertyForm.show();
             deviceGroup.hide();
             exportPeriod.hide();
+            continuousData.hide();
             readingTypes.hide();
             dataValidation.hide();
             missingData.hide();
@@ -835,6 +837,7 @@ Ext.define('Dxp.controller.Tasks', {
             selectorPropertyForm.hide();
             deviceGroup.show();
             exportPeriod.show();
+            continuousData.show();
             readingTypes.show();
             dataValidation.show();
             missingData.show();
