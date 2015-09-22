@@ -1,15 +1,5 @@
 package com.energyict.mdc.device.data.impl.search;
 
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.search.SearchableProperty;
-import com.elster.jupiter.search.SearchablePropertyConstriction;
-import com.elster.jupiter.search.SearchablePropertyGroup;
-import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -24,19 +14,31 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyConstriction;
+import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.util.streams.Functions;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -212,6 +214,13 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
+        PropertySpec finiteStatePropertySpec = mock(PropertySpec.class);
+        when(finiteStatePropertySpec.getName()).thenReturn(StateNameSearchableProperty.VIRTUAL_FIELD_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(StateNameSearchableProperty.VIRTUAL_FIELD_NAME),
+                eq(false),
+                eq(FactoryIds.FINITE_STATE),
+                anyList())).thenReturn(finiteStatePropertySpec);
         DeviceSearchDomain searchDomain = this.getTestInstance();
         DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.deviceConfigurationService, this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction constriction = SearchablePropertyConstriction.noValues(deviceTypeSearchableProperty);
@@ -239,6 +248,13 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
+        PropertySpec finiteStatePropertySpec = mock(PropertySpec.class);
+        when(finiteStatePropertySpec.getName()).thenReturn(StateNameSearchableProperty.VIRTUAL_FIELD_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(StateNameSearchableProperty.VIRTUAL_FIELD_NAME),
+                eq(false),
+                eq(FactoryIds.FINITE_STATE),
+                anyList())).thenReturn(finiteStatePropertySpec);
         DeviceTypeSearchableProperty deviceTypeSearchableProperty1 = new DeviceTypeSearchableProperty(this.deviceConfigurationService, this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction constriction1 = SearchablePropertyConstriction.noValues(deviceTypeSearchableProperty1);
         DeviceTypeSearchableProperty deviceTypeSearchableProperty2 = new DeviceTypeSearchableProperty(this.deviceConfigurationService, this.propertySpecService, this.thesaurus);
@@ -265,6 +281,13 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
+        PropertySpec finiteStatePropertySpec = mock(PropertySpec.class);
+        when(finiteStatePropertySpec.getName()).thenReturn(StateNameSearchableProperty.VIRTUAL_FIELD_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(StateNameSearchableProperty.VIRTUAL_FIELD_NAME),
+                eq(false),
+                eq(FactoryIds.FINITE_STATE),
+                anyList())).thenReturn(finiteStatePropertySpec);
         DeviceSearchDomain searchDomain = this.getTestInstance();
         DeviceConfigurationSearchableProperty deviceConfigurationSearchableProperty = new DeviceConfigurationSearchableProperty(this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction constriction = SearchablePropertyConstriction.noValues(deviceConfigurationSearchableProperty);
@@ -290,6 +313,13 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
+        PropertySpec finiteStatePropertySpec = mock(PropertySpec.class);
+        when(finiteStatePropertySpec.getName()).thenReturn(StateNameSearchableProperty.VIRTUAL_FIELD_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(StateNameSearchableProperty.VIRTUAL_FIELD_NAME),
+                eq(false),
+                eq(FactoryIds.FINITE_STATE),
+                anyList())).thenReturn(finiteStatePropertySpec);
         DeviceSearchDomain searchDomain = this.getTestInstance();
         DeviceConfigurationSearchableProperty deviceConfigurationSearchableProperty1 = new DeviceConfigurationSearchableProperty(this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction constriction1 = SearchablePropertyConstriction.noValues(deviceConfigurationSearchableProperty1);
@@ -318,6 +348,13 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
+        PropertySpec finiteStatePropertySpec = mock(PropertySpec.class);
+        when(finiteStatePropertySpec.getName()).thenReturn(StateNameSearchableProperty.VIRTUAL_FIELD_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(StateNameSearchableProperty.VIRTUAL_FIELD_NAME),
+                eq(false),
+                eq(FactoryIds.FINITE_STATE),
+                anyList())).thenReturn(finiteStatePropertySpec);
         DeviceSearchDomain searchDomain = this.getTestInstance();
         DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.deviceConfigurationService, this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.noValues(deviceTypeSearchableProperty);
@@ -350,6 +387,13 @@ public class DeviceSearchDomainTest {
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
                 DeviceSearchDomain searchDomain = this.getTestInstance();
+        PropertySpec finiteStatePropertySpec = mock(PropertySpec.class);
+        when(finiteStatePropertySpec.getName()).thenReturn(StateNameSearchableProperty.VIRTUAL_FIELD_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(StateNameSearchableProperty.VIRTUAL_FIELD_NAME),
+                eq(false),
+                eq(FactoryIds.FINITE_STATE),
+                anyList())).thenReturn(finiteStatePropertySpec);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getSupportedConnectionTypes()).thenReturn(Collections.emptyList());
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
@@ -389,6 +433,13 @@ public class DeviceSearchDomainTest {
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
                 DeviceSearchDomain searchDomain = this.getTestInstance();
+        PropertySpec finiteStatePropertySpec = mock(PropertySpec.class);
+        when(finiteStatePropertySpec.getName()).thenReturn(StateNameSearchableProperty.VIRTUAL_FIELD_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(StateNameSearchableProperty.VIRTUAL_FIELD_NAME),
+                eq(false),
+                eq(FactoryIds.FINITE_STATE),
+                anyList())).thenReturn(finiteStatePropertySpec);
         ConnectionType connectionType = mock(ConnectionType.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getSupportedConnectionTypes()).thenReturn(Arrays.asList(connectionType));
@@ -412,7 +463,9 @@ public class DeviceSearchDomainTest {
     public void getPropertiesWithDeviceTypeConstrictionsCreatesConnectionTypeProperties() {
         ConnectionType ct1 = mock(ConnectionType.class);
         PropertySpec ct1Prop1 = mock(PropertySpec.class);
+        when(ct1Prop1.getName()).thenReturn("ct1Prop1");
         PropertySpec ct1Prop2 = mock(PropertySpec.class);
+        when(ct1Prop2.getName()).thenReturn("ct1Prop2");
         List<PropertySpec> ct1Props = Arrays.asList(ct1Prop1, ct1Prop2);
         when(ct1.getPropertySpecs()).thenReturn(ct1Props);
         ConnectionTypePluggableClass pc1 = mock(ConnectionTypePluggableClass.class);
@@ -421,8 +474,11 @@ public class DeviceSearchDomainTest {
         when(pc1.getPropertySpecs()).thenReturn(ct1Props);
         ConnectionType ct2 = mock(ConnectionType.class);
         PropertySpec ct2Prop1 = mock(PropertySpec.class);
+        when(ct2Prop1.getName()).thenReturn("ct2Prop1");
         PropertySpec ct2Prop2 = mock(PropertySpec.class);
+        when(ct2Prop2.getName()).thenReturn("ct2Prop2");
         PropertySpec ct2Prop3 = mock(PropertySpec.class);
+        when(ct2Prop3.getName()).thenReturn("ct2Prop3");
         List<PropertySpec> ct2Props = Arrays.asList(ct2Prop1, ct2Prop2, ct2Prop3);
         when(ct2.getPropertySpecs()).thenReturn(ct2Props);
         ConnectionTypePluggableClass pc2 = mock(ConnectionTypePluggableClass.class);
@@ -446,6 +502,13 @@ public class DeviceSearchDomainTest {
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
                 DeviceSearchDomain searchDomain = this.getTestInstance();
+        PropertySpec finiteStatePropertySpec = mock(PropertySpec.class);
+        when(finiteStatePropertySpec.getName()).thenReturn(StateNameSearchableProperty.VIRTUAL_FIELD_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(StateNameSearchableProperty.VIRTUAL_FIELD_NAME),
+                eq(false),
+                eq(FactoryIds.FINITE_STATE),
+                anyList())).thenReturn(finiteStatePropertySpec);
         ConnectionType connectionType = mock(ConnectionType.class);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getSupportedConnectionTypes()).thenReturn(Arrays.asList(connectionType));
@@ -494,6 +557,13 @@ public class DeviceSearchDomainTest {
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
                 DeviceSearchDomain searchDomain = this.getTestInstance();
+        PropertySpec finiteStatePropertySpec = mock(PropertySpec.class);
+        when(finiteStatePropertySpec.getName()).thenReturn(StateNameSearchableProperty.VIRTUAL_FIELD_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(StateNameSearchableProperty.VIRTUAL_FIELD_NAME),
+                eq(false),
+                eq(FactoryIds.FINITE_STATE),
+                anyList())).thenReturn(finiteStatePropertySpec);
         DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.deviceConfigurationService, this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.noValues(deviceTypeSearchableProperty);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
@@ -529,6 +599,13 @@ public class DeviceSearchDomainTest {
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
                 DeviceSearchDomain searchDomain = this.getTestInstance();
+        PropertySpec finiteStatePropertySpec = mock(PropertySpec.class);
+        when(finiteStatePropertySpec.getName()).thenReturn(StateNameSearchableProperty.VIRTUAL_FIELD_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(StateNameSearchableProperty.VIRTUAL_FIELD_NAME),
+                eq(false),
+                eq(FactoryIds.FINITE_STATE),
+                anyList())).thenReturn(finiteStatePropertySpec);
         DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.deviceConfigurationService, this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.noValues(deviceTypeSearchableProperty);
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
@@ -559,6 +636,13 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
+        PropertySpec finiteStatePropertySpec = mock(PropertySpec.class);
+        when(finiteStatePropertySpec.getName()).thenReturn(StateNameSearchableProperty.VIRTUAL_FIELD_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(StateNameSearchableProperty.VIRTUAL_FIELD_NAME),
+                eq(false),
+                eq(FactoryIds.FINITE_STATE),
+                anyList())).thenReturn(finiteStatePropertySpec);
 
         DeviceSearchDomain searchDomain = this.getTestInstance();
         DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.deviceConfigurationService, this.propertySpecService, this.thesaurus);
@@ -569,7 +653,9 @@ public class DeviceSearchDomainTest {
 
         ConnectionType ct1 = mock(ConnectionType.class);
         PropertySpec ct1Prop1 = mock(PropertySpec.class);
+        when(ct1Prop1.getName()).thenReturn("ct1Prop1");
         PropertySpec ct1Prop2 = mock(PropertySpec.class);
+        when(ct1Prop2.getName()).thenReturn("ct1Prop2");
         List<PropertySpec> ct1Props = Arrays.asList(ct1Prop1, ct1Prop2);
         when(ct1.getPropertySpecs()).thenReturn(ct1Props);
         ConnectionTypePluggableClass pc1 = mock(ConnectionTypePluggableClass.class);
@@ -579,8 +665,11 @@ public class DeviceSearchDomainTest {
         when(pc1.getPropertySpecs()).thenReturn(ct1Props);
         ConnectionType ct2 = mock(ConnectionType.class);
         PropertySpec ct2Prop1 = mock(PropertySpec.class);
+        when(ct2Prop1.getName()).thenReturn("ct2Prop1");
         PropertySpec ct2Prop2 = mock(PropertySpec.class);
+        when(ct2Prop2.getName()).thenReturn("ct2Prop2");
         PropertySpec ct2Prop3 = mock(PropertySpec.class);
+        when(ct2Prop3.getName()).thenReturn("ct2Prop3");
         List<PropertySpec> ct2Props = Arrays.asList(ct2Prop1, ct2Prop2, ct2Prop3);
         when(ct2.getPropertySpecs()).thenReturn(ct2Props);
         ConnectionTypePluggableClass pc2 = mock(ConnectionTypePluggableClass.class);
@@ -659,6 +748,13 @@ public class DeviceSearchDomainTest {
                 eq(FactoryIds.DEVICE_CONFIGURATION),
                 anyList())).thenReturn(deviceConfigurationPropertySpec);
                 DeviceSearchDomain searchDomain = this.getTestInstance();
+        PropertySpec finiteStatePropertySpec = mock(PropertySpec.class);
+        when(finiteStatePropertySpec.getName()).thenReturn(StateNameSearchableProperty.VIRTUAL_FIELD_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(StateNameSearchableProperty.VIRTUAL_FIELD_NAME),
+                eq(false),
+                eq(FactoryIds.FINITE_STATE),
+                anyList())).thenReturn(finiteStatePropertySpec);
         DeviceTypeSearchableProperty deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.deviceConfigurationService, this.propertySpecService, this.thesaurus);
         SearchablePropertyConstriction deviceTypeConstriction = SearchablePropertyConstriction.noValues(deviceTypeSearchableProperty);
         DeviceConfiguration deviceConfiguration1 = mock(DeviceConfiguration.class);
@@ -668,7 +764,9 @@ public class DeviceSearchDomainTest {
 
         ConnectionType ct1 = mock(ConnectionType.class);
         PropertySpec ct1Prop1 = mock(PropertySpec.class);
+        when(ct1Prop1.getName()).thenReturn("ct1Prop1");
         PropertySpec ct1Prop2 = mock(PropertySpec.class);
+        when(ct1Prop2.getName()).thenReturn("ct1Prop2");
         List<PropertySpec> ct1Props = Arrays.asList(ct1Prop1, ct1Prop2);
         when(ct1.getPropertySpecs()).thenReturn(ct1Props);
         ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
@@ -683,8 +781,11 @@ public class DeviceSearchDomainTest {
 
         ConnectionType ct2 = mock(ConnectionType.class);
         PropertySpec ct2Prop1 = mock(PropertySpec.class);
+        when(ct2Prop1.getName()).thenReturn("ct2Prop1");
         PropertySpec ct2Prop2 = mock(PropertySpec.class);
+        when(ct2Prop2.getName()).thenReturn("ct2Prop2");
         PropertySpec ct2Prop3 = mock(PropertySpec.class);
+        when(ct2Prop3.getName()).thenReturn("ct2Prop3");
         List<PropertySpec> ct2Props = Arrays.asList(ct2Prop1, ct2Prop2, ct2Prop3);
         when(ct2.getPropertySpecs()).thenReturn(ct2Props);
         PartialConnectionTask pct2 = mock(PartialConnectionTask.class);

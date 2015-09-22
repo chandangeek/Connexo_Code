@@ -5,6 +5,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -16,6 +17,7 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.time.TimeService;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -31,6 +33,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -52,6 +55,8 @@ public class MasterResourceIdentifierSearchablePropertyTest {
     @Mock
     private DataModel dataModel;
     @Mock
+    private TimeService timeService;
+    @Mock
     private OrmService ormService;
     @Mock
     private DataVaultService dataVaultService;
@@ -64,7 +69,7 @@ public class MasterResourceIdentifierSearchablePropertyTest {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         when(this.jupiterPropertySpecService.basicPropertySpec(eq(DeviceFields.MRID.fieldName()), eq(false), any(ValueFactory.class)))
                 .thenReturn(new BasicPropertySpec(DeviceFields.MRID.fieldName(), false, new StringFactory()));
-        this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.ormService);
+        this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.ormService, this.timeService);
     }
 
     @Test
@@ -113,13 +118,16 @@ public class MasterResourceIdentifierSearchablePropertyTest {
 
     @Test
     public void testTranslation() {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.DEVICE_MRID.getDefaultFormat());
+        when(this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_MRID)).thenReturn(messageFormat);
         MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.DEVICE_MRID.getKey()), anyString());
+        verify(this.thesaurus).getFormat(PropertyTranslationKeys.DEVICE_MRID);
     }
 
     @Test

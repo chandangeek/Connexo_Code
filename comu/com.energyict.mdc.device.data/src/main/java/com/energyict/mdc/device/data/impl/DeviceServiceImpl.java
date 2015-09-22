@@ -6,6 +6,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceService;
@@ -27,6 +28,8 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
@@ -60,7 +63,11 @@ public class DeviceServiceImpl implements ServerDeviceService {
     private final Thesaurus thesaurus;
 
     @Inject
-    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, ProtocolPluggableService protocolPluggableService, QueryService queryService, Thesaurus thesaurus) {
+    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, ProtocolPluggableService protocolPluggableService, QueryService queryService, NlsService nlsService) {
+        this(deviceDataModelService, protocolPluggableService, queryService, nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN));
+    }
+
+    DeviceServiceImpl(DeviceDataModelService deviceDataModelService, ProtocolPluggableService protocolPluggableService, QueryService queryService, Thesaurus thesaurus) {
         super();
         this.deviceDataModelService = deviceDataModelService;
         this.protocolPluggableService = protocolPluggableService;

@@ -330,7 +330,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 this.nlsService, this.clock,
                                 injector.getInstance(KpiService.class),
                                 injector.getInstance(TaskService.class),
-                                mock(IssueService.class),
+                                this.issueService,
                                 mock(PropertySpecService.class),
                                 mock(com.elster.jupiter.properties.PropertySpecService.class),
                                 this.relationService, this.protocolPluggableService, this.engineConfigurationService,

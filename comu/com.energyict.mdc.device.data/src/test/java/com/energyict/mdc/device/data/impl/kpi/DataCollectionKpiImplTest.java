@@ -87,6 +87,8 @@ import org.osgi.service.log.LogService;
 
 import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.security.Principal;
 import java.time.Clock;
 import java.time.Duration;
@@ -150,6 +152,7 @@ public class DataCollectionKpiImplTest {
     private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(FileSystem.class).toInstance(FileSystems.getDefault());
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(LicenseService.class).toInstance(licenseService);

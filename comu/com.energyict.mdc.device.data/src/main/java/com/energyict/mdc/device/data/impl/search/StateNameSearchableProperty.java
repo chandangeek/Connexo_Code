@@ -52,7 +52,7 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
     private final Thesaurus thesaurus;
     private List<DeviceState> states = Collections.emptyList();
 
-    static class DeviceState implements HasId, HasName {
+    static final class DeviceState implements HasId, HasName {
         private long id;
         private String name;
 
@@ -69,6 +69,26 @@ public class StateNameSearchableProperty extends AbstractSearchableDevicePropert
         @Override
         public String getName() {
             return name;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            DeviceState that = (DeviceState) o;
+
+            return id == that.id;
+
+        }
+
+        @Override
+        public int hashCode() {
+            return (int) (id ^ (id >>> 32));
         }
     }
 

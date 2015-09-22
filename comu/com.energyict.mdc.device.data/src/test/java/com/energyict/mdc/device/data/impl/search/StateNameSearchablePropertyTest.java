@@ -13,6 +13,7 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -37,6 +38,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -51,6 +53,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class StateNameSearchablePropertyTest {
 
+    public static final long STATE_1_ID = 101L;
+    public static final long STATE_2_ID = 201L;
     @Mock
     private DeviceSearchDomain domain;
     @Mock
@@ -64,7 +68,9 @@ public class StateNameSearchablePropertyTest {
     @Mock
     private OrmService ormService;
     @Mock
-    private ReferencePropertySpecFinderProvider deviceConfigurationProvider;
+    private ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
+    @Mock
+    private CanFindByLongPrimaryKey<State> finiteStateFinder;
     @Mock
     private CanFindByLongPrimaryKey<DeviceType> deviceTypeFinder;
     @Mock
@@ -77,16 +83,21 @@ public class StateNameSearchablePropertyTest {
     public void initializeMocks() {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService);
-        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, this.dataVaultService, this.ormService);
+        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, this.dataVaultService, this.ormService, this.timeService);
         when(this.thesaurus.getStringBeyondComponent(eq("One"), anyString())).thenReturn("One");
         when(this.thesaurus.getStringBeyondComponent(eq("Two"), anyString())).thenReturn("Two");
+        NlsMessageFormat deviceStatusMessageFormat = mock(NlsMessageFormat.class);
+        when(deviceStatusMessageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.DEVICE_STATUS.getDefaultFormat());
+        when(this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_STATUS)).thenReturn(deviceStatusMessageFormat);
         when(this.deviceTypeFinder.factoryId()).thenReturn(FactoryIds.DEVICE_TYPE);
         when(this.deviceTypeFinder.valueDomain()).thenReturn(DeviceType.class);
-        when(this.deviceConfigurationProvider.finders()).thenReturn(Arrays.asList(this.deviceTypeFinder));
+        when(this.finiteStateFinder.factoryId()).thenReturn(FactoryIds.FINITE_STATE);
+        when(this.finiteStateFinder.valueDomain()).thenReturn(State.class);
+        when(this.referencePropertySpecFinderProvider.finders()).thenReturn(Arrays.asList(this.deviceTypeFinder, this.finiteStateFinder));
         Finder<DeviceType> finder = mock(Finder.class);
         when(finder.find()).thenReturn(Collections.emptyList());
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
-        this.propertySpecService.addFactoryProvider(this.deviceConfigurationProvider);
+        this.propertySpecService.addFactoryProvider(this.referencePropertySpecFinderProvider);
         this.deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.deviceConfigurationService, this.propertySpecService, this.thesaurus);
     }
 
@@ -142,11 +153,11 @@ public class StateNameSearchablePropertyTest {
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.DEVICE_STATUS.getKey()), anyString());
+        verify(this.thesaurus).getFormat(PropertyTranslationKeys.DEVICE_STATUS);
     }
 
     @Test
-    public void specificationIsNotAReference() {
+    public void specificationIsAReference() {
         StateNameSearchableProperty property = this.getTestInstance();
 
         // Business method
@@ -154,8 +165,8 @@ public class StateNameSearchablePropertyTest {
 
         // Asserts
         assertThat(specification).isNotNull();
-        assertThat(specification.isReference()).isFalse();
-        assertThat(specification.getValueFactory().getValueType()).isEqualTo(String.class);
+        assertThat(specification.isReference()).isTrue();
+        assertThat(specification.getValueFactory().getValueType()).isEqualTo(State.class);
     }
 
     @Test
@@ -221,8 +232,10 @@ public class StateNameSearchablePropertyTest {
     @Test
     public void refresh() {
         State state1 = mock(State.class);
+        when(state1.getId()).thenReturn(STATE_1_ID);
         when(state1.getName()).thenReturn("One");
         State state2 = mock(State.class);
+        when(state2.getId()).thenReturn(STATE_2_ID);
         when(state2.getName()).thenReturn("Two");
         FiniteStateMachine fsm = mock(FiniteStateMachine.class);
         when(fsm.getStates()).thenReturn(Arrays.asList(state1, state2));
@@ -241,12 +254,16 @@ public class StateNameSearchablePropertyTest {
         PropertySpecPossibleValues possibleValues = property.getSpecification().getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.isExhaustive()).isTrue();
-        assertThat(possibleValues.getAllValues()).containsOnly("One", "Two");
+        assertThat(possibleValues.getAllValues())
+                .containsOnly(
+                        new StateNameSearchableProperty.DeviceState(STATE_1_ID, "One"),
+                        new StateNameSearchableProperty.DeviceState(STATE_2_ID, "Two"));
     }
 
     @Test
     public void refreshWithMultipleDeviceTypes() {
         State state1 = mock(State.class);
+        when(state1.getId()).thenReturn(STATE_1_ID);
         when(state1.getName()).thenReturn("One");
         FiniteStateMachine fsm1 = mock(FiniteStateMachine.class);
         when(fsm1.getStates()).thenReturn(Arrays.asList(state1));
@@ -256,6 +273,7 @@ public class StateNameSearchablePropertyTest {
         when(deviceType1.getDeviceLifeCycle()).thenReturn(deviceLifeCycle1);
         when(deviceType1.getName()).thenReturn("DT-One");
         State state2 = mock(State.class);
+        when(state2.getId()).thenReturn(STATE_2_ID);
         when(state2.getName()).thenReturn("Two");
         FiniteStateMachine fsm2 = mock(FiniteStateMachine.class);
         when(fsm2.getStates()).thenReturn(Arrays.asList(state2));
@@ -275,7 +293,10 @@ public class StateNameSearchablePropertyTest {
         PropertySpecPossibleValues possibleValues = property.getSpecification().getPossibleValues();
         assertThat(possibleValues).isNotNull();
         assertThat(possibleValues.isExhaustive()).isTrue();
-        assertThat(possibleValues.getAllValues()).containsOnly("One(DT-One)", "Two(DT-Two)");
+        assertThat(possibleValues.getAllValues())
+            .containsOnly(
+                    new StateNameSearchableProperty.DeviceState(STATE_1_ID, "One(DT-One)"),
+                    new StateNameSearchableProperty.DeviceState(STATE_2_ID, "Two(DT-Two)"));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -319,13 +340,14 @@ public class StateNameSearchablePropertyTest {
     @Test
     public void displayString() {
         StateNameSearchableProperty property = this.getTestInstance();
-        String valueToDisplay = "displayString";
+        String expectedDisplayValue = "displayString";
+        StateNameSearchableProperty.DeviceState valueToDisplay = new StateNameSearchableProperty.DeviceState(1L, expectedDisplayValue);
 
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);
 
         // Asserts
-        assertThat(displayValue).isEqualTo(valueToDisplay);
+        assertThat(displayValue).isEqualTo(expectedDisplayValue);
     }
 
     private StateNameSearchableProperty getTestInstance() {

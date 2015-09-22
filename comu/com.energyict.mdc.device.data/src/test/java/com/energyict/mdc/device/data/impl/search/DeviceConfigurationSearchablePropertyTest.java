@@ -11,6 +11,7 @@ import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -20,6 +21,7 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.time.TimeService;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -34,7 +36,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -59,9 +61,11 @@ public class DeviceConfigurationSearchablePropertyTest {
     @Mock
     private DataModel dataModel;
     @Mock
+    private TimeService timeService;
+    @Mock
     private OrmService ormService;
     @Mock
-    private ReferencePropertySpecFinderProvider deviceConfigurationProvider;
+    private ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
     @Mock
     private CanFindByLongPrimaryKey<DeviceType> deviceTypeFinder;
     @Mock
@@ -74,17 +78,20 @@ public class DeviceConfigurationSearchablePropertyTest {
 
     @Before
     public void initializeMocks() {
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.DEVICE_CONFIGURATION.getDefaultFormat());
+        when(this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_CONFIGURATION)).thenReturn(messageFormat);
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.ormService);
+        this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.ormService, this.timeService);
         when(this.deviceTypeFinder.factoryId()).thenReturn(FactoryIds.DEVICE_TYPE);
         when(this.deviceTypeFinder.valueDomain()).thenReturn(DeviceType.class);
         when(this.deviceConfigurationFinder.factoryId()).thenReturn(FactoryIds.DEVICE_CONFIGURATION);
         when(this.deviceConfigurationFinder.valueDomain()).thenReturn(DeviceConfiguration.class);
-        when(this.deviceConfigurationProvider.finders()).thenReturn(Arrays.asList(this.deviceTypeFinder, this.deviceConfigurationFinder));
+        when(this.referencePropertySpecFinderProvider.finders()).thenReturn(Arrays.asList(this.deviceTypeFinder, this.deviceConfigurationFinder));
         Finder<DeviceType> finder = mock(Finder.class);
         when(finder.find()).thenReturn(Collections.emptyList());
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
-        this.propertySpecService.addFactoryProvider(this.deviceConfigurationProvider);
+        this.propertySpecService.addFactoryProvider(this.referencePropertySpecFinderProvider);
         this.deviceTypeSearchableProperty = new DeviceTypeSearchableProperty(this.deviceConfigurationService, this.propertySpecService, this.thesaurus);
     }
 
@@ -140,7 +147,7 @@ public class DeviceConfigurationSearchablePropertyTest {
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.DEVICE_CONFIGURATION.getKey()), anyString());
+        verify(this.thesaurus).getFormat(PropertyTranslationKeys.DEVICE_CONFIGURATION);
     }
 
     @Test
