@@ -17,7 +17,7 @@ Ext.define('Dxp.model.AddDataExportTaskForm', {
         'exportComplete',
         'exportUpdate',
         'updateWindow',
-        'updatePeriod',
+        'updateTimeFrame',
         'exportContinuousData'
     ]
 });
