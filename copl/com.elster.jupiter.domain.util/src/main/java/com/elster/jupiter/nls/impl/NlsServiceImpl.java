@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.NestedTransactionException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -128,7 +129,15 @@ public class NlsServiceImpl implements NlsService, InstallService {
                 try {
                     setPrincipal();
                     threadPrincipalService.set("INSTALL-translation", provider.getComponentName());
-                    doInstallProvider(provider);
+                    // Attempt to setup a new transaction, required when a new bundle is activated
+                    try (TransactionContext context = this.transactionService.getContext()) {
+                        doInstallProvider(provider);
+                        context.commit();
+                    }
+                    catch (NestedTransactionException e) {
+                        // Fails if we were already in transaction mode when installing a License, simply try again
+                        doInstallProvider(provider);
+                    }
                 } finally {
                     clearPrincipal();
                 }
@@ -151,7 +160,15 @@ public class NlsServiceImpl implements NlsService, InstallService {
             if (installed) {
                 try {
                     this.setPrincipal();
-                    this.doInstallProvider(provider);
+                    // Attempt to setup a new transaction, required when a new bundle is activated
+                    try (TransactionContext context = this.transactionService.getContext()) {
+                        this.doInstallProvider(provider);
+                        context.commit();
+                    }
+                    catch (NestedTransactionException e) {
+                        // Fails if we were already in transaction mode when installing a License, simply try again
+                        doInstallProvider(provider);
+                    }
                 }
                 finally {
                     this.clearPrincipal();
@@ -190,23 +207,17 @@ public class NlsServiceImpl implements NlsService, InstallService {
     }
 
     private void doInstallProvider(TranslationKeyProvider provider) {
-        try (TransactionContext context = this.transactionService.getContext()) {
-            String componentName = provider.getComponentName();
-            Layer layer = provider.getLayer();
-            ThesaurusImpl thesaurus = (ThesaurusImpl) getThesaurus(componentName, layer);
-            thesaurus.createNewTranslationKeys(provider);
-            context.commit();
-        }
+        String componentName = provider.getComponentName();
+        Layer layer = provider.getLayer();
+        ThesaurusImpl thesaurus = (ThesaurusImpl) getThesaurus(componentName, layer);
+        thesaurus.createNewTranslationKeys(provider);
     }
 
     private void doInstallProvider(MessageSeedProvider provider) {
-        try (TransactionContext context = this.transactionService.getContext()) {
-            provider
-                .getSeeds()
-                .stream()
-                .forEach(messageSeed -> this.addTranslation(provider.getLayer(), messageSeed));
-            context.commit();
-        }
+        provider
+            .getSeeds()
+            .stream()
+            .forEach(messageSeed -> this.addTranslation(provider.getLayer(), messageSeed));
     }
 
     private void addTranslation(Layer layer, MessageSeed messageSeed) {
