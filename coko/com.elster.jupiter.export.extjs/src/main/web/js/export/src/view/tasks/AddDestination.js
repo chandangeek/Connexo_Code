@@ -55,7 +55,8 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                             data: [
                                 {displayValue: Uni.I18n.translate('destination.file','DES','Save file'), value: 'FILE'},
                                 {displayValue: Uni.I18n.translate('destination.email','DES','Mail'), value: 'EMAIL'},
-                                {displayValue: Uni.I18n.translate('destination.ftp','DES','Ftp'), value: 'FTP'}
+                                {displayValue: Uni.I18n.translate('destination.ftp','DES','FTP'), value: 'FTP'},
+                                {displayValue: Uni.I18n.translate('destination.ftsp','DES','FTPS'), value: 'FTPS'}
                             ]
                         }),
                         name: 'method',
@@ -82,10 +83,10 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                     {
                         xtype: 'textfield',
                         name: 'server',
-                        itemId: 'ftp-server',
+                        itemId: 'hostname',
                         width: 500,
                         required: true,
-                        fieldLabel: Uni.I18n.translate('general.ftpServer', 'DES', 'FTP server'),
+                        fieldLabel: Uni.I18n.translate('general.hostName', 'DES', 'Hostname'),
                         allowBlank: false,
                         enforceMaxLength: true,
                         maxLength: 80,
@@ -283,12 +284,19 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                 me.isFieldValid('#destination-attachment-extension', true, "");
                 break;
             case 'FTP':
-                me.isFieldValid('#ftp-server', true, "");
+                me.isFieldValid('#hostname', true, "");
                 me.isFieldValid('#user-field', true, "");
                 me.isFieldValid('#destination-file-name', true, "");
                 me.isFieldValid('#destination-file-extension', true, "");
                 me.isFieldValid('#destination-file-location', true, "");
                 break;
+            case 'FTPS':
+                me.isFieldValid('#hostname', true, "");
+                me.isFieldValid('#user-field', true, "");
+                me.isFieldValid('#destination-file-name', true, "");
+                me.isFieldValid('#destination-file-extension', true, "");
+                me.isFieldValid('#destination-file-location', true, "");
+                break
             default:
                 break;
         }
@@ -348,7 +356,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
     },
 
     isServerNameValid: function() {
-        return this.isFieldNonEmpty('#ftp-server');
+        return this.isFieldNonEmpty('#hostname');
     },
 
     isUserNameValid: function() {
@@ -442,6 +450,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                 var valid4 = me.isAttachmentExtensionValid();
                 return valid1 && valid2 && valid3 && valid4;
             case 'FTP':
+            case 'FTPS':
                 var valid1 = me.isServerNameValid();
                 var valid2 = me.isUserNameValid();
                 var valid3 = me.isFileNameValid();
