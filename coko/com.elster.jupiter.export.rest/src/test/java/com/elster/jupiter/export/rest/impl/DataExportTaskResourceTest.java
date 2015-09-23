@@ -2,8 +2,6 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.FileDestination;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -11,8 +9,14 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 
+import org.junit.*;
+import org.mockito.Mock;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest {
 
@@ -102,7 +106,15 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.dataProcessor.name = "dataProcessor";
         info.dataSelector = new SelectorInfo();
         info.dataSelector.name = "Standard Data Selector";
-
+        DestinationInfo ftpDestinationInfo = new DestinationInfo();
+        ftpDestinationInfo.type = DestinationType.FTP;
+        ftpDestinationInfo.fileLocation = "";
+        ftpDestinationInfo.fileName = "ftpfile";
+        ftpDestinationInfo.fileExtension = "ftptxt";
+        ftpDestinationInfo.server = "ftpserver";
+        ftpDestinationInfo.password = "ftppassword";
+        ftpDestinationInfo.user = "ftpuser";
+        info.destinations.add(ftpDestinationInfo);
 
         Entity<DataExportTaskInfo> json = Entity.json(info);
 
