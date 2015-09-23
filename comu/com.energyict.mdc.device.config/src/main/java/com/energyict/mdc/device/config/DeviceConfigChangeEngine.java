@@ -13,7 +13,7 @@ import java.util.function.Predicate;
  */
 public final class DeviceConfigChangeEngine {
 
-    public static DeviceConfigChangeEngine INSTANCE = new DeviceConfigChangeEngine();
+    public static final DeviceConfigChangeEngine INSTANCE = new DeviceConfigChangeEngine();
 
     private DeviceConfigChangeEngine() {
     }

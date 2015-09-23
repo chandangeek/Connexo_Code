@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  */
 public final class DeviceConfigConflictMappingEngine {
 
-    public static DeviceConfigConflictMappingEngine INSTANCE = new DeviceConfigConflictMappingEngine();
+    public static final DeviceConfigConflictMappingEngine INSTANCE = new DeviceConfigConflictMappingEngine();
 
     private DeviceConfigConflictMappingEngine() {
     }
