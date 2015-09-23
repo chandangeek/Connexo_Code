@@ -142,7 +142,7 @@ public class UserResource {
             throw new FailToActivateUser(userService.getThesaurus());
         UserInfo info = new UserInfo(user.get());
         info.active = true;
-        transactionService.execute(new UpdateUserTransaction(new UserInfo(user.get()), userService));
+        transactionService.execute(new UpdateUserTransaction(info, userService));
         return Response.status(Response.Status.OK).build();
 
     }
