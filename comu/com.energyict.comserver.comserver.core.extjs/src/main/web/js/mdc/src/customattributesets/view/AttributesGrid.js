@@ -16,7 +16,7 @@ Ext.define('Mdc.customattributesets.view.AttributesGrid', {
                 dataIndex: 'order'
             },
             {
-                header: Uni.I18n.translate('customattributesets.viewlevels', 'MDC', 'Attribute name'),
+                header: Uni.I18n.translate('customattributesets.attributename', 'MDC', 'Attribute name'),
                 dataIndex: 'name',
                 flex: 3
             },
