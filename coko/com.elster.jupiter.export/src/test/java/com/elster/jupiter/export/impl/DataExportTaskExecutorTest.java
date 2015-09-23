@@ -232,6 +232,8 @@ public class DataExportTaskExecutorTest {
         MeterReadingData existItemData = new MeterReadingData(this.existingItem, MeterReadingImpl.of(ReadingImpl.reading(reading2, readingType1)), DefaultStructureMarker.createRoot(clock, "newItem"));
         when(readingTypeDataSelector.asDataSelector(any(), eq(thesaurus))).thenReturn(dataSelector);
         when(dataSelector.selectData(dataExportOccurrence)).thenReturn(Arrays.<ExportData>asList(newItemData, existItemData).stream());
+        when(strategy.adjustedExportPeriod(eq(dataExportOccurrence), any())).thenReturn(exportPeriod);
+        when(readingTypeDataSelector.adjustedExportPeriod(eq(dataExportOccurrence), any())).thenReturn(exportPeriod);
     }
 
     @After
