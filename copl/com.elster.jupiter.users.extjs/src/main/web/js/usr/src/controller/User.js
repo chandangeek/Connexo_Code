@@ -113,8 +113,6 @@ Ext.define('Usr.controller.User', {
         else {
             me.deactivateUser(record);
         }
-
-
     },
 
     activateUser: function(record)
