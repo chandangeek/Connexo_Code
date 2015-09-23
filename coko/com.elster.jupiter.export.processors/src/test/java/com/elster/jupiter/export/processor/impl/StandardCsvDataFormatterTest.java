@@ -32,6 +32,13 @@ import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -49,12 +56,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -209,10 +210,13 @@ public class StandardCsvDataFormatterTest {
 
         List<IntervalReading> intervals = Collections.unmodifiableList(Arrays.asList(intervalReading, intervalReading1));
         doReturn(intervals).when(intervalBlock).getIntervals();
+        doReturn("0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73").when(intervalBlock).getReadingTypeCode();
         when(intervalReading.getTimeStamp()).thenReturn(Instant.ofEpochMilli(EPOCH_MILLI));
         when(intervalReading.getValue()).thenReturn(BigDecimal.ONE);
         when(intervalReading1.getTimeStamp()).thenReturn(Instant.ofEpochMilli(EPOCH_MILLI));
         when(intervalReading1.getValue()).thenReturn(BigDecimal.TEN);
+
+        doReturn(Optional.of(readingType)).when(meteringService).getReadingType("0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73");
 
         List<? extends ReadingQuality> list = Collections.unmodifiableList(Arrays.asList(readingQuality, readingQuality1));
         doReturn(list).when(reading).getReadingQualities();

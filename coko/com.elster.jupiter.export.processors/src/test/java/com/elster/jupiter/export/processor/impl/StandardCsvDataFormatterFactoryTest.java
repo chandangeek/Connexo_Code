@@ -3,10 +3,9 @@ package com.elster.jupiter.export.processor.impl;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
+import org.junit.Test;
 
 import java.util.List;
-
-import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
