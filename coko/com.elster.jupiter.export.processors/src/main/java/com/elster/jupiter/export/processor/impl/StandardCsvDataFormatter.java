@@ -58,8 +58,8 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     public static final String VALID_STRING = "valid";
     public static final String INVALID_STRING = "suspect";
-    public static final String SEMICOLON_VALUE = "semicolon";
-    public static final String COMMA_VALUE = "comma";
+    public static final String SEMICOLON_VALUE = "Semicolon (;)";
+    public static final String COMMA_VALUE = "Comma (,)";
     public static final String SEMICOLON_SEPARATOR = ";";
     public static final String COMMA_SEPARATOR = ",";
     public static final String DEFAULT_SEPARATOR = COMMA_SEPARATOR;
@@ -120,8 +120,8 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
     }
 
     private Pair<Instant, List<FormattedExportData>> processData(ExportData exportData) {
-        StructureMarker main = dataExportService.forRoot(tag);
-        StructureMarker update = dataExportService.forRoot(updateTag);
+        StructureMarker main = dataExportService.forRoot(tag).withPeriodOf(exportData.getStructureMarker());
+        StructureMarker update = dataExportService.forRoot(updateTag).withPeriodOf(exportData.getStructureMarker());
         MeterReading data = ((MeterReadingData) exportData).getMeterReading();
         List<Reading> readings = data.getReadings();
         List<IntervalBlock> intervalBlocks = data.getIntervalBlocks();

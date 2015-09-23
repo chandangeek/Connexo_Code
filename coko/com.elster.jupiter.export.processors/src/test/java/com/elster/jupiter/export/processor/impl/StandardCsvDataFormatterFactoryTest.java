@@ -22,6 +22,18 @@ public class StandardCsvDataFormatterFactoryTest {
 
         // Order IS important
         PropertySpec property = properties.get(0);
+        assertThat(property.getName()).isEqualTo("formatterProperties.tag");
+        assertThat(property.isRequired()).isTrue();
+        assertThat(property.getValueFactory()).isInstanceOf(StringFactory.class);
+        assertThat(property.getPossibleValues().isExhaustive()).isFalse();
+
+        property = properties.get(1);
+        assertThat(property.getName()).isEqualTo("formatterProperties.update.tag");
+        assertThat(property.isRequired()).isTrue();
+        assertThat(property.getValueFactory()).isInstanceOf(StringFactory.class);
+        assertThat(property.getPossibleValues().isExhaustive()).isFalse();
+
+        property = properties.get(2);
         assertThat(property.getName()).isEqualTo("formatterProperties.separator");
         assertThat(property.isRequired()).isTrue();
         assertThat(property.getValueFactory()).isInstanceOf(StringFactory.class);
@@ -29,15 +41,6 @@ public class StandardCsvDataFormatterFactoryTest {
         List<String> allValues = (List<String>) property.getPossibleValues().getAllValues();
         assertThat(allValues).hasSize(2);
         assertThat(allValues).containsExactly("comma", "semicolon");
-        property = properties.get(1);
-        assertThat(property.getName()).isEqualTo("formatterProperties.tag");
-        assertThat(property.isRequired()).isTrue();
-        assertThat(property.getValueFactory()).isInstanceOf(StringFactory.class);
-        assertThat(property.getPossibleValues().isExhaustive()).isFalse();
-        property = properties.get(2);
-        assertThat(property.getName()).isEqualTo("formatterProperties.update.tag");
-        assertThat(property.isRequired()).isTrue();
-        assertThat(property.getValueFactory()).isInstanceOf(StringFactory.class);
-        assertThat(property.getPossibleValues().isExhaustive()).isFalse();
     }
 }
+

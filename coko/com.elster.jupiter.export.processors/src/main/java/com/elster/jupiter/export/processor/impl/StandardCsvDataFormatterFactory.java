@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
 
     static final String NAME = "standardCsvDataProcessorFactory";
-    static final String DISPLAY_NAME = "CSV Exporter";
+    static final String DISPLAY_NAME = "CSV Formatter";
     private static final String NON_PATH_INVALID = "\":*?<>|";
 
     private volatile PropertySpecService propertySpecService;
@@ -82,7 +82,7 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
         List<PropertySpec> propertySpecs = new ArrayList<>();
         propertySpecs.add(propertySpecService.stringPropertySpec(FormatterProperties.TAG.getKey(), true, null));
         propertySpecs.add(propertySpecService.stringPropertySpec(FormatterProperties.UPDATE_TAG.getKey(), true, null));
-        propertySpecs.add(propertySpecService.stringPropertySpecWithValues(FormatterProperties.SEPARATOR.getKey(), true, "comma", "semicolon"));
+        propertySpecs.add(propertySpecService.stringPropertySpecWithValues(FormatterProperties.SEPARATOR.getKey(), true, "Comma (,)", "Semicolon (;)"));
         return propertySpecs;
     }
 
