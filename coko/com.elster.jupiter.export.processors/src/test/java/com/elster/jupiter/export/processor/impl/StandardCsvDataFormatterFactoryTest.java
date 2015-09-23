@@ -40,7 +40,7 @@ public class StandardCsvDataFormatterFactoryTest {
         assertThat(property.getPossibleValues().isExhaustive()).isTrue();
         List<String> allValues = (List<String>) property.getPossibleValues().getAllValues();
         assertThat(allValues).hasSize(2);
-        assertThat(allValues).containsExactly("comma", "semicolon");
+        assertThat(allValues).containsExactly("Comma (,)", "Semicolon (;)");
     }
 }
 
