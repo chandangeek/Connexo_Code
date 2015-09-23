@@ -101,7 +101,7 @@ Ext.define('Usr.controller.history.UserManagement', {
                             action: 'showSynchronizeUserDirectory',
                             callback: function (route) {
                                 this.getApplication().on('synchronizeUserDirectory', function (record) {
-                                    route.setTitle(Ext.String.format(Uni.I18n.translate('userDirectories.synchronize', 'USR', 'Synchronize \'{0}\''), record.get('name')));
+                                    route.setTitle(Ext.String.format(Uni.I18n.translate('userDirectories.editSynchronize', 'USR', 'Synchronize \'{0}\''), record.get('name')));
                                     return true;
                                 }, {single: true});
                                 return this;
