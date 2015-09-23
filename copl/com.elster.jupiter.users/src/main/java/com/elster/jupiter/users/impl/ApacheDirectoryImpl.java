@@ -322,12 +322,20 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             while (results.hasMore()) {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
-                if (attributes.get("pwdAccountLockedTime") != null) {
-                    if (attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")) {
+                if(attributes.get("uid")!=null) {
+                    if(attributes.get("uid").toString().equals(user)) {
+                        if (attributes.get("pwdAccountLockedTime") != null) {
+                            if (attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")) {
+                                return false;
+                            } else {
+                                return true;
+                            }
+                        }
+                    }else{
                         return false;
-                    } else {
-                        return true;
                     }
+                }else{
+                    return false;
                 }
             }
             return true;
@@ -357,12 +365,20 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             while (results.hasMore()) {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
-                if (attributes.get("pwdAccountLockedTime") != null) {
-                    if (attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")) {
+                if(attributes.get("uid")!=null) {
+                    if(attributes.get("uid").toString().equals(user)) {
+                        if (attributes.get("pwdAccountLockedTime") != null) {
+                            if (attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")) {
+                                return false;
+                            } else {
+                                return true;
+                            }
+                        }
+                    }else{
                         return false;
-                    } else {
-                        return true;
                     }
+                }else{
+                    return false;
                 }
             }
             return true;
@@ -395,12 +411,20 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
             while (results.hasMore()) {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
-                if (attributes.get("pwdAccountLockedTime") != null) {
-                    if (attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")) {
+                if(attributes.get("uid")!=null) {
+                    if(attributes.get("uid").toString().equals(user)) {
+                        if (attributes.get("pwdAccountLockedTime") != null) {
+                            if (attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")) {
+                                return false;
+                            } else {
+                                return true;
+                            }
+                        }
+                    }else{
                         return false;
-                    } else {
-                        return true;
                     }
+                }else{
+                    return false;
                 }
             }
             return true;
