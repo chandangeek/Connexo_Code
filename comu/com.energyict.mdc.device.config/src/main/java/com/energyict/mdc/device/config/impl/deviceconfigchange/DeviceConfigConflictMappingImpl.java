@@ -99,12 +99,16 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
     }
 
     public void recalculateSolvedState(AbstractConflictSolution conflictingSolution) {
-        this.solved = allConnectionMethodsHaveASolution() && allSecuritySetsHaveASolution();
         conflictingSolution.update();
         this.update();
     }
 
+    private void updateSolvedState() {
+        this.solved = allConnectionMethodsHaveASolution() && allSecuritySetsHaveASolution();
+    }
+
     private void update() {
+        updateSolvedState();
         Save.UPDATE.save(dataModel, this);
     }
 
@@ -128,6 +132,7 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
         markAsNotSolved();
         ConflictingConnectionMethodSolution connectionMethodSolution = dataModel.getInstance(ConflictingConnectionMethodSolutionImpl.class).initialize(this, origin);
         this.connectionMethodSolutions.add(connectionMethodSolution);
+        update();
         return connectionMethodSolution;
     }
 
@@ -135,15 +140,18 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
         markAsNotSolved();
         ConflictingSecuritySetSolution securitySetSolution = dataModel.getInstance(ConflictingSecuritySetSolutionImpl.class).initialize(this, origin);
         this.securitySetSolutions.add(securitySetSolution);
+        update();
         return securitySetSolution;
     }
 
     public void removeConnectionMethodSolution(ConflictingConnectionMethodSolution conflictingConnectionMethodSolution) {
         this.connectionMethodSolutions.remove(conflictingConnectionMethodSolution);
+        update();
     }
 
     public void removeSecuritySetSolution(ConflictingSecuritySetSolution conflictingSecuritySetSolution) {
         this.securitySetSolutions.remove(conflictingSecuritySetSolution);
+        update();
     }
 
     private void markAsNotSolved() {
