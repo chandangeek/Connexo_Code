@@ -216,6 +216,11 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
                     userName = attributes.get("sAMAccountName").get().toString();
                     ldapUser.setUsername(userName);
                     ldapUser.setStatus(true);
+                    if (attributes.get("useraccountcontrol") != null) {
+                        if ((Integer.parseInt(attributes.get("useraccountcontrol").get().toString()) & 2) != 0) {
+                            ldapUser.setStatus(false);
+                        }
+                    }
                     ldapUsers.add(ldapUser);
                 }
 
@@ -255,6 +260,11 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
                     userName = attributes.get("sAMAccountName").get().toString();
                     ldapUser.setUsername(userName);
                     ldapUser.setStatus(true);
+                    if (attributes.get("useraccountcontrol") != null) {
+                        if ((Integer.parseInt(attributes.get("useraccountcontrol").get().toString()) & 2) != 0) {
+                            ldapUser.setStatus(false);
+                        }
+                    }
                     ldapUsers.add(ldapUser);
                 }
             }
@@ -296,6 +306,11 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
                     userName = attributes.get("sAMAccountName").get().toString();
                     ldapUser.setUsername(userName);
                     ldapUser.setStatus(true);
+                    if (attributes.get("useraccountcontrol") != null) {
+                        if ((Integer.parseInt(attributes.get("useraccountcontrol").get().toString()) & 2) != 0) {
+                            ldapUser.setStatus(false);
+                        }
+                    }
                     ldapUsers.add(ldapUser);
                 }
             }
@@ -335,7 +350,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
                 if (attributes.get("useraccountcontrol") != null) {
-                    if ((Integer.parseInt(attributes.get("useraccountcontrol").get().toString()) & 2) == 0) {
+                    if ((Integer.parseInt(attributes.get("useraccountcontrol").get().toString()) & 2) != 0) {
                         return false;
                     } else {
                         return true;
@@ -370,7 +385,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
                 if (attributes.get("useraccountcontrol") != null) {
-                    if ((Integer.parseInt(attributes.get("useraccountcontrol").get().toString()) & 2) == 0) {
+                    if ((Integer.parseInt(attributes.get("useraccountcontrol").get().toString()) & 2) != 0) {
                         return false;
                     } else {
                         return true;
@@ -409,7 +424,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
                 if (attributes.get("useraccountcontrol") != null) {
-                    if ((Integer.parseInt(attributes.get("useraccountcontrol").get().toString()) & 2) == 0) {
+                    if ((Integer.parseInt(attributes.get("useraccountcontrol").get().toString()) & 2) != 0) {
                         return false;
                     } else {
                         return true;

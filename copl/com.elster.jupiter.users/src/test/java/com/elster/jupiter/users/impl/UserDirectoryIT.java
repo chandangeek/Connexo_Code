@@ -164,6 +164,8 @@ public class UserDirectoryIT {
         assertThat(((LdapUserDirectory)userDirectory).getUrl()).isEqualTo("MyUrl");
     }
 
+
+
     @Ignore
     @Test
     public void testAuthenticateActiveDirectory() {
@@ -176,7 +178,7 @@ public class UserDirectoryIT {
             activeDirectory.setDirectoryUser("iancud@rimroe.elster-group.com");
             activeDirectory.setPassword("xxxxxx");
             activeDirectory.setUrl("ldap://localhost:389");
-            activeDirectory.setBaseUser("DC=rimroe,DC=elster-group,DC=com");
+            activeDirectory.setBaseUser("OU=Users,OU=ROGHI01,DC=rimroe,DC=elster-group,DC=com");
             activeDirectory.setBackupUrl("ldap://localhost:12389");
             activeDirectory.setSecurity("NONE");
             activeDirectory.save();
@@ -235,4 +237,80 @@ public class UserDirectoryIT {
         assertThat(((LdapUserDirectory)userDirectory).getDirectoryUser()).isEqualTo("uid=admin,ou=system");
         assertThat(((LdapUserDirectory)userDirectory).getUrl()).isEqualTo("ldap://localhost:10389");
     }
+
+
+    @Test
+    public void testEditApacheDirectory() {
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        UserService userService = injector.getInstance(UserService.class);
+        try (TransactionContext context = transactionService.getContext()) {
+            LdapUserDirectory apacheDirectory = userService.createApacheDirectory("MyDomain");
+            apacheDirectory.setDefault(true);
+            apacheDirectory.setDirectoryUser("MyUser");
+            apacheDirectory.setPassword("MyPassword");
+            apacheDirectory.setUrl("MyUrl");
+            apacheDirectory.setBaseUser("BaseUser");
+            apacheDirectory.setBackupUrl("BackupUrl");
+            apacheDirectory.setSecurity("NONE");
+            apacheDirectory.save();
+            context.commit();
+        }
+        Optional<UserDirectory> found = userService.findUserDirectory("MyDomain");
+        assertThat(found.isPresent()).isTrue();
+        try (TransactionContext context = transactionService.getContext()) {
+            LdapUserDirectory apacheDirectory = (LdapUserDirectory) found.get();
+            apacheDirectory.setDirectoryUser("MyUser2");
+            apacheDirectory.setUrl("MyUrl2");
+            apacheDirectory.setBackupUrl("BackupUrl2");
+            apacheDirectory.setSecurity("SSL");
+            apacheDirectory.save();
+            context.commit();
+        }
+        Optional<UserDirectory> foundEdited = userService.findUserDirectory("MyDomain");
+        LdapUserDirectory userDirectory = (LdapUserDirectory) foundEdited.get();
+
+        assertThat(userDirectory).isInstanceOf(ApacheDirectoryImpl.class);
+        assertThat(userDirectory.getDirectoryUser()).isEqualTo("MyUser2");
+        assertThat(userDirectory.getUrl()).isEqualTo("MyUrl2");
+        assertThat(userDirectory.getBackupUrl()).isEqualTo("BackupUrl2");
+        assertThat(userDirectory.getSecurity()).isNotEqualTo("NONE");
+    }
+
+    public void testEditActiveDirectory() {
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        UserService userService = injector.getInstance(UserService.class);
+        try (TransactionContext context = transactionService.getContext()) {
+            LdapUserDirectory activeDirectory = userService.createActiveDirectory("MyDomain");
+            activeDirectory.setDefault(true);
+            activeDirectory.setDirectoryUser("MyUser");
+            activeDirectory.setPassword("MyPassword");
+            activeDirectory.setUrl("MyUrl");
+            activeDirectory.setBaseUser("BaseUser");
+            activeDirectory.setBackupUrl("backupUrl");
+            activeDirectory.setSecurity("NONE");
+            activeDirectory.save();
+            context.commit();
+        }
+        Optional<UserDirectory> found = userService.findUserDirectory("MyDomain");
+        assertThat(found.isPresent()).isTrue();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            LdapUserDirectory activeDirectory = (LdapUserDirectory) found.get();
+            activeDirectory.setDirectoryUser("MyUser2");
+            activeDirectory.setUrl("MyUrl2");
+            activeDirectory.setBackupUrl("BackupUrl2");
+            activeDirectory.setSecurity("SSL");
+            activeDirectory.save();
+            context.commit();
+        }
+        Optional<UserDirectory> foundEdited = userService.findUserDirectory("MyDomain");
+        LdapUserDirectory userDirectory = (LdapUserDirectory) foundEdited.get();
+
+        assertThat(userDirectory).isInstanceOf(ApacheDirectoryImpl.class);
+        assertThat(userDirectory.getDirectoryUser()).isEqualTo("MyUser2");
+        assertThat(userDirectory.getUrl()).isEqualTo("MyUrl2");
+        assertThat(userDirectory.getBackupUrl()).isEqualTo("BackupUrl2");
+        assertThat(userDirectory.getSecurity()).isNotEqualTo("NONE");
+    }
+
 }
