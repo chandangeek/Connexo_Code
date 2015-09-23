@@ -301,11 +301,16 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                 return createActiveDirectoryUser(name, domain,status);
             }
         }
-        if(users.get(0).getStatus() != status){
-            users.get(0).setStatus(status);
-            users.get(0).save();
+        if (!users.isEmpty()) {
+            if (users.get(0).getStatus() != status) {
+                users.get(0).setStatus(status);
+                users.get(0).save();
+            }
+            return users.get(0);
+        }else{
+            return createUser(name, domain);
         }
-        return users.get(0);
+
     }
 
     @Override
