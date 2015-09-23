@@ -147,7 +147,7 @@ Ext.define('Usr.controller.User', {
             method: 'PUT',
             success: function () {
                 me.updateStatusOnDeactivate(record);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('users.activateSuccessMsg', 'USR', 'User deactivated'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('users.deactivateSuccessMsg', 'USR', 'User deactivated'));
             }
 
         });
