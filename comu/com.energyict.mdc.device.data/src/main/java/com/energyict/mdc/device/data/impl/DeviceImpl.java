@@ -1025,8 +1025,8 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
         boolean meterHasData = false;
         List<MeterActivation> meterActivations = this.getSortedMeterActivations(meter, Ranges.closed(interval.lowerEndpoint(), interval.upperEndpoint()));
         for (MeterActivation meterActivation : meterActivations) {
-            Range<Instant> meterActivationInterval = meterActivation.getRange().intersection(interval);
-            meterHasData |= meterActivationInterval.lowerEndpoint() != meterActivationInterval.upperEndpoint();
+            Range<Instant> meterActivationInterval = meterActivation.getInterval().toOpenClosedRange().intersection(interval);
+            meterHasData |= meterActivationInterval.lowerEndpoint()!=meterActivationInterval.upperEndpoint();
             ReadingType readingType = mdcChannel.getChannelSpec().getReadingType();
             List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(meterActivationInterval, readingType);
             for (IntervalReadingRecord meterReading : meterReadings) {
