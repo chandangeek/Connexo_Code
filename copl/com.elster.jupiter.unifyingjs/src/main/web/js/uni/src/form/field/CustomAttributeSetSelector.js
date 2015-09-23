@@ -31,7 +31,11 @@ Ext.define('Uni.form.field.CustomAttributeSetSelector', {
                     select: function (combo, records) {
                         me.onSelectAttributeSet(combo, records[0]);
                     }
-                }
+                },
+                afterSubTpl:
+                    '<div class="x-form-display-field"><i>' +
+                        Uni.I18n.translate('customattributeset.changeDescription', 'UNI', 'Changing the custom attribute set removes any values that were defined for the previous set.') +
+                        '</i></div>'
             },
             {
                 xtype: 'panel',
