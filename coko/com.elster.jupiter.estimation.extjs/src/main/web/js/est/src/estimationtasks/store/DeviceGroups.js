@@ -5,7 +5,7 @@ Ext.define('Est.estimationtasks.store.DeviceGroups', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/ddr/devicegroups',
+        url: '/api/est/metergroups',
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined,
