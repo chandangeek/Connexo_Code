@@ -18,7 +18,7 @@ Ext.define('Usr.model.MgmUserDirectory', {
                         return Uni.I18n.translate('userDirectories.securityProtocol.ssl', 'USR', 'SSL');
                         break;
                     case 'TLS':
-                        return Uni.I18n.translate('userDirectories.securityProtocol.none', 'USR', 'TLS');
+                        return Uni.I18n.translate('userDirectories.securityProtocol.tls', 'USR', 'TLS');
                         break;
                     default:
                         return record.get('securityProtocol');

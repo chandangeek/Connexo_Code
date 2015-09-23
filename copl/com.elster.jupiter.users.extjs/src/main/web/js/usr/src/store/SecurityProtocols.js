@@ -14,7 +14,7 @@ Ext.define('Usr.store.SecurityProtocols', {
             value: 'SSL'
         },
         {
-            name: Uni.I18n.translate('userDirectories.securityProtocol.none', 'USR', 'TLS'),
+            name: Uni.I18n.translate('userDirectories.securityProtocol.tls', 'USR', 'TLS'),
             value: 'TLS'
         }
     ]
