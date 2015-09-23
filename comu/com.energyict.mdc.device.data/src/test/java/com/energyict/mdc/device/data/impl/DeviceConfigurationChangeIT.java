@@ -18,6 +18,7 @@ import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnr
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -26,6 +27,8 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.tasks.ClockTaskType;
+import com.energyict.mdc.tasks.ComTask;
 import org.assertj.core.api.Condition;
 import org.junit.*;
 import org.junit.rules.TestRule;
@@ -678,6 +681,40 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet)).isEmpty();
         assertThat(modifiedDevice.getSecurityProperties(firstSecurityPropertySet)).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void changeConfigRemovesNonExistingComTaskExecutions() {
+        final ComTask comTaskForTesting = inMemoryPersistence.getTaskService().newComTask("ComTaskForTesting");
+        comTaskForTesting.createClockTask(ClockTaskType.FORCECLOCK).add();
+        comTaskForTesting.save();
+        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+        final String securityPropertySetName = "NoSecurity";
+        final SecurityPropertySet firstSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, securityPropertySetName);
+        final ComTaskEnablement comTaskEnablement1 = createComTaskEnablement(comTaskForTesting, firstDeviceConfiguration, firstSecurityPropertySet);
+        firstDeviceConfiguration.activate();
+        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
+        final SecurityPropertySet secondSecurityPropertySet = createSecurityPropertySet(secondDeviceConfiguration, securityPropertySetName);
+        secondDeviceConfiguration.activate();
+
+        updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
+        assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+        final ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = device.newAdHocComTaskExecution(comTaskEnablement1).add();
+        device.save();
+
+        assertThat(device.getComTaskExecutions()).hasSize(1);
+
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfiguration(device, secondDeviceConfiguration);
+        assertThat(device.getComTaskExecutions()).isEmpty();
+    }
+
+    // TODO update protocoldialecconfigproperties
+
+    private ComTaskEnablement createComTaskEnablement(ComTask comTaskForTesting, DeviceConfiguration firstDeviceConfiguration, SecurityPropertySet firstSecurityPropertySet) {
+        return firstDeviceConfiguration.enableComTask(comTaskForTesting, firstSecurityPropertySet, firstDeviceConfiguration.getProtocolDialectConfigurationPropertiesList().get(0)).useDefaultConnectionTask(true).add();
     }
 
     private SecurityPropertySet createSecurityPropertySet(DeviceConfiguration deviceConfiguration, String securityPropertySetName) {

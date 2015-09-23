@@ -10,14 +10,14 @@ import java.util.stream.Collectors;
 /**
  * Applies changes to the loadProfiles of the Device
  */
-public class LoadProfileConfigChangeItems extends AbstractConfigChangeItem implements DataSourceConfigChangeItem{
+public class LoadProfileConfigChangeItems extends AbstractConfigChangeItem {
 
     private static LoadProfileConfigChangeItems INSTANCE = new LoadProfileConfigChangeItems();
 
     private LoadProfileConfigChangeItems() {
     }
 
-    static DataSourceConfigChangeItem getInstance(){
+    static DataSourceConfigChangeItem getInstance() {
         return INSTANCE;
     }
 
@@ -68,7 +68,7 @@ public class LoadProfileConfigChangeItems extends AbstractConfigChangeItem imple
 
         @Override
         public Predicate<LoadProfileSpec> isItAConflict(LoadProfileSpec item) {
-            return loadProfileSpec -> false;
+            return loadProfileSpec -> false; // no conflicts possible (for now)
         }
     }
 

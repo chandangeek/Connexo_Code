@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 /**
  * Applies changes to the LogBooks of the Device
  */
-public class LogBookConfigChangeItem extends AbstractConfigChangeItem implements DataSourceConfigChangeItem {
+public class LogBookConfigChangeItem extends AbstractConfigChangeItem {
 
     private static LogBookConfigChangeItem INSTANCE = new LogBookConfigChangeItem();
 
@@ -68,7 +68,7 @@ public class LogBookConfigChangeItem extends AbstractConfigChangeItem implements
 
         @Override
         public Predicate<LogBookSpec> isItAConflict(LogBookSpec item) {
-            return loadProfileSpec -> false;
+            return loadProfileSpec -> false; // no conflicts possible (for now)
         }
     }
 }

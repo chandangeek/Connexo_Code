@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 /**
  * Applies changes to the SecurityProperties of the Device
  */
-public class SecurityPropertiesConfigChangeItem extends AbstractConfigChangeItem implements DataSourceConfigChangeItem {
+public class SecurityPropertiesConfigChangeItem extends AbstractConfigChangeItem {
 
-    private static SecurityPropertiesConfigChangeItem INSTANCE = new SecurityPropertiesConfigChangeItem();
+    private static final SecurityPropertiesConfigChangeItem INSTANCE = new SecurityPropertiesConfigChangeItem();
 
     private SecurityPropertiesConfigChangeItem() {
     }

@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 /**
  * Applies changes to the connectionTasks of the Device
  */
-public class ConnectionTaskConfigChangeItem extends AbstractConfigChangeItem implements DataSourceConfigChangeItem {
+public class ConnectionTaskConfigChangeItem extends AbstractConfigChangeItem {
 
     private static ConnectionTaskConfigChangeItem INSTANCE = new ConnectionTaskConfigChangeItem();
 
