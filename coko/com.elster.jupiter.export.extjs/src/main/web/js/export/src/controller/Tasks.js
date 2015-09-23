@@ -1622,9 +1622,9 @@ Ext.define('Dxp.controller.Tasks', {
 
         view.down('#updated-data-trigger').setValue({exportUpdate: formModel.get('exportUpdate')});
         view.down('#update-window').setValue(formModel.get('updateWindow'));
+        view.down('#export-updated').setValue({updatedDataAndOrAdjacentData: formModel.get('updatedDataAndOrAdjacentData')});
         if(formModel.get('updateTimeFrame')){
             view.down('#timeFrame').setValue(formModel.get('updateTimeFrame'));
-            view.down('#export-updated').setValue({updatedDataAndOrAdjacentData: true});
         }
         view.down('#continuous-data-radiogroup').setValue({exportContinuousData:formModel.get('exportContinuousData')});
 
