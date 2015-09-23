@@ -11,7 +11,7 @@ Ext.define('Mdc.devicetypecustomattributes.view.AddAttributeSetsGrid', {
     checkAllButtonPresent: true,
 
     counterTextFn: function (count) {
-        return Uni.I18n.translatePlural('customattributesets.multiselect.selected', count, 'UNI', 'No custom attribute sets selected', '{0} custom attribute set selected', '{0} custom attribute sets selected');
+        return Uni.I18n.translatePlural('customattributesets.multiselect.selected', count, 'MDC', 'No custom attribute sets selected', '{0} custom attribute set selected', '{0} custom attribute sets selected');
     },
 
     initComponent: function () {
