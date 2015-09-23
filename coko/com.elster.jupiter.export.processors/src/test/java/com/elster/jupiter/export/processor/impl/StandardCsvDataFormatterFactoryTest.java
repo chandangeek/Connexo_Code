@@ -3,14 +3,14 @@ package com.elster.jupiter.export.processor.impl;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
-import org.junit.Test;
 
 import java.util.List;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StandardCsvDataFormatterFactoryTest {
-
 
     @Test
     public void testGetProperties() throws Exception {
@@ -40,7 +40,7 @@ public class StandardCsvDataFormatterFactoryTest {
         assertThat(property.getPossibleValues().isExhaustive()).isTrue();
         List<String> allValues = (List<String>) property.getPossibleValues().getAllValues();
         assertThat(allValues).hasSize(2);
-        assertThat(allValues).containsExactly("comma", "semicolon");
+        assertThat(allValues).containsExactly(StandardCsvDataFormatter.COMMA_VALUE, StandardCsvDataFormatter.SEMICOLON_VALUE);
     }
-}
 
+}

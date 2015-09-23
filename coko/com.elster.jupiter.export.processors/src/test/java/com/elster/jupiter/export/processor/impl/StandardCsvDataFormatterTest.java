@@ -31,13 +31,6 @@ import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -56,9 +49,17 @@ import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StandardCsvDataFormatterTest {
@@ -166,8 +167,8 @@ public class StandardCsvDataFormatterTest {
         when(propertyExtension.getValue()).thenReturn("csv");
         when(propertyPrefix.getName()).thenReturn("fileFormat.filenamePrefix");
         when(propertyPrefix.getValue()).thenReturn("MainFile");
-        when(propertySeparator.getName()).thenReturn("formatterProperties.separator");
-        when(propertySeparator.getValue()).thenReturn("semicolon");
+        when(propertySeparator.getName()).thenReturn(FormatterProperties.SEPARATOR.getKey());
+        when(propertySeparator.getValue()).thenReturn(StandardCsvDataFormatter.SEMICOLON_VALUE);
         when(propertyExtensionUpdated.getName()).thenReturn("fileFormat.updatedData.updateFileExtension");
         when(propertyExtensionUpdated.getValue()).thenReturn("csv");
         when(propertyPrefixUpdated.getName()).thenReturn("fileFormat.updatedData.updateFilenamePrefix");

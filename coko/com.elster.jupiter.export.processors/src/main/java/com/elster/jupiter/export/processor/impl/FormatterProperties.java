@@ -17,7 +17,7 @@ public enum FormatterProperties implements TranslationKey {
     private String name;
     private String defaultTranslation;
 
-    private FormatterProperties(String name, String defaultTranslation) {
+    FormatterProperties(String name, String defaultTranslation) {
         this.name = name;
         this.defaultTranslation = defaultTranslation;
     }
