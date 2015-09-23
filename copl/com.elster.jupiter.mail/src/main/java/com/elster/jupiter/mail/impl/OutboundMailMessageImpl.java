@@ -69,9 +69,11 @@ public class OutboundMailMessageImpl implements OutboundMailMessage {
                 .map(MailAddress::asAddress)
                 .forEach(internetAddress -> addTo(message, internetAddress));
         Multipart multipart = new MimeMultipart();
-        MimeBodyPart bodyText = new MimeBodyPart();
-        bodyText.setText(body);
-        multipart.addBodyPart(bodyText);
+        if (body != null) {
+            MimeBodyPart bodyText = new MimeBodyPart();
+            bodyText.setText(body);
+            multipart.addBodyPart(bodyText);
+        }
         attachments.stream()
                 .map(this::toMimeBodyPart)
                 .forEach(mimeBodyPart -> addToMultiPart(multipart, mimeBodyPart));

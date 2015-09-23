@@ -9,6 +9,8 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 
+import javax.activation.CommandMap;
+import javax.activation.MailcapCommandMap;
 import javax.inject.Inject;
 import javax.mail.Address;
 import javax.mail.MessagingException;
@@ -59,6 +61,15 @@ public class MailServiceImpl implements IMailService {
 
     @Activate
     public final void activate(BundleContext bundleContext) {
+
+        MailcapCommandMap mc = (MailcapCommandMap) CommandMap.getDefaultCommandMap();
+        mc.addMailcap("text/html;; x-java-content-handler=com.sun.mail.handlers.text_html");
+        mc.addMailcap("text/xml;; x-java-content-handler=com.sun.mail.handlers.text_xml");
+        mc.addMailcap("text/plain;; x-java-content-handler=com.sun.mail.handlers.text_plain");
+        mc.addMailcap("multipart/*;; x-java-content-handler=com.sun.mail.handlers.multipart_mixed");
+        mc.addMailcap("message/rfc822;; x-java-content- handler=com.sun.mail.handlers.message_rfc822");
+        CommandMap.setDefaultCommandMap(mc);
+
         smtpHost = bundleContext.getProperty(MAIL_SMTP_HOST_PROPERTY);
         smtpPort = bundleContext.getProperty(MAIL_SMTP_PORT_PROPERTY);
 
@@ -92,7 +103,7 @@ public class MailServiceImpl implements IMailService {
         properties.setProperty(MAIL_SMTP_PORT_PROPERTY, getSmtpPort());
         properties.setProperty("mail.smtp.user", user);
         properties.setProperty("mail.smtp.password", password);
-        final Session session = Session.getDefaultInstance(properties);
+        final Session session = Session.getInstance(properties);
         return new MailSession() {
             @Override
             public MimeMessage createMessage() {
