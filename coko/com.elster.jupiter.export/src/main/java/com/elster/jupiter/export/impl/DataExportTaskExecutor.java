@@ -28,6 +28,7 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -188,6 +189,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         List<FormattedExportData> formattedDatas = exportDatas
                 .map(MeterReadingData.class::cast)
                 .flatMap(meterReadingData -> doProcess(occurrence, meterReadingData, itemExporter).stream())
+                .sorted(Comparator.comparing(data -> data.getStructureMarker().getStructurePath().get(0)))
                 .collect(Collectors.toList());
         return SimpleFormattedData.of(formattedDatas);
     }
