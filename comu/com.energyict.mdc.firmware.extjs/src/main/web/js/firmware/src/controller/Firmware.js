@@ -347,7 +347,7 @@ Ext.define('Fwc.controller.Firmware', {
 
             me.getApplication().fireEvent('changecontentevent', 'firmware-versions', {deviceType: deviceType});
             me.getContainer().down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
-            me.getContainer().down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
+            me.getContainer().down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'FWC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
 
             model.getProxy().setUrl(deviceTypeId);
             model.load(1, {
