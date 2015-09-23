@@ -147,6 +147,21 @@ public class UserResource {
 
     }
 
+    @PUT
+    @Path("/{id}/deactivate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE})
+    public Response deactivateUser(@PathParam("id") long id) {
+
+        Optional<User> user = userService.getUser(id);
+        UserInfo info = new UserInfo(user.get());
+        info.active = false;
+        transactionService.execute(new UpdateUserTransaction(info, userService));
+        return Response.status(Response.Status.OK).build();
+
+    }
+
     private RestQuery<User> getUserRestQuery() {
         Query<User> query = userService.getUserQuery();
         return restQueryService.wrap(query);
