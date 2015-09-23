@@ -43,7 +43,7 @@ Ext.define('Usr.controller.User', {
             },
             'userBrowse userList uni-actioncolumn': {
                 edit: this.editUser,
-                activate: this.activateUser
+                activate: this.userActivation
             }
 
 
@@ -100,57 +100,89 @@ Ext.define('Usr.controller.User', {
 
     activateUserMenu: function (button) {
         var record = button.up('#userBrowse').down('#userDetailsForm').getRecord();
-        this.activateUser(record);
+        this.userActivation(record);
     },
 
-    activateUser: function (record) {
+    userActivation: function (record) {
         var me = this,
-            view = me.getUserDetails(),
             isActive = record.get('active');
 
+
+        if (!isActive) {
+            me.activateUser(record);
+        }
+        else
+        {
+            me.deactivateUser(record);
+        }
+
+
+    },
+
+    activateUser: function(record)
+    {
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+
+        viewport.setLoading();
+        Ext.Ajax.request({
+            url: '/api/usr/users/' + record.get('id') + '/activate',
+            method: 'PUT',
+            success: function () {
+                me.updateStatusOnActivate(record);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('users.activateSuccessMsg', 'USR', 'User activated'));
+            }
+
+        });
+        viewport.setLoading(false);
+
+    },
+
+    deactivateUser: function(record)
+    {
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            view = me.getUserDetails();
+
+        viewport.setLoading();
         record.beginEdit();
-        record.set('active', !isActive);
+        record.set('active', false);
+        record.set('modifiedOn',
+            Uni.DateTime.formatDateTimeLong(new Date()));
         record.endEdit(true);
 
         record.save({
-            success: function () {
-                me.updateStatusData(record);
-                if(isActive)
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('users.deactivateSuccessMsg', 'USR', 'User deactivated'));
-                else
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('users.activateSuccessMsg', 'USR', 'User activated'));
+            success: function (record) {
+                me.updateUserStatus(record);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('users.deactivateSuccessMsg', 'USR', 'User deactivated'));
             },
-            failure: function (response) {
-                if (response.status == 400) {
-                    var errorText = Uni.I18n.translate('users.error.unknown', 'USR', 'Unknown error occurred');
-                    if (!Ext.isEmpty(response.statusText)) {
-                        errorText = response.statusText;
-                    }
-                    if (!Ext.isEmpty(response.responseText)) {
-                        var json = Ext.decode(response.responseText, true);
-                        if (json && json.error) {
-                            errorText = json.error;
-                        }
-                    }
-                    if(suspended)
-                        me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('users.deactivate.operation.failed', 'USR', 'Deactivate operation failed'), errorText);
-                    else
-                        me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('users.activate.operation.failed', 'USR', 'Activate operation failed'), errorText);
-                }
+            failure: function (response, request) {
+                record.beginEdit();
+                record.set('active', true);
+                record.endEdit(true);
+
             },
             callback: function () {
                 view.setLoading(false);
             }
         });
+        viewport.setLoading(false);
     },
-    updateStatusData: function(record)
+    updateStatusOnActivate: function(record)
+    {
+        var me = this;
+        record.set('active', true);
+        record.set('statusDisplay', Uni.I18n.translate('general.active', 'USR', 'Active'));
+        me.updateUserStatus(record);
+    },
+
+    updateUserStatus: function(record)
     {
         var me = this,
             page = me.getUserBrowse(),
-            form = page.down('#userDetailsForm'),
-            formRecord;
+            form = page.down('#userDetailsForm');
 
-        formRecord = form.getRecord();
-        form.loadRecord(formRecord);
+        form.loadRecord(record);
     }
+
 });

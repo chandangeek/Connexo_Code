@@ -50,7 +50,6 @@ Ext.define('Usr.view.user.List', {
                         xtype: 'user-action-menu',
                         itemId: 'user-action-menu'
                     }
-                    //items: 'Usr.view.user.UserActionMenu'
                 }
             ]
         };
