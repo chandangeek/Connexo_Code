@@ -309,6 +309,11 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     @Override
+    public User findOrCreateUser(String name, String domain, String directoryType) {
+       return findOrCreateUser(name, domain, directoryType, true);
+    }
+
+    @Override
     public Group findOrCreateGroup(String name) {
         Condition groupCondition = Operator.EQUALIGNORECASE.compare("name", name);
         List<Group> groups = dataModel.query(Group.class).select(groupCondition);
