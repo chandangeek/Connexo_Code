@@ -13,6 +13,7 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.MeterGroupsResource;
 import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.google.common.collect.ImmutableSet;
@@ -49,7 +50,8 @@ public class ValidationApplication extends Application implements TranslationKey
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
                 ValidationResource.class,
-                DataValidationTaskResource.class);
+                DataValidationTaskResource.class,
+                MeterGroupsResource.class);
     }
 
     @Override
