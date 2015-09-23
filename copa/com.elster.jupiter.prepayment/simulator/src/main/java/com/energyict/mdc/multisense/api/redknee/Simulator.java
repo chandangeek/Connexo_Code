@@ -2,7 +2,6 @@ package com.energyict.mdc.multisense.api.redknee;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.jetty.server.Server;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
@@ -30,7 +29,7 @@ public class Simulator {
             resourceConfig.register(JacksonFeature.class);
             generator.setConfiguration(configuration);
             generator.start();
-            simulator.startJetty(resourceConfig);
+            simulator.startJetty(resourceConfig, configuration.getSimulatorPort());
         } catch (FileNotFoundException e) {
             System.err.println("Configuration not found.");
             System.err.println("Either make sure the current directory contains the configuration file 'simulator.json' or provide the file as argument to the simulator.");
@@ -54,10 +53,11 @@ public class Simulator {
      * https://nikolaygrozev.wordpress.com/2014/10/16/rest-with-embedded-jetty-and-jersey-in-a-single-jar-step-by-step/
      * @throws Exception
      * @param rknApplication
+     * @param port
      */
-    public void startJetty(Application rknApplication) throws Exception {
+    public void startJetty(Application rknApplication, int port) throws Exception {
 
-        URI baseUri = UriBuilder.fromUri("http://localhost/").port(8080).build();
+        URI baseUri = UriBuilder.fromUri("http://localhost/").port(port).build();
         ResourceConfig config = ResourceConfig.forApplication(rknApplication);
 
         Server jettyServer = JettyHttpContainerFactory.createServer(baseUri, config);

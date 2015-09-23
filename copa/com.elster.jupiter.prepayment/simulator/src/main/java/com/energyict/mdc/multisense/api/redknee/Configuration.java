@@ -10,6 +10,8 @@ public class Configuration {
     private Integer outputFrequency=0;
     private String destinationFilePath="/tmp";
     private String connexoUrl="http://localhost:8080/";
+    private Integer simulatorPort=8080;
+
     @XStreamImplicit
     private List<UsagePoint> usagePoints = Collections.emptyList();
 
@@ -19,6 +21,10 @@ public class Configuration {
 
     public Integer getOutputFrequency() {
         return outputFrequency;
+    }
+
+    public Integer getSimulatorPort() {
+        return simulatorPort;
     }
 
     public String getDestinationFilePath() {
@@ -43,6 +49,7 @@ public class Configuration {
                 "\n\toutputFrequency=" + outputFrequency +
                 ",\n\tdestinationFilePath='" + destinationFilePath + '\'' +
                 ",\n\tconnexoUrl='" + connexoUrl + '\'' +
+                ",\n\tsimulator port='" + simulatorPort + '\'' +
                 ",\n\tusagePoints=" + usagePoints +
                 '}';
     }
