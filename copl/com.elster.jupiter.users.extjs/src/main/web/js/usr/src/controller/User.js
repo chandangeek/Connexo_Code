@@ -107,7 +107,6 @@ Ext.define('Usr.controller.User', {
         var me = this,
             isActive = record.get('active');
 
-
         if (!isActive) {
             me.activateUser(record);
         }
