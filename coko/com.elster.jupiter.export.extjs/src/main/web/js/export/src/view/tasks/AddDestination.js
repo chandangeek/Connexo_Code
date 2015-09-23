@@ -56,7 +56,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                                 {displayValue: Uni.I18n.translate('destination.file','DES','Save file'), value: 'FILE'},
                                 {displayValue: Uni.I18n.translate('destination.email','DES','Mail'), value: 'EMAIL'},
                                 {displayValue: Uni.I18n.translate('destination.ftp','DES','FTP'), value: 'FTP'},
-                                {displayValue: Uni.I18n.translate('destination.ftsp','DES','FTPS'), value: 'FTPS'}
+                                {displayValue: Uni.I18n.translate('destination.ftps','DES','FTPS'), value: 'FTPS'}
                             ]
                         }),
                         name: 'method',
