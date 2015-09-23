@@ -287,6 +287,11 @@ Ext.define('Usr.controller.UserDirectories', {
             nameField.setDisabled(true);
         }
 
+        var typeField = addUserDirectoryView.down('#rdo-user-directory-type');
+        if (typeField) {
+            typeField.setDisabled(true);
+        }
+
         var userDirectory = me.getModel('Usr.model.MgmUserDirectory');
         userDirectory.load(userDirectoryId, {
             success: function (userDirectoryRecord) {
