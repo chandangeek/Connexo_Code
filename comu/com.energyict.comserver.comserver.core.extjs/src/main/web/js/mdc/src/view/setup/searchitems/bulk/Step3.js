@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
     extend: 'Ext.panel.Panel',
     xtype: 'searchitems-bulk-step3',
-    name: 'selectSchedules',
+    name: 'selectActionItems',
     ui: 'large',
 
     requires: [
@@ -38,6 +38,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
         },
         {
             xtype: 'preview-container',
+            itemId: 'select-schedules-panel',
             selectByDefault: false,
             grid: {
                 xtype: 'schedules-selection-grid',
@@ -101,6 +102,47 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                 ],
                 emptyText: '<h3>' + Uni.I18n.translate('communicationschedule.noCommunicationScheduleSelected', 'MDC', 'No shared communication schedule selected') + '</h3><p>' + Uni.I18n.translate('communicationschedule.selectCommunicationSchedule', 'MDC', 'Select a shared communication schedule to see its details') + '</p>'
             }
+        },
+        {
+            xtype: 'form',
+            itemId: 'change-device-configuration',
+            hidden: true,
+            defaults: {
+                xtype: 'displayfield',
+                labelWidth: 200
+            },
+            items: [
+                {
+                    fieldLabel: Uni.I18n.translate('searchItems.bulk.currentDeviceConfig', 'MDC', 'Current device configuration'),
+                    itemId: 'current-device-config-selection',
+                    name: 'fromconfig'
+                },
+                {
+                    xtype: 'combobox',
+                    name: 'toconfig',
+                    itemId: 'new-device-config-selection',
+                    fieldLabel: Uni.I18n.translate('searchItems.bulk.newDeviceConfig', 'MDC', 'New device configuration'),
+                    required: true,
+                    width: 380,
+                    allowBlank: false,
+                    queryMode: 'local',
+                    store: 'Mdc.store.DeviceConfigurations',
+                    displayField: 'name',
+                    valueField: 'id',
+                    listConfig: {
+                        loadMask: false
+                    }
+                },
+                {
+                    xtype: 'displayfield',
+                    itemId: 'no-device-configuration',
+                    fieldLabel: Uni.I18n.translate('searchItems.bulk.newDeviceConfig', 'MDC', 'New device configuration'),
+                    value: Uni.I18n.translate('searchItems.bulk.noOtherDeviceConfigurationsDefined', 'MDC', 'No other device configurations defined'),
+                    fieldStyle: 'color: #eb5642',
+                    required: true,
+                    hidden: true
+                }
+            ]
         },
         {
             xtype: 'container',

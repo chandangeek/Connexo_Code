@@ -14,7 +14,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         'setup.deviceconfiguration.DeviceConfigurationLogbooks',
         'setup.deviceconfiguration.AddLogbookConfigurations',
         'setup.deviceconfiguration.EditLogbookConfiguration',
-        'setup.deviceconfiguration.DeviceConfigurationClone'
+        'setup.deviceconfiguration.DeviceConfigurationClone',
+        'setup.deviceconfiguration.ChangeDeviceConfigurationView'
     ],
 
     stores: [
@@ -50,9 +51,14 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'typeOfGatewayComboContainer', selector: '#deviceConfigurationEditForm #typeOfGatewayComboContainer'},
         {ref: 'editLogbookConfiguration', selector: 'edit-logbook-configuration'},
         {ref: 'previewActionMenu', selector: 'deviceConfigurationPreview #device-configuration-action-menu'},
-        {ref: 'deviceConfigurationCloneForm', selector: '#deviceConfigurationCloneForm'}
-
-
+        {ref: 'deviceConfigurationCloneForm', selector: '#deviceConfigurationCloneForm'},
+        {ref: 'deviceConfigurationsWaitReuest', selector: '#wait-request'},
+        {ref: 'noDeviceConfigurationsLabel', selector: '#no-device-configuration'},
+        {ref: 'newDeviceConfigurationCombo', selector: '#new-device-configuration'},
+        {ref: 'changeDeviceConfigurationView', selector: '#change-device-configuration-view'},
+        {ref: 'changeDeviceConfigurationForm', selector: '#change-device-configuration-form'},
+        {ref: 'changeDeviceConfigurationFormErrors', selector: '#change-device-configuration-form #form-errors'},
+        {ref: 'saveChangeDeviceConfigurationBtn', selector: '#save-change-device-configuration'}
     ],
 
     init: function () {
@@ -100,6 +106,12 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             },
             '#deviceConfigurationEditForm #deviceIsGatewayCombo': {
                 change: this.showTypeOfGatewayCombo
+            },
+            '#change-device-configuration-view button[action=save-change-device-configuration]': {
+                click: this.saveChangeDeviceConfiguration
+            },
+            '#change-device-configuration-view button[action=cancel-change-device-configuration]': {
+                click: this.cancelChangeDeviceConfiguration
             }
         });
     },
@@ -126,7 +138,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     success: function (deviceType) {
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
                         widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
-                        me.getDeviceConfigurationsGrid().getSelectionModel().doSelect(0);
+                        widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));                        me.getDeviceConfigurationsGrid().getSelectionModel().doSelect(0);
                     }
                 });
             }
@@ -399,7 +411,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
                 me.getApplication().fireEvent('changecontentevent', widget);
-                widget.down('#deviceConfigurationEditCreateTitle').setTitle(Uni.I18n.translate('general.addDeviceConfiguration', 'MDC', "Add device configuration"));
+                widget.down('#deviceConfigurationEditCreateTitle').setTitle(Uni.I18n.translate('general.adddeviceconfiguration', 'MDC', "Add device configuration"));
                 me.setRadioButtons(deviceType);
             }
         });
@@ -673,8 +685,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     var numberOfLogbooksLabel = Ext.ComponentQuery.query('add-logbook-configurations #logbook-count')[0],
                         grid = Ext.ComponentQuery.query('add-logbook-configurations grid')[0];
                     numberOfLogbooksLabel.setText(
-                        Uni.I18n.translatePlural('general.nrOfLogbookTypes.selected', 0, 'MDC',
-                            'No logbook types selected', '{0} logbook type selected', '{0} logbook types selected')
+                        Uni.I18n.translatePlural('general.nrOfLogbookConfigurations.selected', 0, 'MDC',
+                            'No logbook configurations selected', '{0} logbook configuration selected', '{0} logbook configurations selected')
                     );
                 }
             }
@@ -728,6 +740,116 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 }
             }
         );
+    },
+    showChangeDeviceConfigurationView: function (mRID) {
+        var me = this, viewport = Ext.ComponentQuery.query('viewport')[0];
+
+        viewport.setLoading();
+
+        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+            success: function (device) {
+                var widget = Ext.widget('changeDeviceConfigurationView', {device: device}),
+                    form = me.getChangeDeviceConfigurationForm(),
+                    deviceConfigurationsStore = me.getNewDeviceConfigurationCombo().getStore(),
+                    currentDeviceConfigurationId = device.get('deviceConfigurationId');
+
+                form.loadRecord(device);
+                deviceConfigurationsStore.clearFilter();
+                deviceConfigurationsStore.getProxy().setUrl({deviceType: device.get('deviceTypeId')});
+
+                deviceConfigurationsStore.filter({
+                    filterFn: function (item) {
+                        return item.get('id') != currentDeviceConfigurationId;
+                    }
+                });
+
+                deviceConfigurationsStore.load(function () {
+                    var isEmptyStore = !deviceConfigurationsStore.count();
+                    me.getNoDeviceConfigurationsLabel().setVisible(isEmptyStore);
+                    me.getNewDeviceConfigurationCombo().setVisible(!isEmptyStore);
+                    me.getSaveChangeDeviceConfigurationBtn().setDisabled(isEmptyStore);
+                });
+
+                me.getApplication().fireEvent('loadDevice', device);
+                me.getApplication().fireEvent('changecontentevent', widget);
+            },
+            callback: function () {
+                viewport.setLoading(false);
+            }
+        });
+    },
+
+    saveChangeDeviceConfiguration: function () {
+        var me = this, canSolveConflictingMappings = Mdc.privileges.DeviceType.canAdministrate(),
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            device = me.getChangeDeviceConfigurationView().device,
+            router = me.getController('Uni.controller.history.Router');
+
+        device.set('deviceConfigurationId', me.getNewDeviceConfigurationCombo().getValue());
+        me.getChangeDeviceConfigurationFormErrors().hide();
+        me.getChangeDeviceConfigurationForm().getForm().clearInvalid();
+        viewport.setLoading(true);
+        device.save({
+            success: function () {
+                router.getRoute('devices/device').forward();
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.changeDeviceConfiguration.changed', 'MDC', 'Device configuration successfully changed'));
+            },
+            failure: function (record, operation) {
+                var json = Ext.decode(operation.response.responseText, true);
+                if (json && json.errors) {
+                    me.getChangeDeviceConfigurationFormErrors().show();
+                    me.getChangeDeviceConfigurationForm().getForm().markInvalid(json.errors);
+                } else if (json && json.message) {
+                    var title = (canSolveConflictingMappings ? Uni.I18n.translate('general.failed', 'MDC', 'Failed') : Uni.I18n.translate('general.unable', 'MDC', 'Unable')) +
+                        Uni.I18n.translate('device.changeDeviceConfiguration.changeFailedTitle', 'MDC', ' to change device configuration');
+
+                    var errorWindow = Ext.create('Ext.window.MessageBox', {
+                        buttonAlign: canSolveConflictingMappings ? 'right' : 'left',
+                        buttons: [
+                            {
+                                xtype: 'button',
+                                text: (canSolveConflictingMappings ? Uni.I18n.translate('general.close', 'MDC', 'Close') : Uni.I18n.translate('general.finish', 'MDC', 'Finish')),
+                                action: 'close',
+                                name: 'close',
+                                ui: 'remove',
+                                style: {
+                                    marginLeft: (canSolveConflictingMappings ? '0px' : '50px')
+                                },
+                                handler: function () {
+                                    errorWindow.close();
+                                }
+                            }
+                        ]
+                    });
+
+                    errorWindow.down('displayfield').htmlEncode = false;
+
+                    var solveConflictsLink = router.getRoute('administration/devicetypes/view/conflictmappings').buildUrl({deviceTypeId: device.get('deviceTypeId')}),
+                        message = json.message + '<br/><br/>' + (canSolveConflictingMappings ? '<a href="' + solveConflictsLink + '">' + Uni.I18n.translate('device.changeDeviceConfiguration.solveTheConflicts', 'MDC', 'Solve the conflicts') + '</a> ' + Uni.I18n.translate('device.changeDeviceConfiguration.beforeYouRetry', 'MDC', 'before you retry.') + '' :
+                                Uni.I18n.translate('device.changeDeviceConfiguration.noRightsToSolveTheConflicts', 'MDC', 'You cannot solve the conflicts in conflicting mappings on device type because you do not have the privileges. Contact the administrator.'));
+
+                    router.addListener('routeChangeStart', function () {
+                        errorWindow.close();
+                    }, this, {single: true});
+
+                    errorWindow.show(
+                        {
+                            title: title,
+                            msg: message,
+                            ui: 'message-error',
+                            icon: 'icon-warning2'
+                        }
+                    );
+                }
+            },
+            callback: function () {
+                viewport.setLoading(false);
+            }
+        });
+    },
+
+    cancelChangeDeviceConfiguration: function (btn) {
+        var router = this.getController('Uni.controller.history.Router');
+        router.getRoute('devices/device').forward();
     }
 });
-

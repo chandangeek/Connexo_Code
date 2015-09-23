@@ -36,6 +36,11 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
                         text: Uni.I18n.translate('devicetypemenu.configurations', 'MDC', 'Configurations'),
                         itemId: 'configurationsLink',
                         href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations'
+                    },
+                    {
+                        text: Uni.I18n.translate('devicetypemenu.conflictingMappings', 'MDC', 'Conflicting mappings'),
+                        itemId: 'conflictingMappingLink',
+                        href: '#/administration/devicetypes/' + this.deviceTypeId + '/conflictmappings'
                     }
                 ]
             },

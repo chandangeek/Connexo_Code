@@ -212,8 +212,8 @@ Ext.define('Mdc.controller.setup.Devices', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.doRefresh();
                 transitionsStore.load({
-                    callback: function() {
-                       me.getDeviceActionsMenu().setActions(this, router);
+                    callback: function () {
+                        me.getDeviceActionsMenu().setActions(this, router);
                     }
                 });
 

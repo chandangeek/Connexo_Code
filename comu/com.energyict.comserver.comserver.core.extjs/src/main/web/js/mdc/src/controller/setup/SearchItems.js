@@ -14,7 +14,8 @@ Ext.define('Mdc.controller.setup.SearchItems', {
 
     stores: [
         'Mdc.store.Devices',
-        'Mdc.store.DeviceConfigurations'
+        'Mdc.store.DeviceConfigurations',
+        'Mdc.store.DevicesSelectedBulk'
     ],
 
     refs: [
@@ -73,9 +74,16 @@ Ext.define('Mdc.controller.setup.SearchItems', {
         var searchCriteria = {};
         var store = me.getStore('Mdc.store.Devices');
         Ext.Object.merge(searchCriteria,store.getProxy().extraParams);
-        router.getRoute('search/bulkAction').forward(null,
-            searchCriteria
-        );
+
+        me.getStore('Mdc.store.DevicesSelectedBulk').setProxy(store.getProxy());
+        me.getStore('Mdc.store.DevicesSelectedBulk').getProxy().extraParams.limit = 1000;
+        me.getStore('Mdc.store.DevicesSelectedBulk').load({
+            callback: function(){
+                router.getRoute('search/bulkAction').forward(null,
+                    searchCriteria
+                );
+            }
+        });
     },
 
     showSearchItems: function () {

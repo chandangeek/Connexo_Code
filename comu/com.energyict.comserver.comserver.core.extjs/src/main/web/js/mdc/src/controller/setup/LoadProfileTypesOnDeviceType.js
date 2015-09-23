@@ -234,7 +234,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypesOnDeviceType', {
                     self.deviceTypeName = deviceType.get('name');
                     self.getApplication().fireEvent('changecontentevent', widget);
                     widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
-                    Ext.Array.each(Ext.ComponentQuery.query('[action=editloadprofiletype]'), function (item) {
+                    widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));                    Ext.Array.each(Ext.ComponentQuery.query('[action=editloadprofiletype]'), function (item) {
                         item.hide();
                     });
                     Ext.Array.each(Ext.ComponentQuery.query('[action=deleteloadprofiletype]'), function (item) {

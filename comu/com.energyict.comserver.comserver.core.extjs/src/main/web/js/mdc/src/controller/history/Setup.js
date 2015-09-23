@@ -84,7 +84,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showDeviceTypeCreateView'
                         },
                         view: {
-                            title: Uni.I18n.translate('general.overview','MDC','Overview'),
+                            title: Uni.I18n.translate('general.Overview','MDC','Overview'),
                             route: '{deviceTypeId}',
                             privileges: Mdc.privileges.DeviceType.view,
                             controller: 'Mdc.controller.setup.DeviceTypes',
@@ -513,6 +513,36 @@ Ext.define('Mdc.controller.history.Setup', {
 
                                                 return this;
                                             }
+                                        }
+                                    }
+                                },
+                                conflictmappings: {
+                                    title: Uni.I18n.translate('conflictingDeviceConfigurationMapping.title', 'MDC', 'Conflicting device configuration mapping'),
+                                    route: 'conflictmappings',
+                                    privileges: Mdc.privileges.DeviceType.view,
+                                    controller: 'Mdc.controller.setup.DeviceConflictingMapping',
+                                    action: 'showOverview',
+                                    items: {
+                                        all: {
+                                            title: Uni.I18n.translate('allConflictingMappings.title', 'MDC', 'All mappings'),
+                                            route: 'all',
+                                            privileges: Mdc.privileges.DeviceType.view,
+                                            controller: 'Mdc.controller.setup.DeviceConflictingMapping',
+                                            action: 'showAll'
+                                        },
+                                        edit: {
+                                            title: Uni.I18n.translate('editConflictingMappings.title', 'MDC', 'Edit conflicting device configuration mapping'),
+                                            route: '{id}/edit',
+                                            privileges: Mdc.privileges.DeviceType.admin,
+                                            controller: 'Mdc.controller.setup.DeviceConflictingMapping',
+                                            action: 'showEdit'
+                                        },
+                                        solve: {
+                                            title: Uni.I18n.translate('solveConflictingMappings.title', 'MDC', 'Solve conflicting device configuration mapping'),
+                                            route: '{id}/solve',
+                                            privileges: Mdc.privileges.DeviceType.admin,
+                                            controller: 'Mdc.controller.setup.DeviceConflictingMapping',
+                                            action: 'showSolve'
                                         }
                                     }
                                 },
@@ -1157,6 +1187,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                 }
                             }
                         },
+                        changedeviceconfiguration: {
+                            title: Uni.I18n.translate('devicemenu.changedeviceconfiguration', 'MDC', 'Change device configuration'),
+                            route: 'changedeviceconfiguration',
+                            controller: 'Mdc.controller.setup.DeviceConfigurations',
+                            privileges: Mdc.privileges.Device.administrateDeviceData,
+                            action: 'showChangeDeviceConfigurationView'
+                        },
                         connectionmethods: {
                             title: Uni.I18n.translate('general.connectionMethods','MDC','Connection methods'),
                             route: 'connectionmethods',
@@ -1320,7 +1357,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
 							filter: 'Mdc.model.ValidationResultsDataFilter',
 							params: {
-								'activeTab': 1	
+								'activeTab': 1
 								}
                         },
 						validationresultsdataruleset: {
@@ -1331,7 +1368,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showDeviceValidationResultsMainView',
 							filter: 'Mdc.model.ValidationResultsDataFilter',
 							params: {
-								'activeTab': 1	
+								'activeTab': 1
 								}
                         },
 						validationresultsdataversion: {
@@ -1342,7 +1379,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showDeviceValidationResultsMainView',
 							filter: 'Mdc.model.ValidationResultsDataFilter',
 							params: {
-								'activeTab': 1	
+								'activeTab': 1
 								}
                         },
 						validationresultsdatarule: {

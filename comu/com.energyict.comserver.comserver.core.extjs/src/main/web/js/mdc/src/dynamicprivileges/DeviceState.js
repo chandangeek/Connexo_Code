@@ -24,6 +24,7 @@ Ext.define('Mdc.dynamicprivileges.DeviceState', {
     deviceCommandActions: 'devices.actions.device.commands',
     firmwareManagementActions: 'devices.actions.firmware.management',
     deviceDataEditActions: 'devices.actions.data.edit',
+    changeDeviceConfiguration: 'devices.actions.change.device.configuration',
     communicationPlanningPages: 'devices.pages.communication.planning',
     deviceCommandWithPrivileges: 'privilege.command.has.privileges',
 

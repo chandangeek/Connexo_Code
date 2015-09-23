@@ -15,6 +15,7 @@ Ext.define('Mdc.privileges.Device', {
     addDevice:['privilege.add.device'],
     flagDevice:['privilege.administrate.deviceData','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
     administrateDeviceData:['privilege.administrate.deviceData'],
+    changeDeviceConfiguration:['privilege.administrate.deviceCommunication'],
     viewDeviceCommunication:['privilege.administrate.deviceData','privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
     administrateDeviceCommunication:['privilege.administrate.deviceCommunication'],
     operateDeviceCommunication:['privilege.operate.deviceCommunication'],

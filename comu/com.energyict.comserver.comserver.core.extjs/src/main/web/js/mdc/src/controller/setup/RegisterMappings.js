@@ -87,7 +87,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                 me.getApplication().fireEvent('changecontentevent', widget);
                 me.getRegisterMappingGrid().getSelectionModel().doSelect(0);
                 widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
-            }
+                widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));            }
         });
     },
 

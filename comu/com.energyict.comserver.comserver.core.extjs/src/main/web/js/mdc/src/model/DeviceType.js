@@ -10,6 +10,7 @@ Ext.define('Mdc.model.DeviceType', {
         {name: 'registerCount', type: 'int', useNull: true},
         {name: 'logBookCount', type: 'int', useNull: true},
         {name: 'deviceConfigurationCount', type: 'int', useNull: true},
+        {name: 'deviceConflictsCount', type: 'int', useNull: true},
         {name: 'canBeGateway', type: 'boolean', useNull: true},
         {name: 'canBeDirectlyAddressed', type: 'boolean', useNull: true},
         {name: 'deviceProtocolPluggableClass', type: 'string', useNull: true},
