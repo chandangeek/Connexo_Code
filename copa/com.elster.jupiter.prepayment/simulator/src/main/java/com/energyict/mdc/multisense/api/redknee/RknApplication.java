@@ -1,6 +1,5 @@
 package com.energyict.mdc.multisense.api.redknee;
 
-import jersey.repackaged.com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
 import javax.inject.Named;
@@ -22,7 +21,10 @@ public class RknApplication extends Application {
     }
 
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of(RknProxyResource.class);
+        Set<Class<?>> set = new HashSet<>();
+        set.add(RknProxyResource.class);
+        set.add(RequestSecurityFilter.class);
+        return Collections.unmodifiableSet(set);
     }
 
     @Override
@@ -39,6 +41,7 @@ public class RknApplication extends Application {
         @Override
         protected void configure() {
             bind(consumptionExportGenerator).to(ConsumptionExportGenerator.class);
-            bind(configuration.getConnexoUrl()).named("connexoUrl");}
+            bind(configuration.getConnexoUrl()).named("connexoUrl");
+        }
     }
 }

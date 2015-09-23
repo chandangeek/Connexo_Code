@@ -17,8 +17,10 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 
 /**
  * Created by bvn on 9/17/15.
@@ -44,9 +46,10 @@ public class RknProxyResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateContactor(@PathParam("mrid") String mRID, ContactorInfo contactorInfo) {
+    public Response updateContactor(@PathParam("mrid") String mRID, ContactorInfo contactorInfo, @Context SecurityContext context) {
+        SecurityEnvelope securityEnvelope = (SecurityEnvelope) context.getUserPrincipal();
         UsagePoint usagePoint = generator.getUsagePoint(mRID).orElseThrow(()->new WebApplicationException("No such usagepoint", Response.Status.NOT_FOUND));
-        Response response = proxyRequest(mRID, contactorInfo);
+        Response response = proxyRequest(mRID, contactorInfo, securityEnvelope);
         if (response.getStatus()== Response.Status.ACCEPTED.getStatusCode()) {
             switch (contactorInfo.status) {
                 case connected:
@@ -61,11 +64,10 @@ public class RknProxyResource {
         return response;
     }
 
-    private Response proxyRequest(String mrid, ContactorInfo contactorInfo) {
-        HttpAuthenticationFeature basicAuthentication = HttpAuthenticationFeature.basic("admin", "D3moAdmin");
+    private Response proxyRequest(String mrid, ContactorInfo contactorInfo, SecurityEnvelope securityEnvelope) {
         Client jerseyClient = ClientBuilder.newClient().
-                register(new JacksonFeature()).
-                register(basicAuthentication);
+                register(new JacksonFeature());
+        securityEnvelope.authenticate(jerseyClient);
         try {
             return jerseyClient.
                     target(connexoUrl+"/"+mrid+"/contactor").
