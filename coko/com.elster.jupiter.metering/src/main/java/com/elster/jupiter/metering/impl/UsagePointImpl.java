@@ -549,7 +549,6 @@ public class UsagePointImpl implements UsagePoint {
         return Optional.of(this);
     }
 
-<<<<<<< HEAD
 	@Override
 	public ZoneId getZoneId() {
 		return getCurrentMeterActivation()
@@ -563,13 +562,4 @@ public class UsagePointImpl implements UsagePoint {
 				.flatMap(meterActivation -> meterActivation.getReadingQualities(readingQualityType, readingType, interval).stream())
 				.collect(Collectors.toList());
 	}
-=======
-    @Override
-    public ZoneId getZoneId() {
-        return getCurrentMeterActivation()
-                .map(MeterActivation::getZoneId)
-                .orElse(ZoneId.systemDefault());
-    }
-
->>>>>>> origin/insight-master
 }
