@@ -504,6 +504,9 @@ Ext.define('Usr.controller.UserDirectories', {
         userDirectoryExtUsersStore.load({
             callback: function (records, operation, success) {
 
+                if (!success){
+                    return;
+                }
                 userDirectoryUsersStore.each(function (record) {
                     var rowIndex = userDirectoryExtUsersStore.findExact('name', record.get('name'));
                     if (rowIndex == -1) {
