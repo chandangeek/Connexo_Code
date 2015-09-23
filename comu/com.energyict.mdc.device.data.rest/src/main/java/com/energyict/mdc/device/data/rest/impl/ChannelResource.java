@@ -1,14 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.estimation.EstimationResult;
-import com.elster.jupiter.estimation.Estimator;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -20,6 +11,16 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
+
+import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.Estimator;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.util.Ranges;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.ImmutableSet;
@@ -176,7 +177,7 @@ public class ChannelResource {
         ImmutableList.Builder<Predicate<ChannelDataInfo>> list = ImmutableList.builder();
         if (filter.hasProperty("suspect")){
             List<String> suspectFilters = filter.getStringList("suspect");
-            if (suspectFilters.size() == 0) {
+            if (suspectFilters.isEmpty()) {
                 if ("suspect".equals(filter.getString("suspect"))) {
                     list.add(this::hasSuspects);
                 } else {
