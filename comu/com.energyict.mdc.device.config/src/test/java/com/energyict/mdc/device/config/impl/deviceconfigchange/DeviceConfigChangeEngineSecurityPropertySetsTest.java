@@ -120,8 +120,8 @@ public class DeviceConfigChangeEngineSecurityPropertySetsTest {
         String name = "MySecurityPropertySet1";
 
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel1 = mockAuthenticationLevel(102);
-        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel1 = mockEncryptionLevel(44856);
-        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel2 = mockAuthenticationLevel(102);
+        EncryptionDeviceAccessLevel encryptionDeviceAccessLevel1 = mockEncryptionLevel(11123);
+        AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel2 = mockAuthenticationLevel(101465);
         EncryptionDeviceAccessLevel encryptionDeviceAccessLevel2 = mockEncryptionLevel(44856);
         DeviceType deviceType = mockDeviceType();
         DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
