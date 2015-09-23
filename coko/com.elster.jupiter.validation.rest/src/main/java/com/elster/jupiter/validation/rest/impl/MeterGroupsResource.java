@@ -1,4 +1,4 @@
-package com.elster.jupiter.validation.rest;
+package com.elster.jupiter.validation.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -9,6 +9,7 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.validation.rest.MeterGroupInfo;
 
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
