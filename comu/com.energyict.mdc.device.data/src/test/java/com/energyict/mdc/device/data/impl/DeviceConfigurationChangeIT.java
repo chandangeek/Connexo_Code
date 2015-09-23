@@ -4,6 +4,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.common.HasId;
@@ -19,6 +20,7 @@ import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeExcepti
 import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -26,7 +28,9 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import org.assertj.core.api.Condition;
@@ -685,7 +689,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void changeConfigRemovesNonExistingComTaskExecutions() {
+    public void changeConfigRemovesNonExistingManuallyScheduledComTaskExecutions() {
         final ComTask comTaskForTesting = inMemoryPersistence.getTaskService().newComTask("ComTaskForTesting");
         comTaskForTesting.createClockTask(ClockTaskType.FORCECLOCK).add();
         comTaskForTesting.save();
@@ -703,6 +707,39 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
         Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
         final ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = device.newAdHocComTaskExecution(comTaskEnablement1).add();
+        device.save();
+
+        assertThat(device.getComTaskExecutions()).hasSize(1);
+
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfiguration(device, secondDeviceConfiguration);
+        assertThat(device.getComTaskExecutions()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void changeConfigRemovesNonExistingComScheduleScheduledComTaskExecutionsTest() {
+        final ComTask clockComTask = inMemoryPersistence.getTaskService().newComTask("ClockComTask");
+        clockComTask.createClockTask(ClockTaskType.FORCECLOCK).add();
+        clockComTask.save();
+        final ComSchedule mySchedule = inMemoryPersistence.getSchedulingService().newComSchedule("MySchedule", new TemporalExpression(TimeDuration.days(1)), Instant.now()).build();
+        mySchedule.addComTask(clockComTask);
+        mySchedule.save();
+
+        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+        final String securityPropertySetName = "NoSecurity";
+        final SecurityPropertySet firstSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, securityPropertySetName);
+        final ComTaskEnablement comTaskEnablement1 = createComTaskEnablement(clockComTask, firstDeviceConfiguration, firstSecurityPropertySet);
+        firstDeviceConfiguration.activate();
+        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
+        final SecurityPropertySet secondSecurityPropertySet = createSecurityPropertySet(secondDeviceConfiguration, securityPropertySetName);
+        secondDeviceConfiguration.activate();
+
+        updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
+        assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+        device.save();
+        final ScheduledComTaskExecution scheduledComTaskExecution = device.newScheduledComTaskExecution(mySchedule).add();
         device.save();
 
         assertThat(device.getComTaskExecutions()).hasSize(1);

@@ -28,7 +28,8 @@ public final class DeviceConfigChangeExecutor {
                 LoadProfileConfigChangeItems.getInstance(),
                 LogBookConfigChangeItem.getInstance(),
                 ConnectionTaskConfigChangeItem.getInstance(),
-                SecurityPropertiesConfigChangeItem.getInstance())
+                SecurityPropertiesConfigChangeItem.getInstance(),
+                ComTaskExecutionConfigChangeItem.getInstance())
                 .forEach(performDataSourceChanges(device, destinationDeviceConfiguration, originDeviceConfiguration));
         device.save();
         return device;

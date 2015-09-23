@@ -1,12 +1,11 @@
 package com.energyict.mdc.device.data.impl.configchange;
 
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfigChangeAction;
-import com.energyict.mdc.device.config.DeviceConfigChangeEngine;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -20,7 +19,7 @@ public class ComTaskExecutionConfigChangeItem extends AbstractConfigChangeItem {
     private ComTaskExecutionConfigChangeItem() {
     }
 
-    static ComTaskExecutionConfigChangeItem getInstance(){
+    static ComTaskExecutionConfigChangeItem getInstance() {
         return INSTANCE;
     }
 
@@ -28,10 +27,16 @@ public class ComTaskExecutionConfigChangeItem extends AbstractConfigChangeItem {
     public void apply(ServerDeviceForConfigChange device, DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration) {
         final List<DeviceConfigChangeAction<ComTaskEnablement>> comTaskActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsFor(new DeviceConfigComTaskEnablementItem(originDeviceConfiguration, destinationDeviceConfiguration));
 
-        //TODO continue
+        final List<DeviceConfigChangeAction<ComTaskEnablement>> actionsToRemove = comTaskActions.stream().filter(actionTypeIs(DeviceConfigChangeActionType.REMOVE)).collect(Collectors.toList());
+        final List<ComTaskExecution> comTaskExecutionsToRemove = device.getComTaskExecutions().stream().filter(comTaskExecution ->
+                comTaskExecution.getComTasks().stream().filter(comTask ->
+                        actionsToRemove.stream().filter(actionToRemove ->
+                                actionToRemove.getOrigin().getComTask().getId() == comTask.getId()).findFirst().isPresent()).findFirst().isPresent()).collect(Collectors.toList());
+
+        comTaskExecutionsToRemove.stream().forEach(device::removeComTaskExecution);
     }
 
-    private class DeviceConfigComTaskEnablementItem extends AbstractDeviceConfigChangeItem<ComTaskEnablement>{
+    private class DeviceConfigComTaskEnablementItem extends AbstractDeviceConfigChangeItem<ComTaskEnablement> {
 
         DeviceConfigComTaskEnablementItem(DeviceConfiguration originDeviceConfig, DeviceConfiguration destinationDeviceConfig) {
             super(originDeviceConfig, destinationDeviceConfig);
