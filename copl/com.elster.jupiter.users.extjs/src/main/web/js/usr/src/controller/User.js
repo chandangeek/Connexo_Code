@@ -110,8 +110,7 @@ Ext.define('Usr.controller.User', {
         if (!isActive) {
             me.activateUser(record);
         }
-        else
-        {
+        else {
             me.deactivateUser(record);
         }
 
@@ -140,32 +139,20 @@ Ext.define('Usr.controller.User', {
     deactivateUser: function(record)
     {
         var me = this,
-            viewport = Ext.ComponentQuery.query('viewport')[0],
-            view = me.getUserDetails();
+            viewport = Ext.ComponentQuery.query('viewport')[0];
 
         viewport.setLoading();
-        record.beginEdit();
-        record.set('active', false);
-        record.set('modifiedOn',
-            Uni.DateTime.formatDateTimeLong(new Date()));
-        record.endEdit(true);
-
-        record.save({
-            success: function (record) {
-                me.updateUserStatus(record);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('users.deactivateSuccessMsg', 'USR', 'User deactivated'));
-            },
-            failure: function (response, request) {
-                record.beginEdit();
-                record.set('active', true);
-                record.endEdit(true);
-
-            },
-            callback: function () {
-                view.setLoading(false);
+        Ext.Ajax.request({
+            url: '/api/usr/users/' + record.get('id') + '/deactivate',
+            method: 'PUT',
+            success: function () {
+                me.updateStatusOnDeactivate(record);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('users.activateSuccessMsg', 'USR', 'User deactivated'));
             }
+
         });
         viewport.setLoading(false);
+
     },
     updateStatusOnActivate: function(record)
     {
@@ -174,7 +161,13 @@ Ext.define('Usr.controller.User', {
         record.set('statusDisplay', Uni.I18n.translate('general.active', 'USR', 'Active'));
         me.updateUserStatus(record);
     },
-
+    updateStatusOnDeactivate: function(record)
+    {
+        var me = this;
+        record.set('active', false);
+        record.set('statusDisplay', Uni.I18n.translate('general.active', 'USR', 'Inactive'));
+        me.updateUserStatus(record);
+    },
     updateUserStatus: function(record)
     {
         var me = this,
