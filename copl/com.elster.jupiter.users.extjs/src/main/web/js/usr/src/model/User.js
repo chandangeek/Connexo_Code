@@ -6,6 +6,18 @@ Ext.define('Usr.model.User', {
         'description',
         'version',
         'domain',
+        'active',
+        {
+            name: 'statusDisplay',
+            persist: false,
+            mapping: function (data) {
+                if(data.active){
+                    return Uni.I18n.translate('general.active', 'USR', 'Active');
+                } else {
+                    return Uni.I18n.translate('general.inactive', 'USR', 'Inactive');
+                }
+            }
+        },
         {name: 'language', type: 'auto', defaultValue: {}},
         'createdOn',
         'modifiedOn'

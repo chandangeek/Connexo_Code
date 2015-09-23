@@ -54,7 +54,7 @@ Ext.define('Usr.view.user.Edit', {
                             },
                             {
                                 name: 'domain',
-                                fieldLabel: Uni.I18n.translate('user.domain', 'USR', 'Domain')
+                                fieldLabel: Uni.I18n.translate('user.userdirectory', 'USR', 'User directory')
                             },
                             {
                                 xtype: 'combobox',
