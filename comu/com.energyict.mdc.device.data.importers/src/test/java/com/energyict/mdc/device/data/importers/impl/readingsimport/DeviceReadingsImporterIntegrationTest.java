@@ -1,5 +1,14 @@
 package com.energyict.mdc.device.data.importers.impl.readingsimport;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -18,17 +27,12 @@ import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.fileimport.FileImportOccurrence;
-import com.elster.jupiter.fileimport.FileImporter;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
@@ -42,23 +46,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.NUMBER_FORMAT;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
 import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT3;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.contains;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegrationTest {
@@ -113,7 +105,7 @@ public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegratio
         FileImporter importer = deviceReadingsImporterFactory.createImporter(properties);
 
         String csv = "Device MRID;Reading date;Reading type MRID;Reading Value;;\n" +
-                "TestDevice;01/08/2015 00:00;0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0;100.527\n" +
+                "TestDevice;01/08/2015 01:00;0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0;100.527\n" +
                 "TestDevice;02/08/2015 00:00;0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0;101;11.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0;800.455\n" +
                 "TestDevice;03/08/2015 00:00;11.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0;810";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -130,7 +122,7 @@ public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegratio
 
         List<NumericalReading> readings = device.getRegisters().get(0).getReadings(Interval.forever());
         assertThat(readings).hasSize(2);
-        assertThat(readings.get(0).getTimeStamp()).isEqualTo(ZonedDateTime.of(2015, 8, 1, 0, 0, 0, 0, ZoneOffset.UTC).toInstant());
+        assertThat(readings.get(0).getTimeStamp()).isEqualTo(ZonedDateTime.of(2015, 8, 1, 1, 0, 0, 0, ZoneOffset.UTC).toInstant());
         assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(100.52));
         assertThat(readings.get(1).getTimeStamp()).isEqualTo(ZonedDateTime.of(2015, 8, 2, 0, 0, 0, 0, ZoneOffset.UTC).toInstant());
         assertThat(readings.get(1).getValue()).isEqualTo(BigDecimal.valueOf(101));
