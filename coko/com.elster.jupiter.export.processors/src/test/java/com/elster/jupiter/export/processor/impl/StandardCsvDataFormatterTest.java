@@ -14,6 +14,7 @@ import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -73,6 +74,9 @@ public class StandardCsvDataFormatterTest {
 
     @Mock
     private ValidationService validationService;
+
+    @Mock
+    private MeteringService meteringService;
 
     @Mock
     private ValidationEvaluator validationEvaluator;
@@ -228,7 +232,7 @@ public class StandardCsvDataFormatterTest {
 
     @Test
     public void testLinesAreOk() {
-        processor = new StandardCsvDataFormatter(getPropertyMap(properties), thesaurus, validationService, dataExportService);
+        processor = new StandardCsvDataFormatter(getPropertyMap(properties), thesaurus, validationService, dataExportService, meteringService);
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
@@ -253,7 +257,7 @@ public class StandardCsvDataFormatterTest {
 
     @Test
     public void testLinesAreOkForLoadProfile() {
-        processor = new StandardCsvDataFormatter(getPropertyMap(properties), thesaurus, validationService, dataExportService);
+        processor = new StandardCsvDataFormatter(getPropertyMap(properties), thesaurus, validationService, dataExportService, meteringService);
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
@@ -276,7 +280,7 @@ public class StandardCsvDataFormatterTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testIllegalArgumentException() {
-        processor = new StandardCsvDataFormatter(getPropertyMap(properties), thesaurus, validationService, dataExportService);
+        processor = new StandardCsvDataFormatter(getPropertyMap(properties), thesaurus, validationService, dataExportService, meteringService);
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);
@@ -287,7 +291,7 @@ public class StandardCsvDataFormatterTest {
     @Test(expected = DataExportException.class)
     public void testNoMeter() {
         when(readingContainer.getMeter(Instant.ofEpochMilli(EPOCH_MILLI))).thenReturn(Optional.empty());
-        processor = new StandardCsvDataFormatter(getPropertyMap(properties), thesaurus, validationService, dataExportService);
+        processor = new StandardCsvDataFormatter(getPropertyMap(properties), thesaurus, validationService, dataExportService, meteringService);
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item);

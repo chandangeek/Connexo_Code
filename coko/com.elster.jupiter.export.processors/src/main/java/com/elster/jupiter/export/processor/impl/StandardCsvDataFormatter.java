@@ -15,13 +15,16 @@ import com.elster.jupiter.export.TextLineExportData;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.Reading;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Pair;
@@ -30,8 +33,10 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationService;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -60,6 +65,7 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
     public static final String DEFAULT_SEPARATOR = COMMA_SEPARATOR;
     private final ValidationService validationService;
     private final DataExportService dataExportService;
+    private final MeteringService meteringService;
 
     private String fieldSeparator;
     private ReadingType readingType;
@@ -70,16 +76,18 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
     private String updateTag;
 
     @Inject
-    public StandardCsvDataFormatter(Thesaurus thesaurus, ValidationService validationService, DataExportService dataExportService) {
+    public StandardCsvDataFormatter(Thesaurus thesaurus, ValidationService validationService, DataExportService dataExportService, MeteringService meteringService) {
         this.thesaurus = thesaurus;
         this.validationService = validationService;
         this.dataExportService = dataExportService;
+        this.meteringService = meteringService;
     }
 
-    public StandardCsvDataFormatter(Map<String, Object> propertyMap, Thesaurus thesaurus, ValidationService validationService, DataExportService dataExportService) {
+    public StandardCsvDataFormatter(Map<String, Object> propertyMap, Thesaurus thesaurus, ValidationService validationService, DataExportService dataExportService, MeteringService meteringService) {
         this.validationService = validationService;
         this.thesaurus = thesaurus;
         this.dataExportService = dataExportService;
+        this.meteringService = meteringService;
 
         if (propertyMap.containsKey(FormatterProperties.SEPARATOR.getKey())) {
             defineSeparator(propertyMap.get(FormatterProperties.SEPARATOR.getKey()).toString());
@@ -132,16 +140,53 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
             Optional<Instant> latest = latestProcessedTimestamp;
             intervalReadings = intervalBlocks.stream()
                     .flatMap(block -> {
+                        ReadingType readingType = meteringService.getReadingType(block.getReadingTypeCode()).get();
                         Map<Instant, DataValidationStatus> intervalStatuses = getDataValidationStatusMap(latest, block.getIntervals());
                         return block.getIntervals().stream()
-                                .map(reading -> Pair.of(reading, intervalStatuses.get(reading.getTimeStamp())));
+                                .map(reading -> Pair.of(new DecoratedIntervalReading(reading, readingType), intervalStatuses.get(reading.getTimeStamp())));
                     })
-                    .map(pair -> writeReading(pair.getFirst(), pair.getLast()))
+                    .map(pair -> writeIntervalReading(pair.getFirst(), pair.getLast()))
                     .flatMap(Functions.asStream())
                     .map(line -> TextLineExportData.of(createStructureMarker(exportData, main, update), line));
         }
         Instant lastExported = determineLastExported(readings, intervalBlocks);
         return Pair.of(lastExported, Stream.of(readingStream, intervalReadings).flatMap(Function.identity()).collect(Collectors.toList()));
+    }
+
+    private Optional<String> writeIntervalReading(DecoratedIntervalReading reading, DataValidationStatus status) {
+        if (reading.getValue() != null) {
+            StringBuilder writer = new StringBuilder();
+            // TODO correct ZoneId
+            ZonedDateTime date = ZonedDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault());
+            writer.append(date.format(DATE_TIME_FORMATTER));
+            writer.append(fieldSeparator);
+            writer.append(meter.getMRID());
+            writer.append(fieldSeparator);
+            writer.append(readingType.getMRID());
+            writer.append(fieldSeparator);
+            writer.append(reading.getValue().toString());
+            writer.append(fieldSeparator);
+            if (status != null) {
+                ValidationResult validationResult;
+                if (reading.getReadingType().isCumulative()) {
+                    validationResult = status.getBulkValidationResult();
+                } else {
+                    validationResult = status.getValidationResult();
+                }
+                switch (validationResult) {
+                    case VALID:
+                        writer.append(VALID_STRING);
+                        break;
+                    case SUSPECT:
+                        writer.append(INVALID_STRING);
+                        break;
+                }
+            }
+            writer.append(fieldSeparator);
+            writer.append('\n');
+            return Optional.of(writer.toString());
+        }
+        return Optional.empty();
     }
 
     private StructureMarker createStructureMarker(ExportData exportData, StructureMarker main, StructureMarker update) {
@@ -161,6 +206,7 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
                     .max(Comparator.naturalOrder())
                     .orElse(null);
     }
+
 
     private Optional<String> writeReading(BaseReading reading, DataValidationStatus status) {
 
@@ -193,6 +239,44 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
         }
         return Optional.empty();
     }
+
+    private Optional<String> writeReading(BaseReading reading, DataValidationStatus status, ReadingType readingType) {
+
+        if (reading.getValue() != null) {
+            StringBuilder writer = new StringBuilder();
+            // TODO correct ZoneId
+            ZonedDateTime date = ZonedDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault());
+            writer.append(date.format(DATE_TIME_FORMATTER));
+            writer.append(fieldSeparator);
+            writer.append(meter.getMRID());
+            writer.append(fieldSeparator);
+            writer.append(readingType.getMRID());
+            writer.append(fieldSeparator);
+            writer.append(reading.getValue().toString());
+            writer.append(fieldSeparator);
+            if (status != null) {
+                ValidationResult validationResult;
+                if (readingType.isCumulative()) {
+                    validationResult = status.getBulkValidationResult();
+                } else {
+                    validationResult = status.getValidationResult();
+                }
+                switch (validationResult) {
+                    case VALID:
+                        writer.append(VALID_STRING);
+                        break;
+                    case SUSPECT:
+                        writer.append(INVALID_STRING);
+                        break;
+                }
+            }
+            writer.append(fieldSeparator);
+            writer.append('\n');
+            return Optional.of(writer.toString());
+        }
+        return Optional.empty();
+    }
+
 
     public void endItem(ReadingTypeDataExportItem item) {
         if (!item.getReadingType().getMRID().equals(readingType.getMRID())) {
@@ -252,5 +336,59 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
             }
         }
         return Optional.empty();
+    }
+
+    private static class DecoratedIntervalReading implements IntervalReading {
+        private final IntervalReading decorated;
+        private final ReadingType readingType;
+
+        private DecoratedIntervalReading(IntervalReading decorated, ReadingType readingType) {
+            this.decorated = decorated;
+            this.readingType = readingType;
+        }
+
+        public ReadingType getReadingType() {
+            return readingType;
+        }
+
+        @Override
+        public ProfileStatus getProfileStatus() {
+            return decorated.getProfileStatus();
+        }
+
+        @Override
+        public BigDecimal getSensorAccuracy() {
+            return decorated.getSensorAccuracy();
+        }
+
+        @Override
+        public Instant getTimeStamp() {
+            return decorated.getTimeStamp();
+        }
+
+        @Override
+        public Instant getReportedDateTime() {
+            return decorated.getReportedDateTime();
+        }
+
+        @Override
+        public BigDecimal getValue() {
+            return decorated.getValue();
+        }
+
+        @Override
+        public String getSource() {
+            return decorated.getSource();
+        }
+
+        @Override
+        public Optional<Range<Instant>> getTimePeriod() {
+            return decorated.getTimePeriod();
+        }
+
+        @Override
+        public List<? extends ReadingQuality> getReadingQualities() {
+            return decorated.getReadingQualities();
+        }
     }
 }

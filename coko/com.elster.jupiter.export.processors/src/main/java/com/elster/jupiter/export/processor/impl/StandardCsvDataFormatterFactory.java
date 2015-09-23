@@ -4,6 +4,7 @@ import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.NlsService;
@@ -33,6 +34,7 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
     private volatile PropertySpecService propertySpecService;
     private volatile DataExportService dataExportService;
     private volatile ValidationService validationService;
+    private volatile MeteringService meteringService;
     private volatile Thesaurus thesaurus;
 
     //OSGI
@@ -41,10 +43,11 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
 
     // Tests
     @Inject
-    public StandardCsvDataFormatterFactory(PropertySpecService propertySpecService, DataExportService dataExportService, ValidationService validationService, NlsService nlsService) {
+    public StandardCsvDataFormatterFactory(PropertySpecService propertySpecService, DataExportService dataExportService, ValidationService validationService, NlsService nlsService, MeteringService meteringService) {
         setPropertySpecService(propertySpecService);
         setDataExportService(dataExportService);
         setValidationService(validationService);
+        setMeteringService(meteringService);
         setThesaurus(nlsService);
     }
 
@@ -68,6 +71,12 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
         this.validationService = validationService;
     }
 
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
+
     @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>();
@@ -79,7 +88,7 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
 
     @Override
     public DataFormatter createDataFormatter(Map<String, Object> properties) {
-        return new StandardCsvDataFormatter(properties, thesaurus, validationService, dataExportService);
+        return new StandardCsvDataFormatter(properties, thesaurus, validationService, dataExportService, meteringService);
     }
 
     @Override
