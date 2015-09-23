@@ -116,6 +116,9 @@ public class UserDirectoryIT {
             activeDirectory.setDirectoryUser("MyUser");
             activeDirectory.setPassword("MyPassword");
             activeDirectory.setUrl("MyUrl");
+            activeDirectory.setBaseUser("BaseUser");
+            activeDirectory.setBackupUrl("backupUrl");
+            activeDirectory.setSecurity("NONE");
             activeDirectory.save();
             context.commit();
         }
@@ -137,12 +140,15 @@ public class UserDirectoryIT {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
         UserService userService = injector.getInstance(UserService.class);
         try (TransactionContext context = transactionService.getContext()) {
-            LdapUserDirectory activeDirectory = userService.createApacheDirectory("MyDomain");
-            activeDirectory.setDefault(true);
-            activeDirectory.setDirectoryUser("MyUser");
-            activeDirectory.setPassword("MyPassword");
-            activeDirectory.setUrl("MyUrl");
-            activeDirectory.save();
+            LdapUserDirectory apacheDirectory = userService.createApacheDirectory("MyDomain");
+            apacheDirectory.setDefault(true);
+            apacheDirectory.setDirectoryUser("MyUser");
+            apacheDirectory.setPassword("MyPassword");
+            apacheDirectory.setUrl("MyUrl");
+            apacheDirectory.setBaseUser("BaseUser");
+            apacheDirectory.setBackupUrl("backupUrl");
+            apacheDirectory.setSecurity("NONE");
+            apacheDirectory.save();
             context.commit();
         }
         Optional<UserDirectory> found = userService.findUserDirectory("MyDomain");
@@ -167,13 +173,15 @@ public class UserDirectoryIT {
         try (TransactionContext context = transactionService.getContext()) {
             LdapUserDirectory activeDirectory = userService.createActiveDirectory("LDAP Active Directory");
             activeDirectory.setDefault(true);
-            activeDirectory.setDirectoryUser("adrianlupan@rimroe.elster-group.com");
+            activeDirectory.setDirectoryUser("iancud@rimroe.elster-group.com");
             activeDirectory.setPassword("xxxxxx");
-            activeDirectory.setUrl("ldap://10.29.131.222:389");
+            activeDirectory.setUrl("ldap://localhost:389");
             activeDirectory.setBaseUser("DC=rimroe,DC=elster-group,DC=com");
+            activeDirectory.setBackupUrl("ldap://localhost:12389");
+            activeDirectory.setSecurity("NONE");
             activeDirectory.save();
-            Optional<User> user = activeDirectory.authenticate("adrianlupan","xxxxxx");
-            Optional<User> user1 = activeDirectory.authenticate("adrianlupan","xxxxxx");
+            Optional<User> user = activeDirectory.authenticate("iancud","xxxxxx");
+            Optional<User> user1 = activeDirectory.authenticate("iancud","xxxxxx");
             List<Group> groups = activeDirectory.getGroups(user1.get());
             List<Group> groups1 = activeDirectory.getGroups(user1.get());
             context.commit();
@@ -187,7 +195,7 @@ public class UserDirectoryIT {
         assertThat(userDirectory).isInstanceOf(ActiveDirectoryImpl.class);
         assertThat(userDirectory.isDefault()).isTrue();
         assertThat(userDirectory.getDomain()).isEqualTo("LDAP Active Directory");
-        assertThat(((LdapUserDirectory)userDirectory).getDirectoryUser()).isEqualTo("adrianlupan@rimroe.elster-group.com");
+        assertThat(((LdapUserDirectory)userDirectory).getDirectoryUser()).isEqualTo("iancud@rimroe.elster-group.com");
         assertThat(((LdapUserDirectory)userDirectory).getUrl()).isEqualTo("ldap://10.29.131.222:389");
     }
 
@@ -199,18 +207,20 @@ public class UserDirectoryIT {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
         UserService userService = injector.getInstance(UserService.class);
         try (TransactionContext context = transactionService.getContext()) {
-            LdapUserDirectory activeDirectory = userService.createApacheDirectory("LDAP Apache Directory");
-            activeDirectory.setDefault(true);
-            activeDirectory.setDirectoryUser("uid=admin,ou=system");
-            activeDirectory.setPassword("admin");
-            activeDirectory.setUrl("ldap://localhost:10389");
-            activeDirectory.setBaseUser("ou=users,dc=WSO2,dc=ORG");
-            activeDirectory.setBaseGroup("ou=Groups,dc=WSO2,dc=ORG");
-            activeDirectory.save();
-            Optional<User> user = activeDirectory.authenticate("root","tester");
-            Optional<User> user1 = activeDirectory.authenticate("root","tester");
-            List<Group> groups = activeDirectory.getGroups(user1.get());
-            List<Group> groups1 = activeDirectory.getGroups(user1.get());
+            LdapUserDirectory apacheDirectory = userService.createApacheDirectory("LDAP Apache Directory");
+            apacheDirectory.setDefault(true);
+            apacheDirectory.setDirectoryUser("uid=admin,ou=system");
+            apacheDirectory.setPassword("admin");
+            apacheDirectory.setUrl("ldap://localhost:10389");
+            apacheDirectory.setBaseUser("ou=users,dc=WSO2,dc=ORG");
+            apacheDirectory.setBaseGroup("ou=Groups,dc=WSO2,dc=ORG");
+            apacheDirectory.setBackupUrl("ldap://localhost:11389");
+            apacheDirectory.setSecurity("NONE");
+            apacheDirectory.save();
+            Optional<User> user = apacheDirectory.authenticate("root","tester");
+            Optional<User> user1 = apacheDirectory.authenticate("root","tester");
+            List<Group> groups = apacheDirectory.getGroups(user1.get());
+            List<Group> groups1 = apacheDirectory.getGroups(user1.get());
             context.commit();
         }
 

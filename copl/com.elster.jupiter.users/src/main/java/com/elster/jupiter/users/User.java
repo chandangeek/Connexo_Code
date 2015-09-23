@@ -20,6 +20,8 @@ public interface User extends Principal, HasName {
 
     long getVersion();
 
+    long getUserDirectoryId();
+
     void setDescription(String description);
 
     void save();
@@ -64,6 +66,10 @@ public interface User extends Principal, HasName {
     Set<Privilege> getPrivileges(String applicationName);
 
     String getDomain();
+
+    boolean getStatus();
+
+    void setStatus(boolean status);
 
     String getLanguage();
 

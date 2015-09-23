@@ -12,19 +12,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.ApplicationPrivilegesProvider;
-import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.MessageSeeds;
-import com.elster.jupiter.users.NoDefaultDomainException;
-import com.elster.jupiter.users.NoDomainFoundException;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.Resource;
-import com.elster.jupiter.users.ResourceDefinition;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserDirectory;
-import com.elster.jupiter.users.UserPreferencesService;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.*;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
@@ -129,22 +117,42 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         if ((trustStorePath != null) && (trustStorePass != null)) {
             System.setProperty("javax.net.ssl.trustStore", trustStorePath);
             System.setProperty("javax.net.ssl.trustStorePassword", trustStorePass);
-
         }
     }
 
     private UserDirectory getUserDirectory(String domain) {
-        Optional<UserDirectory> found = dataModel.mapper(UserDirectory.class).getOptional(domain);
-        if (!found.isPresent()) {
+        List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUAL.compare("name", domain));
+        if (found.isEmpty()) {
             throw new NoDomainFoundException(thesaurus, domain);
         }
 
+        return found.get(0);
+    }
+
+    @Override
+    public LdapUserDirectory getLdapUserDirectory(long id) {
+        Optional<LdapUserDirectory> found = dataModel.mapper(LdapUserDirectory.class).getOptional(id);
+        if (!found.isPresent()) {
+            throw new NoDomainIdFoundException(thesaurus,id);
+        }
         return found.get();
+    }
+
+    @Override
+    public Thesaurus getThesaurus(){
+        return thesaurus;
     }
 
     @Override
     public List<UserDirectory> getUserDirectories() {
         return dataModel.mapper(UserDirectory.class).find();
+
+
+    }
+
+    @Override
+    public Query<UserDirectory> getLdapDirectories() {
+        return getQueryService().wrap(dataModel.query(UserDirectory.class));
     }
 
     @Override
@@ -154,6 +162,15 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
             throw new NoDefaultDomainException(thesaurus);
         }
         return found.get(0);
+    }
+
+    @Override
+    public List<User> getAllUsers(long id){
+        return dataModel.mapper(User.class).find()
+                .stream()
+                .filter(s->s.getUserDirectoryId() == id)
+                .sorted((s1,s2)-> s1.getName().toLowerCase().compareTo(s2.getName().toLowerCase()))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -187,23 +204,25 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public User createUser(String name, String description) {
-        UserImpl result = createInternalDirectory(getRealm()).newUser(name, description, false);
+        InternalDirectoryImpl directory = (InternalDirectoryImpl) this.findUserDirectory(getRealm()).orElse(null);
+        UserImpl result = directory.newUser(name, description, false,true);
+        result.save();
+        return result;
+    }
+
+    @Override
+    public User createApacheDirectoryUser(String name, String domain,boolean status) {
+        ApacheDirectoryImpl directory = (ApacheDirectoryImpl) this.findUserDirectory(domain).orElse(null);
+        UserImpl result = directory.newUser(name, domain, false,status);
         result.save();
 
         return result;
     }
 
     @Override
-    public User createApacheDirectoryUser(String name, String domain) {
-        UserImpl result = createApacheDirectory(domain).newUser(name, domain, false);
-        result.save();
-
-        return result;
-    }
-
-    @Override
-    public User createActiveDirectoryUser(String name, String domain) {
-        UserImpl result = createActiveDirectory(domain).newUser(name, domain, false);
+    public User createActiveDirectoryUser(String name, String domain,boolean status) {
+        ActiveDirectoryImpl directory = (ActiveDirectoryImpl) this.findUserDirectory(domain).orElse(null);
+        UserImpl result = directory.newUser(name, domain, false,status);
         result.save();
 
         return result;
@@ -261,22 +280,30 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     public Optional<User> findUser(String authenticationName) {
         Condition condition = Operator.EQUALIGNORECASE.compare("authenticationName", authenticationName);
         List<User> users = dataModel.query(User.class, UserInGroup.class).select(condition);
-        return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
+        if(!users.isEmpty()){
+            if(users.get(0).getStatus()){
+                return Optional.of(users.get(0));
+            }
+        }
+        return Optional.empty();
     }
 
     @Override
-    public User findOrCreateUser(String name, String domain, String directoryType) {
+    public User findOrCreateUser(String name, String domain, String directoryType,boolean status) {
         Condition userCondition = Operator.EQUALIGNORECASE.compare("authenticationName", name);
-        Condition domainCondition = Operator.EQUALIGNORECASE.compare("userDirectory.domain", domain);
+        Condition domainCondition = Operator.EQUALIGNORECASE.compare("userDirectory.name", domain);
         List<User> users = dataModel.query(User.class, UserDirectory.class).select(userCondition.and(domainCondition));
         if (users.isEmpty()) {
             if (ApacheDirectoryImpl.TYPE_IDENTIFIER.equals(directoryType)) {
-                return createApacheDirectoryUser(name, domain);
+                return createApacheDirectoryUser(name, domain,status);
             }
             if (ActiveDirectoryImpl.TYPE_IDENTIFIER.equals(directoryType)) {
-                return createActiveDirectoryUser(name, domain);
+                return createActiveDirectoryUser(name, domain,status);
             }
-            return createUser(name, domain);
+        }
+        if(users.get(0).getStatus() != status){
+            users.get(0).setStatus(status);
+            users.get(0).save();
         }
         return users.get(0);
     }
@@ -437,7 +464,12 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public Optional<UserDirectory> findUserDirectory(String domain) {
-        return dataModel.mapper(UserDirectory.class).getOptional(domain);
+        List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUAL.compare("name", domain));
+        if(found.isEmpty()){
+            return Optional.empty();
+        }else{
+            return Optional.of(found.get(0));
+        }
     }
 
     @Reference

@@ -62,7 +62,7 @@ public class InstallerImpl {
     }
 
    private void createAdministratorUser(InternalDirectoryImpl directory, GroupImpl[] roles) {
-        UserImpl user = directory.newUser("admin", "System administrator", true);
+        UserImpl user = directory.newUser("admin", "System administrator", true,true);
 
 		user.setPassword("admin");
 		user.setLocale(Locale.ENGLISH);

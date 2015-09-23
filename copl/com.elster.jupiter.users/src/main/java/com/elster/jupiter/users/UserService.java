@@ -1,6 +1,9 @@
 package com.elster.jupiter.users;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.users.impl.AbstractLdapDirectoryImpl;
+import com.elster.jupiter.users.impl.UserImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,9 +19,9 @@ public interface UserService {
 
     User createUser(String name, String description);
 
-    User createApacheDirectoryUser(String name, String domain);
+    User createApacheDirectoryUser(String name, String domain,boolean status);
 
-    User createActiveDirectoryUser(String name, String domain);
+    User createActiveDirectoryUser(String name, String domain,boolean status);
 
     Group createGroup(String name, String description);
 
@@ -80,15 +83,23 @@ public interface UserService {
 
     UserDirectory findDefaultUserDirectory();
 
+    List<User> getAllUsers(long id);
+
     LdapUserDirectory createActiveDirectory(String domain);
 
     LdapUserDirectory createApacheDirectory(String domain);
 
-    User findOrCreateUser(String name, String domain, String directoryType);
+    User findOrCreateUser(String name, String domain, String directoryType,boolean status);
 
     Group findOrCreateGroup(String group);
 
     List<UserDirectory> getUserDirectories();
+
+    Query<UserDirectory> getLdapDirectories();
+
+    LdapUserDirectory getLdapUserDirectory(long id);
+
+    Thesaurus getThesaurus();
 
     UserPreferencesService getUserPreferencesService();
 

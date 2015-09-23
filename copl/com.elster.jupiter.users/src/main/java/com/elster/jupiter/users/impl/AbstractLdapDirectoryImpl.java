@@ -1,19 +1,39 @@
 package com.elster.jupiter.users.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.users.LdapUserDirectory;
+import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.UserService;
 
 import javax.naming.Context;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Hashtable;
 
 public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImpl implements LdapUserDirectory{
+    @Size.List({
+            @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}"),
+            @Size(max = 128, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_128 + "}")
+    })
     private String directoryUser;
+    @Size.List({
+            @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}"),
+            @Size(max = 128, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_128 + "}")
+    })
     private String password;
+    private String description;
+    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String url;
-    private String backupurl;
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    private String backupUrl;
+    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String security;
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String baseUser;
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String baseGroup;
     private boolean manageGroupsInternal;
 
@@ -29,6 +49,11 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     @Override
     public boolean isManageGroupsInternal() {
         return manageGroupsInternal;
+    }
+
+    @Override
+    public void setManageGroupsInternal(boolean manageGroupsInternal){
+        this.manageGroupsInternal = manageGroupsInternal;
     }
 
     @Override
@@ -53,7 +78,12 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
 
     @Override
     public String getBackupUrl(){
-        return backupurl;
+        return backupUrl;
+    }
+
+    @Override
+    public String getDescription(){
+        return description;
     }
 
     @Override
@@ -62,8 +92,13 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     }
 
     @Override
+    public void setDescription(String description){
+        this.description = description;
+    }
+
+    @Override
     public void setBackupUrl(String backupUrl){
-        this.backupurl = backupUrl;
+        this.backupUrl = backupUrl;
     }
 
     @Override
