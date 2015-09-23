@@ -163,7 +163,7 @@ Ext.define('Usr.controller.User', {
     {
         var me = this;
         record.set('active', false);
-        record.set('statusDisplay', Uni.I18n.translate('general.active', 'USR', 'Inactive'));
+        record.set('statusDisplay', Uni.I18n.translate('general.inactive', 'USR', 'Inactive'));
         me.updateUserStatus(record);
     },
     updateUserStatus: function(record)
