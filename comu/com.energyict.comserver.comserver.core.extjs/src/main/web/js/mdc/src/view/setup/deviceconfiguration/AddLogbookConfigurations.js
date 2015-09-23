@@ -20,7 +20,8 @@ Ext.define('Mdc.view.setup.deviceconfiguration.AddLogbookConfigurations', {
                 {
                     xtype: 'preview-container',
                     grid: {
-                        xtype: 'add-logbook-configurations-grid'
+                        xtype: 'add-logbook-configurations-grid',
+                        itemId: 'add-logbook-configurations-grid'
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
