@@ -102,7 +102,13 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.dataProcessor.name = "dataProcessor";
         info.dataSelector = new SelectorInfo();
         info.dataSelector.name = "Standard Data Selector";
-
+        DestinationInfo fileDestinationInfo = new DestinationInfo();
+        fileDestinationInfo.id = 0; // new
+        fileDestinationInfo.type = DestinationType.FILE;
+        fileDestinationInfo.fileLocation = "";
+        fileDestinationInfo.fileName = "file";
+        fileDestinationInfo.fileExtension = "txt";
+        info.destinations.add(fileDestinationInfo);
 
         Entity<DataExportTaskInfo> json = Entity.json(info);
 
