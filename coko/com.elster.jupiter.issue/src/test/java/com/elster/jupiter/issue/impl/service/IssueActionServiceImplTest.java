@@ -1,21 +1,9 @@
 package com.elster.jupiter.issue.impl.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.Test;
-
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.impl.records.IssueActionTypeImpl;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionFactory;
@@ -32,7 +20,19 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class IssueActionServiceImplTest extends BaseTest {
+
     @Test
     public void testIssueActionTypes() {
         Query<IssueActionType> actionTypeQuery =  getIssueActionService().getActionTypeQuery();
@@ -40,7 +40,7 @@ public class IssueActionServiceImplTest extends BaseTest {
         assertThat(actionTypeList).isNotEmpty();
 
         Issue issue;
-        IssueActionType type = new IssueActionTypeImpl(getDataModel(), getIssueActionService());
+        IssueActionType type;
         Optional<IssueType> issueTypeRef = getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID);
         assertThat(issueTypeRef).isNotEqualTo(Optional.empty());
         try (TransactionContext context = getContext()) {
@@ -61,7 +61,7 @@ public class IssueActionServiceImplTest extends BaseTest {
     public void testActionFactoryRegistration() {
         deactivateEnvironment();
         setEnvironment();
-        
+
         IssueServiceImpl impl = IssueServiceImpl.class.cast(getIssueService());
         IssueActionFactory factory = getMockIssueActionFactory();
         impl.addIssueActionFactory(factory);
@@ -72,7 +72,7 @@ public class IssueActionServiceImplTest extends BaseTest {
         impl.removeIssueActionFactory(factory);
         assertThat(getIssueActionService().getRegisteredFactories()).isEmpty();
     }
-    
+
     @Test
     public void testActionFactoryNotFound() {
         Optional<IssueAction> action = getIssueActionService().createIssueAction("Fake factory id", "Fake issue action");
@@ -80,9 +80,10 @@ public class IssueActionServiceImplTest extends BaseTest {
     }
 
     @Test
-    public void testCreateIssueActionDublicate() {
+    public void testCreateIssueActionDuplicate() {
         deactivateEnvironment();
         setEnvironment();
+        setThreadPrinciple();
         try (TransactionContext context = getContext()) {
             Optional<IssueType> issueTypeRef = getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID);
             IssueActionType actionType = getIssueActionService().createActionType("factoryId1", "classname1", issueTypeRef.get());
@@ -102,7 +103,7 @@ public class IssueActionServiceImplTest extends BaseTest {
             assertThat(getIssueActionService().getActionTypeQuery().select(Condition.TRUE).size()).isEqualTo(2);
         }
     }
-    
+
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.PROPERTY_MISSING +"}", property = "properties.property1", strict = true)
@@ -114,10 +115,10 @@ public class IssueActionServiceImplTest extends BaseTest {
         ((IssueServiceImpl)getIssueService()).addIssueActionFactory(issueActionFactory);
         IssueAction issueAction = new TestIssueAction(getDataModel(), mock(Thesaurus.class), getPropertySpecService());
         when(issueActionFactory.createIssueAction("Action ClassName")).thenReturn(issueAction);
-        
+
         getIssueActionService().executeAction(actionType, createIssueMinInfo(), Collections.emptyMap());
     }
-    
+
     private static class TestIssueAction extends AbstractIssueAction {
 
         protected TestIssueAction(DataModel dataModel, Thesaurus thesaurus, PropertySpecService propertySpecService) {

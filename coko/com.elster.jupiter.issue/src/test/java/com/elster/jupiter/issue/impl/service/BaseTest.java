@@ -85,7 +85,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 @SuppressWarnings("deprecation")
-public class BaseTest {
+public abstract class BaseTest {
     public static final String ISSUE_DEFAULT_TYPE_UUID = "datacollection";
     public static final String ISSUE_DEFAULT_REASON = "reason.default";
     public static final TranslationKey MESSAGE_SEED_DEFAULT_TRANSLATION = new TranslationKey() {
@@ -156,18 +156,24 @@ public class BaseTest {
             injector.getInstance(FiniteStateMachineService.class);
             issueService = injector.getInstance(IssueService.class);
             injector.getInstance(DummyIssueProvider.class);
-            ((NlsServiceImpl)injector.getInstance(NlsService.class)).addTranslationKeyProvider((IssueServiceImpl) issueService);
             injector.getInstance(ThreadPrincipalService.class).set(() -> "Test");
             // In OSGI container issue types will be set by separate bundle
             IssueType type = issueService.createIssueType(ISSUE_DEFAULT_TYPE_UUID, MESSAGE_SEED_DEFAULT_TRANSLATION);
             issueService.createReason(ISSUE_DEFAULT_REASON, type, MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION);
             ctx.commit();
         }
+        injector.getInstance(ThreadPrincipalService.class).set(() -> "Test");
+        ((NlsServiceImpl)injector.getInstance(NlsService.class)).addTranslationKeyProvider((IssueServiceImpl) issueService);
     }
 
     @AfterClass
     public static void deactivateEnvironment(){
         inMemoryBootstrapModule.deactivate();
+    }
+
+    @Before
+    public void setThreadPrinciple() {
+        injector.getInstance(ThreadPrincipalService.class).set(() -> "Test");
     }
 
     protected TransactionService getTransactionService() {
@@ -296,7 +302,7 @@ public class BaseTest {
     private static class DummyIssueProvider implements IssueProvider {
 
         @Inject
-        public DummyIssueProvider(IssueService issueService) {
+        DummyIssueProvider(IssueService issueService) {
             ((IssueServiceImpl) issueService).addIssueProvider(this);
         }
 
@@ -315,4 +321,5 @@ public class BaseTest {
             return Optional.of(issue);
         }
     }
+
 }

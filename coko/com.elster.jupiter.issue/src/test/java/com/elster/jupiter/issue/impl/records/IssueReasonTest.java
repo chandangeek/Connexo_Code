@@ -11,14 +11,14 @@ import com.elster.jupiter.transaction.TransactionContext;
 
 import java.util.Optional;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class IssueReasonTest extends BaseTest{
+public class IssueReasonTest extends BaseTest {
 
     private IssueType getDefaultIssueType(){
         return getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID).get();
