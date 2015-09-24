@@ -122,6 +122,7 @@ public class UsagePointImplTest {
     private Thesaurus thesaurus;
     @Mock
     private DataMapper<MeterActivation> meterActivationMapper;
+    @Mock
     private ValidatorFactory validatorFactory;
     @Mock
     private Validator validator;
