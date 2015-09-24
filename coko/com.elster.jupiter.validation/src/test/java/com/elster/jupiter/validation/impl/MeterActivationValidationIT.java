@@ -152,8 +152,7 @@ public class MeterActivationValidationIT {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             AmrSystem system = meteringService.findAmrSystem(1).get();
-            Meter meter = system.newMeter("1");
-            meter.save();
+            Meter meter = system.newMeter("1").create();
             MeterActivation meterActivation = meter.activate(ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault()).toInstant());
             ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
             Channel channel = meterActivation.createChannel(readingType);
@@ -171,8 +170,7 @@ public class MeterActivationValidationIT {
         createRuleSet(readingType);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             AmrSystem system = meteringService.findAmrSystem(1).get();
-            Meter meter = system.newMeter("1");
-            meter.save();
+            Meter meter = system.newMeter("1").create();
             ZonedDateTime startTime = ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault());
             ZonedDateTime originalCutOff = ZonedDateTime.of(2012, 12, 25, 0, 0, 0, 0, ZoneId.systemDefault());
             ZonedDateTime newCutOff = ZonedDateTime.of(2012, 12, 20, 0, 0, 0, 0, ZoneId.systemDefault());
