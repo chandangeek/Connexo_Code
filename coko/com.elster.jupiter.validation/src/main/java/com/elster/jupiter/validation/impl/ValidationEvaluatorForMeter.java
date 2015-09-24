@@ -3,6 +3,7 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
@@ -69,8 +70,16 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
     }
 
     @Override
-    public Optional<Instant> getLastChecked(Meter meter, ReadingType readingType) {
-        return meter.getMeterActivations().stream()
+    public boolean isValidationEnabled(ReadingContainer meter, ReadingType readingType){
+        return (meter.getMeterActivations().stream()
+                .flatMap(m -> m.getChannels().stream())
+                .filter(k -> k.getReadingTypes().contains(readingType))
+                .filter(validationService::isValidationActive)).count() > 0;
+    }
+
+    @Override
+    public Optional<Instant> getLastChecked(ReadingContainer readingContainer, ReadingType readingType) {
+        return readingContainer.getMeterActivations().stream()
                 .flatMap(m -> m.getChannels().stream())
                 .filter(k -> k.getReadingTypes().contains(readingType))
                 .map(channel -> getMapChannelToValidation().get(channel.getId()))
