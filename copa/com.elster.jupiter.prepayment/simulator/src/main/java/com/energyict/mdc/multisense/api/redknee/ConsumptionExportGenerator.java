@@ -4,15 +4,10 @@ package com.energyict.mdc.multisense.api.redknee;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ScheduledFuture;
@@ -24,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class ConsumptionExportGenerator {
 //    private final String csvFormat = "D,{0,string},{1,string},{2,string},{3,string},{4},{5,string},{6,number}";
-    private final String csvFormat = "D,{0},{1},{2},{3},{4,number,#},{5},{6,number,#}";
+    private final String csvFormat = "D|{0}|{1}|{2}|{3}|{4,number,#}|{5}|{6,number,#########.##########}";
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     private ScheduledThreadPoolExecutor executor;

@@ -10,7 +10,7 @@ public class UsagePoint {
     private String mRID;
     private String device_mRID;
     private String readingType;
-    private Integer consumption;
+    private double consumption;
     private Status status = Status.connected;
 
     public String getmRID() {
@@ -25,7 +25,7 @@ public class UsagePoint {
         return readingType;
     }
 
-    public Integer getConsumption() {
+    public double getConsumption() {
         return consumption;
     }
 
