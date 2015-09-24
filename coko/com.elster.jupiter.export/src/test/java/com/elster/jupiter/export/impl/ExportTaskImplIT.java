@@ -18,6 +18,7 @@ import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.FtpDestination;
+import com.elster.jupiter.export.FtpsDestination;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.export.ValidatedDataOption;
@@ -332,6 +333,35 @@ public class ExportTaskImplIT {
         assertThat(ftpDestination.getFileLocation()).isEqualTo("testreport");
         assertThat(ftpDestination.getFileName()).isEqualTo("file");
         assertThat(ftpDestination.getFileExtension()).isEqualTo("csv");
+    }
+
+    @Test
+    public void testAddFtpsDestination() {
+        ExportTask exportTask = createAndSaveTask();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            exportTask.addFtpsDestination("elster.com", "user", "password", "testreport", "file", "csv");
+
+            context.commit();
+        }
+
+        Optional<? extends ExportTask> found = dataExportService.findExportTask(exportTask.getId());
+
+        assertThat(found).isPresent();
+
+        ExportTask taskFromDB = found.get();
+
+        assertThat(taskFromDB.getDestinations()).hasSize(1);
+
+        assertThat(taskFromDB.getDestinations().get(0)).isInstanceOf(FtpsDestination.class);
+        FtpsDestination ftpsDestination = (FtpsDestination) taskFromDB.getDestinations().get(0);
+
+        assertThat(ftpsDestination.getServer()).isEqualTo("elster.com");
+        assertThat(ftpsDestination.getUser()).isEqualTo("user");
+        assertThat(ftpsDestination.getPassword()).isEqualTo("password");
+        assertThat(ftpsDestination.getFileLocation()).isEqualTo("testreport");
+        assertThat(ftpsDestination.getFileName()).isEqualTo("file");
+        assertThat(ftpsDestination.getFileExtension()).isEqualTo("csv");
     }
 
     @Test
