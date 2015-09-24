@@ -69,14 +69,17 @@ class DefaultItemDataSelector implements ItemDataSelector {
 
         DataExportStrategy strategy = item.getSelector().getStrategy();
 
-        handleValidatedDataOption(item, strategy, readings, exportInterval);
+        String mrid = item.getReadingContainer().getMeter(occurrence.getTriggerTime()).map(Meter::getMRID).orElse("");
+        String itemDescription = mrid + ":" + item.getReadingType().getAliasName();
+
+        handleValidatedDataOption(item, strategy, readings, exportInterval, itemDescription);
 
         if (strategy.isExportCompleteData() && !isComplete(item, exportInterval, readings)) {
-            logExportWindow(MessageSeeds.MISSING_WINDOW, exportInterval);
+            logExportWindow(MessageSeeds.MISSING_WINDOW, exportInterval, itemDescription);
             return Optional.empty();
         }
         if (!strategy.isExportCompleteData()) {
-            logMissings(item, exportInterval, readings);
+            logMissings(item, exportInterval, readings, itemDescription);
         }
 
 
@@ -87,31 +90,31 @@ class DefaultItemDataSelector implements ItemDataSelector {
         return Optional.empty();
     }
 
-    private void handleValidatedDataOption(IReadingTypeDataExportItem item, DataExportStrategy strategy, List<? extends BaseReadingRecord> readings, Range<Instant> interval) {
+    private void handleValidatedDataOption(IReadingTypeDataExportItem item, DataExportStrategy strategy, List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription) {
         if (validationService.getEvaluator().isValidationEnabled(item.getReadingContainer(), item.getReadingType())) {
             switch (strategy.getValidatedDataOption()) {
                 case EXCLUDE_INTERVAL:
-                    handleExcludeInterval(item, readings, interval);
+                    handleExcludeInterval(item, readings, interval, itemDescription);
                     return;
                 case EXCLUDE_ITEM:
-                    handleExcludeItem(item, readings, interval);
+                    handleExcludeItem(item, readings, interval, itemDescription);
                 default:
             }
         }
     }
 
-    private void handleExcludeItem(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval) {
+    private void handleExcludeItem(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription) {
         if (hasUnvalidatedReadings(item, readings) || hasSuspects(item, interval)) {
-            logExportWindow(MessageSeeds.SUSPECT_WINDOW, interval);
+            logExportWindow(MessageSeeds.SUSPECT_WINDOW, interval, itemDescription);
             readings.clear();
         }
     }
 
-    private void logExportWindow(MessageSeeds messageSeeds, Range<Instant> interval) {
+    private void logExportWindow(MessageSeeds messageSeeds, Range<Instant> interval, String itemDescription) {
         String fromDate = interval.hasLowerBound() ? timeFormatter.format(interval.lowerEndpoint()) : "";
         String toDate = interval.hasUpperBound() ? timeFormatter.format(interval.upperEndpoint()) : "";
         try (TransactionContext context = transactionService.getContext()) {
-            messageSeeds.log(logger, thesaurus, fromDate, toDate);
+            messageSeeds.log(logger, thesaurus, fromDate, toDate, itemDescription);
             context.commit();
         }
     }
@@ -130,12 +133,12 @@ class DefaultItemDataSelector implements ItemDataSelector {
                 .map(ReadingQualityRecord::getReadingTimestamp);
     }
 
-    private void handleExcludeInterval(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval) {
+    private void handleExcludeInterval(IReadingTypeDataExportItem item, List<? extends BaseReadingRecord> readings, Range<Instant> interval, String itemDescription) {
         Optional<Instant> lastChecked = validationService.getEvaluator().getLastChecked(item.getReadingContainer(), item.getReadingType());
 
         if (!lastChecked.isPresent()) {
             readings.clear();
-            logExportWindow(MessageSeeds.SUSPECT_INTERVAL, interval);
+            logExportWindow(MessageSeeds.SUSPECT_INTERVAL, interval, itemDescription);
             return;
         }
         Set<Instant> afterLastChecked = readings.stream()
@@ -143,20 +146,20 @@ class DefaultItemDataSelector implements ItemDataSelector {
                 .filter(timestamp -> timestamp.isAfter(lastChecked.get()))
                 .collect(Collectors.toCollection(TreeSet::new));
         if (!afterLastChecked.isEmpty()) {
-            logInvalids(item, afterLastChecked);
+            logInvalids(item, afterLastChecked, itemDescription);
         }
 
         lastChecked.ifPresent(date -> readings.removeIf(baseReadingRecord -> baseReadingRecord.getTimeStamp().isAfter(date)));
 
         Set<Instant> invalids = getSuspects(item, interval).collect(Collectors.toCollection(TreeSet::new));
         if (!invalids.isEmpty()) {
-            logInvalids(item, invalids);
+            logInvalids(item, invalids, itemDescription);
         }
 
         readings.removeIf(baseReadingRecord -> invalids.contains(baseReadingRecord.getTimeStamp()));
     }
 
-    private void logInvalids(IReadingTypeDataExportItem item, Set<Instant> instants) {
+    private void logInvalids(IReadingTypeDataExportItem item, Set<Instant> instants, String itemDescription) {
         if (!item.getReadingType().isRegular()) {
             return;
         }
@@ -164,10 +167,10 @@ class DefaultItemDataSelector implements ItemDataSelector {
         List<ZonedDateTime> zonedDateTimes = instants.stream()
                 .map(instant -> ZonedDateTime.ofInstant(instant, item.getReadingContainer().getZoneId()))
                 .collect(Collectors.toList());
-        logIntervals(zonedDateTimes, intervalLength, MessageSeeds.SUSPECT_INTERVAL);
+        logIntervals(zonedDateTimes, intervalLength, MessageSeeds.SUSPECT_INTERVAL, itemDescription);
     }
 
-    private void logMissings(IReadingTypeDataExportItem item, Range<Instant> exportInterval, List<? extends BaseReadingRecord> readings) {
+    private void logMissings(IReadingTypeDataExportItem item, Range<Instant> exportInterval, List<? extends BaseReadingRecord> readings, String itemDescription) {
         if (!item.getReadingType().isRegular()) {
             return;
         }
@@ -182,10 +185,10 @@ class DefaultItemDataSelector implements ItemDataSelector {
         List<ZonedDateTime> zonedDateTimes = instants.stream()
                 .map(instant -> ZonedDateTime.ofInstant(instant, item.getReadingContainer().getZoneId()))
                 .collect(Collectors.toList());
-        logIntervals(zonedDateTimes, intervalLength, MessageSeeds.MISSING_INTERVAL);
+        logIntervals(zonedDateTimes, intervalLength, MessageSeeds.MISSING_INTERVAL, itemDescription);
     }
 
-    private void logIntervals(List<ZonedDateTime> zonedDateTimes,  TemporalAmount intervalLength, MessageSeeds messageSeed) {
+    private void logIntervals(List<ZonedDateTime> zonedDateTimes,  TemporalAmount intervalLength, MessageSeeds messageSeed, String itemDescription) {
         int firstIndex = 0;
         ZonedDateTime start = zonedDateTimes.get(firstIndex);
         for (int i = 0; i < zonedDateTimes.size() - 1; i++) {
@@ -236,6 +239,9 @@ class DefaultItemDataSelector implements ItemDataSelector {
         Range<Instant> updateInterval = determineUpdateInterval(occurrence, item);
         List<? extends BaseReadingRecord> readings = new ArrayList<>(item.getReadingContainer().getReadingsUpdatedSince(updateInterval, item.getReadingType(), since));
 
+        String mrid = item.getReadingContainer().getMeter(occurrence.getTriggerTime()).map(Meter::getMRID).orElse("");
+        String itemDescription = mrid + ":" + item.getReadingType().getAliasName();
+
         Optional<RelativePeriod> updateWindow = item.getSelector().getStrategy().getUpdateWindow();
         if (updateWindow.isPresent()) {
             RelativePeriod window = updateWindow.get();
@@ -246,7 +252,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
                     .flatMap(range -> {
                         List<? extends BaseReadingRecord> found = new ArrayList(item.getReadingContainer().getReadings(range, item.getReadingType()));
                         if (occurrence.getTask().getReadingTypeDataSelector().get().getStrategy().isExportCompleteData()) {
-                            handleValidatedDataOption(item, item.getSelector().getStrategy(), found, range);
+                            handleValidatedDataOption(item, item.getSelector().getStrategy(), found, range, itemDescription);
                             if (!isComplete(item, range, found)) {
                                 return Stream.empty();
                             }
