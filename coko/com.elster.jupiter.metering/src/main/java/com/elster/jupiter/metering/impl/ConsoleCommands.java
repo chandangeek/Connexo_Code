@@ -117,11 +117,11 @@ public class ConsoleCommands {
         }
     }
 
-    public void addUsagePointToCurrentMeterActivation(String mrId, long usagePointId) {
+    public void addUsagePointToCurrentMeterActivation(String meterMRID, String usagePointMRID) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            Meter meter = meteringService.findMeter(mrId).get();
-            UsagePoint usagePoint = meteringService.findUsagePoint(usagePointId).get();
+            Meter meter = meteringService.findMeter(meterMRID).get();
+            UsagePoint usagePoint = meteringService.findUsagePoint(usagePointMRID).get();
             ((UsagePointImpl) usagePoint).adopt((MeterActivationImpl) meter.getCurrentMeterActivation().get());
             context.commit();
         } finally {
@@ -135,7 +135,6 @@ public class ConsoleCommands {
             Meter meter = meteringService.findMeter(mrId).get();
             Instant endDate = Instant.ofEpochMilli(epochMilli);
             meter.getCurrentMeterActivation().get().endAt(endDate);
-//            meter.save();
             context.commit();
         } finally {
             threadPrincipalService.clear();
@@ -148,7 +147,6 @@ public class ConsoleCommands {
             Meter meter = meteringService.findMeter(mrId).get();
             Instant newStartDate = Instant.ofEpochMilli(epochMilli);
             meter.getCurrentMeterActivation().get().advanceStartDate(newStartDate);
-//            meter.save();
             context.commit();
         } finally {
             threadPrincipalService.clear();
