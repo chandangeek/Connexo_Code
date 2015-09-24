@@ -2,6 +2,7 @@ package com.energyict.mdc.multisense.api.redknee;
 
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.server.Uri;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -21,11 +22,14 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 
 /**
  * Created by bvn on 9/17/15.
  */
-@Path("usagepoints/{mrid}/contactor")
+@Path("/public/api/rkn/v1.0/usagepoints/{mrid}/contactor")
 public class RknProxyResource {
 
     private final ConsumptionExportGenerator generator;
@@ -46,9 +50,9 @@ public class RknProxyResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateContactor(@PathParam("mrid") String mRID, ContactorInfo contactorInfo, @Context SecurityContext context) {
+    public Response updateContactor(@PathParam("mrid") String mRID, ContactorInfo contactorInfo, @Context SecurityContext context, @Context UriInfo uriInfo) {
         SecurityEnvelope securityEnvelope = (SecurityEnvelope) context.getUserPrincipal();
-        UsagePoint usagePoint = generator.getUsagePoint(mRID).orElseThrow(()->new WebApplicationException("No such usagepoint", Response.Status.NOT_FOUND));
+        UsagePoint usagePoint = generator.getUsagePoint(mRID).orElseThrow(() -> new WebApplicationException("No such usagepoint", Response.Status.NOT_FOUND));
         Response response = proxyRequest(mRID, contactorInfo, securityEnvelope);
         if (response.getStatus()== Response.Status.ACCEPTED.getStatusCode()) {
             switch (contactorInfo.status) {
@@ -60,6 +64,10 @@ public class RknProxyResource {
                     usagePoint.disconnect();
                     break;
             }
+            return Response
+                    .accepted()
+                    .location(UriBuilder.fromUri(uriInfo.getBaseUri()).uri(response.getHeaderString("location")).build())
+                    .build();
         }
         return response;
     }
@@ -78,5 +86,4 @@ public class RknProxyResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("{\"error\":\""+e.getLocalizedMessage()+"\"}").build();
         }
     }
-
 }

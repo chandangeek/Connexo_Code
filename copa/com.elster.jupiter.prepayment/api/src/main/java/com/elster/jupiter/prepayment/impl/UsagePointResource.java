@@ -69,7 +69,7 @@ public class UsagePointResource {
                 path(UsagePointResource.class, "getDeviceMessage").
                 build(mRID, messageId);
 
-        return Response.created(uri).build();
+        return Response.accepted().location(uri).build();
     }
 
     @GET
