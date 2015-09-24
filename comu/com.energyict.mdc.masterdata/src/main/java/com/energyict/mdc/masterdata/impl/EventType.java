@@ -34,7 +34,7 @@ public enum EventType {
                     .component(MasterDataService.COMPONENTNAME)
                     .category("Crud")
                     .scope("System");
-            this.addCustomProperties(builder).create().save();
+            this.addCustomProperties(builder).create();
         }
     },
     MEASUREMENTTYPE_CREATED("measurementtype/CREATED"),
@@ -83,7 +83,7 @@ public enum EventType {
                 .category("Crud")
                 .scope("System")
                 .withProperty("id", ValueType.LONG, "id");
-        this.addCustomProperties(builder).create().save();
+        this.addCustomProperties(builder).create();
     }
 
     protected EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
