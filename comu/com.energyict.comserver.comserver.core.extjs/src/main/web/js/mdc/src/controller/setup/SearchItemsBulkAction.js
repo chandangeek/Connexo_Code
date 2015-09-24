@@ -739,7 +739,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 bodyText = Uni.I18n.translate('searchItems.bulk.removeMsg', 'MDC', 'The selected devices will not execute the chosen shared communication schedules');
                 break;
             case 'changeconfig':
-                bodyText =  Uni.I18n.translate('searchItems.bulk.addMsg', 'MDC', 'The devices will take over all data sources, communication features and rule sets from new device configuration.');
+                bodyText =  Uni.I18n.translate('searchItems.bulk.changeMsg', 'MDC', 'The devices will take over all data sources, communication features and rule sets from new device configuration.');
                 break;
         }
 
