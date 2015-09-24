@@ -7,8 +7,9 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
+import java.util.Objects;
 
-public class EventPropertyTypeImpl implements EventPropertyType {
+public final class EventPropertyTypeImpl implements EventPropertyType {
 
     @SuppressWarnings("unused")
 	private String eventTypeTopic; 
@@ -56,5 +57,18 @@ public class EventPropertyTypeImpl implements EventPropertyType {
     public String getName() {
         return name;
     }
-    
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EventPropertyTypeImpl that = (EventPropertyTypeImpl) o;
+        return Objects.equals(eventTypeTopic, that.eventTypeTopic) &&
+                Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(eventTypeTopic, name);
+    }
 }
