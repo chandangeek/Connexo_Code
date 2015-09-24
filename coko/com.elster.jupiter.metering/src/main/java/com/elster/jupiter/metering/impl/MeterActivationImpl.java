@@ -13,11 +13,13 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -29,14 +31,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.Ranges.does;
+import static com.elster.jupiter.util.streams.Predicates.not;
 
-public class MeterActivationImpl implements MeterActivation {
+public final class MeterActivationImpl implements MeterActivation {
 	//persistent fields
 	private long id;
 	private Interval interval;
@@ -132,10 +138,10 @@ public class MeterActivationImpl implements MeterActivation {
 
 	@Override
 	public List<BaseReadingRecord> getReadings(Range<Instant> requested, ReadingType readingType) {
-        if (!requested.isConnected(getRange())) {
+        if (!requested.isConnected(getInterval().toOpenClosedRange())) {
             return Collections.emptyList();
         }
-        Range<Instant> active = requested.intersection(getRange());
+        Range<Instant> active = requested.intersection(getInterval().toOpenClosedRange());
         Channel channel = getChannel(readingType);
         if (channel == null) {
         	return Collections.emptyList();
@@ -150,9 +156,6 @@ public class MeterActivationImpl implements MeterActivation {
 			return Collections.emptyList();
 		}
 		Range<Instant> active = range.intersection(getRange());
-		if (active.hasUpperBound() && since.isAfter(active.upperEndpoint())) {
-			return Collections.emptyList();
-		}
 		Channel channel = getChannel(readingType);
 		if (channel == null) {
 			return Collections.emptyList();
@@ -308,36 +311,120 @@ public class MeterActivationImpl implements MeterActivation {
 		return Optional.ofNullable(getChannel(readingType)).map(channel -> channel.toList(exportInterval)).orElseGet(Collections::emptyList);
 	}
 
-	@Override
-	public void advanceStartDate(Instant startTime) {
-		if (!startTime.isBefore(getRange().lowerEndpoint())) {
-			throw new IllegalArgumentException("startDate must be before the current startdate");
-		}
+    @Override
+    public void advanceStartDate(Instant startTime) {
+        if (!startTime.isBefore(getRange().lowerEndpoint())) {
+            throw new IllegalArgumentException("startDate must be before the current startdate");
+        }
         Range<Instant> newRange = Range.singleton(startTime).span(interval.toClosedOpenRange());
-        getMeter().ifPresent(meter -> {
-            meter.getMeterActivations().stream()
-                    .filter(meterActivation -> meterActivation.getId() != id)
-                    .map(MeterActivation::getRange)
-                    .filter(range -> does(range).overlap(newRange))
-                    .findAny()
-                    .ifPresent(range -> {
-                        throw new IllegalArgumentException("resulting MeterActivation would overlap with the previous MeterActivation of its Meter.");
-                    });
-        });
-        getUsagePoint().ifPresent(usagePoint -> {
-            usagePoint.getMeterActivations().stream()
-                    .filter(meterActivation -> meterActivation.getId() != id)
-                    .map(MeterActivation::getRange)
-                    .filter(range -> does(range).overlap(newRange))
-                    .findAny()
-                    .ifPresent(range -> {
-                        throw new IllegalArgumentException("resulting MeterActivation would overlap with the previous MeterActivation of its UsagePoint.");
-                    });
-        });
+        Set<? extends MeterActivation> metersConflicts = getMeter().map(meter -> meter.getMeterActivations().stream()
+                        .filter(not(this::equals))
+                        .filter(meterActivation -> does(meterActivation.getRange()).overlap(newRange))
+                        .collect(Collectors.toSet())
+        ).orElseGet(Collections::emptySet);
+        Set<? extends MeterActivation> usagePointsConflicts = getUsagePoint().map(meter -> meter.getMeterActivations().stream()
+                        .filter(not(this::equals))
+                        .filter(meterActivation -> does(meterActivation.getRange()).overlap(newRange))
+                        .collect(Collectors.toSet())
+        ).orElseGet(Collections::emptySet);
+
+        boolean unresolvableMeterConflict = usagePointsConflicts.stream()
+                .anyMatch(this::hasDifferentMeter);
+        if (unresolvableMeterConflict) {
+            throw new IllegalArgumentException("resulting MeterActivation would overlap with the previous MeterActivation of its UsagePoint.");
+        }
+        boolean unresolvableUsagePointConflict = metersConflicts.stream()
+                .anyMatch(this::hasDifferentUsagePoint);
+        if (unresolvableUsagePointConflict) {
+            throw new IllegalArgumentException("resulting MeterActivation would overlap with the previous MeterActivation of its Meter.");
+        }
+
+        Set<MeterActivation> resolvableConflicts = new HashSet<>(metersConflicts);
+        resolvableConflicts.addAll(usagePointsConflicts);
+
+        if (resolvableConflicts.size() > 1) {
+            throw new IllegalArgumentException("resulting MeterActivation would overlap with more than one preceding MeterActivations");
+        }
+
         this.interval = Interval.of(newRange);
-		this.save();
-        eventService.postEvent(EventType.METER_ACTIVATION_ADVANCED.topic(), this);
-	}
+        resolvableConflicts.stream()
+                .findFirst()
+                .ifPresent(conflict -> this.resolveConflict(conflict, startTime));
+
+        this.save();
+        eventService.postEvent(EventType.METER_ACTIVATION_ADVANCED.topic(), new EventType.MeterActivationAdvancedEvent(this, resolvableConflicts.stream().findFirst().orElse(null)));
+    }
+
+    private void resolveConflict(MeterActivation toResolve, Instant cutOff) {
+
+        Instant end = toResolve.getEnd();
+        toResolve.endAt(cutOff);
+        // copy all data since cutoff to this MeterActivation
+
+        Map<Set<ReadingType>, ChannelImpl> sourceChannels = toResolve.getChannels().stream()
+                .map(ChannelImpl.class::cast)
+                .collect(Collectors.toMap(channel -> ImmutableSet.copyOf(channel.getReadingTypes()), Function.<ChannelImpl>identity()));
+        Map<Set<ReadingType>, ChannelImpl> targetChannels = getChannels().stream()
+                .map(ChannelImpl.class::cast)
+                .collect(Collectors.toMap(channel -> ImmutableSet.copyOf(channel.getReadingTypes()), Function.<ChannelImpl>identity()));
+
+        sourceChannels.entrySet().stream()
+                .forEach(entry -> copyData(entry.getValue(), targetChannels.get(entry.getKey()), Range.openClosed(cutOff, end)));
+
+    }
+
+    private void copyData(ChannelImpl sourceChannel, ChannelImpl targetChannel, Range<Instant> range) {
+        if (targetChannel == null) {
+            throw new IllegalArgumentException("Channel mismatch");
+        }
+        moveReadings(sourceChannel, targetChannel, range);
+        moveReadingQualities(sourceChannel, targetChannel, range);
+    }
+
+    private void moveReadingQualities(Channel sourceChannel, ChannelImpl targetChannel, Range<Instant> range) {
+        List<ReadingQualityRecord> sourceQualities = sourceChannel.findReadingQuality(range);
+        List<ReadingQualityRecord> newReadingQualities = sourceQualities.stream()
+                .map(targetChannel::copyReadingQuality)
+                .collect(Collectors.toList());
+        DataMapper<ReadingQualityRecord> qualityMapper = dataModel.mapper(ReadingQualityRecord.class);
+        qualityMapper.persist(newReadingQualities);
+        qualityMapper.remove(sourceQualities);
+    }
+
+    private void moveReadings(ChannelImpl sourceChannel, ChannelImpl targetChannel, Range<Instant> range) {
+        List<BaseReadingRecord> readings = sourceChannel.getReadings(range);
+        targetChannel.copyReadings(readings);
+        sourceChannel.deleteReadings(readings);
+    }
+
+    private boolean hasDifferentMeter(MeterActivation other) {
+        return getMeter()
+                .map(meter -> other.getMeter()
+                        .map(otherMeter -> otherMeter.getId() != meter.getId())
+                        .orElse(false))
+                .orElse(false);
+    }
+
+    private boolean hasDifferentUsagePoint(MeterActivation other) {
+        return getUsagePoint()
+                .map(usagePoint -> other.getUsagePoint()
+                        .map(otherUsagePoint -> otherUsagePoint.getId() != usagePoint.getId())
+                        .orElse(false))
+                .orElse(false);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MeterActivationImpl that = (MeterActivationImpl) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 
 	@Override
 	public List<ReadingQualityRecord> getReadingQualities(ReadingQualityType readingQualityType, ReadingType readingType, Range<Instant> interval) {

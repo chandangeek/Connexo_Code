@@ -211,6 +211,11 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     	return actual;
     }
 
+    void copy(ReadingQualityRecord source) {
+        actual = source.isActual();
+        comment = source.getComment();
+    }
+
     @Override
     public boolean hasEstimatedCategory() {
         return getType().hasEstimatedCategory();
