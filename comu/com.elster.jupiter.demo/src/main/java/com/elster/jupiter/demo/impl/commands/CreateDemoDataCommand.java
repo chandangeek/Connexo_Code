@@ -13,7 +13,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 
 public class CreateDemoDataCommand {
     private final Provider<CreateCollectRemoteDataSetupCommand> createCollectRemoteDataSetupCommandProvider;
@@ -84,16 +83,17 @@ public class CreateDemoDataCommand {
         validateStartDateCommand();
         createUserManagementCommand();
         createDemoUserCommand("DemoUser1", "DemoUser2", "DemoUser3", "DemoUser4", "DemoUser5");
-        createCollectRemoteDataSetupCommand();
-        createValidationSetupCommand();
         createApplicationServerCommand();
+        createCollectRemoteDataSetupCommand();
+        setupFirmwareManagementCommand();
+        createImportersCommand();
+        createValidationSetupCommand();
         createDefaultDeviceLifeCycleCommand();
         createNtaConfigCommand();
         createMockedDataDeviceCommand();
-        uploadAllData();
         createDeliverDataSetupCommand();
-        setupFirmwareManagementCommand();
-        createImportersCommand();
+
+        uploadAllData();
     }
 
     private void validateStartDateCommand(){

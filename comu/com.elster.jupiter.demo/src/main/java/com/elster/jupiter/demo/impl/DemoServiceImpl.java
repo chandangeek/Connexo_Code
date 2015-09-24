@@ -1,6 +1,7 @@
 package com.elster.jupiter.demo.impl;
 
 import com.elster.jupiter.demo.impl.commands.*;
+import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -73,8 +74,10 @@ import java.time.Clock;
         "osgi.command.function=addIntervalChannelReadings",
         "osgi.command.function=addNoneIntervalChannelReadings",
         "osgi.command.function=addRegisterReadings",
+        "osgi.command.function=createG3DemoBoardDevices",
         "osgi.command.function=createG3Gateway",
-        "osgi.command.function=createG3SlaveDevice",
+        "osgi.command.function=createG3SlaveAS3000",
+        "osgi.command.function=createG3SlaveAS220",
         "osgi.command.function=createDefaultDeviceLifeCycle",
         "osgi.command.function=setUpFirmwareManagement",
         "osgi.command.function=createImporters",
@@ -494,6 +497,14 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
+    public void createG3DemoBoardDevices(){
+        executeTransaction(() -> {
+            CreateG3DemoBoardCommand command = injector.getInstance(CreateG3DemoBoardCommand.class);
+            command.run();
+        });
+    }
+
+    @SuppressWarnings("unused")
     public void createG3Gateway(String mrid){
         executeTransaction(() -> {
             CreateG3GatewayCommand command = injector.getInstance(CreateG3GatewayCommand.class);
@@ -505,9 +516,25 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createG3SlaveDevice(){
+    public void createG3SlaveAS3000(String mrid){
         executeTransaction(() -> {
             CreateG3SlaveCommand command = injector.getInstance(CreateG3SlaveCommand.class);
+            command.setConfig("AS3000");
+            if (mrid != null){ //Otherwise default mrId is Used
+                command.setMrId(mrid);
+            }
+            command.run();
+        });
+    }
+
+    @SuppressWarnings("unused")
+    public void createG3SlaveAS220(String mrid){
+        executeTransaction(() -> {
+            CreateG3SlaveCommand command = injector.getInstance(CreateG3SlaveCommand.class);
+            command.setConfig("AS220");
+            if (mrid != null){ //Otherwise default mrId is Used
+                command.setMrId(mrid);
+            }
             command.run();
         });
     }

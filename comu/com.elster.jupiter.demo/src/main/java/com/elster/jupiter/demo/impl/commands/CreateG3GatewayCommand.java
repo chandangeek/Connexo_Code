@@ -36,7 +36,8 @@ import java.util.Optional;
 
 public class CreateG3GatewayCommand {
 
-    private static final String GATEWAY_MRID = "660-05A043-1428";
+    private static final String GATEWAY_MRID = "Demo board RTU+Server G3";
+    private static final String GATEWAY_SERIAL = "660-05A043-1428";
     private static final String DEVICE_CONFIG_NAME = "Default";
     private static final String SECURITY_PROPERTY_SET_NAME = "High level authentication - No encryption";
     private static final String REQUIRED_PLUGGABLE_CLASS_NAME = "OutboundTcpIp";
@@ -50,6 +51,7 @@ public class CreateG3GatewayCommand {
 
     private Map<ComTaskTpl, ComTask> comTasks;
     private String mRID = GATEWAY_MRID;
+    private String serialNumber = GATEWAY_SERIAL;
 
     @Inject
     public CreateG3GatewayCommand(DeviceService deviceService, ProtocolPluggableService protocolPluggableService,
@@ -89,7 +91,7 @@ public class CreateG3GatewayCommand {
             .orElseGet(() -> createG3DeviceConfiguration(g3DeviceType, DEVICE_CONFIG_NAME));
 
         // 5. Create the gateway device
-        createG3GatewayDevice(mRID, configuration);
+        createG3GatewayDevice(configuration);
     }
 
     private DeviceConfiguration createG3DeviceConfiguration(DeviceType g3DeviceType, String deviceConfigName) {
@@ -149,10 +151,10 @@ public class CreateG3GatewayCommand {
         }
     }
 
-    private void createG3GatewayDevice(String mrid, DeviceConfiguration configuration) {
+    private void createG3GatewayDevice(DeviceConfiguration configuration) {
         Device device = deviceBuilderProvider.get()
-            .withMrid(mrid)
-            .withSerialNumber(mrid)
+            .withMrid(mRID)
+            .withSerialNumber(serialNumber)
             .withDeviceConfiguration(configuration)
             .withYearOfCertification(2015)
             .get();

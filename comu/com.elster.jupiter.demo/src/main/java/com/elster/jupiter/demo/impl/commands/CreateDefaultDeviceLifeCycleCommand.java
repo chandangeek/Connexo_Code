@@ -92,10 +92,17 @@ public class CreateDefaultDeviceLifeCycleCommand {
                         .collect(Collectors.toList());
 
             System.out.println(" ==> Finding the executable action propertiessetting took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
+            devices.stream().forEach(x -> executeAuthorizedAction(authorizedActionToExecute, x, properties));
+         }
+    }
 
-            now = Clock.systemDefaultZone().millis();
-            devices.stream().forEach(x -> deviceLifeCycleService.execute(authorizedActionToExecute, x, clock.instant(), properties));
-            System.out.println(" ==> Setting the 'Active' State to all devices of device type "+ deviceType.getName()+" took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
+    private void executeAuthorizedAction(AuthorizedStandardTransitionAction authorizedActionToExecute, Device device, List<ExecutableActionProperty> properties){
+        long now = Clock.systemDefaultZone().millis();
+        try {
+            deviceLifeCycleService.execute(authorizedActionToExecute, device, clock.instant(), properties);
+            System.out.println(" ==> Setting the 'Active' State for device " + device.getmRID() + " took " + (Clock.systemDefaultZone().millis() - now) + " ms.");
+        }catch(DeviceLifeCycleActionViolationException e){
+            e.printStackTrace();
         }
     }
 

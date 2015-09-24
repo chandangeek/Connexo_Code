@@ -377,11 +377,12 @@ public class DemoTest {
     @Test
     public void testCreateG3Devices() {
         String MRID_GATEWAY = "123-4567-89";
-        String MRID_SLAVE1 = "E0023000520685414";
-        String MRID_SLAVE2 = "123457S";
+        String MRID_SLAVE1 = "Demo board AS3000";
+        String MRID_SLAVE2 = "Demo board AS220";
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
         demoService.createG3Gateway(MRID_GATEWAY);
-        demoService.createG3SlaveDevice();
+        demoService.createG3SlaveAS3000(MRID_SLAVE1);
+        demoService.createG3SlaveAS220(MRID_SLAVE2);
 
         this.setPrincipal();
         checkCreatedG3Gateway(MRID_GATEWAY);
@@ -466,8 +467,8 @@ public class DemoTest {
     }
 
     private void checkCreatedG3SlaveDevice(String mridDevice) {
-        String SERIAL_NUMBER = "E0023000520685414".equals(mridDevice) ? "05206854" : "35075302";
-        String MAC_ADDRESS = "E0023000520685414".equals(mridDevice) ? "02237EFFFEFD835B" : "02237EFFFEFD82F4";
+        String SERIAL_NUMBER = "Demo board AS3000".equals(mridDevice) ? "05206854" : "35075302";
+        String MAC_ADDRESS = "Demo board AS3000".equals(mridDevice) ? "02237EFFFEFD835B" : "02237EFFFEFD82F4";
         String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
@@ -477,7 +478,7 @@ public class DemoTest {
         assertThat(device.getSerialNumber()).isEqualTo(SERIAL_NUMBER);
 
         DeviceType deviceType = device.getDeviceType();
-        assertThat(deviceType.getName()).isEqualTo(DeviceTypeTpl.AM540.getName());
+        assertThat(deviceType.getName()).isEqualTo("Demo board AS3000".equals(mridDevice) ? DeviceTypeTpl.AS3000.getName() : DeviceTypeTpl.AS220.getName());
         List<LoadProfileType> loadProfileTypes = deviceType.getLoadProfileTypes();
         assertThat(loadProfileTypes).hasSize(3);
         for (LoadProfileType loadProfileType : loadProfileTypes) {
@@ -592,14 +593,17 @@ public class DemoTest {
     @Test
     public void testExecuteCreateG3DevicesTwice() {
         String MRID_GATEWAY = "123-4567-89";
-        String MRID_SLAVE1 = "E0023000520685414";
-        String MRID_SLAVE2 = "123457S";
+        String MRID_SLAVE1 = "Demo board AS3000";
+        String MRID_SLAVE2 = "Demo board AS220";
 
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
         demoService.createG3Gateway(MRID_GATEWAY);
-        demoService.createG3SlaveDevice();
+        demoService.createG3SlaveAS3000(MRID_SLAVE1);
+        demoService.createG3SlaveAS220(MRID_SLAVE2);
+
         demoService.createG3Gateway(MRID_GATEWAY);
-        demoService.createG3SlaveDevice(); // Calling the commands 'createG3Gateway' and 'createG3SlaveDevice' twice shouldn't produce errors
+        demoService.createG3SlaveAS3000(MRID_SLAVE1);
+        demoService.createG3SlaveAS220(MRID_SLAVE2);
 
         this.setPrincipal();
         checkCreatedG3Gateway(MRID_GATEWAY);
@@ -656,7 +660,6 @@ public class DemoTest {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
         demoService.createDemoData("DemoServ", "host", "2015-01-01");
-        demoService.setUpFirmwareManagement();
 
         DeviceConfigurationService deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
         //All device types (except the excluded ones) shoud have 2 firmware versions

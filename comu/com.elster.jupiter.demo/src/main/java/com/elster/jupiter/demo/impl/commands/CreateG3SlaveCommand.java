@@ -13,6 +13,7 @@ import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMes
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 /**
@@ -47,42 +48,74 @@ import java.util.function.Consumer;
 public class CreateG3SlaveCommand {
 
     private final static String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
-    private final MeterConfig meterConfig1 = new MeterConfig().setProperty("MRID", "E0023000520685414")
-            .setProperty("propertyID", "E0023000520685414")
-            .setProperty("serialNumber", "05206854")
-            .setProperty("MAC_address", "02237EFFFEFD835B")
-            .setProperty("masterKey", "00112233445566778899AABBCCDDEEFF")
-            .setProperty("AK", "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF")
-            .setProperty("EK", "000102030405060708090A0B0C0D0E0F")
-            .setProperty("PSK", "00112233445566778899AABBCCDDEEFF")
-            .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
-            .setProperty("HLSsecretASCII", "1234567890123456")
-            .setProperty("ClientMacAddress", "1");
 
-    private final MeterConfig meterConfig2 = new MeterConfig().setProperty("MRID", "123457S")
-            .setProperty("propertyID", "123457S")
-            .setProperty("serialNumber", "35075302")
-            .setProperty("MAC_address", "02237EFFFEFD82F4")
-            .setProperty("masterKey", "00112233445566778899AABBCCDDEEFF")
-            .setProperty("AK", "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF")
-            .setProperty("EK", "000102030405060708090A0B0C0D0E0F")
-            .setProperty("PSK", "92DA010836AA91222BCBEA49713DD9C1")
-            .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
-            .setProperty("HLSsecretASCII", "1234567890123456")
-            .setProperty("ClientMacAddress", 1);
+    public enum SlaveDeviceConfiguration{
+        AS3000{
+            @Override
+            MeterConfig getMeterConfig() {
+                return new MeterConfig().setProperty("DeviceTypeName", "AS3000")
+                            .setProperty("MRID", "Demo board AS3000")
+                            .setProperty("propertyID", "E0023000520685414")
+                            .setProperty("serialNumber", "05206854")
+                            .setProperty("MAC_address", "02237EFFFEFD835B")
+                            .setProperty("masterKey", "00112233445566778899AABBCCDDEEFF")
+                            .setProperty("AK", "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF")
+                            .setProperty("EK", "000102030405060708090A0B0C0D0E0F")
+                            .setProperty("PSK", "00112233445566778899AABBCCDDEEFF")
+                            .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
+                            .setProperty("HLSsecretASCII", "1234567890123456")
+                            .setProperty("ClientMacAddress", "1");
+            }
+        },
+        AS220{
+            @Override
+            MeterConfig getMeterConfig() {
+                return new MeterConfig().setProperty("DeviceTypeName", "AS220")
+                            .setProperty("MRID", "Demo board AS220")
+                            .setProperty("propertyID", "123457S")
+                            .setProperty("serialNumber", "35075302")
+                            .setProperty("MAC_address", "02237EFFFEFD82F4")
+                            .setProperty("masterKey", "00112233445566778899AABBCCDDEEFF")
+                            .setProperty("AK", "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF")
+                            .setProperty("EK", "000102030405060708090A0B0C0D0E0F")
+                            .setProperty("PSK", "92DA010836AA91222BCBEA49713DD9C1")
+                            .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
+                            .setProperty("HLSsecretASCII", "1234567890123456")
+                            .setProperty("ClientMacAddress", 1);
+            }
+        };
 
+        abstract MeterConfig getMeterConfig();
 
-    private DeviceConfiguration deviceConfiguration;
-    private SecurityPropertySet securityPropertySet;
+    }
+
+    private String mrId;
+    private MeterConfig meterConfig;
+    private DeviceTypeTpl deviceTypeTemplate;
+
     @Inject
     public CreateG3SlaveCommand() {}
 
-    public void run() {
-        deviceConfiguration = getConfiguration();
-        securityPropertySet = deviceConfiguration.getSecurityPropertySets().stream().filter(s -> SECURITY_SET_NAME.equals(s.getName())).findFirst().get();
+    public void setMrId(String mrId) {
+        this.mrId = mrId;
+    }
 
-        deviceFrom(meterConfig1);
-        deviceFrom(meterConfig2);
+    public void setConfig(String meterConfigName){
+        this.meterConfig = Arrays.stream(SlaveDeviceConfiguration.values())
+                .filter(x-> x.name().equals(meterConfigName)).findFirst().orElseThrow(()-> new IllegalArgumentException("No configuration known for '" + meterConfigName + "'"))
+                .getMeterConfig();
+        this.deviceTypeTemplate = DeviceTypeTpl.fromName(meterConfigName);
+    }
+
+    public void run() {
+        DeviceConfiguration deviceConfiguration = getConfiguration();
+        meterConfig.setDeviceConfiguration(deviceConfiguration);
+        meterConfig.setSecurityPropertySet(deviceConfiguration.getSecurityPropertySets().stream().filter(s -> SECURITY_SET_NAME.equals(s.getName())).findFirst().get());
+
+        if (mrId != null){
+            meterConfig.setProperty("MRID", mrId);
+        }
+        deviceFrom(meterConfig);
     }
 
     private Device deviceFrom(MeterConfig config) {
@@ -90,7 +123,10 @@ public class CreateG3SlaveCommand {
     }
 
     private DeviceConfiguration getConfiguration() {
-        DeviceType deviceType = Builders.from(DeviceTypeTpl.AM540).get();
+        if (deviceTypeTemplate == null){
+            throw new IllegalStateException("DeviceTypeTpl not set");
+        }
+        DeviceType deviceType = Builders.from(deviceTypeTemplate).get();
         DeviceConfiguration config = createDefaultConfiguration(deviceType);
         if (!config.isActive()) {
             config.activate();
@@ -106,9 +142,11 @@ public class CreateG3SlaveCommand {
                 .get();
     }
 
-    private class MeterConfig {
+    private static class MeterConfig {
 
-        TypedProperties props = TypedProperties.empty();
+        private TypedProperties props = TypedProperties.empty();
+        private DeviceConfiguration deviceConfiguration;
+        private SecurityPropertySet securityPropertySet;
 
         MeterConfig() {
         }
@@ -120,6 +158,18 @@ public class CreateG3SlaveCommand {
 
         Object getProperty(String propertyName){
             return props.getProperty(propertyName);
+        }
+
+        public void setDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
+            this.deviceConfiguration = deviceConfiguration;
+        }
+
+        public void setSecurityPropertySet(SecurityPropertySet securityPropertySet) {
+            this.securityPropertySet = securityPropertySet;
+        }
+
+        public SecurityPropertySet getSecurityPropertySet() {
+            return securityPropertySet;
         }
 
         TypedProperties getSecuritySetProperties(){
@@ -140,7 +190,7 @@ public class CreateG3SlaveCommand {
         }
     }
 
-    private class SecurityPropertySetPostBuilder implements Consumer<DeviceConfiguration> {
+    private static class SecurityPropertySetPostBuilder implements Consumer<DeviceConfiguration> {
 
         @Override
         public void accept(DeviceConfiguration configuration) {
@@ -155,7 +205,7 @@ public class CreateG3SlaveCommand {
         }
     }
 
-    private class SecurityPropertyPostBuilder implements Consumer<Device>{
+    private static class SecurityPropertyPostBuilder implements Consumer<Device>{
         MeterConfig meterConfig;
 
         SecurityPropertyPostBuilder(MeterConfig meterConfig){
@@ -164,12 +214,12 @@ public class CreateG3SlaveCommand {
 
         @Override
         public void accept(Device device) {
-            device.setSecurityProperties(securityPropertySet, meterConfig.getSecuritySetProperties());
+            device.setSecurityProperties(meterConfig.getSecurityPropertySet(), meterConfig.getSecuritySetProperties());
             device.save();
         }
     }
 
-    private class ProtocolPropertyPostBuilder implements Consumer<Device>{
+    private static class ProtocolPropertyPostBuilder implements Consumer<Device>{
         MeterConfig meterConfig;
 
         ProtocolPropertyPostBuilder(MeterConfig meterConfig){
