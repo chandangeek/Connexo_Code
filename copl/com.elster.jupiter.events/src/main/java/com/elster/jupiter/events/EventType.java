@@ -35,6 +35,5 @@ public interface EventType {
 
     void removePropertyType(EventPropertyType eventPropertyType);
 
-    void save();
-
+    void update();
 }

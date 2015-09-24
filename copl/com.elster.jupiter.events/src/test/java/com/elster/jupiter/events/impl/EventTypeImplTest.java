@@ -1,5 +1,6 @@
 package com.elster.jupiter.events.impl;
 
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.events.EventPropertyType;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.LocalEvent;
@@ -10,9 +11,6 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
-import java.time.Clock;
-
-import java.time.Instant;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,15 +18,19 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EventTypeImplTest {
+public class EventTypeImplTest extends EqualsContractTest {
 
     private static final String TOPIC = "topic";
     private static final String COMPONENT = "CMP";
@@ -39,6 +41,8 @@ public class EventTypeImplTest {
     private static final String PROPERTY_NAME = "propertyName";
     private static final Instant NOW = ZonedDateTime.of(2013, 9, 14, 18, 45, 12, 0, ZoneId.systemDefault()).toInstant();
     private static final String SOURCE = "source";
+
+    private EventType instanceA;
 
     @Mock
     private DataMapper<EventType> eventTypeFactory;
@@ -60,10 +64,12 @@ public class EventTypeImplTest {
     private Thesaurus thesaurus;
 
     @Before
-    public void setUp() {
+    @Override
+    public void equalsContractSetUp() {
         when(clock.instant()).thenReturn(NOW);
         when(dataModel.mapper(EventType.class)).thenReturn(eventTypeFactory);
-        when(dataModel.getInstance(EventTypeImpl.class)).thenReturn(new EventTypeImpl(dataModel, clock, jsonService, eventConfiguration, messageService, beanService, thesaurus));
+        when(dataModel.getInstance(EventTypeImpl.class)).thenAnswer(invocation -> new EventTypeImpl(dataModel, clock, jsonService, eventConfiguration, messageService, beanService, thesaurus));
+        super.equalsContractSetUp();
     }
 
     @After
@@ -212,7 +218,7 @@ public class EventTypeImplTest {
         when(eventTypePropertyFactory.find("eventType", eventType)).thenReturn(Arrays.asList(eventPropertyType));
 
         eventType.removePropertyType(eventPropertyType);
-        eventType.save();
+        eventType.update();
 
         verify(eventTypeFactory).update(eventType);
         assertThat(eventType.getPropertyTypes()).isEmpty();
@@ -226,7 +232,7 @@ public class EventTypeImplTest {
         when(eventTypePropertyFactory.find("eventType", eventType)).thenReturn(Arrays.asList(eventPropertyType1));
 
         EventPropertyType eventPropertyType2 = eventType.addProperty("newProperty", ValueType.STRING, ACCESS_PATH);
-        eventType.save();
+        eventType.update();
 
         verify(eventTypeFactory).update(eventType);
         assertThat(eventType.getPropertyTypes()).hasSize(2).contains(eventPropertyType1, eventPropertyType2);
@@ -244,4 +250,31 @@ public class EventTypeImplTest {
         assertThat(localEvent.getSource()).isEqualTo(SOURCE);
     }
 
+    @Override
+    protected Object getInstanceA() {
+        if (instanceA == null) {
+            instanceA = EventTypeImpl.from(dataModel, TOPIC);
+        }
+        return instanceA;
+    }
+
+    @Override
+    protected Object getInstanceEqualToA() {
+        return EventTypeImpl.from(dataModel, TOPIC);
+    }
+
+    @Override
+    protected Iterable<?> getInstancesNotEqualToA() {
+        return Collections.singletonList(EventTypeImpl.from(dataModel, TOPIC + "2"));
+    }
+
+    @Override
+    protected boolean canBeSubclassed() {
+        return false;
+    }
+
+    @Override
+    protected Object getInstanceOfSubclassEqualToA() {
+        return null;
+    }
 }

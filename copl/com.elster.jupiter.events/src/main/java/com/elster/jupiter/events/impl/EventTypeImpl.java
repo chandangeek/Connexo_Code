@@ -16,8 +16,9 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class EventTypeImpl implements EventType, PersistenceAware {
+public final class EventTypeImpl implements EventType, PersistenceAware {
 
     private String topic;
     private String component;
@@ -27,7 +28,6 @@ public class EventTypeImpl implements EventType, PersistenceAware {
     private boolean publish = false;
     private boolean fsmEnabled = false;
     private final List<EventPropertyType> eventPropertyTypes = new ArrayList<>();
-    private transient boolean fromDB = true;
     private final DataModel dataModel;
     private final Clock clock;
     private final JsonService jsonService;
@@ -49,7 +49,6 @@ public class EventTypeImpl implements EventType, PersistenceAware {
 
     static EventTypeImpl from(DataModel dataModel, String topic) {
         EventTypeImpl eventType = dataModel.getInstance(EventTypeImpl.class);
-        eventType.fromDB = false;
         return eventType.init(topic);
     }
 
@@ -160,13 +159,24 @@ public class EventTypeImpl implements EventType, PersistenceAware {
     }
 
     @Override
-    public void save() {
-        if (fromDB) {
-            dataModel.mapper(EventType.class).update(this);
-        } else {
-            dataModel.mapper(EventType.class).persist(this);
-            fromDB = true;
-        }
+    public void update() {
+        dataModel.mapper(EventType.class).update(this);
     }
 
+    void save() {
+        dataModel.mapper(EventType.class).persist(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EventTypeImpl eventType = (EventTypeImpl) o;
+        return Objects.equals(topic, eventType.topic);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(topic);
+    }
 }

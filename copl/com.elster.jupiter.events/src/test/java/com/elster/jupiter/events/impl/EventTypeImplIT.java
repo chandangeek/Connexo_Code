@@ -100,7 +100,6 @@ public class EventTypeImplIT {
                         .category("category").scope("scope")
                         .withProperty("A", ValueType.STRING, "C")
                         .create();
-                eventType.save();
 
                 Optional<EventType> optional = eventService.getEventType(eventType.getTopic());
 

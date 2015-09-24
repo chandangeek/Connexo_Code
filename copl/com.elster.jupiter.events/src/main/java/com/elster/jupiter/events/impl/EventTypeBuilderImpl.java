@@ -69,6 +69,7 @@ public class EventTypeBuilderImpl implements EventTypeBuilder {
 
     @Override
     public EventType create() {
+        underConstruction.save();
         return underConstruction;
     }
 }

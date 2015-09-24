@@ -5,16 +5,18 @@ import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
-import java.time.Clock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.time.Clock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -44,10 +46,13 @@ public class EventTypeBuilderImplTest {
     private BeanService beanService;
     @Mock
     private Thesaurus thesaurus;
+    @Mock
+    private DataMapper<EventType> eventTypeFactory;
 
     @Before
     public void setUp() {
         when(dataModel.getInstance(EventTypeImpl.class)).thenReturn(new EventTypeImpl(dataModel, clock, jsonService, eventConfiguration, messageService, beanService, thesaurus));
+        when(dataModel.mapper(EventType.class)).thenReturn(eventTypeFactory);
         eventTypeBuilder = new EventTypeBuilderImpl(dataModel, TOPIC)
                 .category(CATEGORY)
                 .component(COMPONENT)
