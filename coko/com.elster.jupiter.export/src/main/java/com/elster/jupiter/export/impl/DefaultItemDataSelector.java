@@ -194,30 +194,30 @@ class DefaultItemDataSelector implements ItemDataSelector {
         for (int i = 0; i < zonedDateTimes.size() - 1; i++) {
             start = start.plus(intervalLength);
             if (!start.equals(zonedDateTimes.get(i + 1)))  {
-                logInterval(zonedDateTimes, firstIndex, i, intervalLength, messageSeed);
+                logInterval(zonedDateTimes, firstIndex, i, intervalLength, messageSeed, itemDescription);
                 firstIndex = i + 1;
                 start = zonedDateTimes.get(i + 1);
             }
         }
-        logInterval(zonedDateTimes, firstIndex, zonedDateTimes.size() - 1, intervalLength, messageSeed);
+        logInterval(zonedDateTimes, firstIndex, zonedDateTimes.size() - 1, intervalLength, messageSeed, itemDescription);
     }
 
-    private void logInterval(List<ZonedDateTime> zonedDateTimes, int startIndex, int endIndex, TemporalAmount intervalLength, MessageSeeds messageSeed) {
+    private void logInterval(List<ZonedDateTime> zonedDateTimes, int startIndex, int endIndex, TemporalAmount intervalLength, MessageSeeds messageSeed, String itemDescription) {
         boolean isSingleInterval = endIndex - startIndex == 1;
         if (isSingleInterval) {
-            doLogInterval(zonedDateTimes, startIndex, startIndex, intervalLength, messageSeed);
+            doLogInterval(zonedDateTimes, startIndex, startIndex, intervalLength, messageSeed, itemDescription);
         } else {
-            doLogInterval(zonedDateTimes, startIndex, endIndex, intervalLength, messageSeed);
+            doLogInterval(zonedDateTimes, startIndex, endIndex, intervalLength, messageSeed, itemDescription);
         }
     }
 
-    private void doLogInterval(List<ZonedDateTime> zonedDateTimes, int startIndex, int endIndex, TemporalAmount intervalLength, MessageSeeds messageSeed) {
+    private void doLogInterval(List<ZonedDateTime> zonedDateTimes, int startIndex, int endIndex, TemporalAmount intervalLength, MessageSeeds messageSeed, String itemDescription) {
         ZonedDateTime startTimeToLog = zonedDateTimes.get(startIndex).minus(intervalLength);
         ZonedDateTime endTimeToLog = zonedDateTimes.get(endIndex);
         try (TransactionContext context = transactionService.getContext()) {
             messageSeed.log(logger, thesaurus,
                     timeFormatter.format(startTimeToLog),
-                    timeFormatter.format(endTimeToLog));
+                    timeFormatter.format(endTimeToLog), itemDescription);
             context.commit();
         }
     }
