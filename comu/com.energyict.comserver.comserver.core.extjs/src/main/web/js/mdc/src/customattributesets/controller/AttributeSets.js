@@ -61,6 +61,7 @@ Ext.define('Mdc.customattributesets.controller.AttributeSets', {
         record.save({
             callback: function () {
                 setupPage.setLoading(false);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('customattributesets.editlevels.acknowledge', 'MDC', 'New levels saved'));
                 attributeSetsGrid.getStore().load();
             }
         });
