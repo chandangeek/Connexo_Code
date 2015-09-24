@@ -74,6 +74,14 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.rest</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.osgi</groupId>

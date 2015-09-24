@@ -1,5 +1,6 @@
 package com.energyict.mdc.masterdata.rest.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -31,7 +32,7 @@ import java.util.List;
 import java.util.Set;
 
 @Component(name = "com.energyict.mds.rest", service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/mds", "app=MDC", "name=" + MasterDataApplication.COMPONENT_NAME})
-public class MasterDataApplication extends Application implements TranslationKeyProvider,MessageSeedProvider {
+public class MasterDataApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
 
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "MDR";
@@ -45,6 +46,7 @@ public class MasterDataApplication extends Application implements TranslationKey
     private volatile Thesaurus thesaurus;
     private volatile License license;
     private volatile MdcReadingTypeUtilService mdcReadingTypeUtilService;
+    private volatile CustomPropertySetService customPropertySetService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -53,6 +55,7 @@ public class MasterDataApplication extends Application implements TranslationKey
                 LogBookTypeResource.class,
                 RegisterTypeResource.class,
                 LoadProfileTypeResource.class,
+                CustomAttributeSetResource.class,
                 TransactionWrapper.class,
                 ExceptionLogger.class
         );
@@ -97,6 +100,11 @@ public class MasterDataApplication extends Application implements TranslationKey
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
     }
 
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
+
     @Override
     public Layer getLayer() {
         return Layer.REST;
@@ -122,7 +130,7 @@ public class MasterDataApplication extends Application implements TranslationKey
         this.jsonService = jsonService;
     }
 
-    @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
+    @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
     public void setLicense(License license) {
         this.license = license;
     }
@@ -140,7 +148,7 @@ public class MasterDataApplication extends Application implements TranslationKey
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(mdcReadingTypeUtilService).to(MdcReadingTypeUtilService.class);
+            bind(customPropertySetService).to(CustomPropertySetService.class);
         }
     }
-
 }
