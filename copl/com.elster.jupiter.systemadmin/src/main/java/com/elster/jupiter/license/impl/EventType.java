@@ -6,11 +6,6 @@ import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.orm.TransactionRequired;
 
-/**
- * Copyrights EnergyICT
- * Date: 9/10/2014
- * Time: 9:47
- */
 public enum EventType {
 
     LICENSE_UPDATED("UPDATED");
@@ -35,7 +30,7 @@ public enum EventType {
                 .scope("System")
                 .withProperty("appKey", ValueType.STRING, "applicationKey")
                 .withProperty("version", ValueType.LONG, "version");
-        builder.create().save();
+        builder.create();
     }
 
 }
