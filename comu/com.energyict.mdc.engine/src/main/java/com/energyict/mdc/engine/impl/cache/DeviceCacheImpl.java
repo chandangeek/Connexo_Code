@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
@@ -28,14 +29,14 @@ import java.util.zip.GZIPOutputStream;
  * Date: 31/08/12
  * Time: 16:32
  */
-public class DeviceCacheImpl implements DeviceCache {
+public final class DeviceCacheImpl implements DeviceCache {
 
     private static final int DEFLATION_BUFFER_SIZE = 4096;
     private final Logger logger = Logger.getLogger(DeviceCacheImpl.class.getName());
 
     private final DataModel dataModel;
     private final ProtocolPluggableService protocolPluggableService;
-    private byte[] simpleCache;
+    private byte[] simpleCache = new byte[0];
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_IS_REQUIRED_FOR_CACHE + "}")
     private Reference<Device> device = ValueReference.absent();
     private String userName;
@@ -55,7 +56,6 @@ public class DeviceCacheImpl implements DeviceCache {
         return this;
     }
 
-    @Override
     public void save() {
         Save.CREATE.save(dataModel, this);
     }
@@ -132,4 +132,22 @@ public class DeviceCacheImpl implements DeviceCache {
         return new byte[0];
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DeviceCacheImpl that = (DeviceCacheImpl) o;
+
+        if(device.get().getId() != that.device.get().getId()) return false;
+        return Arrays.equals(simpleCache, that.simpleCache);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Arrays.hashCode(simpleCache);
+        result = (int) (31 * result + device.get().getId());
+        return result;
+    }
 }

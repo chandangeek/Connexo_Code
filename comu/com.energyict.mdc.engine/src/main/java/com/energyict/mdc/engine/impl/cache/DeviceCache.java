@@ -13,8 +13,6 @@ import java.io.Serializable;
  */
 public interface DeviceCache {
 
-    void save();
-
     void update();
 
     void delete();
