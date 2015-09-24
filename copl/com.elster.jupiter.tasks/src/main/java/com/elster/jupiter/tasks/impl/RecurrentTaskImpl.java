@@ -21,12 +21,13 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NOT_UNIQUE + "}")
-class RecurrentTaskImpl implements RecurrentTask {
+final class RecurrentTaskImpl implements RecurrentTask {
 
     private static final Logger LOGGER = Logger.getLogger(RecurrentTaskImpl.class.getName());
 
@@ -262,4 +263,16 @@ class RecurrentTaskImpl implements RecurrentTask {
         return jsonService.serialize(taskOccurrence.asMessage());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RecurrentTaskImpl that = (RecurrentTaskImpl) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

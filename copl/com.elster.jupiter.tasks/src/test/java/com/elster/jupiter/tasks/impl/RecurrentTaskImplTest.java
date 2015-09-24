@@ -1,5 +1,6 @@
 package com.elster.jupiter.tasks.impl;
 
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.MessageService;
@@ -10,14 +11,6 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.HashSet;
-import java.util.Optional;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +21,16 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Matchers.any;
@@ -36,7 +39,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RecurrentTaskImplTest {
+public class RecurrentTaskImplTest extends EqualsContractTest {
 
     private static final String PAYLOAD = "payload";
     private static final String NAME = "name";
@@ -44,7 +47,9 @@ public class RecurrentTaskImplTest {
     private static final Instant NEXT = Instant.ofEpochMilli(6000000);
     private static final String SERIALIZED1 = "S1";
     private static final String SERIALIZED2 = "S2";
+    public static final long INSTANCEA_ID = 45;
 
+    private RecurrentTaskImpl instanceA;
     private RecurrentTaskImpl recurrentTask;
 
     @Mock
@@ -98,6 +103,39 @@ public class RecurrentTaskImplTest {
 
     @After
     public void tearDown() {
+    }
+
+    @Override
+    protected Object getInstanceA() {
+        if (instanceA == null) {
+            instanceA = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(NAME, cronExpression, destination, PAYLOAD);
+            field("id").ofType(Long.TYPE).in(instanceA).set(INSTANCEA_ID);
+        }
+        return instanceA;
+    }
+
+    @Override
+    protected Object getInstanceEqualToA() {
+        RecurrentTaskImpl entity = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(NAME, cronExpression, destination, PAYLOAD);
+        field("id").ofType(Long.TYPE).in(entity).set(INSTANCEA_ID);
+        return entity;
+    }
+
+    @Override
+    protected Iterable<?> getInstancesNotEqualToA() {
+        RecurrentTaskImpl entity = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(NAME, cronExpression, destination, PAYLOAD);
+        field("id").ofType(Long.TYPE).in(entity).set(INSTANCEA_ID + 1);
+        return Collections.singletonList(entity);
+    }
+
+    @Override
+    protected boolean canBeSubclassed() {
+        return false;
+    }
+
+    @Override
+    protected Object getInstanceOfSubclassEqualToA() {
+        return null;
     }
 
     @Test
