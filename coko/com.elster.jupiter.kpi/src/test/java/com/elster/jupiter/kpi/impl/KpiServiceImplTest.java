@@ -1,17 +1,15 @@
 package com.elster.jupiter.kpi.impl;
 
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.RecordSpecBuilder;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-
-import java.util.Optional;
-
-import java.time.Instant;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,9 +21,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.*;
@@ -57,7 +57,7 @@ public class KpiServiceImplTest {
     @Before
     public void setUp() {
         when(idsService.getVault(anyString(), anyLong())).thenReturn(Optional.of(vault));
-        when(idsService.newVault(anyString(), anyLong(), anyString(), anyInt(), anyInt(), anyBoolean())).thenReturn(vault);
+        when(idsService.createVault(anyString(), anyLong(), anyString(), anyInt(), anyInt(), anyBoolean())).thenReturn(vault);
         when(idsService.getRecordSpec(anyString(), anyLong())).thenReturn(Optional.of(recordSpec));
         when(dataModel.getInstance(KpiImpl.class)).thenAnswer(new Answer<KpiImpl>() {
             @Override
@@ -65,7 +65,7 @@ public class KpiServiceImplTest {
                 return new KpiImpl(dataModel, idsService, kpiService, eventService);
             }
         });
-        when(idsService.newRecordSpec(anyString(), anyLong(), anyString())).thenReturn(recordSpec);
+        when(idsService.createRecordSpec(anyString(), anyLong(), anyString())).thenReturn(FakeBuilder.initBuilderStub(recordSpec, RecordSpecBuilder.class));
         doReturn(dataModel).when(ormService).newDataModel(anyString(), anyString());
         kpiService.setIdsService(idsService);
         kpiService.setOrmService(ormService);

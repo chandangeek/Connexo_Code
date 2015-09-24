@@ -11,25 +11,20 @@ import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-
-import java.time.Instant;
-import java.time.YearMonth;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
-import java.util.Optional;
-
 import com.google.inject.AbstractModule;
-
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-
+import java.time.Instant;
+import java.time.YearMonth;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -97,17 +92,16 @@ public class KpiServiceImpl implements IKpiService, InstallService {
             LOGGER.log(Level.SEVERE, e.getMessage() == null ? e.toString() : e.getMessage(), e);
         }
         try {
-            Vault newVault = idsService.newVault(COMPONENT_NAME, VAULT_ID, COMPONENT_NAME, 2, 0, true);
-            newVault.persist();
+            Vault newVault = idsService.createVault(COMPONENT_NAME, VAULT_ID, COMPONENT_NAME, 2, 0, true);
             createPartitions(newVault);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage() == null ? e.toString() : e.getMessage(), e);
         }
         try {
-            RecordSpec newRecordSpec = idsService.newRecordSpec(COMPONENT_NAME, RECORD_SPEC_ID, "kpi");
-            newRecordSpec.addFieldSpec("value", FieldType.NUMBER);
-            newRecordSpec.addFieldSpec("target", FieldType.NUMBER);
-            newRecordSpec.persist();
+            RecordSpec newRecordSpec = idsService.createRecordSpec(COMPONENT_NAME, RECORD_SPEC_ID, "kpi")
+                    .addFieldSpec("value", FieldType.NUMBER)
+                    .addFieldSpec("target", FieldType.NUMBER)
+                    .create();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage() == null ? e.toString() : e.getMessage(), e);
         }
