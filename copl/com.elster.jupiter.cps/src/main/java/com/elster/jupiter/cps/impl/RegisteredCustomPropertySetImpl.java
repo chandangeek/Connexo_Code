@@ -11,21 +11,18 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * Provides an implementation for the {@link RegisteredCustomPropertySet} interface.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-08-10 (14:25)
- */
 public class RegisteredCustomPropertySetImpl implements RegisteredCustomPropertySet, PersistenceAware {
 
     enum FieldNames {
-        LOGICAL_ID("logicalId");
+        LOGICAL_ID("logicalId"),
+        VIEW_PRIVILEGES("viewPrivilegesBits"),
+        EDIT_PRIVILEGES("editPrivilegesBits");
 
         private final String name;
         FieldNames(String name) {
@@ -53,8 +50,10 @@ public class RegisteredCustomPropertySetImpl implements RegisteredCustomProperty
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String logicalId;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "CannotBeNull")
     private long viewPrivilegesBits;
     private EnumSet<ViewPrivilege> viewPrivileges = EnumSet.noneOf(ViewPrivilege.class);
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "CannotBeNull")
     private long editPrivilegesBits;
     private EnumSet<EditPrivilege> editPrivileges = EnumSet.noneOf(EditPrivilege.class);
     private Optional<CustomPropertySet> customPropertySet;
@@ -159,6 +158,7 @@ public class RegisteredCustomPropertySetImpl implements RegisteredCustomProperty
         this.addAllViewPrivileges(viewPrivileges);
         this.clearEditPrivileges();
         this.addAllEditPrivileges(editPrivileges);
+        Save.UPDATE.save(this.dataModel, this);
     }
 
     boolean isActive() {
@@ -173,5 +173,4 @@ public class RegisteredCustomPropertySetImpl implements RegisteredCustomProperty
     void delete() {
         this.dataModel.remove(this);
     }
-
 }

@@ -2,15 +2,10 @@ package com.elster.jupiter.cps.impl;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 
-/**
- * Models the database tables that hold the data of the Custom Property Set bundle.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-08-10 (14:22)
- */
 public enum TableSpecs {
 
     CPS_REGISTERED_CUSTOMPROPSET {
@@ -25,11 +20,24 @@ public enum TableSpecs {
                     .notNull()
                     .map(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName())
                     .add();
+            Column viewPrivilegesBits = table
+                    .column("VIEWPRIVILEGES")
+                    .number()
+                    .notNull()
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .map(RegisteredCustomPropertySetImpl.FieldNames.VIEW_PRIVILEGES.javaName())
+                    .add();
+            Column editPrivilegesBits = table
+                    .column("EDITPRIVILEGES")
+                    .number()
+                    .notNull()
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .map(RegisteredCustomPropertySetImpl.FieldNames.EDIT_PRIVILEGES.javaName())
+                    .add();
             table.primaryKey("PK_CPS_CPS").on(id).add();
             table.unique("UK_CPS_CPS").on(logicalId).add();
         }
     };
 
     abstract void addTo(DataModel dataModel);
-
 }
