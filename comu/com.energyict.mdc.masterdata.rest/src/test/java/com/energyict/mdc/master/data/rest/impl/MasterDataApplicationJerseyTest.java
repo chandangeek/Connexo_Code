@@ -1,5 +1,6 @@
 package com.energyict.mdc.master.data.rest.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.impl.MasterDataApplication;
@@ -13,10 +14,8 @@ import javax.ws.rs.core.Application;
 
 import org.mockito.Mock;
 
-/**
- * Created by bvn on 9/19/14.
- */
 public class MasterDataApplicationJerseyTest extends FelixRestApplicationJerseyTest {
+
     @Mock
     DeviceConfigurationService deviceConfigurationService;
     @Mock
@@ -27,6 +26,8 @@ public class MasterDataApplicationJerseyTest extends FelixRestApplicationJerseyT
     MeteringService meteringService;
     @Mock
     MdcReadingTypeUtilService mdcReadingTypeUtilService;
+    @Mock
+    CustomPropertySetService customPropertySetService;
 
     @Override
     protected Application getApplication() {
@@ -38,6 +39,7 @@ public class MasterDataApplicationJerseyTest extends FelixRestApplicationJerseyT
         application.setMasterDataService(masterDataService);
         application.setMeteringService(meteringService);
         application.setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
+        application.setCustomPropertySetService(customPropertySetService);
 
         return application;
     }
