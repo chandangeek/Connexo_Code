@@ -67,7 +67,8 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
                 .map(Optional::get)
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_USAGE_POINT, data.getLineNumber(),
                         data.getUsagePointMrid(), Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))))
-                .newUsagePoint(data.getUsagePointMrid());
+                .newUsagePoint(data.getUsagePointMrid())
+                .create();
         usagePoint.save();
         return usagePoint;
     }
