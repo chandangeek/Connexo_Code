@@ -107,8 +107,8 @@ public class JsonQueryFilterTest extends FelixRestApplicationJerseyTest {
 
     @Test
     public void testListStringNullInput() {
-        Response response = target("/filters/list/string").queryParam(FILTER_PARAM, getFilterFromValue(null)).request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        List<String> response = target("/filters/list/string").queryParam(FILTER_PARAM, getFilterFromValue(null)).request().get(List.class);
+        assertThat(response.size()).isEqualTo(0);
     }
 
     @Test
@@ -172,8 +172,8 @@ public class JsonQueryFilterTest extends FelixRestApplicationJerseyTest {
     }
     @Test
     public void testListIntegerNullAsInput() {
-        Response response = target("/filters/list/integer").queryParam(FILTER_PARAM, getFilterFromValue(null)).request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        List<Integer> response = target("/filters/list/integer").queryParam(FILTER_PARAM, getFilterFromValue(null)).request().get(List.class);
+        assertThat(response.size()).isEqualTo(0);
     }
     @Test
     public void testListIntegerNoExceptionWhenPverflow() {
@@ -245,8 +245,8 @@ public class JsonQueryFilterTest extends FelixRestApplicationJerseyTest {
 
     @Test
     public void testListLongNullAsInput() {
-        Response response = target("/filters/list/long").queryParam(FILTER_PARAM, getFilterFromValue(null)).request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        List<Number> response = target("/filters/list/long").queryParam(FILTER_PARAM, getFilterFromValue(null)).request().get(List.class);
+        assertThat(response.size()).isEqualTo(0);
     }
 
     @Test
@@ -312,8 +312,8 @@ public class JsonQueryFilterTest extends FelixRestApplicationJerseyTest {
 
     @Test
     public void testListInstantNullAsInput() {
-        Response response = target("/filters/list/instant").queryParam(FILTER_PARAM, getFilterFromValue(null)).request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        List<Instant> response = target("/filters/list/instant").queryParam(FILTER_PARAM, getFilterFromValue(null)).request().get(List.class);
+        assertThat(response.size()).isEqualTo(0);
     }
 
     @Test
@@ -388,8 +388,8 @@ public class JsonQueryFilterTest extends FelixRestApplicationJerseyTest {
     }
     @Test
     public void testListBooleanNullAsInput() {
-        Response response = target("/filters/list/boolean").queryParam(FILTER_PARAM, getFilterFromValue(null)).request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        List<Boolean> response = target("/filters/list/boolean").queryParam(FILTER_PARAM, getFilterFromValue(null)).request().get(List.class);
+        assertThat(response.size()).isEqualTo(0);
     }
 
     @Test
