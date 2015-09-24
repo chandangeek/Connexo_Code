@@ -223,7 +223,7 @@ public enum EventType {
                 .category("Crud")
                 .scope("System");
         this.addCustomProperties(builder);
-        this.shouldPublish(builder).create().save();
+        this.shouldPublish(builder).create();
     }
 
     EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
