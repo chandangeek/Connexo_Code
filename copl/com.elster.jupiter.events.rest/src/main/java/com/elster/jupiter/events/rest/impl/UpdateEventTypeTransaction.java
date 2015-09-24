@@ -3,10 +3,10 @@ package com.elster.jupiter.events.rest.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.transaction.Transaction;
-import java.util.Optional;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.Optional;
 
 public class UpdateEventTypeTransaction implements Transaction<EventType> {
 	
@@ -27,7 +27,7 @@ public class UpdateEventTypeTransaction implements Transaction<EventType> {
 
     private EventType doUpdate(EventType eventType) {
         info.updateEventType(eventType);
-        eventType.save();
+        eventType.update();
         return eventType;
     }
     
