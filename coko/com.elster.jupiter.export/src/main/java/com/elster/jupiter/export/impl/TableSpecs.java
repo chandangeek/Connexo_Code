@@ -49,8 +49,10 @@ enum TableSpecs {
             Column taskColumn = table.column("EXPORTTASK").number().notNull().add();
             Column exportPeriod = table.column("EXPORT_PERIOD").number().notNull().add();
             Column updatePeriod = table.column("UPDATE_PERIOD").number().add();
+            Column updateWindow = table.column("UPDATE_WINDOW").number().add();
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("EXPORT_UPDATE").bool().map("exportUpdate").add();
+            table.column("EXPORT_COMPLETE").bool().map("exportOnlyIfComplete").add();
             table.column("EXPORT_CONTINUOUS_DATA").bool().map("exportContinuousData").add();
             table.column("VALIDATED_DATA_OPTION").number().conversion(ColumnConversion.NUMBER2ENUM).map("validatedDataOption").add();
 
@@ -72,6 +74,11 @@ enum TableSpecs {
                     .on(updatePeriod)
                     .references(TimeService.COMPONENT_NAME, "TME_RELATIVEPERIOD")
                     .map("updatePeriod")
+                    .add();
+            table.foreignKey("DES_FK_RTDS_UPDATEWINDOW")
+                    .on(updateWindow)
+                    .references(TimeService.COMPONENT_NAME, "TME_RELATIVEPERIOD")
+                    .map("updateWindow")
                     .add();
             table.foreignKey("DES_FK_RTDS_ENDDEVICEFROUP")
                     .on(endDeviceGroupId)
@@ -177,6 +184,11 @@ enum TableSpecs {
             table.column("SUBJECT").varChar(Table.NAME_LENGTH).map("subject").add();
             table.column("ATTACHMENTNAME").varChar(Table.NAME_LENGTH).map("attachmentName").add();
             table.column("ATTACHMENTEXTENSION").varChar(Table.NAME_LENGTH).map("attachmentExtension").add();
+
+            table.column("SERVER").varChar(Table.DESCRIPTION_LENGTH).map("server").add();
+            table.column("USERID").varChar(Table.DESCRIPTION_LENGTH).map("user").add();
+            table.column("PASSWORD").varChar(Table.DESCRIPTION_LENGTH).map("password").add();
+
             table.addAuditColumns();
 
             table.primaryKey("DES_PK_DESTINATION").on(idColumn).add();

@@ -150,7 +150,11 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
 
     @Override
     public int nthSince(Instant since) {
-        List<TaskOccurrence> occurrences = taskService.getOccurrences(taskOccurrence.get().getRecurrentTask(), Range.closedOpen(since, getTriggerTime()));
+        Instant triggerTime = getTriggerTime();
+        if (triggerTime.isBefore(since)) {
+            triggerTime = Instant.now();
+        }
+        List<TaskOccurrence> occurrences = taskService.getOccurrences(taskOccurrence.get().getRecurrentTask(), Range.closedOpen(since, triggerTime));
         return occurrences.size() + 1;
     }
 }

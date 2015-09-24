@@ -3,6 +3,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
@@ -16,11 +17,13 @@ import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FileDestination;
+import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ftpclient.impl.FtpModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -54,6 +57,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Never;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -195,7 +199,10 @@ public class ExportTaskImplIT {
                     new AppServiceModule(),
                     new BasicPropertiesModule(),
                     new MailModule(),
-                    new BpmModule()
+                    new BpmModule(),
+                    new ValidationModule(),
+                    new DataVaultModule(),
+                    new FtpModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -208,6 +215,7 @@ public class ExportTaskImplIT {
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             return null;
         });
+
         readingType = meteringService.getReadingType("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         anotherReadingType = meteringService.getReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
         dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_DATA_TYPE));
@@ -300,6 +308,35 @@ public class ExportTaskImplIT {
     }
 
     @Test
+    public void testAddFtpDestination() {
+        ExportTask exportTask = createAndSaveTask();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            exportTask.addFtpDestination("elster.com", "user", "password", "testreport", "file", "csv");
+
+            context.commit();
+        }
+
+        Optional<? extends ExportTask> found = dataExportService.findExportTask(exportTask.getId());
+
+        assertThat(found).isPresent();
+
+        ExportTask taskFromDB = found.get();
+
+        assertThat(taskFromDB.getDestinations()).hasSize(1);
+
+        assertThat(taskFromDB.getDestinations().get(0)).isInstanceOf(FtpDestination.class);
+        FtpDestination ftpDestination = (FtpDestination) taskFromDB.getDestinations().get(0);
+
+        assertThat(ftpDestination.getServer()).isEqualTo("elster.com");
+        assertThat(ftpDestination.getUser()).isEqualTo("user");
+        assertThat(ftpDestination.getPassword()).isEqualTo("password");
+        assertThat(ftpDestination.getFileLocation()).isEqualTo("testreport");
+        assertThat(ftpDestination.getFileName()).isEqualTo("file");
+        assertThat(ftpDestination.getFileExtension()).isEqualTo("csv");
+    }
+
+    @Test
     public void testCreation() {
 
         ExportTask exportTask = createAndSaveTask();
@@ -313,8 +350,8 @@ public class ExportTaskImplIT {
         assertThat(readingTypeDataExportTask.getReadingTypeDataSelector()).isPresent();
         assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getEndDeviceGroup().getId()).isEqualTo(endDeviceGroup.getId());
         assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getExportPeriod().getId()).isEqualTo(lastYear.getId());
-        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getUpdatePeriod()).isPresent();
-        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getUpdatePeriod().get().getId()).isEqualTo(oneYearBeforeLastYear.getId());
+        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getStrategy().getUpdatePeriod()).isPresent();
+        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getStrategy().getUpdatePeriod().get().getId()).isEqualTo(oneYearBeforeLastYear.getId());
         assertThat(readingTypeDataExportTask.getLastRun()).isEmpty();
         assertThat(readingTypeDataExportTask.getNextExecution()).isEqualTo(NOW.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
         assertThat(readingTypeDataExportTask.getOccurrences(/*Range.<Instant>all()*/)).isEmpty();
@@ -451,7 +488,7 @@ public class ExportTaskImplIT {
         assertThat(found.get().getNextExecution()).isEqualTo(instant);
         assertThat(found.get().getScheduleExpression()).isEqualTo(Never.NEVER);
         assertThat(found.get().getReadingTypeDataSelector().get().getExportPeriod().getId()).isEqualTo(oneYearBeforeLastYear.getId());
-        assertThat(found.get().getReadingTypeDataSelector().get().getUpdatePeriod()).isEmpty();
+        assertThat(found.get().getReadingTypeDataSelector().get().getStrategy().getUpdatePeriod()).isEmpty();
         assertThat(found.get().getReadingTypeDataSelector().get().getEndDeviceGroup().getId()).isEqualTo(anotherEndDeviceGroup.getId());
         assertThat(found.get().getProperties().get("propy")).isEqualTo(BigDecimal.valueOf(20000, 2));
         assertThat(found.get().getReadingTypeDataSelector().get().getReadingTypes()).containsExactly(anotherReadingType);

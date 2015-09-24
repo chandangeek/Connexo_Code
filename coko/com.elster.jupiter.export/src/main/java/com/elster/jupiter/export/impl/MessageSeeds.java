@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 public enum MessageSeeds implements MessageSeed {
     NO_SUCH_READINGTYPE(1001, Keys.NO_SUCH_READINGTYPE, "Reading type {0} does not exist."),
-    FIELD_CAN_NOT_BE_EMPTY(1002, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty"),
+    FIELD_CAN_NOT_BE_EMPTY(1002, Keys.FIELD_CAN_NOT_BE_EMPTY, "This field is required"),
     FIELD_SIZE_BETWEEN_MIN_AND_MAX(1003, Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX, "Field should be between {min} and {max} characters"),
     NO_SUCH_FORMATTER(1004, Keys.NO_SUCH_FORMATTER, "Formatter {0} does not exist."),
     NAME_MUST_BE_UNIQUE(1005, Keys.NAME_MUST_BE_UNIQUE, "Data export task with such name already exists"),
@@ -26,7 +26,14 @@ public enum MessageSeeds implements MessageSeed {
     FILE_IO(1015, "file.io.writing.failure", "Failure while doing IO on file {0} : {1}"),
     PARENT_BREAKING_PATH_NOT_ALLOWED(1016, Keys.PARENT_BREAKING_PATH, "Paths that navigate above parent are not allowed here"),
     INVALIDCHARS_EXCEPTION(1017, Keys.INVALIDCHARS_EXCEPTION, "Characters {0} are not allowed."),
-    DUPLICATE_IMPORT_SCHEDULE(1018, Keys.DUPLICATE_EXPORT_TASK, "Name must be unique");
+    DUPLICATE_IMPORT_SCHEDULE(1018, Keys.DUPLICATE_EXPORT_TASK, "Name must be unique"),
+    FTP_IO(1019, Keys.FTP_FAILURE, "Failure while doing IO on ftp server {0}, port {1}."),
+    MISSING_INTERVAL(1020, "dataexport.item.missinginterval", "The interval(s) starting from {0} till {1} with missing data are not exported", Level.INFO),
+    MISSING_WINDOW(1021, "dataexport.item.missingwindow", "The export window starting from {0} till {1} with missing data is not exported", Level.INFO),
+
+    SUSPECT_INTERVAL(1022, "dataexport.item.suspectinterval", "The interval(s) starting from {0} till {1} with suspect/not validated data are not exported", Level.INFO),
+    SUSPECT_WINDOW(1023, "dataexport.item.suspectwindow", "The export window starting from {0} till {1} with suspect/not validated data is not exported", Level.INFO);
+
 
     private final int number;
     private final String key;
@@ -91,6 +98,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String PARENT_BREAKING_PATH = "path.parent.breaking.disallowed";
         public static final String INVALIDCHARS_EXCEPTION = "InvalidChars";
         public static final String DUPLICATE_EXPORT_TASK = "exporttask.duplicate.name";
+        public static final String FTP_FAILURE = "ftp.io.writing.failure";
     }
 }
 

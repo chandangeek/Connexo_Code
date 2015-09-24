@@ -45,10 +45,10 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class FileDestinationTest {
 
-    public static final String DATA1 = "blablablablabla1";
-    public static final String DATA2 = "blablablablabla2";
-    public static final String DATA3 = "blablablablabla3";
-    public static final String DATA4 = "blablablablabla4";
+    public static final String DATA1 = "line 1";
+    public static final String DATA2 = "line 2";
+    public static final String DATA3 = "line 3";
+    public static final String DATA4 = "line 4";
     public static final String APPSERVER_PATH = "/appserver/export";
     public static final String FILENAME = "filename";
     public static final String EXTENSION = "txt";
@@ -126,11 +126,17 @@ public class FileDestinationTest {
         assertThat(getContent(file)).isEqualTo(DATA1 + DATA2);
     }
 
-    @Test
-    public void testCreateDestinationWithValidName() throws Exception {
-        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
-        fileDestination.init(null, RELATIVE_DIR, "AA", EXTENSION);
-        fileDestination.save();
+    private String getContent(Path file) {
+        try {
+            StringBuffer content = new StringBuffer();
+            List<String> lines = Files.readAllLines(file);
+            for (String line : lines) {
+                content.append(line);
+            }
+            return content.toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -166,7 +172,7 @@ public class FileDestinationTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}")
+    @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}", strict=false)
     public void testCreateDestinationWithInvalidFileExtensionAstrix() throws Exception {
         FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
         fileDestination.init(null, RELATIVE_DIR, FILENAME, "EX*E");
@@ -174,7 +180,7 @@ public class FileDestinationTest {
     }
 
     @Test
-    @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}")
+    @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}",strict=false)
     public void testCreateDestinationWithInvalidFileExtensionQuotedAstrix() throws Exception {
         FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
         fileDestination.init(null, RELATIVE_DIR, FILENAME, "EX\\*E");
@@ -234,19 +240,6 @@ public class FileDestinationTest {
         fileDestination.send(ImmutableMap.of(marker1, file1, marker2, file2), tagReplacerFactory);
 
         assertThat(fileSystem.getPath("/appserver/export/a/b/exportfile1.txt")).exists();
-    }
-
-    private String getContent(Path file) {
-        try {
-            StringBuffer content = new StringBuffer();
-            List<String> lines = Files.readAllLines(file);
-            for (String line : lines) {
-                content.append(line);
-            }
-            return content.toString();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private ConstraintValidatorFactory getConstraintValidatorFactory() {

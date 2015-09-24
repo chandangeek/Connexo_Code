@@ -3,6 +3,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
+import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
@@ -13,6 +14,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.JournalEntry;
@@ -23,6 +25,7 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
@@ -35,15 +38,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
 
     private final TransactionService transactionService;
     private final MeteringService meteringService;
+    private final ValidationService validationService;
     private final DataModel dataModel;
     private final Clock clock;
 
@@ -53,10 +62,12 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
     private Reference<RelativePeriod> updatePeriod = ValueReference.absent();
+    private Reference<RelativePeriod> updateWindow = ValueReference.absent();
     private Reference<IExportTask> exportTask = ValueReference.absent();
 
     private boolean exportUpdate;
     private boolean exportContinuousData;
+    private boolean exportOnlyIfComplete;
     private ValidatedDataOption validatedDataOption;
     @Valid
     @Size(min=1, message = "{" + MessageSeeds.Keys.MUST_SELECT_AT_LEAST_ONE_READING_TYPE + "}")
@@ -69,10 +80,11 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     private String userName;
 
     @Inject
-    ReadingTypeDataSelectorImpl(DataModel dataModel, TransactionService transactionService, MeteringService meteringService, Clock clock) {
+    ReadingTypeDataSelectorImpl(DataModel dataModel, TransactionService transactionService, MeteringService meteringService, ValidationService validationService, Clock clock) {
         this.dataModel = dataModel;
         this.transactionService = transactionService;
         this.meteringService = meteringService;
+        this.validationService = validationService;
         this.clock = clock;
     }
 
@@ -93,37 +105,48 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     }
 
     @Override
-    public Stream<ExportData> selectData(DataExportOccurrence occurrence) {
-        IExportTask task = (IExportTask) occurrence.getTask();
-        Set<IReadingTypeDataExportItem> activeItems;
-        try (TransactionContext context = transactionService.getContext()) {
-            activeItems = getActiveItems(occurrence);
+    public DataSelector asDataSelector(Logger logger, Thesaurus thesaurus) {
+        return new DataSelector() {
+            @Override
+            public Stream<ExportData> selectData(DataExportOccurrence occurrence) {
+                IExportTask task = exportTask.get();
+                Set<IReadingTypeDataExportItem> activeItems;
+                Map<IReadingTypeDataExportItem, Optional<Instant>> lastRuns;
+                try (TransactionContext context = transactionService.getContext()) {
+                    activeItems = getActiveItems(occurrence);
 
-            getExportItems().stream()
-                    .filter(item -> !activeItems.contains(item))
-                    .peek(IReadingTypeDataExportItem::deactivate)
-                    .forEach(IReadingTypeDataExportItem::update);
-            activeItems.stream()
-                    .peek(IReadingTypeDataExportItem::activate)
-                    .forEach(IReadingTypeDataExportItem::update);
-            context.commit();
-        }
+                    getExportItems().stream()
+                            .filter(item -> !activeItems.contains(item))
+                            .peek(IReadingTypeDataExportItem::deactivate)
+                            .forEach(IReadingTypeDataExportItem::update);
+                    lastRuns = activeItems.stream()
+                            .collect(Collectors.toMap(Function.identity(), ReadingTypeDataExportItem::getLastRun));
+                    activeItems.stream()
+                            .peek(IReadingTypeDataExportItem::activate)
+                            .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+                            .forEach(IReadingTypeDataExportItem::update);
+                    context.commit();
+                }
 
-        DefaultItemDataSelector defaultItemDataSelector = new DefaultItemDataSelector(clock);
-        return activeItems.stream()
-                .map(item -> defaultItemDataSelector.selectData(occurrence, item))
-                .flatMap(Functions.asStream());
+                DefaultItemDataSelector defaultItemDataSelector = new DefaultItemDataSelector(clock, validationService, logger, thesaurus, transactionService);
+                return activeItems.stream()
+                        .flatMap(item -> Stream.of(
+                                defaultItemDataSelector.selectData(occurrence, item),
+                                lastRuns.get(item).flatMap(since -> defaultItemDataSelector.selectDataForUpdate(occurrence, item, since))))
+                        .flatMap(Functions.asStream());
+            }
+        };
     }
 
+
     private Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
-        return getEndDeviceGroup()
+        return decorate(getEndDeviceGroup()
                 .getMembers(occurrence.getDefaultSelectorOccurrence()
                         .map(DefaultSelectorOccurrence::getExportedDataInterval)
                         .orElse(Range.<Instant>all()))
-                .stream()
+                .stream())
                 .map(EndDeviceMembership::getEndDevice)
-                .filter(device -> device instanceof Meter)
-                .map(Meter.class::cast)
+                .filterSubType(Meter.class)
                 .flatMap(this::readingTypeDataExportItems)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
@@ -166,7 +189,7 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
 
     @Override
     public DataExportStrategy getStrategy() {
-        return new DataExportStrategyImpl(exportUpdate, exportContinuousData, validatedDataOption);
+        return new DataExportStrategyImpl(exportUpdate, exportContinuousData, exportOnlyIfComplete, validatedDataOption, updatePeriod.orNull(), updateWindow.orNull());
     }
 
     @Override
@@ -216,6 +239,11 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     }
 
     @Override
+    public void setUpdateWindow(RelativePeriod updateWindow) {
+        this.updateWindow.set(updateWindow);
+    }
+
+    @Override
     public Set<ReadingType> getReadingTypes(Instant at) {
         List<JournalEntry<ReadingTypeInDataSelector>> readingTypes = dataModel.mapper(ReadingTypeInDataSelector.class).at(at).find(ImmutableMap.of("readingTypeDataSelector", this));
         return readingTypes.stream()
@@ -227,11 +255,6 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     @Override
     public RelativePeriod getExportPeriod() {
         return exportPeriod.get();
-    }
-
-    @Override
-    public Optional<RelativePeriod> getUpdatePeriod() {
-        return updatePeriod.getOptional();
     }
 
     @Override
@@ -266,6 +289,11 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     @Override
     public void setExportContinuousData(boolean exportContinuousData) {
         this.exportContinuousData = exportContinuousData;
+    }
+
+    @Override
+    public void setExportOnlyIfComplete(boolean exportOnlyIfComplete) {
+        this.exportOnlyIfComplete = exportOnlyIfComplete;
     }
 
     @Override

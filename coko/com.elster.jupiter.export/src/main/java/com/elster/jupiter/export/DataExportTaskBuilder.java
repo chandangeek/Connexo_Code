@@ -58,5 +58,9 @@ public interface DataExportTaskBuilder {
         StandardSelectorBuilder continuousData(boolean exportContinuousData);
 
         DataExportTaskBuilder endSelection();
+
+        StandardSelectorBuilder withUpdateWindow(RelativePeriod updateWindow);
+
+        StandardSelectorBuilder exportComplete(boolean exportComplete);
     }
 }

@@ -1,18 +1,15 @@
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.appserver.AppServer;
-import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.FileDestination;
+import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.export.StructureMarker;
+import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
 
 import javax.inject.Inject;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -20,16 +17,17 @@ import java.nio.file.Path;
 import java.time.Clock;
 import java.util.Map;
 
-@Sandboxed(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PARENT_BREAKING_PATH + "}")
-class FileDestinationImpl extends AbstractDataExportDestination implements FileDestination {
+class FtpDestinationImpl extends AbstractDataExportDestination implements FtpDestination {
     private static final String NON_PATH_INVALID = "\":*?<>|";
     private static final String PATH_INVALID = "\"*?<>|";
 
     private class Sender {
         private final TagReplacerFactory tagReplacerFactory;
+        private final FileSystem remoteFileSystem;
 
-        private Sender(TagReplacerFactory tagReplacerFactory) {
+        private Sender(TagReplacerFactory tagReplacerFactory, FileSystem remoteFileSystem) {
             this.tagReplacerFactory = tagReplacerFactory;
+            this.remoteFileSystem = remoteFileSystem;
         }
 
         private void send(Map<StructureMarker, Path> files) {
@@ -37,10 +35,10 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
         }
 
         private void copyFile(StructureMarker structureMarker, Path path) {
-            doCopy(path, determineTargetFile(structureMarker));
+            doCopy(path, determineTargetFile(structureMarker, remoteFileSystem));
         }
 
-        private Path determineTargetFile(StructureMarker structureMarker) {
+        private Path determineTargetFile(StructureMarker structureMarker, FileSystem remoteFileSystem) {
             TagReplacer tagReplacer = tagReplacerFactory.forMarker(structureMarker);
             Path targetDirectory = getTargetDirectory(tagReplacer.replaceTags(fileLocation));
             if (!Files.exists(targetDirectory)) {
@@ -62,41 +60,47 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
         }
 
         private Path getTargetDirectory(String fileLocation) {
-            return getDefaultExportDir().resolve(fileLocation);
-        }
-
-        private Path getDefaultExportDir() {
-            AppServer appServer = appService.getAppServer().orElseThrow(IllegalStateException::new);
-            return getDataExportService().getExportDirectory(appServer).orElseGet(() -> getFileSystem().getPath("").toAbsolutePath());
+            return remoteFileSystem.getPath("/").resolve(fileLocation);
         }
 
     }
 
-    private final AppService appService;
-
+    private String server;
+    private int port = 21;
+    private String user;
+    private String password;
     @ValidFileName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
-    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
     private String fileName;
     @ValidFileName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
-    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
     private String fileExtension;
     @ValidFileLocation(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
-    @Size(min = 1, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
     private String fileLocation;
 
+    private final DataVaultService dataVaultService;
+    private final FtpClientService ftpClientService;
+
     @Inject
-    FileDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem) {
+    FtpDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem, DataVaultService dataVaultService, FtpClientService ftpClientService) {
         super(dataModel, clock, thesaurus, dataExportService, fileSystem);
-        this.appService = appService;
+        this.dataVaultService = dataVaultService;
+        this.ftpClientService = ftpClientService;
     }
 
-    static FileDestinationImpl from(IExportTask task, DataModel dataModel, String fileLocation, String fileName, String fileExtension) {
-        return dataModel.getInstance(FileDestinationImpl.class).init(task, fileLocation, fileName, fileExtension);
+    static FtpDestinationImpl from(IExportTask task, DataModel dataModel, String server, String user, String password, String fileLocation, String fileName, String fileExtension) {
+        return dataModel.getInstance(FtpDestinationImpl.class).init(task, server, user, password, fileLocation, fileName, fileExtension);
     }
 
     @Override
     public void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory) {
-        new Sender(tagReplacerFactory).send(files);
+        try {
+            ftpClientService.getFtpFactory(getServer(), port, getUser(), getPassword()).runInSession(
+                    remoteFileSystem -> {
+                        new Sender(tagReplacerFactory, remoteFileSystem).send(files);
+                    }
+            );
+        } catch (IOException e) {
+            throw new FtpIOException(getThesaurus(), getServer(), port, e);
+        }
     }
 
     @Override
@@ -129,8 +133,41 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
         this.fileExtension = fileExtension;
     }
 
-    FileDestinationImpl init(IExportTask task, String fileLocation, String fileName, String fileExtension) {
+    @Override
+    public String getServer() {
+        return server;
+    }
+
+    @Override
+    public String getUser() {
+        return user;
+    }
+
+    @Override
+    public String getPassword() {
+        return new String(dataVaultService.decrypt(password));
+    }
+
+    @Override
+    public void setServer(String server) {
+        this.server = server;
+    }
+
+    @Override
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    @Override
+    public void setPassword(String password) {
+        this.password = dataVaultService.encrypt(password.getBytes());
+    }
+
+    FtpDestinationImpl init(IExportTask task, String server, String user, String password, String fileLocation, String fileName, String fileExtension) {
         initTask(task);
+        this.server = server;
+        this.user = user;
+        this.password = dataVaultService.encrypt(password.getBytes());
         this.fileName = fileName;
         this.fileExtension = fileExtension;
         this.fileLocation = fileLocation;

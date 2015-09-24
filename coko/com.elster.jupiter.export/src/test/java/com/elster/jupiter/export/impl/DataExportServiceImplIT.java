@@ -3,6 +3,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -14,6 +15,7 @@ import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ftpclient.impl.FtpModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -54,6 +56,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -198,7 +201,10 @@ public class DataExportServiceImplIT {
                     new AppServiceModule(),
                     new BasicPropertiesModule(),
                     new MailModule(),
+                    new ValidationModule(),
                     new BpmModule(),
+                    new DataVaultModule(),
+                    new FtpModule(),
                     new UserModule()
             );
         } catch (Exception e) {
@@ -210,11 +216,11 @@ public class DataExportServiceImplIT {
             timeService = injector.getInstance(TimeService.class);
             meteringService = injector.getInstance(MeteringService.class);
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-            NlsServiceImpl nlsService = (NlsServiceImpl) injector.getInstance(NlsService.class);
-            nlsService.addTranslationKeyProvider(dataExportService);
-            nlsService.addMessageSeedProvider(dataExportService);
             return null;
         });
+        NlsServiceImpl nlsService = (NlsServiceImpl) injector.getInstance(NlsService.class);
+        nlsService.addTranslationKeyProvider(dataExportService);
+        nlsService.addMessageSeedProvider(dataExportService);
         readingType = meteringService.getReadingType("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         anotherReadingType = meteringService.getReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
         dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_DATA_TYPE));

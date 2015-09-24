@@ -22,6 +22,12 @@ public interface StructureMarker {
 
     StructureMarker withPeriod(Range<Instant> period);
 
+    default StructureMarker withPeriodOf(StructureMarker other) {
+        return other.getPeriod()
+                .map(this::withPeriod)
+                .orElse(this);
+    }
+
     Optional<Range<Instant>> getPeriod();
 
     default boolean contains(String element) {

@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class StandardDataSelectorFactory implements DataSelectorFactory {
-
+    private final String DISPLAYNAME = "Device readings data selector";
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
     private final MeteringService meteringService;
@@ -34,7 +34,7 @@ public class StandardDataSelectorFactory implements DataSelectorFactory {
 
     @Override
     public DataSelector createDataSelector(Map<String, Object> properties, Logger logger) {
-        return DelegatingDataSelector.INSTANCE;
+        return new DelegatingDataSelector(logger);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class StandardDataSelectorFactory implements DataSelectorFactory {
 
     @Override
     public String getDisplayName() {
-        return thesaurus.getString(getNlsKey().getKey(), getName());
+        return thesaurus.getString(getNlsKey().getKey(), DISPLAYNAME);
     }
 
     @Override
@@ -65,13 +65,21 @@ public class StandardDataSelectorFactory implements DataSelectorFactory {
         return SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, ReadingTypeDataSelectorImpl.class.getName());
     }
 
-    private static enum DelegatingDataSelector implements DataSelector {
+    private class DelegatingDataSelector implements DataSelector {
 
-        INSTANCE;
+        private final Logger logger;
+
+        private DelegatingDataSelector(Logger logger) {
+            this.logger = logger;
+        }
+
 
         @Override
         public Stream<ExportData> selectData(DataExportOccurrence dataExportOccurrence) {
-            return dataExportOccurrence.getTask().getReadingTypeDataSelector().orElseThrow(IllegalStateException::new).selectData(dataExportOccurrence);
+            return dataExportOccurrence.getTask().getReadingTypeDataSelector()
+                    .map(IReadingTypeDataSelector.class::cast)
+                    .map(readingTypeDataSelector -> readingTypeDataSelector.asDataSelector(logger, thesaurus))
+                    .orElseThrow(IllegalStateException::new).selectData(dataExportOccurrence);
         }
     }
 }

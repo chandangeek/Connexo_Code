@@ -1,6 +1,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.StructureMarker;
@@ -30,8 +31,16 @@ class EmailDestinationImpl extends AbstractDataExportDestination implements Emai
         }
 
         private void send(Map<StructureMarker, Path> files) {
-            sendMail(files.entrySet().stream()
-                    .collect(Collectors.toMap(entry -> toFileName(entry.getKey()), Map.Entry::getValue)));
+            ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+            try {
+                Thread.currentThread().setContextClassLoader(javax.mail.Session.class.getClassLoader());
+
+                sendMail(files.entrySet().stream()
+                        .collect(Collectors.toMap(entry -> toFileName(entry.getKey()), Map.Entry::getValue)));
+
+            } finally {
+                Thread.currentThread().setContextClassLoader(tcl);
+            }
         }
 
         private void sendMail(Map<String, Path> files) {
@@ -63,12 +72,14 @@ class EmailDestinationImpl extends AbstractDataExportDestination implements Emai
 
     private String recipients;
     private String subject;
+    @ValidFileName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
     private String attachmentName;
+    @ValidFileName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
     private String attachmentExtension;
 
     @Inject
     EmailDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem, MailService mailService) {
-        super(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        super(dataModel, clock, thesaurus, dataExportService, fileSystem);
         this.mailService = mailService;
     }
 
