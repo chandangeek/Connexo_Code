@@ -171,6 +171,10 @@ public class ConsoleCommands {
         }
     }
 
+    public void createUsagePoint() {
+        System.out.println("Usage: createUsagePoint <mRID>");
+
+    }
     public void createUsagePoint(String mrId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
