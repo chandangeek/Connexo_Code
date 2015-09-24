@@ -241,11 +241,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 if (success) {
                     wizard.setLoading(false);
                     statusPage.showChangeDeviceConfigSuccess(Uni.I18n.translate('searchItems.bulk.devicesAddedToQueueTitle', 'MDC', 'This task has been put on the queue successfully'),
-                        Ext.String.format(Uni.I18n.translatePlural('searchItems.bulk.devConfigUnsolvedConflictsTitle', me.devices.getCount(), 'MDC',
-                            "The {0} devices are queued to change their configuration",
-                            "The {0} device is queued to change its configuration",
-                            "The {0} devices are queued to change their configuration"
-                        ))
+                        Ext.String.format(Uni.I18n.translatePlural('searchItems.bulk.devConfigQueuedTitle', me.devices.getCount(), 'MDC', "The {0} devices are queued to change their configuration", "The {0} device is queued to change its configuration", "The {0} devices are queued to change their configuration"))
                     );
                     finishBtn.enable();
                 }
@@ -549,11 +545,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             wizard.setLoading(false);
                             if (unsolvedConflicts) {
                                 me.getNavigationMenu().markInvalid();
-                                var title = Uni.I18n.translatePlural('searchItems.bulk.devConfigUnsolvedConflictsTitle', me.devices.getCount(), 'MDC',
-                                        "Unable to change device configuration of {0} devices",
-                                        "Unable to change device configuration of {0} device",
-                                        "Unable to change device configuration of {0} devices"
-                                    ),
+                                var title = Uni.I18n.translatePlural('searchItems.bulk.devConfigUnsolvedConflictsTitle', me.devices.getCount(), 'MDC', "Unable to change device configuration of {0} devices", "Unable to change device configuration of {0} device", "Unable to change device configuration of {0} devices"),
                                     text = Uni.I18n.translate('searchItems.bulk.devConfigUnsolvedConflictsMsg', 'MDC', 'The configuration of devices with current configuration \'{fromconfig}\' cannot be changed to \'{toconfig}\' due to unsolved conflicts.');
                                 text = text.replace('{fromconfig}', me.configNames.fromconfig).replace('{toconfig}', me.configNames.toconfig);
                                 if (Mdc.privileges.DeviceType.canAdministrate()) {
