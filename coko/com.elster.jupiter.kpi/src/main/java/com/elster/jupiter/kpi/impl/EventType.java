@@ -30,7 +30,7 @@ public enum EventType {
                 .withProperty("id", ValueType.LONG, "id")
                 .withProperty("position", ValueType.INTEGER, "position")
                 .withProperty("timestamp", ValueType.LONG, "timestamp");
-        addCustomProperties(builder).create().save();
+        addCustomProperties(builder).create();
     }
 
     EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
