@@ -13,18 +13,21 @@ import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 import java.time.Clock;
 import java.util.Date;
 import java.util.Optional;
@@ -32,7 +35,7 @@ import java.util.Optional;
 /**
  * Created by bvn on 9/16/15.
  */
-@Path("usagepoints/{mrid}/contactor")
+@Path("usagepoints/{mrid}")
 public class UsagePointResource {
 
     private final MeteringService meteringService;
@@ -49,22 +52,43 @@ public class UsagePointResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    public Response updateContactor(@PathParam("mrid") String mRID, ContactorInfo contactorInfo) {
-
-        UsagePoint usagePoint = meteringService.findUsagePoint(mRID).orElseThrow(() -> new WebApplicationException("No such usagepoint", Response.Status.NOT_FOUND));
-        MeterActivation meterActivation = usagePoint.getCurrentMeterActivation().orElseThrow(() -> new WebApplicationException("No current meter activation", Response.Status.NOT_FOUND));
-        Meter meter = meterActivation.getMeter().orElseThrow(() -> new WebApplicationException("No meter in activation", Response.Status.NOT_FOUND));
-        Device device = deviceService.findByUniqueMrid(meter.getMRID()).orElseThrow(() -> new WebApplicationException("No such meter", Response.Status.NOT_FOUND));
+    @Path("/contactor")
+    public Response updateContactor(@PathParam("mrid") String mRID, ContactorInfo contactorInfo, @Context UriInfo uriInfo) {
+        Device device = findDeviceThroughUsagePoint(mRID);
         DeviceMessageId deviceMessageId = getMessageId(contactorInfo);
         ComTaskEnablement comTaskEnablement = getComTaskEnablementForDeviceMessage(device, deviceMessageId);
         Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
                 .filter(cte -> cte.getComTasks().stream()
                         .anyMatch(comTask -> comTask.getId() == comTaskEnablement.getComTask().getId()))
                 .findFirst();
-        createDeviceMessageOnDevice(contactorInfo, device, deviceMessageId);
+        long messageId = createDeviceMessageOnDevice(contactorInfo, device, deviceMessageId);
         existingComTaskExecution.orElseGet(()->createAdHocComTaskExecution(device, comTaskEnablement)).runNow();
 
-        return Response.status(Response.Status.ACCEPTED).build();
+        URI uri = uriInfo.getBaseUriBuilder().
+                path(UsagePointResource.class).
+                path(UsagePointResource.class, "getDeviceMessage").
+                build(mRID, messageId);
+
+        return Response.created(uri).build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @Path("/messages/{messageId}")
+    public Response getDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long id) {
+        Device device = findDeviceThroughUsagePoint(mRID);
+        DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == id).findFirst().orElseThrow(() -> new WebApplicationException("No such device message", Response.Status.NOT_FOUND));
+        DeviceMessageInfo info = new DeviceMessageInfo();
+        info.status=deviceMessage.getStatus();
+        info.sentDate=deviceMessage.getSentDate().orElse(null);
+        return Response.ok(info).build();
+    }
+
+    private Device findDeviceThroughUsagePoint(String mRID) {
+        UsagePoint usagePoint = meteringService.findUsagePoint(mRID).orElseThrow(() -> new WebApplicationException("No such usagepoint", Response.Status.NOT_FOUND));
+        MeterActivation meterActivation = usagePoint.getCurrentMeterActivation().orElseThrow(() -> new WebApplicationException("No current meter activation", Response.Status.NOT_FOUND));
+        Meter meter = meterActivation.getMeter().orElseThrow(() -> new WebApplicationException("No meter in activation", Response.Status.NOT_FOUND));
+        return deviceService.findByUniqueMrid(meter.getMRID()).orElseThrow(() -> new WebApplicationException("No such meter", Response.Status.NOT_FOUND));
     }
 
     private ManuallyScheduledComTaskExecution createAdHocComTaskExecution(Device device, ComTaskEnablement comTaskEnablement) {
@@ -80,12 +104,17 @@ public class UsagePointResource {
         return manuallyScheduledComTaskExecution;
     }
 
-    private void createDeviceMessageOnDevice(ContactorInfo contactorInfo, Device device, DeviceMessageId deviceMessageId) {
-        Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(deviceMessageId).setReleaseDate(clock.instant());
+    private long createDeviceMessageOnDevice(ContactorInfo contactorInfo, Device device, DeviceMessageId deviceMessageId) {
+        Device.DeviceMessageBuilder deviceMessageBuilder =
+                device
+                    .newDeviceMessage(deviceMessageId)
+                    .setReleaseDate(clock.instant())
+                ;
         if (contactorInfo.activationDate!=null) {
             deviceMessageBuilder.addProperty(DeviceMessageConstants.contactorActivationDateAttributeName,Date.from(contactorInfo.activationDate));
         }
-        deviceMessageBuilder.add();
+        DeviceMessage<Device> deviceMessage = deviceMessageBuilder.add();
+        return deviceMessage.getId();
     }
 
     private ComTaskEnablement getComTaskEnablementForDeviceMessage(Device device, DeviceMessageId deviceMessageId) {
