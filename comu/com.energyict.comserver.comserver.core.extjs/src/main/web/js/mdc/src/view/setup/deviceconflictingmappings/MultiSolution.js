@@ -69,7 +69,7 @@ Ext.define('Mdc.view.setup.deviceconflictingmappings.MultiSolution', {
                     },
                     {
                         xtype: 'radiofield',
-                        boxLabel: Uni.I18n.translate('deviceConflicting.mapTo', 'MDC', "Map '{0}' to ", [me.conflict.name]),
+                        boxLabel: Uni.I18n.translate('deviceConflicting.mapToSingle', 'MDC', "Map '{0}' to ", [me.conflict.name]),
                         name: me.conflict.id,
                         itemId: 'map' + me.conflict.id,
                         inputValue: 'map',
