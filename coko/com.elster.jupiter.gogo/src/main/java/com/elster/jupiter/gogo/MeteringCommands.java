@@ -36,6 +36,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -54,7 +55,6 @@ import java.util.regex.Pattern;
         property = {"osgi.command.scope=metering",
                 "osgi.command.function=createMeter",
                 "osgi.command.function=createActivation",
-                "osgi.command.function=createUsagePoint",
                 "osgi.command.function=listReadingTypes",
                 "osgi.command.function=storeRegisterData",
                 "osgi.command.function=storeIntervalData",
@@ -106,35 +106,6 @@ public class MeteringCommands {
         });
         System.out.println("meter = " + meter);
         System.out.println(" id = " + meter.getId());
-    }
-
-    public void createUsagePoint(String mrid, String startDate) {
-        Optional<UsagePoint> usagePoint = executeTransaction(new Transaction<Optional<UsagePoint>>() {
-            @Override
-            public Optional<UsagePoint> perform() {
-                Optional<Meter> meter = meteringService.findMeter(mrid);
-                final Instant activationDate = parseEffectiveTimestamp(startDate);
-                if (!meter.isPresent()) {
-                    System.out.println("No meter found with mrid : " + mrid);
-                    return Optional.empty();
-                }
-                Optional<ServiceCategory> serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY);
-                if (serviceCategory.isPresent()) {
-                    UsagePoint newUsagePoint = serviceCategory.get().newUsagePoint(mrid).create();
-                    MeterActivation meterActivation = newUsagePoint.activate(activationDate);
-                    meterActivation.setMeter(meter.get());
-                    return Optional.of(newUsagePoint);
-                } else {
-                    System.out.println("No servicecategory found for ELECTRICITY, this should not happen ...");
-                    return Optional.empty();
-                }
-            }
-        });
-        if (usagePoint.isPresent()) {
-            System.out.println("New UsagePoint created with mrid : " + usagePoint.get().getMRID());
-        } else {
-            System.out.println("No UsagePoint created for " + mrid);
-        }
     }
 
     private Instant parseEffectiveTimestamp(String effectiveTimestamp) {
