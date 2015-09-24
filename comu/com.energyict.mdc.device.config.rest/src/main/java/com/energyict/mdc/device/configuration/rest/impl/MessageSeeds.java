@@ -9,8 +9,8 @@ import java.util.logging.Level;
 public enum MessageSeeds implements MessageSeed {
 
     FIELD_IS_REQUIRED(1, "RequiredField", "This field is required"),
-    PROTOCOL_INVALID_NAME(2,"deviceType.no.such.protocol", "A protocol with name ''{0}'' does not exist"),
-    NO_LOGBOOK_TYPE_ID_FOR_ADDING(3,"NoLogBookTypeIdForAdding", "User should specify ids of LogBook Type for adding"),
+    PROTOCOL_INVALID_NAME(2, "deviceType.no.such.protocol", "A protocol with name ''{0}'' does not exist"),
+    NO_LOGBOOK_TYPE_ID_FOR_ADDING(3, "NoLogBookTypeIdForAdding", "User should specify ids of LogBook Type for adding"),
     NO_LOGBOOK_TYPE_FOUND(4, "NoLogBookTypeFound", "No LogBook type with id {0}"),
     NO_LOGBOOK_SPEC_FOUND(5, "NoLogBookSpecFound", "No LogBook configuration with id {0}"),
     NO_LOAD_PROFILE_TYPE_ID_FOR_ADDING(6, "NoLoadProfileTypeIdForAdding", "User should specify ids of Load Profile Type for adding"),
@@ -23,7 +23,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_CONNECTION_TASK(16, "NoSuchConnectionTask", "No such connection task"),
     NO_DEVICECONFIG_ID_FOR_ADDING(17, "NoDeviceConfigurationIdForAdding", "User should specify ids of Device Configuration for adding"),
     CONNECTION_TYPE_UNKNOWN(18, "NoSuchConnectionType", "No connection type pluggable class could be found for ''{0}''"),
-    NO_VALIDATIONRULESET_ID_FOR_ADDING(20,"NoValidationRuleSetIdForAdding", "User should specify ids of Validation Ruleset for adding"),
+    NO_VALIDATIONRULESET_ID_FOR_ADDING(20, "NoValidationRuleSetIdForAdding", "User should specify ids of Validation Ruleset for adding"),
     EXECUTE_COM_TASK_LEVEL1(21, Privileges.EXECUTE_COM_TASK_1, "Execute com task (level 1)"),
     EXECUTE_COM_TASK_LEVEL2(22, Privileges.EXECUTE_COM_TASK_2, "Execute com task (level 2)"),
     EXECUTE_COM_TASK_LEVEL3(23, Privileges.EXECUTE_COM_TASK_3, "Execute com task (level 3)"),
@@ -120,8 +120,8 @@ public enum MessageSeeds implements MessageSeed {
     WAVENISSECURITYSUPPORT_ENCRYPTIONLEVEL_0(204, Keys.WAVENISSECURITYSUPPORT_ENCRYPTIONLEVEL_0, "Standard Wavenis encryption"),
     NO_SUCH_DEVICE_LIFE_CYCLE(206, "NoSuchDeviceLifeCycle", "There is no device life cycle with id = {0}"),
     UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE(207, "UnableToChangeDeviceLifeCycle", "Unable to change device life cycle to \"{0}\""),
-
-    ;
+    HAS_SOLVED(208, Keys.SOLVED, "Solved"),
+    HAS_UNSOLVED(209, Keys.UNSOLVED, "Unsolved"),;
 
     private final int number;
     private final String key;
@@ -248,6 +248,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String SIMPLEPASSWORDSECURITYSUPPORT_AUTHENTICATIONLEVEL_0 = "SimplePasswordSecuritySupport.authenticationlevel.0";
         public static final String WAVENISSECURITYSUPPORT_AUTHENTICATIONLEVEL_0 = "WavenisSecuritySupport.authenticationlevel.0";
         public static final String WAVENISSECURITYSUPPORT_ENCRYPTIONLEVEL_0 = "WavenisSecuritySupport.encryptionlevel.0";
-
+        public static final String SOLVED = "Solved";
+        public static final String UNSOLVED = "Unsolved";
     }
 }
