@@ -267,7 +267,7 @@ public class FileImportServiceIT {
                 .setProcessingDirectory(inProcessDirectory)
                 .setImporterName(IMPORTER_NAME)
                 .setScheduleExpression(scheduleExpression)
-                .build();
+                .create();
         transactionService.execute(() -> {
                     importSchedule.save();
                     return null;

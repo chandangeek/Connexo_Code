@@ -22,7 +22,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -93,7 +92,7 @@ public class DefaultImportScheduleBuilderTest {
                 .setImportDirectory(IMPORT_DIRECTORY)
                 .setSuccessDirectory(SUCCESS_DIRECTORY)
                 .setFailureDirectory(FAILURE_DIRECTORY)
-                .build();
+                .create();
 
         assertThat(schedule.getScheduleExpression()).isEqualTo(scheduleExpression);
     }
@@ -107,7 +106,7 @@ public class DefaultImportScheduleBuilderTest {
                 .setImportDirectory(IMPORT_DIRECTORY)
                 .setSuccessDirectory(SUCCESS_DIRECTORY)
                 .setFailureDirectory(FAILURE_DIRECTORY)
-                .build();
+                .create();
 
         assertThat(schedule.getInProcessDirectory()).isEqualTo(PROCESSING_DIRECTORY);
     }
@@ -121,7 +120,7 @@ public class DefaultImportScheduleBuilderTest {
                 .setImportDirectory(IMPORT_DIRECTORY)
                 .setSuccessDirectory(SUCCESS_DIRECTORY)
                 .setFailureDirectory(FAILURE_DIRECTORY)
-                .build();
+                .create();
 
         assertThat(schedule.getImportDirectory()).isEqualTo(IMPORT_DIRECTORY);
     }
@@ -135,7 +134,7 @@ public class DefaultImportScheduleBuilderTest {
                 .setImportDirectory(IMPORT_DIRECTORY)
                 .setSuccessDirectory(SUCCESS_DIRECTORY)
                 .setFailureDirectory(FAILURE_DIRECTORY)
-                .build();
+                .create();
 
         assertThat(schedule.getSuccessDirectory()).isEqualTo(SUCCESS_DIRECTORY);
     }
@@ -149,7 +148,7 @@ public class DefaultImportScheduleBuilderTest {
                 .setImportDirectory(IMPORT_DIRECTORY)
                 .setSuccessDirectory(SUCCESS_DIRECTORY)
                 .setFailureDirectory(FAILURE_DIRECTORY)
-                .build();
+                .create();
 
         assertThat(schedule.getFailureDirectory()).isEqualTo(FAILURE_DIRECTORY);
     }
