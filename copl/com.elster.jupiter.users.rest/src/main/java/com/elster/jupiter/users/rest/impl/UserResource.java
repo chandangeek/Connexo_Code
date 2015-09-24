@@ -138,7 +138,8 @@ public class UserResource {
 
         Optional<User> user = userService.getUser(id);
 
-        if(!userService.findUserDirectory(user.get().getDomain()).get().getLdapUserStatus(user.get().getName()))
+        if(!userService.findUserDirectory(user.get().getDomain()).get().getType().equals("INT")  &&
+                !userService.findUserDirectory(user.get().getDomain()).get().getLdapUserStatus(user.get().getName()))
             throw new FailToActivateUser(userService.getThesaurus());
         UserInfo info = new UserInfo(user.get());
         info.active = true;
