@@ -35,6 +35,11 @@ public class ConsoleUser implements User {
     }
 
     @Override
+    public long getUserDirectoryId() {
+        return 1;
+    }
+
+    @Override
     public boolean hasPrivilege(String applicationName, String privilege) {
         return true;
     }
@@ -128,6 +133,16 @@ public class ConsoleUser implements User {
     @Override
     public String getDomain() {
         return "Demo";
+    }
+
+    @Override
+    public boolean getStatus() {
+        return true;
+    }
+
+    @Override
+    public void setStatus(boolean status) {
+
     }
 
     @Override
