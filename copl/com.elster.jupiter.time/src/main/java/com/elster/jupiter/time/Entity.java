@@ -13,8 +13,5 @@ public interface Entity {
 
     String getUserName();
 
-    // Operational methods
-    void save();
-
     void delete();
 }

@@ -72,7 +72,6 @@ public class TimeServiceIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LogService.class).toInstance(logService);
-
         }
     }
 
@@ -169,11 +168,8 @@ public class TimeServiceIT {
 
         try (TransactionContext context = transactionService.getContext()) {
             RelativePeriodCategory categoryA = timeService.createRelativePeriodCategory("A");
-            categoryA.save();
             RelativePeriodCategory categoryB = timeService.createRelativePeriodCategory("B");
-            categoryB.save();
             RelativePeriodCategory categoryC = timeService.createRelativePeriodCategory("C");
-            categoryC.save();
             inA1 = timeService.createRelativePeriod("inA1", new RelativeDate(RelativeField.YEAR.minus(2)), new RelativeDate(RelativeField.YEAR.minus(1)), Arrays.asList(categoryA));
             inA2 = timeService.createRelativePeriod("inA2", new RelativeDate(RelativeField.YEAR.minus(2)), new RelativeDate(RelativeField.YEAR.minus(1)), Arrays.asList(categoryA));
             inB1 = timeService.createRelativePeriod("inB1", new RelativeDate(RelativeField.YEAR.minus(2)), new RelativeDate(RelativeField.YEAR.minus(1)), Arrays.asList(categoryB));

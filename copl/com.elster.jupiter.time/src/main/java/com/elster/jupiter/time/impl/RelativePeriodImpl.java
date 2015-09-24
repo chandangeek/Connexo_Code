@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Unique(fields = "name", groups = Save.Create.class, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
-public class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
+public final class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
