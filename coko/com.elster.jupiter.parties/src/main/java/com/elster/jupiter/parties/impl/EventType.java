@@ -41,7 +41,7 @@ public enum EventType {
         if (hasMRID) {
             builder.withProperty("MRID", ValueType.STRING, "MRID");
         }
-        addCustomProperties(builder).create().save();
+        addCustomProperties(builder).create();
     }
 
     EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
