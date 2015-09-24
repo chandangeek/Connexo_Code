@@ -23,7 +23,7 @@ public enum EventType {
                     .withProperty("endTime", ValueType.LONG, "endTime")
                     .withProperty("channelId", ValueType.LONG, "channelId")
                     .withProperty("readingType", ValueType.STRING, "readingType")
-                    .create().save();
+                    .create();
         }
     }
     ;
@@ -49,7 +49,7 @@ public enum EventType {
                 .withProperty("id", ValueType.LONG, "id")
                 .withProperty("version", ValueType.LONG, "version")
                 .withProperty("MRID", ValueType.STRING, "MRID");
-        addCustomProperties(builder).create().save();
+        addCustomProperties(builder).create();
     }
 
     EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
