@@ -16,8 +16,8 @@ public interface IdsService {
 	TimeSeriesDataStorer createUpdatingStorer();
 	TimeSeriesDataStorer createOverrulingStorer();
 	TimeSeriesDataStorer createNonOverrulingStorer();
-	Vault newVault(String component, long id, String name, int slotCount, int textSlotCount, boolean regular);
-	RecordSpec newRecordSpec(String component , long id,String name);
+	Vault createVault(String component, long id, String name, int slotCount, int textSlotCount, boolean regular);
+	RecordSpecBuilder createRecordSpec(String component, long id, String name);
 	void purge(Logger logger);
 	void extendTo(Instant instant, Logger logger);
 }

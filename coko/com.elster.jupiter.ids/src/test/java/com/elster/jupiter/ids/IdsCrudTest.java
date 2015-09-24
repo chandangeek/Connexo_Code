@@ -127,13 +127,12 @@ public class IdsCrudTest {
         IdsService idsService = injector.getInstance(IdsService.class);
         TimeSeries ts;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            Vault vault = idsService.newVault("IDS", 2, "TEXT", 1, 1, false);
-            vault.persist();
+            Vault vault = idsService.createVault("IDS", 2, "TEXT", 1, 1, false);
             vault.activate(ZonedDateTime.of(2020, 1, 1, 0, 0, 0, 0, zoneId).toInstant());
-            RecordSpec spec = idsService.newRecordSpec("IDS", 2, "text");
-            spec.addFieldSpec("Value1", FieldType.NUMBER);
-            spec.addFieldSpec("Value2", FieldType.TEXT);
-            spec.persist();
+            RecordSpec spec = idsService.createRecordSpec("IDS", 2, "text")
+                    .addFieldSpec("Value1", FieldType.NUMBER)
+                    .addFieldSpec("Value2", FieldType.TEXT)
+                    .create();
             ts = vault.createIrregularTimeSeries(spec, TimeZone.getDefault());
             TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
             ZonedDateTime dateTime = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, zoneId);

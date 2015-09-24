@@ -51,7 +51,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 	private String userName;
 	
 	// association
-	private Reference<VaultImpl> vault = ValueReference.absent();
+	private Reference<IVault> vault = ValueReference.absent();
 	private Reference<RecordSpec> recordSpec = ValueReference.absent();
 	
 	// cached values
@@ -66,7 +66,7 @@ public final class TimeSeriesImpl implements TimeSeries {
     	this.idsService = idsService;
 	}
 
-	TimeSeriesImpl init(VaultImpl vault , RecordSpec recordSpec, ZoneId zoneId) {
+	TimeSeriesImpl init(IVault vault , RecordSpec recordSpec, ZoneId zoneId) {
 		this.vault.set(Objects.requireNonNull(vault));
 		this.recordSpec.set(Objects.requireNonNull(recordSpec));
 		this.zoneId = zoneId;
@@ -75,7 +75,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 		return this;
 	}
 
-    TimeSeriesImpl init(VaultImpl vault , RecordSpec recordSpec, ZoneId zoneId, TemporalAmount interval, int offsetInHours) {
+    TimeSeriesImpl init(IVault vault , RecordSpec recordSpec, ZoneId zoneId, TemporalAmount interval, int offsetInHours) {
 		init(vault,recordSpec,zoneId);
         this.regular = true;
         setInterval(interval);
@@ -167,7 +167,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 	}
 
 	@Override
-	public VaultImpl getVault() {
+	public IVault getVault() {
 		return vault.get();
 	}
 	

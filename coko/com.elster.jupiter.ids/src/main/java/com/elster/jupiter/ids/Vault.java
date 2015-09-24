@@ -32,7 +32,6 @@ public interface Vault {
 	TimeSeries createRegularTimeSeries(RecordSpec spec , ZoneId zoneId , TemporalAmount interval , int hourOffset);
 	TimeSeries createIrregularTimeSeries(RecordSpec spec, ZoneId zoneId);
 	boolean isValidInstant(Instant instant);
-	void persist();
 	void purge(Logger logger);
 	Period getRetention();
 	void setRetentionDays(int numberOfDays);

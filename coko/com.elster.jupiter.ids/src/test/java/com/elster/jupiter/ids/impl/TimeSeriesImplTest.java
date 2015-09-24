@@ -1,10 +1,14 @@
 package com.elster.jupiter.ids.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.orm.DataModel;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Range;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -12,21 +16,16 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.elster.jupiter.devtools.tests.EqualsContractTest;
-import com.elster.jupiter.ids.IdsService;
-import com.elster.jupiter.ids.RecordSpec;
-import com.elster.jupiter.orm.DataModel;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Range;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TimeSeriesImplTest extends EqualsContractTest {
 
     private static final long ID = 15L;
-    private VaultImpl vault = mock(VaultImpl.class);
+    private IVault vault = mock(IVault.class);
     private RecordSpec recordSpec = mock(RecordSpec.class);
     private DataModel dataModel = mock(DataModel.class);
     private IdsService idsService = mock(IdsService.class);

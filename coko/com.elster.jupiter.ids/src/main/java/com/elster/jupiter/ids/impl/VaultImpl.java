@@ -2,7 +2,6 @@ package com.elster.jupiter.ids.impl;
 
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeriesEntry;
-import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -11,9 +10,8 @@ import com.elster.jupiter.util.sql.SqlFragment;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
-import javax.inject.Provider;
 import javax.inject.Inject;
-
+import javax.inject.Provider;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,7 +30,7 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 @LiteralSql
-public class VaultImpl implements Vault {
+public final class VaultImpl implements IVault {
 
     private static final int ID_COLUMN_INDEX = 1;
     private static final int FROM_COLUMN_INDEX = 2;
@@ -345,7 +343,8 @@ public class VaultImpl implements Vault {
         return builder;
     }
 
-    List<TimeSeriesEntry> getEntries(TimeSeriesImpl timeSeries, Range<Instant> interval) {
+    @Override
+    public List<TimeSeriesEntry> getEntries(TimeSeriesImpl timeSeries, Range<Instant> interval) {
         try {
             return doGetEntries(timeSeries, interval);
         } catch (SQLException ex) {
@@ -353,7 +352,8 @@ public class VaultImpl implements Vault {
         }
     }
 
-    List<TimeSeriesEntry> getEntriesUpdatedSince(TimeSeriesImpl timeSeries, Range<Instant> interval, Instant since) {
+    @Override
+    public List<TimeSeriesEntry> getEntriesUpdatedSince(TimeSeriesImpl timeSeries, Range<Instant> interval, Instant since) {
         try {
             return doGetEntriesSince(timeSeries, interval, since);
         } catch (SQLException ex) {
@@ -361,7 +361,8 @@ public class VaultImpl implements Vault {
         }
     }
 
-    Optional<TimeSeriesEntry> getEntry(TimeSeriesImpl timeSeries, Instant when) {
+    @Override
+    public Optional<TimeSeriesEntry> getEntry(TimeSeriesImpl timeSeries, Instant when) {
         try {
             return Optional.ofNullable(doGetEntry(timeSeries, when));
         } catch (SQLException ex) {
@@ -520,11 +521,12 @@ public class VaultImpl implements Vault {
         return dataModel.getConnection(transactionRequired);
     }
 
-    public void persist() {
+    void persist() {
         dataModel.persist(this);
     }
 
-    List<TimeSeriesEntry> getEntriesBefore(TimeSeriesImpl timeSeries, Instant when, int entryCount, boolean includeBoundary) {
+    @Override
+    public List<TimeSeriesEntry> getEntriesBefore(TimeSeriesImpl timeSeries, Instant when, int entryCount, boolean includeBoundary) {
         try {
             return doGetEntriesBefore(timeSeries, when, entryCount, includeBoundary);
         } catch (SQLException ex) {
@@ -560,7 +562,8 @@ public class VaultImpl implements Vault {
         return builder.toString();
     }
 
-    void removeEntries(TimeSeriesImpl timeSeries, Range<Instant> range) {
+    @Override
+    public void removeEntries(TimeSeriesImpl timeSeries, Range<Instant> range) {
         try (Connection connection = getConnection(true)) {
             if (journal) {
                 try (PreparedStatement statement = journalSql(timeSeries, range).prepare(connection)) {

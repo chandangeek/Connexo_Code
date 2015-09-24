@@ -2,6 +2,7 @@ package com.elster.jupiter.ids.impl;
 
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.RecordSpecBuilder;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.Vault;
@@ -91,13 +92,15 @@ public class IdsServiceImpl implements IdsService, InstallService, MessageSeedPr
     }
 
     @Override
-    public Vault newVault(String component, long id, String name, int slotCount, int textSlotCount, boolean regular) {
-        return dataModel.getInstance(VaultImpl.class).init(component, id, name, slotCount, textSlotCount, regular);
+    public Vault createVault(String component, long id, String name, int slotCount, int textSlotCount, boolean regular) {
+        VaultImpl vault = dataModel.getInstance(VaultImpl.class).init(component, id, name, slotCount, textSlotCount, regular);
+        vault.persist();
+        return vault;
     }
 
     @Override
-    public RecordSpec newRecordSpec(String component, long id, String name) {
-        return dataModel.getInstance(RecordSpecImpl.class).init(component, id, name);
+    public RecordSpecBuilder createRecordSpec(String component, long id, String name) {
+        return new RecordSpecBuilderImpl(dataModel, component, id, name);
     }
 
     @Override

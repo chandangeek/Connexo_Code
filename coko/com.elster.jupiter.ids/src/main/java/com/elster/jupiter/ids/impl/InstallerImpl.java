@@ -2,7 +2,7 @@ package com.elster.jupiter.ids.impl;
 
 import com.elster.jupiter.ids.FieldType;
 import com.elster.jupiter.ids.IdsService;
-import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.RecordSpecBuilder;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.orm.DataModel;
 
@@ -35,17 +35,16 @@ public class InstallerImpl {
 	}
 
 	private void createVaults() {
-		Vault newVault = idsService.newVault("IDS",1,"Regular TimeSeries Default ", DEFAULT_SLOT_COUNT, 0,true);
-		newVault.persist();
+		Vault newVault = idsService.createVault("IDS", 1, "Regular TimeSeries Default ", DEFAULT_SLOT_COUNT, 0, true);
 		Instant start = Instant.now().truncatedTo(ChronoUnit.DAYS);
 		newVault.activate(start);		
 		newVault.extendTo(start.plus(360, ChronoUnit.DAYS), Logger.getLogger(getClass().getPackage().getName()));		
 	}
 	
 	private void createRecordSpecs() {
-		RecordSpec recordSpec = idsService.newRecordSpec("IDS",1,"Simple");
-		recordSpec.addFieldSpec("value" , FieldType.NUMBER);
-		recordSpec.persist();
+		RecordSpecBuilder builder = idsService.createRecordSpec("IDS", 1, "Simple");
+		builder.addFieldSpec("value", FieldType.NUMBER);
+		builder.create();
 	}
 	
 }

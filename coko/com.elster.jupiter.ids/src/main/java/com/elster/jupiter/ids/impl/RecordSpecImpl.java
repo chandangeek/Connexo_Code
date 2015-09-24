@@ -69,8 +69,7 @@ public final class RecordSpecImpl implements RecordSpec {
 	}
 
 
-	@Override
-	public FieldSpecImpl addFieldSpec(String name, FieldType fieldType) {		
+	FieldSpecImpl addFieldSpec(String name, FieldType fieldType) {
 		FieldSpecImpl fieldSpec = fieldSpecProvider.get().init(this,name, fieldType);
 		fieldSpecs.add(fieldSpec);
 		return fieldSpec;
@@ -83,7 +82,7 @@ public final class RecordSpecImpl implements RecordSpec {
 		return Pair.of(derived, addFieldSpec(rawName,fieldType));
 	}
 	
-	public void persist() {
+	void persist() {
 		dataModel.persist(this);
 	}
 

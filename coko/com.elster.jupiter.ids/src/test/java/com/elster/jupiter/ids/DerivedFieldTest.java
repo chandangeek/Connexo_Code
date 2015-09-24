@@ -77,9 +77,9 @@ public class DerivedFieldTest {
         IdsService idsService = injector.getInstance(IdsService.class);
         TimeSeries ts = null;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-        	RecordSpec recordSpec = idsService.newRecordSpec("XXX", 1, "Delta");
-        	recordSpec.addDerivedFieldSpec("Delta", "Total" , FieldType.NUMBER , FieldDerivationRule.DELTAFROMPREVIOUS);
-        	recordSpec.persist();
+        	RecordSpec recordSpec = idsService.createRecordSpec("XXX", 1, "Delta")
+                    .addDerivedFieldSpec("Delta", "Total" , FieldType.NUMBER , FieldDerivationRule.DELTAFROMPREVIOUS)
+                    .create();
         	Vault vault = idsService.getVault("IDS", 1).get();
 	        ts = vault.createRegularTimeSeries(recordSpec, defaultZone, Duration.ofMinutes(15), 0);
 	        TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
