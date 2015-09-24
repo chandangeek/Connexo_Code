@@ -15,6 +15,9 @@ Ext.define('Mdc.store.DeviceConfigurations', {
         reader: {
             type: 'json',
             root: 'deviceConfigurations'
+        },
+        setUrl: function (params) {
+            this.url = this.baseUrl.replace('{deviceType}', params['deviceType'])
         }
     }
 });

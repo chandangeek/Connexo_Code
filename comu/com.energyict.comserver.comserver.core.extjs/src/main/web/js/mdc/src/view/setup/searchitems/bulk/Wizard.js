@@ -7,7 +7,8 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Wizard', {
         'Mdc.view.setup.searchitems.bulk.Step3',
         'Mdc.view.setup.searchitems.bulk.Step4',
         'Mdc.view.setup.searchitems.bulk.Step5',
-        'Mdc.view.setup.searchitems.bulk.Step5ViewDevices'
+        'Mdc.view.setup.searchitems.bulk.Step5ViewDevices',
+        'Uni.view.notifications.NotificationPanel'
     ],
     alias: 'widget.searchitems-wizard',
     autoHeight: true,
@@ -76,6 +77,13 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Wizard', {
                 ui: 'action',
                 action: 'finish',
                 itemId: 'finishButton',
+                hidden: true
+            },
+            {
+                text: Uni.I18n.translate('general.finish', 'MDC', 'Finish'),
+                ui: 'remove',
+                action: 'finish',
+                itemId: 'failureFinishButton',
                 hidden: true
             },
             {

@@ -36,6 +36,21 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
                         text: Uni.I18n.translate('devicetypemenu.configurations', 'MDC', 'Configurations'),
                         itemId: 'configurationsLink',
                         href: '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations'
+                    },
+                    {
+                        text: Uni.I18n.translate('devicetypemenu.conflictingMappings', 'MDC', 'Conflicting mappings'),
+                        itemId: 'conflictingMappingLink',
+                        href: '#/administration/devicetypes/' + this.deviceTypeId + '/conflictmappings'
+                    }
+                ]
+            },
+            {
+                title: Uni.I18n.translate('devicetypemenu.customattribute', 'MDC', 'Custom attribute'),
+                items: [
+                    {
+                        text: Uni.I18n.translate('devicetypemenu.customattribute.sets', 'MDC', 'Custom attribute sets'),
+                        itemId: 'configurationsLink',
+                        href: '#/administration/devicetypes/' + this.deviceTypeId + '/customattributesets'
                     }
                 ]
             }

@@ -3,6 +3,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
     alias: 'widget.searchitems-bulk-step4',
     bodyCls: 'isu-bulk-wizard-no-border',
     name: 'confirmPage',
+    layout: 'hbox',
     title: Uni.I18n.translate('searchItems.bulk.step4title', 'MDC', 'Bulk action - Step 4 of 5: Confirmation'),
     ui: 'large',
     tbar: {
@@ -22,5 +23,31 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
         this.removeAll();
         this.add(widget);
         Ext.resumeLayouts();
+    },
+
+
+    showChangeDeviceConfigConfirmation: function (title, text, solveLink, additionalText, type) {
+        var bodyText, widget,
+            solve = solveLink ? '<br>' + solveLink + ' ' + Ext.String.htmlEncode(Uni.I18n.translate('searchItems.bulk.solveLinkPostfix', 'MDC', 'before you retry.')) : '';
+        bodyText = Ext.String.htmlEncode(text) + '<br>' + solve;
+        if (additionalText) bodyText += '<br>' + additionalText;
+        type = type ? type : 'confirmation';
+        widget = {
+            xtype: 'uni-notification-panel',
+            margin: '0 0 0 -13',
+            message: title,
+            type: type,
+            additionalItems: [
+                {
+                    xtype: 'container',
+                    html: bodyText
+                }
+            ]
+        };
+        Ext.suspendLayouts();
+        this.removeAll();
+        this.add(widget);
+        Ext.resumeLayouts(true);
     }
+
 });

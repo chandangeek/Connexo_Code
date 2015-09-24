@@ -16,6 +16,26 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step5', {
         title: '',
         itemId: 'searchitemsbulkactiontitle'
     },
+
+    showChangeDeviceConfigSuccess: function (title, text) {
+        var widget = {
+            xtype: 'uni-notification-panel',
+            margin: '0 0 0 -13',
+            message: title,
+            type: 'success',
+            additionalItems: [
+                {
+                    xtype: 'container',
+                    html: text
+                }
+            ]
+        };
+        Ext.suspendLayouts();
+        this.removeAll();
+        this.add(widget);
+        Ext.resumeLayouts(true);
+    },
+
     initComponent: function () {
         this.callParent(arguments);
     }

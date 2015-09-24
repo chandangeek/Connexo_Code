@@ -24,9 +24,17 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step2', {
                 checked: true
             },
             {
+                itemId: 'searchitemschangeconfig',
+                boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.changeConfig', 'MDC', 'Change device configuration') + '</b>',
+                afterSubTpl: '<span class="x-form-cb-label" style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('searchItems.bulk.changeConfigMsg', 'MDC', 'This option is only possible if the selected devices have the same device configuration') + '</span>',
+                name: 'operation',
+                inputValue: 'changeconfig',
+                privilege: Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication'])
+            },
+            {
                 itemId: 'searchitemsremoveschedules',
                 boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.removeSchedules', 'MDC', 'Remove shared communication schedules') + '</b>',
-                afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('searchItems.bulk.removeScheduleMsg', 'MDC', 'Shared communication schedule will no longer be visible and used on the selected devices. A record is kept for tracking purposes. This action cannot be undone.') + '</span>',
+                afterSubTpl: '<span class="x-form-cb-label" style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('searchItems.bulk.removeScheduleMsg', 'MDC', 'Shared communication schedule will no longer be visible and used on the selected devices. A record is kept for tracking purposes. This action cannot be undone.') + '</span>',
                 name: 'operation',
                 inputValue: 'remove'
             }

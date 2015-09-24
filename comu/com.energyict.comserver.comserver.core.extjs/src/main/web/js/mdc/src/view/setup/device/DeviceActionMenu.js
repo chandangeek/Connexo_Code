@@ -36,6 +36,16 @@ Ext.define('Mdc.view.setup.device.DeviceActionMenu', {
                     me.router.getRoute('devices/device/attributes/edit').forward();
                 },
                 text: Uni.I18n.translate('deviceconfiguration.deviceAttributes.editAttributes', 'MDC', 'Edit attributes')
+            },
+            {
+                itemId: 'change-device-configuration-action-item',
+                privileges: Mdc.privileges.Device.changeDeviceConfiguration,
+                dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.changeDeviceConfiguration,
+                text: Uni.I18n.translate('deviceconfiguration.changeDeviceConfiguration', 'MDC', 'Change device configuration'),
+                handler: function () {
+                    me.router.getRoute('devices/device/changedeviceconfiguration').forward();
+                }
             }
         ];
 
