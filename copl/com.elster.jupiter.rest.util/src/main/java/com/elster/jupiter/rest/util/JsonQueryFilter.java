@@ -147,12 +147,8 @@ public class JsonQueryFilter {
         JsonNode node = getFilterProperties().get(name);
         List<T> values = new ArrayList<>();
         if (node != null) {
-            if (node.isArray()) {
-                for (JsonNode value : node) {
-                    values.add(mapper.apply(value));
-                }
-            } else {
-                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_SHOULD_HAVE_BEEN_ARRAY, "filter."+name);
+            for (JsonNode value : node) {
+                values.add(mapper.apply(value));
             }
         }
         return values;
