@@ -376,7 +376,7 @@ Ext.define('Fwc.controller.Firmware', {
         me.loadDeviceType(deviceTypeId, function (deviceType) {
             me.getApplication().fireEvent('changecontentevent', 'firmware-options', {deviceType: deviceType});
             container.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
-            container.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
+            container.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'FWC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
 
             var widget = container.down('firmware-options');
             if (widget){
