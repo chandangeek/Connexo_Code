@@ -71,7 +71,7 @@ public class Installer {
         }
         for (EventType eventType : eventTypesToPublish) {
             eventType.setPublish(true);
-            eventType.save();
+            eventType.update();
         }
     }
 
