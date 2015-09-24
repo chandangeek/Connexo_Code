@@ -38,6 +38,8 @@ public class CreateDemoUserCommand {
         Group group = userService.findGroup(DEMO_USER_ROLE).orElseGet(this::createAndGrantViewPrivilegesToGroup);
 
         User user  = userService.findUser(userName).orElseGet(() -> userService.createUser(this.userName, "Demo User"));
+        user.setPassword("D3mo");
+        user.save();
         // Make the user a member of the 'Demo Users' group with all its privileges
         user.join(group);
         System.out.println("==> created 'Demo' user " + userName);

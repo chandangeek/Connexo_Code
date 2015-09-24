@@ -55,7 +55,7 @@ public class SetupFirmwareManagementCommand {
                     .orElseGet(() -> firmwareService.newFirmwareVersion(deviceType, FIRMWARE_VERSION_V2, FirmwareStatus.TEST, FirmwareType.METER));
             setFirmwareBytes(v2, getClass().getClassLoader().getResourceAsStream(FIRMWARE_VERSION_V2+".firm"));
 
-            if (firmwareService.getSupportedFirmwareOptionsFor(deviceType).isEmpty()) {
+            if (firmwareService.getAllowedFirmwareManagementOptionsFor(deviceType).isEmpty()) {
                 FirmwareManagementOptions options = firmwareService.newFirmwareManagementOptions(deviceType);
                 options.setOptions(supportedOptions);
                 options.save();

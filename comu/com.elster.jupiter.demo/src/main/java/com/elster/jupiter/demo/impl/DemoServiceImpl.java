@@ -1,7 +1,7 @@
 package com.elster.jupiter.demo.impl;
 
 import com.elster.jupiter.demo.impl.commands.*;
-import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
+import com.elster.jupiter.demo.impl.commands.devices.*;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -21,8 +21,6 @@ import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
 import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
-import com.elster.jupiter.demo.impl.commands.devices.CreateValidationDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddIntervalChannelReadingsCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddNoneIntervalChannelReadingsCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddRegisterReadingsCommand;

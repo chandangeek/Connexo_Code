@@ -1,21 +1,15 @@
-package com.elster.jupiter.demo.impl.commands;
+package com.elster.jupiter.demo.impl.commands.devices;
 
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
+import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -48,18 +42,23 @@ public class CreateG3GatewayCommand {
     private final ConnectionTaskService connectionTaskService;
     private ConnectionTypePluggableClass requiredPluggableClass;
     private final Provider<DeviceBuilder> deviceBuilderProvider;
+    private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> lifecyclePostBuilder;
 
     private Map<ComTaskTpl, ComTask> comTasks;
     private String mRID = GATEWAY_MRID;
     private String serialNumber = GATEWAY_SERIAL;
 
     @Inject
-    public CreateG3GatewayCommand(DeviceService deviceService, ProtocolPluggableService protocolPluggableService,
-                                  ConnectionTaskService connectionTaskService, Provider<DeviceBuilder> deviceBuilderProvider) {
+    public CreateG3GatewayCommand(DeviceService deviceService,
+                                  ProtocolPluggableService protocolPluggableService,
+                                  ConnectionTaskService connectionTaskService,
+                                  Provider<DeviceBuilder> deviceBuilderProvider,
+                                  Provider<SetDeviceInActiveLifeCycleStatePostBuilder> lifecyclePostBuilder) {
         this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
         this.connectionTaskService = connectionTaskService;
         this.deviceBuilderProvider = deviceBuilderProvider;
+        this.lifecyclePostBuilder = lifecyclePostBuilder;
     }
 
     public void setGatewayMrid(String mRID){
@@ -84,14 +83,14 @@ public class CreateG3GatewayCommand {
         findOrCreateRequiredObjects();
 
         // 3. Create the device type
-        DeviceType g3DeviceType = Builders.from(DeviceTypeTpl.RTU_Plus_G3).get();
+        DeviceType deviceType = (Builders.from(DeviceTypeTpl.RTU_Plus_G3).get());
 
         // 4. Create the configuration
-        DeviceConfiguration configuration = g3DeviceType.getConfigurations().stream().filter(dc -> DEVICE_CONFIG_NAME.equals(dc.getName())).findFirst()
-            .orElseGet(() -> createG3DeviceConfiguration(g3DeviceType, DEVICE_CONFIG_NAME));
+        DeviceConfiguration configuration = deviceType.getConfigurations().stream().filter(dc -> DEVICE_CONFIG_NAME.equals(dc.getName())).findFirst()
+            .orElseGet(() -> createG3DeviceConfiguration(deviceType, DEVICE_CONFIG_NAME));
 
-        // 5. Create the gateway device
-        createG3GatewayDevice(configuration);
+        // 5. Create the gateway device (and set it to the 'Active' life cycle state)
+        lifecyclePostBuilder.get().accept(createG3GatewayDevice(configuration));
     }
 
     private DeviceConfiguration createG3DeviceConfiguration(DeviceType g3DeviceType, String deviceConfigName) {
@@ -151,19 +150,21 @@ public class CreateG3GatewayCommand {
         }
     }
 
-    private void createG3GatewayDevice(DeviceConfiguration configuration) {
+    private Device createG3GatewayDevice(DeviceConfiguration configuration) {
         Device device = deviceBuilderProvider.get()
             .withMrid(mRID)
             .withSerialNumber(serialNumber)
             .withDeviceConfiguration(configuration)
             .withYearOfCertification(2015)
-            .get();
+                .get();
         addConnectionTasksToDevice(device);
         addSecurityPropertiesToDevice(device);
         addComTaskToDevice(device, ComTaskTpl.TOPOLOGY_UPDATE);
         device.setProtocolProperty("Short_MAC_address", new BigDecimal(0));
         device.save();
+        return device;
     }
+
 
     private void addConnectionTasksToDevice(Device device) {
         DeviceConfiguration configuration = device.getDeviceConfiguration();

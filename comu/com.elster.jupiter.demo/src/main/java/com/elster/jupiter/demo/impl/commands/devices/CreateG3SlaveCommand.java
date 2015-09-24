@@ -1,8 +1,9 @@
-package com.elster.jupiter.demo.impl.commands;
+package com.elster.jupiter.demo.impl.commands.devices;
 
 import com.elster.jupiter.demo.impl.*;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
+import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.energyict.mdc.common.Password;
@@ -13,6 +14,7 @@ import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMes
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
@@ -89,12 +91,17 @@ public class CreateG3SlaveCommand {
 
     }
 
+    private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> lifecyclePostBuilder;
+
     private String mrId;
     private MeterConfig meterConfig;
     private DeviceTypeTpl deviceTypeTemplate;
 
+
     @Inject
-    public CreateG3SlaveCommand() {}
+    public CreateG3SlaveCommand(Provider<SetDeviceInActiveLifeCycleStatePostBuilder> lifecyclePostBuilder) {
+        this.lifecyclePostBuilder = lifecyclePostBuilder;;
+    }
 
     public void setMrId(String mrId) {
         this.mrId = mrId;
@@ -115,7 +122,7 @@ public class CreateG3SlaveCommand {
         if (mrId != null){
             meterConfig.setProperty("MRID", mrId);
         }
-        deviceFrom(meterConfig);
+        lifecyclePostBuilder.get().accept(deviceFrom(meterConfig));
     }
 
     private Device deviceFrom(MeterConfig config) {
