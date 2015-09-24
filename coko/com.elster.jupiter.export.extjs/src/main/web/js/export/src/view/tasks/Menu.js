@@ -4,7 +4,7 @@ Ext.define('Dxp.view.tasks.Menu', {
 
     router: null,
 
-    title: Uni.I18n.translate('general.dataExportTasks', 'DES', 'Data export tasks'),
+    title: Uni.I18n.translate('general.dataExportTask', 'DES', 'Data export task'),
 
     initComponent: function () {
         var me = this;

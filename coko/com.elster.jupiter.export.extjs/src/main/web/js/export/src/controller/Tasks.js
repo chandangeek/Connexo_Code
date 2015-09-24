@@ -464,7 +464,7 @@ Ext.define('Dxp.controller.Tasks', {
                 view.down('#hostname').setValue(me.destinationToEdit.get('server'));
                 view.down('#user-field').setValue(me.destinationToEdit.get('user'));
                 view.down('#password-field').setValue(me.destinationToEdit.get('password'));
-            }  else if (type === 'FTP'){
+            }  else if (type === 'FTPS'){
                 me.showFtpDestinationAttributes(true);
                 view.down('#destination-methods-combo').setValue('FTPS');
                 view.down('#destination-methods-combo').setDisabled(true);

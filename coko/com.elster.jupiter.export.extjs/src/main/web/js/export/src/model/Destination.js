@@ -22,6 +22,8 @@ Ext.define('Dxp.model.Destination', {
                         return Uni.I18n.translate('destination.email','DES','Mail');
                     case 'FTP':
                         return Uni.I18n.translate('destination.ftp','DES','FTP');
+                    case 'FTPS':
+                        return Uni.I18n.translate('destination.ftps','DES','FTPS');
                     default:
                         return 'unknown';
                 }
@@ -37,6 +39,7 @@ Ext.define('Dxp.model.Destination', {
                     case 'EMAIL':
                         return data.recipients;
                     case 'FTP':
+                    case 'FTPS':
                         return data.server;
                     default:
                         return 'unknown';
@@ -66,6 +69,17 @@ Ext.define('Dxp.model.Destination', {
                             + ': ' + data.fileExtension;
                     case 'FTP':
                         return Uni.I18n.translate('dataExportdestinations.ftpServer', 'DES', 'FTP server')
+                            + ': ' + data.server + '<br>'
+                            + Uni.I18n.translate('general.user', 'DES', 'User')
+                            + ': ' + data.user + '<br>'
+                            + Uni.I18n.translate('general.fileName', 'DES', 'File name')
+                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(data.fileName)) + '<br>'
+                            + Uni.I18n.translate('general.fileExtension', 'DES', 'File extension')
+                            + ': ' + data.fileExtension + '<br>'
+                            + Uni.I18n.translate('general.fileLocation', 'DES', 'File location')
+                            + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(data.fileLocation));
+                    case 'FTPS':
+                        return Uni.I18n.translate('dataExportdestinations.ftpsServer', 'DES', 'FTPS server')
                             + ': ' + data.server + '<br>'
                             + Uni.I18n.translate('general.user', 'DES', 'User')
                             + ': ' + data.user + '<br>'

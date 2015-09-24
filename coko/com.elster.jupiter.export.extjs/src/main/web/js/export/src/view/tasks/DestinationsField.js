@@ -34,7 +34,12 @@ Ext.define('Dxp.view.tasks.DestinationsField', {
                             ')<br>';
                         break;
                     case 'FTPS':
-                        //implement whan ftps is implemented
+                        toolTip += Uni.I18n.translate('destination.ftps','DES','FTPS') +
+                            ' (' +
+                            'ftps://' + destination.server + '/' + Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileLocation))
+                            + '/' + Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileName))
+                            + '.' + destination.fileExtension +
+                            ')<br>';
                         break;
                 }
             });
