@@ -460,7 +460,9 @@ public class EndDeviceImplIT {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext context = transactionService.getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            Meter meter = amrSystem.newMeter("amrID", "findByIdAfterMakeObsolete");
+            Meter meter = amrSystem.newMeter("amrID")
+                    .setMRID("findByIdAfterMakeObsolete")
+                    .create();
             meter.save();
             meter.makeObsolete();
 

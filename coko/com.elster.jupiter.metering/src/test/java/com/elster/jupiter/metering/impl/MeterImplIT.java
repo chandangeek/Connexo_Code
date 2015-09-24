@@ -145,7 +145,9 @@ public class MeterImplIT {
 
         Meter meter;
         try (TransactionContext context = transactionService.getContext()) {
-            meter = meteringService.findAmrSystem(1).get().newMeter("amrID", "mRID");
+            meter = meteringService.findAmrSystem(1).get().newMeter("amrID")
+                    .setMRID("mRID")
+                    .create();
             meter.save();
             meter.activate(activation.toInstant());
             context.commit();
@@ -191,7 +193,9 @@ public class MeterImplIT {
 
         Meter meter;
         try (TransactionContext context = transactionService.getContext()) {
-            meter = meteringService.findAmrSystem(1).get().newMeter("amrID", "mRID");
+            meter = meteringService.findAmrSystem(1).get().newMeter("amrID")
+                    .setMRID("mRID")
+                    .create();
             meter.save();
             meter.activate(activation.toInstant());
             context.commit();
