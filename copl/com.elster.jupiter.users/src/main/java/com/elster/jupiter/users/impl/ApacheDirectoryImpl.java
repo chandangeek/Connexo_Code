@@ -323,7 +323,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
                 if(attributes.get("uid")!=null) {
-                    if(attributes.get("uid").toString().equals(user)) {
+                    if(attributes.get("uid").toString().equals("uid: "+user)) {
                         if (attributes.get("pwdAccountLockedTime") != null) {
                             if (attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")) {
                                 return false;
@@ -366,7 +366,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
                 if(attributes.get("uid")!=null) {
-                    if(attributes.get("uid").toString().equals(user)) {
+                    if(attributes.get("uid").toString().equals("uid: "+user)) {
                         if (attributes.get("pwdAccountLockedTime") != null) {
                             if (attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")) {
                                 return false;
@@ -412,7 +412,7 @@ public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
                 SearchResult searchResult = (SearchResult) results.next();
                 Attributes attributes = searchResult.getAttributes();
                 if(attributes.get("uid")!=null) {
-                    if(attributes.get("uid").toString().equals(user)) {
+                    if(attributes.get("uid").toString().equals("uid: "+user)) {
                         if (attributes.get("pwdAccountLockedTime") != null) {
                             if (attributes.get("pwdAccountLockedTime").get().toString().equals("000001010000Z")) {
                                 return false;
