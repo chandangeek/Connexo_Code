@@ -2,29 +2,28 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.ExportTask;
-import com.elster.jupiter.export.FtpDestination;
+import com.elster.jupiter.export.FtpsDestination;
 
-public class FtpDestinationInfoFactory extends AbstractFtpDestinationInfoFactory {
+public class FtpsDestinationInfoFactory extends AbstractFtpDestinationInfoFactory {
 
     @Override
     DestinationType getDestinationType() {
-        return DestinationType.FTP;
+        return DestinationType.FTPS;
     }
 
     @Override
     boolean isCorrectDestination(DataExportDestination destination) {
-        return destination instanceof FtpDestination;
+        return destination instanceof FtpsDestination;
     }
 
     @Override
     public void create(ExportTask task, DestinationInfo info) {
-        task.addFtpDestination(info.server, info.user, info.password, info.fileLocation, info.fileName, info.fileExtension);
+        task.addFtpsDestination(info.server, info.user, info.password, info.fileLocation, info.fileName, info.fileExtension);
     }
 
     @Override
     public Class<? extends DataExportDestination> getDestinationClass() {
-        return FtpDestination.class;
+        return FtpsDestination.class;
     }
+
 }
-
-
