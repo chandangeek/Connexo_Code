@@ -15,7 +15,6 @@ import org.mockito.Mock;
 
 import java.sql.SQLException;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
 /**
@@ -46,18 +45,18 @@ public class RemoteComServerImplTest extends PersistenceTest {
     public void testCreateWithoutViolations() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = NO_VIOLATIONS_NAME;
-        remoteComServer.setName(name);
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.setOnlineComServer(onlineComServer);
+        remoteComServer.name(name);
+        remoteComServer.active(true);
+        remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
+        remoteComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        remoteComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        remoteComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        remoteComServer.onlineComServer(onlineComServer);
 
         // Business method
-        remoteComServer.save();
+        remoteComServer.create();
         RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name).get();
 
         // Asserts
@@ -75,18 +74,18 @@ public class RemoteComServerImplTest extends PersistenceTest {
     public void testThatDefaultURIsAreApplied() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = NO_VIOLATIONS_NAME;
-        remoteComServer.setName(name);
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.setOnlineComServer(onlineComServer);
+        remoteComServer.name(name);
+        remoteComServer.active(true);
+        remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
+        remoteComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        remoteComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        remoteComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        remoteComServer.onlineComServer(onlineComServer);
 
         // Business method
-        remoteComServer.save();
+        remoteComServer.create();
         RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name).get();
 
         // Asserts
@@ -100,16 +99,16 @@ public class RemoteComServerImplTest extends PersistenceTest {
     public void testNameWithInvalidCharacters() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
-        remoteComServer.setName("Read my lips: no spaces or special chars like ? or !, not to mention / or @");
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.setOnlineComServer(onlineComServer);
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
+        remoteComServer.name("Read my lips: no spaces or special chars like ? or !, not to mention / or @");
+        remoteComServer.active(true);
+        remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
+        remoteComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        remoteComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        remoteComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        remoteComServer.onlineComServer(onlineComServer);
 
-        remoteComServer.save();
+        remoteComServer.create();
     }
 
     @Test
@@ -118,16 +117,16 @@ public class RemoteComServerImplTest extends PersistenceTest {
     public void testTooSmallChangesInterPollDelay() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
-        remoteComServer.setName("testTooSmallChangesInterPollDelay");
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.setChangesInterPollDelay(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
-        remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.setOnlineComServer(onlineComServer);
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
+        remoteComServer.name("testTooSmallChangesInterPollDelay");
+        remoteComServer.active(true);
+        remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
+        remoteComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        remoteComServer.changesInterPollDelay(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
+        remoteComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        remoteComServer.onlineComServer(onlineComServer);
 
-        remoteComServer.save();
+        remoteComServer.create();
     }
 
     @Test
@@ -136,16 +135,16 @@ public class RemoteComServerImplTest extends PersistenceTest {
     public void testTooSmallSchedulingInterPollDelay() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
-        remoteComServer.setName("testTooSmallSchedulingInterPollDelay");
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.setSchedulingInterPollDelay(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
-        remoteComServer.setOnlineComServer(onlineComServer);
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
+        remoteComServer.name("testTooSmallSchedulingInterPollDelay");
+        remoteComServer.active(true);
+        remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
+        remoteComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        remoteComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        remoteComServer.schedulingInterPollDelay(new TimeDuration(1, TimeDuration.TimeUnit.SECONDS));
+        remoteComServer.onlineComServer(onlineComServer);
 
-        remoteComServer.save();
+        remoteComServer.create();
     }
 
     @Test
@@ -153,19 +152,19 @@ public class RemoteComServerImplTest extends PersistenceTest {
     public void testCreateWithValidEventRegistrationURI() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = NO_VIOLATIONS_NAME;
-        remoteComServer.setName(name);
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.setEventRegistrationUri(EVENT_REGISTRATION_URI);
-        remoteComServer.setOnlineComServer(createOnlineComServer());
+        remoteComServer.name(name);
+        remoteComServer.active(true);
+        remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
+        remoteComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        remoteComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        remoteComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        remoteComServer.onlineComServer(onlineComServer);
+        remoteComServer.eventRegistrationUri(EVENT_REGISTRATION_URI);
+        remoteComServer.onlineComServer(createOnlineComServer());
         // Business method
-        remoteComServer.save();
+        remoteComServer.create();
         RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name).get();
 
         // Asserts
@@ -178,19 +177,19 @@ public class RemoteComServerImplTest extends PersistenceTest {
     public void testCreateWithInvalidEventRegistrationURI() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = NO_VIOLATIONS_NAME;
-        remoteComServer.setName(name);
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.setEventRegistrationUri(INVALID_URI);
-        remoteComServer.setOnlineComServer(createOnlineComServer());
+        remoteComServer.name(name);
+        remoteComServer.active(true);
+        remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
+        remoteComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        remoteComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        remoteComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        remoteComServer.onlineComServer(onlineComServer);
+        remoteComServer.eventRegistrationUri(INVALID_URI);
+        remoteComServer.onlineComServer(createOnlineComServer());
         // Business method
-        remoteComServer.save();
+        remoteComServer.create();
         // Was expecting a BusinessException because the event registration URL is not valid
     }
 
@@ -198,18 +197,18 @@ public class RemoteComServerImplTest extends PersistenceTest {
     @Transactional
     public void loadTest() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServerBuilder = getEngineModelService().newRemoteComServerBuilder();
         String name = NO_VIOLATIONS_NAME;
-        remoteComServer.setName(name);
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.setOnlineComServer(onlineComServer);
+        remoteComServerBuilder.name(name);
+        remoteComServerBuilder.active(true);
+        remoteComServerBuilder.serverLogLevel(SERVER_LOG_LEVEL);
+        remoteComServerBuilder.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        remoteComServerBuilder.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        remoteComServerBuilder.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        remoteComServerBuilder.onlineComServer(onlineComServer);
 
         // Business method
-        remoteComServer.save();
+        final RemoteComServer remoteComServer = remoteComServerBuilder.create();
         RemoteComServer loadedRemoteComServer = (RemoteComServer) getEngineModelService().findComServer(remoteComServer.getId()).get();
 
         // asserts
@@ -228,95 +227,95 @@ public class RemoteComServerImplTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "onlineComServer")
     public void testCreateWithoutOnlineComServer() throws BusinessException, SQLException {
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = "With-ComPort";
-        remoteComServer.setName(name);
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        remoteComServer.name(name);
+        remoteComServer.active(true);
+        remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
+        remoteComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        remoteComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        remoteComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
 
-        remoteComServer.save();
+        remoteComServer.create();
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "name")
     public void testCreateWithoutName() throws BusinessException, SQLException {
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.setOnlineComServer(createOnlineComServer());
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
+        remoteComServer.active(true);
+        remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
+        remoteComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        remoteComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        remoteComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        remoteComServer.onlineComServer(createOnlineComServer());
         // Business method
-        remoteComServer.save();
+        remoteComServer.create();
     }
 
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "serverLogLevel")
     @Transactional
     public void testCreateWithoutServerLogLevel() throws BusinessException, SQLException {
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = "No-Server-LogLevel";
-        remoteComServer.setName(name);
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(null);
-        remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.setOnlineComServer(createOnlineComServer());
-        remoteComServer.save();
+        remoteComServer.name(name);
+        remoteComServer.active(true);
+        remoteComServer.serverLogLevel(null);
+        remoteComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        remoteComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        remoteComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        remoteComServer.onlineComServer(createOnlineComServer());
+        remoteComServer.create();
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "communicationLogLevel")
     public void testCreateWithoutCommunicationLogLevel() throws BusinessException, SQLException {
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = "No-Communication-LogLevel";
-        remoteComServer.setName(name);
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.setCommunicationLogLevel(null);
-        remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.setOnlineComServer(createOnlineComServer());
-        remoteComServer.save();
+        remoteComServer.name(name);
+        remoteComServer.active(true);
+        remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
+        remoteComServer.communicationLogLevel(null);
+        remoteComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        remoteComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        remoteComServer.onlineComServer(createOnlineComServer());
+        remoteComServer.create();
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "changesInterPollDelay")
     public void testCreateWithoutChangesInterPollDelay() throws BusinessException, SQLException {
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = "No-Changes-InterpollDelay";
-        remoteComServer.setName(name);
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.setChangesInterPollDelay(null);
-        remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.setOnlineComServer(createOnlineComServer());
-        remoteComServer.save();
+        remoteComServer.name(name);
+        remoteComServer.active(true);
+        remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
+        remoteComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        remoteComServer.changesInterPollDelay(null);
+        remoteComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        remoteComServer.onlineComServer(createOnlineComServer());
+        remoteComServer.create();
     }
 
     @Test
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}", property = "schedulingInterPollDelay")
     @Transactional
     public void testCreateWithoutSchedulingInterPollDelay() throws BusinessException, SQLException {
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = "No-Scheduling-InterpollDelay";
-        remoteComServer.setName(name);
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.setSchedulingInterPollDelay(null);
-        remoteComServer.setOnlineComServer(createOnlineComServer());
-        remoteComServer.save();
+        remoteComServer.name(name);
+        remoteComServer.active(true);
+        remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
+        remoteComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        remoteComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        remoteComServer.schedulingInterPollDelay(null);
+        remoteComServer.onlineComServer(createOnlineComServer());
+        remoteComServer.create();
     }
 
     @Test
@@ -324,26 +323,27 @@ public class RemoteComServerImplTest extends PersistenceTest {
     @Transactional
     public void testCreateWithExistingName() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = createOnlineComServer();
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
-        remoteComServer.setName(NO_VIOLATIONS_NAME);
-        remoteComServer.setActive(false);
-        remoteComServer.setServerLogLevel(ComServer.LogLevel.TRACE);
-        remoteComServer.setCommunicationLogLevel(ComServer.LogLevel.TRACE);
-        remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.setOnlineComServer(onlineComServer);
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
+        remoteComServer.name(NO_VIOLATIONS_NAME);
+        remoteComServer.active(false);
+        remoteComServer.serverLogLevel(ComServer.LogLevel.TRACE);
+        remoteComServer.communicationLogLevel(ComServer.LogLevel.TRACE);
+        remoteComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        remoteComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        remoteComServer.onlineComServer(onlineComServer);
 
-        remoteComServer.save();
-        RemoteComServer duplicateComServer = getEngineModelService().newRemoteComServerInstance();
-        duplicateComServer.setName(NO_VIOLATIONS_NAME);
-        duplicateComServer.setActive(false);
-        duplicateComServer.setServerLogLevel(ComServer.LogLevel.TRACE);
-        duplicateComServer.setCommunicationLogLevel(ComServer.LogLevel.TRACE);
-        duplicateComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        duplicateComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        duplicateComServer.setOnlineComServer(onlineComServer);
+        remoteComServer.create();
 
-        duplicateComServer.save();
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> duplicateComServer = getEngineModelService().newRemoteComServerBuilder();
+        duplicateComServer.name(NO_VIOLATIONS_NAME);
+        duplicateComServer.active(false);
+        duplicateComServer.serverLogLevel(ComServer.LogLevel.TRACE);
+        duplicateComServer.communicationLogLevel(ComServer.LogLevel.TRACE);
+        duplicateComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        duplicateComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        duplicateComServer.onlineComServer(onlineComServer);
+
+        duplicateComServer.create();
     }
 
     @Test
@@ -351,17 +351,17 @@ public class RemoteComServerImplTest extends PersistenceTest {
     public void testUpdate() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = "Update-Candidate";
-        remoteComServer.setName(name);
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.setEventRegistrationUri(EVENT_REGISTRATION_URI);
-        remoteComServer.save();
+        remoteComServer.name(name);
+        remoteComServer.active(true);
+        remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
+        remoteComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        remoteComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        remoteComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        remoteComServer.onlineComServer(onlineComServer);
+        remoteComServer.eventRegistrationUri(EVENT_REGISTRATION_URI);
+        remoteComServer.create();
 
         RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name).get();
 
@@ -377,7 +377,7 @@ public class RemoteComServerImplTest extends PersistenceTest {
         comServer.setCommunicationLogLevel(changedComLogLevel);
         comServer.setChangesInterPollDelay(changedChangesInterPollDelay);
         comServer.setSchedulingInterPollDelay(changedSchedulingInterPollDelay);
-        comServer.save();
+        comServer.update();
 
         // Asserts
         assertEquals(changedName, comServer.getName());
@@ -393,24 +393,24 @@ public class RemoteComServerImplTest extends PersistenceTest {
     public void testResetEventRegistrationAPIViaBooleanMethod() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = "withCustomURI";
-        remoteComServer.setName(name);
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.setEventRegistrationUri(EVENT_REGISTRATION_URI);
-        remoteComServer.save();
+        remoteComServer.name(name);
+        remoteComServer.active(true);
+        remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
+        remoteComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        remoteComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        remoteComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        remoteComServer.onlineComServer(onlineComServer);
+        remoteComServer.eventRegistrationUri(EVENT_REGISTRATION_URI);
+        remoteComServer.create();
 
         RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name).get();
         String eventRegistrationUri = comServer.getEventRegistrationUri();
 
         // Business method
         comServer.setUsesDefaultEventRegistrationUri(true);
-        comServer.save();
+        comServer.update();
 
         // Asserts
         assertTrue(comServer.usesDefaultEventRegistrationUri());
@@ -422,24 +422,24 @@ public class RemoteComServerImplTest extends PersistenceTest {
     public void testResetEventRegistrationAPIViaNullURI() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = "withCustomURI";
-        remoteComServer.setName(name);
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.setEventRegistrationUri(EVENT_REGISTRATION_URI);
-        remoteComServer.save();
+        remoteComServer.name(name);
+        remoteComServer.active(true);
+        remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
+        remoteComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        remoteComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        remoteComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        remoteComServer.onlineComServer(onlineComServer);
+        remoteComServer.eventRegistrationUri(EVENT_REGISTRATION_URI);
+        remoteComServer.create();
 
         RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name).get();
         String eventRegistrationUri = comServer.getEventRegistrationUri();
 
         // Business method
         comServer.setEventRegistrationUri(null);
-        comServer.save();
+        comServer.update();
 
         // Asserts
         assertTrue(comServer.usesDefaultEventRegistrationUri());
@@ -452,16 +452,16 @@ public class RemoteComServerImplTest extends PersistenceTest {
     public void testUpdateWithoutOnlineComServer() throws BusinessException, SQLException {
         OnlineComServer onlineComServer = this.createOnlineComServer();
 
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = "Update-Candidate2";
-        remoteComServer.setName(name);
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        remoteComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        remoteComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        remoteComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.save();
+        remoteComServer.name(name);
+        remoteComServer.active(true);
+        remoteComServer.serverLogLevel(SERVER_LOG_LEVEL);
+        remoteComServer.communicationLogLevel(COMMUNICATION_LOG_LEVEL);
+        remoteComServer.changesInterPollDelay(CHANGES_INTER_POLL_DELAY);
+        remoteComServer.schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        remoteComServer.onlineComServer(onlineComServer);
+        remoteComServer.create();
 
         RemoteComServer comServer = (RemoteComServer) getEngineModelService().findComServer(name).get();
 
@@ -478,23 +478,22 @@ public class RemoteComServerImplTest extends PersistenceTest {
         comServer.setChangesInterPollDelay(changedChangesInterPollDelay);
         comServer.setSchedulingInterPollDelay(changedSchedulingInterPollDelay);
         comServer.setOnlineComServer(null);
-        comServer.save();
+        comServer.update();
     }
 
     private OnlineComServer createOnlineComServer() {
-        OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = getEngineModelService().newOnlineComServerBuilder();
         String name = "Online-" + onlineNameNumber++;
-        onlineComServer.setName(name);
-        onlineComServer.setActive(true);
-        onlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        onlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        onlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        onlineComServer.setStoreTaskQueueSize(1);
-        onlineComServer.setStoreTaskThreadPriority(1);
-        onlineComServer.setNumberOfStoreTaskThreads(1);
-        onlineComServer.save();
-        return onlineComServer;
+        onlineComServerBuilder.name(name);
+        onlineComServerBuilder.active(true);
+        onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.ERROR);
+        onlineComServerBuilder.communicationLogLevel(ComServer.LogLevel.TRACE);
+        onlineComServerBuilder.changesInterPollDelay(new TimeDuration(60));
+        onlineComServerBuilder.schedulingInterPollDelay(new TimeDuration(90));
+        onlineComServerBuilder.storeTaskQueueSize(1);
+        onlineComServerBuilder.storeTaskThreadPriority(1);
+        onlineComServerBuilder.numberOfStoreTaskThreads(1);
+        return onlineComServerBuilder.create();
     }
 
 }

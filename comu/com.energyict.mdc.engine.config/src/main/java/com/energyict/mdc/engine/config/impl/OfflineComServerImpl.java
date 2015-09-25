@@ -2,12 +2,10 @@ package com.energyict.mdc.engine.config.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.config.OfflineComServer;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
-import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
-import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
+import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.engine.config.*;
 import com.google.inject.Provider;
+
 import javax.inject.Inject;
 
 /**
@@ -24,8 +22,17 @@ public class OfflineComServerImpl extends ComServerImpl implements OfflineComSer
     }
 
     @Override
-    public boolean isOffline () {
+    public boolean isOffline() {
         return true;
+    }
+
+    static class OfflineComServerBuilderImpl extends AbstractComServerBuilder<OfflineComServerImpl, OfflineComServerBuilderImpl> {
+
+        @Inject
+        public OfflineComServerBuilderImpl(DataModel dataModel) {
+            super(dataModel.getInstance(OfflineComServerImpl.class), OfflineComServerBuilderImpl.class);
+        }
+
     }
 
 }

@@ -4,17 +4,11 @@ import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.IPBasedInboundComPort;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
-import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
-import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
+import com.energyict.mdc.engine.config.*;
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
@@ -226,5 +220,67 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
     @Override
     public void setStoreTaskThreadPriority(int storeTaskThreadPriority) {
         this.storeTaskThreadPriority = storeTaskThreadPriority;
+    }
+
+    public static class OnlineComServerBuilderImpl extends AbstractComServerBuilder<OnlineComServerImpl, OnlineComServerBuilder> implements OnlineComServerBuilder<OnlineComServerImpl> {
+
+        @Inject
+        public OnlineComServerBuilderImpl(DataModel dataModel) {
+            super(dataModel.getInstance(OnlineComServerImpl.class), OnlineComServerBuilder.class);
+        }
+
+        @Override
+        public OnlineComServerBuilderImpl numberOfStoreTaskThreads(int numberOfStoreTaskThreads) {
+            getComServerInstance().setNumberOfStoreTaskThreads(numberOfStoreTaskThreads);
+            return this;
+        }
+
+        @Override
+        public OnlineComServerBuilderImpl storeTaskQueueSize(int storeTaskQueueSize) {
+            getComServerInstance().setStoreTaskQueueSize(storeTaskQueueSize);
+            return this;
+        }
+
+        @Override
+        public OnlineComServerBuilderImpl storeTaskThreadPriority(int storeTaskThreadPriority) {
+            getComServerInstance().setStoreTaskThreadPriority(storeTaskThreadPriority);
+            return this;
+        }
+
+        @Override
+        public OnlineComServerBuilderImpl eventRegistrationUri(String eventRegistrationUri) {
+            getComServerInstance().setEventRegistrationUri(eventRegistrationUri);
+            return this;
+        }
+
+        @Override
+        public OnlineComServerBuilderImpl queryApiPostUri(String queryApiPostUri) {
+            getComServerInstance().setQueryAPIPostUri(queryApiPostUri);
+            return this;
+        }
+
+        @Override
+        public OnlineComServerBuilderImpl statusUri(String statusUri) {
+            getComServerInstance().setStatusUri(statusUri);
+            return this;
+        }
+
+        @Override
+        public OnlineComServerBuilderImpl usesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri) {
+            getComServerInstance().setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri);
+            return this;
+        }
+
+        @Override
+        public OnlineComServerBuilderImpl usesDefaultQueryApiPostUri(boolean usesDefaultQueryApiPostUri) {
+            getComServerInstance().setUsesDefaultQueryAPIPostUri(usesDefaultQueryApiPostUri);
+            return this;
+        }
+
+        @Override
+        public OnlineComServerBuilderImpl usesDefaultStatusUri(boolean usesDefaultStatusUri) {
+            getComServerInstance().setUsesDefaultStatusUri(usesDefaultStatusUri);
+            return this;
+        }
     }
 }

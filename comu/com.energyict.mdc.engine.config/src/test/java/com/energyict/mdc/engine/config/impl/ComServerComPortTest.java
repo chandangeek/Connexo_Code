@@ -118,7 +118,7 @@ public class ComServerComPortTest extends PersistenceTest {
         int numberOfComPorts = 3;
         this.addComPorts(onlineComServer, numberOfComPorts);
 
-        onlineComServer.save();
+        onlineComServer.update();
 
         // Asserts
         assertThat(onlineComServer.getOutboundComPorts().size()).isEqualTo(numberOfComPorts);
@@ -415,22 +415,12 @@ public class ComServerComPortTest extends PersistenceTest {
     }
 
     int onlineNameNumber=1;
+
     private OnlineComServer createOnlineComServer() {
-        OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
+        final OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = getEngineModelService().newOnlineComServerBuilder();
         String name = "Online-" + onlineNameNumber++;
-        onlineComServer.setName(name);
-        onlineComServer.setActive(true);
-        onlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        onlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        onlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        onlineComServer.setStoreTaskQueueSize(1);
-        onlineComServer.setStoreTaskThreadPriority(1);
-        onlineComServer.setNumberOfStoreTaskThreads(1);
-        onlineComServer.setQueryAPIPostUri(QUERY_API_POST_URL);
-        onlineComServer.setEventRegistrationUri(EVENT_REGISTRATION_URL);
-        onlineComServer.save();
-        return onlineComServer;
+        onlineComServerBuilder.storeTaskQueueSize(1).storeTaskThreadPriority(1).numberOfStoreTaskThreads(1).queryApiPostUri(QUERY_API_POST_URL).eventRegistrationUri(EVENT_REGISTRATION_URL).name(name).active(true).serverLogLevel(SERVER_LOG_LEVEL).communicationLogLevel(COMMUNICATION_LOG_LEVEL).changesInterPollDelay(CHANGES_INTER_POLL_DELAY).schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        return onlineComServerBuilder.create();
     }
 
     private OutboundComPortPool createOutboundComPortPool () {
