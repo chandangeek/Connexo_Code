@@ -34,11 +34,12 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class UsagePointImpl implements UsagePoint {
+final class UsagePointImpl implements UsagePoint {
 	// persistent fields
 	private long id;
 	private String aliasName;
@@ -213,7 +214,11 @@ public class UsagePointImpl implements UsagePoint {
 	}
 
 	@Override
-	public void save() {
+	public void update() {
+		doSave();
+	}
+
+	void doSave() {
 		if (id == 0) {
 			dataModel.persist(this);
             eventService.postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
@@ -223,7 +228,7 @@ public class UsagePointImpl implements UsagePoint {
 		}
 	}
 
-    @Override
+	@Override
     public void delete() {
         dataModel.remove(this);
         eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
@@ -456,5 +461,18 @@ public class UsagePointImpl implements UsagePoint {
 		return meterActivations.stream()
 				.flatMap(meterActivation -> meterActivation.getReadingQualities(readingQualityType, readingType, interval).stream())
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		UsagePointImpl that = (UsagePointImpl) o;
+		return Objects.equals(id, that.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
 	}
 }

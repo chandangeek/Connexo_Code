@@ -38,7 +38,7 @@ public interface UsagePoint extends IdentifiedObject , ReadingContainer {
 	void setDescription(String description);
 	void setAliasName(String aliasName);
 
-	void save();
+	void update();
 
 	Instant getCreateDate();
 	Instant getModificationDate();

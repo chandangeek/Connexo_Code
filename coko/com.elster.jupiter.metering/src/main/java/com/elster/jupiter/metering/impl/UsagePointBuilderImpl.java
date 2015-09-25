@@ -9,7 +9,7 @@ import javax.inject.Provider;
 
 public class UsagePointBuilderImpl implements UsagePointBuilder {
 
-    private final UsagePoint underConstruction;
+    private final UsagePointImpl underConstruction;
 
     private boolean built;
 
@@ -22,7 +22,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
         if (built) {
             throw new IllegalStateException();
         }
-        underConstruction.save();
+        underConstruction.doSave();
         try {
             return underConstruction;
         } finally {

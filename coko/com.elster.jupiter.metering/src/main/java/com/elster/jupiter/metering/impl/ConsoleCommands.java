@@ -156,8 +156,7 @@ public class ConsoleCommands {
     public void createUsagePoint(String mrId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            UsagePointImpl usagePoint = (UsagePointImpl) meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint(mrId);
-            usagePoint.save();
+            UsagePointImpl usagePoint = (UsagePointImpl) meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint(mrId).create();
             context.commit();
         } finally {
             threadPrincipalService.clear();

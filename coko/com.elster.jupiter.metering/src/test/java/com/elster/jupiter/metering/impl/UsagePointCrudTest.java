@@ -125,7 +125,7 @@ public class UsagePointCrudTest {
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID").create();
         long id = usagePoint.getId();
         assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
-        usagePoint.save();
+        usagePoint.update();
         assertThat(usagePoint.getVersion()).isEqualTo(2);
         usagePoint.delete();
         assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(0);

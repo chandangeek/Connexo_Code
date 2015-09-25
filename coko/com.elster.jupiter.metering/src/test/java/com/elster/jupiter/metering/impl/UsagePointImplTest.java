@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.MarketRoleKind;
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.events.EventService;
@@ -35,6 +36,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,8 +46,9 @@ import static org.mockito.Mockito.*;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class UsagePointImplTest {
+public class UsagePointImplTest extends EqualsContractTest {
 
+    public static final long INSTANCE_A_ID = 546L;
     @Rule
     public TestRule timeZoneNeutral = Using.timeZoneOfMcMurdo();
 
@@ -57,7 +60,7 @@ public class UsagePointImplTest {
     public static final ZonedDateTime START_DATE = ZonedDateTime.of(2013, 9, 18, 13, 16, 45, 0, TimeZoneNeutral.getMcMurdo());
     private static final Instant START = START_DATE.toInstant();
 
-    private UsagePointImpl usagePoint;
+    private UsagePointImpl usagePoint, instanceA;
 
     private Clock clock = Clock.fixed(START, TimeZoneNeutral.getMcMurdo());
 
@@ -98,30 +101,15 @@ public class UsagePointImplTest {
     public void setUp() {
     	when(role.getMRID()).thenReturn(MarketRoleKind.ENERGYSERVICECONSUMER.name());
         when(dataModel.mapper(UsagePoint.class)).thenReturn(usagePointFactory);
-        when(dataModel.getInstance(UsagePointAccountabilityImpl.class)).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new UsagePointAccountabilityImpl(clock);
-            }
-        });
-        final Provider<ChannelBuilder> channelBuilderProvider = new Provider<ChannelBuilder>() {
-			@Override
-			public ChannelBuilder get() {
-				return channelBuilder;
-			}
-        };
+        when(dataModel.getInstance(UsagePointAccountabilityImpl.class)).thenAnswer(invocationOnMock -> new UsagePointAccountabilityImpl(clock));
+        final Provider<ChannelBuilder> channelBuilderProvider = () -> channelBuilder;
         when(meterActivationProvider.get()).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return new MeterActivationImpl(dataModel, eventService, clock, channelBuilderProvider, thesaurus);
             }
         });
-        when(accountabilityProvider.get()).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return new UsagePointAccountabilityImpl(clock);
-            }
-        });
+        when(accountabilityProvider.get()).thenAnswer(invocationOnMock -> new UsagePointAccountabilityImpl(clock));
         when(representation1.getDelegate()).thenReturn(user1);
         when(representation2.getDelegate()).thenReturn(user2);
         when(representation3.getDelegate()).thenReturn(user3);
@@ -133,6 +121,39 @@ public class UsagePointImplTest {
 
     @After
     public void tearDown() {
+    }
+
+    @Override
+    protected Object getInstanceA() {
+        if (instanceA == null) {
+            instanceA = new UsagePointImpl(dataModel, eventService,meterActivationProvider,accountabilityProvider).init(MR_ID, serviceCategory);
+            field("id").ofType(Long.TYPE).in(instanceA).set(INSTANCE_A_ID);
+        }
+        return instanceA;
+    }
+
+    @Override
+    protected Object getInstanceEqualToA() {
+        UsagePointImpl other = new UsagePointImpl(dataModel, eventService,meterActivationProvider,accountabilityProvider).init(MR_ID, serviceCategory);
+        field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID);
+        return other;
+    }
+
+    @Override
+    protected Iterable<?> getInstancesNotEqualToA() {
+        UsagePointImpl other = new UsagePointImpl(dataModel, eventService,meterActivationProvider,accountabilityProvider).init(MR_ID, serviceCategory);
+        field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID + 1);
+        return Collections.singletonList(other);
+    }
+
+    @Override
+    protected boolean canBeSubclassed() {
+        return false;
+    }
+
+    @Override
+    protected Object getInstanceOfSubclassEqualToA() {
+        return null;
     }
 
     @Test
@@ -225,7 +246,7 @@ public class UsagePointImplTest {
 
     @Test
     public void testSaveNew() {
-        usagePoint.save();
+        usagePoint.update();
 
         verify(dataModel).persist(usagePoint);
     }
@@ -233,7 +254,7 @@ public class UsagePointImplTest {
     @Test
     public void testSaveUpdate() {
         simulateSavedUsagePoint();
-        usagePoint.save();
+        usagePoint.update();
 
         verify(dataModel).update(usagePoint);
     }
