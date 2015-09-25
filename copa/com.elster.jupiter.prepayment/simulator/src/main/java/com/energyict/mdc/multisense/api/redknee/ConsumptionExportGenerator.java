@@ -26,7 +26,6 @@ import java.util.stream.IntStream;
  */
 public class ConsumptionExportGenerator {
     private static final Logger logger = LoggerFactory.getLogger(ConsumptionExportGenerator.class);
-    //    private final String csvFormat = "D,{0,string},{1,string},{2,string},{3,string},{4},{5,string},{6,number}";
     private final String csvFormat = "D|{0}|{1}|{2}|{3}|{4,number,#}|{5}|{6,number,#########.##########}";
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
@@ -58,6 +57,7 @@ public class ConsumptionExportGenerator {
             // go back in time to simulate readings for 24 hour without exceeding current time
             ZonedDateTime simulationStartTime = now.minusMinutes(readingType.getMeasuringPeriod() * timeAcceleration * 24);
             simulationStartTime = simulationStartTime.plusSeconds((readingType.getMeasuringPeriod() * 60) - simulationStartTime.get(ChronoField.SECOND_OF_DAY) % (readingType.getMeasuringPeriod() * 60));
+            simulationStartTime = simulationStartTime.with(ChronoField.MILLI_OF_SECOND,0);
             logger.info("Simulation start date& time is "+simulationStartTime);
             long readingsPerExportGeneration = (outputFrequency * timeAcceleration) / (readingType.getMeasuringPeriod()*60);
             logger.info("Every export file will cover a simulated timespan of "+(outputFrequency*timeAcceleration)+" seconds, thus containing "+readingsPerExportGeneration+" readings per usage point");
@@ -117,7 +117,7 @@ public class ConsumptionExportGenerator {
                                             usagePoint.getStatus() == Status.connected ? usagePoint.getConsumption() : 0L)
                             ).forEach((str) -> {
                                 try {
-                                    logger.debug(now.toString());
+                                    logger.trace(now.toString());
                                     writer.write(str + "\n");
                                 } catch (IOException e) {
                                     logger.error("Failed to write in file " + fileName + ":" + e);
