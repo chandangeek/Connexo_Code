@@ -24,6 +24,7 @@ public class DeviceTypeInfo {
     public int registerCount;
     public int logBookCount;
     public int deviceConfigurationCount;
+    public long deviceConflictsCount;
     public boolean canBeDirectlyAddressed;
     public boolean canBeGateway;
     @JsonProperty(COMMUNICATION_PROTOCOL_NAME)
@@ -55,6 +56,7 @@ public class DeviceTypeInfo {
         deviceTypeInfo.registerCount=deviceType.getRegisterTypes().size();
         deviceTypeInfo.logBookCount=deviceType.getLogBookTypes().size();
         deviceTypeInfo.deviceConfigurationCount=deviceType.getConfigurations().size();
+        deviceTypeInfo.deviceConflictsCount=deviceType.getDeviceConfigConflictMappings().stream().filter(f -> !f.isSolved()).count();
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceType.getDeviceProtocolPluggableClass();
         deviceTypeInfo.canBeGateway= deviceType.canActAsGateway();
         deviceTypeInfo.canBeDirectlyAddressed = deviceType.isDirectlyAddressable();
@@ -78,5 +80,4 @@ public class DeviceTypeInfo {
         }
         return deviceTypeInfos;
     }
-
 }

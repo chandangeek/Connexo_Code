@@ -60,6 +60,7 @@ public class DeviceTypeResource {
     private final MasterDataService masterDataService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider;
+    private final Provider<DeviceConfigConflictMappingResource> deviceConflictMappingResourceProvider;
     private final Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider;
     private final ProtocolPluggableService protocolPluggableService;
     private final Thesaurus thesaurus;
@@ -69,6 +70,7 @@ public class DeviceTypeResource {
             ResourceHelper resourceHelper,
             MasterDataService masterDataService,
             DeviceConfigurationService deviceConfigurationService,
+            Provider<DeviceConfigConflictMappingResource> deviceConflictMappingResourceProvider,
             ProtocolPluggableService protocolPluggableService,
             Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider,
             Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider,
@@ -79,6 +81,7 @@ public class DeviceTypeResource {
         this.protocolPluggableService = protocolPluggableService;
         this.loadProfileTypeResourceProvider = loadProfileTypeResourceProvider;
         this.deviceConfigurationResourceProvider = deviceConfigurationResourceProvider;
+        this.deviceConflictMappingResourceProvider = deviceConflictMappingResourceProvider;
         this.thesaurus = thesaurus;
     }
 
@@ -303,6 +306,11 @@ public class DeviceTypeResource {
     @Path("/{deviceTypeId}/deviceconfigurations")
     public DeviceConfigurationResource getDeviceConfigurationResource() {
         return deviceConfigurationResourceProvider.get();
+    }
+
+    @Path("/{deviceTypeId}/conflictmappings")
+    public DeviceConfigConflictMappingResource getDeviceConflictMappingResource() {
+        return deviceConflictMappingResourceProvider.get();
     }
 
     @GET
