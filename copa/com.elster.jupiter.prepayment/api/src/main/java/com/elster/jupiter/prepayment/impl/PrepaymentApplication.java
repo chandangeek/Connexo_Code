@@ -3,12 +3,14 @@ package com.elster.jupiter.prepayment.impl;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
@@ -31,7 +33,7 @@ import java.util.logging.Logger;
         service = {Application.class, TranslationKeyProvider.class},
         immediate = true,
         property = {"alias=/rkn", "app=MDC", "name=" + PrepaymentApplication.COMPONENT_NAME, "version=v1.0"})
-public class PrepaymentApplication extends Application implements TranslationKeyProvider {
+public class PrepaymentApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
 
     private final Logger logger = Logger.getLogger(PrepaymentApplication.class.getName());
 
@@ -91,6 +93,11 @@ public class PrepaymentApplication extends Application implements TranslationKey
     @Override
     public Layer getLayer() {
         return Layer.REST;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
