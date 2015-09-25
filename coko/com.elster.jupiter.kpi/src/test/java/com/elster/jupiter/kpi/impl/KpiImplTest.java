@@ -78,7 +78,7 @@ public class KpiImplTest {
     @Test
     public void testSaveNewCreatesTimeSeries() {
         kpi.dynamicMaximum("max");
-        kpi.save();
+        kpi.doSave();
 
         verify(vault).createRegularTimeSeries(recordSpec, UTC, Duration.ofMinutes(30), 0);
     }

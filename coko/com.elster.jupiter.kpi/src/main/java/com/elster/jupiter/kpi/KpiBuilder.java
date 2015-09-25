@@ -13,7 +13,7 @@ public interface KpiBuilder {
      * Finalizes the build process and returns the resulting Kpi, and its members.
      * @return the resulting Kpi
      */
-    Kpi build();
+    Kpi create();
 
     /**
      * @param name the name to assign to the Kpi

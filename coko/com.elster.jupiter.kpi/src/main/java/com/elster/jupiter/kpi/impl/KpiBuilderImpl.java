@@ -24,11 +24,12 @@ class KpiBuilderImpl implements KpiBuilder {
     }
 
     @Override
-    public Kpi build() {
+    public Kpi create() {
         KpiImpl kpi = KpiImpl.from(dataModel, name, timeZone, intervalLength);
         for (KpiMemberBuilderImpl member : members) {
             member.create(kpi);
         }
+        kpi.doSave();
         return kpi;
     }
 

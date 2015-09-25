@@ -84,7 +84,7 @@ public class KpiServiceImplTest {
         Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
                 .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
                 .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
-                .build();
+                .create();
 
         assertThat(kpi.getName()).isEqualTo(KPI_NAME);
         assertThat(kpi.getMembers()).hasSize(2);

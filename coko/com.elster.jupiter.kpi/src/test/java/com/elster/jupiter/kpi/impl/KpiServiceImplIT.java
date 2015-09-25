@@ -122,8 +122,7 @@ public class KpiServiceImplIT {
             Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
                     .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
                     .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
-                    .build();
-            kpi.save();
+                    .create();
 
             id = kpi.getId();
             context.commit();
@@ -158,8 +157,7 @@ public class KpiServiceImplIT {
             Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
                     .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
                     .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
-                    .build();
-            kpi.save();
+                    .create();
 
             Instant date = LocalDate.of(2013, 7, 31).atStartOfDay().toInstant(ZoneOffset.UTC);
 
@@ -201,8 +199,7 @@ public class KpiServiceImplIT {
             Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
                     .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
                     .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
-                    .build();
-            kpi.save();
+                    .create();
 
             Instant date = LocalDate.of(2013, 7, 31).atStartOfDay().toInstant(ZoneOffset.UTC);
 
@@ -235,8 +232,7 @@ public class KpiServiceImplIT {
             Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
                     .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
                     .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
-                    .build();
-            kpi.save();
+                    .create();
 
             kpi.getMembers().get(0).getTargetStorer().add(date, BigDecimal.valueOf(85, 2)).execute();
 
@@ -262,8 +258,7 @@ public class KpiServiceImplIT {
             Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
                     .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
                     .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
-                    .build();
-            kpi.save();
+                    .create();
 
             kpi.getMembers().get(0).getTargetStorer().add(date, BigDecimal.valueOf(85, 0)).execute();
             kpi.getMembers().get(0).score(date, BigDecimal.valueOf(87, 0));
@@ -293,8 +288,7 @@ public class KpiServiceImplIT {
             Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
                     .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
                     .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
-                    .build();
-            kpi.save();
+                    .create();
 
             id = kpi.getId();
             context.commit();
@@ -320,8 +314,7 @@ public class KpiServiceImplIT {
             Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
                     .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
                     .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
-                    .build();
-            kpi.save();
+                    .create();
 
             id = kpi.getId();
             context.commit();
@@ -356,8 +349,7 @@ public class KpiServiceImplIT {
             Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
                     .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
                     .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
-                    .build();
-            kpi.save();
+                    .create();
 
             Instant date = LocalDate.of(2013, 7, 31).atStartOfDay().toInstant(ZoneOffset.UTC);
 
@@ -390,8 +382,7 @@ public class KpiServiceImplIT {
             Kpi kpi = kpiService.newKpi().named(KPI_NAME).interval(Period.ofDays(1))
                     .member().named(READ_METERS).withDynamicTarget().asMinimum().add()
                     .member().named(NON_COMMUNICATING_METERS).withTargetSetAt(BigDecimal.valueOf(1, 2)).asMaximum().add()
-                    .build();
-            kpi.save();
+                    .create();
 
             kpi.getMembers().get(0).score(date, BigDecimal.valueOf(8, 0));
             kpi.getMembers().get(1).score(date, BigDecimal.valueOf(2, 2));

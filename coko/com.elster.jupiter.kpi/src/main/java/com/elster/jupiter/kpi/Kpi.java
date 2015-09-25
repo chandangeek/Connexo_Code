@@ -34,11 +34,6 @@ public interface Kpi extends HasName {
     TemporalAmount getIntervalLength();
 
     /**
-     * Saves this Kpi to DB.
-     */
-    void save();
-
-    /**
      * Removes this Kpi from the DB
      */
     void remove();

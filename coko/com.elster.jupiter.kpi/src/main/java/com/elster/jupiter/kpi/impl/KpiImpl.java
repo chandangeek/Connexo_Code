@@ -61,8 +61,7 @@ class KpiImpl implements Kpi {
         return Collections.unmodifiableList(members);
     }
 
-    @Override
-    public void save() {
+    void doSave() {
         if (hasId()) {
             dataModel.mapper(Kpi.class).update(this);
             return;
