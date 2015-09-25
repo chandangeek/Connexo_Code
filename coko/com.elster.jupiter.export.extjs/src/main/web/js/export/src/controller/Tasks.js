@@ -463,6 +463,7 @@ Ext.define('Dxp.controller.Tasks', {
                 view.down('#destination-file-location').setValue(me.destinationToEdit.get('fileLocation'));
                 view.down('#hostname').setValue(me.destinationToEdit.get('server'));
                 view.down('#user-field').setValue(me.destinationToEdit.get('user'));
+                view.down('#dxp-port-field').setValue(me.destinationToEdit.get('port'));
                 view.down('#password-field').setValue(me.destinationToEdit.get('password'));
             }  else if (type === 'FTPS'){
                 me.showFtpDestinationAttributes(true);
@@ -473,6 +474,7 @@ Ext.define('Dxp.controller.Tasks', {
                 view.down('#destination-file-location').setValue(me.destinationToEdit.get('fileLocation'));
                 view.down('#hostname').setValue(me.destinationToEdit.get('server'));
                 view.down('#user-field').setValue(me.destinationToEdit.get('user'));
+                view.down('#dxp-port-field').setValue(me.destinationToEdit.get('port'));
                 view.down('#password-field').setValue(me.destinationToEdit.get('password'));
             }
         } else {
@@ -522,6 +524,7 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('#dxp-file-location-container').setVisible(visible);
         page.down('#hostname').setVisible(visible);
         page.down('#user-field').setVisible(visible);
+        page.down('#dxp-port-field').setVisible(visible);
         page.down('#password-field').setVisible(visible);
 
         page.down('#dxp-file-name-container').disabled = !visible;
@@ -529,6 +532,7 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('#dxp-file-location-container').disabled = !visible;
         page.down('#hostname').disabled = !visible;
         page.down('#user-field').disabled = !visible;
+        page.down('#dxp-port-field').disabled = !visible;
         page.down('#password-field').disabled = !visible;
     },
 
@@ -1226,6 +1230,7 @@ Ext.define('Dxp.controller.Tasks', {
                         type: 'FTP',
                         server: formValues['server'],
                         user: formValues['user'],
+                        port: formValues['port'],
                         password: formValues['password'],
                         fileName: formValues['fileName'],
                         fileExtension: formValues['fileExtension'],
@@ -1234,6 +1239,7 @@ Ext.define('Dxp.controller.Tasks', {
                         destination: formValues['server'],
                         tooltiptext: Uni.I18n.translate('dataExportdestinations.ftpServer', 'DES', 'FTP server')
                             + ': ' + formValues['server'] + '<br>'
+                            + Uni.I18n.translate('general.port', 'DES', 'Port') + ': ' + formValues['port'] + '<br>'
                             + Uni.I18n.translate('general.user', 'DES', 'User') + ': ' + formValues['user'] + '<br>'
                             + Uni.I18n.translate('general.fileName', 'DES', 'File name')
                             + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileName'])) + '<br>'
@@ -1248,6 +1254,7 @@ Ext.define('Dxp.controller.Tasks', {
                         type: 'FTPS',
                         server: formValues['server'],
                         user: formValues['user'],
+                        port: formValues['port'],
                         password: formValues['password'],
                         fileName: formValues['fileName'],
                         fileExtension: formValues['fileExtension'],
@@ -1256,6 +1263,7 @@ Ext.define('Dxp.controller.Tasks', {
                         destination: formValues['server'],
                         tooltiptext: Uni.I18n.translate('dataExportdestinations.ftpsServer', 'DES', 'FTPS server')
                         + ': ' + formValues['server'] + '<br>'
+                        + Uni.I18n.translate('general.port', 'DES', 'Port') + ': ' + formValues['port'] + '<br>'
                         + Uni.I18n.translate('general.user', 'DES', 'User') + ': ' + formValues['user'] + '<br>'
                         + Uni.I18n.translate('general.fileName', 'DES', 'File name')
                         + ': ' + Ext.String.htmlEncode(Ext.String.htmlEncode(formValues['fileName'])) + '<br>'

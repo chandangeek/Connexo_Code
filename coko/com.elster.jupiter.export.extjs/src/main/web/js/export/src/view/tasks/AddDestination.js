@@ -102,7 +102,23 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         allowBlank: false,
                         enforceMaxLength: true,
                         maxLength: 80,
-                        msgTarget: 'under',
+                        msgTarget: 'under'
+                    },
+                    {
+                        xtype: 'numberfield',
+                        name: 'port',
+                        itemId: 'dxp-port-field',
+                        width: 500,
+                        required: true,
+                        fieldLabel: Uni.I18n.translate('general.port', 'DES', 'Port'),
+                        value: 21,
+                        minValue: 1,
+                        maxValue: 65535,
+                        allowDecimals: false,
+                        allowExponential: false,
+                        allowBlank: false,
+                        hideTrigger: true,
+                        msgTarget: 'under'
                     },
                     {
                         xtype: 'password-field',
@@ -359,6 +375,25 @@ Ext.define('Dxp.view.tasks.AddDestination', {
         return this.isFieldNonEmpty('#hostname');
     },
 
+    isPortValid: function() {
+        var me = this,
+            fieldId = '#dxp-port-field',
+            field = me.down(fieldId),
+            valid =
+                me.isFieldValid(
+                    fieldId,
+                    field.getValue() !== null,
+                    Uni.I18n.translate('dataExport.requiredField', 'DES', 'This field is required')
+                )
+                &&
+                me.isFieldValid(
+                    fieldId,
+                    field.getValue() > 0 && field.getValue() < 65536,
+                    Uni.I18n.translate('dataExport.portInvalid', 'DES', 'Port should be between 1 and 65535')
+                );
+        return valid;
+    },
+
     isUserNameValid: function() {
         return this.isFieldNonEmpty('#user-field');
     },
@@ -456,7 +491,8 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                 var valid3 = me.isFileNameValid();
                 var valid4 = me.isFileExtensionValid();
                 var valid5 = me.isFileLocationValid();
-                return valid1 && valid2 && valid3 && valid4 && valid5;
+                var valid6 = me.isPortValid();
+                return valid1 && valid2 && valid3 && valid4 && valid5 && valid6;
             default:
                 return true;
         }

@@ -3,6 +3,7 @@ Ext.define('Dxp.model.Destination', {
 
     fields: [
         'server',
+        'port',
         'user',
         'password',
         'fileName',
@@ -70,6 +71,8 @@ Ext.define('Dxp.model.Destination', {
                     case 'FTP':
                         return Uni.I18n.translate('dataExportdestinations.ftpServer', 'DES', 'FTP server')
                             + ': ' + data.server + '<br>'
+                            + Uni.I18n.translate('general.port', 'DES', 'Port')
+                            + ': ' + data.port + '<br>'
                             + Uni.I18n.translate('general.user', 'DES', 'User')
                             + ': ' + data.user + '<br>'
                             + Uni.I18n.translate('general.fileName', 'DES', 'File name')
@@ -81,6 +84,8 @@ Ext.define('Dxp.model.Destination', {
                     case 'FTPS':
                         return Uni.I18n.translate('dataExportdestinations.ftpsServer', 'DES', 'FTPS server')
                             + ': ' + data.server + '<br>'
+                            + Uni.I18n.translate('general.port', 'DES', 'Port')
+                            + ': ' + data.port + '<br>'
                             + Uni.I18n.translate('general.user', 'DES', 'User')
                             + ': ' + data.user + '<br>'
                             + Uni.I18n.translate('general.fileName', 'DES', 'File name')
