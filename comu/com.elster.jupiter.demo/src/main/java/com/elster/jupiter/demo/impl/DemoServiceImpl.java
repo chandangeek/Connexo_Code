@@ -518,17 +518,13 @@ public class DemoServiceImpl {
 
     @SuppressWarnings("unused")
     public void createDemoData(String comServerName, String host, String startDate){
-        try {
-            executeTransaction(() -> {
-                CreateDemoDataCommand command = injector.getInstance(CreateDemoDataCommand.class);
-                command.setComServerName(comServerName);
-                command.setHost(host);
-                command.setStartDate(startDate);
-                command.run();
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        executeTransaction(() -> {
+            CreateDemoDataCommand command = injector.getInstance(CreateDemoDataCommand.class);
+            command.setComServerName(comServerName);
+            command.setHost(host);
+            command.setStartDate(startDate);
+            command.run();
+        });
     }
 
     @SuppressWarnings("unused")
