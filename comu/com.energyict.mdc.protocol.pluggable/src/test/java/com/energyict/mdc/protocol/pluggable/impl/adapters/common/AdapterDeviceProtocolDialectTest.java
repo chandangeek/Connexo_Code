@@ -61,7 +61,6 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-
 /**
  * Tests the {@link AdapterDeviceProtocolDialect} component.
  * <p/>
@@ -244,10 +243,8 @@ public class AdapterDeviceProtocolDialectTest {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
-            bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
-            bind(MeteringService.class).toInstance(meteringService);
-            bind(TimeService.class).toInstance(mock(TimeService.class));
             bind(DataModel.class).toProvider(() -> dataModel);
         }
     }
+
 }

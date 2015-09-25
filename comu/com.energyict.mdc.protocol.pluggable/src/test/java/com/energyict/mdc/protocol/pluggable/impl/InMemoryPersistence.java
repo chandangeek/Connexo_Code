@@ -219,7 +219,6 @@ public class InMemoryPersistence {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
-            bind(TimeService.class).toInstance(mock(TimeService.class));
             bind(DeviceProtocolMessageService.class).toInstance(deviceProtocolMessageService);
             bind(ConnectionTypeService.class).toInstance(connectionTypeService);
             bind(DeviceProtocolSecurityService.class).toInstance(deviceProtocolSecurityService);
