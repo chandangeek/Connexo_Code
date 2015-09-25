@@ -28,7 +28,10 @@ Ext.define('Imt.channeldata.view.DataGrid', {
                 header: Uni.I18n.translate('channels.endOfInterval', 'IMT', 'End of interval'),
                 dataIndex: 'interval_end',
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateShort(value) + ' ' + Uni.I18n.translate('general.at', 'IMT', 'At').toLowerCase() + ' ' + Uni.DateTime.formatTimeShort(value) : '';
+                    if(!Ext.isEmpty(value)) {
+                        return Uni.DateTime.formatDateTimeLong(new Date(value));
+                    }
+                    return '-';
                 },
                 flex: 1
             },
