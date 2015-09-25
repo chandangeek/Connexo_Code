@@ -240,7 +240,7 @@ public class DataExportTaskResource {
             updateProperties(info, task);
             updateDestinations(info, task);
 
-            task.save();
+            task.update();
             context.commit();
         }
         return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(task, thesaurus, timeService, propertyUtils)).build();
