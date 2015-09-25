@@ -16,9 +16,10 @@ import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.TimeZone;
 
-class KpiImpl implements Kpi {
+final class KpiImpl implements Kpi {
 
     private long id;
     private String name;
@@ -128,4 +129,16 @@ class KpiImpl implements Kpi {
         return member;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        KpiImpl kpi = (KpiImpl) o;
+        return Objects.equals(id, kpi.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
