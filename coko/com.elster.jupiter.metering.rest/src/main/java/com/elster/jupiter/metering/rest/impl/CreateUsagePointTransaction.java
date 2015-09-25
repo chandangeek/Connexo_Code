@@ -1,12 +1,5 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import java.time.Clock;
-import java.util.Optional;
-
-import javax.inject.Inject;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.GasDetail;
@@ -17,7 +10,14 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.WaterDetailBuilder;
+import com.elster.jupiter.metering.rest.UsagePointInfo;
 import com.elster.jupiter.transaction.Transaction;
+
+import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import java.time.Clock;
+import java.util.Optional;
 
 final class CreateUsagePointTransaction implements Transaction<UsagePoint> {
 
