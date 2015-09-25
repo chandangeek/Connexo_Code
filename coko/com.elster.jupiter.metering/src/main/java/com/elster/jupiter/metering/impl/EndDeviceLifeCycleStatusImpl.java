@@ -11,6 +11,7 @@ import com.elster.jupiter.util.time.Interval;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -19,7 +20,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-13 (16:53)
  */
-public class EndDeviceLifeCycleStatusImpl implements EndDeviceLifeCycleStatus {
+final class EndDeviceLifeCycleStatusImpl implements EndDeviceLifeCycleStatus {
 
     private final UserService userService;
 
@@ -44,9 +45,9 @@ public class EndDeviceLifeCycleStatusImpl implements EndDeviceLifeCycleStatus {
     }
 
     EndDeviceLifeCycleStatusImpl initialize(Interval interval, EndDevice endDevice, State state) {
-        this.endDevice.set(endDevice);
+        this.endDevice.set(Objects.requireNonNull(endDevice));
         this.state.set(state);
-        this.interval = interval;
+        this.interval = Objects.requireNonNull(interval);
         return this;
     }
 
@@ -78,4 +79,17 @@ public class EndDeviceLifeCycleStatusImpl implements EndDeviceLifeCycleStatus {
         this.interval = this.interval.withEnd(closingDate);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EndDeviceLifeCycleStatusImpl that = (EndDeviceLifeCycleStatusImpl) o;
+        return Objects.equals(endDevice.get(), that.endDevice.get()) &&
+                Objects.equals(interval.getStart(), that.interval.getStart());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(endDevice.get(), interval.getStart());
+    }
 }
