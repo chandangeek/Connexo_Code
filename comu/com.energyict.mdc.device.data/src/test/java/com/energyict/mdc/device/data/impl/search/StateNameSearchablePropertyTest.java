@@ -83,7 +83,7 @@ public class StateNameSearchablePropertyTest {
     public void initializeMocks() {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService);
-        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, this.dataVaultService, this.ormService, this.timeService);
+        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, this.dataVaultService, this.timeService, this.ormService);
         when(this.thesaurus.getStringBeyondComponent(eq("One"), anyString())).thenReturn("One");
         when(this.thesaurus.getStringBeyondComponent(eq("Two"), anyString())).thenReturn("Two");
         NlsMessageFormat deviceStatusMessageFormat = mock(NlsMessageFormat.class);

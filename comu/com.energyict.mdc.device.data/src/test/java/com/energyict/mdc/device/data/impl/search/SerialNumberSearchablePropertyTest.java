@@ -68,7 +68,7 @@ public class SerialNumberSearchablePropertyTest {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         when(this.jupiterPropertySpecService.basicPropertySpec(eq(DeviceFields.SERIALNUMBER.fieldName()), eq(false), any(ValueFactory.class)))
                 .thenReturn(new BasicPropertySpec(DeviceFields.SERIALNUMBER.fieldName(), false, new StringFactory()));
-        this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.ormService, this.timeService);
+        this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.timeService, this.ormService);
     }
 
     @Test

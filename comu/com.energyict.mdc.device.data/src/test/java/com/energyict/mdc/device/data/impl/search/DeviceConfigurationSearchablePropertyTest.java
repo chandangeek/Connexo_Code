@@ -82,7 +82,7 @@ public class DeviceConfigurationSearchablePropertyTest {
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.DEVICE_CONFIGURATION.getDefaultFormat());
         when(this.thesaurus.getFormat(PropertyTranslationKeys.DEVICE_CONFIGURATION)).thenReturn(messageFormat);
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.ormService, this.timeService);
+        this.propertySpecService = new PropertySpecServiceImpl(this.jupiterPropertySpecService, this.dataVaultService, this.timeService, this.ormService);
         when(this.deviceTypeFinder.factoryId()).thenReturn(FactoryIds.DEVICE_TYPE);
         when(this.deviceTypeFinder.valueDomain()).thenReturn(DeviceType.class);
         when(this.deviceConfigurationFinder.factoryId()).thenReturn(FactoryIds.DEVICE_CONFIGURATION);
