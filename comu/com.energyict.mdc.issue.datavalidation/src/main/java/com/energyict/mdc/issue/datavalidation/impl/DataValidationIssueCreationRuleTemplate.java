@@ -5,6 +5,7 @@ import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -135,12 +136,8 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
     }
 
     @Override
-    public Optional<? extends Issue> createIssue(Issue baseIssue, IssueEvent event) {
-        Optional<? extends Issue> issueOptional = event.findExistingIssue();
-        Issue issue = issueOptional.isPresent() ? issueOptional.get() : issueDataValidationService.createIssue(baseIssue);
-        event.apply(issue);
-        issue.save();
-        return Optional.of(issue);
+    public OpenIssueDataValidation createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
+        return issueDataValidationService.createIssue(baseIssue, issueEvent);
     }
 
     @Override
@@ -152,7 +149,7 @@ public class DataValidationIssueCreationRuleTemplate implements CreationRuleTemp
             if (issueDataValidation.getNotEstimatedBlocks().isEmpty()) {
                 return Optional.of(issueDataValidation.close(issueService.findStatus(IssueStatus.RESOLVED).get()));
             } else {
-                issueDataValidation.save();
+                issueDataValidation.update();
                 return Optional.of(issueDataValidation);
             }
         }

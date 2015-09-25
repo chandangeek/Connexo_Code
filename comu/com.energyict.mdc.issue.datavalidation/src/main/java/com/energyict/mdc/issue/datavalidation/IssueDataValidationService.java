@@ -1,18 +1,18 @@
 package com.energyict.mdc.issue.datavalidation;
 
-import java.util.Optional;
-
 import aQute.bnd.annotation.ProviderType;
-
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
+
+import java.util.Optional;
 
 @ProviderType
 public interface IssueDataValidationService {
 
-    public static final String COMPONENT_NAME = "IDV";
-    public static final String ISSUE_TYPE_NAME = "datavalidation";
-    public static final String DATA_VALIDATION_ISSUE_REASON = "reason.cant.estimate.data";
+    String COMPONENT_NAME = "IDV";
+    String ISSUE_TYPE_NAME = "datavalidation";
+    String DATA_VALIDATION_ISSUE_REASON = "reason.cant.estimate.data";
 
     Optional<? extends IssueDataValidation> findIssue(long id);
 
@@ -20,7 +20,7 @@ public interface IssueDataValidationService {
 
     Optional<HistoricalIssueDataValidation> findHistoricalIssue(long id);
 
-    OpenIssueDataValidation createIssue(Issue baseIssue);
+    OpenIssueDataValidation createIssue(OpenIssue baseIssue, IssueEvent issueEvent);
     
     Finder<? extends IssueDataValidation> findAllDataValidationIssues(DataValidationIssueFilter filter);    
 

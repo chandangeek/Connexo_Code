@@ -307,14 +307,12 @@ public class DataValidationIssueCreationRuleTemplateTest extends PersistenceInte
             value.addValue(deviceConfig);
         }
         props.put(DataValidationIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS, value);
-        CreationRule creationRule = ruleBuilder.setTemplate(DataValidationIssueCreationRuleTemplate.NAME)
+        return ruleBuilder.setTemplate(DataValidationIssueCreationRuleTemplate.NAME)
                    .setName(name)
                    .setIssueType(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get())
                    .setReason(issueService.findReason(IssueDataValidationService.DATA_VALIDATION_ISSUE_REASON).get())
                    .setDueInTime(DueInType.YEAR, 5)
                    .setProperties(props)
                    .complete();
-        creationRule.save();
-        return creationRule;
     }
 }

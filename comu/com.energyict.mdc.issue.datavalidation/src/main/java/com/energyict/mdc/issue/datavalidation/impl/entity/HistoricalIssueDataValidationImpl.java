@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class HistoricalIssueDataValidationImpl extends IssueDataValidationImpl implements HistoricalIssueDataValidation {
+public final class HistoricalIssueDataValidationImpl extends IssueDataValidationImpl implements HistoricalIssueDataValidation {
 
     @IsPresent
     private Reference<HistoricalIssue> baseIssue = ValueReference.absent();
@@ -34,7 +34,7 @@ public class HistoricalIssueDataValidationImpl extends IssueDataValidationImpl i
         return baseIssue.orNull();
     }
 
-    void setIssue(HistoricalIssue issue) {
+    public void setIssue(HistoricalIssue issue) {
         this.baseIssue.set(issue);
     }
 

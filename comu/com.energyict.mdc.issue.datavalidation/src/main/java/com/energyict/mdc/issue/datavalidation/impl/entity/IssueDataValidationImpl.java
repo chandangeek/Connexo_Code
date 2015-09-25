@@ -1,12 +1,5 @@
 package com.energyict.mdc.issue.datavalidation.impl.entity;
 
-import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -23,6 +16,13 @@ import com.elster.jupiter.users.User;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
+
+import javax.inject.Inject;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public class IssueDataValidationImpl implements IssueDataValidation {
     
@@ -184,12 +184,12 @@ public class IssueDataValidationImpl implements IssueDataValidation {
     }
 
     public void save() {
-        getBaseIssue().save();
-        if (this.createTime == null) {
-            Save.CREATE.save(dataModel, this);
-        } else {
-            Save.UPDATE.save(dataModel, this);
-        }
+        Save.CREATE.save(dataModel, this);
+    }
+
+    public void update() {
+        getBaseIssue().update();
+        Save.UPDATE.save(dataModel, this);
     }
 
     public void delete(){
@@ -209,5 +209,24 @@ public class IssueDataValidationImpl implements IssueDataValidation {
 
     protected DataModel getDataModel() {
         return dataModel;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || !(o instanceof IssueDataValidationImpl)) {
+            return false;
+        }
+
+        IssueDataValidationImpl that = (IssueDataValidationImpl) o;
+
+        return Objects.equals(this.getBaseIssue(), that.getBaseIssue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getBaseIssue());
     }
 }

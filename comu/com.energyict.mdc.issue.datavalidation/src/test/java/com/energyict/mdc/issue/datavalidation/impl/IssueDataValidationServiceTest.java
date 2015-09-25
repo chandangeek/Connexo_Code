@@ -29,6 +29,7 @@ import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ListValue;
+import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -83,7 +84,6 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
                    .setDueInTime(DueInType.YEAR, 5)
                    .setProperties(props)
                    .complete();
-        issueCreationRule.save();
     }
     
     @Test
@@ -140,12 +140,17 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         filter.setUnassignedOnly();
         List<? extends IssueDataValidation> issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).hasSize(1);
-        
-        User assignee = inMemoryPersistence.getService(UserService.class).findOrCreateUser("User", "Local", "Type");
+
+        LdapUserDirectory local = inMemoryPersistence.getService(UserService.class).createApacheDirectory("APD");
+        local.setSecurity("sec");
+        local.setUrl("url");
+        local.save();
+
+        User assignee = inMemoryPersistence.getService(UserService.class).findOrCreateUser("User", "APD", "APD");
         assignee.save();
         IssueDataValidation issue = issueDataValidationService.findOpenIssue(baseIssues.get(0).getId()).get();
         issue.assignTo(IssueAssignee.Types.USER, assignee.getId());
-        issue.save();
+        issue.update();
         
         filter = new DataValidationIssueFilter();
         filter.setUnassignedOnly();
@@ -164,7 +169,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         assertThat(issue.getAssignee().getId()).isEqualTo(assignee.getId());
 
         filter = new DataValidationIssueFilter();
-        User anotherAssignee = inMemoryPersistence.getService(UserService.class).findOrCreateUser("AnotherUser", "Local", "Type");
+        User anotherAssignee = inMemoryPersistence.getService(UserService.class).findOrCreateUser("AnotherUser", "APD", "APD");
         anotherAssignee.save();
         filter.setAssignee(anotherAssignee);
         issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
@@ -194,7 +199,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         filter = new DataValidationIssueFilter();
         IssueReason reason = issueService.createReason("somereason", issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME).get(),
                 TranslationKeys.DATA_VALIDATION_ISSUE_REASON, TranslationKeys.DATA_VALIDATION_ISSUE_REASON_DESCRIPTION);
-        reason.save();
+        reason.update();
         filter.setIssueReason(reason);
         issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).isEmpty();
@@ -215,7 +220,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         endDevice.update();
         IssueDataValidation issue = issueDataValidationService.findOpenIssue(baseIssues.get(0).getId()).get();
         issue.setDevice(endDevice);
-        issue.save();
+        issue.update();
         
         DataValidationIssueFilter filter = new DataValidationIssueFilter();
         filter.setDevice(endDevice);
@@ -310,7 +315,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         dataValidationIssue.addNotEstimatedBlock(registerChannel, registerReadingType, now);//(EPOCH, now]
         dataValidationIssue.addNotEstimatedBlock(registerChannel, registerReadingType, now.plus(30, ChronoUnit.MINUTES));//(now+10min, now+30min]
         dataValidationIssue.addNotEstimatedBlock(registerChannel, registerReadingType, now.plus(10, ChronoUnit.MINUTES));//(now, now+10min]
-        dataValidationIssue.save();
+        dataValidationIssue.update();
         
         dataValidationIssue = issueDataValidationService.findOpenIssue(dataValidationIssue.getId()).get();
         assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(3);
@@ -361,14 +366,14 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         dataValidationIssue.addNotEstimatedBlock(channel, readingType, now);//(now-1min, now]
         dataValidationIssue.addNotEstimatedBlock(channel, readingType, now.plus(2, ChronoUnit.MINUTES));//(now+1min, now+2min]
         dataValidationIssue.addNotEstimatedBlock(channel, readingType, now.plus(4, ChronoUnit.MINUTES));//(now+3min, now+4min]
-        dataValidationIssue.save();//(now-2min, now+4min]
+        dataValidationIssue.update();//(now-2min, now+4min]
         
         assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(1);
         assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(now.minus(2, ChronoUnit.MINUTES));
         assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getEndTime()).isEqualTo(now.plus(4, ChronoUnit.MINUTES));
         
         dataValidationIssue.removeNotEstimatedBlock(channel, readingType, now);//(now-1min, now]
-        dataValidationIssue.save();//(now-2min, now-1min] + (now, now+4min]
+        dataValidationIssue.update();//(now-2min, now-1min] + (now, now+4min]
         
         assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(2);
         assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(now.minus(2, ChronoUnit.MINUTES));
@@ -379,7 +384,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         dataValidationIssue.addNotEstimatedBlock(channel, readingType, now);//(now-1min, now]
         dataValidationIssue.removeNotEstimatedBlock(channel, readingType, now.minus(300, ChronoUnit.MINUTES));//(now-299min, now-300min]
         dataValidationIssue.removeNotEstimatedBlock(channel, readingType, now.minus(1, ChronoUnit.MINUTES));//(now-2min, now-1min]
-        dataValidationIssue.save();//(now-1min, now+4min]
+        dataValidationIssue.update();//(now-1min, now+4min]
         
         assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(1);
         assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(now.minus(1, ChronoUnit.MINUTES));
@@ -389,7 +394,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         dataValidationIssue.addNotEstimatedBlock(channel, readingType, now);//(now-1min, now]
         dataValidationIssue.removeNotEstimatedBlock(channel, readingType, now.plus(300, ChronoUnit.MINUTES));//(now+299min, now+300min]
         dataValidationIssue.removeNotEstimatedBlock(channel, readingType, now.plus(1, ChronoUnit.MINUTES));//(now, now+1min]
-        dataValidationIssue.save();//(now-2min, now] (now+1min, now+4min]
+        dataValidationIssue.update();//(now-2min, now] (now+1min, now+4min]
         
         assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(2);
         assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(now.minus(2, ChronoUnit.MINUTES));
@@ -430,7 +435,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
 
         dataValidationIssue.addNotEstimatedBlock(registerChannel, registerReadingType, now);//(EPOCH, now]
         dataValidationIssue.addNotEstimatedBlock(registerChannel, registerReadingType, now.plus(10, ChronoUnit.MINUTES));//(EPOCH, now+10min]
-        dataValidationIssue.save();
+        dataValidationIssue.update();
 
         assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(1);
         assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(Instant.EPOCH);
@@ -438,7 +443,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
 
         dataValidationIssue.addNotEstimatedBlock(registerChannel, registerReadingType, now.plus(50, ChronoUnit.MINUTES));//(now+30min, now+55min]
         dataValidationIssue.addNotEstimatedBlock(registerChannel, registerReadingType, now.plus(55, ChronoUnit.MINUTES));//(now+50min, now+55min]
-        dataValidationIssue.save();//(EPOCH, now] + (now+30min, now+55min]
+        dataValidationIssue.update();//(EPOCH, now] + (now+30min, now+55min]
 
         assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(2);
         assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(Instant.EPOCH);
@@ -448,14 +453,14 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
 
         dataValidationIssue.addNotEstimatedBlock(registerChannel, registerReadingType, now.plus(30, ChronoUnit.MINUTES));//(now+10min, now+30min]
         dataValidationIssue.addNotEstimatedBlock(registerChannel, registerReadingType, now.plus(55, ChronoUnit.MINUTES));//(now+50min, now+55min]
-        dataValidationIssue.save();//(EPOCH, now+55min]
+        dataValidationIssue.update();//(EPOCH, now+55min]
 
         assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(1);
         assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(Instant.EPOCH);
         assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getEndTime()).isEqualTo(now.plus(55, ChronoUnit.MINUTES));
 
         dataValidationIssue.removeNotEstimatedBlock(registerChannel, registerReadingType, now.plus(10, ChronoUnit.MINUTES));//(now, now+10min]
-        dataValidationIssue.save();//(EPOCH, now] + (now+10min, now+55min]
+        dataValidationIssue.update();//(EPOCH, now] + (now+10min, now+55min]
 
         assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(2);
         assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(Instant.EPOCH);
@@ -464,7 +469,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         assertThat(dataValidationIssue.getNotEstimatedBlocks().get(1).getEndTime()).isEqualTo(now.plus(55, ChronoUnit.MINUTES));
 
         dataValidationIssue.removeNotEstimatedBlock(registerChannel, registerReadingType, now);//(EPOCH, now]
-        dataValidationIssue.save();//(now+10min, now+55min]
+        dataValidationIssue.update();//(now+10min, now+55min]
 
         assertThat(dataValidationIssue.getNotEstimatedBlocks()).hasSize(1);
         assertThat(dataValidationIssue.getNotEstimatedBlocks().get(0).getStartTime()).isEqualTo(now.plus(10, ChronoUnit.MINUTES));
@@ -529,7 +534,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         Instant now = Instant.now();
         openIssue.addNotEstimatedBlock(channelRT1, readingType1Min, now);//(now-1min, now]
         openIssue.addNotEstimatedBlock(channelRT2, readingType3Min, now.plus(300, ChronoUnit.MINUTES));//(now+297min, now+300min]
-        openIssue.save();
+        openIssue.update();
 
         openIssue = issueDataValidationService.findOpenIssue(openIssue.getId()).get();
         openIssue.close(issueService.findStatus(IssueStatus.WONT_FIX).get());
