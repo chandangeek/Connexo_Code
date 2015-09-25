@@ -577,7 +577,7 @@ Ext.define('Dxp.view.tasks.Add', {
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('general.outputFormat', 'DES', 'Output format'),
+                        fieldLabel: Uni.I18n.translate('general.dataFormatter', 'DES', 'Data formatter'),
                         layout: 'hbox',
                         itemId: 'formatter-container',
                         hidden: true,
