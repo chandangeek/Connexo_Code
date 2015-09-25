@@ -55,11 +55,15 @@ public class ConsumptionExportGenerator {
             ReadingType readingType = new ReadingType(usagePoints.get(0).getReadingType());
             ZonedDateTime now = ZonedDateTime.now(clock);
             long delayToNextExportGeneration = outputFrequency - (now.getLong(ChronoField.SECOND_OF_DAY) % outputFrequency);
+            // go back in time to simulate readings for 24 hour without exceeding current time
             ZonedDateTime simulationStartTime = now.minusMinutes(readingType.getMeasuringPeriod() * timeAcceleration * 24);
             simulationStartTime = simulationStartTime.plusSeconds((readingType.getMeasuringPeriod() * 60) - simulationStartTime.get(ChronoField.SECOND_OF_DAY) % (readingType.getMeasuringPeriod() * 60));
             logger.info("Simulation start date& time is "+simulationStartTime);
             long readingsPerExportGeneration = (outputFrequency * timeAcceleration) / (readingType.getMeasuringPeriod()*60);
-            logger.info("Every generated export file will contain "+readingsPerExportGeneration+" readings per usage point");
+            logger.info("Every export file will cover a simulated timespan of "+(outputFrequency*timeAcceleration)+" seconds, thus containing "+readingsPerExportGeneration+" readings per usage point");
+            if (readingsPerExportGeneration==0) {
+                throw new IllegalStateException("There would be no readings in the export files with the configured settings");
+            }
             ExportGeneratorTask exportGeneratorTask = new ExportGeneratorTask(simulationStartTime, Duration.ofMinutes(readingType.getMeasuringPeriod()), readingsPerExportGeneration);
             scheduledFuture = executor.scheduleAtFixedRate(exportGeneratorTask, delayToNextExportGeneration, outputFrequency, TimeUnit.SECONDS);
         }

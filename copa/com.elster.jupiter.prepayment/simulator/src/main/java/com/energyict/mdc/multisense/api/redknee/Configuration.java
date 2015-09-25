@@ -60,7 +60,8 @@ public class Configuration {
     @Override
     public String toString() {
         return "Configuration{" +
-                "\n\toutputFrequency=" + outputFrequency +
+                "\n\toutputFrequency= every " + outputFrequency +"s"+
+                "\n\ttimeAcceleration= x" + timeAcceleration +
                 ",\n\tdestinationFilePath='" + destinationFilePath + '\'' +
                 ",\n\tconnexoUrl='" + connexoUrl + '\'' +
                 ",\n\tsimulator port='" + simulatorPort + '\'' +
