@@ -282,8 +282,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     void connectionKpiBuilder(KpiBuilder builder) {
-        Kpi kpi = builder.build();
-        kpi.save();
+        Kpi kpi = builder.create();
         this.connectionKpi.set(kpi);
     }
 
@@ -326,8 +325,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     void communicationKpiBuilder(KpiBuilder builder) {
-        Kpi kpi = builder.build();
-        kpi.save();
+        Kpi kpi = builder.create();
         this.communicationKpi.set(kpi);
     }
 
