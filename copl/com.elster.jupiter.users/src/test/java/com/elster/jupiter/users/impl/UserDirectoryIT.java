@@ -164,8 +164,6 @@ public class UserDirectoryIT {
         assertThat(((LdapUserDirectory)userDirectory).getUrl()).isEqualTo("MyUrl");
     }
 
-
-
     @Ignore
     @Test
     public void testAuthenticateActiveDirectory() {
@@ -312,5 +310,104 @@ public class UserDirectoryIT {
         assertThat(userDirectory.getBackupUrl()).isEqualTo("BackupUrl2");
         assertThat(userDirectory.getSecurity()).isNotEqualTo("NONE");
     }
+
+    @Test
+    public void testChangeDefaultDirectory() {
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        UserService userService = injector.getInstance(UserService.class);
+        try (TransactionContext context = transactionService.getContext()) {
+            LdapUserDirectory apacheDirectory = userService.createApacheDirectory("ApacheDomain");
+            apacheDirectory.setDefault(true);
+            apacheDirectory.setDirectoryUser("ApacheUser");
+            apacheDirectory.setPassword("ApachePassword");
+            apacheDirectory.setUrl("ApacheUrl");
+            apacheDirectory.setBaseUser("ApacheBaseUser");
+            apacheDirectory.setBackupUrl("ApachebackupUrl");
+            apacheDirectory.setSecurity("NONE");
+            apacheDirectory.save();
+            LdapUserDirectory activeDirectory = userService.createActiveDirectory("ActiveDomain");
+            activeDirectory.setDefault(false);
+            activeDirectory.setDirectoryUser("ActiveUser");
+            activeDirectory.setPassword("ActivePassword");
+            activeDirectory.setUrl("ActiveUrl");
+            activeDirectory.setBaseUser("ActiveBaseUser");
+            activeDirectory.setBackupUrl("ActivebackupUrl");
+            activeDirectory.setSecurity("NONE");
+            activeDirectory.save();
+            UserDirectory internalDirectory = userService.createInternalDirectory("InternalDomain");
+            internalDirectory.setDefault(false);
+            internalDirectory.save();
+            context.commit();
+        }
+        Optional<UserDirectory> found = userService.findUserDirectory("ApacheDomain");
+        assertThat(found.isPresent()).isTrue();
+        assertThat(found.get().isDefault()).isTrue();
+        LdapUserDirectory apacheDirectory = (LdapUserDirectory)found.get();
+        found = userService.findUserDirectory("InternalDomain");
+        assertThat(found.isPresent()).isTrue();
+        assertThat(found.get().isDefault()).isFalse();
+        UserDirectory internalDirectory = found.get();
+        found = userService.findUserDirectory("ActiveDomain");
+        assertThat(found.isPresent()).isTrue();
+        assertThat(found.get().isDefault()).isFalse();
+        LdapUserDirectory activeDirectory =(LdapUserDirectory)found.get();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            activeDirectory.setDefault(true);
+            apacheDirectory.setDefault(false);
+            internalDirectory.setDefault(false);
+            activeDirectory.save();
+            context.commit();
+        }
+        assertThat(activeDirectory.isDefault()).isTrue();
+        assertThat(internalDirectory.isDefault()).isFalse();
+        assertThat(apacheDirectory.isDefault()).isFalse();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            activeDirectory.setDefault(false);
+            apacheDirectory.setDefault(false);
+            internalDirectory.setDefault(true);
+            activeDirectory.save();
+            context.commit();
+        }
+        assertThat(activeDirectory.isDefault()).isFalse();
+        assertThat(internalDirectory.isDefault()).isTrue();
+        assertThat(apacheDirectory.isDefault()).isFalse();
+    }
+
+    @Test
+    public void testViewUserDirectories() {
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        UserService userService = injector.getInstance(UserService.class);
+        try (TransactionContext context = transactionService.getContext()) {
+            LdapUserDirectory apacheDirectory = userService.createApacheDirectory("ApacheDomain");
+            apacheDirectory.setDefault(true);
+            apacheDirectory.setDirectoryUser("ApacheUser");
+            apacheDirectory.setPassword("ApachePassword");
+            apacheDirectory.setUrl("ApacheUrl");
+            apacheDirectory.setBaseUser("ApacheBaseUser");
+            apacheDirectory.setBackupUrl("ApachebackupUrl");
+            apacheDirectory.setSecurity("NONE");
+            apacheDirectory.save();
+            LdapUserDirectory activeDirectory = userService.createActiveDirectory("ActiveDomain");
+            activeDirectory.setDefault(false);
+            activeDirectory.setDirectoryUser("ActiveUser");
+            activeDirectory.setPassword("ActivePassword");
+            activeDirectory.setUrl("ActiveUrl");
+            activeDirectory.setBaseUser("ActiveBaseUser");
+            activeDirectory.setBackupUrl("ActivebackupUrl");
+            activeDirectory.setSecurity("NONE");
+            activeDirectory.save();
+            UserDirectory internalDirectory = userService.createInternalDirectory("InternalDomain");
+            internalDirectory.setDefault(false);
+            internalDirectory.save();
+            context.commit();
+        }
+        List<UserDirectory> userDirectories = userService.getUserDirectories();
+        assertThat(userDirectories.isEmpty()).isFalse();
+        assertThat(userDirectories.size()).isEqualTo(4);
+    }
+
+
 
 }
