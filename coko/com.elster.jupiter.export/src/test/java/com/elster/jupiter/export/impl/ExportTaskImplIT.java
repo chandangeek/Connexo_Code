@@ -392,14 +392,14 @@ public class ExportTaskImplIT {
         exportTask.setProperty("propy", value1);
 
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask.save(); // version 4
+            exportTask.update(); // version 4
             context.commit();
         }
 
         BigDecimal value2 = new BigDecimal("102");
         exportTask.setProperty("propy", value2);
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask.save(); // version 5
+            exportTask.update(); // version 5
             context.commit();
         }
         try (TransactionContext context = transactionService.getContext()) {
@@ -445,7 +445,7 @@ public class ExportTaskImplIT {
         ExportTask task = createAndSaveTask("NAME2");
         task.setName(NAME);
         try (TransactionContext context = transactionService.getContext()) {
-            task.save();
+            task.update();
             context.commit();
         } catch (ConstraintViolationException ex) {
             assertThat(ex.getConstraintViolations()).hasSize(1);
@@ -477,7 +477,7 @@ public class ExportTaskImplIT {
             selector.addReadingType(anotherReadingType);
             selector.removeReadingType(readingType);
             selector.save();
-            readingTypeDataExportTask.save();
+            readingTypeDataExportTask.update();
             context.commit();
         }
 
@@ -562,8 +562,8 @@ public class ExportTaskImplIT {
         ExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
             meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test").create();
-            task.getReadingTypeDataSelector().get().addExportItem(meter, readingType);
-            task.save();
+            ((IReadingTypeDataSelector) task.getReadingTypeDataSelector().get()).addExportItem(meter, readingType);
+            task.update();
             context.commit();
         }
 
@@ -587,7 +587,7 @@ public class ExportTaskImplIT {
         ExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
             meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test").create();
-            IReadingTypeDataExportItem item = (IReadingTypeDataExportItem) task.getReadingTypeDataSelector().get().addExportItem(meter, readingType);
+            IReadingTypeDataExportItem item = ((IReadingTypeDataSelector) task.getReadingTypeDataSelector().get()).addExportItem(meter, readingType);
             item.deactivate();
             item.update();
             context.commit();

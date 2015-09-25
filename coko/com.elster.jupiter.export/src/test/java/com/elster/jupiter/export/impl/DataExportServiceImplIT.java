@@ -267,7 +267,7 @@ public class DataExportServiceImplIT {
                     .endSelection()
                     .create();
 
-            exportTask1.save();
+            exportTask1.update();
             context.commit();
             fail("expected constraint violation");
         } catch (ConstraintViolationException e) {
@@ -336,7 +336,7 @@ public class DataExportServiceImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             exportTask = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, name);
 
-            exportTask.save();
+            exportTask.update();
             context.commit();
         }
         return exportTask;

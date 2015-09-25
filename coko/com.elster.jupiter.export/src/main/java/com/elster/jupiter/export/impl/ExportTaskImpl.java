@@ -145,7 +145,11 @@ class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public void save() {
+    public void update() {
+        doSave();
+    }
+
+    void doSave() {
         // TODO  : separate properties per Factory
 
         List<PropertySpec> propertiesSpecsForProcessor = dataExportService.getPropertiesSpecsForFormatter(dataFormatter);
@@ -174,7 +178,7 @@ class ExportTaskImpl implements IExportTask {
         if (id == 0) {
             persist();
         } else {
-            update();
+            doUpdate();
         }
         readingTypeDataSelector.getOptional().ifPresent(ReadingTypeDataSelector::save);
         recurrentTaskDirty = false;
@@ -339,7 +343,7 @@ class ExportTaskImpl implements IExportTask {
                 .collect(Collectors.toMap(DataExportProperty::getName, DataExportProperty::getValue));
     }
 
-    private void update() {
+    private void doUpdate() {
         if (recurrentTaskDirty) {
             recurrentTask.get().save();
         }
@@ -374,7 +378,7 @@ class ExportTaskImpl implements IExportTask {
     @Override
     public void updateLastRun(Instant triggerTime) {
         lastRun = triggerTime;
-        save();
+        update();
     }
 
     @Override
@@ -436,7 +440,7 @@ class ExportTaskImpl implements IExportTask {
     public FileDestination addFileDestination(String fileLocation, String fileName, String fileExtension) {
         FileDestinationImpl fileDestination = dataModel.getInstance(FileDestinationImpl.class).init(this, fileLocation, fileName, fileExtension);
         destinations.add(fileDestination);
-        save();
+        doSave();
         return fileDestination;
     }
 
@@ -444,7 +448,7 @@ class ExportTaskImpl implements IExportTask {
     public EmailDestination addEmailDestination(String recipients, String subject, String attachmentName, String attachmentExtension) {
         EmailDestinationImpl emailDestination = EmailDestinationImpl.from(this, dataModel, recipients, subject, attachmentName, attachmentExtension);
         destinations.add(emailDestination);
-        save();
+        doSave();
         return emailDestination;
     }
 
@@ -452,14 +456,14 @@ class ExportTaskImpl implements IExportTask {
     public FtpDestination addFtpDestination(String server, String user, String password, String fileLocation, String fileName, String fileExtension) {
         FtpDestinationImpl ftpDestination = FtpDestinationImpl.from(this, dataModel, server, user, password, fileLocation, fileName, fileExtension);
         destinations.add(ftpDestination);
-        save();
+        doSave();
         return ftpDestination;
     }
 
     @Override
     public void removeDestination(DataExportDestination destination) {
         destinations.remove(destination);
-        save();
+        doSave();
     }
 
     @Override

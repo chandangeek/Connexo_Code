@@ -28,7 +28,7 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     DataExportOccurrenceFinder getOccurrencesFinder();
 
-    void save();
+    void update();
 
     void delete();
 

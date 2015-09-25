@@ -107,7 +107,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
             exportTask.setReadingTypeDataSelector(readingTypeDataSelector);
         }
         properties.stream().forEach(p -> exportTask.setProperty(p.name, p.value));
-        exportTask.save();
+        exportTask.doSave();
         return exportTask;
     }
 
