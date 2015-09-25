@@ -9,14 +9,16 @@ import com.elster.jupiter.orm.DataModel;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.time.Period;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-public class LifeCycleCategoryImpl implements LifeCycleCategory {
+public final class LifeCycleCategoryImpl implements LifeCycleCategory {
 
 	private LifeCycleCategoryKind kind;
 	private int partitionSize;
 	private int retention;
+
 	@SuppressWarnings("unused")
 	private Instant createTime;
 	private Instant modTime;
@@ -94,5 +96,24 @@ public class LifeCycleCategoryImpl implements LifeCycleCategory {
 	@Override
 	public String toString() {
 		return "" + this.getName() + " (Retention: " + getRetention() + ")";
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+
+		LifeCycleCategoryImpl that = (LifeCycleCategoryImpl) o;
+
+		return this.kind == that.kind;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(kind);
 	}
 }

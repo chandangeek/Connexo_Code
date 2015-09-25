@@ -108,6 +108,11 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>devtools</artifactId>
+            <scope>test</scope>
+        </dependency>
       <!--<dependency>-->
         <!--<groupId>com.google.inject</groupId>-->
         <!--<artifactId>guice</artifactId>-->
