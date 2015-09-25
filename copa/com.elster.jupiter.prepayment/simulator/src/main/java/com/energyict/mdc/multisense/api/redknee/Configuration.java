@@ -12,7 +12,7 @@ public class Configuration {
     private String destinationFilePath="/tmp";
     private String connexoUrl="http://localhost:8080/";
     private Integer simulatorPort=8080;
-
+    private String readingType;
     @XStreamImplicit
     private List<UsagePoint> usagePoints = Collections.emptyList();
 
@@ -20,13 +20,14 @@ public class Configuration {
 
     }
 
-    Configuration(Integer outputFrequency, Integer timeAcceleration, String destinationFilePath, String connexoUrl, Integer simulatorPort, List<UsagePoint> usagePoints) {
+    Configuration(Integer outputFrequency, Integer timeAcceleration, String destinationFilePath, String connexoUrl, Integer simulatorPort, List<UsagePoint> usagePoints, String readingType) {
         this.outputFrequency = outputFrequency;
         this.timeAcceleration = timeAcceleration;
         this.destinationFilePath = destinationFilePath;
         this.connexoUrl = connexoUrl;
         this.simulatorPort = simulatorPort;
         this.usagePoints = usagePoints;
+        this.readingType = readingType;
     }
 
     public Integer getTimeAcceleration() {
@@ -49,6 +50,10 @@ public class Configuration {
         return connexoUrl;
     }
 
+    public String getReadingType() {
+        return readingType;
+    }
+
     public void setDestinationFilePath(String destinationFilePath) {
         this.destinationFilePath = destinationFilePath;
     }
@@ -65,6 +70,7 @@ public class Configuration {
                 ",\n\tdestinationFilePath='" + destinationFilePath + '\'' +
                 ",\n\tconnexoUrl='" + connexoUrl + '\'' +
                 ",\n\tsimulator port='" + simulatorPort + '\'' +
+                ",\n\treading type='" + readingType + '\'' +
                 ",\n\tusagePoints=" + usagePoints +
                 '}';
     }

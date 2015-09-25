@@ -9,17 +9,15 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 public class UsagePoint {
     private String mRID;
     private String device_mRID;
-    private String readingType;
     private double consumption;
     private Status status = Status.connected;
 
     public UsagePoint() {
     }
 
-    public UsagePoint(String mRID, String device_mRID, String readingType, double consumption, Status status) {
+    public UsagePoint(String mRID, String device_mRID, double consumption, Status status) {
         this.mRID = mRID;
         this.device_mRID = device_mRID;
-        this.readingType = readingType;
         this.consumption = consumption;
         this.status = status;
     }
@@ -30,10 +28,6 @@ public class UsagePoint {
 
     public String getDevice_mRID() {
         return device_mRID;
-    }
-
-    public String getReadingType() {
-        return readingType;
     }
 
     public double getConsumption() {
@@ -47,7 +41,6 @@ public class UsagePoint {
     @Override
     public String toString() {
         return "UsagePoint{" +
-                "readingType='" + readingType + '\'' +
                 ", consumption='" + consumption + '\'' +
                 ", device_mRID='" + device_mRID + '\'' +
                 ", mRID='" + mRID + '\'' +

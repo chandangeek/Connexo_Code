@@ -5,16 +5,15 @@
     "destinationFilePath": "/tmp",
     "connexoUrl": "http://localhost:8085/public/api/rkn/v1.0/usagepoints",
     "simulatorPort": 8080,
+    "readingType": "0.0.1.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0",
     "usagePoints": [
       {
-        "readingType": "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0",
         "consumption": 3456.78,
         "mRID": "usp001",
         "device_mRID": "mrid1",
         "status": "connected"
       },
       {
-        "readingType": "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0",
         "consumption": 1400,
         "mRID": "up2",
         "device_mRID": "mrid2",

@@ -37,6 +37,7 @@ public class ConsumptionExportGenerator {
     private long outputFrequency;
     private List<UsagePoint> usagePoints = Collections.emptyList();
     private Integer timeAcceleration;
+    private ReadingType readingType;
 
     public ConsumptionExportGenerator(Clock clock, ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
         this.clock = clock;
@@ -51,7 +52,6 @@ public class ConsumptionExportGenerator {
         }
         if (outputFrequency > 0L) {
             logger.info("Scheduling export simulation task every " + outputFrequency + " seconds");
-            ReadingType readingType = new ReadingType(usagePoints.get(0).getReadingType());
             ZonedDateTime now = ZonedDateTime.now(clock);
             long delayToNextExportGeneration = outputFrequency - (now.getLong(ChronoField.SECOND_OF_DAY) % outputFrequency);
             // go back in time to simulate readings for 24 hour without exceeding current time
@@ -79,6 +79,7 @@ public class ConsumptionExportGenerator {
         this.usagePoints = new ArrayList<>(configuration.getUsagePoints());
         this.outputFrequency = configuration.getOutputFrequency();
         this.timeAcceleration = configuration.getTimeAcceleration();
+        this.readingType = new ReadingType(configuration.getReadingType());
     }
 
     public Optional<UsagePoint> getUsagePoint(String mRID) {
@@ -110,7 +111,7 @@ public class ConsumptionExportGenerator {
                                     MessageFormat.format(csvFormat,
                                             usagePoint.getDevice_mRID(),
                                             usagePoint.getmRID(),
-                                            usagePoint.getReadingType(),
+                                            readingType,
                                             "3.0.0",
                                             now.toEpochSecond(),
                                             now.getOffset(),

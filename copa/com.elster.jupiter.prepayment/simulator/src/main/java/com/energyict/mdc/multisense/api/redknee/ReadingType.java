@@ -5,8 +5,10 @@ package com.energyict.mdc.multisense.api.redknee;
  */
 public class ReadingType {
     private final int measuringPeriod;
+    private final String readingTypeString;
 
     public ReadingType(String readingTypeString) {
+        this.readingTypeString = readingTypeString;
         String[] split = readingTypeString.split("\\.");
         if (!(split[0].equals("0"))) {
             throw new IllegalArgumentException("Only reading types with macro period 0 are supported");
@@ -16,5 +18,10 @@ public class ReadingType {
 
     public int getMeasuringPeriod() {
         return measuringPeriod;
+    }
+
+    @Override
+    public String toString() {
+        return readingTypeString;
     }
 }
