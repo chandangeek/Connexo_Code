@@ -8,7 +8,7 @@ import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.users.User;
+
 import java.time.Clock;
 import java.util.Optional;
 
@@ -77,7 +77,7 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
 	                eDetail.setRatedPower(info.ratedPower);
                 }
                 usagePoint.addDetail(detail);
-                usagePoint.save();
+                usagePoint.update();
             } else {
                 throw new WebApplicationException(Response.Status.CONFLICT);
             }
