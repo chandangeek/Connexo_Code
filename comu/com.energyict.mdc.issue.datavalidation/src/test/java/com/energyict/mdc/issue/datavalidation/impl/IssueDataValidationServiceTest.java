@@ -211,8 +211,8 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         assertThat(baseIssues).hasSize(1);
         
         AmrSystem amrSystem = inMemoryPersistence.getService(MeteringService.class).findAmrSystem(KnownAmrSystem.MDC.getId()).get();
-        EndDevice endDevice = amrSystem.newEndDevice("METER");
-        endDevice.save();
+        EndDevice endDevice = amrSystem.createEndDevice("METER");
+        endDevice.update();
         IssueDataValidation issue = issueDataValidationService.findOpenIssue(baseIssues.get(0).getId()).get();
         issue.setDevice(endDevice);
         issue.save();
@@ -228,8 +228,8 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         assertThat(issue.getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
         assertThat(issue.getDevice()).isEqualTo(endDevice);
         
-        endDevice = amrSystem.newEndDevice("ANOTHER METER");
-        endDevice.save();
+        endDevice = amrSystem.createEndDevice("ANOTHER METER");
+        endDevice.update();
         filter = new DataValidationIssueFilter();
         filter.setDevice(endDevice);
         issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
