@@ -244,6 +244,9 @@ public class AdapterDeviceProtocolDialectTest {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
+            bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
+            bind(MeteringService.class).toInstance(meteringService);
+            bind(TimeService.class).toInstance(mock(TimeService.class));
             bind(DataModel.class).toProvider(() -> dataModel);
         }
     }
