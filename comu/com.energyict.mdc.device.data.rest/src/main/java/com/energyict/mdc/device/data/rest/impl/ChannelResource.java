@@ -1,5 +1,16 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.estimation.EstimationResult;
+import com.elster.jupiter.estimation.Estimator;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -11,16 +22,6 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
-
-import com.elster.jupiter.estimation.EstimationResult;
-import com.elster.jupiter.estimation.Estimator;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.util.Ranges;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.ImmutableSet;
@@ -43,6 +44,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,16 +66,18 @@ public class ChannelResource {
     private final Thesaurus thesaurus;
     private final Clock clock;
     private final DeviceDataInfoFactory deviceDataInfoFactory;
+    private final ValidationInfoFactory validationInfoFactory;
     private final IssueDataValidationService issueDataValidationService;
     private final EstimationHelper estimationHelper;
 
     @Inject
-    public ChannelResource(Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper) {
+    public ChannelResource(Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper) {
         this.channelHelper = channelHelper;
         this.resourceHelper = resourceHelper;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
+        this.validationInfoFactory = validationInfoFactory;
         this.issueDataValidationService = issueDataValidationService;
         this.estimationHelper = estimationHelper;
     }
@@ -158,7 +162,8 @@ public class ChannelResource {
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
         boolean isValidationActive = deviceValidation.isValidationActive();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
-            List<LoadProfileReading> channelData = channel.getChannelData(Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd")));
+            Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
+            List<LoadProfileReading> channelData = channel.getChannelData(range);
             List<ChannelDataInfo> infos = channelData.stream().map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReading, isValidationActive, deviceValidation)).collect(Collectors.toList());
             infos = filter(infos, filter);
             List<ChannelDataInfo> paginatedChannelData = ListPager.of(infos).from(queryParameters).find();
@@ -166,6 +171,29 @@ public class ChannelResource {
             return Response.ok(pagedInfoList).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{channelid}/data/{epochMillis}/validation")
+    public Response getValidationData(
+            @PathParam("mRID") String mRID,
+            @PathParam("channelid") long channelId,
+            @PathParam("epochMillis") long epochMillis) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+        DeviceValidation deviceValidation = channel.getDevice().forValidation();
+        Instant to = Instant.ofEpochMilli(epochMillis);
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(to, channel.getDevice().getZone());
+        Instant from = zonedDateTime.minus(channel.getInterval().asTemporalAmount()).toInstant();
+        Optional<LoadProfileReading> loadProfileReading = channel.getChannelData(Range.openClosed(from, to)).stream().findAny();
+        Optional<DataValidationStatus> dataValidationStatus = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValidationStates().entrySet().stream().map(Map.Entry::getValue).findFirst());
+
+        Optional<VeeReadingInfo> veeReadingInfo = dataValidationStatus.map(status -> {
+            IntervalReadingRecord channelReading = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst()).orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
+            return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, status, deviceValidation, channelReading);
+        });
+        return Response.ok(veeReadingInfo.orElseGet(VeeReadingInfo::new)).build();
     }
 
     private List<ChannelDataInfo> filter(List<ChannelDataInfo> infos, JsonQueryFilter filter) {
@@ -177,7 +205,7 @@ public class ChannelResource {
         ImmutableList.Builder<Predicate<ChannelDataInfo>> list = ImmutableList.builder();
         if (filter.hasProperty("suspect")){
             List<String> suspectFilters = filter.getStringList("suspect");
-            if (suspectFilters.isEmpty()) {
+            if (suspectFilters.size() == 0) {
                 if ("suspect".equals(filter.getString("suspect"))) {
                     list.add(this::hasSuspects);
                 } else {
@@ -197,8 +225,8 @@ public class ChannelResource {
 
 
     private boolean hasSuspects(ChannelDataInfo info) {
-        return ValidationStatus.SUSPECT.equals(info.validationInfo.mainValidationInfo.validationResult) ||
-                ValidationStatus.SUSPECT.equals(info.validationInfo.bulkValidationInfo.validationResult);
+        return ValidationStatus.SUSPECT.equals(info.mainValidationInfo.validationResult) ||
+                ValidationStatus.SUSPECT.equals(info.bulkValidationInfo.validationResult);
     }
 
     private boolean hasMissingData(ChannelDataInfo info) {
@@ -244,8 +272,8 @@ public class ChannelResource {
     }
 
     private boolean isToBeConfirmed(ChannelDataInfo channelDataInfo) {
-        return ((channelDataInfo.validationInfo != null && channelDataInfo.validationInfo.mainValidationInfo != null && channelDataInfo.validationInfo.mainValidationInfo.isConfirmed) ||
-                (channelDataInfo.validationInfo != null && channelDataInfo.validationInfo.bulkValidationInfo != null && channelDataInfo.validationInfo.bulkValidationInfo.isConfirmed));
+        return ((channelDataInfo.mainValidationInfo != null && channelDataInfo.mainValidationInfo.isConfirmed) ||
+                (channelDataInfo.bulkValidationInfo != null && channelDataInfo.bulkValidationInfo.isConfirmed));
     }
 
     @POST
