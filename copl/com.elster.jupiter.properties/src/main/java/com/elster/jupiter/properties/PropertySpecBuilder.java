@@ -18,8 +18,27 @@ public interface PropertySpecBuilder {
      *
      * @param specName The name of the PropertySpec
      * @return This PropertySpecBuilder to support method chaining while constructing
+     * @deprecated Replace by calls to {@link #name(String, String)}
+     * Todo: remove as part of COPL-1151
      */
-    public PropertySpecBuilder name(String specName);
+    @Deprecated
+    PropertySpecBuilder name(String specName);
+
+    /**
+     * Sets the name of the {@link PropertySpec} that is being constructed.
+     *
+     * @param specName The name of the PropertySpec
+     * @return This PropertySpecBuilder to support method chaining while constructing
+     */
+    PropertySpecBuilder name(String specName, String displayName);
+
+    /**
+     * Sets the description of the {@link PropertySpec} that is being constructed.
+     *
+     * @param description The description of the PropertySpec
+     * @return This PropertySpecBuilder to support method chaining while constructing
+     */
+    PropertySpecBuilder description(String description);
 
     /**
      * Sets a default value for the {@link PropertySpec} under construction.
@@ -32,7 +51,7 @@ public interface PropertySpecBuilder {
      * @param defaultValue The default value
      * @return This PropertySpecBuilder to support method chaining while constructing
      */
-    public PropertySpecBuilder setDefaultValue (Object defaultValue);
+    PropertySpecBuilder setDefaultValue(Object defaultValue);
 
     /**
      * Marks the list of possible values of the {@link PropertySpec}
@@ -40,7 +59,7 @@ public interface PropertySpecBuilder {
      *
      * @return This PropertySpecBuilder to support method chaining while constructing
      */
-    public PropertySpecBuilder markExhaustive();
+    PropertySpecBuilder markExhaustive();
 
     /**
      * Marks the {@link PropertySpec} that is under construction as required.
@@ -49,7 +68,7 @@ public interface PropertySpecBuilder {
      *
      * @return This PropertySpecBuilder to support method chaining while constructing
      */
-    public PropertySpecBuilder markRequired();
+    PropertySpecBuilder markRequired();
 
     /**
      * Adds the specified values to the PropertySpec under construction.
@@ -57,7 +76,7 @@ public interface PropertySpecBuilder {
      * @param values The possible values
      * @return This PropertySpecBuilder to support method chaining while constructing
      */
-    public PropertySpecBuilder addValues (Object... values);
+    PropertySpecBuilder addValues(Object... values);
 
     /**
      * Finishes the building process and returns the
@@ -68,22 +87,27 @@ public interface PropertySpecBuilder {
      *
      * @return The PropertySpec
      */
-    public PropertySpec finish();
-
+    PropertySpec finish();
 
     interface PropertySpecAccessor {
 
-        public PropertySpec getPropertySpec ();
+        PropertySpec getPropertySpec();
 
-        public void setName (String name);
+        // Todo: remove as part of COPL-1151
+        @Deprecated
+        void setName(String name);
 
-        public void setDefaultValue (Object defaultValue);
+        void setName(String name, String displayName);
 
-        public void addValues (Object... values);
+        void setDescription(String description);
 
-        public void markRequired ();
+        void setDefaultValue(Object defaultValue);
 
-        public void markExhaustive ();
+        void addValues(Object... values);
+
+        void markRequired();
+
+        void markExhaustive();
     }
 
     /**
@@ -92,7 +116,7 @@ public interface PropertySpecBuilder {
      * and will throw {@link IllegalStateException} on every attempt to change
      * the {@link PropertySpec} that was built in previous steps.
      */
-    static class BuildingProcessComplete implements PropertySpecAccessor {
+    class BuildingProcessComplete implements PropertySpecAccessor {
         private PropertySpec propertySpec;
 
         public BuildingProcessComplete (PropertySpec propertySpec) {
@@ -107,6 +131,16 @@ public interface PropertySpecBuilder {
 
         @Override
         public void setName (String name) {
+            this.notifyBuildingProcessComplete();
+        }
+
+        @Override
+        public void setName(String name, String displayName) {
+            this.notifyBuildingProcessComplete();
+        }
+
+        @Override
+        public void setDescription(String description) {
             this.notifyBuildingProcessComplete();
         }
 

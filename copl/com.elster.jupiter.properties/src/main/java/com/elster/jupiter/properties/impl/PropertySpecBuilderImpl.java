@@ -1,14 +1,14 @@
 package com.elster.jupiter.properties.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.PropertySpecPossibleValuesImpl;
 import com.elster.jupiter.properties.ValueFactory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Provides building services for {@link PropertySpec}s.
@@ -48,7 +48,6 @@ public class PropertySpecBuilderImpl implements PropertySpecBuilder {
      * Creates a new PropertySpecBuilder for values of the specified
      * domain that are managed with the speciied {@link ValueFactory}.
      *
-     *
      * @param valueFactory The ValueFactory
      * @return The PropertySpecBuilder
      */
@@ -58,7 +57,18 @@ public class PropertySpecBuilderImpl implements PropertySpecBuilder {
 
     @Override
     public PropertySpecBuilder name(String specName) {
-        this.propertySpecAccessor.setName(specName);
+        return this.name(specName, specName);
+    }
+
+    @Override
+    public PropertySpecBuilder name(String specName, String displayName) {
+        this.propertySpecAccessor.setName(specName, displayName);
+        return this;
+    }
+
+    @Override
+    public PropertySpecBuilder description(String description) {
+        this.propertySpecAccessor.setDescription(description);
         return this;
     }
 
@@ -113,7 +123,18 @@ public class PropertySpecBuilderImpl implements PropertySpecBuilder {
 
         @Override
         public void setName (String name) {
+            this.setName(name, name);
+        }
+
+        @Override
+        public void setName(String name, String displayName) {
             this.propertySpec.setName(name);
+            this.propertySpec.setDisplayName(displayName);
+        }
+
+        @Override
+        public void setDescription(String description) {
+            this.propertySpec.setDescription(description);
         }
 
         @Override
