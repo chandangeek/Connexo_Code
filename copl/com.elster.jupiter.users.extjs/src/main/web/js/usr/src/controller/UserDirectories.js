@@ -211,35 +211,44 @@ Ext.define('Usr.controller.UserDirectories', {
     addUserDirectory: function (button) {
         var me = this,
             addPage = me.getAddPage(),
+            form = addPage.down('#frm-add-user-directory'),
             userDirectoryRecord = addPage.userDirectoryRecord || Ext.create('Usr.model.MgmUserDirectory'),
             addUserDirectoryForm = addPage.down('#frm-add-user-directory'),
             formErrorsPanel = addUserDirectoryForm.down('#form-errors');
 
-        addUserDirectoryForm.updateRecord(userDirectoryRecord);
-        userDirectoryRecord.beginEdit();
-        userDirectoryRecord.set('securityProtocolInfo', {
-            name: addUserDirectoryForm.down('#cbo-security-protocol').getValue()
-        });
-        userDirectoryRecord.endEdit();
-
-        userDirectoryRecord.save({
-            success: function () {
-                me.getController('Uni.controller.history.Router').getRoute('administration/userdirectories').forward();
-
-                if (button.action === 'edit') {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('userDirectories.successMsg.saved', 'USR', 'User directory saved'));
-                } else {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('userDirectories.successMsg.added', 'USR', 'User directory added'));
-                }
-            },
-            failure: function (record, operation) {
-                var json = Ext.decode(operation.response.responseText, true);
-                if (json && json.errors) {
-                    addUserDirectoryForm.getForm().markInvalid(json.errors);
-                }
-                formErrorsPanel.show();
+        if (form.isValid()) {
+            if (!formErrorsPanel.isHidden()) {
+                formErrorsPanel.hide();
             }
-        })
+
+            addUserDirectoryForm.updateRecord(userDirectoryRecord);
+            userDirectoryRecord.beginEdit();
+            userDirectoryRecord.set('securityProtocolInfo', {
+                name: addUserDirectoryForm.down('#cbo-security-protocol').getValue()
+            });
+            userDirectoryRecord.endEdit();
+
+            userDirectoryRecord.save({
+                success: function () {
+                    me.getController('Uni.controller.history.Router').getRoute('administration/userdirectories').forward();
+
+                    if (button.action === 'edit') {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('userDirectories.successMsg.saved', 'USR', 'User directory saved'));
+                    } else {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('userDirectories.successMsg.added', 'USR', 'User directory added'));
+                    }
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText, true);
+                    if (json && json.errors) {
+                        addUserDirectoryForm.getForm().markInvalid(json.errors);
+                    }
+                    formErrorsPanel.show();
+                }
+            })
+        } else {
+            formErrorsPanel.show();
+        }
 
     },
 
@@ -504,7 +513,7 @@ Ext.define('Usr.controller.UserDirectories', {
         userDirectoryExtUsersStore.load({
             callback: function (records, operation, success) {
 
-                if (!success){
+                if (!success) {
                     return;
                 }
                 userDirectoryUsersStore.each(function (record) {
