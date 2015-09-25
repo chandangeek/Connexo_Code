@@ -120,13 +120,13 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         supportedMessages.add(PLCConfigurationDeviceMessage.SetMinBe);
 
         supportedMessages.add(PLCConfigurationDeviceMessage.SetAutomaticRouteManagement);
-        supportedMessages.add(PLCConfigurationDeviceMessage.EnableKeepAlive);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveScheduleInterval);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveBucketSize);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMinInactiveMeterTime);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxInactiveMeterTime);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveRetries);
-        supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveTimeout);
+        //supportedMessages.add(PLCConfigurationDeviceMessage.EnableKeepAlive);
+        //supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveScheduleInterval);
+        //supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveBucketSize);
+        //supportedMessages.add(PLCConfigurationDeviceMessage.SetMinInactiveMeterTime);
+        //supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxInactiveMeterTime);
+        //supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveRetries);
+        //supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveTimeout);
         supportedMessages.add(PLCConfigurationDeviceMessage.EnableG3PLCInterface);
     }
 
