@@ -101,7 +101,7 @@ public class UsagePointProcessor {
                 usagePoint.get().addDetail(usagePointDetail);
             }
         }
-        usagePoint.get().save();
+        usagePoint.get().update();
     }
 
     public Optional<UsagePoint> validateData(UsagePointFileInfo usagePointFileInfo, Logger logger, int lineNumber) {
