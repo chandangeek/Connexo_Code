@@ -21,18 +21,42 @@ import java.util.TimeZone;
 @ProviderType
 public interface PropertySpecService extends com.elster.jupiter.properties.PropertySpecService {
 
+    void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider);
+
+    /**
+     * Todo: remove as part of COPL-1151
+     * @deprecated Should be replaced by calls to {@link #basicPropertySpec(String, String, boolean, Class)}
+     */
+    @Deprecated
+    PropertySpec basicPropertySpec (String name, boolean required, Class<? extends ValueFactory> valueFactoryClass);
+
     /**
      * Creates a PropertySpec, creating the required ValueFactory by asking the injector (DataModel) to provide an instance,
      * thereby enabling Injection on the ValueFactories.
      *
      * @param name The name of the PropertySpec
+     * @param description The description of the PropertySpec
      * @param required A flag that indicates if the PropertySpec should be required or not
      * @param valueFactoryClass The class for which the DataModel (injector) will provide an instance
      * @return The PropertySpec
      */
-    public PropertySpec basicPropertySpec (String name, boolean required, Class<? extends ValueFactory> valueFactoryClass);
+    PropertySpec basicPropertySpec (String name, String description, boolean required, Class<? extends ValueFactory> valueFactoryClass);
 
-    public PropertySpec timeDurationPropertySpec(String name, boolean required, TimeDuration defaultValue);
+    /**
+     * Todo: remove as part of COPL-1151
+     * @deprecated Replace by calls to {@link #timeDurationPropertySpec(String, String, boolean, TimeDuration)}
+     */
+    @Deprecated
+    PropertySpec timeDurationPropertySpec(String name, boolean required, TimeDuration defaultValue);
+
+    PropertySpec timeDurationPropertySpec(String name, String descrption, boolean required, TimeDuration defaultValue);
+
+    /**
+     * Todo: remove as part of COPL-1151
+     * @deprecated Replace by calls to {@link #obisCodePropertySpecWithValues(String, String, boolean, ObisCode...)}
+     */
+    @Deprecated
+    PropertySpec obisCodePropertySpecWithValues(String name, boolean required, ObisCode... values);
 
     /**
      * Creates a {@link PropertySpec} for an {@link ObisCode} value which only allows the given values.
@@ -42,20 +66,35 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      * @param values The allowed values for the PropertySpec
      * @return The PropertySpec
      */
-    public PropertySpec obisCodePropertySpecWithValues(String name, boolean required, ObisCode... values);
+    PropertySpec obisCodePropertySpecWithValues(String name, String description, boolean required, ObisCode... values);
 
-    public PropertySpec obisCodePropertySpecWithValuesExhaustive(String name, boolean required, ObisCode... values);
+    /**
+     * Todo: remove as part of COPL-1151
+     * @deprecated Replace by calls to {@link #obisCodePropertySpecWithValuesExhaustive(String, String, boolean, ObisCode...)}
+     */
+    @Deprecated
+    PropertySpec obisCodePropertySpecWithValuesExhaustive(String name, boolean required, ObisCode... values);
+
+    PropertySpec obisCodePropertySpecWithValuesExhaustive(String name, String description, boolean required, ObisCode... values);
+
+    /**
+     * Todo: remove as part of COPL-1151
+     * @deprecated Replace by calls to {@link #referencePropertySpec(String, String, boolean, FactoryIds)}
+     */
+    @Deprecated
+    PropertySpec referencePropertySpec (String name, boolean required, FactoryIds factoryId);
 
     /**
      * Creates a {@link PropertySpec} that references objects provided by the
      * {@link com.elster.jupiter.properties.AbstractValueFactory} with the specified factoryId.
      *
      * @param name The PropertySpec name
+     * @param description The description of the PropertySpec
      * @param required A flag that indicates if the PropertySpec should be required or not
      * @param factoryId The id of the AbstractValueFactory
      * @return The PropertySpec
      */
-    public PropertySpec referencePropertySpec (String name, boolean required, FactoryIds factoryId);
+    public PropertySpec referencePropertySpec (String name, String description, boolean required, FactoryIds factoryId);
 
     /**
      * Creates a {@link PropertySpec} that references objects provided by the
@@ -69,9 +108,21 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      */
     public PropertySpec referencePropertySpec(String name, boolean required, FactoryIds factoryId, List<? extends Object> possibleValues);
 
-    public void addFactoryProvider(ReferencePropertySpecFinderProvider factoryProvider);
+    /**
+     * Todo: remove as part of COPL-1151
+     * @deprecated Replace by calls to {@link #booleanPropertySpec(String, String, boolean, Boolean)}
+     */
+    @Deprecated
+    PropertySpec booleanPropertySpec(String name, boolean required, Boolean defaultValue);
 
-    public PropertySpec booleanPropertySpec(String name, boolean required, Boolean defaultValue);
+    PropertySpec booleanPropertySpec(String name, String description, boolean required, Boolean defaultValue);
+
+    /**
+     * Todo: remove as part of COPL-1151
+     * @deprecated Replace by calls to {@link #timeZonePropertySpec(String, String, boolean, TimeZone)}
+     */
+    @Deprecated
+    PropertySpec timeZonePropertySpec(String name, boolean required, TimeZone defaultValue);
 
     /**
      * Creates a PropertySPec that references a TimeZone object.
@@ -85,11 +136,12 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      *     </ul>
      *
      * @param name The PropertySpec name
+     * @param description The description for the PropertySpec
      * @param required A flag that indicates if the PropertySpec should be required or not
      * @param defaultValue The default value
      * @return the newly created propertyspec
      */
-    public PropertySpec timeZonePropertySpec(String name, boolean required, TimeZone defaultValue);
+    PropertySpec timeZonePropertySpec(String name, String description, boolean required, TimeZone defaultValue);
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
@@ -100,8 +152,8 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      * @param valueFactoryClass Injector will create a instance of this ValueFactory-class
      * @return The PropertySpecBuilder
      */
-    public PropertySpecBuilder newPropertySpecBuilder(Class<? extends ValueFactory> valueFactoryClass);
+    PropertySpecBuilder newPropertySpecBuilder(Class<? extends ValueFactory> valueFactoryClass);
 
-    public ValueFactory getValueFactory(Class<? extends ValueFactory> valueFactoryClassName);
+    ValueFactory getValueFactory(Class<? extends ValueFactory> valueFactoryClassName);
 
 }

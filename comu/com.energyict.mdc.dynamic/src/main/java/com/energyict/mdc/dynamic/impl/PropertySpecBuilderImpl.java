@@ -57,7 +57,18 @@ public class PropertySpecBuilderImpl implements PropertySpecBuilder {
 
     @Override
     public PropertySpecBuilder name(String specName) {
-        this.propertySpecAccessor.setName(specName);
+        return this.name(specName, specName);
+    }
+
+    @Override
+    public PropertySpecBuilder name(String specName, String displayName) {
+        this.propertySpecAccessor.setName(specName, displayName);
+        return this;
+    }
+
+    @Override
+    public PropertySpecBuilder description(String description) {
+        this.propertySpecAccessor.setDescription(description);
         return this;
     }
 
@@ -112,7 +123,18 @@ public class PropertySpecBuilderImpl implements PropertySpecBuilder {
 
         @Override
         public void setName (String name) {
+            this.setName(name, name);
+        }
+
+        @Override
+        public void setName(String name, String displayName) {
             this.propertySpec.setName(name);
+            this.propertySpec.setDisplayName(displayName);
+        }
+
+        @Override
+        public void setDescription(String description) {
+            this.propertySpec.setDescription(description);
         }
 
         @Override
