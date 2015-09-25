@@ -18,7 +18,7 @@ public class FtpDestinationInfoFactory extends AbstractFtpDestinationInfoFactory
 
     @Override
     public void create(ExportTask task, DestinationInfo info) {
-        task.addFtpDestination(info.server, info.user, info.password, info.fileLocation, info.fileName, info.fileExtension);
+        task.addFtpDestination(info.server, info.port, info.user, info.password, info.fileLocation, info.fileName, info.fileExtension);
     }
 
     @Override

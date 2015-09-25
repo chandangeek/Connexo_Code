@@ -78,6 +78,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         ftpDestinationInfo.server = "ftpserver";
         ftpDestinationInfo.password = "ftppassword";
         ftpDestinationInfo.user = "ftpuser";
+        ftpDestinationInfo.port = 21;
         info.destinations.add(ftpDestinationInfo);
 
         DestinationInfo ftpsDestinationInfo = new DestinationInfo();
@@ -88,6 +89,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         ftpsDestinationInfo.server = "ftpsserver";
         ftpsDestinationInfo.password = "ftpspassword";
         ftpsDestinationInfo.user = "ftpsuser";
+        ftpsDestinationInfo.port = 20;
         info.destinations.add(ftpsDestinationInfo);
 
         Entity<DataExportTaskInfo> json = Entity.json(info);
@@ -98,8 +100,8 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
 
         verify(exportTask).addFileDestination("", "file", "txt");
         verify(exportTask).addEmailDestination("user1@elster.com,user2@elster.com", "daily report", "attachment", "csv");
-        verify(exportTask).addFtpDestination("ftpserver", "ftpuser", "ftppassword", "", "ftpfile", "ftptxt");
-        verify(exportTask).addFtpsDestination("ftpsserver", "ftpsuser", "ftpspassword", "", "ftpsfile", "ftpstxt");
+        verify(exportTask).addFtpDestination("ftpserver", 21, "ftpuser", "ftppassword", "", "ftpfile", "ftptxt");
+        verify(exportTask).addFtpsDestination("ftpsserver", 20, "ftpsuser", "ftpspassword", "", "ftpsfile", "ftpstxt");
     }
 
     @Test
