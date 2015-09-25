@@ -893,6 +893,7 @@ public class DeviceImpl implements Device, CanLock {
                 .setSerialNumber(getSerialNumber())
                 .create();
         meter.getLifecycleDates().setReceivedDate(this.clock.instant());
+        meter.update();
         return meter;
     }
 
@@ -2246,7 +2247,7 @@ public class DeviceImpl implements Device, CanLock {
 
         @Override
         public void save() {
-            this.koreDevice.save();
+            this.koreDevice.update();
         }
     }
     private class NoCimLifecycleDates implements CIMLifecycleDates {
