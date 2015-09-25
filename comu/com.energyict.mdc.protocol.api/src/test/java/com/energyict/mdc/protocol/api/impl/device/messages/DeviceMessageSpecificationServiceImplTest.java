@@ -65,11 +65,11 @@ public class DeviceMessageSpecificationServiceImplTest {
     @Mock
     private DataVaultService dataVaultService;
     @Mock
-    private TimeService timeService;
-    @Mock
     private OrmService ormService;
     @Mock
     private DataModel dataModel;
+    @Mock
+    private TimeService timeService;
 
     @Before
     public void setUp() throws Exception {
@@ -212,7 +212,7 @@ public class DeviceMessageSpecificationServiceImplTest {
     }
 
     private DeviceMessageSpecificationService newServiceWithRealPropertSpecService () {
-        PropertySpecServiceImpl propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(), dataVaultService, ormService, timeService);
+        PropertySpecServiceImpl propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(), dataVaultService, this.timeService, ormService);
         propertySpecService.addFactoryProvider(new FinderProvider());
         return new DeviceMessageSpecificationServiceImpl(propertySpecService, nlsService);
     }
