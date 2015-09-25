@@ -66,34 +66,36 @@ public class IssueActionServiceImpl implements IssueActionService {
 
     @Override
     public IssueActionType createActionType(String factoryId, String className, IssueType issueType, CreationRuleActionPhase phase) {
-        IssueActionTypeImpl type = findOrCreateActionType(factoryId, className, issueType, null);
-        type.init(factoryId, className, issueType, phase);
-        type.save();
-        return type;
+        Optional<IssueActionType> type = findActionType(factoryId, className, issueType, null);
+        if (type.isPresent()) {
+            return type.get();
+        }
+        IssueActionTypeImpl newActionType = dataModel.getInstance(IssueActionTypeImpl.class);
+        newActionType.init(factoryId, className, issueType, phase).save();
+        return newActionType;
     }
 
     @Override
     public IssueActionType createActionType(String factoryId, String className, IssueReason issueReason, CreationRuleActionPhase phase) {
-        IssueActionTypeImpl type = findOrCreateActionType(factoryId, className, issueReason.getIssueType(), issueReason);
-        type.init(factoryId, className, issueReason, phase);
-        type.save();
-        return type;
+        Optional<IssueActionType> type = findActionType(factoryId, className, issueReason.getIssueType(), issueReason);
+        if (type.isPresent()) {
+            return type.get();
+        }
+        IssueActionTypeImpl newActionType = dataModel.getInstance(IssueActionTypeImpl.class);
+        newActionType.init(factoryId, className, issueReason, phase).save();
+        return newActionType;
     }
 
-    private IssueActionTypeImpl findOrCreateActionType(String factoryId, String className, IssueType issueType, IssueReason issueReason) {
+    private Optional<IssueActionType> findActionType(String factoryId, String className, IssueType issueType, IssueReason issueReason) {
         List<IssueActionType> actionTypes = query(IssueActionType.class).select(
-                    (where("factoryId").isEqualTo(factoryId))
-                .and(where("className").isEqualTo(className))
-                .and(issueType != null ? where("issueType").isEqualTo(issueType) : where("issueType").isNull())
-                .and(issueReason != null ? where("issueReason").isEqualTo(issueReason) : where("issueReason").isNull()));
-        IssueActionTypeImpl actionType = null;
-        if (actionTypes.size() > 0) {
+                (where("factoryId").isEqualTo(factoryId))
+                        .and(where("className").isEqualTo(className))
+                        .and(issueType != null ? where("issueType").isEqualTo(issueType) : where("issueType").isNull())
+                        .and(issueReason != null ? where("issueReason").isEqualTo(issueReason) : where("issueReason").isNull()));
+        if (!actionTypes.isEmpty()) {
             LOG.info("You are trying to create action type which is already presented in system");
-            actionType = (IssueActionTypeImpl) actionTypes.get(0);
-        } else {
-            actionType = dataModel.getInstance(IssueActionTypeImpl.class);
         }
-        return actionType;
+        return actionTypes.stream().findFirst();
     }
 
     @Override
@@ -131,7 +133,7 @@ public class IssueActionServiceImpl implements IssueActionService {
         return queryService.wrap(dataModel.query(clazz)).get(key);
     }
 
-    private  <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers) {
+    private <T extends Entity> Query<T> query(Class<T> clazz, Class<?>... eagers) {
         QueryExecutor<T> queryExecutor = dataModel.query(clazz, eagers);
         Query<T> query = queryService.wrap(queryExecutor);
         query.setEager();

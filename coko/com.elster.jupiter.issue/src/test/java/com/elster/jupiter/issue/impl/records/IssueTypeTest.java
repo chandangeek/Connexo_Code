@@ -3,17 +3,15 @@ package com.elster.jupiter.issue.impl.records;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.impl.records.IssueTypeImpl;
 import com.elster.jupiter.issue.impl.service.BaseTest;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.NotUniqueKeyException;
 import com.elster.jupiter.transaction.TransactionContext;
-
-import java.util.Optional;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -71,7 +69,7 @@ public class IssueTypeTest extends BaseTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     public void checkKeyValidation(){
-        getDataModel().getInstance(IssueTypeImpl.class).init(null, MESSAGE_SEED_DEFAULT_TRANSLATION).save();
+        getDataModel().getInstance(IssueTypeImpl.class).init(null, MESSAGE_SEED_DEFAULT_TRANSLATION).update();
     }
 
     @Test
@@ -82,13 +80,13 @@ public class IssueTypeTest extends BaseTest {
         for (int i=0; i < 90; i++){
             key.append("q");
         }
-        getDataModel().getInstance(IssueTypeImpl.class).init(key.toString(), MESSAGE_SEED_DEFAULT_TRANSLATION).save();
+        getDataModel().getInstance(IssueTypeImpl.class).init(key.toString(), MESSAGE_SEED_DEFAULT_TRANSLATION).update();
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "translationKey", strict = false)
     public void checkTranslationValidation(){
-        getDataModel().getInstance(IssueTypeImpl.class).init("type.validation", null).save();
+        getDataModel().getInstance(IssueTypeImpl.class).init("type.validation", null).update();
     }
 }

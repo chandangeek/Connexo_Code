@@ -14,8 +14,9 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.text.MessageFormat;
+import java.util.Objects;
 
-public class IssueReasonImpl extends EntityImpl implements IssueReason{
+public final class IssueReasonImpl extends EntityImpl implements IssueReason{
     public static final String ISSUE_REASON_DESCRIPTION_TRANSLATION_SUFFIX = "Description";
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
@@ -78,5 +79,24 @@ public class IssueReasonImpl extends EntityImpl implements IssueReason{
     @Override
     public IssueType getIssueType() {
         return issueType.get();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        IssueReasonImpl that = (IssueReasonImpl) o;
+
+        return this.key.equals(that.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key);
     }
 }

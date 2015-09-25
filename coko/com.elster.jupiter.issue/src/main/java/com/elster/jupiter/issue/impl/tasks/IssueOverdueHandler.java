@@ -58,7 +58,7 @@ public class IssueOverdueHandler implements TaskExecutor{
     private void markOverdue(OpenIssue issue){
         if (issue != null) {
             issue.setOverdue(true);
-            issue.save();
+            issue.update();
         }
     }
 

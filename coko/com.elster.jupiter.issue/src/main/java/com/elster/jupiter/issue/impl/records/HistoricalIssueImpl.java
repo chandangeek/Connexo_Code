@@ -8,7 +8,7 @@ import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
 
-public class HistoricalIssueImpl extends IssueImpl implements HistoricalIssue{
+public final class HistoricalIssueImpl extends IssueImpl implements HistoricalIssue {
 
     @Inject
     public HistoricalIssueImpl(DataModel dataModel, IssueService issueService) {

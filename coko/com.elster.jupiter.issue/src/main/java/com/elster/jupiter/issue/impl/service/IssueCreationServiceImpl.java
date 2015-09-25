@@ -1,16 +1,29 @@
 package com.elster.jupiter.issue.impl.service;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.issue.impl.module.DroolsValidationException;
+import com.elster.jupiter.issue.impl.records.CreationRuleBuilderImpl;
+import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
+import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
+import com.elster.jupiter.issue.impl.tasks.IssueActionExecutor;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
+import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
+import com.elster.jupiter.issue.share.entity.Entity;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
 import org.drools.core.common.ProjectClassLoader;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.io.KieResources;
@@ -23,28 +36,14 @@ import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
 import org.kie.internal.utils.CompositeClassLoader;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.issue.impl.module.DroolsValidationException;
-import com.elster.jupiter.issue.impl.records.CreationRuleBuilderImpl;
-import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
-import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
-import com.elster.jupiter.issue.impl.tasks.IssueActionExecutor;
-import com.elster.jupiter.issue.share.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.IssueEvent;
-import com.elster.jupiter.issue.share.entity.CreationRule;
-import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
-import com.elster.jupiter.issue.share.entity.Entity;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Condition;
+import javax.inject.Inject;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.logging.Logger;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @SuppressWarnings("deprecation")
 public class IssueCreationServiceImpl implements IssueCreationService {
@@ -164,20 +163,28 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         }
         findCreationRuleById(ruleId).ifPresent(firedRule -> {
             CreationRuleTemplate template = firedRule.getTemplate();
-            Issue baseIssue = dataModel.getInstance(OpenIssueImpl.class);
-            baseIssue.setReason(firedRule.getReason());
-            baseIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).orElse(null));
-            baseIssue.setDueDate(Instant.ofEpochMilli(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
-            baseIssue.setOverdue(false);
-            baseIssue.setRule(firedRule);
-            baseIssue.setDevice(event.getEndDevice());
-            Optional<? extends Issue> newIssue = template.createIssue(baseIssue, event);
-            if (newIssue.isPresent()) {
-                newIssue.get().addComment(firedRule.getComment(), userService.findUser("batch executor").orElse(null));
-                newIssue.get().autoAssign();
-                executeCreationActions(newIssue.get());
+            Optional<? extends OpenIssue> existingIssue = event.findExistingIssue();
+            if (existingIssue.isPresent()) {
+                template.updateIssue(existingIssue.get(), event);
+            } else {
+                createNewIssue(firedRule, event, template);
             }
         });
+    }
+
+    private void createNewIssue(CreationRule firedRule, IssueEvent event, CreationRuleTemplate template) {
+        OpenIssueImpl baseIssue = dataModel.getInstance(OpenIssueImpl.class);
+        baseIssue.setReason(firedRule.getReason());
+        baseIssue.setStatus(issueService.findStatus(IssueStatus.OPEN).orElse(null));
+        baseIssue.setDueDate(Instant.ofEpochMilli(firedRule.getDueInType().dueValueFor(firedRule.getDueInValue())));
+        baseIssue.setOverdue(false);
+        baseIssue.setRule(firedRule);
+        baseIssue.setDevice(event.getEndDevice());
+        baseIssue.save();
+        baseIssue.addComment(firedRule.getComment(), userService.findUser("batch executor").orElse(null));
+        OpenIssue newIssue = template.createIssue(baseIssue, event);
+        newIssue.autoAssign();
+        executeCreationActions(newIssue);
     }
 
     private boolean restrictIssueCreation(IssueEvent event){
