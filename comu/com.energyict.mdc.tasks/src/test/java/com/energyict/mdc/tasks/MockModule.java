@@ -24,7 +24,7 @@ public class MockModule extends AbstractModule {
     protected void configure() {
         bind(BundleContext.class).toInstance(bundleContext);
         bind(EventAdmin.class).toInstance(eventAdmin);
-        bind(TimeService.class).toInstance(timeService);
+        bind(TimeService.class).toInstance(this.timeService);
     }
 
 }
