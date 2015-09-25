@@ -94,7 +94,7 @@ public class FtpDestinationImplTest {
     @Test
     public void testSend() {
         FtpDestinationImpl ftpDestination = new FtpDestinationImpl(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService);
-        ftpDestination.init(exportTask, "server", "user", "password", RELATIVE_DIR, "DDD<identifier>", "txt");
+        ftpDestination.init(exportTask, "server", 21, "user", "password", RELATIVE_DIR, "DDD<identifier>", "txt");
 
         ftpDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory);
 

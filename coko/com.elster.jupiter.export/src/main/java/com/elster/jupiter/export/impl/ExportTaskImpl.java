@@ -455,16 +455,16 @@ class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public FtpDestination addFtpDestination(String server, String user, String password, String fileLocation, String fileName, String fileExtension) {
-        FtpDestinationImpl ftpDestination = FtpDestinationImpl.from(this, dataModel, server, user, password, fileLocation, fileName, fileExtension);
+    public FtpDestination addFtpDestination(String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension) {
+        FtpDestinationImpl ftpDestination = FtpDestinationImpl.from(this, dataModel, server, port, user, password, fileLocation, fileName, fileExtension);
         destinations.add(ftpDestination);
         save();
         return ftpDestination;
     }
 
     @Override
-    public FtpsDestination addFtpsDestination(String server, String user, String password, String fileLocation, String fileName, String fileExtension) {
-        FtpsDestinationImpl ftpsDestination = FtpsDestinationImpl.from(this, dataModel, server, user, password, fileLocation, fileName, fileExtension);
+    public FtpsDestination addFtpsDestination(String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension) {
+        FtpsDestinationImpl ftpsDestination = FtpsDestinationImpl.from(this, dataModel, server, port, user, password, fileLocation, fileName, fileExtension);
         destinations.add(ftpsDestination);
         save();
         return ftpsDestination;

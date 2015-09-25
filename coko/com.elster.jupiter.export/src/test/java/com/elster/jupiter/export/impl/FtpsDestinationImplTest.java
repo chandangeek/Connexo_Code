@@ -76,7 +76,7 @@ public class FtpsDestinationImplTest {
 
         ftpFileSystem = Jimfs.newFileSystem(Configuration.unix());
 
-        when(ftpClientService.getFtpsFactory("server", 21, "user", "password")).thenReturn(new FtpSessionFactory() {
+        when(ftpClientService.getFtpsFactory("server", 20, "user", "password")).thenReturn(new FtpSessionFactory() {
             @Override
             public void runInSession(IOConsumer ftpSessionBehavior) throws IOException {
                 ftpSessionBehavior.accept(ftpFileSystem);
@@ -94,7 +94,7 @@ public class FtpsDestinationImplTest {
     @Test
     public void testSend() {
         FtpsDestinationImpl ftpsDestination = new FtpsDestinationImpl(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService);
-        ftpsDestination.init(exportTask, "server", "user", "password", RELATIVE_DIR, "DDD<identifier>", "txt");
+        ftpsDestination.init(exportTask, "server", 20, "user", "password", RELATIVE_DIR, "DDD<identifier>", "txt");
 
         ftpsDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory);
 

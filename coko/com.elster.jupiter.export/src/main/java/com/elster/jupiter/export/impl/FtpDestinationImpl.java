@@ -19,8 +19,8 @@ class FtpDestinationImpl extends AbstractFtpDataExportDestination implements Ftp
         super(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService);
     }
 
-    static FtpDestinationImpl from(IExportTask task, DataModel dataModel, String server, String user, String password, String fileLocation, String fileName, String fileExtension) {
-        return (FtpDestinationImpl) dataModel.getInstance(FtpDestinationImpl.class).init(task, server, user, password, fileLocation, fileName, fileExtension);
+    static FtpDestinationImpl from(IExportTask task, DataModel dataModel, String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension) {
+        return (FtpDestinationImpl) dataModel.getInstance(FtpDestinationImpl.class).init(task, server, port, user, password, fileLocation, fileName, fileExtension);
     }
 
     @Override

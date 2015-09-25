@@ -82,9 +82,10 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
 
     abstract FtpSessionFactory getFtpSessionFactory();
 
-    AbstractFtpDataExportDestination init(IExportTask task, String server, String user, String password, String fileLocation, String fileName, String fileExtension) {
+    AbstractFtpDataExportDestination init(IExportTask task, String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension) {
         initTask(task);
         setServer(server);
+        setPort(port);
         setUser(user);
         setPassword(password);
         setFileName(fileName);

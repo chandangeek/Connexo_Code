@@ -247,6 +247,8 @@ public class ExportTaskImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             exportTask.addFileDestination("tmp", "file", "csv");
             exportTask.addEmailDestination("info@elster.com", "test report", "file", "csv");
+            exportTask.addFtpDestination("ftpServer", 30, "ftpUser", "ftpPassword", "ftpLocation", "ftpFile", "txt");
+            exportTask.addFtpsDestination("ftpsServer", 55, "ftpsUser", "ftpsPassword", "ftpsLocation", "ftpsFile", "csv");
 
             context.commit();
         }
@@ -257,7 +259,7 @@ public class ExportTaskImplIT {
 
         ExportTask taskFromDB = found.get();
 
-        assertThat(taskFromDB.getDestinations()).hasSize(2);
+        assertThat(taskFromDB.getDestinations()).hasSize(4);
 
         assertThat(taskFromDB.getDestinations().get(0)).isInstanceOf(FileDestination.class);
         FileDestination fileDestination = (FileDestination) taskFromDB.getDestinations().get(0);
@@ -271,6 +273,26 @@ public class ExportTaskImplIT {
         assertThat(emailDestination.getFileName()).isEqualTo("file");
         assertThat(emailDestination.getFileExtension()).isEqualTo("csv");
         assertThat(emailDestination.getSubject()).isEqualTo("test report");
+
+        assertThat(taskFromDB.getDestinations().get(2)).isInstanceOf(FtpDestination.class);
+        FtpDestination ftpDestination = (FtpDestination) taskFromDB.getDestinations().get(2);
+        assertThat(ftpDestination.getServer()).isEqualTo("ftpServer");
+        assertThat(ftpDestination.getPort()).isEqualTo(30);
+        assertThat(ftpDestination.getUser()).isEqualTo("ftpUser");
+        assertThat(ftpDestination.getPassword()).isEqualTo("ftpPassword");
+        assertThat(ftpDestination.getFileLocation()).isEqualTo("ftpLocation");
+        assertThat(ftpDestination.getFileName()).isEqualTo("ftpFile");
+        assertThat(ftpDestination.getFileExtension()).isEqualTo("txt");
+
+        assertThat(taskFromDB.getDestinations().get(3)).isInstanceOf(FtpsDestination.class);
+        FtpsDestination ftpsDestination = (FtpsDestination) taskFromDB.getDestinations().get(3);
+        assertThat(ftpsDestination.getServer()).isEqualTo("ftpsServer");
+        assertThat(ftpsDestination.getPort()).isEqualTo(55);
+        assertThat(ftpsDestination.getUser()).isEqualTo("ftpsUser");
+        assertThat(ftpsDestination.getPassword()).isEqualTo("ftpsPassword");
+        assertThat(ftpsDestination.getFileLocation()).isEqualTo("ftpsLocation");
+        assertThat(ftpsDestination.getFileName()).isEqualTo("ftpsFile");
+        assertThat(ftpsDestination.getFileExtension()).isEqualTo("csv");
 
     }
 
@@ -311,7 +333,7 @@ public class ExportTaskImplIT {
         ExportTask exportTask = createAndSaveTask();
 
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask.addFtpDestination("elster.com", "user", "password", "testreport", "file", "csv");
+            exportTask.addFtpDestination("elster.com", 21, "user", "password", "testreport", "file", "csv");
 
             context.commit();
         }
@@ -333,6 +355,7 @@ public class ExportTaskImplIT {
         assertThat(ftpDestination.getFileLocation()).isEqualTo("testreport");
         assertThat(ftpDestination.getFileName()).isEqualTo("file");
         assertThat(ftpDestination.getFileExtension()).isEqualTo("csv");
+        assertThat(ftpDestination.getPort()).isEqualTo(21);
     }
 
     @Test
@@ -340,7 +363,7 @@ public class ExportTaskImplIT {
         ExportTask exportTask = createAndSaveTask();
 
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask.addFtpsDestination("elster.com", "user", "password", "testreport", "file", "csv");
+            exportTask.addFtpsDestination("elster.com", 20, "user", "password", "testreport", "file", "csv");
 
             context.commit();
         }
@@ -362,6 +385,7 @@ public class ExportTaskImplIT {
         assertThat(ftpsDestination.getFileLocation()).isEqualTo("testreport");
         assertThat(ftpsDestination.getFileName()).isEqualTo("file");
         assertThat(ftpsDestination.getFileExtension()).isEqualTo("csv");
+        assertThat(ftpsDestination.getPort()).isEqualTo(20);
     }
 
     @Test
