@@ -42,70 +42,54 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
     public void testCanCreateIssue() {
         CreationRule rule = getCreationRule("testCanCreateIssue", ModuleConstants.REASON_CONNECTION_FAILED);
         Meter meter = createMeter("1", "mrid");
-        Issue baseIssue = getBaseIssue(rule, meter);
+        OpenIssue baseIssue = createBaseIssue(rule, meter);
 
         BasicDataCollectionRuleTemplate template = getInjector().getInstance(BasicDataCollectionRuleTemplate.class);
         UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(1L);
 
-        assertThat(template.createIssue(baseIssue, event).isPresent()).isTrue();
+        OpenIssueDataCollection issue = template.createIssue(baseIssue, event);
+        assertThat(issue.getId()).isEqualTo(baseIssue.getId());
+        assertThat(issue.getDeviceMRID()).isEqualTo("1");
     }
 
     @Test
     @Transactional
     public void testCanCreateIssueOnAnotherDevice() {
         CreationRule rule = getCreationRule("testCanCreateIssueOnAnotherDevice", ModuleConstants.REASON_CONNECTION_FAILED);
-        Meter meter = createMeter("1", "mrid");
-        Issue baseIssue = getBaseIssue(rule, meter);
-        baseIssue.save();
+        Meter meter = createMeter("1", "mrid1");
+        OpenIssue baseIssue = createBaseIssue(rule, meter);
         OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
-        idcIssue.setIssue((OpenIssue) baseIssue);
+        idcIssue.setIssue(baseIssue);
         idcIssue.setDeviceMRID("001234");
         idcIssue.save();
 
         meter = createMeter("2", "mrid2");
-        baseIssue = getBaseIssue(rule, meter);
+        baseIssue = createBaseIssue(rule, meter);
 
         BasicDataCollectionRuleTemplate template = getInjector().getInstance(BasicDataCollectionRuleTemplate.class);
         UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(2L);
 
-        assertThat(template.createIssue(baseIssue, event).isPresent()).isTrue();
+        OpenIssueDataCollection issue = template.createIssue(baseIssue, event);
+        assertThat(issue.getId()).isEqualTo(baseIssue.getId());
+        assertThat(issue.getDeviceMRID()).isEqualTo("2");
     }
 
     @Test
     @Transactional
-    public void testCanNotCreateIssue() {
-        CreationRule rule = getCreationRule("testCanNotCreateIssue", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
+    public void testInProgressToOpenTransition() {
+        CreationRule rule = getCreationRule("testInProgressToOpenTransition", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
         Meter meter = createMeter("1", "mrid");
-        Issue baseIssue = getBaseIssue(rule, meter);
-        baseIssue.save();
-
+        OpenIssue baseIssue = createBaseIssue(rule, meter);
         OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
-        idcIssue.setIssue((OpenIssue) baseIssue);
-        idcIssue.setDeviceMRID("1");
-        idcIssue.save();
-        baseIssue = getBaseIssue(rule, meter);
-        BasicDataCollectionRuleTemplate template = getInjector().getInstance(BasicDataCollectionRuleTemplate.class);
-        UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(1L);
-        assertThat(template.createIssue(baseIssue, event).isPresent()).isFalse();
-    }
-
-    @Test
-    @Transactional
-    public void testInProgressToOpenTransfer() {
-        CreationRule rule = getCreationRule("testInProgressToOpenTransfer", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
-        Meter meter = createMeter("1", "mrid");
-        Issue baseIssue = getBaseIssue(rule, meter);
-        baseIssue.save();
-
-        OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
-        idcIssue.setIssue((OpenIssue) baseIssue);
+        idcIssue.setIssue(baseIssue);
         idcIssue.setDeviceMRID("1");
         idcIssue.setStatus(getIssueService().findStatus(IssueStatus.IN_PROGRESS).get());
         idcIssue.save();
-        baseIssue = getBaseIssue(rule, meter);
+
         BasicDataCollectionRuleTemplate template = getInjector().getInstance(BasicDataCollectionRuleTemplate.class);
         UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(1L);
-        assertThat(template.createIssue(baseIssue, event).isPresent()).isFalse();
+        template.updateIssue(idcIssue, event);
+
         Optional<OpenIssueDataCollection> openIssue = getIssueDataCollectionService().findOpenIssue(idcIssue.getId());
         assertThat(openIssue.isPresent()).isTrue();
         assertThat(openIssue.get().getStatus().getKey()).isEqualTo(IssueStatus.OPEN);
@@ -117,8 +101,7 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         // Create base issue
         CreationRule rule = getCreationRule("testResolveIssue", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
         Meter meter = createMeter("1", "mrid");
-        Issue baseIssue = getBaseIssue(rule, meter);
-        baseIssue.save();
+        Issue baseIssue = createBaseIssue(rule, meter);
         // Create data-collection issue
         OpenIssueDataCollectionImpl idcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
         idcIssue.setIssue((OpenIssue) baseIssue);
@@ -142,11 +125,11 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         Meter meter = createMeter("1", "mrid");
         BasicDataCollectionRuleTemplate template = getInjector().getInstance(BasicDataCollectionRuleTemplate.class);
         UnknownSlaveDeviceEvent event = getUnknownDeviceEvent(1L);
-        Optional<? extends Issue> issue = template.createIssue(getBaseIssue(rule, meter), event);
-        Optional<? extends Issue> baseIssue = getIssueService().findIssue(issue.get().getId());
+        OpenIssue issue = template.createIssue(createBaseIssue(rule, meter), event);
+        Optional<? extends Issue> baseIssue = getIssueService().findIssue(issue.getId());
         assertThat(baseIssue.get() instanceof  OpenIssueImpl).isTrue();
         ((OpenIssue)baseIssue.get()).close(getIssueService().findStatus(IssueStatus.WONT_FIX).get());
-        baseIssue = getIssueService().findIssue(issue.get().getId());
+        baseIssue = getIssueService().findIssue(issue.getId());
         assertThat(baseIssue.get() instanceof HistoricalIssueImpl).isTrue();
         assertThat(baseIssue.get().getStatus().getKey()).isEqualTo(IssueStatus.WONT_FIX);
     }
@@ -156,13 +139,14 @@ public class BasicDataCollectionRuleTemplateTest extends BaseTest {
         return amrSystem.newMeter(amrId).setMRID(mrid).create();
     }
 
-    private Issue getBaseIssue(CreationRule rule, Meter meter) {
+    private OpenIssue createBaseIssue(CreationRule rule, Meter meter) {
         DataModel isuDataModel = getIssueDataModel();
-        Issue baseIssue = isuDataModel.getInstance(OpenIssueImpl.class);
+        OpenIssueImpl baseIssue = isuDataModel.getInstance(OpenIssueImpl.class);
         baseIssue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).get());
         baseIssue.setReason(rule.getReason());
         baseIssue.setDevice(meter);
         baseIssue.setRule(rule);
+        baseIssue.save();
         return baseIssue;
     }
 

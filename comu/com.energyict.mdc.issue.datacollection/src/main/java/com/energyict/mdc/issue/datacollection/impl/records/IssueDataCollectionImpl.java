@@ -1,6 +1,12 @@
 package com.energyict.mdc.issue.datacollection.impl.records;
 
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
@@ -14,11 +20,12 @@ import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.elster.jupiter.util.Checks.is;
 
-public class IssueDataCollectionImpl extends EntityImpl implements IssueDataCollection {
+public class IssueDataCollectionImpl implements IssueDataCollection {
 
     private Reference<Issue> baseIssue = ValueReference.absent();
     private Reference<ComTaskExecution> comTask = ValueReference.absent();
@@ -26,9 +33,26 @@ public class IssueDataCollectionImpl extends EntityImpl implements IssueDataColl
     private Reference<ComSession> comSession = ValueReference.absent();
     private String deviceMRID;
 
+    private long id;//do we need this id ? we have a reference to base issue instead...
+    // Audit fields
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
+    private String userName;
+
+    private final DataModel dataModel;
+
     @Inject
     public IssueDataCollectionImpl(DataModel dataModel) {
-        super(dataModel);
+        this.dataModel = dataModel;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     protected Issue getBaseIssue() {
@@ -175,12 +199,63 @@ public class IssueDataCollectionImpl extends EntityImpl implements IssueDataColl
         this.comSession.set(comSession);
     }
 
-    @Override
     public void save() {
         if (getBaseIssue() != null) {
-            getBaseIssue().save();
             this.setId(getBaseIssue().getId());
         }
-        super.save();
+        Save.CREATE.save(dataModel, this);
+    }
+
+    @Override
+    public void update() {
+        getBaseIssue().update();
+        Save.UPDATE.save(dataModel, this);
+    }
+
+    public void delete(){
+        dataModel.remove(this);
+    }
+
+    @Override
+    public Instant getCreateTime() {
+        return createTime;
+    }
+
+    @Override
+    public Instant getModTime() {
+        return modTime;
+    }
+
+    @Override
+    public long getVersion() {
+        return version;
+    }
+
+    @Override
+    public String getUserName() {
+        return userName;
+    }
+
+    protected DataModel getDataModel() {
+        return dataModel;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || !(o instanceof IssueDataCollectionImpl)) {
+            return false;
+        }
+
+        IssueDataCollectionImpl that = (IssueDataCollectionImpl) o;
+
+        return this.id == that.id;
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(id);
     }
 }

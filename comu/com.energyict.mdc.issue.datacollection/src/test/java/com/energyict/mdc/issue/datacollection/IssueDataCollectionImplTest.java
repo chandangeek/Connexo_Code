@@ -6,7 +6,6 @@ import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
 import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
@@ -35,7 +34,7 @@ public class IssueDataCollectionImplTest extends BaseTest {
     public void testIDCSuccessfullCreation() {
         try (TransactionContext context = getContext()) {
             CreationRule rule = getCreationRule("testIDCSuccessfullCreation", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
-            Issue baseIssue = getBaseIssue(rule);
+            Issue baseIssue = createBaseIssue(rule);
             OpenIssueDataCollectionImpl dcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
             dcIssue.setIssue((OpenIssue) baseIssue);
             dcIssue.save();
@@ -47,7 +46,7 @@ public class IssueDataCollectionImplTest extends BaseTest {
         OpenIssueDataCollectionImpl dcIssue = null;
         try (TransactionContext context = getContext()) {
             CreationRule rule = getCreationRule("testIDCCloseOperation", ModuleConstants.REASON_UNKNOWN_INBOUND_DEVICE);
-            Issue baseIssue = getBaseIssue(rule);
+            Issue baseIssue = createBaseIssue(rule);
             dcIssue = getDataModel().getInstance(OpenIssueDataCollectionImpl.class);
             dcIssue.setIssue((OpenIssue) baseIssue);
             dcIssue.setDeviceMRID("001234");
@@ -70,9 +69,8 @@ public class IssueDataCollectionImplTest extends BaseTest {
         }
     }
 
-    protected Issue getBaseIssue(CreationRule rule) {
-        DataModel isuDataModel = getIssueDataModel();
-        Issue baseIssue = isuDataModel.getInstance(OpenIssueImpl.class);
+    protected Issue createBaseIssue(CreationRule rule) {
+        OpenIssueImpl baseIssue = getIssueDataModel().getInstance(OpenIssueImpl.class);
         baseIssue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).get());
         baseIssue.setReason(rule.getReason());
         baseIssue.setRule(rule);

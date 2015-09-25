@@ -38,7 +38,7 @@ public class RetryCommunicationTaskAction extends AbstractIssueAction {
         DefaultActionResult result = new DefaultActionResult();
         if (isApplicable(issue)){
             issue.setStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
-            issue.save();
+            issue.update();
             ComTaskExecution comTaskExecution = ((IssueDataCollection) issue).getCommunicationTask().get();
             comTaskExecution.scheduleNow();
             result.success(getThesaurus().getFormat(TranslationKeys.ACTION_RETRY_COM_TASK_SUCCESS).format());

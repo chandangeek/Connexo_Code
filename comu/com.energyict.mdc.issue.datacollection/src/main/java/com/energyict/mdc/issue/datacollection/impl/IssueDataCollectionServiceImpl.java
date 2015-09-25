@@ -1,5 +1,6 @@
 package com.energyict.mdc.issue.datacollection.impl;
 
+import com.elster.jupiter.issue.share.IssueEvent;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
@@ -195,10 +196,12 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
     }
 
     @Override
-    public OpenIssueDataCollection createIssue(Issue baseIssue) {
-        OpenIssueDataCollectionImpl instance = dataModel.getInstance(OpenIssueDataCollectionImpl.class);
-        instance.setIssue((OpenIssue) baseIssue);
-        return instance;
+    public OpenIssueDataCollection createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
+        OpenIssueDataCollectionImpl issue = dataModel.getInstance(OpenIssueDataCollectionImpl.class);
+        issue.setIssue(baseIssue);
+        issueEvent.apply(issue);
+        issue.save();
+        return issue;
     }
 
     private <T extends Entity> Optional<T> find(Class<T> clazz, Object key, Class<?>... eagers) {

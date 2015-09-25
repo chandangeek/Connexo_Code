@@ -3,7 +3,7 @@ package com.energyict.mdc.issue.datacollection.event;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.UnableToCreateEventException;
-import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -46,7 +46,7 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
 
     private Device device;
     private EventDescription eventDescription;
-    private Optional<? extends Issue> existingIssue;
+    private Optional<? extends OpenIssue> existingIssue;
     private Injector injector;
 
     public DataCollectionEvent(IssueDataCollectionService issueDataCollectionService, MeteringService meteringService, DeviceService deviceService, CommunicationTaskService communicationTaskService, TopologyService topologyService, Thesaurus thesaurus, Injector injector) {
@@ -182,7 +182,7 @@ public abstract class DataCollectionEvent implements IssueEvent, Cloneable {
     }
 
     @Override
-    public Optional<? extends Issue> findExistingIssue() {
+    public Optional<? extends OpenIssue> findExistingIssue() {
         if (existingIssue == null) {
             Query<OpenIssueDataCollection> query = getIssueDataCollectionService().query(OpenIssueDataCollection.class, ConnectionTask.class, ComTaskExecution.class, ComSession.class);
             List<OpenIssueDataCollection> theSameIssues = query.select(getConditionForExistingIssue());

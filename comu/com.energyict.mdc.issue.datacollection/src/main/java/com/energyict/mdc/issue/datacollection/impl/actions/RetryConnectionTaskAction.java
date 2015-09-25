@@ -36,7 +36,7 @@ public class RetryConnectionTaskAction extends AbstractIssueAction {
         DefaultActionResult result = new DefaultActionResult();
         if (isApplicable(issue)){
             issue.setStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
-            issue.save();
+            issue.update();
             ScheduledConnectionTask task = (ScheduledConnectionTask)((IssueDataCollection) issue).getConnectionTask().get();
             task.scheduleNow();
             result.success(getThesaurus().getFormat(TranslationKeys.ACTION_RETRY_CONNECTION_SUCCESS).format());

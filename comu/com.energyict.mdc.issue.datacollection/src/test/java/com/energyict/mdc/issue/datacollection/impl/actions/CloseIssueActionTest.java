@@ -17,6 +17,7 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.issue.datacollection.BaseTest;
@@ -75,16 +76,14 @@ public class CloseIssueActionTest extends BaseTest {
         builder.setTemplate(mockCreationRuleTemplate().getName());
         builder.setIssueType(getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID).orElse(null));
         builder.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
-        CreationRule creationRule = builder.complete();
-        creationRule.save();
-        return creationRule;
+        return builder.complete();
     }
 
     protected OpenIssueDataCollection createIssueMinInfo() {
         IssueServiceImpl issueService = (IssueServiceImpl) getIssueService();
         IssueType type = issueService.findIssueType(ISSUE_DEFAULT_TYPE_UUID).get();
         issueService.createReason(ISSUE_DEFAULT_REASON, type, MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION);
-        OpenIssue issue = issueService.getDataModel().getInstance(OpenIssueImpl.class);
+        OpenIssueImpl issue = issueService.getDataModel().getInstance(OpenIssueImpl.class);
         issue.setReason(issueService.findReason(ISSUE_DEFAULT_REASON).orElse(null));
         issue.setStatus(issueService.findStatus(IssueStatus.OPEN).orElse(null));
         CreationRule rule = createCreationRule("creation rule" + Instant.now());
@@ -106,7 +105,11 @@ public class CloseIssueActionTest extends BaseTest {
         properties.put(CloseIssueAction.COMMENT, "Comment");
         OpenIssue issue = createIssueMinInfo();
 
-        User user = getUserService().findOrCreateUser("user", "local", "directoryType");
+        LdapUserDirectory local = getUserService().createApacheDirectory("local");
+        local.setSecurity("sec");
+        local.setUrl("url");
+        local.save();
+        User user = getUserService().findOrCreateUser("user", "local", "APD");
         getThreadPrincipalService().set(user);
 
         assertThat(issue.getStatus().getKey()).isNotEqualTo(resolvedStatus.getKey());
