@@ -69,7 +69,6 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
                         data.getUsagePointMrid(), Arrays.stream(ServiceKind.values()).map(ServiceKind::getDisplayName).collect(Collectors.joining(", "))))
                 .newUsagePoint(data.getUsagePointMrid())
                 .create();
-        usagePoint.save();
         return usagePoint;
     }
 
