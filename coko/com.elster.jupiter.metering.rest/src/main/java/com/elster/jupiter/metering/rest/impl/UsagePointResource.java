@@ -110,7 +110,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public UsagePointInfos createUsagePoint(UsagePointInfo info) {
         UsagePointInfos result = new UsagePointInfos();
-        result.add(transactionService.execute(new CreateUsagePointTransaction(info, meteringService)), clock);
+        result.add(transactionService.execute(new CreateUsagePointTransaction(info, meteringService, clock)), clock);
         return result;
     }
 
@@ -224,12 +224,17 @@ public class UsagePointResource {
 
     private UsagePoint fetchUsagePoint(long id, SecurityContext securityContext) {
         Optional<UsagePoint> found = meteringService.findUsagePoint(id);
-        if (!found.isPresent()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        UsagePoint usagePoint = found.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal()).hasPrivilege("MTR",Privileges.BROWSE_ANY)) {
+            throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
-        UsagePoint usagePoint = found.get();
-        User user = (User) securityContext.getUserPrincipal();
-        if (!usagePoint.hasAccountability(user) && !(user).hasPrivilege("MDC", Privileges.BROWSE_ANY)) {
+        return usagePoint;
+    }
+
+    private UsagePoint fetchUsagePoint(String mRid, SecurityContext securityContext) {
+        Optional<UsagePoint> found = meteringService.findUsagePoint(mRid);
+        UsagePoint usagePoint = found.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal()).hasPrivilege("MTR",Privileges.BROWSE_ANY)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
         return usagePoint;
