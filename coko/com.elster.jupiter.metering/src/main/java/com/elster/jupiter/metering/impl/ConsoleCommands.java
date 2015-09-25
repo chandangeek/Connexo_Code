@@ -97,7 +97,7 @@ public class ConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             Meter meter = meteringService.findMeter(mrId).get();
             meter.setName(newName);
-            meter.save();
+            meter.update();
             context.commit();
         } finally {
             threadPrincipalService.clear();
@@ -110,7 +110,7 @@ public class ConsoleCommands {
             Meter meter = meteringService.findMeter(mrId).get();
             Instant activationDate = Instant.ofEpochMilli(epochMilli);
             meter.activate(activationDate);
-            meter.save();
+            meter.update();
             context.commit();
         } finally {
             threadPrincipalService.clear();

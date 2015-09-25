@@ -148,7 +148,7 @@ public class MeterImplIT {
             meter = meteringService.findAmrSystem(1).get().newMeter("amrID")
                     .setMRID("mRID")
                     .create();
-            meter.save();
+            meter.update();
             meter.activate(activation.toInstant());
             context.commit();
         }
@@ -196,7 +196,7 @@ public class MeterImplIT {
             meter = meteringService.findAmrSystem(1).get().newMeter("amrID")
                     .setMRID("mRID")
                     .create();
-            meter.save();
+            meter.update();
             meter.activate(activation.toInstant());
             context.commit();
         }

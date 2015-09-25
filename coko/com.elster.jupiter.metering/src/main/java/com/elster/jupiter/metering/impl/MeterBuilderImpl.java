@@ -31,7 +31,7 @@ class MeterBuilderImpl implements MeterBuilder {
             meter.setFiniteStateMachine(finiteStateMachine);
         }
         meter.setSerialNumber(serialNumber);
-        meter.save();
+        meter.doSave();
         return meter;
     }
 

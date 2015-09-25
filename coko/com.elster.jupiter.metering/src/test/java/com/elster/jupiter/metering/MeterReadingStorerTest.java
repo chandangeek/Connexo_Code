@@ -354,7 +354,7 @@ public class MeterReadingStorerTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
             Meter meter = amrSystem.newMeter("myMeter").create();
-            meter.save();
+            meter.update();
             String readingTypeCode = "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.0.0";
             Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
             Reading reading = ReadingImpl.of(readingTypeCode, "Sample text", instant);
@@ -374,7 +374,7 @@ public class MeterReadingStorerTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
             Meter meter = amrSystem.newMeter("myMeter").create();
-            meter.save();
+            meter.update();
             ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                     .period(TimeAttribute.MINUTE15)
                     .accumulate(Accumulation.BULKQUANTITY)

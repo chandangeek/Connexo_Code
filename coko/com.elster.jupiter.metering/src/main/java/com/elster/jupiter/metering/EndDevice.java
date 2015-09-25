@@ -21,7 +21,7 @@ public interface EndDevice extends IdentifiedObject {
 	ElectronicAddress getElectronicAddress();
 	AmrSystem getAmrSystem();
 	String getAmrId();
-	void save();
+	void update();
     Instant getCreateTime();
     Instant getModTime();
     long getVersion();

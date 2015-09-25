@@ -70,23 +70,26 @@ final class AmrSystemImpl implements AmrSystem {
 	}
 
     @Override
-	public EndDevice newEndDevice(String amrId) {
-		return newEndDevice(amrId, null);
+	public EndDevice createEndDevice(String amrId) {
+		return createEndDevice(amrId, null);
 	}
 	@Override
-	public EndDevice newEndDevice(String amrId, String mRID) {
-		return endDeviceFactory.get().init(this, amrId, mRID);
+	public EndDevice createEndDevice(String amrId, String mRID) {
+        EndDeviceImpl endDevice = endDeviceFactory.get().init(this, amrId, mRID);
+        endDevice.doSave();
+        return endDevice;
 	}
 
     @Override
-	public EndDevice newEndDevice(FiniteStateMachine stateMachine, String amrId) {
-		return this.newEndDevice(stateMachine, amrId, null);
+	public EndDevice createEndDevice(FiniteStateMachine stateMachine, String amrId) {
+		return this.createEndDevice(stateMachine, amrId, null);
 	}
 
 	@Override
-	public EndDevice newEndDevice(FiniteStateMachine stateMachine, String amrId, String mRID) {
+	public EndDevice createEndDevice(FiniteStateMachine stateMachine, String amrId, String mRID) {
         EndDeviceImpl endDevice = endDeviceFactory.get().init(this, amrId, mRID);
         endDevice.setFiniteStateMachine(stateMachine);
+		endDevice.doSave();
         return endDevice;
 	}
 

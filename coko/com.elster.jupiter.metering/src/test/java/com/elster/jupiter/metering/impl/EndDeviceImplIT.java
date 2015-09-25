@@ -131,8 +131,7 @@ public class EndDeviceImplIT {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext context = transactionService.getContext()) {
             List<EndDeviceEventType> availableEndDeviceEventTypes = meteringService.getAvailableEndDeviceEventTypes();
-            endDevice = meteringService.findAmrSystem(1).get().newEndDevice("1", "1");
-            endDevice.save();
+            endDevice = meteringService.findAmrSystem(1).get().createEndDevice("1", "1");
             eventRecord = endDevice.addEventRecord(availableEndDeviceEventTypes.get(0), date);
             eventRecord.save();
             context.commit();
@@ -153,10 +152,10 @@ public class EndDeviceImplIT {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext context = transactionService.getContext()) {
             FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
-            EndDevice endDevice = meteringService.findAmrSystem(1).get().newEndDevice(stateMachine, "amrID", "mRID");
+            EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
 
             // Business method
-            endDevice.save();
+            endDevice.update();
 
             // Asserts
             assertThat(endDevice.getFiniteStateMachine().isPresent()).isTrue();
@@ -172,7 +171,7 @@ public class EndDeviceImplIT {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext context = transactionService.getContext()) {
             FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
-            ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().newEndDevice("amrID", "mRID");
+            ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
 
             // Business method
             endDevice.changeState(stateMachine.getInitialState(), Instant.now());
@@ -188,7 +187,7 @@ public class EndDeviceImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
             FiniteStateMachine otherStateMachine = this.createBiggerFiniteStateMachine();
-            ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().newEndDevice(stateMachine, "amrID", "mRID");
+            ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
 
             // Business method
             endDevice.changeState(otherStateMachine.getInitialState(), Instant.now());
@@ -205,8 +204,8 @@ public class EndDeviceImplIT {
         long stateId;
         try (TransactionContext context = transactionService.getContext()) {
             FiniteStateMachine stateMachine = this.createBiggerFiniteStateMachine();
-            ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().newEndDevice(stateMachine, "amrID", "mRID");
-            endDevice.save();
+            ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
+            endDevice.update();
             deviceId = endDevice.getId();
 
             // Business method
@@ -238,8 +237,8 @@ public class EndDeviceImplIT {
             State initialState = stateMachine.getInitialState();
             initialStateId = initialState.getId();
             State changedState = stateMachine.getState("Second").get();
-            ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().newEndDevice(stateMachine, "amrID", "mRID");
-            endDevice.save();
+            ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
+            endDevice.update();
             deviceId = endDevice.getId();
             changedStateId = changedState.getId();
             when(this.clock.instant()).thenReturn(april1st);
@@ -275,8 +274,8 @@ public class EndDeviceImplIT {
             State initialState = stateMachine.getInitialState();
             initialStateId = initialState.getId();
             State changedState = stateMachine.getState("Second").get();
-            ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().newEndDevice(stateMachine, "amrID", "mRID");
-            endDevice.save();
+            ServerEndDevice endDevice = (ServerEndDevice) meteringService.findAmrSystem(1).get().createEndDevice(stateMachine, "amrID", "mRID");
+            endDevice.update();
             deviceId = endDevice.getId();
             changedStateId = changedState.getId();
             when(this.clock.instant()).thenReturn(april1st);
@@ -308,10 +307,8 @@ public class EndDeviceImplIT {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext context = transactionService.getContext()) {
-            EndDevice endDevice = meteringService.findAmrSystem(1).get().newEndDevice("amrID", "mRID");
+            EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
 
-            // Business method
-            endDevice.save();
 
             // Asserts
             LifecycleDates lifecycleDates = endDevice.getLifecycleDates();
@@ -330,8 +327,7 @@ public class EndDeviceImplIT {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext context = transactionService.getContext()) {
-            EndDevice endDevice = meteringService.findAmrSystem(1).get().newEndDevice("amrID", "mRID");
-            endDevice.save();
+            EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
 
             // Business method
             LifecycleDates lifecycleDates = meteringService.findEndDevice(endDevice.getId()).get().getLifecycleDates();
@@ -352,8 +348,7 @@ public class EndDeviceImplIT {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext context = transactionService.getContext()) {
-            EndDevice endDevice = meteringService.findAmrSystem(1).get().newEndDevice("amrID", "mRID");
-            endDevice.save();
+            EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
 
             // Business method
             LifecycleDates lifecycleDates = endDevice.getLifecycleDates();
@@ -369,7 +364,7 @@ public class EndDeviceImplIT {
             lifecycleDates.setInstalledDate(installedDate);
             lifecycleDates.setRemovedDate(removedDate);
             lifecycleDates.setRetiredDate(retiredDate);
-            endDevice.save();
+            endDevice.update();
 
             // Asserts
             LifecycleDates datesAfterFind = meteringService.findEndDevice(endDevice.getId()).get().getLifecycleDates();
@@ -388,8 +383,7 @@ public class EndDeviceImplIT {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext context = transactionService.getContext()) {
-            EndDevice endDevice = meteringService.findAmrSystem(1).get().newEndDevice("amrID", "mRID");
-            endDevice.save();
+            EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "mRID");
 
             // Business method
             LifecycleDates lifecycleDates = endDevice.getLifecycleDates();
@@ -405,7 +399,7 @@ public class EndDeviceImplIT {
             lifecycleDates.setInstalledDate(installedDate);
             lifecycleDates.setRemovedDate(removedDate);
             lifecycleDates.setRetiredDate(retiredDate);
-            endDevice.save();
+            endDevice.update();
 
             // Asserts
             assertThat(lifecycleDates).isNotNull();
@@ -423,10 +417,7 @@ public class EndDeviceImplIT {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext context = transactionService.getContext()) {
-            EndDevice endDevice = meteringService.findAmrSystem(1).get().newEndDevice("amrID", "newDeviceIsNotObsolete");
-
-            // Business method
-            endDevice.save();
+            EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "newDeviceIsNotObsolete");
 
             // Asserts
             assertThat(endDevice.isObsolete()).isFalse();
@@ -440,8 +431,7 @@ public class EndDeviceImplIT {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext context = transactionService.getContext()) {
-            EndDevice endDevice = meteringService.findAmrSystem(1).get().newEndDevice("amrID", "makeObsolete");
-            endDevice.save();
+            EndDevice endDevice = meteringService.findAmrSystem(1).get().createEndDevice("amrID", "makeObsolete");
 
             // Business method
             endDevice.makeObsolete();
@@ -463,7 +453,7 @@ public class EndDeviceImplIT {
             Meter meter = amrSystem.newMeter("amrID")
                     .setMRID("findByIdAfterMakeObsolete")
                     .create();
-            meter.save();
+            meter.update();
             meter.makeObsolete();
 
             // Business method
@@ -483,12 +473,11 @@ public class EndDeviceImplIT {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext context = transactionService.getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            EndDevice willBeObsolete = amrSystem.newEndDevice("amrID", mRID);
-            willBeObsolete.save();
+            EndDevice willBeObsolete = amrSystem.createEndDevice("amrID1", mRID);
             willBeObsolete.makeObsolete();
 
             // Business method
-            EndDevice endDevice = amrSystem.newEndDevice("amrID", mRID);
+            EndDevice endDevice = amrSystem.createEndDevice("amrID2", mRID);
 
             // Asserts
             assertThat(endDevice).isNotNull();
@@ -503,12 +492,8 @@ public class EndDeviceImplIT {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext context = transactionService.getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            EndDevice first = amrSystem.newEndDevice("amrID", mRID);
-            first.save();
-            EndDevice second = amrSystem.newEndDevice("amrID", mRID);
-
-            // Business method
-            second.save();
+            EndDevice first = amrSystem.createEndDevice("amrID", mRID);
+            EndDevice second = amrSystem.createEndDevice("amrID", mRID);
 
             // Asserts: see expected exception rule
         }
