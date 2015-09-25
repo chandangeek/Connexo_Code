@@ -1,12 +1,14 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.orm.QueryExecutor;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.orm.QueryExecutor;
+
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -81,9 +83,11 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
             this.addString(ComTaskExecutionImpl.SHARED_SCHEDULE_COM_TASK_EXECUTION_DISCRIMINATOR);
             this.append("and comschedule in (select comschedule from SCH_COMTASKINCOMSCHEDULE where ");
             this.appendInClause("comtask", this.comTasks);
-            this.append(")) or (discriminator =");
+            this.append(")) or (discriminator in (");
             this.addString(ComTaskExecutionImpl.MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR);
-            this.append(" and ");
+            this.append(", ");
+            this.addString(ComTaskExecutionImpl.FIRMWARE_COM_TASK_EXECUTION_DISCRIMINATOR);
+            this.append(") and ");
             this.appendInClause("comtask", this.comTasks);
             this.append("))");
         }
