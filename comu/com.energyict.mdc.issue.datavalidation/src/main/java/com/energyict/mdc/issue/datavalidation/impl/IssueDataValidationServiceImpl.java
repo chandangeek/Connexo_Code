@@ -1,5 +1,6 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
+import com.elster.jupiter.issue.share.IssueEvent;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.HistoricalIssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
@@ -129,9 +130,11 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     }
 
     @Override
-    public OpenIssueDataValidation createIssue(Issue baseIssue) {
+    public OpenIssueDataValidation createIssue(OpenIssue baseIssue, IssueEvent issueEvent) {
         OpenIssueDataValidationImpl issue = dataModel.getInstance(OpenIssueDataValidationImpl.class);
-        issue.setIssue((OpenIssue)baseIssue);
+        issue.setIssue(baseIssue);
+        issueEvent.apply(issue);
+        issue.save();
         return issue;
     }
 
