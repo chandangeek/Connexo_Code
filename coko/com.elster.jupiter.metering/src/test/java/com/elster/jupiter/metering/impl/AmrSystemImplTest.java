@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -14,17 +15,21 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.inject.Provider;
 import java.time.Clock;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AmrSystemImplTest {
+public class AmrSystemImplTest extends EqualsContractTest {
 
     private static final int ID = 15;
     private static final String NAME = "name";
+    public static final int INSTANCE_A_ID = 75;
 
-    private AmrSystemImpl amrSystem;
+    private AmrSystemImpl amrSystem, instanceA;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DataModel dataModel;
@@ -75,4 +80,39 @@ public class AmrSystemImplTest {
         verify(dataModel).persist(amrSystem);
     }
 
+    @Override
+    protected Object getInstanceA() {
+        if (instanceA == null) {
+            Provider<MeterImpl> meterFactory = mock(Provider.class);
+            instanceA = new AmrSystemImpl(dataModel, meteringService, meterFactory, endDeviceFactory).init(ID, NAME);
+            field("id").ofType(Integer.TYPE).in(instanceA).set(INSTANCE_A_ID);
+        }
+        return instanceA;
+    }
+
+    @Override
+    protected Object getInstanceEqualToA() {
+        Provider<MeterImpl> meterFactory = mock(Provider.class);
+        AmrSystemImpl other = new AmrSystemImpl(dataModel, meteringService, meterFactory, endDeviceFactory).init(ID, NAME);
+        field("id").ofType(Integer.TYPE).in(other).set(INSTANCE_A_ID);
+        return other;
+    }
+
+    @Override
+    protected Iterable<?> getInstancesNotEqualToA() {
+        Provider<MeterImpl> meterFactory = mock(Provider.class);
+        AmrSystemImpl other = new AmrSystemImpl(dataModel, meteringService, meterFactory, endDeviceFactory).init(ID, NAME);
+        field("id").ofType(Integer.TYPE).in(other).set(INSTANCE_A_ID + 1);
+        return Collections.singletonList(other);
+    }
+
+    @Override
+    protected boolean canBeSubclassed() {
+        return false;
+    }
+
+    @Override
+    protected Object getInstanceOfSubclassEqualToA() {
+        return null;
+    }
 }

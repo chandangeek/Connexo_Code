@@ -15,9 +15,10 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
-public class AmrSystemImpl implements AmrSystem {
+final class AmrSystemImpl implements AmrSystem {
 	//persistent fields
 	private int id;
 	private String name;
@@ -114,4 +115,16 @@ public class AmrSystemImpl implements AmrSystem {
 		return findMeter(amrId).map(meter -> dataModel.mapper(Meter.class).lock(meter.getId()));
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		AmrSystemImpl amrSystem = (AmrSystemImpl) o;
+		return Objects.equals(id, amrSystem.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
 }

@@ -24,7 +24,7 @@ class ServiceLocationBuilderImpl implements ServiceLocationBuilder {
         if (built) {
             throw new IllegalStateException();
         }
-        underConstruction.save();
+        underConstruction.doSave();
         try {
             return underConstruction;
         } finally {
