@@ -12,8 +12,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.lang.reflect.Method;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -118,7 +120,17 @@ public class FieldResource {
             subMap.put("localizedValue", thesaurus.getString(value.toString(), value.toString()));
             list.add(subMap);
         }
+        sortList(list);
         return map;
+    }
+
+    public List<Map<String, Object>> sortList(List<Map<String, Object>> list) {
+        Collections.sort(list, new Comparator<Map<String, Object>>() {
+            public int compare(Map<String, Object> m1, Map<String, Object> m2) {
+                return m1.values().toString().compareTo(m2.values().toString());
+            }
+        });
+        return list;
     }
 
     /**
