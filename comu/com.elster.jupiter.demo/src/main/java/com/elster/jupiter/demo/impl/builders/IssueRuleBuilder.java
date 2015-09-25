@@ -63,9 +63,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         properties.put(BasicDataCollectionRuleTemplate.AUTORESOLUTION,
                 template.getPropertySpec(BasicDataCollectionRuleTemplate.AUTORESOLUTION).getValueFactory().fromStringValue("1"));
         builder.setProperties(properties);
-        CreationRule rule = builder.complete();
-        rule.save();
-        return rule;
+        return builder.complete();
     }
 
     private com.elster.jupiter.issue.share.entity.IssueReason getReasonForRule() {
