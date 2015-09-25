@@ -152,6 +152,8 @@ public interface DeviceType extends HasId, HasName {
 
     public boolean isDirectlyAddressable();
 
+    List<DeviceConfigConflictMapping> getDeviceConfigConflictMappings();
+
     public interface DeviceConfigurationBuilder {
 
         /**

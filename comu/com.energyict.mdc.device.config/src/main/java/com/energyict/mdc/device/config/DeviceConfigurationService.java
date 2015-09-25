@@ -270,4 +270,5 @@ public interface DeviceConfigurationService {
 
     DeviceConfiguration cloneDeviceConfiguration(DeviceConfiguration templateDeviceConfiguration, String name);
 
+    Optional<DeviceConfigConflictMapping> findDeviceConfigConflictMapping(long id);
 }

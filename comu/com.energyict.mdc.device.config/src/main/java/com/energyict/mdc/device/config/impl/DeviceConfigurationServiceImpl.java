@@ -758,6 +758,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
+    public Optional<DeviceConfigConflictMapping> findDeviceConfigConflictMapping(long id) {
+        return this.getDataModel().mapper(DeviceConfigConflictMapping.class).getUnique("id", id);
+    }
+
+    @Override
     public List<CanFindByLongPrimaryKey<? extends HasId>> finders () {
         List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
         finders.add(new DeviceTypeFinder(this));

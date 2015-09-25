@@ -10,24 +10,13 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent;
-import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.DeviceUsageType;
-import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.TextualRegisterSpec;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.RegisterTypeAlreadyInDeviceTypeException;
+import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingEngine;
+import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingImpl;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -56,6 +45,20 @@ import java.util.stream.Collectors;
 @ProtocolCannotChangeWithExistingConfigurations(groups = {Save.Update.class})
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements ServerDeviceType {
 
+    enum Fields {
+        CONFLICTINGMAPPING("deviceConfigConflictMappings"),;
+
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
+
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private String name;
@@ -70,6 +73,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private List<DeviceTypeLogBookTypeUsage> logBookTypeUsages = new ArrayList<>();
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
     private List<DeviceTypeRegisterTypeUsage> registerTypeUsages = new ArrayList<>();
+    @Valid
+    private List<DeviceConfigConflictMappingImpl> deviceConfigConflictMappings = new ArrayList<>();
     private long deviceProtocolPluggableClassId;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
@@ -216,6 +221,39 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.touch();
     }
 
+    @Override
+    public DeviceConfigConflictMappingImpl newConflictMappingFor(DeviceConfiguration origin, DeviceConfiguration destination) {
+        DeviceConfigConflictMappingImpl deviceConfigConflictMapping = getDataModel().getInstance(DeviceConfigConflictMappingImpl.class).initialize(this, origin, destination);
+        this.deviceConfigConflictMappings.add(deviceConfigConflictMapping);
+        return deviceConfigConflictMapping;
+    }
+
+    @SuppressWarnings("SuspiciousMethodCalls")
+    @Override
+    public void removeDeviceConfigConflictMappings(List<DeviceConfigConflictMapping> deviceConfigConflictMappings) {
+        this.deviceConfigConflictMappings.removeAll(deviceConfigConflictMappings);
+    }
+
+    @Override
+    public void removeConflictsFor(PartialConnectionTask partialConnectionTask) {
+        this.deviceConfigConflictMappings.stream().filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == partialConnectionTask.getConfiguration().getId() || deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == partialConnectionTask.getConfiguration().getId())
+                .forEach(deviceConfigConflictMapping -> {
+                    List<ConflictingConnectionMethodSolution> conflictsWithGivenConnectionTask = deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().stream().filter(conflictingConnectionMethodSolution -> conflictingConnectionMethodSolution.getOriginDataSource().getId() == partialConnectionTask.getId()
+                            || (conflictingConnectionMethodSolution.getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.MAP) && conflictingConnectionMethodSolution.getDestinationDataSource().getId() == partialConnectionTask.getId())).collect(Collectors.toList());
+                    conflictsWithGivenConnectionTask.stream().forEach(deviceConfigConflictMapping::removeConnectionMethodSolution);
+                });
+    }
+
+    @Override
+    public void removeConflictsFor(SecurityPropertySet securityPropertySet) {
+        this.deviceConfigConflictMappings.stream().filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == securityPropertySet.getDeviceConfiguration().getId() || deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == securityPropertySet.getDeviceConfiguration().getId())
+                .forEach(deviceConfigConflictMapping -> {
+                    List<ConflictingSecuritySetSolution> conflictsWithGivenSecurityPropertySet = deviceConfigConflictMapping.getConflictingSecuritySetSolutions().stream().filter(securitySetSolutionPredicate -> securitySetSolutionPredicate.getOriginDataSource().getId() == securityPropertySet.getId()
+                            || (securitySetSolutionPredicate.getConflictingMappingAction().equals(DeviceConfigConflictMapping.ConflictingMappingAction.MAP) && securitySetSolutionPredicate.getDestinationDataSource().getId() == securityPropertySet.getId())).collect(Collectors.toList());
+                    conflictsWithGivenSecurityPropertySet.stream().forEach(deviceConfigConflictMapping::removeSecuritySetSolution);
+                });
+    }
+
     private void closeCurrentDeviceLifeCycle(Instant now) {
         DeviceLifeCycleInDeviceType deviceLifeCycleInDeviceType = this.deviceLifeCycle.effective(now).get();
         deviceLifeCycleInDeviceType.close(now);
@@ -224,7 +262,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     private void setDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle, Instant effective) {
         Interval effectivityInterval = Interval.of(Range.atLeast(effective));
-        if(deviceLifeCycle != null) {
+        if (deviceLifeCycle != null) {
             this.deviceLifeCycle.add(
                     this.getDataModel()
                             .getInstance(DeviceLifeCycleInDeviceTypeImpl.class)
@@ -276,6 +314,11 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public long getVersion() {
         return this.version;
+    }
+
+    @Override
+    public List<DeviceConfigConflictMapping> getDeviceConfigConflictMappings() {
+        return deviceConfigConflictMappings.stream().map(deviceConfigConflictMapping -> ((DeviceConfigConflictMapping) deviceConfigConflictMapping)).collect(Collectors.toList());
     }
 
     @Override
@@ -709,7 +752,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
         @Override
         public DeviceConfigurationBuilder gatewayType(GatewayType gatewayType) {
-            if (gatewayType != null && !GatewayType.NONE.equals(gatewayType)){
+            if (gatewayType != null && !GatewayType.NONE.equals(gatewayType)) {
                 canActAsGateway(true);
             }
             underConstruction.setGatewayType(gatewayType);

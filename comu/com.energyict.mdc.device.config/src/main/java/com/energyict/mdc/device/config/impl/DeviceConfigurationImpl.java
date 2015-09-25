@@ -761,12 +761,14 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     public void activate() {
         this.active = true;
         super.save();
+        this.getEventService().postEvent(EventType.DEVICECONFIGURATION_ACTIVATED.topic(), this);
     }
 
     public void deactivate() {
         this.getEventService().postEvent(EventType.DEVICECONFIGURATION_VALIDATEDEACTIVATE.topic(), this);
         this.active = false;
         super.save();
+        this.getEventService().postEvent(EventType.DEVICECONFIGURATION_DEACTIVATED.topic(), this);
     }
 
     @Override
@@ -842,9 +844,14 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
 
     private void remove(PartialConnectionTaskImpl partialConnectionTask) {
         partialConnectionTask.validateDelete();
+        getServerDeviceType().removeConflictsFor(partialConnectionTask);
         if (partialConnectionTasks.remove(partialConnectionTask) && getId() > 0) {
             this.getEventService().postEvent(partialConnectionTask.deleteEventType().topic(), partialConnectionTask);
         }
+    }
+
+    private ServerDeviceType getServerDeviceType() {
+        return (ServerDeviceType) deviceType.get();
     }
 
     @Override
@@ -983,7 +990,11 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
     public void removeSecurityPropertySet(SecurityPropertySet propertySet) {
         if (propertySet != null) {
             ((SecurityPropertySetImpl) propertySet).validateDelete();
+            getServerDeviceType().removeConflictsFor(propertySet);
             securityPropertySets.remove(propertySet);
+            if (this.getId() > 0) {
+                getEventService().postEvent(((PersistentIdObject) propertySet).deleteEventType().topic(), propertySet);
+            }
         }
     }
 
@@ -1303,6 +1314,9 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         @Override
         public SecurityPropertySet build() {
             DeviceConfigurationImpl.this.addSecurityPropertySet(underConstruction);
+            if (DeviceConfigurationImpl.this.getId() > 0) {
+                DeviceConfigurationImpl.this.getEventService().postEvent(underConstruction.createEventType().topic(), underConstruction);
+            }
             return underConstruction;
         }
     }
