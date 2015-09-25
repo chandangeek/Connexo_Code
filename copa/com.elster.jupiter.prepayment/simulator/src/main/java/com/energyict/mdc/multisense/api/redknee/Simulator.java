@@ -13,17 +13,23 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
+import java.time.Clock;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by bvn on 9/17/15.
  */
 public class Simulator {
+    private static final Logger LOGGER = Logger.getLogger(Simulator.class.getSimpleName());
+
     public static void main(String[] args) {
         try {
             Simulator simulator = new Simulator();
             Configuration configuration = simulator.readConfiguration(args.length>0?args[0]:"simulator.json");
-            System.out.println(configuration);
-            ConsumptionExportGenerator generator = new ConsumptionExportGenerator();
+            LOGGER.info(configuration.toString());
+            ConsumptionExportGenerator generator = new ConsumptionExportGenerator(Clock.systemDefaultZone(), new ScheduledThreadPoolExecutor(1));
             RknApplication rknApplication = new RknApplication(generator, configuration);
             ResourceConfig resourceConfig = ResourceConfig.forApplication(rknApplication);
             resourceConfig.register(JacksonFeature.class);
@@ -31,12 +37,12 @@ public class Simulator {
             generator.start();
             simulator.startJetty(resourceConfig, configuration.getSimulatorPort());
         } catch (FileNotFoundException e) {
-            System.err.println("Configuration not found.");
-            System.err.println("Either make sure the current directory contains the configuration file 'simulator.json' or provide the file as argument to the simulator.");
+            LOGGER.severe("Configuration not found.");
+            LOGGER.severe("Either make sure the current directory contains the configuration file 'simulator.json' or provide the file as argument to the simulator.");
         } catch (IOException e) {
-            System.err.println("Error while reading configuration: " + e);
+            LOGGER.severe("Error while reading configuration: " + e);
         } catch (Exception e) {
-            System.err.println("Failed to start Jetty: " + e);
+            LOGGER.severe("Failed to start Jetty: " + e);
         }
     }
 

@@ -8,6 +8,7 @@ import java.util.List;
 public class Configuration {
 
     private Integer outputFrequency=0;
+    private Integer timeAcceleration=60;
     private String destinationFilePath="/tmp";
     private String connexoUrl="http://localhost:8080/";
     private Integer simulatorPort=8080;
@@ -17,6 +18,19 @@ public class Configuration {
 
     public Configuration() {
 
+    }
+
+    Configuration(Integer outputFrequency, Integer timeAcceleration, String destinationFilePath, String connexoUrl, Integer simulatorPort, List<UsagePoint> usagePoints) {
+        this.outputFrequency = outputFrequency;
+        this.timeAcceleration = timeAcceleration;
+        this.destinationFilePath = destinationFilePath;
+        this.connexoUrl = connexoUrl;
+        this.simulatorPort = simulatorPort;
+        this.usagePoints = usagePoints;
+    }
+
+    public Integer getTimeAcceleration() {
+        return timeAcceleration;
     }
 
     public Integer getOutputFrequency() {

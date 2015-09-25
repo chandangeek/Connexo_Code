@@ -1,6 +1,7 @@
 {
   "simulator": {
-    "outputFrequency": 5,
+    "outputFrequency": 60,
+    "timeAcceleration": 60,
     "destinationFilePath": "/tmp",
     "connexoUrl": "http://localhost:8085/public/api/rkn/v1.0/usagepoints",
     "simulatorPort": 8080,

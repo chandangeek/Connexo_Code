@@ -13,6 +13,17 @@ public class UsagePoint {
     private double consumption;
     private Status status = Status.connected;
 
+    public UsagePoint() {
+    }
+
+    public UsagePoint(String mRID, String device_mRID, String readingType, double consumption, Status status) {
+        this.mRID = mRID;
+        this.device_mRID = device_mRID;
+        this.readingType = readingType;
+        this.consumption = consumption;
+        this.status = status;
+    }
+
     public String getmRID() {
         return mRID;
     }
@@ -37,6 +48,7 @@ public class UsagePoint {
     public String toString() {
         return "UsagePoint{" +
                 "readingType='" + readingType + '\'' +
+                ", consumption='" + consumption + '\'' +
                 ", device_mRID='" + device_mRID + '\'' +
                 ", mRID='" + mRID + '\'' +
                 "}\n";
