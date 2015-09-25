@@ -110,6 +110,8 @@ public class OfflineDeviceImplTest {
     @Mock
     private DataVaultService dataVaultService;
     @Mock
+    private TimeService timeService;
+    @Mock
     private OrmService ormService;
     @Mock
     private TimeService timeService;
@@ -183,7 +185,7 @@ public class OfflineDeviceImplTest {
     public void setupDeviceMessageService() {
         when(this.thesaurus.getString(anyString(), anyString())).thenReturn("Translation not supported in unit testing");
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
-        PropertySpecService propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(), dataVaultService, ormService, timeService);
+        PropertySpecService propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(), dataVaultService, timeService, ormService);
         this.deviceMessageSpecificationService = new DeviceMessageSpecificationServiceImpl(propertySpecService, this.nlsService);
     }
 
