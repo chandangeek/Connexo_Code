@@ -48,7 +48,7 @@ public class ComServerResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getComServers(@BeanParam JsonQueryParameters queryParameters) {
-        List<ComServerInfo<?>> comServers = new ArrayList<>();
+        List<ComServerInfo<?,?>> comServers = new ArrayList<>();
         List<ComServer> allComServers = this.getSortedComServers(queryParameters);
 
         for (ComServer comServer : allComServers) {
@@ -75,7 +75,7 @@ public class ComServerResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
-    public ComServerInfo<?> getComServer(@PathParam("id") long id) {
+    public ComServerInfo<?,?> getComServer(@PathParam("id") long id) {
         Optional<ComServer> comServer = findComServerOrThrowException(id);
         return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts(), engineConfigurationService);
     }
@@ -101,10 +101,10 @@ public class ComServerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
-    public Response createComServer(ComServerInfo<ComServer> comServerInfo) {
-        ComServer comServer = comServerInfo.createNew(engineConfigurationService);
-        comServerInfo.writeTo(comServer, engineConfigurationService);
-        comServer.save();
+    public Response createComServer(ComServerInfo<ComServer.ComServerBuilder, ComServer> comServerInfo) {
+        ComServer.ComServerBuilder comServerBuilder = comServerInfo.createNew(engineConfigurationService);
+        comServerInfo.writeTo(comServerBuilder, engineConfigurationService);
+        final ComServer comServer = comServerBuilder.create();
 
         Optional<List<InboundComPortInfo>> inboundComPorts = Optional.ofNullable(comServerInfo.inboundComPorts);
         Optional<List<OutboundComPortInfo>> outboundComPorts = Optional.ofNullable(comServerInfo.outboundComPorts);
@@ -127,7 +127,7 @@ public class ComServerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
-    public ComServerInfo updateComServer(@PathParam("id") long id, ComServerInfo<ComServer> comServerInfo) {
+    public ComServerInfo updateComServer(@PathParam("id") long id, ComServerInfo<ComServer.ComServerBuilder, ComServer> comServerInfo) {
         Optional<ComServer> comServer = findComServerOrThrowException(id);
 
         Optional<List<InboundComPortInfo>> inboundComPorts = Optional.ofNullable(comServerInfo.inboundComPorts);
@@ -141,10 +141,7 @@ public class ComServerResource {
             allComPortInfos.addAll(outboundComPorts.get());
         }
 
-        comServerInfo.writeTo(comServer.get(), engineConfigurationService);
-        //updateComPorts(comServer.get(), allComPortInfos);
-
-        comServer.get().save();
+        comServerInfo.updateTo(comServer.get(), engineConfigurationService);
         return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts(), engineConfigurationService);
     }
 
@@ -157,7 +154,7 @@ public class ComServerResource {
         Optional<ComServer> comServer = findComServerOrThrowException(id);
         if(comServerStatusInfo.active != null){
             comServer.get().setActive(comServerStatusInfo.active);
-            comServer.get().save();
+            comServer.get().update();
         }
         return ComServerInfoFactory.asInfo(comServer.get(), comServer.get().getComPorts(), engineConfigurationService);
     }

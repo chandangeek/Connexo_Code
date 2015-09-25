@@ -22,7 +22,7 @@ import java.util.Optional;
      @JsonSubTypes.Type(value = OnlineComServerInfo.class, name = "Online"),
      @JsonSubTypes.Type(value = OfflineComServerInfo.class, name = "Offline"),
      @JsonSubTypes.Type(value = RemoteComServerInfo.class, name = "Remote") })
-public abstract class ComServerInfo<S extends ComServer> {
+public abstract class ComServerInfo<B extends ComServer.ComServerBuilder,C extends ComServer> {
 
     public long id;
     public String name;
@@ -78,35 +78,64 @@ public abstract class ComServerInfo<S extends ComServer> {
         }
     }
 
-    public S writeTo(S source,EngineConfigurationService engineConfigurationService) {
+    public B writeTo(B comServerBuilder, EngineConfigurationService engineConfigurationService) {
         Optional<String> name = Optional.ofNullable(this.name);
         if(name.isPresent()) {
-            source.setName(name.get());
+            comServerBuilder.name(name.get());
         }
         Optional<Boolean> active = Optional.ofNullable(this.active);
         if(active.isPresent()) {
-            source.setActive(active.get());
+            comServerBuilder.active(active.get());
         }
         Optional<ComServer.LogLevel> serverLogLevel = Optional.ofNullable(this.serverLogLevel);
         if(serverLogLevel.isPresent()) {
-            source.setServerLogLevel(serverLogLevel.get());
+            comServerBuilder.serverLogLevel(serverLogLevel.get());
         }
         Optional<ComServer.LogLevel> communicationLogLevel = Optional.ofNullable(this.communicationLogLevel);
         if(communicationLogLevel.isPresent()) {
-            source.setCommunicationLogLevel(communicationLogLevel.get());
+            comServerBuilder.communicationLogLevel(communicationLogLevel.get());
         }
         Optional<TimeDurationInfo> changesInterPollDelay = Optional.ofNullable(this.changesInterPollDelay);
         if (changesInterPollDelay.isPresent()) {
-            source.setChangesInterPollDelay(changesInterPollDelay.get().asTimeDuration());
+            comServerBuilder.changesInterPollDelay(changesInterPollDelay.get().asTimeDuration());
         }
         Optional<TimeDurationInfo> schedulingInterPollDelay = Optional.ofNullable(this.schedulingInterPollDelay);
         if (schedulingInterPollDelay.isPresent()) {
-            source.setSchedulingInterPollDelay(schedulingInterPollDelay.get().asTimeDuration());
+            comServerBuilder.schedulingInterPollDelay(schedulingInterPollDelay.get().asTimeDuration());
         }
 
-        return source;
+        return comServerBuilder;
     }
 
-    protected abstract S createNew(EngineConfigurationService engineConfigurationService);
+    public C updateTo(C comServer, EngineConfigurationService engineConfigurationService) {
+        Optional<String> name = Optional.ofNullable(this.name);
+        if(name.isPresent()) {
+            comServer.setName(name.get());
+        }
+        Optional<Boolean> active = Optional.ofNullable(this.active);
+        if(active.isPresent()) {
+            comServer.setActive(active.get());
+        }
+        Optional<ComServer.LogLevel> serverLogLevel = Optional.ofNullable(this.serverLogLevel);
+        if(serverLogLevel.isPresent()) {
+            comServer.setServerLogLevel(serverLogLevel.get());
+        }
+        Optional<ComServer.LogLevel> communicationLogLevel = Optional.ofNullable(this.communicationLogLevel);
+        if(communicationLogLevel.isPresent()) {
+            comServer.setCommunicationLogLevel(communicationLogLevel.get());
+        }
+        Optional<TimeDurationInfo> changesInterPollDelay = Optional.ofNullable(this.changesInterPollDelay);
+        if (changesInterPollDelay.isPresent()) {
+            comServer.setChangesInterPollDelay(changesInterPollDelay.get().asTimeDuration());
+        }
+        Optional<TimeDurationInfo> schedulingInterPollDelay = Optional.ofNullable(this.schedulingInterPollDelay);
+        if (schedulingInterPollDelay.isPresent()) {
+            comServer.setSchedulingInterPollDelay(schedulingInterPollDelay.get().asTimeDuration());
+        }
+        comServer.update();
+        return comServer;
+    }
+
+    protected abstract B createNew(EngineConfigurationService engineConfigurationService);
 
 }

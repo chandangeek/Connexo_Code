@@ -1,5 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.time.TimeDuration;
@@ -36,10 +37,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * When accessing a resource, I choose not to use UriBuilder, as you should be aware that changing the URI means changing the API!
@@ -149,7 +147,7 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         final Response response = target("/comservers/3").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        verify(serverSideComServer).save();
+        verify(serverSideComServer).update();
         ArgumentCaptor<String> onlineComServerArgumentCaptor = ArgumentCaptor.forClass(String.class);
         verify(serverSideComServer).setName(onlineComServerArgumentCaptor.capture());
         assertThat(onlineComServerArgumentCaptor.getValue()).isEqualTo("new name");
@@ -188,13 +186,16 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
     @Test
     public void createOnlineComServer() throws Exception {
         long comServer_id = 3;
+        final String comServerName = "new name";
 
-        OnlineComServer serverSideComServer = mock(OnlineComServer.class);
+        OnlineComServer serverSideComServer = mock(OnlineComServer.class, withSettings().extraInterfaces(ComServer.class));
         when(serverSideComServer.getId()).thenReturn(comServer_id);
-        when(engineConfigurationService.newOnlineComServerInstance()).thenReturn(serverSideComServer);
+        final OnlineComServer.OnlineComServerBuilder onlineComServerBuilder = mock(OnlineComServer.OnlineComServerBuilder.class);
+        when(onlineComServerBuilder.create()).thenReturn(serverSideComServer);
+        when(engineConfigurationService.newOnlineComServerBuilder()).thenReturn(onlineComServerBuilder);
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
-        onlineComServerInfo.name="new name";
+        onlineComServerInfo.name= comServerName;
         TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
         timeDurationInfo.count=2;
         timeDurationInfo.timeUnit="seconds";
@@ -207,7 +208,8 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         final Response response = target("/comservers").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
-        verify(serverSideComServer).save();
+        verify(onlineComServerBuilder).name(comServerName);
+        verify(onlineComServerBuilder).create();
     }
 
     @Test
@@ -216,10 +218,13 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
         OfflineComServer serverSideComServer = mock(OfflineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
-        when(engineConfigurationService.newOfflineComServerInstance()).thenReturn(serverSideComServer);
+        final ComServer.ComServerBuilder comServerBuilder = mock(ComServer.ComServerBuilder.class);
+        when(comServerBuilder.create()).thenReturn(serverSideComServer);
+        when(engineConfigurationService.newOfflineComServerBuilder()).thenReturn(comServerBuilder);
 
         OfflineComServerInfo offlineComServerInfo = new OfflineComServerInfo();
-        offlineComServerInfo.name="new name";
+        final String comServerName = "new name";
+        offlineComServerInfo.name= comServerName;
         TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
         timeDurationInfo.count=2;
         timeDurationInfo.timeUnit="seconds";
@@ -231,23 +236,27 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         final Response response = target("/comservers").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
-        verify(serverSideComServer).save();
+        verify(comServerBuilder).name(comServerName);
+        verify(comServerBuilder).create();
     }
 
     @Test
     public void createRemoteComServer() throws Exception {
         long comServer_id = 3;
         long onlineComServerId = 5;
+        final String comServerName = "new name";
 
         RemoteComServer serverSideComServer = mock(RemoteComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
-        when(engineConfigurationService.newRemoteComServerInstance()).thenReturn(serverSideComServer);
+        final RemoteComServer.RemoteComServerBuilder remoteComServerBuilder = mock(RemoteComServer.RemoteComServerBuilder.class);
+        when(remoteComServerBuilder.create()).thenReturn(serverSideComServer);
+        when(engineConfigurationService.newRemoteComServerBuilder()).thenReturn(remoteComServerBuilder);
 
         OnlineComServer onlineComServer = mock(OnlineComServer.class);
         when(engineConfigurationService.findComServer(onlineComServerId)).thenReturn(Optional.<ComServer>of(onlineComServer));
 
         RemoteComServerInfo remoteComServerInfo = new RemoteComServerInfo();
-        remoteComServerInfo.name="new name";
+        remoteComServerInfo.name= comServerName;
         remoteComServerInfo.onlineComServerId = 5L;
         TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
         timeDurationInfo.count=2;
@@ -260,7 +269,8 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         final Response response = target("/comservers").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
-        verify(serverSideComServer).save();
+        verify(remoteComServerBuilder).create();
+        verify(remoteComServerBuilder).name(comServerName);
     }
 
     @Test
@@ -303,7 +313,9 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
         OnlineComServer serverSideComServer = mock(OnlineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
-        when(engineConfigurationService.newOnlineComServerInstance()).thenReturn(serverSideComServer);
+        final OnlineComServer.OnlineComServerBuilder onlineComServerBuilder = mock(OnlineComServer.OnlineComServerBuilder.class);
+        when(onlineComServerBuilder.create()).thenReturn(serverSideComServer);
+        when(engineConfigurationService.newOnlineComServerBuilder()).thenReturn(onlineComServerBuilder);
         Set<ConstraintViolation<?>> constrainViolations = new HashSet<>();
 
         ConstraintViolation constraintViolation1 = mock(ConstraintViolation.class);
@@ -318,7 +330,7 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
         when(nlsService.interpolate(Matchers.<ConstraintViolation<?>>anyObject())).thenReturn("Property can not be null");
         ConstraintViolationException toBeThrown = new ConstraintViolationException(constrainViolations);
-        doThrow(toBeThrown).when(serverSideComServer).save();
+        doThrow(toBeThrown).when(onlineComServerBuilder).create();
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
         TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
