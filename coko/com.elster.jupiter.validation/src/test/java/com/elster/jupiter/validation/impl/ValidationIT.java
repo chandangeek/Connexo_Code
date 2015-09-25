@@ -150,7 +150,7 @@ public class ValidationIT {
                 ReadingType readingType3 = meteringService.getReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
                 AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
                 Meter meter = amrSystem.newMeter("2331").create();
-                meter.save();
+                meter.update();
                 meterActivation = meter.activate(date1);
                 meterActivation.createChannel(readingType1, readingType2);
                 meterActivation.createChannel(readingType1, readingType3);
