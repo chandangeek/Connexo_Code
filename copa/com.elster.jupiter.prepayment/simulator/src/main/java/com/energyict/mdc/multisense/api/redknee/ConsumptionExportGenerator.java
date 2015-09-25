@@ -1,6 +1,9 @@
 package com.energyict.mdc.multisense.api.redknee;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -22,6 +25,7 @@ import java.util.stream.IntStream;
  * Created by bvn on 9/16/15.
  */
 public class ConsumptionExportGenerator {
+    private static final Logger logger = LoggerFactory.getLogger(ConsumptionExportGenerator.class);
     //    private final String csvFormat = "D,{0,string},{1,string},{2,string},{3,string},{4},{5,string},{6,number}";
     private final String csvFormat = "D|{0}|{1}|{2}|{3}|{4,number,#}|{5}|{6,number,#########.##########}";
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
@@ -43,17 +47,19 @@ public class ConsumptionExportGenerator {
 
     public void start() {
         if (scheduledFuture != null) {
-            System.out.println("Cancelling export simulator task");
+            logger.debug("Cancelling export simulator task");
             scheduledFuture.cancel(false);
         }
         if (outputFrequency > 0L) {
-            System.out.println("Scheduling export simulation task every " + outputFrequency + " seconds");
+            logger.info("Scheduling export simulation task every " + outputFrequency + " seconds");
             ReadingType readingType = new ReadingType(usagePoints.get(0).getReadingType());
             ZonedDateTime now = ZonedDateTime.now(clock);
             long delayToNextExportGeneration = outputFrequency - (now.getLong(ChronoField.SECOND_OF_DAY) % outputFrequency);
             ZonedDateTime simulationStartTime = now.minusMinutes(readingType.getMeasuringPeriod() * timeAcceleration * 24);
             simulationStartTime = simulationStartTime.plusSeconds((readingType.getMeasuringPeriod() * 60) - simulationStartTime.get(ChronoField.SECOND_OF_DAY) % (readingType.getMeasuringPeriod() * 60));
+            logger.info("Simulation start date& time is "+simulationStartTime);
             long readingsPerExportGeneration = (outputFrequency * timeAcceleration) / (readingType.getMeasuringPeriod()*60);
+            logger.info("Every generated export file will contain "+readingsPerExportGeneration+" readings per usage point");
             ExportGeneratorTask exportGeneratorTask = new ExportGeneratorTask(simulationStartTime, Duration.ofMinutes(readingType.getMeasuringPeriod()), readingsPerExportGeneration);
             scheduledFuture = executor.scheduleAtFixedRate(exportGeneratorTask, delayToNextExportGeneration, outputFrequency, TimeUnit.SECONDS);
         }
@@ -92,33 +98,31 @@ public class ConsumptionExportGenerator {
             String fileName = actualPath + "/ICE_CIM_profile1_" +
                     now.format(dateTimeFormatter) + "_" +
                     now.toEpochSecond() + ".dat";
-            System.out.println(now);
             try (FileWriter writer = new FileWriter(fileName)) {
-                System.out.println("Writing file " + fileName);
+                logger.debug("Writing file " + fileName);
                 IntStream.range(0, (int) readingsPerTaskRun).forEach(iteration-> {
                     usagePoints.stream()
                             .map(usagePoint ->
-                                            MessageFormat.format(csvFormat,
-                                                    usagePoint.getDevice_mRID(),
-                                                    usagePoint.getmRID(),
-                                                    usagePoint.getReadingType(),
-                                                    "3.0.0",
-                                                    now.toEpochSecond(),
-                                                    now.getOffset(),
-                                                    usagePoint.getStatus() == Status.connected ? usagePoint.getConsumption() : 0L
-                                            )
+                                    MessageFormat.format(csvFormat,
+                                            usagePoint.getDevice_mRID(),
+                                            usagePoint.getmRID(),
+                                            usagePoint.getReadingType(),
+                                            "3.0.0",
+                                            now.toEpochSecond(),
+                                            now.getOffset(),
+                                            usagePoint.getStatus() == Status.connected ? usagePoint.getConsumption() : 0L)
                             ).forEach((str) -> {
-                        try {
-                            System.out.println(str);
-                            writer.write(str + "\n");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                                try {
+                                    logger.debug(now.toString());
+                                    writer.write(str + "\n");
+                                } catch (IOException e) {
+                                    logger.error("Failed to write in file " + fileName + ":" + e);
+                                }
                     });
                     now = now.plus(duration);
                 });
             } catch (IOException e) {
-                System.err.println("Failed to write file " + fileName + ":" + e);
+                logger.error("Failed to write file " + fileName + ":" + e);
             }
         }
 

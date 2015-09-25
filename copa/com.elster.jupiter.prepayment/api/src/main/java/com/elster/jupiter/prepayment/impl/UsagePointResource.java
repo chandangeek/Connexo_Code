@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -22,7 +23,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -41,12 +41,14 @@ public class UsagePointResource {
     private final MeteringService meteringService;
     private final DeviceService deviceService;
     private final Clock clock;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public UsagePointResource(MeteringService meteringService, DeviceService deviceService, Clock clock) {
+    public UsagePointResource(MeteringService meteringService, DeviceService deviceService, Clock clock, ExceptionFactory exceptionFactory) {
         this.meteringService = meteringService;
         this.deviceService = deviceService;
         this.clock = clock;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @PUT
@@ -77,7 +79,7 @@ public class UsagePointResource {
     @Path("/messages/{messageId}")
     public Response getDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long id) {
         Device device = findDeviceThroughUsagePoint(mRID);
-        DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == id).findFirst().orElseThrow(() -> new WebApplicationException("No such device message", Response.Status.NOT_FOUND));
+        DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == id).findFirst().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE));
         DeviceMessageInfo info = new DeviceMessageInfo();
         info.status=deviceMessage.getStatus();
         info.sentDate=deviceMessage.getSentDate().orElse(null);
@@ -85,10 +87,10 @@ public class UsagePointResource {
     }
 
     private Device findDeviceThroughUsagePoint(String mRID) {
-        UsagePoint usagePoint = meteringService.findUsagePoint(mRID).orElseThrow(() -> new WebApplicationException("No such usagepoint", Response.Status.NOT_FOUND));
-        MeterActivation meterActivation = usagePoint.getCurrentMeterActivation().orElseThrow(() -> new WebApplicationException("No current meter activation", Response.Status.NOT_FOUND));
-        Meter meter = meterActivation.getMeter().orElseThrow(() -> new WebApplicationException("No meter in activation", Response.Status.NOT_FOUND));
-        return deviceService.findByUniqueMrid(meter.getMRID()).orElseThrow(() -> new WebApplicationException("No such meter", Response.Status.NOT_FOUND));
+        UsagePoint usagePoint = meteringService.findUsagePoint(mRID).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_USAGE_POINT));
+        MeterActivation meterActivation = usagePoint.getCurrentMeterActivation().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CURRENT_METER_ACTIVATION));
+        Meter meter = meterActivation.getMeter().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METER_IN_ACTIVATION));
+        return deviceService.findByUniqueMrid(meter.getMRID()).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_DEVICE_FOR_METER, meter.getMRID()));
     }
 
     private ManuallyScheduledComTaskExecution createAdHocComTaskExecution(Device device, ComTaskEnablement comTaskEnablement) {
@@ -127,7 +129,7 @@ public class UsagePointResource {
                             filter(dms -> dms.getId().equals(deviceMessageId)).
                             findFirst().
                             isPresent()).
-                    findAny().orElseThrow(() -> new WebApplicationException("No comtask for command", Response.Status.BAD_REQUEST));
+                    findAny().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_COMTASK_FOR_COMMAND));
     }
 
     private DeviceMessageId getMessageId(ContactorInfo contactorInfo) {
@@ -140,7 +142,7 @@ public class UsagePointResource {
             case armed:
                 return contactorInfo.activationDate!=null?DeviceMessageId.CONTACTOR_ARM_WITH_ACTIVATION_DATE:DeviceMessageId.CONTACTOR_ARM;
             default:
-                throw new WebApplicationException(Response.Status.BAD_REQUEST);
+                throw exceptionFactory.newException(MessageSeeds.UNKNOWN_STATUS);
         }
     }
 

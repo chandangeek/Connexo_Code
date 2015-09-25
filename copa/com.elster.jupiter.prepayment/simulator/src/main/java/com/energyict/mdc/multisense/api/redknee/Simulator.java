@@ -6,6 +6,8 @@ import org.eclipse.jetty.server.Server;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.UriBuilder;
@@ -15,20 +17,18 @@ import java.io.IOException;
 import java.net.URI;
 import java.time.Clock;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Created by bvn on 9/17/15.
  */
 public class Simulator {
-    private static final Logger LOGGER = Logger.getLogger(Simulator.class.getSimpleName());
+    private static final Logger logger = LoggerFactory.getLogger(Simulator.class);
 
     public static void main(String[] args) {
         try {
             Simulator simulator = new Simulator();
-            Configuration configuration = simulator.readConfiguration(args.length>0?args[0]:"simulator.json");
-            LOGGER.info(configuration.toString());
+            Configuration configuration = simulator.readConfiguration(args.length > 0 ? args[0] : "simulator.json");
+            logger.info(configuration.toString());
             ConsumptionExportGenerator generator = new ConsumptionExportGenerator(Clock.systemDefaultZone(), new ScheduledThreadPoolExecutor(1));
             RknApplication rknApplication = new RknApplication(generator, configuration);
             ResourceConfig resourceConfig = ResourceConfig.forApplication(rknApplication);
@@ -37,12 +37,12 @@ public class Simulator {
             generator.start();
             simulator.startJetty(resourceConfig, configuration.getSimulatorPort());
         } catch (FileNotFoundException e) {
-            LOGGER.severe("Configuration not found.");
-            LOGGER.severe("Either make sure the current directory contains the configuration file 'simulator.json' or provide the file as argument to the simulator.");
+            logger.error("Configuration not found.");
+            logger.error("Either make sure the current directory contains the configuration file 'simulator.json' or provide the file as argument to the simulator.");
         } catch (IOException e) {
-            LOGGER.severe("Error while reading configuration: " + e);
+            logger.error("Error while reading configuration: " + e);
         } catch (Exception e) {
-            LOGGER.severe("Failed to start Jetty: " + e);
+            logger.error("Failed to start Jetty: " + e);
         }
     }
 

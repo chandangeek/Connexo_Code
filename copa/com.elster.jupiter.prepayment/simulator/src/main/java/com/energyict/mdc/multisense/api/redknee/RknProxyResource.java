@@ -1,8 +1,6 @@
 package com.energyict.mdc.multisense.api.redknee;
 
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.server.Uri;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -24,7 +22,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.net.URI;
 
 /**
  * Created by bvn on 9/17/15.
@@ -52,7 +49,7 @@ public class RknProxyResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateContactor(@PathParam("mrid") String mRID, ContactorInfo contactorInfo, @Context SecurityContext context, @Context UriInfo uriInfo) {
         SecurityEnvelope securityEnvelope = (SecurityEnvelope) context.getUserPrincipal();
-        UsagePoint usagePoint = generator.getUsagePoint(mRID).orElseThrow(() -> new WebApplicationException("No such usagepoint", Response.Status.NOT_FOUND));
+        UsagePoint usagePoint = generator.getUsagePoint(mRID).orElseThrow(() -> new WebApplicationException("No such usage point in the simulator's config. Add it to the config or correct the mRID in the URL.", Response.Status.NOT_FOUND));
         Response response = proxyRequest(mRID, contactorInfo, securityEnvelope);
         if (response.getStatus()== Response.Status.ACCEPTED.getStatusCode()) {
             switch (contactorInfo.status) {
@@ -83,7 +80,7 @@ public class RknProxyResource {
                     put(Entity.json(contactorInfo));
         }
         catch (ClientErrorException | ProcessingException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("{\"error\":\""+e.getLocalizedMessage()+"\"}").build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("{\"error\":\"Something happened in Connexo: "+e.getLocalizedMessage()+"\"}").build();
         }
     }
 }

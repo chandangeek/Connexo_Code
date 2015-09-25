@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
@@ -118,6 +119,7 @@ public class PrepaymentApplication extends Application implements TranslationKey
             bind(clock).to(Clock.class);
 
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
         }
     }
 

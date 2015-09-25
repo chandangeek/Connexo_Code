@@ -24,6 +24,7 @@ public class RknApplication extends Application {
         Set<Class<?>> set = new HashSet<>();
         set.add(RknProxyResource.class);
         set.add(RequestSecurityFilter.class);
+        set.add(SimExceptionMapper.class);
         return Collections.unmodifiableSet(set);
     }
 
