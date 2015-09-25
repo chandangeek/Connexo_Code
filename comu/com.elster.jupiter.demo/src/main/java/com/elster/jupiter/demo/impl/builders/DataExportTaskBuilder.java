@@ -74,8 +74,7 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
                 .fromReadingType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0")
                 .endSelection();
         builder.addProperty("formatterProperties.separator").withValue("comma");
-        ExportTask dataExportTask = builder.build();
-        dataExportTask.save();
+        ExportTask dataExportTask = builder.create();
         return dataExportTask;
     }
 }
