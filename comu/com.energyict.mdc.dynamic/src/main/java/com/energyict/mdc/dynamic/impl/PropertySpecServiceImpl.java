@@ -2,7 +2,6 @@ package com.energyict.mdc.dynamic.impl;
 
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
@@ -24,6 +23,7 @@ import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.HasId;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -34,6 +34,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,9 +55,11 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     private volatile com.elster.jupiter.properties.PropertySpecService basicPropertySpecService;
     private Map<Class<? extends CanFindByLongPrimaryKey>, CanFindByLongPrimaryKey<? extends HasId>> finders = new ConcurrentHashMap<>();
 
+    // For OSGi purposes
     public PropertySpecServiceImpl() {
     }
 
+    // For testing purposes
     @Inject
     public PropertySpecServiceImpl(com.elster.jupiter.properties.PropertySpecService basicPropertySpec, DataVaultService dataVaultService, TimeService timeService, OrmService ormService) {
         this();
@@ -202,9 +205,16 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         return this.referencePropertySpec(name, "", required, factoryId);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public PropertySpec referencePropertySpec(String name, String description, boolean required, FactoryIds factoryId) {
         return new JupiterReferencePropertySpec(name, description, required, this.finderFor(factoryId));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public PropertySpec referencePropertySpec(String name, boolean required, FactoryIds factoryId, List<? extends Object> possibleValues) {
+        return new JupiterReferencePropertySpec(name, "", required, this.finderFor(factoryId), possibleValues);
     }
 
     private CanFindByLongPrimaryKey<? extends HasId> finderFor(FactoryIds factoryId) {
