@@ -22,7 +22,6 @@ import java.util.Optional;
 public abstract class AbstractUserDirectoryImpl implements UserDirectory {
     protected final UserService userService;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(max = 128, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_128 + "}")
     private String name;
     private boolean isDefault;
@@ -31,7 +30,7 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
     protected final DataModel dataModel;
     private long version;
     private long id;
-    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String type;
     private Instant createTime;
     private Instant modTime;

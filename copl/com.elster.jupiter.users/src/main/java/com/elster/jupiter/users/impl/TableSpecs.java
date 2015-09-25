@@ -64,7 +64,7 @@ public enum TableSpecs {
             table.column("PASSWORD").type("varchar(128)").map("password").add();
             table.column("URL").type("varchar(4000)").map("url").add();
             table.column("BACKUPURL").type("varchar(4000)").map("backupUrl").add();
-            table.column("SECURITY").type("varchar(4)").map("security").add();
+            table.column("SECURITY").type("varchar(4)").map("securityProtocol").add();
             table.column("BASE_USER").type("varchar(4000)").map("baseUser").add();
             table.column("BASE_GROUP").type("varchar(4000)").map("baseGroup").add();
             table.addAuditColumns();
