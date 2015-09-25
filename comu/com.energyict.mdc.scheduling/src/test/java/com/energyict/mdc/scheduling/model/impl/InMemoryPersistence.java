@@ -33,7 +33,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.time.impl.TimeModule;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -88,7 +88,6 @@ public class InMemoryPersistence {
                 new DomainUtilModule(),
                 new PartyModule(),
                 new UserModule(),
-                new TimeModule(),
                 new IdsModule(),
                 new FiniteStateMachineModule(),
                 new MeteringModule(),
@@ -169,6 +168,7 @@ public class InMemoryPersistence {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(TimeService.class).toInstance(mock(TimeService.class));
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(DataModel.class).toProvider(() -> dataModel);
