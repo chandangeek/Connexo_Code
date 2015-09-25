@@ -252,7 +252,7 @@ public class ReadingEstimateTest {
         try (TransactionContext ctx = transactionService.getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
             meter = amrSystem.newMeter("myMeter").create();
-            meter.save();
+            meter.update();
             ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                     .period(TimeAttribute.MINUTE15)
                     .accumulate(Accumulation.BULKQUANTITY)
