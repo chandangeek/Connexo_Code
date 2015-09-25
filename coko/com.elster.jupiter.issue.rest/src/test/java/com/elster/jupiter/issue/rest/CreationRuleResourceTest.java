@@ -28,6 +28,8 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -41,15 +43,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.*;
-import org.mockito.Matchers;
-
 import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
 
@@ -224,7 +221,6 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(actionBuilder).complete();
-        verify(rule).save();
         verify(context).commit();
     }
 
@@ -291,7 +287,7 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(actionBuilder).complete();
         verify(updater).removeActions();
-        verify(rule).save();
+        verify(updater).complete();
         verify(context).commit();
     }
 
