@@ -114,8 +114,6 @@ public class OfflineDeviceImplTest {
     @Mock
     private OrmService ormService;
     @Mock
-    private TimeService timeService;
-    @Mock
     DataModel dataModel;
 
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
