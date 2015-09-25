@@ -142,7 +142,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 });
                 channel.load(channelId, {
                     success: function (channel) {
-                        viewport.setLoading(false);
                         me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
                         var widget = Ext.widget('tabbedDeviceChannelsView', {
                             title: channel.get('name'),
@@ -160,6 +159,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         });
 
                         me.getApplication().fireEvent('changecontentevent', widget);
+                        viewport.setLoading(false);
                         if (activeTab == 1) {
                             me.setupReadingsTab(device, channel, widget);
                         } else if (activeTab == 0) {
@@ -184,6 +184,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             mRID: device.get('mRID'),
             channelId: channel.getId()
         });
+        dataStore.loadData([], false);
         dataStore.load();
     },
 
