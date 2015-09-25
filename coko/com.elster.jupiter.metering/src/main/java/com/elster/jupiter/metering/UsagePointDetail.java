@@ -12,15 +12,23 @@ import com.elster.jupiter.orm.associations.Effectivity;
 public interface UsagePointDetail extends Effectivity {
 
     AmiBillingReadyKind getAmiBillingReady();
+
     boolean isCheckBilling();
+
     UsagePointConnectedKind getConnectionState();
+
     boolean isMinimalUsageExpected();
+
     String getServiceDeliveryRemark();
 
     void setAmiBillingReady(AmiBillingReadyKind amiBillingReady);
+
     void setCheckBilling(boolean checkBilling);
+
     void setConnectionState(UsagePointConnectedKind connectionState);
+
     void setMinimalUsageExpected(boolean minimalUsageExpected);
+
     void setServiceDeliveryRemark(String serviceDeliveryRemark);
 
     boolean isCurrent();

@@ -92,6 +92,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
+	private transient Optional<ReadingType> calculatedReadingType;
 
     @Inject
 	ReadingTypeImpl(DataModel dataModel, Thesaurus thesaurus) {
@@ -315,12 +316,16 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 
 	@Override
 	public Optional<ReadingType> getCalculatedReadingType() {
-		if (isCumulative()){
-			ReadingTypeCodeBuilder builder = this.builder();
-			builder.accumulate(Accumulation.DELTADELTA);
-			return dataModel.mapper(ReadingType.class).getOptional(builder.code());
+		if (calculatedReadingType == null) {
+			if (isCumulative()) {
+				ReadingTypeCodeBuilder builder = this.builder();
+				builder.accumulate(Accumulation.DELTADELTA);
+                calculatedReadingType = dataModel.mapper(ReadingType.class).getOptional(builder.code());
+			} else {
+                calculatedReadingType = Optional.empty();
+            }
 		}
-		return Optional.empty();
+		return calculatedReadingType;
 	}
 
     @Override
