@@ -20,7 +20,7 @@ Ext.define('Uni.view.menu.NavigationMenu', {
     listeners: {
         add: function (menu, item, index) {
             item.renderData.index = item.index = ++index;
-            this.updateItemCls(index)
+            this.updateItemCls(index, false)
         },
         click: function (menu, item) {
             item.index < menu.activeStep ?
@@ -29,17 +29,19 @@ Ext.define('Uni.view.menu.NavigationMenu', {
         }
     },
 
-    updateItemCls: function (index) {
+    updateItemCls: function (index, markInvalid) {
         var me = this,
             item = me.items.getAt(index - 1),
             classesToAdd;
 
-        item.removeCls(['step-completed', 'step-active', 'step-non-completed', 'not-a-clickable']);
+        item.removeCls(['step-completed', 'step-active', 'step-non-completed', 'not-a-clickable', 'step-error']);
 
         if (index < me.activeStep) {
             classesToAdd = me.jumpBack ? 'step-completed' : ['step-completed', 'not-a-clickable'];
         } else if (index > me.activeStep) {
             classesToAdd = me.jumpForward ? 'step-non-completed' : ['step-non-completed', 'not-a-clickable'];
+        } else if (markInvalid) {
+            classesToAdd = ['step-error', 'not-a-clickable'];
         } else {
             classesToAdd = ['step-active', 'not-a-clickable'];
         }
@@ -60,9 +62,13 @@ Ext.define('Uni.view.menu.NavigationMenu', {
             me.activeStep = step;
             me.items.each(function (item) {
                 var index = item.index;
-                me.updateItemCls(index);
+                me.updateItemCls(index, false);
             });
         }
+    },
+
+    markInvalid: function () {
+        this.updateItemCls(this.getActiveStep(), true);
     },
 
     getActiveStep: function () {
