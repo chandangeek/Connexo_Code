@@ -444,7 +444,7 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
     }
 
     @Override
-    public void save() {
+    public void update() {
         this.version++;
     }
 
