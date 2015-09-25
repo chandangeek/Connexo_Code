@@ -544,7 +544,7 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public void setZone(ZoneId zone) {
-        if (zoneId != null) {
+        if (zone != null) {
             this.timeZoneId = zone.getId();
         } else {
             this.timeZoneId = "";
