@@ -504,7 +504,6 @@ public class ExportTaskImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             exportTask = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, name);
 
-            exportTask.save();
             context.commit();
         }
         return exportTask;
@@ -531,7 +530,7 @@ public class ExportTaskImplIT {
                 .continuousData(true)
                 .endSelection()
                 .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
-                .build();
+                .create();
     }
 
     @Test
@@ -590,7 +589,7 @@ public class ExportTaskImplIT {
             meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test").create();
             IReadingTypeDataExportItem item = (IReadingTypeDataExportItem) task.getReadingTypeDataSelector().get().addExportItem(meter, readingType);
             item.deactivate();
-            task.save();
+            item.update();
             context.commit();
         }
 

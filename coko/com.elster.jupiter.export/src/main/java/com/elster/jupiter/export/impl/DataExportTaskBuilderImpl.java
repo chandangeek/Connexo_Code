@@ -92,7 +92,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     }
 
     @Override
-    public ExportTask build() {
+    public ExportTask create() {
         ExportTaskImpl exportTask = ExportTaskImpl.from(dataModel, name, dataFormatter, dataSelector, scheduleExpression, nextExecution);
         exportTask.setScheduleImmediately(scheduleImmediately);
         if (defaultSelector) {
@@ -107,6 +107,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
             exportTask.setReadingTypeDataSelector(readingTypeDataSelector);
         }
         properties.stream().forEach(p -> exportTask.setProperty(p.name, p.value));
+        exportTask.save();
         return exportTask;
     }
 

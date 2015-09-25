@@ -67,8 +67,7 @@ public class ConsoleCommands {
             Arrays.stream(readingTypes)
                     .map(mrid -> meteringService.getReadingType(mrid).get())
                     .forEach(builder::fromReadingType);
-            ExportTask dataExportTask = builder.endSelection().build();
-            dataExportTask.save();
+            ExportTask dataExportTask = builder.endSelection().create();
             context.commit();
         } catch (RuntimeException e) {
             e.printStackTrace();

@@ -265,7 +265,7 @@ public class DataExportServiceImplIT {
                     .exportUpdate(true)
                     .continuousData(true)
                     .endSelection()
-                    .build();
+                    .create();
 
             exportTask1.save();
             context.commit();
@@ -324,7 +324,7 @@ public class DataExportServiceImplIT {
                 .exportUpdate(true)
                 .continuousData(true)
                 .endSelection()
-                .build();
+                .create();
     }
 
     private ExportTask createAndSaveTask() {

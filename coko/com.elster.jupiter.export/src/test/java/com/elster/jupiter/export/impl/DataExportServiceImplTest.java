@@ -1,13 +1,17 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataExportTaskBuilder;
+import com.elster.jupiter.export.DataFormatterFactory;
+import com.elster.jupiter.export.DataSelectorFactory;
+import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
@@ -15,14 +19,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
-
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
-
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
-
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -38,6 +39,10 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.osgi.framework.BundleContext;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
@@ -51,14 +56,19 @@ import static com.elster.jupiter.export.DataExportService.DATA_TYPE_PROPERTY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataExportServiceImplTest {
     private static final long ID = 15;
-    private DataExportServiceImpl dataExportService;
     private static final Instant NOW = ZonedDateTime.of(2013, 9, 10, 14, 47, 24, 0, ZoneId.of("Europe/Paris")).toInstant();
+    private static final Instant nextExecution = ZonedDateTime.of(2013, 9, 10, 14, 47, 24, 0, ZoneId.of("Europe/Paris")).toInstant();
+    private static String NAME = "task";
+    private static String DATA_FORMATTER = "factory";
+
+    private DataExportServiceImpl dataExportService;
 
     @Mock
     private DataModel dataModel;
@@ -116,10 +126,12 @@ public class DataExportServiceImplTest {
     private EndDeviceGroup endDeviceGroup;
     @Mock
     private ValidationService validationService;
-
-    private static final Instant nextExecution = ZonedDateTime.of(2013, 9, 10, 14, 47, 24, 0, ZoneId.of("Europe/Paris")).toInstant();
-    private static String NAME = "task";
-    private static String DATA_FORMATTER = "factory";
+    @Mock
+    private DestinationSpec destinationSpec;
+    @Mock
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private Validator validator;
 
     @Before
     public void setUp() throws SQLException {
@@ -135,6 +147,10 @@ public class DataExportServiceImplTest {
                 return ((Transaction<?>) invocationOnMock.getArguments()[0]).perform();
             }
         });
+        when(messageService.getDestinationSpec("DataExport")).thenReturn(Optional.of(destinationSpec));
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(validatorFactory.getValidator()).thenReturn(validator);
+        when(validator.validate(any(), anyVararg())).thenReturn(Collections.<ConstraintViolation<Object>>emptySet());
         when(clock.instant()).thenReturn(NOW);
         dataExportService = new DataExportServiceImpl();
         dataExportService.setOrmService(ormService);
@@ -165,7 +181,7 @@ public class DataExportServiceImplTest {
                 .fromExportPeriod(relativePeriod)
                 .endSelection();
         assertThat(dataExportService.newBuilder()).isInstanceOf(DataExportTaskBuilder.class);
-        assertThat(dataExportTaskBuilder.build()).isEqualTo(readingTypeDataExportTaskImpl);
+        assertThat(dataExportTaskBuilder.create()).isEqualTo(readingTypeDataExportTaskImpl);
         assertThat(readingTypeDataExportTaskImpl.getName()).isEqualTo(NAME);
     }
 
