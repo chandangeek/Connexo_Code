@@ -257,19 +257,18 @@ public class FileImportServiceIT {
         when(fileImporterFactory.getApplicationName()).thenReturn("SYS");
 
 
-        importSchedule = (ImportScheduleImpl)fileImportService.newBuilder()
-                .setName("IMPORT_SCHEDULE1")
-                .setDestination(DESTINATION_NAME)
-                .setPathMatcher("*")
-                .setImportDirectory(sourceDirectory)
-                .setFailureDirectory(failureDirectory)
-                .setSuccessDirectory(successDirectory)
-                .setProcessingDirectory(inProcessDirectory)
-                .setImporterName(IMPORTER_NAME)
-                .setScheduleExpression(scheduleExpression)
-                .create();
         transactionService.execute(() -> {
-                    importSchedule.save();
+            importSchedule = (ImportScheduleImpl)fileImportService.newBuilder()
+                    .setName("IMPORT_SCHEDULE1")
+                    .setDestination(DESTINATION_NAME)
+                    .setPathMatcher("*")
+                    .setImportDirectory(sourceDirectory)
+                    .setFailureDirectory(failureDirectory)
+                    .setSuccessDirectory(successDirectory)
+                    .setProcessingDirectory(inProcessDirectory)
+                    .setImporterName(IMPORTER_NAME)
+                    .setScheduleExpression(scheduleExpression)
+                    .create();
                     return null;
                 });
 

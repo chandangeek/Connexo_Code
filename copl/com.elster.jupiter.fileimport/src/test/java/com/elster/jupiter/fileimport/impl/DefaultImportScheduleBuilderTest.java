@@ -20,11 +20,17 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -60,7 +66,10 @@ public class DefaultImportScheduleBuilderTest {
     private Thesaurus thesaurus;
     @Mock
     private JsonService jsonService;
-
+    @Mock
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private Validator validator;
     private FileSystem testFileSystem;
 
     @Before
@@ -74,6 +83,9 @@ public class DefaultImportScheduleBuilderTest {
         when(fileImportService.getImportFactory(Matchers.any())).thenReturn(Optional.of(fileImporterFactory));
         when(fileImportService.getBasePath()).thenReturn(BASE_PATH);
         when(fileImporterFactory.getDestinationName()).thenReturn("DEST_1");
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(validatorFactory.getValidator()).thenReturn(validator);
+        when(validator.validate(any(), anyVararg())).thenReturn(Collections.<ConstraintViolation<Object>>emptySet());
         when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(
                 new ImportScheduleImpl(dataModel, fileImportService, messageService, scheduleExpressionParser, nameResolver, fileUtils,jsonService, thesaurus, testFileSystem));
     }
