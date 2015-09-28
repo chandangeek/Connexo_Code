@@ -7,7 +7,8 @@ import java.util.Collections;
 import java.util.Locale;
 
 /**
- * Template for creating a 'DemoUser'
+ * {@link Template} for creating a 'DemoUser': a user with only 'view' privileges
+ * Password is set to "D3mo"
  *
  * Copyrights EnergyICT
  * Date: 17/09/2015
@@ -28,7 +29,7 @@ public class DemoUserTpl implements Template<User, UserBuilder> {
 
      @Override
      public UserBuilder get(UserBuilder builder) {
-         return builder.withName(this.name).withPassword("D3mo").withLanguage(Locale.getDefault().toLanguageTag()).withRoles(Collections.singletonList(UserTpl.UserRoles.READ_ONLY));
+         return builder.withName(this.name).withPassword(UserBuilder.DEMO_PASSWORD).withLanguage(Locale.getDefault().toLanguageTag()).withRoles(UserTpl.UserRoles.READ_ONLY);
      }
 
 }

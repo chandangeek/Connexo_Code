@@ -1,5 +1,10 @@
 package com.elster.jupiter.demo.impl.builders;
 
+/**
+ * Extension of {@link Builder} having an attribute 'name'
+ * @param <T> Type of object
+ * @param <B> Builder class
+ */
 public abstract class NamedBuilder<T, B> implements Builder<T> {
     private final Class<B> clazz;
 

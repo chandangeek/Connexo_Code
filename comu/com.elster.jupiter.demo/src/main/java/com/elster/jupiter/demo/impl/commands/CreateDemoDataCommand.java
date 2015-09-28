@@ -24,7 +24,6 @@ public class CreateDemoDataCommand {
     private final Provider<CreateDeviceCommand> createDeviceCommandProvider;
     private final Provider<CreateDeliverDataSetupCommand> createDeliverDataSetupCommandProvider;
     private final Provider<ValidateStartDateCommand> validateStartDateCommandProvider;
-    private final Provider<CreateDefaultDeviceLifeCycleCommand> createDefaultDeviceLifeCycleCommandProvider;
     private final Provider<CreateDemoUserCommand> createDemoUserCommandProvider;
     private final Provider<SetupFirmwareManagementCommand> setupFirmwareManagementCommandProvider;
     private final Provider<CreateImportersCommand> createImportersCommandProvider;
@@ -44,7 +43,6 @@ public class CreateDemoDataCommand {
             Provider<CreateDeviceCommand> createDeviceCommandProvider,
             Provider<CreateDeliverDataSetupCommand> createDeliverDataSetupCommandProvider,
             Provider<ValidateStartDateCommand> validateStartDateCommandProvider,
-            Provider<CreateDefaultDeviceLifeCycleCommand> createDefaultDeviceLifeCycleCommandProvider,
             Provider<CreateDemoUserCommand> createDemoUserCommandProvider,
             Provider<SetupFirmwareManagementCommand> setupFirmwareManagementCommandProvider,
             Provider<CreateImportersCommand> createImportersCommandProvider) {
@@ -57,7 +55,6 @@ public class CreateDemoDataCommand {
         this.createDeviceCommandProvider = createDeviceCommandProvider;
         this.createDeliverDataSetupCommandProvider = createDeliverDataSetupCommandProvider;
         this.validateStartDateCommandProvider = validateStartDateCommandProvider;
-        this.createDefaultDeviceLifeCycleCommandProvider = createDefaultDeviceLifeCycleCommandProvider;
         this.createDemoUserCommandProvider = createDemoUserCommandProvider;
         this.setupFirmwareManagementCommandProvider = setupFirmwareManagementCommandProvider;
         this.createImportersCommandProvider = createImportersCommandProvider;
@@ -88,7 +85,6 @@ public class CreateDemoDataCommand {
         setupFirmwareManagementCommand();
         createImportersCommand();
         createValidationSetupCommand();
-        createDefaultDeviceLifeCycleCommand();
         createNtaConfigCommand();
         createMockedDataDeviceCommand();
         createDeliverDataSetupCommand();
@@ -129,12 +125,6 @@ public class CreateDemoDataCommand {
             command.setUserName(name);
             command.run();
         }
-    }
-
-    private void createDefaultDeviceLifeCycleCommand(){
-        CreateDefaultDeviceLifeCycleCommand command = this.createDefaultDeviceLifeCycleCommandProvider.get();
-        command.setLastCheckedDate(this.startDate);
-        command.run();
     }
 
     private void createCollectRemoteDataSetupCommand(){

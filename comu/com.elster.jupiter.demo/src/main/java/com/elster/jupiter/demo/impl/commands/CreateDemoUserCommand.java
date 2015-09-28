@@ -1,5 +1,7 @@
 package com.elster.jupiter.demo.impl.commands;
 
+import com.elster.jupiter.demo.impl.builders.UserBuilder;
+import com.elster.jupiter.demo.impl.templates.DemoUserTpl;
 import com.elster.jupiter.users.*;
 import com.elster.jupiter.util.conditions.*;
 
@@ -34,14 +36,12 @@ public class CreateDemoUserCommand {
         if (userName == null){
             throw new IllegalStateException("User name is not set");
         }
+        //Create the 'Demo User' group
+        userService.findGroup(DEMO_USER_ROLE).orElseGet(this::createAndGrantViewPrivilegesToGroup);
+        //Create the user and make him a member of the 'Demo User' group
+        UserBuilder builder = new DemoUserTpl(userName).get(new UserBuilder(userService)).withRoles(DEMO_USER_ROLE);
+        builder.get();
 
-        Group group = userService.findGroup(DEMO_USER_ROLE).orElseGet(this::createAndGrantViewPrivilegesToGroup);
-
-        User user  = userService.findUser(userName).orElseGet(() -> userService.createUser(this.userName, "Demo User"));
-        user.setPassword("D3mo");
-        user.save();
-        // Make the user a member of the 'Demo Users' group with all its privileges
-        user.join(group);
         System.out.println("==> created 'Demo' user " + userName);
     }
 

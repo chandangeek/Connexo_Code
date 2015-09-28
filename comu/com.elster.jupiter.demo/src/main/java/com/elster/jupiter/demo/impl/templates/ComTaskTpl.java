@@ -7,33 +7,23 @@ import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * {@link Template} holding a set of predefined attributes for creating Communication Tasks
+ */
 public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
     READ_ALL("Read all",
             Arrays.asList(LoadProfileTypeTpl._15_MIN_ELECTRICITY, LoadProfileTypeTpl.DAILY_ELECTRICITY, LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
             Arrays.asList(LogBookTypeTpl.STANDARD_EVENT_LOG, LogBookTypeTpl.FRAUD_DETECTION_LOG, LogBookTypeTpl.DISCONNECTOR_CONTROL_LOG),
-            Arrays.asList(RegisterGroupTpl.DEVICE_DATA),
+            Collections.singletonList(RegisterGroupTpl.DEVICE_DATA),
             null,
-            Arrays.asList(new ComTaskBuilder.Clock(ClockTaskType.SETCLOCK, TimeDuration.minutes(5), TimeDuration.hours(1), null))),
-    TOPOLOGY("Topology",
-            null,
-            null,
-            null,
-            Arrays.asList(TopologyAction.VERIFY),
-            null),
-    TOPOLOGY_UPDATE("Topology update",
-        null,
-        null,
-        null,
-        Arrays.asList(TopologyAction.UPDATE),
-        null),
+            Collections.singletonList(new ComTaskBuilder.Clock(ClockTaskType.SETCLOCK, TimeDuration.minutes(5), TimeDuration.hours(1), null))),
     READ_REGISTER_DATA("Read register data",
             null,
             null,
-            Arrays.asList(RegisterGroupTpl.DEVICE_DATA),
+            Collections.singletonList(RegisterGroupTpl.DEVICE_DATA),
             null,
             null),
     READ_LOAD_PROFILE_DATA("Read load profile data",
@@ -48,6 +38,18 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
             null,
             null,
             null),
+    TOPOLOGY("Topology",
+            null,
+            null,
+            null,
+            Collections.singletonList(TopologyAction.VERIFY),
+            null),
+    TOPOLOGY_UPDATE("Topology update",
+        null,
+        null,
+        null,
+        Collections.singletonList(TopologyAction.UPDATE),
+        null),
     ;
     private String name;
     private List<LoadProfileTypeTpl> loadProfileTypes;
@@ -89,5 +91,13 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
 
     public String getName() {
         return name;
+    }
+
+    static ComTaskTpl[] excludeTopologyTpls(){
+        return  EnumSet.of(READ_ALL, READ_REGISTER_DATA, READ_LOAD_PROFILE_DATA, READ_LOG_BOOK_DATA).toArray(new ComTaskTpl[4]);
+    }
+
+    static ComTaskTpl[] TopologyTpls(){
+        return  EnumSet.of(TOPOLOGY, TOPOLOGY_UPDATE).toArray(new ComTaskTpl[2]);
     }
 }

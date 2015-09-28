@@ -1,6 +1,7 @@
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
+import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3GatewayCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3SlaveCommand;
@@ -22,6 +23,7 @@ public class CreateG3DemoBoardCommand {
     private final ProtocolPluggableService protocolPluggableService;
     private final ConnectionTaskService connectionTaskService;
     private final Provider<DeviceBuilder> deviceBuilderProvider;
+    private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
     private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> activeLifeCyclestatePostBuilder;
 
     private String gatewayMrid = "Demo board RTU+Server G3";
@@ -31,11 +33,13 @@ public class CreateG3DemoBoardCommand {
                                      ProtocolPluggableService protocolPluggableService,
                                      ConnectionTaskService connectionTaskService,
                                      Provider<DeviceBuilder> deviceBuilderProvider,
+                                     Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
                                      Provider<SetDeviceInActiveLifeCycleStatePostBuilder> activeLifeCyclestatePostBuilder){
         this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
         this.connectionTaskService = connectionTaskService;
         this.deviceBuilderProvider = deviceBuilderProvider;
+        this.connectionMethodsProvider = connectionMethodsProvider;
         this.activeLifeCyclestatePostBuilder = activeLifeCyclestatePostBuilder;
     }
 
@@ -49,6 +53,7 @@ public class CreateG3DemoBoardCommand {
                 protocolPluggableService,
                 connectionTaskService,
                 deviceBuilderProvider,
+                connectionMethodsProvider,
                 activeLifeCyclestatePostBuilder);
         gatewayCommand.setGatewayMrid(gatewayMrid);
 

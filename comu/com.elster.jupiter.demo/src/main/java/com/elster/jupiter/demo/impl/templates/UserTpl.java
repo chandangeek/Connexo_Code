@@ -8,27 +8,27 @@ import java.util.List;
 import java.util.Locale;
 
 public enum UserTpl implements Template<User, UserBuilder> {
-    MELISSA ("Melissa", Locale.ENGLISH.toLanguageTag(), Arrays.asList(UserRoles.METER_EXPERT)),
-    SAM ("Sam", Locale.US.toLanguageTag(), Arrays.asList(UserRoles.ADMINISTRATORS)),
-    MONICA ("Monica", Locale.ENGLISH.toLanguageTag(), Arrays.asList(UserRoles.METER_OPERATOR)),
-    PIETER ("Pieter", Locale.ENGLISH.toLanguageTag(), Arrays.asList(UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR)),
-    JOLIEN ("Jolien", Locale.ENGLISH.toLanguageTag(), Arrays.asList(UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR)),
-    INGE ("Inge", Locale.ENGLISH.toLanguageTag(), Arrays.asList(UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR)),
-    KOEN ("Koen", Locale.ENGLISH.toLanguageTag(), Arrays.asList(UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR)),
-    SEBASTIEN ("Sebastien", Locale.ENGLISH.toLanguageTag(), Arrays.asList(UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR)),
-    VEERLE ("Veerle", Locale.ENGLISH.toLanguageTag(), Arrays.asList(UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR)),
-    KURT ("Kurt", Locale.ENGLISH.toLanguageTag(), Arrays.asList(UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR)),
-    EDUARDO ("Eduardo", Locale.US.toLanguageTag(), Arrays.asList(UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR)),
-    BOB ("Bob", Locale.US.toLanguageTag(), Arrays.asList(UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR)),
-    MICHELLE ("Michelle", Locale.FRENCH.toLanguageTag(), Arrays.asList(UserRoles.METER_OPERATOR)),
-    FRANK ("Frank", Locale.ENGLISH.toLanguageTag(), Arrays.asList(UserRoles.METER_OPERATOR)),
+    MELISSA ("Melissa", Locale.ENGLISH.toLanguageTag(), UserRoles.METER_EXPERT),
+    SAM ("Sam", Locale.US.toLanguageTag(), UserRoles.ADMINISTRATORS),
+    MONICA ("Monica", Locale.ENGLISH.toLanguageTag(), UserRoles.METER_OPERATOR),
+    PIETER ("Pieter", Locale.ENGLISH.toLanguageTag(), UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR),
+    JOLIEN ("Jolien", Locale.ENGLISH.toLanguageTag(), UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR),
+    INGE ("Inge", Locale.ENGLISH.toLanguageTag(), UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR),
+    KOEN ("Koen", Locale.ENGLISH.toLanguageTag(), UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR),
+    SEBASTIEN ("Sebastien", Locale.ENGLISH.toLanguageTag(), UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR),
+    VEERLE ("Veerle", Locale.ENGLISH.toLanguageTag(), UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR),
+    KURT ("Kurt", Locale.ENGLISH.toLanguageTag(), UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR),
+    EDUARDO ("Eduardo", Locale.US.toLanguageTag(), UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR),
+    BOB ("Bob", Locale.US.toLanguageTag(), UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR),
+    MICHELLE ("Michelle", Locale.FRENCH.toLanguageTag(), UserRoles.METER_OPERATOR),
+    FRANK ("Frank", Locale.ENGLISH.toLanguageTag(), UserRoles.METER_OPERATOR)
     ;
 
     private String name;
     private String locale;
-    private List<String> roles;
+    private String[] roles;
 
-    UserTpl(String name, String locale, List<String> roles) {
+    UserTpl(String name, String locale, String... roles) {
         this.name = name;
         this.locale = locale;
         this.roles = roles;

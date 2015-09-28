@@ -55,7 +55,7 @@ public class CreateG3SlaveCommand {
         AS3000{
             @Override
             MeterConfig getMeterConfig() {
-                return new MeterConfig().setProperty("DeviceTypeName", "AS3000")
+                return new MeterConfig().setProperty("DeviceTypeName", "Elster AS3000")
                             .setProperty("MRID", "Demo board AS3000")
                             .setProperty("propertyID", "E0023000520685414")
                             .setProperty("serialNumber", "05206854")
@@ -72,7 +72,7 @@ public class CreateG3SlaveCommand {
         AS220{
             @Override
             MeterConfig getMeterConfig() {
-                return new MeterConfig().setProperty("DeviceTypeName", "AS220")
+                return new MeterConfig().setProperty("DeviceTypeName", "Elster AS220")
                             .setProperty("MRID", "Demo board AS220")
                             .setProperty("propertyID", "123457S")
                             .setProperty("serialNumber", "35075302")
