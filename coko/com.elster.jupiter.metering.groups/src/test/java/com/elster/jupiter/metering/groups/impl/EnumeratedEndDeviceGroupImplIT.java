@@ -327,6 +327,8 @@ public class EnumeratedEndDeviceGroupImplIT {
                     .setMRID("STATIC DEVICE GROUP")
                     .at(Instant.now())
                     .create();
+            enumeratedEndDeviceGroup.endMembership(endDevices.get(23), Instant.now());
+            enumeratedEndDeviceGroup.save();
             ctx.commit();
         }
 
