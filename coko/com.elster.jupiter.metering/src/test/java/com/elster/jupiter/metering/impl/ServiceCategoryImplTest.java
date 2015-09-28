@@ -12,9 +12,15 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.inject.Provider;
+import javax.validation.ValidatorFactory;
+
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceCategoryImplTest {
@@ -29,7 +35,11 @@ public class ServiceCategoryImplTest {
     private Provider<MeterActivationImpl> meterActivationFactory;
     @Mock
     private Provider<UsagePointAccountabilityImpl> accountabilityFactory;
-    
+    @Mock
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private javax.validation.Validator validator;
+
 
     @Before
     public void setUp() {
@@ -40,6 +50,9 @@ public class ServiceCategoryImplTest {
 			}
     	};
         serviceCategory = new ServiceCategoryImpl(dataModel,usagePointFactory).init(ServiceKind.ELECTRICITY);
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(validatorFactory.getValidator()).thenReturn(validator);
+        when(validator.validate(any(), anyVararg())).thenReturn(Collections.emptySet());
     }
 
     @After
@@ -80,6 +93,8 @@ public class ServiceCategoryImplTest {
 
     @Test
     public void testNewUsagePoint() {
+        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(dataModel, eventService, () -> null, () -> null));
+
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId").create();
         assertThat(usagePoint).isInstanceOf(UsagePointImpl.class);
 

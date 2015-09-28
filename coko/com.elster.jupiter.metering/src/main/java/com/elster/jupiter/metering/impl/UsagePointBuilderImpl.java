@@ -4,95 +4,115 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
-
-import javax.inject.Provider;
+import com.elster.jupiter.orm.DataModel;
 
 public class UsagePointBuilderImpl implements UsagePointBuilder {
 
-    private final UsagePointImpl underConstruction;
+    private DataModel dataModel;
 
-    private boolean built;
+    private String aliasName;
+    private String description;
+    private String mRID;
+    private String name;
+    private boolean isSdp;
+    private boolean isVirtual;
+    private String outageRegion;
+    private String readCycle;
+    private String readRoute;
+    private String servicePriority;
 
-    public UsagePointBuilderImpl(Provider<UsagePointImpl> provider, String mRID, ServiceCategory serviceCategory) {
-        underConstruction = provider.get().init(mRID, serviceCategory);
+    private ServiceCategory serviceCategory;
+    private ServiceLocation serviceLocation;
+
+    public UsagePointBuilderImpl(DataModel dataModel, String mRID, ServiceCategory serviceCategory) {
+        this.serviceCategory = serviceCategory;
+        this.mRID = mRID;
+        this.dataModel = dataModel;
+    }
+
+    @Override
+    public UsagePointBuilder withAliasName(String aliasName) {
+        this.aliasName = aliasName;
+        return this;
+    }
+
+    @Override
+    public UsagePointBuilder withDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    @Override
+    public UsagePointBuilder withMRID(String mRID) {
+        this.mRID = mRID;
+        return this;
+    }
+
+    @Override
+    public UsagePointBuilder withName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    @Override
+    public UsagePointBuilder withIsSdp(Boolean isSdp) {
+        this.isSdp = isSdp;
+        return this;
+    }
+
+    @Override
+    public UsagePointBuilder withIsVirtual(Boolean isVirtual) {
+        this.isVirtual = isVirtual;
+        return this;
+    }
+
+    @Override
+    public UsagePointBuilder withOutageRegion(String outageRegion) {
+        this.outageRegion = outageRegion;
+        return this;
+    }
+
+    @Override
+    public UsagePointBuilder withReadCycle(String readCycle) {
+        this.readCycle = readCycle;
+        return this;
+    }
+
+    @Override
+    public UsagePointBuilder withReadRoute(String readRoute) {
+        this.readRoute = readRoute;
+        return this;
+    }
+
+    @Override
+    public UsagePointBuilder withServicePriority(String servicePriority) {
+        this.servicePriority = servicePriority;
+        return this;
+    }
+
+    @Override
+    public UsagePointBuilder setServiceLocation(ServiceLocation location) {
+        this.serviceLocation = location;
+        return this;
     }
 
     @Override
     public UsagePoint create() {
-        if (built) {
-            throw new IllegalStateException();
-        }
-        underConstruction.doSave();
-        try {
-            return underConstruction;
-        } finally {
-            built = true;
-        }
+        UsagePointImpl usagePoint = dataModel.getInstance(UsagePointImpl.class).init(mRID, serviceCategory);
+
+        usagePoint.setAliasName(aliasName);
+        usagePoint.setDescription(description);
+        usagePoint.setName(name);
+        usagePoint.setSdp(isSdp);
+        usagePoint.setVirtual(isVirtual);
+        usagePoint.setOutageRegion(outageRegion);
+        usagePoint.setReadCycle(readCycle);
+        usagePoint.setReadRoute(readRoute);
+        usagePoint.setServicePriority(servicePriority);
+        usagePoint.setServiceLocation(serviceLocation);
+        usagePoint.doSave();
+        return usagePoint;
     }
 
-    @Override
-    public UsagePointBuilder setAliasName(String aliasName) {
-        underConstruction.setAliasName(aliasName);
-        return this;
-    }
 
-    @Override
-    public UsagePointBuilder setDescription(String description) {
-        underConstruction.setDescription(description);
-        return this;
-    }
-
-    @Override
-    public UsagePointBuilder setMRID(String mRID) {
-        underConstruction.setMRID(mRID);
-        return this;
-    }
-
-    @Override
-    public UsagePointBuilder setName(String name) {
-        underConstruction.setName(name);
-        return this;
-    }
-
-    @Override
-    public UsagePointBuilder setIsSdp(boolean isSdp) {
-        underConstruction.setSdp(isSdp);
-        return this;
-    }
-
-    @Override
-    public UsagePointBuilder setIsVirtual(boolean isVirtual) {
-        underConstruction.setVirtual(isVirtual);
-        return this;
-    }
-
-    @Override
-    public UsagePointBuilder setOutageRegion(String outageRegion) {
-        underConstruction.setOutageRegion(outageRegion);
-        return this;
-    }
-
-    @Override
-    public UsagePointBuilder setReadCycle(String readCycle) {
-        underConstruction.setReadCycle(readCycle);
-        return this;
-    }
-
-    @Override
-    public UsagePointBuilder setReadRoute(String readRoute) {
-        underConstruction.setReadRoute(readRoute);
-        return this;
-    }
-
-    @Override
-    public UsagePointBuilder setServicePriority(String servicePriority) {
-        underConstruction.setServicePriority(servicePriority);
-        return this;
-    }
-
-    @Override
-    public UsagePointBuilder setServiceLocation(ServiceLocation serviceLocation) {
-        underConstruction.setServiceLocation(serviceLocation);
-        return this;
-    }
 }

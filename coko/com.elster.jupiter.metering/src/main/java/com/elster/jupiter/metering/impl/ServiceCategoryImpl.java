@@ -82,9 +82,9 @@ public class ServiceCategoryImpl implements ServiceCategory {
     }
 
     public UsagePointBuilder newUsagePoint(String mRid) {
-		return new UsagePointBuilderImpl(usagePointFactory, mRid, this);
+		return new UsagePointBuilderImpl(dataModel, mRid, this);
 	}
-
+    
     @Override
     public String getTranslationKey() {
         return ServiceKind.getTranslationKey(this.kind);

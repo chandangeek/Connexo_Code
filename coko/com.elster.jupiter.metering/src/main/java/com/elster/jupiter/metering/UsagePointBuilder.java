@@ -2,17 +2,27 @@ package com.elster.jupiter.metering;
 
 public interface UsagePointBuilder {
 
-    UsagePoint create();
+    UsagePointBuilder withAliasName(String aliasName);
 
-    UsagePointBuilder setAliasName(String aliasName);
-    UsagePointBuilder setDescription(String description);
-    UsagePointBuilder setMRID(String mRID);
-    UsagePointBuilder setName(String name);
-    UsagePointBuilder setIsSdp(boolean isSdp);
-    UsagePointBuilder setIsVirtual(boolean isVirtual);
-    UsagePointBuilder setOutageRegion(String outageRegion);
-    UsagePointBuilder setReadCycle(String readCycle);
-    UsagePointBuilder setReadRoute(String readRoute);
-    UsagePointBuilder setServicePriority(String servicePriority);
-    UsagePointBuilder setServiceLocation(ServiceLocation serviceLocation);
+    UsagePointBuilder withDescription(String description);
+
+    UsagePointBuilder withMRID(String mRID);
+
+    UsagePointBuilder withName(String name);
+
+    UsagePointBuilder withIsSdp(Boolean isSdp);
+
+    UsagePointBuilder withIsVirtual(Boolean isVirtual);
+
+    UsagePointBuilder withOutageRegion(String outageRegion);
+
+    UsagePointBuilder withReadCycle(String readCycle);
+
+    UsagePointBuilder withReadRoute(String readRoute);
+
+    UsagePointBuilder withServicePriority(String servicePriority);
+
+    UsagePointBuilder setServiceLocation(ServiceLocation location);
+
+    UsagePoint create();
 }
