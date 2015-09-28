@@ -73,19 +73,6 @@ public class CreateUsagePointTransactionTest {
     	when(serviceCategory.newUsagePoint(MR_ID)).thenReturn(usagePointBuilder);
     	when(serviceCategory.getKind()).thenReturn(ServiceKind.ELECTRICITY);
     	
-		when(usagePointBuilder.withAliasName(Matchers.anyString())).thenReturn(usagePointBuilder);
-    	when(usagePointBuilder.withDescription(Matchers.anyString())).thenReturn(usagePointBuilder);
-    	when(usagePointBuilder.withIsSdp(Matchers.anyBoolean())).thenReturn(usagePointBuilder);
-    	when(usagePointBuilder.withIsVirtual(Matchers.anyBoolean())).thenReturn(usagePointBuilder);
-    	when(usagePointBuilder.withMRID(Matchers.anyString())).thenReturn(usagePointBuilder);
-    	when(usagePointBuilder.withName(Matchers.anyString())).thenReturn(usagePointBuilder);
-    	when(usagePointBuilder.withOutageRegion(Matchers.anyString())).thenReturn(usagePointBuilder);
-    	when(usagePointBuilder.withReadCycle(Matchers.anyString())).thenReturn(usagePointBuilder);
-    	when(usagePointBuilder.withReadRoute(Matchers.anyString())).thenReturn(usagePointBuilder);
-    	when(usagePointBuilder.withServicePriority(Matchers.anyString())).thenReturn(usagePointBuilder);
-    	
-        when(usagePointBuilder.create()).thenReturn(usagePoint);
-        
         when(usagePoint.newElectricityDetailBuilder(Matchers.any())).thenReturn(edBuilder);
         
         when(edBuilder.withAmiBillingReady(Matchers.any())).thenReturn(edBuilder);
