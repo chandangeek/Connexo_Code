@@ -108,6 +108,8 @@ public class CloseIssueActionTest extends BaseTest {
         LdapUserDirectory local = getUserService().createApacheDirectory("local");
         local.setSecurity("sec");
         local.setUrl("url");
+        local.setDirectoryUser("dirUser");
+        local.setPassword("pass");
         local.save();
         User user = getUserService().findOrCreateUser("user", "local", "APD");
         getThreadPrincipalService().set(user);
