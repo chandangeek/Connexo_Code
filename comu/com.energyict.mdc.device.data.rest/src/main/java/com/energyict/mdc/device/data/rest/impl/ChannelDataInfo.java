@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
-import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.data.rest.BigDecimalAsStringAdapter;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -32,12 +31,18 @@ public class ChannelDataInfo {
     public BigDecimal collectedValue;
     @JsonProperty("isBulk")
     public boolean isBulk;
-    @JsonProperty("readingQualities")
-    public List<IdWithNameInfo> readingQualities;
+
     @JsonProperty("validationStatus")
     public Boolean validationStatus;
-    @JsonProperty("validationInfo")
-    public VeeReadingInfo validationInfo;
+
+    @JsonProperty("dataValidated")
+    public Boolean dataValidated;
+
+    @JsonProperty("mainValidationInfo")
+    public MinimalVeeReadingValueInfo mainValidationInfo;
+
+    @JsonProperty("bulkValidationInfo")
+    public MinimalVeeReadingValueInfo bulkValidationInfo;
 
     public BaseReading createNew() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value);

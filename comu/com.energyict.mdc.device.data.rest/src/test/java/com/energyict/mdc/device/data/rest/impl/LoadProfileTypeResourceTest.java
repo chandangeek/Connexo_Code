@@ -184,17 +184,10 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         assertThat(validations).hasSize(2).containsKeys(String.valueOf(CHANNEL_ID1), String.valueOf(CHANNEL_ID2));
         assertThat(jsonModel.<Boolean>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".dataValidated")).isTrue();
         assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");
-        assertThat(jsonModel.<List<?>>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules")).hasSize(1);
-        assertThat(jsonModel.<Boolean>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules[0].active")).isTrue();
-        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules[0].implementation")).isEqualTo("isPrime");
-        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules[0].displayName")).isEqualTo("Primes only");
+
 
         assertThat(jsonModel.<Boolean>get("$.data[0].channelValidationData." + CHANNEL_ID2 + ".dataValidated")).isTrue();
         assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID2 + ".mainValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");
-        assertThat(jsonModel.<List<?>>get("$.data[0].channelValidationData." + CHANNEL_ID2 + ".mainValidationInfo.validationRules")).isEmpty();
-        assertThat(jsonModel.<Number>get("$.data[0].channelValidationData." + CHANNEL_ID2 + ".mainValidationInfo.estimatedByRule.id")).isEqualTo(13);
-        assertThat(jsonModel.<Number>get("$.data[0].channelValidationData." + CHANNEL_ID2 + ".mainValidationInfo.estimatedByRule.ruleSetId")).isEqualTo(15);
-        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID2 + ".mainValidationInfo.estimatedByRule.name")).isEqualTo("EstimationRule");
     }
 
     @Test
