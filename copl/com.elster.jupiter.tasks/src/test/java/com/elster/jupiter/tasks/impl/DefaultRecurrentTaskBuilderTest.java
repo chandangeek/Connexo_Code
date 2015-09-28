@@ -16,13 +16,19 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -49,6 +55,10 @@ public class DefaultRecurrentTaskBuilderTest {
     private MessageService messageService;
     @Mock
     private JsonService jsonService;
+    @Mock
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private Validator validator;
 
     @Before
     public void setUp() {
@@ -63,6 +73,9 @@ public class DefaultRecurrentTaskBuilderTest {
         when(clock.instant()).thenReturn(NOW);
         when(cronExpressionParser.parse(CRON_STRING)).thenReturn(Optional.of(cronExpression));
         when(cronExpression.nextOccurrence(ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()))).thenReturn(Optional.of(ZonedDateTime.ofInstant(FIRST, ZoneId.systemDefault())));
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(validatorFactory.getValidator()).thenReturn(validator);
+        when(validator.validate(any(), anyVararg())).thenReturn(Collections.<ConstraintViolation<Object>>emptySet());
     }
 
     @After

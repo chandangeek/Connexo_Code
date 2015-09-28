@@ -130,12 +130,15 @@ public class RecurrentTaskImplTest extends EqualsContractTest {
 
     @Override
     protected boolean canBeSubclassed() {
-        return false;
+        return true;
     }
 
     @Override
     protected Object getInstanceOfSubclassEqualToA() {
-        return null;
+        RecurrentTaskImpl recurrentTask = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock) {
+        }.init(NAME, cronExpression, destination, PAYLOAD);
+        field("id").ofType(Long.TYPE).in(recurrentTask).set(INSTANCEA_ID);
+        return recurrentTask;
     }
 
     @Test

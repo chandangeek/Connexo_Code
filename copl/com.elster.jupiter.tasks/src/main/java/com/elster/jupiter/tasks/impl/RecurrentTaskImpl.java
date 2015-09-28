@@ -27,7 +27,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NOT_UNIQUE + "}")
-final class RecurrentTaskImpl implements RecurrentTask {
+class RecurrentTaskImpl implements RecurrentTask {
 
     private static final Logger LOGGER = Logger.getLogger(RecurrentTaskImpl.class.getName());
 
@@ -264,15 +264,15 @@ final class RecurrentTaskImpl implements RecurrentTask {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof RecurrentTaskImpl)) return false;
         RecurrentTaskImpl that = (RecurrentTaskImpl) o;
         return Objects.equals(id, that.id);
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return Objects.hash(id);
     }
 }
