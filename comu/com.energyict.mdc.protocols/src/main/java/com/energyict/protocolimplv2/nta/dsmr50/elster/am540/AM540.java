@@ -43,13 +43,11 @@ import com.energyict.protocolimplv2.elster.garnet.SerialDeviceProtocolDialect;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540Messaging;
 import com.energyict.protocolimplv2.nta.dsmr50.registers.Dsmr50RegisterFactory;
-import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.g3.common.G3Topology;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
-import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
@@ -106,6 +104,9 @@ public class AM540 extends AbstractDlmsProtocol {
     public void logOn() {
         connectWithRetries();
         checkCacheObjects();
+        if (!getOfflineDevice().getAllSlaveDevices().isEmpty()) {
+            getMeterTopology().searchForSlaveDevices();
+        }
     }
 
     @Override
@@ -213,7 +214,6 @@ public class AM540 extends AbstractDlmsProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
-        result.add(new OutboundTcpIpConnectionType(getPropertySpecService(), getSocketService()));
         result.add(new SioOpticalConnectionType(getSerialComponentService()));
         result.add(new RxTxOpticalConnectionType(getSerialComponentService()));
         return result;
@@ -269,7 +269,7 @@ public class AM540 extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(getPropertySpecService()), new TcpDeviceProtocolDialect(getPropertySpecService()));
+        return Collections.singletonList(new SerialDeviceProtocolDialect(getPropertySpecService()));
     }
 
     @Override
@@ -279,7 +279,7 @@ public class AM540 extends AbstractDlmsProtocol {
 
     protected Dsmr50RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new Dsmr50RegisterFactory(this, getIssueService(), getReadingTypeUtilService(), getDlmsProperties().isBulkRequest(), getCollectedDataFactory());
+            this.registerFactory = new Dsmr50RegisterFactory(this, getIssueService(), getReadingTypeUtilService(), getDlmsProperties().isBulkRequest(), getCollectedDataFactory(), getClock());
         }
         return (Dsmr50RegisterFactory) registerFactory;
     }

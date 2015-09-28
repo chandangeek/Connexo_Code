@@ -68,6 +68,38 @@ public final class AXDRDate {
         return sb.toString();
     }
 
+    /**
+     * Convert to readable yyyy/MM/dd string, taking into account wildcards
+     */
+    public static String toReadableDescription(OctetString date) {
+        StringBuilder sb = new StringBuilder();
+        byte[] octetStr = date.getOctetStr();
+        int year = ((octetStr[0] & 0xFF) << 8) + (octetStr[1] & 0xFF);
+        if (year == 0xFFFF) {
+            sb.append("each year");
+        } else {
+            sb.append(year);
+            sb.append("y");
+        }
+        sb.append("/");
+        String month = String.valueOf(octetStr[2] & 0xFF);
+        if (month.equals("255")) {
+            sb.append("each month");
+        } else {
+            sb.append(month.length() == 1 ? ("0" + month) : month);
+            sb.append("m");
+        }
+        sb.append("/");
+        String day = String.valueOf(octetStr[3] & 0xFF);
+        if (day.equals("255")) {
+            sb.append("each day");
+        } else {
+            sb.append(day.length() == 1 ? ("0" + day) : day);
+            sb.append("d");
+        }
+        return sb.toString();
+    }
+
     private static byte getDayOfWeek(Calendar cal) {
         int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK) - 1;
         dayOfWeek = dayOfWeek == 0 ? 7 : dayOfWeek;
