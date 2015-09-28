@@ -287,6 +287,7 @@ Ext.define('Uni.controller.Search', {
             }
         });
 
+        me.fireEvent('beforegridconfigure', fieldItems, columnItems );
         grid.store.model.setFields(fieldItems);
         grid.reconfigure(null, columnItems);
     },
