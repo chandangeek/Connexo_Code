@@ -110,7 +110,7 @@ public class CreateDefaultDeviceLifeCycleCommand {
 
     private void setDeviceToState(Device device, DefaultCustomStateTransitionEventType eventType) {
         long now = Clock.systemDefaultZone().millis();
-        System.out.println(" ==> changing device state for device " + device.getName() + "(MRID: "+ device.getmRID()+"): "+ device.getState().getName());
+        System.out.println(" ==> changing device state for device " + device.getLongName() + "(MRID: "+ device.getmRID()+"): "+ device.getState().getLongName());
         Optional<ExecutableAction> action =  deviceLifeCycleService.getExecutableActions(device, eventType.findOrCreate(finiteStateMachineService));
         if (action.isPresent() && action.get().getAction() instanceof AuthorizedTransitionAction){
             AuthorizedTransitionAction authorizedTransitionAction = (AuthorizedTransitionAction) action.get().getAction();
@@ -118,14 +118,14 @@ public class CreateDefaultDeviceLifeCycleCommand {
                     DecoratedStream
                         .decorate(authorizedTransitionAction.getActions().stream())
                         .flatMap(ma -> this.deviceLifeCycleService.getPropertySpecsFor(ma).stream())
-                        .distinct(PropertySpec::getName)
+                        .distinct(PropertySpec::getLongName)
                         .map(ps -> this.toExecutableActionProperty(ps, clock.instant()))
                         .collect(Collectors.toList());
             try {
                 action.get().execute(clock.instant(), properties);
-                System.out.println(" ==> Set device state for device " + device.getName() + "(MRID: " + device.getmRID() + "): " + device.getState().getName() + "(in  " + (Clock.systemDefaultZone().millis() - now) + " ms)");
+                System.out.println(" ==> Set device state for device " + device.getLongName() + "(MRID: " + device.getmRID() + "): " + device.getState().getLongName() + "(in  " + (Clock.systemDefaultZone().millis() - now) + " ms)");
             }catch(Exception exception){
-                System.err.println("!!! ==> Activating device " + device.getName() + "(MRID: "+ device.getmRID()+") failed");
+                System.err.println("!!! ==> Activating device " + device.getLongName() + "(MRID: "+ device.getmRID()+") failed");
                 exception.printStackTrace();
             }
         }

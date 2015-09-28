@@ -408,7 +408,7 @@ public class DemoTest {
         assertThat(gatewayOptional.isPresent()).isTrue();
         Device gateway = gatewayOptional.get();
         DeviceType deviceType = gateway.getDeviceType();
-        assertThat(deviceType.getName()).isEqualTo(DeviceTypeTpl.RTU_Plus_G3.getName());
+        assertThat(deviceType.getName()).isEqualTo(DeviceTypeTpl.RTU_Plus_G3.getLongName());
         assertThat(deviceType.getLoadProfileTypes()).isEmpty();
         assertThat(deviceType.getRegisterTypes()).isEmpty();
         assertThat(deviceType.getLogBookTypes()).isEmpty();
@@ -478,7 +478,7 @@ public class DemoTest {
         assertThat(device.getSerialNumber()).isEqualTo(SERIAL_NUMBER);
 
         DeviceType deviceType = device.getDeviceType();
-        assertThat(deviceType.getName()).isEqualTo("Demo board AS3000".equals(mridDevice) ? DeviceTypeTpl.AS3000.getName() : DeviceTypeTpl.AS220.getName());
+        assertThat(deviceType.getName()).isEqualTo("Demo board AS3000".equals(mridDevice) ? DeviceTypeTpl.AS3000.getLongName() : DeviceTypeTpl.AS220.getLongName());
         List<LoadProfileType> loadProfileTypes = deviceType.getLoadProfileTypes();
         assertThat(loadProfileTypes).hasSize(3);
         for (LoadProfileType loadProfileType : loadProfileTypes) {
@@ -649,7 +649,7 @@ public class DemoTest {
 //        //Some devices could not be activated due to missing security settings: that's why we test we have at least one active device
 //        assertThat(deviceService.deviceQuery().select(Condition.TRUE, Order.NOORDER)
 //                   .stream()
-//                   .filter(x -> x.getState().getName().equals("dlc.default.active"))
+//                   .filter(x -> x.getState().getLongName().equals("dlc.default.active"))
 //                   .findFirst()
 //                   .isPresent()).isTrue();
     }
