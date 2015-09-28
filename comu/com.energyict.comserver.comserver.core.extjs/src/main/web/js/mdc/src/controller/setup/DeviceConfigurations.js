@@ -138,7 +138,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     success: function (deviceType) {
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
                         widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
-                        widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));                        me.getDeviceConfigurationsGrid().getSelectionModel().doSelect(0);
+                        widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
+                        me.getDeviceConfigurationsGrid().getSelectionModel().doSelect(0);
                     }
                 });
             }
@@ -358,7 +359,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('deviceconfiguration.removeDeviceConfiguration', 'MDC', 'This device configuration will no longer be available.'),
-            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[Ext.String.htmlEncode(deviceConfigurationToDelete.get('name'))]),
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", [Ext.String.htmlEncode(deviceConfigurationToDelete.get('name'))]),
             config: {
                 registerConfigurationToDelete: deviceConfigurationToDelete,
                 me: me
@@ -469,7 +470,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         model.getProxy().setExtraParam('deviceType', this.deviceTypeId);
 
 
-        if (!previousPath || previousPath.indexOf(deviceConfigurationId.toString())==-1) {
+        if (!previousPath || previousPath.indexOf(deviceConfigurationId.toString()) == -1) {
             returnLink = router.getRoute('administration/devicetypes/view/deviceconfigurations').buildUrl({deviceTypeId: deviceTypeId});
         } else {
             returnLink = '#' + previousPath;
@@ -492,7 +493,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                         me.getApplication().fireEvent('loadDeviceType', deviceType);
                         widget.down('form').loadRecord(deviceConfiguration);
                         widget.down('#deviceConfigurationEditCreateTitle').setTitle(
-                            Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[deviceConfiguration.get('name')]));
+                            Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [deviceConfiguration.get('name')]));
                         me.setRadioButtons(deviceType, deviceConfiguration);
                         widget.setLoading(false);
                     }
@@ -731,7 +732,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                                     me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
                                     me.getApplication().fireEvent('loadLogbooksConfiguration', form.down('[name=name]'));
                                     widget.down('#editLogbookPanel').setTitle(
-                                        Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[form.down('[name=name]').getValue()]));
+                                        Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [form.down('[name=name]').getValue()]));
                                     widget.setLoading(false);
                                 }
                             });
@@ -825,8 +826,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     errorWindow.down('displayfield').htmlEncode = false;
 
                     var solveConflictsLink = router.getRoute('administration/devicetypes/view/conflictmappings').buildUrl({deviceTypeId: device.get('deviceTypeId')}),
-                        message = json.message + '<br/><br/>' + (canSolveConflictingMappings ? '<a href="' + solveConflictsLink + '">' + Uni.I18n.translate('device.changeDeviceConfiguration.solveTheConflicts', 'MDC', 'Solve the conflicts') + '</a> ' + Uni.I18n.translate('device.changeDeviceConfiguration.beforeYouRetry', 'MDC', 'before you retry.') + '' :
-                                Uni.I18n.translate('device.changeDeviceConfiguration.noRightsToSolveTheConflicts', 'MDC', 'You cannot solve the conflicts in conflicting mappings on device type because you do not have the privileges. Contact the administrator.'));
+                        solveConflictsLinkMessage = json.message + '<br/><br/>'
+                            + Uni.I18n.translate('device.changeDeviceConfiguration.solveTheConflicts', 'MDC', '<a href="{0}">Solve the conflicts</a>', solveConflictsLink),
+                        message = canSolveConflictingMappings ? Uni.I18n.translate('device.changeDeviceConfiguration.beforeYouRetry', 'MDC', '{0} before you retry.', solveConflictsLinkMessage)
+                            : Uni.I18n.translate('device.changeDeviceConfiguration.noRightsToSolveTheConflicts', 'MDC', 'You cannot solve the conflicts in conflicting mappings on device type because you do not have the privileges. Contact the administrator.');
 
                     router.addListener('routeChangeStart', function () {
                         errorWindow.close();
