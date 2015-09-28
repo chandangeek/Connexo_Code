@@ -202,9 +202,18 @@ Ext.define('Uni.I18n', {
             translation = fallback;
         }
 
-        if (typeof translation !== 'undefined' && translation !== null
-            && typeof values !== 'undefined') {
-            translation = Ext.String.format(translation, values);
+        if (typeof translation !== 'undefined' && translation !== null && typeof values !== 'undefined') {
+            var argumentsArray = [];
+            argumentsArray.push(translation);
+            if (_.isArray(values)) {
+                var arrayLength = values.length;
+                for (var i=0; i<arrayLength; i++) {
+                    argumentsArray.push(htmlEncode === true ? Ext.String.htmlEncode(values[i]) : values[i]);
+                }
+            } else {
+                argumentsArray.push(htmlEncode === true ? Ext.String.htmlEncode(values) : values);
+            }
+            translation = Ext.String.format.apply(null, argumentsArray);
         }
 
         return translation;
