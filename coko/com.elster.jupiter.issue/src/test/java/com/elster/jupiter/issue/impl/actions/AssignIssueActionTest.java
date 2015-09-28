@@ -35,6 +35,8 @@ public class AssignIssueActionTest extends BaseTest {
         LdapUserDirectory local = getUserService().createApacheDirectory("local");
         local.setSecurity("0");
         local.setUrl("url");
+        local.setDirectoryUser("directoryUser");
+        local.setPassword("password");
         local.save();
         User user = getUserService().findOrCreateUser("user", "local", "APD");
         getThreadPrincipalService().set(user);
