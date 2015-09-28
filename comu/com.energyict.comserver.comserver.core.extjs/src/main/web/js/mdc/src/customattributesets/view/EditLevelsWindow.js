@@ -34,7 +34,7 @@ Ext.define('Mdc.customattributesets.view.EditLevelsWindow', {
                         items: [
                             {
                                 xtype: 'custom-attribute-sets-levels-selector',
-                                fieldLabel: Uni.I18n.translate('customattributesets.viewlevelsfield', 'MDC', 'View levels:'),
+                                fieldLabel: Uni.I18n.translate('customattributesets.viewlevels', 'MDC', 'View levels') + ':',
                                 itemId: 'custom-attribute-sets-view-levels-selector',
                                 margin: '0 250 0 0',
                                 record: me.record,
@@ -43,7 +43,7 @@ Ext.define('Mdc.customattributesets.view.EditLevelsWindow', {
                             },
                             {
                                 xtype: 'custom-attribute-sets-levels-selector',
-                                fieldLabel: Uni.I18n.translate('customattributesets.editlevelsfield', 'MDC', 'Edit levels:'),
+                                fieldLabel: Uni.I18n.translate('customattributesets.editlevels', 'MDC', 'Edit levels') + ':',
                                 itemId: 'custom-attribute-sets-edit-levels-selector',
                                 record: me.record,
                                 defaultValuesField: 'defaultEditPrivileges',
