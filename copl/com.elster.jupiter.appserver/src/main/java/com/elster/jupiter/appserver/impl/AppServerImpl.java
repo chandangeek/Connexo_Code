@@ -191,8 +191,8 @@ public class AppServerImpl implements AppServer {
 
     @Override
     public Optional<Path> getImportDirectory() {
-        dataModel.mapper(ImportFolderForAppServer.class).getOptional(getName());
-        return null;
+        return dataModel.mapper(ImportFolderForAppServer.class).getOptional(getName())
+            .flatMap(ImportFolderForAppServer::getImportFolder);
     }
 
     @Override
