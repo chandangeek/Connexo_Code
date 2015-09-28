@@ -1,29 +1,20 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.g3.events;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
-
 import com.elster.dlms.cosem.application.services.common.DataAccessResult;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -40,32 +31,34 @@ public class G3GatewayEvents {
     }
 
     @SuppressWarnings("unchecked")
-	public List<CollectedLogBook> readEvents(List<LogBookReader> logBooks) {
+    public List<CollectedLogBook> readEvents(List<LogBookReader> logBooks) {
         List<CollectedLogBook> result = new ArrayList<>();
         for (LogBookReader logBook : logBooks) {
             CollectedLogBook collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
-            
+
             try {
                 Array eventArray = this.readLogbookBuffer(logBook);
                 List<MeterEvent> meterEvents = new ArrayList<>();
-                
+
                 for (AbstractDataType abstractEventData : eventArray.getAllDataTypes()) {
                     BasicEvent basicEvent = getBasicEvent(abstractEventData);
-                    
+
                     if (basicEvent != null) {
                         meterEvents.add(basicEvent.getMeterEvent());
                     }
                 }
-                
+
                 collectedLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents));
             } catch (IOException e) {
-            	if (IOExceptionHandler.isAuthorizationProblem(e)) {
-            		collectedLogBook.setFailureInformation(ResultType.ConfigurationError, MdcManager.getIssueFactory().createWarning(logBook, "logBookXissue", logBook.getLogBookObisCode(), e.getMessage()));
-            	} else if (IOExceptionHandler.isUnexpectedResponse(e, dlmsSession)) {
+                if (IOExceptionHandler.isAuthorizationProblem(e)) {
+                    collectedLogBook.setFailureInformation(ResultType.ConfigurationError, MdcManager.getIssueFactory().createWarning(logBook, "logBookXissue", logBook.getLogBookObisCode(), e.getMessage()));
+                } else if (IOExceptionHandler.isUnexpectedResponse(e, dlmsSession)) {
                     collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBook, "logBookXnotsupported", logBook.getLogBookObisCode().toString()));
                 }
+            } catch (IndexOutOfBoundsException e) {
+                collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueFactory().createProblem(logBook, "logBookXissue", logBook.getLogBookObisCode().toString(), e.toString()));
             }
-            
+
             result.add(collectedLogBook);
         }
         return result;
@@ -73,31 +66,31 @@ public class G3GatewayEvents {
 
     /**
      * Reads the logbook buffer and returns events that were added since the lastLogbook date.
-     * 
-     * @return	An {@link Array} of {@link Structure}s.
+     *
+     * @return An {@link Array} of {@link Structure}s.
      */
     private final Array readLogbookBuffer(final LogBookReader reader) throws IOException {
-    	final Calendar from = Calendar.getInstance(this.dlmsSession.getTimeZone());
-    	final Calendar to = Calendar.getInstance(this.dlmsSession.getTimeZone());
-    	
-    	from.setTime(reader.getLastLogBook());
-    	
-    	final ProfileGeneric eventLogProfile = this.dlmsSession.getCosemObjectFactory().getProfileGeneric(reader.getLogBookObisCode());
-    	
-    	if (eventLogProfile != null) {
-    		final byte[] bufferData = eventLogProfile.getBufferData(from, to);
-    		
-    		if (bufferData != null) {
-    			final AbstractDataType abstractDataType = AXDRDecoder.decode(bufferData);
-    			
-    			if (abstractDataType != null) {
-    				return abstractDataType.getArray();
-    			}
-    		}
-    	}
-    	
-    	// Assume the logbook is not available.
-    	throw new DataAccessResultException(DataAccessResult.OBJECT_UNAVAILABLE.getId());
+        final Calendar from = Calendar.getInstance(this.dlmsSession.getTimeZone());
+        final Calendar to = Calendar.getInstance(this.dlmsSession.getTimeZone());
+
+        from.setTime(reader.getLastLogBook());
+
+        final ProfileGeneric eventLogProfile = this.dlmsSession.getCosemObjectFactory().getProfileGeneric(reader.getLogBookObisCode());
+
+        if (eventLogProfile != null) {
+            final byte[] bufferData = eventLogProfile.getBufferData(from, to);
+
+            if (bufferData != null) {
+                final AbstractDataType abstractDataType = AXDRDecoder.decode(bufferData);
+
+                if (abstractDataType != null) {
+                    return abstractDataType.getArray();
+                }
+            }
+        }
+
+        // Assume the logbook is not available.
+        throw new DataAccessResultException(DataAccessResult.OBJECT_UNAVAILABLE.getId());
     }
 
     private final BasicEvent getBasicEvent(AbstractDataType abstractEventData) throws IOException {
