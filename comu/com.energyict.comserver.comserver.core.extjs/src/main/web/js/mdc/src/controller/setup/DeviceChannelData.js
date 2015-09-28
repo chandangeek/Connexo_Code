@@ -703,7 +703,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             record.beginEdit();
             record.set('value', null);
             record.set('collectedValue', null);
-            record.set('intervalFlags', []);
+            if (record.get('intervalFlags').length) {
+                record.set('intervalFlags', []);
+            }
             if (record.get('confirmed')) {
                 record.set('confirmed', false);
             }
