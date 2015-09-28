@@ -75,11 +75,40 @@ public class ConsumptionExportGenerator {
     }
 
     public void setConfiguration(Configuration configuration) {
+        validateConfig(configuration);
         this.path = configuration.getDestinationFilePath();
         this.usagePoints = new ArrayList<>(configuration.getUsagePoints());
         this.outputFrequency = configuration.getOutputFrequency();
         this.timeAcceleration = configuration.getTimeAcceleration();
         this.readingType = new ReadingType(configuration.getReadingType());
+    }
+
+    private void validateConfig(Configuration configuration) {
+        if (configuration.getDestinationFilePath()==null || configuration.getDestinationFilePath().trim().isEmpty()) {
+            throw new IllegalArgumentException("'destinationFilePath' is missing in the configuration");
+        }
+        if (configuration.getUsagePoints()==null || configuration.getUsagePoints().isEmpty()) {
+            throw new IllegalArgumentException("'usagePoints' is empty, nothing to do");
+        } else {
+//            for (int index=0; index<configuration.getUsagePoints().size())
+            configuration.getUsagePoints().forEach(usagePoint -> {
+                if (usagePoint.getmRID()==null||usagePoint.getmRID().trim().isEmpty()) {
+                    throw new IllegalArgumentException("'mRID' is empty on usage point "+(configuration.getUsagePoints().indexOf(usagePoint)+1));
+                }
+                if (usagePoint.getDevice_mRID()==null||usagePoint.getDevice_mRID().trim().isEmpty()) {
+                    throw new IllegalArgumentException("'device_mRID' is empty on usage point "+(configuration.getUsagePoints().indexOf(usagePoint)+1));
+                }
+            });
+        }
+        if (configuration.getOutputFrequency()==null || configuration.getOutputFrequency()==0) {
+            throw new IllegalArgumentException("'outputFrequency' is empty or 0");
+        }
+        if (configuration.getReadingType()==null) {
+            throw new IllegalArgumentException("'readingType' is missing");
+        }
+        if (configuration.getTimeAcceleration()==null || configuration.getTimeAcceleration()==0) {
+            throw new IllegalArgumentException("'timeAcceleration' is missing");
+        }
     }
 
     public Optional<UsagePoint> getUsagePoint(String mRID) {

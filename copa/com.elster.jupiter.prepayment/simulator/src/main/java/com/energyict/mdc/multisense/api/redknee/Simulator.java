@@ -45,7 +45,7 @@ public class Simulator {
         } catch (IOException e) {
             logger.error("Error while reading configuration: " + e);
         } catch (Exception e) {
-            logger.error("Failed to start Jetty: " + e);
+            logger.error("Failed to start simulator: " + e);
         }
     }
 

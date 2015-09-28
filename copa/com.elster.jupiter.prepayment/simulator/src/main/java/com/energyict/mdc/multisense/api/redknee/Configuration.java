@@ -48,7 +48,7 @@ public class Configuration {
     }
 
     public Optional<String> getConnexoUrl() {
-        if (connexoUrl==null) {
+        if (connexoUrl==null || connexoUrl.trim().isEmpty()) {
             return Optional.empty();
         }
         return Optional.of(connexoUrl);
