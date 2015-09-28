@@ -90,7 +90,6 @@ public class ConsumptionExportGenerator {
         if (configuration.getUsagePoints()==null || configuration.getUsagePoints().isEmpty()) {
             throw new IllegalArgumentException("'usagePoints' is empty, nothing to do");
         } else {
-//            for (int index=0; index<configuration.getUsagePoints().size())
             configuration.getUsagePoints().forEach(usagePoint -> {
                 if (usagePoint.getmRID()==null||usagePoint.getmRID().trim().isEmpty()) {
                     throw new IllegalArgumentException("'mRID' is empty on usage point "+(configuration.getUsagePoints().indexOf(usagePoint)+1));
@@ -128,6 +127,10 @@ public class ConsumptionExportGenerator {
 
         @Override
         public void run() {
+            if (now.isAfter(ZonedDateTime.now(clock))) {
+                logger.error("Simulated time has caught up with real time: will not create export file");
+                throw new IllegalStateException("Simulated time has caught up with real time: will not create export file");
+            }
             String actualPath = (path == null || path.trim().isEmpty()) ? System.getProperty("java.io.tmpdir") : path;
             String fileName = actualPath + "/ICE_CIM_profile1_" +
                     now.format(dateTimeFormatter) + "_" +
