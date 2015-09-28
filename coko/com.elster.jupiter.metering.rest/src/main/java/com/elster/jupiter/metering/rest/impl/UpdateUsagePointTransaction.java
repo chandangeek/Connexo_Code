@@ -9,15 +9,13 @@ import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.transaction.Transaction;
 
-import java.time.Clock;
-import java.util.Optional;
-
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.security.Principal;
-
+import java.time.Clock;
+import java.util.Optional;
 
 final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
 
@@ -65,16 +63,16 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
                 detail.setConnectionState(info.connectionState);
                 detail.setMinimalUsageExpected(info.minimalUsageExpected);
                 if (detail instanceof ElectricityDetail) {
-                	ElectricityDetail eDetail = (ElectricityDetail) detail;
-                	eDetail.setEstimatedLoad(info.estimatedLoad);
-	                eDetail.setGrounded(info.grounded);
-	                eDetail.setNominalServiceVoltage(info.nominalServiceVoltage);
-	                eDetail.setPhaseCode(info.phaseCode);
-	                eDetail.setRatedCurrent(info.ratedCurrent);
-	                eDetail.setRatedPower(info.ratedPower);
-	                eDetail.setServiceDeliveryRemark(info.serviceDeliveryRemark);
-	                eDetail.setPhaseCode(info.phaseCode);
-	                eDetail.setRatedPower(info.ratedPower);
+                    ElectricityDetail eDetail = (ElectricityDetail) detail;
+                    eDetail.setEstimatedLoad(info.estimatedLoad);
+                    eDetail.setGrounded(info.grounded);
+                    eDetail.setNominalServiceVoltage(info.nominalServiceVoltage);
+                    eDetail.setPhaseCode(info.phaseCode);
+                    eDetail.setRatedCurrent(info.ratedCurrent);
+                    eDetail.setRatedPower(info.ratedPower);
+                    eDetail.setServiceDeliveryRemark(info.serviceDeliveryRemark);
+                    eDetail.setPhaseCode(info.phaseCode);
+                    eDetail.setRatedPower(info.ratedPower);
                 }
                 usagePoint.addDetail(detail);
                 usagePoint.update();
