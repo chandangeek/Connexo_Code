@@ -27,7 +27,7 @@ import java.net.URI;
 /**
  * Created by bvn on 9/17/15.
  */
-@Path("/public/api/rkn/v1.0/usagepoints/{mrid}/contactor")
+@Path("/public/api/rkn/v1.0/")
 public class RknProxyResource {
 
     private final ConsumptionExportGenerator generator;
@@ -49,6 +49,7 @@ public class RknProxyResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @Path("usagepoints/{mrid}/contactor")
     public Response updateContactor(@PathParam("mrid") String mRID, ContactorInfo contactorInfo, @Context SecurityContext context, @Context UriInfo uriInfo) {
         SecurityEnvelope securityEnvelope = (SecurityEnvelope) context.getUserPrincipal();
         UsagePoint usagePoint = generator.getUsagePoint(mRID).orElseThrow(() -> new WebApplicationException("No such usage point in the simulator's config. Add it to the config or correct the mRID in the URL.", Response.Status.NOT_FOUND));
