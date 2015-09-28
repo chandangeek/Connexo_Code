@@ -244,9 +244,9 @@ public class StandardCsvDataFormatterTest {
         List<FormattedExportData> lines = formattedData.getData();
         processor.endItem(item);
         assertThat(lines).hasSize(3);
-        assertThat(lines.get(0).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;DeviceMRID;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;10;suspect;\n");
-        assertThat(lines.get(1).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;DeviceMRID;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;1;suspect;\n");
-        assertThat(lines.get(2).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;DeviceMRID;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;0;suspect;\n");
+        assertThat(lines.get(0).getAppendablePayload()).isEqualTo("2014-11-24T12:00:12.449+13:00;DeviceMRID;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;10;suspect;\n");
+        assertThat(lines.get(1).getAppendablePayload()).isEqualTo("2014-11-24T12:00:12.449+13:00;DeviceMRID;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;1;suspect;\n");
+        assertThat(lines.get(2).getAppendablePayload()).isEqualTo("2014-11-24T12:00:12.449+13:00;DeviceMRID;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;0;suspect;\n");
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item1);
@@ -254,9 +254,9 @@ public class StandardCsvDataFormatterTest {
         lines = formattedData.getData();
         processor.endItem(item1);
         assertThat(lines).hasSize(3);
-        assertThat(lines.get(0).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;AnotherDeviceMRID;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;10;suspect;\n");
-        assertThat(lines.get(1).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;AnotherDeviceMRID;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;1;suspect;\n");
-        assertThat(lines.get(2).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;AnotherDeviceMRID;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;0;suspect;\n");
+        assertThat(lines.get(0).getAppendablePayload()).isEqualTo("2014-11-24T12:00:12.449+13:00;AnotherDeviceMRID;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;10;suspect;\n");
+        assertThat(lines.get(1).getAppendablePayload()).isEqualTo("2014-11-24T12:00:12.449+13:00;AnotherDeviceMRID;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;1;suspect;\n");
+        assertThat(lines.get(2).getAppendablePayload()).isEqualTo("2014-11-24T12:00:12.449+13:00;AnotherDeviceMRID;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;0;suspect;\n");
     }
 
     @Test
@@ -269,8 +269,8 @@ public class StandardCsvDataFormatterTest {
         List<FormattedExportData> lines = formattedData.getData();
         processor.endItem(item);
         assertThat(lines).hasSize(2);
-        assertThat(lines.get(0).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;DeviceMRID;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;1;;\n");
-        assertThat(lines.get(1).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;DeviceMRID;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;10;;\n");
+        assertThat(lines.get(0).getAppendablePayload()).isEqualTo("2014-11-24T12:00:12.449+13:00;DeviceMRID;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;1;;\n");
+        assertThat(lines.get(1).getAppendablePayload()).isEqualTo("2014-11-24T12:00:12.449+13:00;DeviceMRID;0.0.5.1.16.1.12.0.0.0.0.0.0.0.0.3.73.0;10;;\n");
 
         processor.startExport(dataExportOccurrence, logger);
         processor.startItem(item1);
@@ -278,8 +278,8 @@ public class StandardCsvDataFormatterTest {
         lines = formattedData.getData();
         processor.endItem(item1);
         assertThat(lines).hasSize(2);
-        assertThat(lines.get(0).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;AnotherDeviceMRID;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;1;;\n");
-        assertThat(lines.get(1).getAppendablePayload()).isEqualTo("2014-11-24 12:00:12;AnotherDeviceMRID;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;10;;\n");
+        assertThat(lines.get(0).getAppendablePayload()).isEqualTo("2014-11-24T12:00:12.449+13:00;AnotherDeviceMRID;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;1;;\n");
+        assertThat(lines.get(1).getAppendablePayload()).isEqualTo("2014-11-24T12:00:12.449+13:00;AnotherDeviceMRID;0.0.5.1.17.1.13.0.0.0.0.0.0.0.0.4.75.1;10;;\n");
     }
 
     @Test(expected = IllegalArgumentException.class)
