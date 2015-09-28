@@ -58,6 +58,7 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.model.TimeOfUse',
         'Dxp.model.Interval',
         'Dxp.model.DataSelector',
+        'Dxp.model.DataProcessor',
         'Dxp.model.StandardDataSelector',
         'Dxp.model.Destination'
 
@@ -253,8 +254,8 @@ Ext.define('Dxp.controller.Tasks', {
                         view.down('#run').show();
                     }
                 }
-                if (record.properties() && record.properties().count()) {
-                    propertyForm.loadRecord(record);
+                if (record.getDataProcessor() && record.getDataProcessor().properties().count()) {
+                    propertyForm.loadRecord(record.getDataProcessor());
                 }
                 if ((record.getDataSelector()) && (record.getDataSelector().properties()) && (record.getDataSelector().properties().count())) {
                     selectorPropertyForm.setVisible(true);
@@ -334,8 +335,8 @@ Ext.define('Dxp.controller.Tasks', {
 
             // TODO: Fix properties stuff.
 
-            if (record.getTask().properties() && record.getTask().properties().count()) {
-                previewForm.down('#task-properties-preview').loadRecord(record.getTask());
+            if (record.getTask().getDataProcessor().properties() && record.getTask().getDataProcessor().properties().count()) {
+                previewForm.down('#task-properties-preview').loadRecord(record.getTask().getDataProcessor());
             }
 
             if ((record.getTask().getDataSelector()) && (record.getTask().getDataSelector().properties()) && (record.getTask().getDataSelector().properties().count())) {
@@ -378,9 +379,9 @@ Ext.define('Dxp.controller.Tasks', {
 
             previewForm.loadRecord(record);
 
-            if (record.data.properties && record.data.properties.length) {
-                previewForm.down('grouped-property-form').loadRecord(record.getTask());
-            }
+            //if (record.data.properties && record.data.properties.length) {
+            //    previewForm.down('grouped-property-form').loadRecord(record.getTask());
+            //}
 
             Ext.resumeLayouts(true);
         }
@@ -779,8 +780,8 @@ Ext.define('Dxp.controller.Tasks', {
                             } else {
                                 recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
                             }
-                            if (record.properties() && record.properties().count()) {
-                                taskForm.down('grouped-property-form').loadRecord(record);
+                            if (record.getDataProcessor().properties() && record.getDataProcessor().properties().count()) {
+                                taskForm.down('grouped-property-form').loadRecord(record.getDataProcessor());
                             }
 
                         }
@@ -834,8 +835,8 @@ Ext.define('Dxp.controller.Tasks', {
         previewForm.loadRecord(record);
         preview.down('dxp-tasks-action-menu').record = record;
 
-        if (record.properties() && record.properties().count()) {
-            propertyForm.loadRecord(record);
+        if (record.getDataProcessor() && record.getDataProcessor().properties().count()) {
+            propertyForm.loadRecord(record.getDataProcessor());
         }
 
         if ((record.getDataSelector()) && (record.getDataSelector().properties()) && (record.getDataSelector().properties().count())) {
@@ -1296,7 +1297,6 @@ Ext.define('Dxp.controller.Tasks', {
             minutes;
 
         propertyForm.updateRecord();
-
         var selectedDataSelector = dataSelectorCombo.findRecord(dataSelectorCombo.valueField, dataSelectorCombo.getValue());
         var emptyReadingTypes = (selectedDataSelector) && (selectedDataSelector.get('isDefault')) && (page.down('#readingTypesGridPanel').getStore().data.items.length == 0);
         if (emptyReadingTypes) {
@@ -1341,9 +1341,8 @@ Ext.define('Dxp.controller.Tasks', {
                 form.down('#readingTypesGridPanel').removeCls('error-border');
             }
 
-            if (propertyForm.getRecord()) {
-                record.propertiesStore = propertyForm.getRecord().properties();
-            }
+
+
             record.set('name', form.down('#task-name').getValue());
 
             startOnDate = moment(form.down('#start-on').getValue()).valueOf();
@@ -1414,9 +1413,20 @@ Ext.define('Dxp.controller.Tasks', {
                 record.set('schedule', null);
             }
             record.set('nextRun', startOnDate);
-            record.set('dataProcessor', {
+
+            var processorModel = Ext.create('Dxp.model.DataProcessor', {
                 name: form.down('#file-formatter-combo').getValue()
             });
+            record.setDataProcessor(processorModel);
+            if (propertyForm.getRecord()) {
+                record.getDataProcessor().propertiesStore = propertyForm.getRecord().properties();
+            }
+
+
+
+            //record.set('dataProcessor', {
+            //    name: form.down('#file-formatter-combo').getValue()
+            //});
 
             var selectorModel = Ext.create('Dxp.model.DataSelector', {
                 name: dataSelectorCombo.getValue()
@@ -1458,7 +1468,7 @@ Ext.define('Dxp.controller.Tasks', {
             } else {
                 record.set('standardDataSelector', null);
                 selectorPropertyForm.updateRecord();
-                record.propertiesStore.add(selectorPropertyForm.getRecord().properties().data.items)
+                record.getDataSelector().propertiesStore = selectorPropertyForm.getRecord().properties();
             }
             record.destinations();
             record.destinationsStore.removeAll();
@@ -1559,7 +1569,6 @@ Ext.define('Dxp.controller.Tasks', {
         formValues.readingTypes = arrReadingTypes;
         formValues.destinations = storeDestinations;
         me.getStore('Dxp.store.Clipboard').set('addDataExportTaskValues', formValues);
-
     },
 
     setFormValues: function (view) {
@@ -1638,6 +1647,11 @@ Ext.define('Dxp.controller.Tasks', {
 
 
         Ext.suspendLayouts();
+        Ext.Array.each(view.down('#data-selector-properties').query('[isFormField=true]'), function (formItem) {
+            if (formItem.name in obj) {
+                formItem.setValue(obj[formItem.name]);
+            }
+        });
         Ext.Array.each(view.down('grouped-property-form').query('[isFormField=true]'), function (formItem) {
             if (formItem.name in obj) {
                 formItem.setValue(obj[formItem.name]);
