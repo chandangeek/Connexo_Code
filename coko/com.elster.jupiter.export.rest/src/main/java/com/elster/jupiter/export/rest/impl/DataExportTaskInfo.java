@@ -32,7 +32,7 @@ public class DataExportTaskInfo {
     public ProcessorInfo dataProcessor;
     public SelectorInfo dataSelector;
     public PeriodicalExpressionInfo schedule;
-    public List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
+    //public List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
     public DataExportTaskHistoryInfo lastExportOccurrence;
     public Long nextRun;
     public Long lastRun;
@@ -52,7 +52,7 @@ public class DataExportTaskInfo {
                 schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
             }
         }
-        properties = propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataProcessorPropertySpecs(), dataExportTask.getProperties());
+        //properties = propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataProcessorPropertySpecs(), dataExportTask.getProperties());
         lastExportOccurrence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus, timeService, propertyUtils)).orElse(null);
         dataExportTask.getDestinations().stream()
             .forEach(destination -> destinations.add(typeOf(destination).toInfo(destination)));
@@ -77,7 +77,8 @@ public class DataExportTaskInfo {
         populateReadingTypeDataExport(dataExportTask, thesaurus);
 
         String dataFormatter = dataExportTask.getDataFormatter();
-        dataProcessor = new ProcessorInfo(dataFormatter, thesaurus.getStringBeyondComponent(dataFormatter, dataFormatter), Collections.<PropertyInfo>emptyList()) ;
+        dataProcessor = new ProcessorInfo(dataFormatter, thesaurus.getStringBeyondComponent(dataFormatter, dataFormatter),
+                propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataProcessorPropertySpecs(), dataExportTask.getProperties())) ;
 
         String selector = dataExportTask.getDataSelector();
 

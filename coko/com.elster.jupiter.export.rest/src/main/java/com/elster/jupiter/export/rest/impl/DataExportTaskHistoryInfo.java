@@ -82,7 +82,7 @@ public class DataExportTaskHistoryInfo {
             version.getDestinations(dataExportOccurrence.getTriggerTime()).stream()
                     .sorted((d1, d2) -> d1.getCreateTime().compareTo(d2.getCreateTime()))
                     .forEach(destination -> task.destinations.add(typeOf(destination).toInfo(destination)));
-            task.properties = propertyUtils.convertPropertySpecsToPropertyInfos(version.getDataProcessorPropertySpecs(), version.getProperties());
+            task.dataProcessor.properties = propertyUtils.convertPropertySpecsToPropertyInfos(version.getDataProcessorPropertySpecs(), version.getProperties());
         }
         Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(dataExportOccurrence.getTriggerTime());
         if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
@@ -94,7 +94,7 @@ public class DataExportTaskHistoryInfo {
             } else {
                 task.schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
             }
-            task.properties = propertyUtils.convertPropertySpecsToPropertyInfos(version.getPropertySpecs(), version.getProperties(dataExportOccurrence.getTriggerTime()));
+            task.dataSelector.properties = propertyUtils.convertPropertySpecsToPropertyInfos(version.getDataSelectorPropertySpecs(), version.getProperties(dataExportOccurrence.getTriggerTime()));
         }
 
         if (dataExportOccurrence.wasScheduled() && task.nextRun==null) {
