@@ -13,6 +13,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
@@ -188,6 +189,7 @@ enum TableSpecs {
             table.column("SERVER").varChar(Table.DESCRIPTION_LENGTH).map("server").add();
             table.column("USERID").varChar(Table.DESCRIPTION_LENGTH).map("user").add();
             table.column("PASSWORD").varChar(Table.DESCRIPTION_LENGTH).map("password").add();
+            table.column("PORT").type("NUMBER").conversion(NUMBER2INT).map("port").add();
 
             table.addAuditColumns();
 

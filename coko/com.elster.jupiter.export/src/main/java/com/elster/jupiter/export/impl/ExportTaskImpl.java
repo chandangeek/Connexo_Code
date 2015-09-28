@@ -11,6 +11,7 @@ import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.FtpDestination;
+import com.elster.jupiter.export.FtpsDestination;
 import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -454,11 +455,19 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public FtpDestination addFtpDestination(String server, String user, String password, String fileLocation, String fileName, String fileExtension) {
-        FtpDestinationImpl ftpDestination = FtpDestinationImpl.from(this, dataModel, server, user, password, fileLocation, fileName, fileExtension);
+    public FtpDestination addFtpDestination(String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension) {
+        FtpDestinationImpl ftpDestination = FtpDestinationImpl.from(this, dataModel, server, port, user, password, fileLocation, fileName, fileExtension);
         destinations.add(ftpDestination);
         doSave();
         return ftpDestination;
+    }
+
+    @Override
+    public FtpsDestination addFtpsDestination(String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension) {
+        FtpsDestinationImpl ftpsDestination = FtpsDestinationImpl.from(this, dataModel, server, port, user, password, fileLocation, fileName, fileExtension);
+        destinations.add(ftpsDestination);
+        save();
+        return ftpsDestination;
     }
 
     @Override

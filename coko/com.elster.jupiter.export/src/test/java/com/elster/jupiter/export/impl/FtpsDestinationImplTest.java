@@ -33,7 +33,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FtpDestinationImplTest {
+public class FtpsDestinationImplTest {
 
     public static final String DATA1 = "line 1";
     public static final String DATA2 = "line 2";
@@ -76,7 +76,7 @@ public class FtpDestinationImplTest {
 
         ftpFileSystem = Jimfs.newFileSystem(Configuration.unix());
 
-        when(ftpClientService.getFtpFactory("server", 21, "user", "password")).thenReturn(new FtpSessionFactory() {
+        when(ftpClientService.getFtpsFactory("server", 20, "user", "password")).thenReturn(new FtpSessionFactory() {
             @Override
             public void runInSession(IOConsumer ftpSessionBehavior) throws IOException {
                 ftpSessionBehavior.accept(ftpFileSystem);
@@ -93,10 +93,10 @@ public class FtpDestinationImplTest {
 
     @Test
     public void testSend() {
-        FtpDestinationImpl ftpDestination = new FtpDestinationImpl(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService);
-        ftpDestination.init(exportTask, "server", 21, "user", "password", RELATIVE_DIR, "DDD<identifier>", "txt");
+        FtpsDestinationImpl ftpsDestination = new FtpsDestinationImpl(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService);
+        ftpsDestination.init(exportTask, "server", 20, "user", "password", RELATIVE_DIR, "DDD<identifier>", "txt");
 
-        ftpDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory);
+        ftpsDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory);
 
         Path file = ftpFileSystem.getPath("/", RELATIVE_DIR, "DDDroot.txt");
         assertThat(Files.exists(file)).isTrue();
@@ -116,6 +116,4 @@ public class FtpDestinationImplTest {
             throw new RuntimeException(e);
         }
     }
-
-
 }
