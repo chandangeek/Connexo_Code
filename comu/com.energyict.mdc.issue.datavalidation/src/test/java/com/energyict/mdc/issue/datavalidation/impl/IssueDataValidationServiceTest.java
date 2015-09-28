@@ -144,6 +144,8 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         LdapUserDirectory local = inMemoryPersistence.getService(UserService.class).createApacheDirectory("APD");
         local.setSecurity("sec");
         local.setUrl("url");
+        local.setDirectoryUser("dirUser");
+        local.setPassword("pass");
         local.save();
 
         User assignee = inMemoryPersistence.getService(UserService.class).findOrCreateUser("User", "APD", "APD");
