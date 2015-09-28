@@ -1681,18 +1681,8 @@ Ext.define('Mdc.controller.history.Setup', {
         search: {
             title: Uni.I18n.translate('general.search','MDC','Search'),
             route: 'search',
-            controller: 'Mdc.controller.setup.SearchItems',
-            privileges: Mdc.privileges.Device.viewDeviceCommunication,
-            action: 'showSearchItems',
-            items: {
-                bulkAction: {
-                    title: Uni.I18n.translate('general.bulkAction','MDC','Bulk action'),
-                    route: 'bulk',
-                    controller: 'Mdc.controller.setup.SearchItemsBulkAction',
-                    privileges: Mdc.privileges.Device.administrateDeviceCommunication,
-                    action: 'showBulkAction'
-                }
-            }
+            controller: 'Mdc.controller.Search',
+            action: 'showOverview'
         }
     },
 
