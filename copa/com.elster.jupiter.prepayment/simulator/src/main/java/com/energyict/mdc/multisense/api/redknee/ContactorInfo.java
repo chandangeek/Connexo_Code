@@ -11,4 +11,6 @@ public class ContactorInfo {
     public Integer loadLimit;
     @XmlJavaTypeAdapter(JsonInstantAdapter.class)
     public Instant activationDate;
+    public Integer loadTolerance;
+    public String callback;
 }

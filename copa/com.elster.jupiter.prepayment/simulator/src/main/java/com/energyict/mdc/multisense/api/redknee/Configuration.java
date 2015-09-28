@@ -4,13 +4,14 @@ import com.thoughtworks.xstream.annotations.XStreamImplicit;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class Configuration {
 
     private Integer outputFrequency=0;
     private Integer timeAcceleration=60;
     private String destinationFilePath="/tmp";
-    private String connexoUrl="http://localhost:8080/";
+    private String connexoUrl=null;
     private Integer simulatorPort=8080;
     private String readingType;
     @XStreamImplicit
@@ -46,8 +47,11 @@ public class Configuration {
         return destinationFilePath;
     }
 
-    public String getConnexoUrl() {
-        return connexoUrl;
+    public Optional<String> getConnexoUrl() {
+        if (connexoUrl==null) {
+            return Optional.empty();
+        }
+        return Optional.of(connexoUrl);
     }
 
     public String getReadingType() {

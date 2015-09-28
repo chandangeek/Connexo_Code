@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 
 /**
  * Created by bvn on 9/17/15.
@@ -30,12 +31,13 @@ import javax.ws.rs.core.UriInfo;
 public class RknProxyResource {
 
     private final ConsumptionExportGenerator generator;
-    private final String connexoUrl;
+    private final Configuration configuration;
 
     @Inject
-    public RknProxyResource(ConsumptionExportGenerator generator, @Named("connexoUrl") String connexoUrl) {
+    public RknProxyResource(ConsumptionExportGenerator generator,
+                            Configuration configuration) {
         this.generator = generator;
-        this.connexoUrl = connexoUrl;
+        this.configuration = configuration;
     }
 
     @GET
@@ -50,7 +52,9 @@ public class RknProxyResource {
     public Response updateContactor(@PathParam("mrid") String mRID, ContactorInfo contactorInfo, @Context SecurityContext context, @Context UriInfo uriInfo) {
         SecurityEnvelope securityEnvelope = (SecurityEnvelope) context.getUserPrincipal();
         UsagePoint usagePoint = generator.getUsagePoint(mRID).orElseThrow(() -> new WebApplicationException("No such usage point in the simulator's config. Add it to the config or correct the mRID in the URL.", Response.Status.NOT_FOUND));
-        Response response = proxyRequest(mRID, contactorInfo, securityEnvelope);
+        Response response = configuration.getConnexoUrl().isPresent()?
+                proxyRequest(mRID, contactorInfo, securityEnvelope):
+                Response.accepted().location(URI.create("http://noproxy/noproxy")).build();
         if (response.getStatus()== Response.Status.ACCEPTED.getStatusCode()) {
             switch (contactorInfo.status) {
                 case connected:
@@ -75,7 +79,7 @@ public class RknProxyResource {
         securityEnvelope.authenticate(jerseyClient);
         try {
             return jerseyClient.
-                    target(connexoUrl+"/"+mrid+"/contactor").
+                    target(configuration.getConnexoUrl().get()+"/"+mrid+"/contactor").
                     request(MediaType.APPLICATION_JSON).
                     put(Entity.json(contactorInfo));
         }

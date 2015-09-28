@@ -41,7 +41,7 @@ public class UsagePoint {
     @Override
     public String toString() {
         return "UsagePoint{" +
-                ", consumption='" + consumption + '\'' +
+                "consumption='" + consumption + '\'' +
                 ", device_mRID='" + device_mRID + '\'' +
                 ", mRID='" + mRID + '\'' +
                 "}\n";

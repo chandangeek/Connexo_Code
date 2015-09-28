@@ -42,7 +42,7 @@ public class RknApplication extends Application {
         @Override
         protected void configure() {
             bind(consumptionExportGenerator).to(ConsumptionExportGenerator.class);
-            bind(configuration.getConnexoUrl()).named("connexoUrl");
+            bind(configuration).to(Configuration.class);
         }
     }
 }

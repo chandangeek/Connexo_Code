@@ -30,6 +30,9 @@ public class Simulator {
             Configuration configuration = simulator.readConfiguration(args.length > 0 ? args[0] : "simulator.json");
             logger.info(configuration.toString());
             ConsumptionExportGenerator generator = new ConsumptionExportGenerator(Clock.systemDefaultZone(), new ScheduledThreadPoolExecutor(1));
+            if (!configuration.getConnexoUrl().isPresent()) {
+                logger.info("No url for proxy: will not proxy requests to connexo");
+            }
             RknApplication rknApplication = new RknApplication(generator, configuration);
             ResourceConfig resourceConfig = ResourceConfig.forApplication(rknApplication);
             resourceConfig.register(JacksonFeature.class);
