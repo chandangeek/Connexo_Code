@@ -118,11 +118,14 @@ public class KpiImplTest extends EqualsContractTest {
 
     @Override
     protected boolean canBeSubclassed() {
-        return false;
+        return true;
     }
 
     @Override
     protected Object getInstanceOfSubclassEqualToA() {
-        return null;
+        KpiImpl other = new KpiImpl(dataModel, idsService, kpiService, eventService){};
+        other.init("name", UTC, Duration.ofMinutes(30));
+        field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID);
+        return other;
     }
 }

@@ -10,7 +10,6 @@ import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
-
 import java.math.BigDecimal;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
@@ -19,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
 
-final class KpiImpl implements Kpi {
+class KpiImpl implements Kpi {
 
     private long id;
     private String name;
@@ -130,15 +129,15 @@ final class KpiImpl implements Kpi {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof KpiImpl)) return false;
         KpiImpl kpi = (KpiImpl) o;
         return Objects.equals(id, kpi.id);
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return Objects.hash(id);
     }
 }
