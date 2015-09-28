@@ -54,6 +54,7 @@ import com.google.common.collect.Range;
 import org.joda.time.DateTimeConstants;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -122,6 +123,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
     private void createTestDefaultTimeZone() {
         TimeZone.setDefault(this.testDefaultTimeZone);
+        when(inMemoryPersistence.getClock().getZone()).thenReturn(this.testDefaultTimeZone.toZoneId());
     }
 
     private void setupReadingTypes() {
@@ -346,7 +348,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        reloadedDevice.setTimeZone(null);
+        reloadedDevice.setZone(null);
         reloadedDevice.save();
 
         Device updatedDevice = getReloadedDevice(reloadedDevice);
