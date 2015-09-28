@@ -19,14 +19,6 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
         {name: 'trigger', type: 'string'},
 
         {
-            name: 'properties',
-            persist:false,
-            mapping:  function (data) {
-                return data.task.properties;
-            }
-        },
-
-        {
             name: 'dataProcessor',
             persist:false,
             mapping:  function (data) {
@@ -38,7 +30,11 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             name: 'exportperiod',
             persist:false,
             mapping:  function (data) {
-                return data.task.standardDataSelector.exportPeriod;
+                if(data.task.standardDataSelector){
+                    return data.task.standardDataSelector.exportPeriod;
+                } else {
+                    return '-';
+                }
             }
         },
 
@@ -46,7 +42,11 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             name: 'readingTypes',
             persist:false,
             mapping:  function (data) {
-                return data.task.standardDataSelector.readingTypes;
+                if(data.task.standardDataSelector){
+                    return data.task.standardDataSelector.readingTypes;
+                } else {
+                    return '-';
+                }
             }
         },
 
@@ -54,7 +54,11 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             name: 'deviceGroup',
             persist:false,
             mapping:  function (data) {
-                return data.task.standardDataSelector.deviceGroup;
+                if(data.task.standardDataSelector){
+                    return data.task.standardDataSelector.deviceGroup;
+                } else {
+                    return '-';
+                }
             }
         },
 
@@ -139,7 +143,7 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             name: 'exportPeriod',
             persist: false,
             mapping: function(data){
-                if(data.task.standardDataSelecto){
+                if(data.task.standardDataSelector){
                     return data.task.standardDataSelector?data.task.standardDataSelector.exportPeriod.name:'';
                 } else {
                      return '';

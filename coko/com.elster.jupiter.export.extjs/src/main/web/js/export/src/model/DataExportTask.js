@@ -7,7 +7,7 @@ Ext.define('Dxp.model.DataExportTask', {
         'Dxp.model.Destination'
     ],
     fields: [
-        'id', 'name', 'dataProcessor', 'dataSelector', 'standardDataSelector', 'schedule', 'properties', 'destinations', 'nextRun', 'lastRun','exportComplete','validatedDataOption',
+        'id', 'name', 'dataProcessor', 'dataSelector', 'standardDataSelector', 'schedule', 'destinations', 'nextRun', 'lastRun','exportComplete','validatedDataOption',
         {
             name: 'lastExportOccurrence',
             persist: false
@@ -241,22 +241,20 @@ Ext.define('Dxp.model.DataExportTask', {
             }
         },
         {
-            name: 'properties',
-            type: 'hasMany',
-            model: 'Uni.property.model.Property',
-            associationKey: 'properties',
-            foreignKey: 'properties',
-            getTypeDiscriminator: function (node) {
-                return 'Uni.property.model.Property';
-            }
-        },
-        {
             name: 'dataSelector',
             type: 'hasOne',
             model:'Dxp.model.DataSelector',
             associationKey: 'dataSelector',
             getterName: 'getDataSelector',
             setterName: 'setDataSelector'
+        },
+        {
+            name: 'dataProcessor',
+            type: 'hasOne',
+            model:'Dxp.model.DataProcessor',
+            associationKey: 'dataProcessor',
+            getterName: 'getDataProcessor',
+            setterName: 'setDataProcessor'
         },
         {
             name: 'standardDataSelector',
