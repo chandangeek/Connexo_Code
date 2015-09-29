@@ -466,7 +466,7 @@ final class ExportTaskImpl implements IExportTask {
     public FtpsDestination addFtpsDestination(String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension) {
         FtpsDestinationImpl ftpsDestination = FtpsDestinationImpl.from(this, dataModel, server, port, user, password, fileLocation, fileName, fileExtension);
         destinations.add(ftpsDestination);
-        save();
+        doSave();
         return ftpsDestination;
     }
 
