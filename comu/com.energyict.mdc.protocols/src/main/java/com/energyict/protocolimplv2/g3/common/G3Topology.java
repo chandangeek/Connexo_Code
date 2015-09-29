@@ -50,18 +50,6 @@ public abstract class G3Topology {
 
     public abstract CollectedTopology collectTopology();
 
-//    public CollectedTopology collectTopology() {
-//        CollectedTopology deviceTopology = getDeviceTopology();
-//
-//        collectAndUpdateMacAddresses(deviceTopology);
-//        collectAndUpdateShortAddresses(deviceTopology);
-//        collectAndUpdatePathSegments(deviceTopology);
-//        collectAndUpdateNeighbours(deviceTopology);
-//        collectAndUpdateG3IdentificationInformation(deviceTopology);
-//
-//        return deviceTopology;
-//    }
-
     protected void collectAndUpdateG3IdentificationInformation(CollectedTopology deviceTopology) {
         try {
             Array unicastIPv6Addresses = getDlmsSession().getCosemObjectFactory().getIPv6Setup().getUnicastIPv6Addresses();

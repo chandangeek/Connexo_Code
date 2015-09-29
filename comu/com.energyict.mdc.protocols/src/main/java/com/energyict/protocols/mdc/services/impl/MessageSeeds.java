@@ -138,7 +138,8 @@ public enum MessageSeeds implements MessageSeed {
     SAP_ASSIGNMENT(256, "SAPAssignment", "", Level.SEVERE),
     PLC_OFDM_TYPE2MAC_SETUP(257, "PLCOFDMType2MACSetup", "", Level.SEVERE),
     SIX_LOW_PAN_ADAPTATION_LAYER_SETUP(258, "SixLowPanAdaptationLayerSetup", "", Level.SEVERE),
-    G3_NETWORK_MANAGEMENT(259, "G3NetworkManagement", "", Level.SEVERE);
+    G3_NETWORK_MANAGEMENT(259, "G3NetworkManagement", "", Level.SEVERE),
+    NOT_ALLOWED_TO_DO_SET_TIME(260, "notAllowed.timeSet", "It is not allowed to do a set time on the device", Level.SEVERE),
     ;
 
     private final int number;

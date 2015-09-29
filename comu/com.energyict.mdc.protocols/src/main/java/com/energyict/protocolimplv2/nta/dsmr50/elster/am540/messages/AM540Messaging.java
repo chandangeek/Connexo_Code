@@ -21,6 +21,7 @@ import java.util.Set;
 public class AM540Messaging extends Dsmr40Messaging implements DeviceMessageSupport {
 
     private final static Set<DeviceMessageId> am540Messages;
+    private Dsmr40Messaging dsmr40Messaging;
 
     static {
         am540Messages = new HashSet<>();
@@ -67,14 +68,9 @@ public class AM540Messaging extends Dsmr40Messaging implements DeviceMessageSupp
 
     @Override
     public Set<DeviceMessageId> getSupportedMessages() {
-
-        this.setSupportLimiter(true);
-        this.setSupportMBus(false);
-        this.setSupportGPRS(false);
-        this.setSupportMeterReset(false);
-        this.setSupportResetWindow(false);
-        Set<DeviceMessageId> allMessages = super.getSupportedMessages();
+        Set<DeviceMessageId> allMessages = new HashSet<>();
         allMessages.addAll(am540Messages);
+        allMessages.addAll(getDsmr40Messaging().getSupportedMessages());
 
         // DSMR5.0 security related messages who have changed compared to DSM4.0
         allMessages.remove(DeviceMessageId.SECURITY_CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY);
@@ -93,4 +89,20 @@ public class AM540Messaging extends Dsmr40Messaging implements DeviceMessageSupp
             return super.format(propertySpec, messageAttribute);
         }
     }
+
+    /**
+     * Re-uses all the DSMR 4.0 messages, except for the ones related to GPRS, MBus, reset and limiter
+     */
+    protected Dsmr40Messaging getDsmr40Messaging() {
+        if (dsmr40Messaging == null) {
+            dsmr40Messaging = new Dsmr40Messaging(getMessageExecutor(), getTopologyService());
+            dsmr40Messaging.setSupportLimiter(true);
+            dsmr40Messaging.setSupportMBus(false);
+            dsmr40Messaging.setSupportGPRS(false);
+            dsmr40Messaging.setSupportMeterReset(false);
+            dsmr40Messaging.setSupportResetWindow(false);
+        }
+        return dsmr40Messaging;
+    }
+
 }

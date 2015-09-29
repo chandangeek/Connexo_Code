@@ -18,6 +18,7 @@ import com.energyict.mdc.common.ObisCode;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -292,21 +293,37 @@ public class G3NetworkManagement extends AbstractCosemObject {
 
     /**
      * Requests the path to a particular node.
+     * Returns a text description of the back and forth path,
+     * e.g.: date:meterMac:mac1;mac2;mac3:mac1;mac2;mac3
      *
      * @param macAddress Hex string containing the EUI64 address of the path for.
      * @return A list of EUI64 addresses representing the path to the given node.
      * @throws IOException In case of an IO error during method execution.
      */
-    public final List<String> requestPath(final String macAddress) throws IOException {
-        final Array response = getPathRequestArray(macAddress);
-
-        final List<String> path = new ArrayList<>(response.nrOfDataTypes());
-
-        for (final AbstractDataType element : response) {
-            path.add((DLMSUtils.getHexStringFromBytes(((OctetString) element).getOctetStr(), "")));
+    public final String requestPath(final String macAddress) throws IOException {
+        final Structure response = this.methodInvoke(G3NetworkManagementMethods.PATH_REQUEST, extractEUI64(macAddress), Structure.class);
+        if (response.nrOfDataTypes() != 2) {
+            throw new IOException("Expected the response to the path request method to be a structure with 2 array elements");
         }
+        Array forwardPath = response.getDataType(0).getArray();
+        Array reversePath = response.getDataType(1).getArray();
 
-        return path;
+        if (forwardPath != null && reversePath != null) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(new Date().getTime()).append(":").append(macAddress).append(":");
+            for (final AbstractDataType element : forwardPath) {
+                sb.append((sb.charAt(sb.length() - 1) == ':') ? "" : ";");
+                sb.append((DLMSUtils.getHexStringFromBytes(((OctetString) element).getOctetStr(), "")));
+            }
+            sb.append(':');
+            for (final AbstractDataType element : reversePath) {
+                sb.append((sb.charAt(sb.length() - 1) == ':') ? "" : ";");
+                sb.append((DLMSUtils.getHexStringFromBytes(((OctetString) element).getOctetStr(), "")));
+            }
+            return sb.toString();
+        } else {
+            throw new IOException("Expected the response to the path request method to be a structure with 2 array elements");
+        }
     }
 
     /**

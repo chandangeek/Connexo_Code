@@ -22,7 +22,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.exceptions.GeneralParseException;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import java.io.IOException;
@@ -167,6 +167,29 @@ public abstract class AbstractMessageExecutor {
     protected Array convertEpochToDateTimeArray(String strDate) {
         Calendar cal = Calendar.getInstance(getProtocol().getTimeZone());
         cal.setTimeInMillis(Long.parseLong(strDate));
+        byte[] dateBytes = new byte[5];
+        dateBytes[0] = (byte) ((cal.get(Calendar.YEAR) >> 8) & 0xFF);
+        dateBytes[1] = (byte) (cal.get(Calendar.YEAR) & 0xFF);
+        dateBytes[2] = (byte) ((cal.get(Calendar.MONTH) & 0xFF) + 1);
+        dateBytes[3] = (byte) (cal.get(Calendar.DAY_OF_MONTH) & 0xFF);
+        dateBytes[4] = getDLMSDayOfWeek(cal);
+        OctetString date = OctetString.fromByteArray(dateBytes);
+        byte[] timeBytes = new byte[4];
+        timeBytes[0] = (byte) cal.get(Calendar.HOUR_OF_DAY);
+        timeBytes[1] = (byte) cal.get(Calendar.MINUTE);
+        timeBytes[2] = (byte) 0x00;
+        timeBytes[3] = (byte) 0x00;
+        OctetString time = OctetString.fromByteArray(timeBytes);
+
+        Array dateTimeArray = new Array();
+        Structure strDateTime = new Structure();
+        strDateTime.addDataType(time);
+        strDateTime.addDataType(date);
+        dateTimeArray.addDataType(strDateTime);
+        return dateTimeArray;
+    }
+
+    protected Array convertDateToDLMSArray(Calendar cal) {
         byte[] dateBytes = new byte[5];
         dateBytes[0] = (byte) ((cal.get(Calendar.YEAR) >> 8) & 0xFF);
         dateBytes[1] = (byte) (cal.get(Calendar.YEAR) & 0xFF);

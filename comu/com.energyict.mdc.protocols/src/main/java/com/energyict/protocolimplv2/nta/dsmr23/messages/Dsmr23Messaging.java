@@ -257,4 +257,8 @@ public class Dsmr23Messaging extends AbstractDlmsMessaging implements DeviceMess
     protected AbstractMessageExecutor getMessageExecutor() {
         return messageExecutor;
     }
+
+    protected TopologyService getTopologyService() {
+        return topologyService;
+    }
 }

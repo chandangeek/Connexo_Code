@@ -16,13 +16,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class AM540Cache extends DLMSCache {
 
-    UniversalObject[] mirrorObjectList;
-    UniversalObject[] gatewayObjectList;
     private long frameCounter = 1;
-    private boolean connectionToBeaconMirror;
 
-    public AM540Cache(boolean connectionToBeaconMirror) {
-        this.connectionToBeaconMirror = connectionToBeaconMirror;
+    public AM540Cache(UniversalObject[] objectList, int confProgChange) {
+        super(objectList, confProgChange);
+    }
+
+    public AM540Cache() {
+        super();
     }
 
     public long getFrameCounter() {
@@ -31,40 +32,5 @@ public class AM540Cache extends DLMSCache {
 
     public void setFrameCounter(long frameCounter) {
         this.frameCounter = frameCounter;
-    }
-
-    @Override
-    public void saveObjectList(UniversalObject[] objectList) {
-        if (isConnectionToBeaconMirror()) {
-            this.mirrorObjectList = objectList;
-        } else {
-            this.gatewayObjectList = objectList;
-        }
-        markDirty();
-    }
-
-    @Override
-    public UniversalObject[] getObjectList() {
-        return isConnectionToBeaconMirror() ? mirrorObjectList : gatewayObjectList;
-    }
-
-    public boolean isConnectionToBeaconMirror() {
-        return connectionToBeaconMirror;
-    }
-
-    public void setConnectionToBeaconMirror(boolean connectionToBeaconMirror) {
-        this.connectionToBeaconMirror = connectionToBeaconMirror;
-    }
-
-    @Override
-    @Deprecated // The AM540 meter doesn't have this counter - so method should not be used
-    public int getConfProgChange() {
-        return super.getConfProgChange();
-    }
-
-    @Override
-    @Deprecated // The AM540 meter doesn't have this counter - so method should not be used
-    public void setConfProgChange(int confProgChange) {
-        super.setConfProgChange(confProgChange);
     }
 }

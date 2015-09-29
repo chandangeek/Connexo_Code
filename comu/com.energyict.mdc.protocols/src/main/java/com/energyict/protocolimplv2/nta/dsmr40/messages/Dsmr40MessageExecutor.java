@@ -15,15 +15,17 @@ import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
 
 import java.io.IOException;
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -265,5 +267,27 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
     private boolean isEnableP0(OfflineDeviceMessage deviceMessage) {
         return deviceMessage.getDeviceMessageId().equals(DeviceMessageId.SECURITY_ENABLE_DLMS_AUTHENTICATION_LEVEL_P0);
+    }
+
+    @Override
+    protected void activityCalendarWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
+        String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getDeviceMessageAttributeValue();
+        String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getDeviceMessageAttributeValue();
+        String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarCodeTableAttributeName).getDeviceMessageAttributeValue();
+        if (calendarName.length() > 8) {
+            calendarName = calendarName.substring(0, 8);
+        }
+
+        ActivityCalendarController activityCalendarController = getActivityCalendarController();
+        activityCalendarController.parseContent(activityCalendarContents);
+        activityCalendarController.writeCalendarName(calendarName);
+        activityCalendarController.writeCalendar(); //Does not activate it yet
+        Calendar activationCal = Calendar.getInstance(getProtocol().getTimeZone());
+        activationCal.setTimeInMillis(Long.parseLong(epoch));
+        activityCalendarController.writeCalendarActivationTime(activationCal);   //Activate now
+    }
+
+    protected DSMR40ActivityCalendarController getActivityCalendarController() {
+        return new DSMR40ActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone());
     }
 }
