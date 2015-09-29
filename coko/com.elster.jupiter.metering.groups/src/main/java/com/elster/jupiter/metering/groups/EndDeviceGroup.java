@@ -1,14 +1,13 @@
 package com.elster.jupiter.metering.groups;
 
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.util.HasId;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
 
-public interface EndDeviceGroup {
-
-    long getId();
+public interface EndDeviceGroup extends HasId {
 
     String getType();
 
