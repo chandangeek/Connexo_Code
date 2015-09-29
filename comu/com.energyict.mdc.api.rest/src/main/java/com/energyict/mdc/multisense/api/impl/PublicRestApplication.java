@@ -22,6 +22,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.multisense.api.impl.utils.DeviceLifeCycleActionViolationExceptionMapper;
 import com.energyict.mdc.multisense.api.impl.utils.ResourceHelper;
+import com.energyict.mdc.multisense.api.impl.utils.RestExceptionMapper;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -86,6 +87,7 @@ public class PublicRestApplication extends Application implements TranslationKey
                 DeviceProtocolPluggableClassResource.class,
                 AuthenticationDeviceAccessLevelResource.class,
                 EncryptionDeviceAccessLevelResource.class,
+                RestExceptionMapper.class,
                 DeviceLifeCycleActionViolationExceptionMapper.class
         );
     }

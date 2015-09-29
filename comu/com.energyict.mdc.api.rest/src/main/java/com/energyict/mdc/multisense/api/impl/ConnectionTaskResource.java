@@ -28,7 +28,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -82,9 +81,10 @@ public class ConnectionTaskResource {
                                                 @Context UriInfo uriInfo,
                                                 @BeanParam FieldSelection fieldSelection,
                                                 @BeanParam JsonQueryParameters queryParameters) {
-        ConnectionTask<?,?> connectionTask = connectionTaskService.findConnectionTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+        ConnectionTask<?,?> connectionTask = connectionTaskService.findConnectionTask(id)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CONNECTION_TASK));
         if (!connectionTask.getDevice().getmRID().equals(mrid)) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode());
+            throw exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CONNECTION_TASK);
         }
         return connectionTaskInfoFactory.from(connectionTask, uriInfo, fieldSelection.getFields());
     }
@@ -145,7 +145,7 @@ public class ConnectionTaskResource {
                 getPartialConnectionTasks().stream().
                 filter(pct -> pct.getId() == id).
                 findFirst().
-                orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_PARTIAL_CONNECTION_TASK));
+                orElseThrow(() -> exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_PARTIAL_CONNECTION_TASK));
     }
 
     public ConnectionTask<?, ?> findConnectionTaskOrThrowException(Device device, long connectionTaskId) {
@@ -153,7 +153,7 @@ public class ConnectionTaskResource {
                 .stream()
                 .filter(ct -> ct.getId() == connectionTaskId)
                 .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CONNECTION_TASK));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CONNECTION_TASK));
     }
 
 

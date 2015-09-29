@@ -63,7 +63,4 @@ public class DeviceProtocolPluggableClassResource {
     public List<String> getFields() {
         return deviceProtocolPluggableClassInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
-
-
-
 }

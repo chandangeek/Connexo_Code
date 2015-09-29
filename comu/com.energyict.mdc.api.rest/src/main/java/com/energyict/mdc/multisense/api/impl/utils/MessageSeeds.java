@@ -23,7 +23,12 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_CONNECTION_TASK(13, "NoSuchConnectionTask" , "The device does not contain a connection method with that id"),
     EXPECTED_INBOUND(14, "ExpectedInbound", "Expected connection method on device to be 'Inbound'-type"),
     EXPECTED_OUTBOUND(15, "ExpectedOutbound", "Expected connection method on device to be 'Outbound'-type"),
-    ;
+    NO_SUCH_COM_TASK(16, "NoSuchComTask", "Communication task does not exist"),
+    NO_SUCH_SECURITY_PROPERTY_SET(17, "NoSuchSecurityPropertySet" , "Security property set does not exist"),
+    NO_SUCH_DEVICE(18, "NoSuchDevice", "Device does not exist"),
+    CONTENT_EXPECTED(19, "ContentExpected", "This method expected content, but the body was empty"),
+    NO_SUCH_MESSAGE_CATEGORY(20, "NoSuchMessageCategory", "Message category does not exist"),
+    NO_SUCH_GATEWAY(21, "NuSuchGateway", "Gateway device does not exist");
 
     private final int number;
     private final String key;

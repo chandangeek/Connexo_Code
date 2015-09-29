@@ -84,7 +84,9 @@ public class DeviceResource {
     @Path("/{mrid}")
     @RolesAllowed({Privileges.PUBLIC_REST_API})
     public DeviceInfo getDevice(@PathParam("mrid") String mRID, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
-        return deviceService.findByUniqueMrid(mRID).map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fields.getFields())).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+        return deviceService.findByUniqueMrid(mRID)
+                .map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fields.getFields()))
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
     }
 
     /**
@@ -102,7 +104,8 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.PUBLIC_REST_API})
     public PagedInfoList getDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
-        List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).from(queryParameters).stream().map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fieldSelection.getFields())).collect(toList());
+        List<DeviceInfo> infos = deviceService.findAllDevices(Condition.TRUE).from(queryParameters).stream()
+                .map(d -> deviceInfoFactory.asHypermedia(d, uriInfo, fieldSelection.getFields())).collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceResource.class);
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
@@ -154,7 +157,8 @@ public class DeviceResource {
             }
             Optional<Device> currentGateway = topologyService.getPhysicalGateway(device);
             if (!currentGateway.isPresent() || !currentGateway.get().getmRID().equals(info.masterDevice.mRID)) {
-                Device newGateway = deviceService.findByUniqueMrid(info.masterDevice.mRID).orElseThrow(() -> new WebApplicationException("Unknown gateway mRID", Response.Status.BAD_REQUEST));
+                Device newGateway = deviceService.findByUniqueMrid(info.masterDevice.mRID)
+                        .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_GATEWAY));
                 topologyService.setPhysicalGateway(device, newGateway);
             }
         } else {

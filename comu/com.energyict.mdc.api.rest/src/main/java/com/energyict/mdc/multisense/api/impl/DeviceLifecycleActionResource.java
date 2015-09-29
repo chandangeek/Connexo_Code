@@ -72,7 +72,8 @@ public class DeviceLifecycleActionResource {
                                          @Context UriInfo uriInfo,
                                          @BeanParam FieldSelection fieldSelection) {
 
-        Device device = deviceService.findByUniqueMrid(mRID).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+        Device device = deviceService.findByUniqueMrid(mRID)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         ExecutableAction executableAction = getExecutableActionByIdOrThrowException(actionId, device);
         return deviceLifecycleActionInfoFactory.createDeviceLifecycleActionInfo(device, (AuthorizedTransitionAction) executableAction.getAction(), uriInfo, fieldSelection.getFields());
     }
@@ -85,7 +86,8 @@ public class DeviceLifecycleActionResource {
                                                     @BeanParam FieldSelection fieldSelection,
                                                     @Context UriInfo uriInfo,
                                                     @BeanParam JsonQueryParameters queryParameters) {
-        Device device = deviceService.findByUniqueMrid(mRID).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+        Device device = deviceService.findByUniqueMrid(mRID)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         List<LifeCycleActionInfo> infos = deviceLifeCycleService.getExecutableActions(device).stream().
                 map(ExecutableAction::getAction).
                 filter(aa -> aa instanceof AuthorizedTransitionAction).
@@ -108,9 +110,9 @@ public class DeviceLifecycleActionResource {
                 @PathParam("actionId") long actionId,
                 @BeanParam JsonQueryParameters queryParameters,
                 LifeCycleActionInfo info){
-        Device device = deviceService.findByUniqueMrid(mrid).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+        Device device = deviceService.findByUniqueMrid(mrid).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         if (info==null) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            throw exceptionFactory.newException(MessageSeeds.CONTENT_EXPECTED);
         }
         device = deviceService.findAndLockDeviceByIdAndVersion(device.getId(), info.deviceVersion).orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
         ExecutableAction requestedAction = getExecutableActionByIdOrThrowException(actionId, device);

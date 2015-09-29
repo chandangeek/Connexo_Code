@@ -1,11 +1,13 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
+import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.multisense.api.security.Privileges;
 
@@ -17,7 +19,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -31,12 +32,14 @@ public class ConfigurationSecurityPropertySetResource {
 
     private final DeviceConfigurationService deviceConfigurationService;
     private final ConfigurationSecurityPropertySetFactory securityPropertySetInfoFactory;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
     public ConfigurationSecurityPropertySetResource(DeviceConfigurationService deviceConfigurationService,
-                                                    ConfigurationSecurityPropertySetFactory securityPropertySetInfoFactory) {
+                                                    ConfigurationSecurityPropertySetFactory securityPropertySetInfoFactory, ExceptionFactory exceptionFactory) {
         this.deviceConfigurationService = deviceConfigurationService;
         this.securityPropertySetInfoFactory = securityPropertySetInfoFactory;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -74,16 +77,16 @@ public class ConfigurationSecurityPropertySetResource {
                 .getSecurityPropertySets().stream()
                 .filter(sps -> sps.getId() == securityPropertySetId)
                 .findAny()
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_SECURITY_PROPERTY_SET));
     }
 
     private DeviceConfiguration findDeviceConfigurationOrThrowException(long deviceTypeId, long deviceConfigurationId) {
         return deviceConfigurationService.
                     findDeviceType(deviceTypeId)
-                    .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode())).
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_TYPE)).
                             getConfigurations().stream().filter(dc -> dc.getId() == deviceConfigurationId).
                             findFirst()
-                            .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+                            .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG));
     }
 
 }

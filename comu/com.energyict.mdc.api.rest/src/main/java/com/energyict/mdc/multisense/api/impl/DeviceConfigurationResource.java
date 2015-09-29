@@ -1,11 +1,12 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
+import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
@@ -32,11 +33,13 @@ public class DeviceConfigurationResource {
 
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceConfigurationInfoFactory deviceConfigurationInfoFactory;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public DeviceConfigurationResource(DeviceConfigurationService deviceConfigurationService, DeviceConfigurationInfoFactory deviceConfigurationInfoFactory) {
+    public DeviceConfigurationResource(DeviceConfigurationService deviceConfigurationService, DeviceConfigurationInfoFactory deviceConfigurationInfoFactory, ExceptionFactory exceptionFactory) {
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceConfigurationInfoFactory = deviceConfigurationInfoFactory;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -46,11 +49,11 @@ public class DeviceConfigurationResource {
     public DeviceConfigurationInfo getDeviceConfiguration(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long id, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
         DeviceConfigurationInfo deviceConfigurationInfo = deviceConfigurationService.
                 findDeviceType(id)
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode())).
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_TYPE)).
                         getConfigurations().stream().filter(dc -> dc.getId() == id).
                         map(dc -> deviceConfigurationInfoFactory.asHypermedia(dc, uriInfo, fields.getFields())).
                         findFirst()
-                        .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+                        .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG));
         return deviceConfigurationInfo;
     }
 
@@ -61,7 +64,7 @@ public class DeviceConfigurationResource {
                                                            @BeanParam FieldSelection fields,@Context UriInfo uriInfo) {
         List<DeviceConfiguration> allDeviceConfigurations = deviceConfigurationService.
                 findDeviceType(deviceTypeId)
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode())).getConfigurations();
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_TYPE)).getConfigurations();
         List<DeviceConfigurationInfo> infos = ListPager.of(allDeviceConfigurations).from(queryParameters).find().stream().map(dc -> deviceConfigurationInfoFactory.asHypermedia(dc, uriInfo, fields.getFields())).collect(toList());
         UriBuilder uri = uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).resolveTemplate("deviceTypeId", deviceTypeId);
 

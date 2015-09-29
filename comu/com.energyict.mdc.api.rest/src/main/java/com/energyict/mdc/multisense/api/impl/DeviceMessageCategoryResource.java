@@ -2,8 +2,10 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
+import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.multisense.api.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -15,7 +17,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -32,11 +33,13 @@ public class DeviceMessageCategoryResource {
 
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoriesInfoFactory;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public DeviceMessageCategoryResource(DeviceMessageCategoryInfoFactory deviceMessageCategoriesInfoFactory, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    public DeviceMessageCategoryResource(DeviceMessageCategoryInfoFactory deviceMessageCategoriesInfoFactory, DeviceMessageSpecificationService deviceMessageSpecificationService, ExceptionFactory exceptionFactory) {
         this.deviceMessageCategoriesInfoFactory = deviceMessageCategoriesInfoFactory;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -47,7 +50,7 @@ public class DeviceMessageCategoryResource {
                                   @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         return deviceMessageSpecificationService.findCategoryById(messageCategoryId)
                 .map(dmc -> deviceMessageCategoriesInfoFactory.asHypermedia(dmc, uriInfo, fieldSelection.getFields()))
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_MESSAGE_CATEGORY));
     }
 
     @GET
