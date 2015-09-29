@@ -46,6 +46,14 @@ public class InvalidLastCheckedException extends RuntimeException {
         return device;
     }
 
+    public Date getNewLastChecked() {
+        return newLastChecked;
+    }
+
+    public Date getOldLastChecked() {
+        return oldLastChecked;
+    }
+
     public MessageSeed getMessageSeed() {
         return messageSeed;
     }
