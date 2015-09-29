@@ -34,17 +34,16 @@ public class ComServerBuilder extends NamedBuilder<ComServer, ComServerBuilder> 
     @Override
     public ComServer create(){
         Log.write(this);
-        OnlineComServer comServer = engineModelService.newOnlineComServerInstance();
-        comServer.setName(getName());
-        comServer.setActive(this.isActive);
-        comServer.setServerLogLevel(ComServer.LogLevel.WARN);
-        comServer.setCommunicationLogLevel(ComServer.LogLevel.WARN);
-        comServer.setChangesInterPollDelay(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES));
-        comServer.setSchedulingInterPollDelay(new TimeDuration(60, TimeDuration.TimeUnit.SECONDS));
-        comServer.setStoreTaskQueueSize(50);
-        comServer.setNumberOfStoreTaskThreads(5);
-        comServer.setStoreTaskThreadPriority(5);
-        comServer.save();
-        return comServer;
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> comServer = engineModelService.newOnlineComServerBuilder();
+        comServer.name(getName());
+        comServer.active(this.isActive);
+        comServer.serverLogLevel(ComServer.LogLevel.WARN);
+        comServer.communicationLogLevel(ComServer.LogLevel.WARN);
+        comServer.changesInterPollDelay(new TimeDuration(5, TimeDuration.TimeUnit.MINUTES));
+        comServer.schedulingInterPollDelay(new TimeDuration(60, TimeDuration.TimeUnit.SECONDS));
+        comServer.storeTaskQueueSize(50);
+        comServer.numberOfStoreTaskThreads(5);
+        comServer.storeTaskThreadPriority(5);
+        return comServer.create();
     }
 }

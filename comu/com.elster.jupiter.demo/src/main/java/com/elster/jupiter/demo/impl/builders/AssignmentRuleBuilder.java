@@ -69,13 +69,11 @@ public class AssignmentRuleBuilder extends NamedBuilder<AssignmentRule, Assignme
             }
             this.ruleData = this.ruleData.replace("@REASON", reasonRef.get().getName());
         }
-        AssignmentRule rule = issueAssignmentService.createAssignmentRule();
-        rule.setTitle(getName());
+        AssignmentRule rule = issueAssignmentService.createAssignmentRule(getName(), ruleData);
         rule.setDescription(description);
         rule.setPriority(0);
-        rule.setRuleData(ruleData);
         rule.setEnabled(true);
-        rule.save();
+        rule.update();
         return rule;
     }
 }

@@ -83,6 +83,13 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
 
         CreationRuleTemplate template = getCreationRuleTemplate();
         builder.setTemplate(template.getName());
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(BasicDataCollectionRuleTemplate.EVENTTYPE,
+                template.getPropertySpec(BasicDataCollectionRuleTemplate.EVENTTYPE).getValueFactory().fromStringValue(type));
+        properties.put(BasicDataCollectionRuleTemplate.AUTORESOLUTION,
+                template.getPropertySpec(BasicDataCollectionRuleTemplate.AUTORESOLUTION).getValueFactory().fromStringValue("1"));
+        builder.setProperties(properties);
+        return builder.complete();
         builder.setProperties(getProperties(template));
         CreationRule rule = builder.complete();
         rule.save();
