@@ -87,7 +87,7 @@ public class DataExportTaskResource {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<? extends ExportTask> list = queryTasks(params);
 
-        DataExportTaskInfos infos = new DataExportTaskInfos(params.clipToLimit(list), thesaurus, timeService, propertyUtils);
+        DataExportTaskInfos infos = new DataExportTaskInfos(params.clipToLimit(list), thesaurus, timeService, propertyUtils,false);
         infos.total = params.determineTotal(list.size());
 
         return infos;

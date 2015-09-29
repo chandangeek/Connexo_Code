@@ -58,7 +58,7 @@ public class DataExportTaskInfo {
             .forEach(destination -> destinations.add(typeOf(destination).toInfo(destination)));
     }
 
-    private DestinationType typeOf(DataExportDestination destination) {
+    protected DestinationType typeOf(DataExportDestination destination) {
         return Arrays.stream(DestinationType.values())
                 .filter(type -> type.getDestinationClass().isInstance(destination))
                 .findAny()
@@ -69,7 +69,7 @@ public class DataExportTaskInfo {
         doPopulate(dataExportTask, thesaurus, timeService, propertyUtils);
     }
 
-    private void doPopulate(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
+    protected void doPopulate(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
         id = dataExportTask.getId();
         name = dataExportTask.getName();
 
