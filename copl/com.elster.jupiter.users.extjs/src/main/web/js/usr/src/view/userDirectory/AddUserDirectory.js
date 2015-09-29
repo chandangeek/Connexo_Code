@@ -71,7 +71,7 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                             {
                                 xtype: 'combobox',
                                 itemId: 'cbo-security-protocol',
-                                name: 'securityProtocol',
+                                name: 'security',
                                 width: 600,
                                 fieldLabel: Uni.I18n.translate('userDirectories.securityProtocol', 'USR', 'Security protocol'),
                                 labelWidth: 250,
@@ -173,7 +173,8 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                         xtype: 'textfield',
                         name: 'baseGroup',
                         itemId: 'txt-baseGroup',
-                        fieldLabel: Uni.I18n.translate('userDirectories.baseGroup', 'USR', 'Group base DN')
+                        fieldLabel: Uni.I18n.translate('userDirectories.baseGroup', 'USR', 'Group base DN'),
+                        hidden: true
                     },
                     {
                         xtype: 'container',
