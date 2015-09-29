@@ -11,9 +11,8 @@ public class LoadProfileDataInfo {
     public IntervalInfo interval;
     public Map<Long, String> channelData = new HashMap<>();
     public Map<Long, String> channelCollectedData = new HashMap<>();
-    public Map<Long, VeeReadingInfo> channelValidationData = new HashMap<>();
+    public Map<Long, MinimalVeeReadingInfo> channelValidationData = new HashMap<>();
     public Instant readingTime;
     public List<String> intervalFlags;
-    public boolean validationActive;
 
 }

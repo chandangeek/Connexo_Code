@@ -129,15 +129,15 @@ public class EstimationHelper {
         ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, reading, isValidationActive, deviceValidation);
         if (!channel.getReadingType().isCumulative()) {
             channelDataInfo.value = estimatable.getEstimation();
-            channelDataInfo.validationInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+            channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
         } else {
             if (block.getReadingType().equals(channel.getReadingType())) {
                 channelDataInfo.collectedValue = estimatable.getEstimation();
-                channelDataInfo.validationInfo.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+                channelDataInfo.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
             }
             if (channel.getReadingType().getCalculatedReadingType().isPresent() && channel.getReadingType().getCalculatedReadingType().get().equals(block.getReadingType())) {
                 channelDataInfo.value = estimatable.getEstimation();
-                channelDataInfo.validationInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+                channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
             }
         }
         return channelDataInfo;
