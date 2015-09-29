@@ -1,5 +1,5 @@
 Ext.define('Sam.model.DataPurgeSetting', {
-    extend: 'Uni.model.Version',
+    extend: 'Ext.data.Model',
     idProperty: 'kind',
     fields: [
         'kind',
