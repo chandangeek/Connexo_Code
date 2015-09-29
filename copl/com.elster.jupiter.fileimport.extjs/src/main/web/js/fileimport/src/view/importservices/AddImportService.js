@@ -114,31 +114,22 @@ Ext.define('Fim.view.importservices.AddImportService', {
                                 enforceMaxLength: true
                             },
                             {
-                                xtype: 'box',
+                                xtype: 'button',
                                 itemId: 'txt-file-pattern-info',
-                                cls: 'uni-info-icon',
-                                qtip: Uni.I18n.translate('importService.filePatternInfo', 'FIM', 'File pattern info'),
-
-                                autoEl: {
-                                    tag: 'img',
-                                    src: "../sky/build/resources/images/shared/icon-info-small.png",
-                                    width: 16,
-                                    height: 16
-                                },
+                                tooltip: Uni.I18n.translate('importService.filePattern.tooltip', 'FIM', 'Click for more information'),
+                                iconCls: 'uni-icon-info-small',
+                                ui: 'blank',
+                                shadow: false,
                                 margin: '6 0 0 10',
-                                style: {
-                                    cursor: 'pointer'
-                                },
+                                width: 16,
+                                tabIndex: -1,
                                 listeners: {
-                                    el: {
-                                        click: function () {
-                                            var me = Ext.getCmp(this.id);
-                                            me.up('contentcontainer').fireEvent('displayinfo', me);
-                                        }
+                                    click: function () {
+                                        var me = Ext.getCmp(this.id);
+                                        me.up('contentcontainer').fireEvent('displayinfo', me);
                                     }
                                 }
                             }
-
                         ]
                     },
                     {

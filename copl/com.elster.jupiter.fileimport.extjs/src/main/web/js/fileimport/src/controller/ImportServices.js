@@ -468,6 +468,7 @@ Ext.define('Fim.controller.ImportServices', {
         } else {
             propertyForm.hide();
         }
+        propertyForm.up('#frm-add-import-service').doLayout();
     },
 
     displayInfo: function (panel) {
