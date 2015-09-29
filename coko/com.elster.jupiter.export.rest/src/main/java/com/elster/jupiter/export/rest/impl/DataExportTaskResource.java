@@ -170,12 +170,12 @@ public class DataExportTaskResource {
                     builder.addProperty(spec.getName()).withValue(value);
                 });
 
-
-        ExportTask dataExportTask = builder.build();
+        ExportTask dataExportTask = null;
         try (TransactionContext context = transactionService.getContext()) {
-            dataExportTask.save();
+            dataExportTask = builder.create();
+            ExportTask exportTask = dataExportTask;
             info.destinations.stream()
-                    .forEach(destinationInfo -> destinationInfo.type.create(dataExportTask, destinationInfo));
+                    .forEach(destinationInfo -> destinationInfo.type.create(exportTask, destinationInfo));
             context.commit();
         }
         return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(dataExportTask, thesaurus, timeService, propertyUtils)).build();
@@ -240,7 +240,7 @@ public class DataExportTaskResource {
             updateProperties(info, task);
             updateDestinations(info, task);
 
-            task.save();
+            task.update();
             context.commit();
         }
         return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(task, thesaurus, timeService, propertyUtils)).build();
