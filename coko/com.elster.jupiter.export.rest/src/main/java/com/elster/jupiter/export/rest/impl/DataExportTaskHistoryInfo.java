@@ -97,7 +97,7 @@ public class DataExportTaskHistoryInfo {
             task.properties = propertyUtils.convertPropertySpecsToPropertyInfos(version.getPropertySpecs(), version.getProperties(dataExportOccurrence.getTriggerTime()));
         }
 
-        if (dataExportOccurrence.wasScheduled() && task.nextRun==null) {
+        if (dataExportOccurrence.wasScheduled() && task.schedule==null) {
             this.trigger = NONRECURRING.translate(thesaurus);
         }
     }
