@@ -11,7 +11,6 @@ import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.multisense.api.security.Privileges;
 
-import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -24,6 +23,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 

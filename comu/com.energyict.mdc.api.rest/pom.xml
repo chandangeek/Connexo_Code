@@ -12,7 +12,7 @@
     <artifactId>mdc.api.rest</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>[MDC] multisense.api.rest [init MSA]</name>
+    <name>[MDC] multisense.api.rest [init MSI]</name>
     <description>
         Contains public REST API implementation to interface with multisense services using REST
     </description>

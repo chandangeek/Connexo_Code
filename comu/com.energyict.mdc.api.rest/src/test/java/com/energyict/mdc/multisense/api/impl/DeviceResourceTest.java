@@ -21,6 +21,12 @@ import com.energyict.mdc.device.lifecycle.impl.ExecutableActionPropertyImpl;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -28,11 +34,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;

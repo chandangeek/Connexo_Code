@@ -9,15 +9,16 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+
+import javax.inject.Inject;
+import javax.ws.rs.core.Link;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
-import javax.ws.rs.core.Link;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
 
 /**
  * Created by bvn on 7/9/15.

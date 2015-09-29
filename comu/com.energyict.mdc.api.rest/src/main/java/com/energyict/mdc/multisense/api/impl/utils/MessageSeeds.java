@@ -1,8 +1,7 @@
 package com.energyict.mdc.multisense.api.impl.utils;
 
-import com.energyict.mdc.multisense.api.impl.PublicRestApplication;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.multisense.api.impl.PublicRestApplication;
 
 import java.util.logging.Level;
 

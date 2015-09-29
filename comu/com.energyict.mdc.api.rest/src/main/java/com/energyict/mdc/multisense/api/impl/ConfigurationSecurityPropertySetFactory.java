@@ -3,12 +3,13 @@ package com.energyict.mdc.multisense.api.impl;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by bvn on 7/22/15.

@@ -2,7 +2,6 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 import com.energyict.mdc.multisense.api.security.Privileges;
-import org.osgi.application.ApplicationServiceListener;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.Collections;

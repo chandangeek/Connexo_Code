@@ -1,12 +1,13 @@
 package com.energyict.mdc.multisense.api.impl.utils;
 
 import com.elster.jupiter.domain.util.QueryParameters;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * generic helper class to json-serialize a list of info-objects into a json format that is understood by our ExtJS paging component.

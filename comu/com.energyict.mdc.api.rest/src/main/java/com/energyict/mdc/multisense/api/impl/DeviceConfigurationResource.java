@@ -8,7 +8,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
-import java.util.List;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -16,12 +16,12 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 

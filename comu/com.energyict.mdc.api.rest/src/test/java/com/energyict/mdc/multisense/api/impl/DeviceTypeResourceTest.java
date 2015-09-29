@@ -6,13 +6,14 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-import javax.ws.rs.core.Response;
-import org.junit.Before;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;

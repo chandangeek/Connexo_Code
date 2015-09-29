@@ -8,12 +8,13 @@ import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+
 import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EncryptionDeviceAccessLevelInfoFactory extends SelectableFieldFactory<DeviceAccessLevelInfo, Pair<DeviceProtocolPluggableClass, DeviceAccessLevel>> {
 

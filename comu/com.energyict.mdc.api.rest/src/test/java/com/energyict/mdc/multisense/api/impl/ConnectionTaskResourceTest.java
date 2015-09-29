@@ -15,6 +15,13 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.jayway.jsonpath.JsonModel;
+import net.minidev.json.JSONArray;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -22,12 +29,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import net.minidev.json.JSONArray;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;

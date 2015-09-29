@@ -4,12 +4,13 @@ import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 

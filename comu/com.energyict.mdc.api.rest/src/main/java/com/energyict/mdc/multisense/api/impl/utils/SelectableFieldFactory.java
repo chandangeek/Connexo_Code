@@ -1,10 +1,9 @@
 package com.energyict.mdc.multisense.api.impl.utils;
 
-import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
+import javax.ws.rs.core.UriInfo;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import javax.ws.rs.core.UriInfo;
 
 /**
  * Created by bvn on 7/9/15.
