@@ -22,6 +22,8 @@ public interface JoinClauseBuilder {
 
     public JoinClauseBuilder addFiniteState();
 
+    public JoinClauseBuilder addDeviceGroup();
+
     public JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass);
 
 }

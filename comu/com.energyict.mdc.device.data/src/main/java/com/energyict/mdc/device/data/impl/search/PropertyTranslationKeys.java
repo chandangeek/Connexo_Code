@@ -15,7 +15,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     DEVICE_SERIAL_NUMBER("device.serial.number", "Serial number"),
     DEVICE_TYPE("device.type", "Device type"),
     DEVICE_CONFIGURATION("device.configuration", "Device configuration"),
-    DEVICE_STATUS("device.status.name", "state");
+    DEVICE_STATUS("device.status.name", "state"),
+    DEVICE_GROUP("device.group", "Device group");
 
     private String key;
     private String defaultFormat;
