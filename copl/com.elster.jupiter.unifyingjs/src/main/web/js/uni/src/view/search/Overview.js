@@ -68,10 +68,6 @@ Ext.define('Uni.view.search.Overview', {
                                         itemId: 'search-object-selector',
                                         xtype: 'search-object-selector'
                                     },
-                                    {
-                                        xtype: 'uni-search-criteria-boolean',
-                                        text: 'Boolean'
-                                    },
                                     '->',
                                     {
                                         disabled: true,
