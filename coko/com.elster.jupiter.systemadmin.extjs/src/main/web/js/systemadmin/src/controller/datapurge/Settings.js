@@ -44,20 +44,39 @@ Ext.define('Sam.controller.datapurge.Settings', {
     saveData: function () {
         var me = this,
             page = me.getPage(),
-            store = me.getStore('Sam.store.DataPurgeSettings');
+            store = me.getStore('Sam.store.DataPurgeSettings'),
+            updatedRecords = store.getUpdatedRecords(),
+            updatedData = {data: []};
 
-        if (!store.getUpdatedRecords().length) {
+        if (!updatedRecords.length) {
             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('datapurge.settings.nothingToSaveMsg', 'SAM', 'Nothing to save'));
             return;
         }
+
+        Ext.Array.each(updatedRecords, function (record) {
+            updatedData.data.push(record.getRecordData());
+        });
+
         page.setLoading(Uni.I18n.translate('general.saving', 'SAM', 'Saving...'));
-        store.sync({
+        Ext.Ajax.request({
+            url: store.getProxy().url,
+            jsonData: updatedData,
+            method: 'PUT',
             callback: function () {
                 page.setLoading(false);
             },
             success: function () {
+                store.commitChanges();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('datapurge.settings.success.msg', 'SAM', 'Data purge saved'));
             }
         });
+        //store.sync({
+        //    callback: function () {
+        //        page.setLoading(false);
+        //    },
+        //    success: function () {
+        //        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('datapurge.settings.success.msg', 'SAM', 'Data purge saved'));
+        //    }
+        //});
     }
 });
