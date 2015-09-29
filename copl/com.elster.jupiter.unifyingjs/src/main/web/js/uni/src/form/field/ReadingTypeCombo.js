@@ -76,7 +76,7 @@ Ext.define('Uni.form.field.ReadingTypeCombo', {
         Ext.defer(function () {
             new Ext.button.Button({
                 renderTo: me.el.down('.x-form-item-body'),
-                tooltip: Uni.I18n.translate('readingType.tooltip', 'UNI', 'Reading type info'),
+                tooltip: Uni.I18n.translate('readingType.tooltip', 'UNI', 'Click for more information'),
                 hidden: true,
                 iconCls: 'uni-icon-info-small',
                 cls: 'uni-btn-transparent',

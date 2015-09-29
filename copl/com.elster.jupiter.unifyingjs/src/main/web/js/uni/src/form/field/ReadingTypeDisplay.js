@@ -134,7 +134,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
         var me = this,
             assembledName = value.fullAliasName,
             //alias = value.aliasName ? (' ' + value.aliasName) : '',
-            icon = '<span class="uni-icon-info-small" style="cursor: pointer; display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Uni.I18n.translate('readingType.tooltip', 'UNI', 'Reading type info') + '"></span>';
+            icon = '<span class="uni-icon-info-small" style="cursor: pointer; display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Uni.I18n.translate('readingType.tooltip', 'UNI', 'Click for more information') + '"></span>';
 
         /*if (value.names && Ext.isObject(value.names)) {
             assembledName +=

@@ -207,12 +207,12 @@ Ext.define('Uni.form.RelativePeriodPreview', {
     },
 
     updatePreviewLabel: function (startDate, endDate) {
-        var me = this,
-            startDateString = Uni.I18n.translate('general.dateattime', 'UNI', '{0} At {1}',[Uni.DateTime.formatDateLong(startDate), Uni.DateTime.formatTimeLong(startDate)]).toLowerCase(),
-            endDateString = Uni.I18n.translate('general.dateattime', 'UNI', '{0} At {1}',[Uni.DateTime.formatDateLong(endDate), Uni.DateTime.formatTimeLong(endDate)]).toLowerCase(),
-            dateString = me.formatPreviewTextFn(startDateString, endDateString);
-
         if (typeof startDate !== 'undefined' && typeof endDate !== 'undefined') {
+            var me = this,
+                startDateString = Uni.DateTime.formatDateTimeLong(startDate),
+                endDateString = Uni.DateTime.formatDateTimeLong(endDate),
+                dateString = me.formatPreviewTextFn(startDateString, endDateString);
+
             me.getPreviewLabel().update(dateString);
             me.getPreviewLabel().unmask();
         }

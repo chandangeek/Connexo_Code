@@ -202,16 +202,18 @@ Ext.define('Uni.I18n', {
             translation = fallback;
         }
 
-        if (typeof translation !== 'undefined' && translation !== null
-            && typeof values !== 'undefined') {
-            for (var i = 0; i < values.length; i++) {
-                if(htmlEncode === true){
-                    var value = Ext.String.htmlEncode(values[i]);
-                } else {
-                    var value = values[i];
+        if (typeof translation !== 'undefined' && translation !== null && typeof values !== 'undefined') {
+            var argumentsArray = [];
+            argumentsArray.push(translation);
+            if (_.isArray(values)) {
+                var arrayLength = values.length;
+                for (var i=0; i<arrayLength; i++) {
+                    argumentsArray.push(htmlEncode === true ? Ext.String.htmlEncode(values[i]) : values[i]);
                 }
-                translation = Uni.util.String.replaceAll(translation, i, value);
+            } else {
+                argumentsArray.push(htmlEncode === true ? Ext.String.htmlEncode(values) : values);
             }
+            translation = Ext.String.format.apply(null, argumentsArray);
         }
 
         return translation;
@@ -258,7 +260,7 @@ Ext.define('Uni.I18n', {
         }
 
         if (typeof amount !== 'undefined') {
-            translation = Uni.util.String.replaceAll(translation, 0, amount);
+            translation = Ext.String.format(translation, amount);
         }
 
         return translation;

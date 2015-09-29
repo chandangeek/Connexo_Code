@@ -136,7 +136,7 @@ Ext.define('Uni.view.toolbar.PagingTop', {
     onLoad: function () {
         Ext.suspendLayouts();
         this.updateInfo();
-        Ext.resumeLayouts(true);
+        Ext.resumeLayouts();
 
         this.fireEvent('change', this, this.getPageData());
     }

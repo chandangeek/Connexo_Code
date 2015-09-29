@@ -121,7 +121,6 @@ Ext.define('Uni.controller.Navigation', {
         var breadcrumbs = me.getBreadcrumbs();
         var child, breadcrumb;
 
-        Ext.suspendLayouts();
         _.map(router.buildBreadcrumbs(), function (route) {
             var title = route.getTitle();
 
@@ -140,7 +139,6 @@ Ext.define('Uni.controller.Navigation', {
 
         me.initTitle(breadcrumb);
         breadcrumbs.setBreadcrumbItem(breadcrumb);
-        Ext.resumeLayouts(true);
     },
 
     updateBreadcrumb: function(route) {
