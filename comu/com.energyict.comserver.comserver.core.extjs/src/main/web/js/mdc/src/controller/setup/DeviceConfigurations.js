@@ -826,9 +826,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     errorWindow.down('displayfield').htmlEncode = false;
 
                     var solveConflictsLink = router.getRoute('administration/devicetypes/view/conflictmappings').buildUrl({deviceTypeId: device.get('deviceTypeId')}),
-                        solveConflictsLinkMessage = json.message + '<br/><br/>'
-                            + Uni.I18n.translate('device.changeDeviceConfiguration.solveTheConflicts', 'MDC', '<a href="{0}">Solve the conflicts</a>', solveConflictsLink),
-                        message = canSolveConflictingMappings ? Uni.I18n.translate('device.changeDeviceConfiguration.beforeYouRetry', 'MDC', '{0} before you retry.', solveConflictsLinkMessage)
+                        message = canSolveConflictingMappings ? json.message + '<br/><br/>' + Uni.I18n.translate('device.changeDeviceConfiguration.SolveTheConflictsBeforeYouRetry', 'MDC', '<a href="{0}">Solve the conflicts</a> before you retry.', solveConflictsLink)
                             : Uni.I18n.translate('device.changeDeviceConfiguration.noRightsToSolveTheConflicts', 'MDC', 'You cannot solve the conflicts in conflicting mappings on device type because you do not have the privileges. Contact the administrator.');
 
                     router.addListener('routeChangeStart', function () {

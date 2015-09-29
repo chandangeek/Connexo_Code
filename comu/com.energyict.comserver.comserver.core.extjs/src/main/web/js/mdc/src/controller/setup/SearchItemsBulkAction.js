@@ -548,11 +548,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                 var title = Uni.I18n.translatePlural('searchItems.bulk.devConfigUnsolvedConflictsTitle', me.devices.getCount(), 'MDC', "Unable to change device configuration of {0} devices", "Unable to change device configuration of {0} device", "Unable to change device configuration of {0} devices"),
                                     text = Ext.String.format(Uni.I18n.translate('searchItems.bulk.devConfigUnsolvedConflictsMsg', 'MDC', 'The configuration of devices with current configuration \'{0}\' cannot be changed to \'{1}\' due to unsolved conflicts.'), me.configNames.fromconfig, me.configNames.toconfig);
                                 if (Mdc.privileges.DeviceType.canAdministrate()) {
-                                    var solveLink = router.getRoute('administration/devicetypes/view/conflictmappings').buildUrl({deviceTypeId: me.deviceType}),
-                                        solveLinkMessage = Uni.I18n.translate('searchItems.bulk.solveTheConflicts', 'MDC', '<a href="{0}">Solve the conflicts</a>', solveLink);
+                                    var solveLink = router.getRoute('administration/devicetypes/view/conflictmappings').buildUrl({deviceTypeId: me.deviceType});
 
                                     wizard.down('#confirmButton').disable();
-                                    nextCmp.showChangeDeviceConfigConfirmation(title, text, solveLinkMessage, null, 'error');
+                                    nextCmp.showChangeDeviceConfigConfirmation(title, text, solveLink, null, 'error');
                                 } else {
                                     wizard.down('#confirmButton').hide();
                                     wizard.down('#backButton').hide();
