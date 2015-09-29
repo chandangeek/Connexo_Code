@@ -1,14 +1,7 @@
 package com.energyict.mdc.dynamic.impl;
 
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
-import com.energyict.mdc.dynamic.ObisCodeValueFactory;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+import com.energyict.mdc.common.*;
+import com.energyict.mdc.dynamic.*;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.orm.DataModel;
@@ -254,6 +247,18 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     @Override
     public ValueFactory getValueFactory(Class<? extends ValueFactory> valueFactoryClass) {
         return dataModel.getInstance(valueFactoryClass);
+    }
+
+    @Override
+    public PropertySpec hexStringPropertySpec(String name, String description, boolean required, HexString defaultValue) {
+        final PropertySpecBuilder propertySpecBuilder = PropertySpecBuilderImpl.forClass(new HexStringFactory())
+                .name(name)
+                .description(description)
+                .setDefaultValue(defaultValue);
+        if(required){
+            propertySpecBuilder.markRequired();
+        }
+        return propertySpecBuilder.finish();
     }
 
     @Override
