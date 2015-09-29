@@ -66,7 +66,8 @@ Ext.define('Usr.view.userDirectory.PreviewForm', {
                                                     xtype: 'displayfield',
                                                     name: 'baseGroup',
                                                     itemId: 'usr-user-directory-group-base-dn',
-                                                    fieldLabel: Uni.I18n.translate('userDirectories.baseGroup', 'USR', 'Group base DN')
+                                                    fieldLabel: Uni.I18n.translate('userDirectories.baseGroup', 'USR', 'Group base DN'),
+                                                    hidden: true
                                                 }
                                         ]
                                     }
