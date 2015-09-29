@@ -136,25 +136,19 @@ Ext.define('Usr.view.userDirectory.AddUserDirectory', {
                                 fieldLabel: Uni.I18n.translate('userDirectories.userName', 'USR', 'User')
                             },
                             {
-                                xtype: 'box',
+                                xtype: 'button',
                                 itemId: 'txt-user-name-info',
-                                cls: 'uni-info-icon',
-                                autoEl: {
-                                    tag: 'img',
-                                    src: "../sky/build/resources/images/shared/icon-info-small.png",
-                                    width: 16,
-                                    height: 16
-                                },
+                                tooltip: Uni.I18n.translate('importService.filePattern.tooltip', 'USR', 'Click for more information'),
+                                iconCls: 'uni-icon-info-small',
+                                ui: 'blank',
+                                shadow: false,
                                 margin: '6 0 0 10',
-                                style: {
-                                    cursor: 'pointer'
-                                },
+                                width: 16,
+                                tabIndex: -1,
                                 listeners: {
-                                    el: {
-                                        click: function () {
-                                            var me = Ext.getCmp(this.id);
-                                            me.up('contentcontainer').fireEvent('displayinfo', me);
-                                        }
+                                    click: function () {
+                                        var me = Ext.getCmp(this.id);
+                                        me.up('contentcontainer').fireEvent('displayinfo', me);
                                     }
                                 }
                             }
