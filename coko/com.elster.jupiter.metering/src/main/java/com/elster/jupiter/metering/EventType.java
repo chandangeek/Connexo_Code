@@ -26,7 +26,7 @@ public enum EventType {
                     .component(MeteringService.COMPONENTNAME)
                     .category("Crud")
                     .scope("System")
-                    .create().save();
+                    .create();
         }
     },
     READINGS_DELETED("reading/DELETED") {
@@ -40,7 +40,7 @@ public enum EventType {
                     .withProperty("start", ValueType.LONG, "startMillis")
                     .withProperty("end", ValueType.LONG, "endMillis")
                     .withProperty("channelId", ValueType.LONG, "channelId")
-                    .create().save();
+                    .create();
         }
     },
     METERREADING_CREATED("meterreading/CREATED") {
@@ -54,7 +54,7 @@ public enum EventType {
                     .withProperty("start", ValueType.LONG, "start")
                     .withProperty("end", ValueType.LONG, "end")
                     .withProperty("meterId", ValueType.LONG, "meterId")
-                    .create().save();
+                    .create();
         }
     },
     READING_QUALITY_CREATED("readingquality/CREATED") {
@@ -68,7 +68,7 @@ public enum EventType {
                     .withProperty("readingTimestamp", ValueType.LONG, "readingTimestamp")
                     .withProperty("channelId", ValueType.LONG, "channelId")
                     .withProperty("readingQualityTypeCode", ValueType.STRING, "typeCode")
-                    .create().save();
+                    .create();
         }
     },
     READING_QUALITY_UPDATED("readingquality/UPDATED") {
@@ -82,7 +82,7 @@ public enum EventType {
                     .withProperty("readingTimestamp", ValueType.LONG, "readingTimestamp")
                     .withProperty("channelId", ValueType.LONG, "channelId")
                     .withProperty("readingQualityTypeCode", ValueType.STRING, "typeCode")
-                    .create().save();
+                    .create();
         }
     },
     READING_QUALITY_DELETED("readingquality/DELETED") {
@@ -97,7 +97,7 @@ public enum EventType {
                     .withProperty("channelId", ValueType.LONG, "channelId")
                     .withProperty("readingType", ValueType.STRING, "readingType")
                     .withProperty("readingQualityTypeCode", ValueType.STRING, "typeCode")
-                    .create().save();
+                    .create();
         }
     },
     END_DEVICE_EVENT_CREATED("enddeviceevent/CREATED") {
@@ -111,7 +111,7 @@ public enum EventType {
                     .withProperty("endDeviceId", ValueType.LONG, "endDevice.id")
                     .withProperty("endDeviceEventType", ValueType.STRING, "eventTypeCode")
                     .withProperty("eventTimestamp", ValueType.LONG, "createdDateTime.epochSecond")
-                    .create().save();
+                    .create();
 
         }
     },
@@ -126,7 +126,7 @@ public enum EventType {
                     .withProperty("endDeviceId", ValueType.LONG, "endDevice.id")
                     .withProperty("endDeviceEventType", ValueType.STRING, "eventTypeCode")
                     .withProperty("eventTimestamp", ValueType.LONG, "createdDateTime.epochSecond")
-                    .create().save();
+                    .create();
         }
     },
     SWITCH_STATE_MACHINE_FAILED("enddevice/fsm/switch/FAILED") {
@@ -143,8 +143,7 @@ public enum EventType {
                     .withProperty("oldFiniteStateMachineId", ValueType.LONG, "oldFiniteStateMachineId")
                     .withProperty("newFiniteStateMachineId", ValueType.LONG, "newFiniteStateMachineId")
                     .shouldPublish()
-                    .create()
-                    .save();
+                    .create();
         }
     },
     METER_ACTIVATION_ADVANCED("meteractivation/ADVANCED") {
@@ -156,7 +155,7 @@ public enum EventType {
                     .category("Crud")
                     .scope("System")
                     .shouldNotPublish()
-                    .create().save();
+                    .create();
         }
     };
 
@@ -189,12 +188,28 @@ public enum EventType {
         if (hasMRID) {
             builder.withProperty("MRID", ValueType.STRING, "MRID");
         }
-        addCustomProperties(builder).create().save();
+        addCustomProperties(builder).create();
     }
 
     EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {
         return eventTypeBuilder;
     }
 
+    public static class MeterActivationAdvancedEvent {
+        private final MeterActivation advanced;
+        private final MeterActivation shrunk;
 
+        public MeterActivationAdvancedEvent(MeterActivation advanced, MeterActivation shrunk) {
+            this.advanced = advanced;
+            this.shrunk = shrunk;
+        }
+
+        public MeterActivation getAdvanced() {
+            return advanced;
+        }
+
+        public MeterActivation getShrunk() {
+            return shrunk;
+        }
+    }
 }

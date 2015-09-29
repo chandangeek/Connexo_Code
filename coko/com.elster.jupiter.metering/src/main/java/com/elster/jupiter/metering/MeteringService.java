@@ -18,7 +18,7 @@ import java.util.Optional;
 public interface MeteringService {
     String COMPONENTNAME = "MTR";
 
-    ServiceLocation newServiceLocation();
+    ServiceLocationBuilder newServiceLocation();
 
     ReadingStorer createUpdatingStorer();
 

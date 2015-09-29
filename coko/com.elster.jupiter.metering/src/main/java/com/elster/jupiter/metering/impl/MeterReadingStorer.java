@@ -294,7 +294,7 @@ public class MeterReadingStorer {
 
     private Channel getChannel(IntervalReading reading, ReadingType readingType) {
         for (MeterActivation meterActivation : meter.getMeterActivations()) {
-            if (meterActivation.getRange().contains(reading.getTimeStamp())) {
+            if (meterActivation.getInterval().toOpenClosedRange().contains(reading.getTimeStamp())) {
                 for (Channel channel : meterActivation.getChannels()) {
                     if (channel.getReadingTypes().contains(readingType)) {
                         return channel;

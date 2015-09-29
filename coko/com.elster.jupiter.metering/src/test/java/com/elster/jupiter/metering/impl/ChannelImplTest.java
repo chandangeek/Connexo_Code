@@ -354,7 +354,7 @@ public class ChannelImplTest extends EqualsContractTest {
         channel = createChannel().init(meterActivation, ImmutableList.of(readingType1));
 
         ReadingImpl reading = ReadingImpl.of(readingType1.getMRID(), BigDecimal.valueOf(50), LocalDateTime.of(2014, 6, 4, 12, 0).toInstant(ZoneOffset.UTC));
-        Object[] values = channel.toArray(reading, new ProcessStatus(0));
+        Object[] values = channel.toArray(reading, readingType1, new ProcessStatus(0));
 
         Optional<Range<Instant>> period = ((ChannelImpl) channel).getTimePeriod(reading, values);
         assertThat(period.isPresent()).isFalse();
@@ -369,7 +369,7 @@ public class ChannelImplTest extends EqualsContractTest {
         Instant start = LocalDateTime.of(2014, 6, 3, 0, 0).toInstant(ZoneOffset.UTC);
         Instant end = LocalDateTime.of(2014, 6, 5, 0, 0).toInstant(ZoneOffset.UTC);
         reading.setTimePeriod(start, end);
-        Object[] values = channel.toArray(reading, new ProcessStatus(0));
+        Object[] values = channel.toArray(reading, readingType1, new ProcessStatus(0));
 
         Optional<Range<Instant>> period = ((ChannelImpl) channel).getTimePeriod(reading, values);
         assertThat(period.isPresent()).isTrue();
@@ -382,7 +382,7 @@ public class ChannelImplTest extends EqualsContractTest {
         readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID5_BIL, "Billing");
         channel = createChannel().init(meterActivation, ImmutableList.of(readingType1));
         ReadingImpl reading = ReadingImpl.of(readingType1.getMRID(), BigDecimal.valueOf(50), LocalDateTime.of(2014, 6, 4, 12, 0).toInstant(ZoneOffset.UTC));
-        Object[] values = channel.toArray(reading, new ProcessStatus(0));
+        Object[] values = channel.toArray(reading, readingType1, new ProcessStatus(0));
 
         Optional<Range<Instant>> period = ((ChannelImpl) channel).getTimePeriod(null, values);
         assertThat(period.isPresent()).isFalse();

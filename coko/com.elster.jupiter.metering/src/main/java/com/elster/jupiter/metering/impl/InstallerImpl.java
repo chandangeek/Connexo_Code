@@ -14,20 +14,13 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.security.Privileges;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsKey;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.exception.ExceptionCatcher;
 import com.elster.jupiter.util.streams.BufferedReaderIterable;
 
 import java.io.BufferedReader;
@@ -42,7 +35,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -168,14 +160,11 @@ public class InstallerImpl {
 
     private void createVaults() {
         try {
-            Vault intervalVault = idsService.newVault(MeteringService.COMPONENTNAME, 1, "Interval Data Store", SLOT_COUNT, 0, true);
-            intervalVault.persist();
+            Vault intervalVault = idsService.createVault(MeteringService.COMPONENTNAME, 1, "Interval Data Store", SLOT_COUNT, 0, true);
             createPartitions(intervalVault);
-            Vault registerVault = idsService.newVault(MeteringService.COMPONENTNAME, 2, "Register Data Store", SLOT_COUNT, 1, false);
-            registerVault.persist();
+            Vault registerVault = idsService.createVault(MeteringService.COMPONENTNAME, 2, "Register Data Store", SLOT_COUNT, 1, false);
             createPartitions(registerVault);
-            Vault dailyVault = idsService.newVault(MeteringService.COMPONENTNAME, 3, "Daily and Monthly Data Store", SLOT_COUNT, 0, true);
-            dailyVault.persist();
+            Vault dailyVault = idsService.createVault(MeteringService.COMPONENTNAME, 3, "Daily and Monthly Data Store", SLOT_COUNT, 0, true);
             createPartitions(dailyVault);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error creating vaults : " + e.getMessage(), e);

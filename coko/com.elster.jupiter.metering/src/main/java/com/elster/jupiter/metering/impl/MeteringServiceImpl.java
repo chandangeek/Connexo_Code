@@ -160,8 +160,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Override
-    public ServiceLocation newServiceLocation() {
-        return new ServiceLocationImpl(dataModel, eventService);
+    public ServiceLocationBuilderImpl newServiceLocation() {
+        return new ServiceLocationBuilderImpl(dataModel);
     }
 
     @Override
