@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
+import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
@@ -43,14 +44,32 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecEnum {
     },
     UseCorrectedValues(DeviceMessageId.MBUS_SETUP_USE_CORRECTED_VALUES, "Use corrected values"),
     UseUncorrectedValues(DeviceMessageId.MBUS_SETUP_USE_UNCORRECTED_VALUES, "Use uncorrected values"),
-    Commission_With_Channel(DeviceMessageId.MBUS_SETUP_COMMISSION_WITH_CHANNEL, "Commission wih channel"){
+    Commission_With_Channel(DeviceMessageId.MBUS_SETUP_COMMISSION_WITH_CHANNEL, "Commission wih channel") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
             super.addPropertySpecs(propertySpecs, propertySpecService);
-            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(DeviceMessageConstants.mbusChannel, true, BigDecimal.ONE, BigDecimals.TWO,  BigDecimals.THREE, BigDecimals.FOUR));
+            propertySpecs.add(propertySpecService.bigDecimalPropertySpecWithValues(DeviceMessageConstants.mbusChannel, true, BigDecimal.ONE, BigDecimals.TWO, BigDecimals.THREE, BigDecimals.FOUR));
         }
     },
-    ;
+    WriteCaptureDefinitionForAllInstances(DeviceMessageId.MBUS_SETUP_WRITE_CAPTURE_DEFINITION_FOR_ALL_INSTANCES, "Write the capture definition for all instances") {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.hexStringPropertySpec(DeviceMessageConstants.dibInstance1, "dib instance 1", true, getCaptureDefinitionDefaultValue()));
+            propertySpecs.add(propertySpecService.hexStringPropertySpec(DeviceMessageConstants.vibInstance1, "vib instance 1", true, getCaptureDefinitionDefaultValue()));
+            propertySpecs.add(propertySpecService.hexStringPropertySpec(DeviceMessageConstants.dibInstance2, "dib instance 2", true, getCaptureDefinitionDefaultValue()));
+            propertySpecs.add(propertySpecService.hexStringPropertySpec(DeviceMessageConstants.vibInstance2, "vib instance 2", true, getCaptureDefinitionDefaultValue()));
+            propertySpecs.add(propertySpecService.hexStringPropertySpec(DeviceMessageConstants.dibInstance3, "dib instance 3", true, getCaptureDefinitionDefaultValue()));
+            propertySpecs.add(propertySpecService.hexStringPropertySpec(DeviceMessageConstants.vibInstance3, "vib instance 3", true, getCaptureDefinitionDefaultValue()));
+            propertySpecs.add(propertySpecService.hexStringPropertySpec(DeviceMessageConstants.dibInstance4, "dib instance 4", true, getCaptureDefinitionDefaultValue()));
+            propertySpecs.add(propertySpecService.hexStringPropertySpec(DeviceMessageConstants.vibInstance4, "vib instance 4", true, getCaptureDefinitionDefaultValue()));
+        }
+    },
+    WriteMBusCapturePeriod(DeviceMessageId.MBUS_SETUP_WRITE_CAPTURE_PERIOD, "Write mbus capture period"),;
+
+    private static HexString getCaptureDefinitionDefaultValue() {
+        return new HexString("FFFFFFFFFFFFFFFFFFFFFF");
+    }
 
     private DeviceMessageId id;
     private String defaultTranslation;
@@ -81,9 +100,11 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecEnum {
         return propertySpecs;
     }
 
-    protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+    protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
         // Default behavior is not to add anything
-    };
+    }
+
+    ;
 
     protected PropertySpec hexStringProperty(String name, PropertySpecService propertySpecService) {
         return propertySpecService.basicPropertySpec(name, true, new HexStringFactory());
