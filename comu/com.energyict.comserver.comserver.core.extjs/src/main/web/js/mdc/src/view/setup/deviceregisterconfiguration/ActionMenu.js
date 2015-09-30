@@ -17,5 +17,15 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.ActionMenu', {
             privileges: Cfg.privileges.Validation.validateManual,
             action: 'validate'
         }
-    ]
+    ],
+
+    listeners: {
+        beforeshow: {
+            fn: function () {
+                if (this.record) {
+                    this.down('#validateNowRegister').setVisible(this.record.get('detailedValidationInfo').validationActive);
+                }
+            }
+        }
+    }
 });
