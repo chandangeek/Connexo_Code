@@ -2,18 +2,13 @@ package com.elster.jupiter.bpm.rest.impl;
 
 import com.elster.jupiter.bpm.BpmServer;
 import com.elster.jupiter.bpm.BpmService;
-import com.elster.jupiter.bpm.rest.DeploymentInfo;
-import com.elster.jupiter.bpm.rest.DeploymentInfos;
-import com.elster.jupiter.bpm.rest.NodeInfos;
-import com.elster.jupiter.bpm.rest.ProcessInstanceInfo;
-import com.elster.jupiter.bpm.rest.ProcessInstanceInfos;
-import com.elster.jupiter.bpm.rest.StartupInfo;
-import com.elster.jupiter.bpm.rest.VariableInfos;
+import com.elster.jupiter.bpm.rest.*;
 import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.rest.util.QueryParameters;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.XML;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -23,6 +18,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 
@@ -39,7 +35,7 @@ public class BpmResource {
     @GET
     @Path("/deployments")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.VIEW_BPM)
+//    @RolesAllowed(Privileges.VIEW_BPM)
     public DeploymentInfos getAllDeployments(@Context UriInfo uriInfo) {
         return getAllDeployments();
     }
@@ -47,7 +43,7 @@ public class BpmResource {
     @GET
     @Path("/startup")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.VIEW_BPM)
+//    @RolesAllowed(Privileges.VIEW_BPM)
     public StartupInfo getStartup(@Context UriInfo uriInfo) {
         StartupInfo startupInfo = new StartupInfo();
         BpmServer server = bpmService.getBpmServer();
@@ -59,7 +55,7 @@ public class BpmResource {
     @GET
     @Path("/instances")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.VIEW_BPM)
+//    @RolesAllowed(Privileges.VIEW_BPM)
     public ProcessInstanceInfos getAllInstances(@Context UriInfo uriInfo) {
         String jsonContent;
         JSONArray arr = null;
@@ -163,5 +159,47 @@ public class BpmResource {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
         }
         return new DeploymentInfos(arr);
+    }
+
+    @GET
+    @Path("/tasks")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public TaskInfos getTask(@Context UriInfo uriInfo) {
+        String jsonContent;
+        JSONArray arr = null;
+        try{
+            jsonContent = bpmService.getBpmServer().doGet("/rest/task/query");
+            if (!"".equals(jsonContent)) {
+                JSONObject jsnobject = new JSONObject(jsonContent);
+                arr = jsnobject.getJSONArray("list");
+            }
+
+        }catch (JSONException e) {
+            // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
+        } catch (IOException e) {
+            // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
+        }
+        return new TaskInfos(arr);
+    }
+
+    @GET
+    @Path("/processes")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public ProcessDefinitionInfos getProcesses(@Context UriInfo uriInfo) {
+        String jsonContent;
+        JSONArray arr = null;
+        try{
+            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes");
+            if (!"".equals(jsonContent)) {
+                JSONObject jsnobject = new JSONObject(jsonContent);
+                arr = jsnobject.getJSONArray("processDefinitionList");
+            }
+
+        }catch (JSONException e) {
+            // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
+        } catch (IOException e) {
+            // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
+        }
+        return new ProcessDefinitionInfos(arr);
     }
 }
