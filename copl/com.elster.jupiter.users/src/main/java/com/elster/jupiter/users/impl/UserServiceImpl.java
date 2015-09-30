@@ -482,6 +482,15 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         }
     }
 
+    @Override
+    public Optional<UserDirectory> findUserDirectoryIgnoreCase(String domain){
+        List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUALIGNORECASE.compare("name", domain));
+        if (found.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(found.get(0));
+    }
+
     @Reference
     public void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(COMPONENTNAME, "User Management");

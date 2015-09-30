@@ -81,6 +81,8 @@ public interface UserService {
 
     Optional<UserDirectory> findUserDirectory(String domain);
 
+    Optional<UserDirectory> findUserDirectoryIgnoreCase(String domain);
+
     UserDirectory findDefaultUserDirectory();
 
     List<User> getAllUsers(long id);
