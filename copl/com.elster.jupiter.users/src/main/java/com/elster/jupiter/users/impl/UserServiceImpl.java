@@ -205,7 +205,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Override
     public User createUser(String name, String description) {
         InternalDirectoryImpl directory = (InternalDirectoryImpl) this.findUserDirectory(getRealm()).orElse(null);
-        UserImpl result = directory.newUser(name, description, false,true);
+        UserImpl result = directory.newUser(name, description, false, true);
         result.save();
         return result;
     }
@@ -579,7 +579,11 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     private void installPrivileges() {
         for (PrivilegesProvider privilegesProvider : privilegesProviders) {
-            doInstallPrivileges(privilegesProvider);
+            try {
+                doInstallPrivileges(privilegesProvider);
+            } catch (Exception e) {
+                System.out.print("Fail to register for " + privilegesProvider.getModuleName() + " " + e.getLocalizedMessage());
+            }
         }
     }
 
