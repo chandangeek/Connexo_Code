@@ -281,15 +281,16 @@ Ext.define('Uni.controller.Search', {
 
         fields.forEach(function (field) {
             fieldItems.push(me.createFieldDefinitionFromModel(field));
-
+            var columnItem = me.createColumnDefinitionFromModel(field);
             if (defaultColumns && defaultColumns.indexOf(field.get('propertyName')) >= 0) {
-                columnItems.push(me.createColumnDefinitionFromModel(field));
+                columnItem.default = true;
             }
+            columnItems.push(columnItem);
         });
 
         me.fireEvent('beforegridconfigure', fieldItems, columnItems );
         grid.store.model.setFields(fieldItems);
-        grid.reconfigure(null, columnItems);
+        grid.setColumns(columnItems);
     },
 
     createColumnDefinitionFromModel: function (field) {
