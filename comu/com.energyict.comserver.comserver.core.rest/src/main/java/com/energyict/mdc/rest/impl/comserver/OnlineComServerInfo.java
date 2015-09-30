@@ -67,7 +67,6 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer.OnlineCom
     }
 
     public OnlineComServer updateTo(OnlineComServer onlineComServer, EngineConfigurationService engineConfigurationService) {
-        super.updateTo(onlineComServer, engineConfigurationService);
         Optional<String> queryAPIPostUri = Optional.ofNullable(this.queryAPIPostUri);
         if (queryAPIPostUri.isPresent()) {
             onlineComServer.setQueryAPIPostUri(queryAPIPostUri.get());
@@ -87,6 +86,7 @@ public class OnlineComServerInfo extends ComServerInfo<OnlineComServer.OnlineCom
         onlineComServer.setStoreTaskQueueSize(this.storeTaskQueueSize != null ? this.storeTaskQueueSize : 0);
         onlineComServer.setStoreTaskThreadPriority(this.storeTaskThreadPriority != null ? this.storeTaskThreadPriority : 0);
         onlineComServer.setNumberOfStoreTaskThreads(this.numberOfStoreTaskThreads != null ? this.numberOfStoreTaskThreads : 0);
+        super.updateTo(onlineComServer, engineConfigurationService);
         return onlineComServer;
     }
 

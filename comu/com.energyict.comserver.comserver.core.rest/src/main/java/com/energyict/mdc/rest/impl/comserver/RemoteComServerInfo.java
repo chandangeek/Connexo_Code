@@ -58,7 +58,6 @@ public class RemoteComServerInfo extends ComServerInfo<RemoteComServer.RemoteCom
 
     @Override
     public RemoteComServer updateTo(RemoteComServer remoteComServer, EngineConfigurationService engineConfigurationService) {
-        super.updateTo(remoteComServer, engineConfigurationService);
         Optional<String> eventRegistrationUri = Optional.ofNullable(this.eventRegistrationUri);
         if (eventRegistrationUri.isPresent()) {
             remoteComServer.setEventRegistrationUri(eventRegistrationUri.get());
@@ -74,6 +73,7 @@ public class RemoteComServerInfo extends ComServerInfo<RemoteComServer.RemoteCom
                 remoteComServer.setOnlineComServer((OnlineComServer) onlineComServer.get());
             }
         }
+        super.updateTo(remoteComServer, engineConfigurationService);
         return remoteComServer;
     }
 
