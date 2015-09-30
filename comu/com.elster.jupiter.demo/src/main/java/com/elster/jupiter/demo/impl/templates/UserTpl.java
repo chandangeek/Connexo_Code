@@ -20,8 +20,8 @@ public enum UserTpl implements Template<User, UserBuilder> {
     KURT ("Kurt", Locale.ENGLISH.toLanguageTag(), UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR),
     EDUARDO ("Eduardo", Locale.US.toLanguageTag(), UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR),
     BOB ("Bob", Locale.US.toLanguageTag(), UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR),
-    MICHELLE ("Michelle", Locale.FRENCH.toLanguageTag(), UserRoles.METER_OPERATOR),
-    FRANK ("Frank", Locale.ENGLISH.toLanguageTag(), UserRoles.METER_OPERATOR)
+    MICHELLE ("Michelle", Locale.FRANCE.toLanguageTag(), UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR),
+    FRANK ("Frank", Locale.UK.toLanguageTag(), UserRoles.ADMINISTRATORS, UserRoles.METER_EXPERT, UserRoles.METER_OPERATOR)
     ;
 
     private String name;

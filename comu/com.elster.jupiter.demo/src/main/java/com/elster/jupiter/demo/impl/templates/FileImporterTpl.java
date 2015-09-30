@@ -5,6 +5,8 @@ import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -15,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  */
 public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBuilder> {
 
-    DEVICE_INSTALLATION_IMPORTER("Installation", "DeviceInstallationImporterFactory") {
+    DEVICE_INSTALLATION_IMPORTER("Installation", "DeviceInstallationImporterFactory", "devicelifecycle", "installation") {
         protected Map<String, Object> getImporterProperties() {
             Map<String, Object> properties = super.getImporterProperties();
             properties.put("DeviceDataFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
@@ -23,7 +25,7 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
             return properties;
         }
     },
-    DEVICE_READINGS_IMPORTER("Import readings", "DeviceReadingsImporterFactory") {
+    DEVICE_READINGS_IMPORTER("Import readings", "DeviceReadingsImporterFactory", "readings") {
         protected Map<String, Object> getImporterProperties() {
             Map<String, Object> properties = super.getImporterProperties();
             properties.put("DeviceDataFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
@@ -32,21 +34,21 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
             return properties;
         }
     },
-    CONNECTION_ATTRIBUTES_IMPORTER("Import connection attributes", "ConnectionAttributesImportFactory"){
+    CONNECTION_ATTRIBUTES_IMPORTER("Import connection attributes", "ConnectionAttributesImportFactory", "connectionattributes"){
         protected Map<String, Object> getImporterProperties() {
             Map<String, Object> properties = super.getImporterProperties();
             properties.put("DeviceDataFileImporterFactory.numberFormat", defaultNumberFormat());
             return properties;
         }
     },
-    SECURITY_ATTRIBUTES_IMPORTER("Import security attributes", "SecurityAttributesImportFactory"){
+    SECURITY_ATTRIBUTES_IMPORTER("Import security attributes", "SecurityAttributesImportFactory", "securityattributes"){
         protected Map<String, Object> getImporterProperties() {
             Map<String, Object> properties = super.getImporterProperties();
             properties.put("DeviceDataFileImporterFactory.numberFormat", defaultNumberFormat());
             return properties;
         }
     },
-    DEVICE_ACTIVATION_DEACTIVATION_IMPORTER("Activation Deactivation","DeviceActivationDeactivationImportFactory"){
+    DEVICE_ACTIVATION_DEACTIVATION_IMPORTER("Activation Deactivation", "DeviceActivationDeactivationImportFactory", "devicelifecycle", "activation deactivation"){
         protected Map<String, Object> getImporterProperties() {
             Map<String, Object> properties = super.getImporterProperties();
             properties.put("DeviceDataFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
@@ -54,7 +56,7 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
             return properties;
         }
     },
-    DEVICE_COMMISSIONING_IMPORTER("Commissioning", "DeviceCommissioningImportFactory"){
+    DEVICE_COMMISSIONING_IMPORTER("Commissioning", "DeviceCommissioningImportFactory", "devicelifecycle", "commissioning"){
         protected Map<String, Object> getImporterProperties() {
             Map<String, Object> properties = super.getImporterProperties();
             properties.put("DeviceDataFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
@@ -62,7 +64,7 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
             return properties;
         }
     },
-    DEVICE_DECOMMISSIONG_IMPORTER("Decommissioning", "DeviceDecommissioningImportFactory"){
+    DEVICE_DECOMMISSIONG_IMPORTER("Decommissioning", "DeviceDecommissioningImportFactory", "devicelifecycle", "decommissioning"){
         protected Map<String, Object> getImporterProperties() {
             Map<String, Object> properties = super.getImporterProperties();
             properties.put("DeviceDataFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
@@ -70,8 +72,8 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
             return properties;
         }
     },
-    DEVICE_REMOVE_IMPORTER("Remove", "DeviceRemoveImportFactory"),
-    DEVICE_SHIPMENT_IMPORTER("Shipment", "DeviceShipmentImporterFactory") {
+    DEVICE_REMOVE_IMPORTER("Remove", "DeviceRemoveImportFactory", "devicelifecycle", "remove"),
+    DEVICE_SHIPMENT_IMPORTER("Shipment", "DeviceShipmentImporterFactory", "devicelifecycle", "shipment") {
         protected Map<String, Object> getImporterProperties() {
             Map<String, Object> properties = super.getImporterProperties();
             properties.put("DeviceDataFileImporterFactory.dateFormat", DATE_AND_TIME_PATTERN);
@@ -82,19 +84,20 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
 
     public static final String DATE_AND_TIME_PATTERN = "yyyy-MM-dd HH:mm";
 
-    private final static String DEFAULT_IMPORT_DIRECTORY = "D:\\EnergyICT\\Connexo\\PRD\\Data-Import";
-    private final static String DEFAULT_PROCESSING_DIRECTORY = "D:\\EnergyICT\\Connexo\\PRD\\Data-Import\\Progress";
-    private final static String DEFAULT_SUCCESS_DIRECTORY = "D:\\EnergyICT\\Connexo\\PRD\\Data-Import\\Success";
-    private final static String DEFAULT_FAILURE_DIRECTORY = "D:\\EnergyICT\\Connexo\\PRD\\Data-Import\\Failure";
+    private final static String DEFAULT_PROCESSING_DIRECTORY = "progress";
+    private final static String DEFAULT_SUCCESS_DIRECTORY = "success";
+    private final static String DEFAULT_FAILURE_DIRECTORY = "failure";
     private final static String DEFAULT_PATH_MATCHER = "*.csv";
     private final static PeriodicalScheduleExpression DEFAULT_SCHEDULED_EXPRESSION = PeriodicalScheduleExpression.every(1).minutes().at(0).build();
 
     private String importerName;
     private String factoryName;
+    private Path importBasePath;
 
-    FileImporterTpl(String importerName, String factoryName) {
+    FileImporterTpl(String importerName, String factoryName, String importBasePath, String... basePathNodes) {
         this.importerName = importerName;
         this.factoryName = factoryName;
+        this.importBasePath = Paths.get(importBasePath, basePathNodes);
     }
 
     protected Map<String, Object> getImporterProperties() {
@@ -111,14 +114,14 @@ public enum FileImporterTpl implements Template<ImportSchedule, ImportScheduleBu
     @Override
     public ImportScheduleBuilder get(ImportScheduleBuilder builder) {
         builder.withName(importerName)
-                .withFileImporterFactoryName(factoryName)
-                .withPathMatcher(DEFAULT_PATH_MATCHER)
-                .withScheduleExpression(DEFAULT_SCHEDULED_EXPRESSION)
-                .withImportDirectory(DEFAULT_IMPORT_DIRECTORY)
-                .withInProcessDirectory(DEFAULT_PROCESSING_DIRECTORY)
-                .withSuccessDirectory(DEFAULT_SUCCESS_DIRECTORY)
-                .withFailureDirectory(DEFAULT_FAILURE_DIRECTORY)
-                .withProperties(getImporterProperties());
+               .withFileImporterFactoryName(factoryName)
+               .withPathMatcher(DEFAULT_PATH_MATCHER)
+               .withScheduleExpression(DEFAULT_SCHEDULED_EXPRESSION)
+               .withImportDirectory(importBasePath.toString())
+               .withInProcessDirectory(importBasePath.resolve(DEFAULT_PROCESSING_DIRECTORY).toString())
+               .withSuccessDirectory(importBasePath.resolve(DEFAULT_SUCCESS_DIRECTORY).toString())
+               .withFailureDirectory(importBasePath.resolve(DEFAULT_FAILURE_DIRECTORY).toString())
+               .withProperties(getImporterProperties());
         return builder;
     }
 

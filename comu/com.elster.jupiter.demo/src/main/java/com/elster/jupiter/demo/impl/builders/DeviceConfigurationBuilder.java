@@ -77,12 +77,12 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
     }
 
     public DeviceConfigurationBuilder withPostBuilder(Consumer<DeviceConfiguration> postBuilder) {
-        if (this.postBuilders == null) {
-            this.postBuilders = new ArrayList<>();
+            if (this.postBuilders == null) {
+                this.postBuilders = new ArrayList<>();
+            }
+            this.postBuilders.add(postBuilder);
+            return this;
         }
-        this.postBuilders.add(postBuilder);
-        return this;
-    }
 
     public DeviceConfigurationBuilder withSecurityPropertySetBuilders(List<SecurityPropertySetBuilder> securityPropertySetBuilders) {
         this.securityPropertySetBuilders = securityPropertySetBuilders;

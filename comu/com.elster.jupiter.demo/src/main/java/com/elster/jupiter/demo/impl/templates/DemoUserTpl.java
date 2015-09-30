@@ -29,7 +29,7 @@ public class DemoUserTpl implements Template<User, UserBuilder> {
 
      @Override
      public UserBuilder get(UserBuilder builder) {
-         return builder.withName(this.name).withPassword(UserBuilder.DEMO_PASSWORD).withLanguage(Locale.getDefault().toLanguageTag()).withRoles(UserTpl.UserRoles.READ_ONLY);
+         return builder.withName(this.name).withPassword(UserBuilder.DEMO_PASSWORD).withLanguage(Locale.UK.toLanguageTag()).withRoles(UserTpl.UserRoles.READ_ONLY);
      }
 
 }

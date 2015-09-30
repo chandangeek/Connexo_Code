@@ -1,8 +1,16 @@
 package com.elster.jupiter.demo.impl.commands;
 
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.demo.impl.Builders;
+import com.elster.jupiter.demo.impl.builders.AddImportScheduleToAppServerPostBuilder;
 import com.elster.jupiter.demo.impl.templates.FileImporterTpl;
+import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.nls.Thesaurus;
+
+import javax.inject.Inject;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  *
@@ -15,11 +23,31 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class CreateImportersCommand {
 
-    public CreateImportersCommand(){}
+    private AppService appService;
+    private String appServerName;
+    private AddImportScheduleToAppServerPostBuilder postBuilder;
+
+    @Inject
+    public CreateImportersCommand(AppService appService){
+        this.appService = appService;
+    }
+
+    public void setAppServerName(String appServerName) {
+        this.appServerName = appServerName;
+    }
 
     public void run(){
-        for (FileImporterTpl importerTpl : FileImporterTpl.values()) {
-            Builders.from(importerTpl).get();
+        postBuilder = null;
+        if (appServerName != null){
+            appService.findAppServer(appServerName).ifPresent(this::initPostBuilder);
         }
+        for (FileImporterTpl importerTpl : FileImporterTpl.values()) {
+            // Create an Importschedule and add it to the default appServer
+            Builders.from(importerTpl).withPostBuilder(postBuilder).get();
+        }
+    }
+
+    private void initPostBuilder(AppServer appServer){
+        this.postBuilder = new AddImportScheduleToAppServerPostBuilder(appServer);
     }
 }

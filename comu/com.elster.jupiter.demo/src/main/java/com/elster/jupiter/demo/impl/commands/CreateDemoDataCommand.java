@@ -31,6 +31,7 @@ public class CreateDemoDataCommand {
     private String comServerName;
     private String host;
     private String startDate;
+    private Integer devicesPerType = null;
 
     @Inject
     public CreateDemoDataCommand(
@@ -74,6 +75,10 @@ public class CreateDemoDataCommand {
         if (zonedDateTime.getDayOfMonth() != 1){
             throw new UnableToCreate("Please specify the first day of month as a start date");
         }
+    }
+
+    public void setDevicesPerType(Integer devicesPerType) {
+        this.devicesPerType = devicesPerType;
     }
 
     public void run(){
@@ -131,6 +136,7 @@ public class CreateDemoDataCommand {
         CreateCollectRemoteDataSetupCommand command = this.createCollectRemoteDataSetupCommandProvider.get();
         command.setComServerName(this.comServerName);
         command.setHost(this.host);
+        command.setDevicesPerType(this.devicesPerType);
         command.run();
     }
 
@@ -175,6 +181,7 @@ public class CreateDemoDataCommand {
 
     private void createImportersCommand(){
         CreateImportersCommand importersCommand = this.createImportersCommandProvider.get();
+        importersCommand.setAppServerName(this.comServerName);
         importersCommand.run();
     }
 }

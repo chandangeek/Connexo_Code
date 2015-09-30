@@ -589,26 +589,47 @@ public class DemoServiceImpl {
 
     @SuppressWarnings("unused")
     public void createDemoData(){
-        System.err.println("Usage: createDemoData <comServerName> <host> <startDate, e.g. 2015-01-01>");
+        System.err.println("Usage: createDemoData <comServerName> <host> <startDate, e.g. 2015-01-01> [<numberOfDevicesPerType>]");
     }
 
     @SuppressWarnings("unused")
-    public void createDemoData(String comServerName, String host, String startDate){
+    public void createDemoData(String comServerName, String host, String startDate ){
+        this.createDemoData(comServerName, host, startDate, null);
+    }
+
+    @SuppressWarnings("unused")
+    public void createDemoData(String comServerName, String host, String startDate, String numberOfDevicesPerType ){
         executeTransaction(() -> {
             CreateDemoDataCommand command = injector.getInstance(CreateDemoDataCommand.class);
             command.setComServerName(comServerName);
             command.setHost(host);
             command.setStartDate(startDate);
+            if (numberOfDevicesPerType == null) {
+                command.setDevicesPerType(null);
+            }else{
+                command.setDevicesPerType(Integer.valueOf(numberOfDevicesPerType));
+            }
             command.run();
         });
     }
 
     @SuppressWarnings("unused")
     public void createCollectRemoteDataSetup(String comServerName, String host){
+        this.createCollectRemoteDataSetup(comServerName, host, null);
+    }
+
+
+    @SuppressWarnings("unused")
+    public void createCollectRemoteDataSetup(String comServerName, String host, String numberOfDevicesPerType){
         executeTransaction(() -> {
             CreateCollectRemoteDataSetupCommand command = injector.getInstance(CreateCollectRemoteDataSetupCommand.class);
             command.setComServerName(comServerName);
             command.setHost(host);
+            if (numberOfDevicesPerType != null){
+                command.setDevicesPerType(Integer.valueOf(numberOfDevicesPerType));
+            }else{
+                command.setDevicesPerType(null);
+            }
             command.run();
         });
     }
@@ -675,7 +696,7 @@ public class DemoServiceImpl {
             command.run();
         });
     }
-
+    @SuppressWarnings("unused")
     public void createDefaultDeviceLifeCycle(){
         System.err.println("Usage: createDefaultDeviceLifeCycle <startDate, e.g. 2015-01-01>");
     }
@@ -687,7 +708,7 @@ public class DemoServiceImpl {
             command.run();
         });
     }
-
+    @SuppressWarnings("unused")
     public void setUpFirmwareManagement(){
         executeTransaction(() -> {
             SetupFirmwareManagementCommand command = injector.getInstance(SetupFirmwareManagementCommand.class);
@@ -701,7 +722,15 @@ public class DemoServiceImpl {
             command.run();
         });
     }
-
+    @SuppressWarnings("unused")
+    public void createImporters(String appServerName){
+        executeTransaction(() -> {
+            CreateImportersCommand command = injector.getInstance(CreateImportersCommand.class);
+            command.setAppServerName(appServerName);
+            command.run();
+        });
+    }
+    @SuppressWarnings("unused")
     public void createDemoUser(){
         System.err.println("Usage: createDemoUser <user name>");
     }

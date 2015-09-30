@@ -31,11 +31,9 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.engine.config.ComServer;
 
-import java.util.EnumSet;
+import java.util.*;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.util.Arrays;
-import java.util.Optional;
 
 public class CreateCollectRemoteDataSetupCommand {
     private final LicenseService licenseService;
@@ -43,9 +41,11 @@ public class CreateCollectRemoteDataSetupCommand {
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
     private final Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider;
     private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> setDeviceInActiveLifeCycleStatePostBuilderProvider;
+    private final Provider<SetUsagePointToDevicePostBuilder> setUsagePointToDevicePostBuilderProvider;
 
     private String comServerName;
     private String host;
+    private Integer devicesPerType = null;
     private int deviceCounter = 0;
 
     @Inject
@@ -54,12 +54,14 @@ public class CreateCollectRemoteDataSetupCommand {
             Provider<CreateAssignmentRulesCommand> createAssignmentRulesCommandProvider,
             Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
             Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider,
-            Provider<SetDeviceInActiveLifeCycleStatePostBuilder> setDeviceInActiveLifeCycleStatePostBuilderProvider) {
+            Provider<SetDeviceInActiveLifeCycleStatePostBuilder> setDeviceInActiveLifeCycleStatePostBuilderProvider,
+            Provider<SetUsagePointToDevicePostBuilder> setUsagePointToDevicePostBuilderProvider) {
         this.licenseService = licenseService;
         this.createAssignmentRulesCommandProvider = createAssignmentRulesCommandProvider;
         this.connectionMethodsProvider = connectionMethodsProvider;
         this.connectionsDevicePostBuilderProvider = connectionsDevicePostBuilderProvider;
         this.setDeviceInActiveLifeCycleStatePostBuilderProvider = setDeviceInActiveLifeCycleStatePostBuilderProvider;
+        this.setUsagePointToDevicePostBuilderProvider = setUsagePointToDevicePostBuilderProvider;
     }
 
     public void setComServerName(String comServerName) {
@@ -68,6 +70,10 @@ public class CreateCollectRemoteDataSetupCommand {
 
     public void setHost(String host) {
         this.host = host;
+    }
+
+    public void setDevicesPerType(Integer devicesPerType){
+        this.devicesPerType = devicesPerType;
     }
 
     public void run(){
@@ -83,7 +89,6 @@ public class CreateCollectRemoteDataSetupCommand {
         createDeviceStructure();
         createCreationRules();
         createAssignmentRules();
-
         createDeviceGroups();
         createKpi();
     }
@@ -181,7 +186,8 @@ public class CreateCollectRemoteDataSetupCommand {
     private void createDeviceStructureForDeviceType(DeviceTypeTpl deviceTypeTpl){
         DeviceType deviceType = Builders.from(deviceTypeTpl).get();
         DeviceConfiguration configuration = createDeviceConfiguration(deviceType, DeviceConfigurationTpl.DEFAULT);
-        for(int i = 0; i < deviceTypeTpl.getDeviceCount(); i++){
+        int deviceCount = (this.devicesPerType == null ? deviceTypeTpl.getDeviceCount() : devicesPerType);
+        for(int i = 0; i < deviceCount; i++){
             deviceCounter++;
             String serialNumber = "01000001" + String.format("%04d", deviceCounter);
             String mrid = Constants.Device.STANDARD_PREFIX +  serialNumber;
@@ -203,11 +209,12 @@ public class CreateCollectRemoteDataSetupCommand {
                 .withMrid(mrid)
                 .withSerialNumber(serialNumber)
                 .withDeviceConfiguration(configuration)
-                .withComSchedules(Arrays.asList(Builders.from(ComScheduleTpl.DAILY_READ_ALL).get()))
+                .withComSchedules(Collections.singletonList(Builders.from(ComScheduleTpl.DAILY_READ_ALL).get()))
                 .withPostBuilder(this.connectionsDevicePostBuilderProvider.get().withComPortPool(Builders.from(deviceTypeTpl.getPoolTpl()).get()).withHost(this.host))
                 .withPostBuilder(new SecurityPropertiesDevicePostBuilder())
                 .withPostBuilder(new WebRTUNTASimultationToolPropertyPostBuilder())
                 .withPostBuilder(this.setDeviceInActiveLifeCycleStatePostBuilderProvider.get())
+                .withPostBuilder(this.setUsagePointToDevicePostBuilderProvider.get())
                 .get();
     }
 
