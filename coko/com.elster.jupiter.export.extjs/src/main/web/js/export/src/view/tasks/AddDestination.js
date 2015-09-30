@@ -5,6 +5,10 @@ Ext.define('Dxp.view.tasks.AddDestination', {
     returnLink: null,
     router: null,
     fieldIdsWithErrors:[],
+    labelWidth: 250,
+    fieldWidth: 583,
+    fieldWithTooltipWidth: 319,
+
     requires: [
         'Dxp.view.common.ExportTagsInfoButton',
         'Uni.util.FormErrorMessage'
@@ -33,7 +37,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                 ui: 'large',
                 width: '100%',
                 defaults: {
-                    labelWidth: 250
+                    labelWidth: me.labelWidth
                 },
                 items: [
                     {
@@ -42,7 +46,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         itemId: 'form-errors',
                         margin: '0 0 10 0',
                         hidden: true,
-                        width: 500
+                        width: me.fieldWidth
                     },
                     {
                         xtype: 'combo',
@@ -61,7 +65,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         }),
                         name: 'method',
                         itemId: 'destination-methods-combo',
-                        width: 500,
+                        width: me.fieldWidth,
                         emptyText: Uni.I18n.translate('addDataExportTask.destinationMethodPrompt', 'DES', 'Select a method...'),
                         submitEmptyText: false,
                         required: true,
@@ -84,7 +88,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         xtype: 'textfield',
                         name: 'server',
                         itemId: 'hostname',
-                        width: 500,
+                        width: me.fieldWidth,
                         required: true,
                         fieldLabel: Uni.I18n.translate('general.hostName', 'DES', 'Hostname'),
                         allowBlank: false,
@@ -96,7 +100,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         xtype: 'textfield',
                         name: 'user',
                         itemId: 'user-field',
-                        width: 500,
+                        width: me.fieldWidth,
                         required: true,
                         fieldLabel: Uni.I18n.translate('general.user', 'DES', 'User'),
                         allowBlank: false,
@@ -108,7 +112,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         xtype: 'numberfield',
                         name: 'port',
                         itemId: 'dxp-port-field',
-                        width: 500,
+                        width: me.fieldWidth,
                         required: true,
                         fieldLabel: Uni.I18n.translate('general.port', 'DES', 'Port'),
                         value: 21,
@@ -124,7 +128,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         xtype: 'password-field',
                         name: 'password',
                         itemId: 'password-field',
-                        width: 500,
+                        width: me.fieldWidth,
                         fieldLabel: Uni.I18n.translate('general.password', 'DES', 'Password'),
                         allowBlank: false,
                         enforceMaxLength: true,
@@ -142,7 +146,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                                 xtype: 'textfield',
                                 name: 'fileName',
                                 itemId: 'destination-file-name',
-                                width: 236,
+                                width: me.fieldWithTooltipWidth,
                                 allowBlank: false,
                                 enforceMaxLength: true,
                                 maxLength: 80,
@@ -158,7 +162,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         xtype: 'textfield',
                         name: 'fileExtension',
                         itemId: 'destination-file-extension',
-                        width: 500,
+                        width: me.fieldWidth,
                         required: true,
                         fieldLabel: Uni.I18n.translate('general.fileExtension', 'DES', 'File extension'),
                         allowBlank: false,
@@ -178,7 +182,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                                 xtype: 'textfield',
                                 name: 'fileLocation',
                                 itemId: 'destination-file-location',
-                                width: 236,
+                                width: me.fieldWithTooltipWidth,
                                 allowBlank: false,
                                 enforceMaxLength: true,
                                 maxLength: 80,
@@ -189,26 +193,42 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                             }
                         ]
                     },
-
                     {
-                        xtype: 'textarea',
-                        name: 'recipients',
-                        itemId: 'destination-recipients',
-                        width: 500,
-                        height: 80,
-                        required: true,
+                        xtype: 'fieldcontainer',
+                        itemId: 'dxp-destination-recipients-container',
                         fieldLabel: Uni.I18n.translate('dataExport.recipients', 'DES', 'To'),
-                        allowBlank: false,
-                        enforceMaxLength: true,
-                        maxLength: 80,
-                        msgTarget: 'under'
+                        layout: 'hbox',
+                        required: true,
+                        items: [
+                            {
+                                xtype: 'textfield',
+                                name: 'recipients',
+                                itemId: 'destination-recipients',
+                                width: me.fieldWithTooltipWidth,
+                                required: true,
+                                allowBlank: false,
+                                enforceMaxLength: true,
+                                msgTarget: 'under'
+                            },
+                            {
+                                xtype: 'button',
+                                itemId: 'txt-user-name-info',
+                                tooltip: Uni.I18n.translate('dataExport.recipients.tooltip', 'DES', 'Separate multiple e-mailaddresses by semicolons (;)'),
+                                iconCls: 'uni-icon-info-small',
+                                ui: 'blank',
+                                shadow: false,
+                                margin: '6 0 0 10',
+                                width: 16,
+                                tabIndex: -1
+                            }
+                        ]
                     },
 
                     {
                         xtype: 'textfield',
                         name: 'subject',
                         itemId: 'destination-subject',
-                        width: 500,
+                        width: me.fieldWidth,
                         required: true,
                         fieldLabel: Uni.I18n.translate('general.subject', 'DES', 'Subject'),
                         allowBlank: false,
@@ -228,7 +248,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                                 xtype: 'textfield',
                                 name: 'attachmentName',
                                 itemId: 'destination-attachment-name',
-                                width: 236,
+                                width: me.fieldWithTooltipWidth,
                                 allowBlank: false,
                                 enforceMaxLength: true,
                                 maxLength: 80,
@@ -244,7 +264,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         xtype: 'textfield',
                         name: 'attachmentExtension',
                         itemId: 'destination-attachment-extension',
-                        width: 500,
+                        width: me.fieldWidth,
                         required: true,
                         fieldLabel: Uni.I18n.translate('dataExport.attachmentExtension', 'DES', 'Attachment extension'),
                         allowBlank: false,
@@ -287,6 +307,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
 
         addBtn.setDisabled(selectedItems.length===0);
         // Reset all error indications
+        me.fieldIdsWithErrors = [];
         switch(selectedItems[0].get('value')) {
             case 'FILE':
                 me.isFieldValid('#destination-file-name', true, "");
@@ -312,7 +333,7 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                 me.isFieldValid('#destination-file-name', true, "");
                 me.isFieldValid('#destination-file-extension', true, "");
                 me.isFieldValid('#destination-file-location', true, "");
-                break
+                break;
             default:
                 break;
         }

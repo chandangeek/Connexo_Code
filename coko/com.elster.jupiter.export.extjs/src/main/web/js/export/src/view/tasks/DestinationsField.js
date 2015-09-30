@@ -21,7 +21,7 @@ Ext.define('Dxp.view.tasks.DestinationsField', {
                         toolTip += Uni.I18n.translate('destination.email','DES','Mail') +
                             ' (' + Ext.String.htmlEncode(Ext.String.htmlEncode(destination.fileName))
                             + '.' + destination.fileExtension + ')<br>'
-                            + destination.recipients.split(/\n/).map(function(recipient){
+                            + destination.recipients.split(/;/).map(function(recipient){
                                 return '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;' + recipient + '<br>';
                             }).join('');
                         break;
