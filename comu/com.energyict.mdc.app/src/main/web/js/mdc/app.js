@@ -58,7 +58,11 @@ Ext.onReady(function () {
         {
             name: 'Fim',
             path: '../../apps/fim/src'
-        }
+        },
+        {
+            name: 'Cps',
+            path: '../../apps/cps/src'
+        },
 //        {
 //            name: 'PlaygroundApp',
 //            path: '../../apps/playground/app'
