@@ -474,6 +474,7 @@ Ext.define('Uni.controller.Search', {
         });
 
         me.getResultsGrid().down('pagingtoolbarbottom').resetPaging();
+        me.getResultsGrid().down('pagingtoolbartop').resetPaging();
 
         searchResults.clearFilter(true);
         searchResults.filter(filters, true);
