@@ -121,7 +121,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     private UserDirectory getUserDirectory(String domain) {
-        List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUAL.compare("name", domain));
+        List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUALIGNORECASE.compare("name", domain));
         if (found.isEmpty()) {
             throw new NoDomainFoundException(thesaurus, domain);
         }
