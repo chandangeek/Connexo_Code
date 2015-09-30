@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * Copyrights EnergyICT
@@ -18,6 +19,7 @@ public class ImportScheduleBuilder extends com.elster.jupiter.demo.impl.builders
 
     private FileSystem fileSystem;
     private FileImportService fileImportService;
+    private List<Consumer<ImportSchedule>> postBuilders;
 
     private String fileImporterFactoryName;
     private String pathMatcher;
@@ -75,6 +77,14 @@ public class ImportScheduleBuilder extends com.elster.jupiter.demo.impl.builders
         return this;
     }
 
+    public ImportScheduleBuilder withPostBuilder(Consumer<ImportSchedule> postBuilder) {
+        if (this.postBuilders == null) {
+            this.postBuilders = new ArrayList<>();
+        }
+        this.postBuilders.add(postBuilder);
+        return this;
+    }
+
     @Override
     public Optional<ImportSchedule> find() {
         return fileImportService.getImportSchedule(getName());
@@ -101,8 +111,11 @@ public class ImportScheduleBuilder extends com.elster.jupiter.demo.impl.builders
         importProperties.keySet().stream().forEach(propname -> builder.addProperty(propname).withValue(importProperties.get(propname)));
 
         ImportSchedule importSchedule = builder.build();
+        importSchedule.setActive(true);
         importSchedule.save();
-
+        if (postBuilders != null){
+            postBuilders.stream().forEach(x -> x.accept(importSchedule));
+        }
         return importSchedule;
     }
 }

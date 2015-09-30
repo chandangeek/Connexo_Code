@@ -8,12 +8,12 @@ import javax.inject.Provider;
 
 public class CreateApplicationServerCommand {
 
-    private final Provider<AppServerBuilder> appServerProvider;
+    private final Provider<AppServerBuilder> appServerBuilderProvider;
     private String name;
 
     @Inject
-    public CreateApplicationServerCommand(Provider<AppServerBuilder> appServerProvider) {
-        this.appServerProvider = appServerProvider;
+    public CreateApplicationServerCommand(Provider<AppServerBuilder> appServerBuilderProvider) {
+        this.appServerBuilderProvider = appServerBuilderProvider;
     }
 
     public void setName(String  name){
@@ -24,6 +24,6 @@ public class CreateApplicationServerCommand {
         if (this.name == null){
             throw new UnableToCreate("Please specify name for application server");
         }
-        this.appServerProvider.get().withName(this.name).get();
+        this.appServerBuilderProvider.get().withName(this.name).get();
     }
 }
