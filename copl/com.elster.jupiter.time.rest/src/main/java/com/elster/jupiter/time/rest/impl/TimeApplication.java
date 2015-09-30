@@ -30,7 +30,7 @@ import java.util.Set;
         immediate = true,
         property = {"alias=/tmr", "app=SYS", "name=" + TimeApplication.COMPONENT_NAME})
 public class TimeApplication extends Application implements MessageSeedProvider {
-    public static final String COMPONENT_NAME = "TMR";
+    public static final String COMPONENT_NAME = "TME";
 
     private volatile TimeService timeService;
     private volatile RestQueryService restQueryService;
