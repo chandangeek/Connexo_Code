@@ -65,7 +65,9 @@ public class BpmAppServiceImpl implements BpmAppService , ApplicationPrivilegesP
     public List<String> getApplicationPrivileges() {
         return Arrays.asList(
                 Privileges.VIEW_BPM,
-                Privileges.DESIGN_BPM
+                Privileges.DESIGN_BPM,
+                Privileges.VIEW_TASK,
+                Privileges.ADMINISTRATE_TASK
         );
     }
 
