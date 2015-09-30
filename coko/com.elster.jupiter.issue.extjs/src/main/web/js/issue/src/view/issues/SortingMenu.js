@@ -7,12 +7,12 @@ Ext.define('Isu.view.issues.SortingMenu', {
     items: [
         {
             itemId: 'issues-sorting-menu-item-by-due-date',
-            text: 'Due date',
+            text: Uni.I18n.translate('general.title.dueDate','ISU','Due date'),
             action: 'dueDate'
         },
         {
             itemId: 'issues-sorting-menu-item-by-modification-date',
-            text: 'Modification date',
+            text: Uni.I18n.translate('general.title.modificationDate','ISU','Modification date'),
             action: 'modTime'
         }
     ]
