@@ -44,7 +44,7 @@ import java.util.logging.Logger;
 @Component(name = "com.energyict.multisense.public.rest",
         service = {Application.class, TranslationKeyProvider.class},
         immediate = true,
-        property = {"alias=/dda", "app=MDC", "name=" + PublicRestApplication.COMPONENT_NAME, "version=v2.0"})
+        property = {"alias=/multisense", "app=MDC", "name=" + PublicRestApplication.COMPONENT_NAME, "version=v2.0"})
 public class PublicRestApplication extends Application implements TranslationKeyProvider {
 
     private final Logger logger = Logger.getLogger(PublicRestApplication.class.getName());
