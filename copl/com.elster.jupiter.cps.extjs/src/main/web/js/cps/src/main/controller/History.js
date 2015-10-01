@@ -5,7 +5,7 @@ Ext.define('Cps.main.controller.History', {
 
     routeConfig: {
         administration: {
-            title: Uni.I18n.translate('general.administration', 'EST', 'Administration'),
+            title: Uni.I18n.translate('general.administration', 'CPS', 'Administration'),
             route: 'administration',
             disabled: true,
             items: {
