@@ -162,6 +162,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>yellowfin.extjs</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps.extjs</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
