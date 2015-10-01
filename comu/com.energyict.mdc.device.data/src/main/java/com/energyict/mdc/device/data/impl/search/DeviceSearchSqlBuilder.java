@@ -1,17 +1,16 @@
 package com.energyict.mdc.device.data.impl.search;
 
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.search.SearchablePropertyCondition;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelationAttributeTypeNames;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.search.SearchablePropertyCondition;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.sql.SqlFragment;
-
 import java.time.Instant;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -25,7 +24,7 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
 
     private final List<SearchablePropertyCondition> conditions;
     private final SqlBuilder underConstruction;
-    private final Set<JoinType> joins = new HashSet<>();
+    private final Set<JoinType> joins = new LinkedHashSet<>();
     private final Instant effectiveDate;
     private SqlBuilder complete;
 
@@ -104,12 +103,6 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     }
 
     @Override
-    public JoinClauseBuilder addDeviceGroup() {
-        this.joins.add(Joins.EndDeviceGroup);
-        return this;
-    }
-
-    @Override
     public JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass) {
         this.joins.add(new ConnectionTypePropertyJoinType(connectionTypePluggableClass));
         return this;
@@ -138,13 +131,6 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
             @Override
             public void appendTo(SqlBuilder sqlBuilder) {
                 sqlBuilder.append(" join FSM_STATE fs on eds.STATE = fs.id ");
-            }
-        },
-
-        EndDeviceGroup {
-            @Override
-            public void appendTo(SqlBuilder sqlBuilder) {
-                sqlBuilder.append(" join MTG_ENUM_ED_IN_GROUP edg on edg.ENDDEVICE_ID = ed.id ");
             }
         }
     }
