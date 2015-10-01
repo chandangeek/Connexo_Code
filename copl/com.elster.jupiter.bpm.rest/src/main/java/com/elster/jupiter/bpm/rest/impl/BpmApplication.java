@@ -2,6 +2,10 @@ package com.elster.jupiter.bpm.rest.impl;
 
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -22,8 +26,11 @@ public class BpmApplication extends Application {
     public static final String APP_KEY = "BPM";
     public static final String COMPONENT_NAME = "BPM";
 
+    private volatile UserService userService;
     private volatile BpmService bpmService;
     private volatile License license;
+    private volatile Thesaurus thesaurus;
+    private volatile NlsService nlsService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -40,6 +47,17 @@ public class BpmApplication extends Application {
         this.license = license;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+    }
+
     @Override
     public Set<Object> getSingletons() {
         Set<Object> hashSet = new HashSet<>();
@@ -52,6 +70,9 @@ public class BpmApplication extends Application {
         @Override
         protected void configure() {
             bind(bpmService).to(BpmService.class);
+            bind(userService).to(UserService.class);
+            bind(thesaurus).to(Thesaurus.class);
+            bind(nlsService).to(NlsService.class);
         }
     }
 }

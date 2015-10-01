@@ -1,5 +1,6 @@
 -classpath: target/classes
 -dsannotations: * 
 
-Export-Package: com.elster.jupiter.bpm.rest
+Export-Package: com.elster.jupiter.bpm.rest,\
+                com.elster.jupiter.bpm.rest.resource
 Private-Package: com.elster.jupiter.bpm.rest.impl

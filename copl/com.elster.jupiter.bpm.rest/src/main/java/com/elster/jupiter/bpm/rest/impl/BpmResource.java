@@ -3,33 +3,54 @@ package com.elster.jupiter.bpm.rest.impl;
 import com.elster.jupiter.bpm.BpmServer;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.rest.*;
+import com.elster.jupiter.bpm.rest.resource.StandardParametersBean;
 import com.elster.jupiter.bpm.security.Privileges;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.XML;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 import java.io.IOException;
+import java.util.List;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/runtime")
 public class BpmResource {
 
+    public static final String START = "start";
+    public static final String LIMIT = "limit";
+    public static final String ME = "me";
+    public static final String LIKE = "like";
+    private UserService userService;
+    private Thesaurus thesaurus;
     private final BpmService bpmService;
 
     @Inject
     public BpmResource(BpmService bpmService) {
         this.bpmService = bpmService;
+    }
+
+    @Inject
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Inject
+    public void setThesaurus(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -164,16 +185,19 @@ public class BpmResource {
     @GET
     @Path("/tasks")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public TaskInfos getTask(@Context UriInfo uriInfo) {
+    public TaskInfos getTask(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter, @Context SecurityContext securityContext) {
         String jsonContent;
         JSONArray arr = null;
         try{
-            jsonContent = bpmService.getBpmServer().doGet("/rest/task/query");
+            String rest = "/rest/task/query";
+            if(queryParameters.getLimit().isPresent()&queryParameters.getStart().isPresent()) {
+                rest += "?p=" + queryParameters.getStart().get().toString() + "&s=" + queryParameters.getLimit().get().toString();
+            }
+            jsonContent = bpmService.getBpmServer().doGet(rest);
             if (!"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
                 arr = jsnobject.getJSONArray("list");
             }
-
         }catch (JSONException e) {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
         } catch (IOException e) {
@@ -202,4 +226,56 @@ public class BpmResource {
         }
         return new ProcessDefinitionInfos(arr);
     }
+
+    @GET
+    @Path("/assignees/users")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public Response getUsers(@BeanParam StandardParametersBean params){
+        String searchText = params.getFirst(LIKE);
+        Condition condition = Condition.TRUE;
+        if (searchText != null && !searchText.isEmpty()) {
+            String dbSearchText = "*" + searchText + "*";
+            condition = condition.and(where("authenticationName").likeIgnoreCase(dbSearchText));
+        }
+        Query<User> query = userService.getUserQuery();
+        List<User> list = query.select(condition, Order.ascending("authenticationName"));
+        return Response.ok(new AssigneeFilterListInfo(list)).build();
+    }
+
+    @GET
+    @Path("/assignees")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public PagedInfoListCustomized getAllAssignees(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
+        if (Boolean.parseBoolean(params.getFirst(ME))) {
+            AssigneeFilterListInfo assigneeFilterListInfo = AssigneeFilterListInfo.defaults((User) securityContext.getUserPrincipal(), thesaurus, true);
+            return PagedInfoListCustomized.fromPagedList("data", assigneeFilterListInfo.getData(), queryParameters, 0);
+        }
+        String searchText = params.getFirst(LIKE);
+        String dbSearchText = (searchText != null && !searchText.isEmpty()) ? ("*" + searchText + "*") : "*";
+        Condition conditionUser = where("authenticationName").likeIgnoreCase(dbSearchText);
+        Query<User> queryUser = userService.getUserQuery();
+        AssigneeFilterListInfo assigneeFilterListInfo;
+        if(params.getStart() == 0 && (searchText == null || searchText.isEmpty())) {
+//            validateMandatory(params, START, LIMIT);
+            assigneeFilterListInfo = AssigneeFilterListInfo.defaults((User) securityContext.getUserPrincipal(), thesaurus, false);
+            List<User> listUsers = queryUser.select(conditionUser, params.getFrom(), params.getTo(), Order.ascending("authname"));
+            assigneeFilterListInfo.addData(listUsers);
+        } else {
+            List<User> listUsers = queryUser.select(conditionUser, Order.ascending("authname"));
+            assigneeFilterListInfo = new AssigneeFilterListInfo(listUsers);
+        }
+        return PagedInfoListCustomized.fromPagedList("data", assigneeFilterListInfo.getData(), queryParameters, params.getStart() == 0 ? 1 : 0);
+    }
+
+    private void validateMandatory(StandardParametersBean params, String... mandatoryParameters) {
+        if (mandatoryParameters != null) {
+            for (String mandatoryParameter : mandatoryParameters) {
+                String value = params.getFirst(mandatoryParameter);
+                if (value == null) {
+                    throw new WebApplicationException(Response.Status.BAD_REQUEST);
+                }
+            }
+        }
+    }
+
 }

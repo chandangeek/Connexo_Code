@@ -57,6 +57,32 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bpm</artifactId>
         </dependency>
+
+
+
+        <!--asdad-->
+
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>domain.util</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+
+
+
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>users</artifactId>
+        </dependency>
+
+
+
+        <!--asdad-->
+
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>systemadmin</artifactId>
