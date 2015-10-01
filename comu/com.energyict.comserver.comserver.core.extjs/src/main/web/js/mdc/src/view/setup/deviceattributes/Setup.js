@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.deviceattributes.Setup', {
 
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
-        'Mdc.view.setup.device.DeviceAttributesForm'
+        'Mdc.view.setup.device.DeviceAttributesForm',
+        'Mdc.customattributesonvalues.common.view.AttributeSetPropertyForm'
     ],
 
 
@@ -40,13 +41,40 @@ Ext.define('Mdc.view.setup.deviceattributes.Setup', {
                             ? me.router.getRoute('devices/device/attributes/edit').buildUrl() : null,
                         text: Uni.I18n.translate('general.edit', 'MDC', 'Edit')
                     }
-                ],
+                ]
+            },
+            {
+                xtype: 'container',
+                layout: {
+                    type: 'hbox',
+                    align: 'stretch'
+                },
                 items: [
                     {
-                        xtype: 'deviceAttributesForm',
-                        itemId: 'device-attributes-view-form',
-                        router: me.router,
-                        fullInfo: true
+                        xtype: 'panel',
+                        ui: 'tile',
+                        title: Uni.I18n.translate('general.general', 'MDC', 'General'),
+                        items: [
+                            {
+                                xtype: 'deviceAttributesForm',
+                                itemId: 'device-attributes-view-form',
+                                router: me.router,
+                                fullInfo: true
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'container',
+                        items: [
+                            {
+                                xtype: 'custom-attribute-set-property-form',
+                                title: '1'
+                            },
+                            {
+                                xtype: 'custom-attribute-set-property-form',
+                                title: '2'
+                            }
+                        ]
                     }
                 ]
             }
