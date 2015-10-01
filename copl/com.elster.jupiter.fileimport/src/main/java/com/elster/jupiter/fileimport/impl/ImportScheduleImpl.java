@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
  * ImportSchedule implementation.
  */
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_IMPORT_SCHEDULE + "}")
+@NotSamePath(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CAN_NOT_BE_THE_SAME_AS_IMPORT_FOLDER + "}")
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 final class ImportScheduleImpl implements ImportSchedule {
 

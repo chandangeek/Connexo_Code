@@ -21,7 +21,8 @@ public enum MessageSeeds implements MessageSeed {
     IMPORT_SCHEDULE_PROPERTY_INVALID_VALUE(1006, Constants.IMPORT_SCHEDULE_PROPERTY_INVALID_VALUE_KEY, "This property contains an invalid value", Level.SEVERE),
     IMPORT_SCHEDULE_REQUIRED_PROPERTY_MISSING(1007, Constants.IMPORT_SCHEDULE_REQUIRED_PROPERTY_MISSING_KEY, "This field is required", Level.SEVERE),
     FILE_IMPORT_STARTED(1008, Constants.FILE_IMPORT_STARTED, "Start importing file", Level.INFO),
-    FILE_IMPORT_FINISHED(1008, Constants.FILE_IMPORT_FINISHED, "Finish importing file", Level.INFO)
+    FILE_IMPORT_FINISHED(1008, Constants.FILE_IMPORT_FINISHED, "Finish importing file", Level.INFO),
+    CAN_NOT_BE_THE_SAME_AS_IMPORT_FOLDER(1009, Constants.CAN_NOT_BE_THE_SAME_AS_IMPORT_FOLDER, "Import folder can not be the same as in process, success or failure folders", Level.INFO)
         ;
 
     private final int number;
@@ -85,6 +86,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String IMPORT_SCHEDULE_REQUIRED_PROPERTY_MISSING_KEY = "ImportSchedulePropertyRequired";
         public static final String FILE_IMPORT_STARTED = "StartImportingFile";
         public static final String FILE_IMPORT_FINISHED = "FinishImportingFile";
+        public static final String CAN_NOT_BE_THE_SAME_AS_IMPORT_FOLDER = "CanNotBeTheSameAsImportFolder";
     }
 
 }
