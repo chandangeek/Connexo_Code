@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.0.5</version>
+        <version>1.0.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>login.app</artifactId>
     <packaging>bundle</packaging>
-    <version>1.0.5</version>
+    <version>1.0.6-SNAPSHOT</version>
     <name>[Jupiter] com.elster.jupiter.login.app</name>
     <description>
         Contains ExtJS code for the login
