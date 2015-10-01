@@ -3,7 +3,6 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
@@ -32,7 +31,8 @@ public enum MessageSeeds implements MessageSeed {
     MISSING_WINDOW(1021, "dataexport.item.missingwindow", "The export window starting from {0} till {1} with missing data is not exported for item {2}", Level.INFO),
 
     SUSPECT_INTERVAL(1022, "dataexport.item.suspectinterval", "The interval(s) starting from {0} till {1} with suspect/not validated data are not exported for item {2}", Level.INFO),
-    SUSPECT_WINDOW(1023, "dataexport.item.suspectwindow", "The export window starting from {0} till {1} with suspect/not validated data is not exported for item {2}", Level.INFO);
+    SUSPECT_WINDOW(1023, "dataexport.item.suspectwindow", "The export window starting from {0} till {1} with suspect/not validated data is not exported for item {2}", Level.INFO),
+    MUST_SELECT_EVENT_TYPE(1024, Keys.MUST_SELECT_AT_LEAST_ONE_EVENT_TYPE, "At least one event type has to be selected");
 
 
     private final int number;
@@ -91,6 +91,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_SUCH_READINGTYPE = "NoSuchReadingType";
         public static final String FIELD_CAN_NOT_BE_EMPTY = "FieldCanNotBeEmpty";
         public static final String MUST_SELECT_AT_LEAST_ONE_READING_TYPE = "MustHaveReadingTypes";
+        public static final String MUST_SELECT_AT_LEAST_ONE_EVENT_TYPE = "MustHaveEventTypes";
         public static final String FIELD_SIZE_BETWEEN_MIN_AND_MAX = "FieldSizeBetweenMinAndMax";
         public static final String NO_SUCH_FORMATTER = "NoSuchFormatter";
         public static final String NAME_MUST_BE_UNIQUE = "NameMustBeUnique";

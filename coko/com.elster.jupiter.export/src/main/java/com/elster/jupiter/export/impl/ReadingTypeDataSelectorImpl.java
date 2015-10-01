@@ -2,10 +2,13 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
-import com.elster.jupiter.export.ExportData;
+import com.elster.jupiter.export.EndDeviceEventTypeFilter;
+import com.elster.jupiter.export.EventDataExportStrategy;
+import com.elster.jupiter.export.EventDataSelector;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.export.ValidatedDataOption;
@@ -22,9 +25,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.RelativePeriod;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -38,10 +39,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -70,14 +68,32 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     private boolean exportOnlyIfComplete;
     private ValidatedDataOption validatedDataOption;
     @Valid
-    @Size(min=1, message = "{" + MessageSeeds.Keys.MUST_SELECT_AT_LEAST_ONE_READING_TYPE + "}")
+    @Size(min=1, groups = {ReadingTypeDataSelector.class}, message = "{" + MessageSeeds.Keys.MUST_SELECT_AT_LEAST_ONE_READING_TYPE + "}")
     private List<ReadingTypeInDataSelector> readingTypes = new ArrayList<>();
     private List<ReadingTypeDataExportItemImpl> exportItems = new ArrayList<>();
+    @Valid
+    @Size(min=1, groups = {EventDataSelector.class}, message = "{" + MessageSeeds.Keys.MUST_SELECT_AT_LEAST_ONE_EVENT_TYPE + "}")
+    private List<EndDeviceEventTypeFilter> eventTypeFilters = new ArrayList<>();
 
     private long version;
     private Instant createTime;
     private Instant modTime;
     private String userName;
+
+    private enum State {
+        EVENTS(EventDataSelector.class),
+        READINGTYPES(ReadingTypeDataSelector.class);
+
+        private final Class<?> validationGroup;
+
+        State(Class<?> validationGroup) {
+            this.validationGroup = validationGroup;
+        }
+
+        private Class<?> validationGroup() {
+            return validationGroup;
+        }
+    }
 
     @Inject
     ReadingTypeDataSelectorImpl(DataModel dataModel, TransactionService transactionService, MeteringService meteringService, ValidationService validationService, Clock clock) {
@@ -105,41 +121,16 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     }
 
     @Override
-    public DataSelector asDataSelector(Logger logger, Thesaurus thesaurus) {
-        return new DataSelector() {
-            @Override
-            public Stream<ExportData> selectData(DataExportOccurrence occurrence) {
-                IExportTask task = exportTask.get();
-                Set<IReadingTypeDataExportItem> activeItems;
-                Map<IReadingTypeDataExportItem, Optional<Instant>> lastRuns;
-                try (TransactionContext context = transactionService.getContext()) {
-                    activeItems = getActiveItems(occurrence);
-
-                    getExportItems().stream()
-                            .filter(item -> !activeItems.contains(item))
-                            .peek(IReadingTypeDataExportItem::deactivate)
-                            .forEach(IReadingTypeDataExportItem::update);
-                    lastRuns = activeItems.stream()
-                            .collect(Collectors.toMap(Function.identity(), ReadingTypeDataExportItem::getLastRun));
-                    activeItems.stream()
-                            .peek(IReadingTypeDataExportItem::activate)
-                            .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                            .forEach(IReadingTypeDataExportItem::update);
-                    context.commit();
-                }
-
-                DefaultItemDataSelector defaultItemDataSelector = new DefaultItemDataSelector(clock, validationService, logger, thesaurus, transactionService);
-                return activeItems.stream()
-                        .flatMap(item -> Stream.of(
-                                defaultItemDataSelector.selectData(occurrence, item),
-                                lastRuns.get(item).flatMap(since -> defaultItemDataSelector.selectDataForUpdate(occurrence, item, since))))
-                        .flatMap(Functions.asStream());
-            }
-        };
+    public DataSelector asReadingTypeDataSelector(Logger logger, Thesaurus thesaurus) {
+        return AsReadingTypeDataSelector.from(dataModel, this, logger);
     }
 
+    @Override
+    public DataSelector asEventDataSelector(Logger logger, Thesaurus thesaurus) {
+        return AsEventDataSelector.from(dataModel, this, logger);
+    }
 
-    private Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
+    Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
         return decorate(getEndDeviceGroup()
                 .getMembers(occurrence.getDefaultSelectorOccurrence()
                         .map(DefaultSelectorOccurrence::getExportedDataInterval)
@@ -188,7 +179,18 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     }
 
     @Override
+    public History<EventDataSelector> getEventSelectorHistory() {
+        List<JournalEntry<IReadingTypeDataSelector>> journal = dataModel.mapper(IReadingTypeDataSelector.class).getJournal(getId());
+        return new History<>(journal, this);
+    }
+
+    @Override
     public DataExportStrategy getStrategy() {
+        return new DataExportStrategyImpl(exportUpdate, exportContinuousData, exportOnlyIfComplete, validatedDataOption, updatePeriod.orNull(), updateWindow.orNull());
+    }
+
+    @Override
+    public EventDataExportStrategy getEventStrategy() {
         return new DataExportStrategyImpl(exportUpdate, exportContinuousData, exportOnlyIfComplete, validatedDataOption, updatePeriod.orNull(), updateWindow.orNull());
     }
 
@@ -306,9 +308,21 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
         if (id == 0) {
             dataModel.mapper(IReadingTypeDataSelector.class).persist(this);
         } else {
+            Save.UPDATE.validate(dataModel, this, getState().validationGroup());
             Save.UPDATE.save(dataModel, this);
         }
 
+    }
+
+    private State getState() {
+        switch (getExportTask().getDataSelector()) {
+            case DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR:
+                return State.READINGTYPES;
+            case DataExportService.STANDARD_EVENT_DATA_SELECTOR:
+                return State.EVENTS;
+            default:
+                throw new IllegalStateException();
+        }
     }
 
     @Override
@@ -330,4 +344,23 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     public String getUserName() {
         return userName;
     }
+
+    @Override
+    public List<EndDeviceEventTypeFilter> getEventTypeFilters() {
+        return Collections.unmodifiableList(eventTypeFilters);
+    }
+
+    @Override
+    public EndDeviceEventTypeFilter addEventTypeFilter(String code) {
+        FieldBasedEndDeviceEventTypeFilter filter = FieldBasedEndDeviceEventTypeFilter.from(this, code);
+        eventTypeFilters.add(filter);
+        return filter;
+    }
+
+    @Override
+    public void removeEventTypeFilter(String code) {
+        //TODO automatically generated method body, provide implementation.
+
+    }
+
 }

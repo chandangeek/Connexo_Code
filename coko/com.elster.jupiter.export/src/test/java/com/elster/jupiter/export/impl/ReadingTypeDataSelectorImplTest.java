@@ -122,6 +122,10 @@ public class ReadingTypeDataSelectorImplTest {
                 .when(dataModel).getInstance(ReadingTypeInDataSelector.class);
         doAnswer(invocation -> new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel))
                 .when(dataModel).getInstance(ReadingTypeDataExportItemImpl.class);
+        doAnswer(invocation -> new AsReadingTypeDataSelector(dataModel, transactionService))
+                .when(dataModel).getInstance(AsReadingTypeDataSelector.class);
+        doAnswer(invocation -> new DefaultItemDataSelector(clock, validationService, thesaurus, transactionService))
+                .when(dataModel).getInstance(DefaultItemDataSelector.class);
         doAnswer(invocation -> new FakeRefAny(invocation.getArguments()[0])).when(dataModel).asRefAny(any());
         doReturn(validatorFactory).when(dataModel).getValidatorFactory();
         doReturn(validator).when(validatorFactory).getValidator();
@@ -177,11 +181,11 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-        collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(4);
 
@@ -214,11 +218,11 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-        collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(4);
 
@@ -255,7 +259,7 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(1);
 
@@ -279,11 +283,11 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-        collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(3);
 
@@ -326,11 +330,11 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-        collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(4);
 
@@ -379,11 +383,11 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-        collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(4);
 
@@ -432,11 +436,11 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(1);
 
-        collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(3);
 

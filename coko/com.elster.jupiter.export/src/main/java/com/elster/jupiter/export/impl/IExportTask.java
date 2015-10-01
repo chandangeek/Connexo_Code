@@ -18,6 +18,8 @@ interface IExportTask extends ExportTask, HasAuditInfo {
 
     void setReadingTypeDataSelector(ReadingTypeDataSelectorImpl readingTypeDataSelector);
 
+    void setEventDataSelector(ReadingTypeDataSelectorImpl eventDataSelector);
+
     boolean hasDefaultSelector();
 
     Destination getCompositeDestination();

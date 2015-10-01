@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -25,6 +26,7 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
+import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -49,17 +51,27 @@ class DefaultItemDataSelector implements ItemDataSelector {
 
     private final Clock clock;
     private final ValidationService validationService;
-    private final Logger logger;
     private final Thesaurus thesaurus;
     private final DateTimeFormatter timeFormatter = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withZone(ZoneId.systemDefault());
     private final TransactionService transactionService;
 
-    public DefaultItemDataSelector(Clock clock, ValidationService validationService, Logger logger, Thesaurus thesaurus, TransactionService transactionService) {
+    private Logger logger;
+
+    @Inject
+    DefaultItemDataSelector(Clock clock, ValidationService validationService, Thesaurus thesaurus, TransactionService transactionService) {
         this.clock = clock;
         this.validationService = validationService;
-        this.logger = logger;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
+    }
+
+    private DefaultItemDataSelector init(Logger logger) {
+        this.logger = logger;
+        return this;
+    }
+
+    static DefaultItemDataSelector from(DataModel dataModel, Logger logger) {
+        return dataModel.getInstance(DefaultItemDataSelector.class).init(logger);
     }
 
     @Override
@@ -81,8 +93,6 @@ class DefaultItemDataSelector implements ItemDataSelector {
         if (!strategy.isExportCompleteData()) {
             logMissings(item, exportInterval, readings, itemDescription);
         }
-
-
         if (!readings.isEmpty()) {
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             return Optional.of(new MeterReadingData(item, meterReading, structureMarker(item, readings.get(0).getTimeStamp(), exportInterval)));

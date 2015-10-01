@@ -163,7 +163,7 @@ public class DataExportServiceImplTest {
         dataExportService.setQueryService(queryService);
         dataExportService.setClock(clock);
         dataExportService.setUserService(userService);
-        dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DATA_TYPE_PROPERTY, DataExportService.STANDARD_DATA_TYPE));
+        dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DATA_TYPE_PROPERTY, DataExportService.STANDARD_READING_DATA_TYPE));
     }
 
     @Test
@@ -176,7 +176,7 @@ public class DataExportServiceImplTest {
                 .setName(NAME)
                 .setDataFormatterName(DATA_FORMATTER)
                 .setNextExecution(nextExecution)
-                .selectingStandard()
+                .selectingReadingTypes()
                 .fromEndDeviceGroup(endDeviceGroup)
                 .fromExportPeriod(relativePeriod)
                 .endSelection();

@@ -155,9 +155,9 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public List<DataSelectorFactory> getAvailableSelectors() {
-        ArrayList<DataSelectorFactory> dataSelectorfactories = new ArrayList<>(this.dataSelectorFactories.keySet());
-        dataSelectorfactories.sort(Comparator.comparing(HasName::getName));
-        return dataSelectorfactories;
+        ArrayList<DataSelectorFactory> dataSelectorFactories = new ArrayList<>(this.dataSelectorFactories.keySet());
+        dataSelectorFactories.sort(Comparator.comparing(HasName::getName));
+        return dataSelectorFactories;
     }
 
     @Override
@@ -311,7 +311,8 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                     bind(FtpClientService.class).toInstance(ftpClientService);
                 }
             });
-            addSelector(new StandardDataSelectorFactory(transactionService, meteringService, thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_DATA_TYPE));
+            addSelector(new StandardDataSelectorFactory(thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_READING_DATA_TYPE));
+            addSelector(new StandardEventDataSelectorFactory(thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_EVENT_DATA_TYPE));
             String tempDirectoryPath = context.getProperty(JAVA_TEMP_DIR_PROPERTY);
             if (tempDirectoryPath == null) {
                 tempDirectory = fileSystem.getRootDirectories().iterator().next();

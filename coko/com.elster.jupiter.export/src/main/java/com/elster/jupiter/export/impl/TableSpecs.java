@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
+import com.elster.jupiter.export.EndDeviceEventTypeFilter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.Column;
@@ -103,6 +104,24 @@ enum TableSpecs {
                     .map("readingTypeDataSelector").reverseMap("readingTypes").composition().add();
             table.foreignKey("DES_FK_RTINET_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").onDelete(DeleteRule.RESTRICT)
                     .map("readingType").add();
+        }
+    },
+    DES_EVENTFILTER(EndDeviceEventTypeFilter.class) {
+        @Override
+        void describeTable(Table table) {
+            table.map(FieldBasedEndDeviceEventTypeFilter.class);
+            table.setJournalTableName("DES_EVENTFILTERJRNL");
+            Column dataSelector = table.column("RTDATASELECTOR").number().notNull().add();
+            Column code = table.column("CODE").varChar(15).notNull().map("code").add();
+
+            table.addAuditColumns();
+            table.primaryKey("DES_PK_EVENTFILTER").on(dataSelector, code).add();
+            table.foreignKey("DES_FK_EV_IN_SELECTOR").on(dataSelector)
+                    .references(DES_RTDATASELECTOR.name())
+                    .map("dataSelector")
+                    .reverseMap("eventTypeFilters")
+                    .composition()
+                    .add();
         }
     },
     DES_PROPERTY_IN_TASK(DataExportProperty.class) {

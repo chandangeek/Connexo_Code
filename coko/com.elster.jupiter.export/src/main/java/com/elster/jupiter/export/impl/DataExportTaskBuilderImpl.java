@@ -13,24 +13,31 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
 
     private final DataModel dataModel;
 
-    private boolean defaultSelector = true;
+    private enum SelectorType {
+        CUSTOM, READINGTYPES, EVENTTYPES
+    }
+
+    private SelectorType defaultSelector = SelectorType.CUSTOM;
     private List<PropertyBuilderImpl> properties = new ArrayList<>();
     private ScheduleExpression scheduleExpression;
     private Instant nextExecution;
     private boolean scheduleImmediately;
     private String name;
-    private String dataSelector = DataExportService.STANDARD_DATA_SELECTOR;
+    private String dataSelector = null;
     private String dataFormatter;
     private RelativePeriod exportPeriod;
     private RelativePeriod updatePeriod;
     private RelativePeriod updateWindow;
     private List<ReadingTypeDefinition> readingTypes = new ArrayList<>();
+    private Set<String> eventTypeFilters = new LinkedHashSet<>();
     private EndDeviceGroup endDeviceGroup;
     private ValidatedDataOption validatedDataOption;
     private boolean exportUpdate;
@@ -95,16 +102,28 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     public ExportTask create() {
         ExportTaskImpl exportTask = ExportTaskImpl.from(dataModel, name, dataFormatter, dataSelector, scheduleExpression, nextExecution);
         exportTask.setScheduleImmediately(scheduleImmediately);
-        if (defaultSelector) {
-            ReadingTypeDataSelectorImpl readingTypeDataSelector = ReadingTypeDataSelectorImpl.from(dataModel, exportTask, exportPeriod, endDeviceGroup);
-            readingTypeDataSelector.setUpdatePeriod(updatePeriod);
-            readingTypeDataSelector.setValidatedDataOption(validatedDataOption);
-            readingTypeDataSelector.setExportUpdate(exportUpdate);
-            readingTypeDataSelector.setExportContinuousData(exportContinuousData);
-            readingTypeDataSelector.setUpdateWindow(updateWindow);
-            readingTypeDataSelector.setExportOnlyIfComplete(exportComplete);
-            readingTypes.stream().forEach(d -> d.addTo(readingTypeDataSelector));
-            exportTask.setReadingTypeDataSelector(readingTypeDataSelector);
+        switch (defaultSelector) {
+            case READINGTYPES: {
+                ReadingTypeDataSelectorImpl readingTypeDataSelector = ReadingTypeDataSelectorImpl.from(dataModel, exportTask, exportPeriod, endDeviceGroup);
+                readingTypeDataSelector.setUpdatePeriod(updatePeriod);
+                readingTypeDataSelector.setValidatedDataOption(validatedDataOption);
+                readingTypeDataSelector.setExportUpdate(exportUpdate);
+                readingTypeDataSelector.setExportContinuousData(exportContinuousData);
+                readingTypeDataSelector.setUpdateWindow(updateWindow);
+                readingTypeDataSelector.setExportOnlyIfComplete(exportComplete);
+                readingTypes.stream().forEach(readingTypeDefinition -> readingTypeDefinition.addTo(readingTypeDataSelector));
+                exportTask.setReadingTypeDataSelector(readingTypeDataSelector);
+                break;
+            }
+            case EVENTTYPES: {
+                ReadingTypeDataSelectorImpl readingTypeDataSelector = ReadingTypeDataSelectorImpl.from(dataModel, exportTask, exportPeriod, endDeviceGroup);
+                readingTypeDataSelector.setExportContinuousData(exportContinuousData);
+                eventTypeFilters.stream().forEach(readingTypeDataSelector::addEventTypeFilter);
+                exportTask.setReadingTypeDataSelector(readingTypeDataSelector);
+                break;
+            }
+            case CUSTOM:
+            default:
         }
         properties.stream().forEach(p -> exportTask.setProperty(p.name, p.value));
         exportTask.doSave();
@@ -124,12 +143,51 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     }
 
     @Override
-    public StandardSelectorBuilderImpl selectingStandard() {
-        defaultSelector = true;
+    public StandardSelectorBuilderImpl selectingReadingTypes() {
+        defaultSelector = SelectorType.READINGTYPES;
+        dataSelector = DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR;
         return new StandardSelectorBuilderImpl();
     }
 
-    class StandardSelectorBuilderImpl implements StandardSelectorBuilder {
+    @Override
+    public EventSelectorBuilder selectingEventTypes() {
+        defaultSelector = SelectorType.EVENTTYPES;
+        dataSelector = DataExportService.STANDARD_EVENT_DATA_SELECTOR;
+        return new EventSelectorBuilderImpl();
+    }
+
+    class EventSelectorBuilderImpl implements EventSelectorBuilder {
+        @Override
+        public EventSelectorBuilderImpl fromExportPeriod(RelativePeriod relativePeriod) {
+            exportPeriod = relativePeriod;
+            return this;
+        }
+
+        @Override
+        public EventSelectorBuilderImpl fromEndDeviceGroup(EndDeviceGroup group) {
+            endDeviceGroup = group;
+            return this;
+        }
+
+        @Override
+        public EventSelectorBuilderImpl continuousData(boolean continuous) {
+            exportContinuousData = continuous;
+            return this;
+        }
+
+        @Override
+        public EventSelectorBuilderImpl fromEventType(String filterCode) {
+            eventTypeFilters.add(filterCode);
+            return this;
+        }
+
+        @Override
+        public DataExportTaskBuilderImpl endSelection() {
+            return DataExportTaskBuilderImpl.this;
+        }
+    }
+
+    class StandardSelectorBuilderImpl implements ReadingTypeSelectorBuilder {
         @Override
         public StandardSelectorBuilderImpl fromExportPeriod(RelativePeriod relativePeriod) {
             exportPeriod = relativePeriod;
@@ -199,7 +257,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     @Override
     public CustomSelectorBuilder selectingCustom(String dataSelector) {
         this.dataSelector = dataSelector;
-        defaultSelector = false;
+        defaultSelector = SelectorType.CUSTOM;
         return new CustomSelectorBuilderImpl();
     }
 

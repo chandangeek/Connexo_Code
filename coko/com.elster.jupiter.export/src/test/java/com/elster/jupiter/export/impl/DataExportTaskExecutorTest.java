@@ -182,13 +182,13 @@ public class DataExportTaskExecutorTest {
         when(dataExportService.createExportOccurrence(occurrence)).thenReturn(dataExportOccurrence);
         when(dataExportService.findDataExportOccurrence(occurrence)).thenReturn(Optional.of(dataExportOccurrence));
         when(dataExportService.getDataFormatterFactory("CSV")).thenReturn(Optional.of(dataFormatterFactory));
-        when(dataExportService.getDataSelectorFactory(DataExportService.STANDARD_DATA_SELECTOR)).thenReturn(Optional.of(new StandardDataSelectorFactory(transactionService, meteringService, thesaurus)));
+        when(dataExportService.getDataSelectorFactory(DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR)).thenReturn(Optional.of(new StandardDataSelectorFactory(thesaurus)));
         when(dataExportOccurrence.getTask()).thenReturn(task);
         when(dataExportOccurrence.getDefaultSelectorOccurrence()).thenReturn(Optional.of((DefaultSelectorOccurrence) dataExportOccurrence));
         when(((DefaultSelectorOccurrence) dataExportOccurrence).getExportedDataInterval()).thenReturn(exportPeriod);
         when(dataExportOccurrence.getTriggerTime()).thenReturn(triggerTime.toInstant());
         when(task.getDataFormatter()).thenReturn("CSV");
-        when(task.getDataSelector()).thenReturn(DataExportService.STANDARD_DATA_SELECTOR);
+        when(task.getDataSelector()).thenReturn(DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR);
         when(task.getDataExportProperties()).thenReturn(Arrays.asList(dataExportProperty));
         when(task.getCompositeDestination()).thenReturn(destination);
         when(task.hasDefaultSelector()).thenReturn(true);
@@ -236,7 +236,7 @@ public class DataExportTaskExecutorTest {
         when(reading2.getSource()).thenReturn("reading2");
         MeterReadingData newItemData = new MeterReadingData(this.newItem, MeterReadingImpl.of(ReadingImpl.reading(reading1, readingType1)), DefaultStructureMarker.createRoot(clock, "newItem"));
         MeterReadingData existItemData = new MeterReadingData(this.existingItem, MeterReadingImpl.of(ReadingImpl.reading(reading2, readingType1)), DefaultStructureMarker.createRoot(clock, "newItem"));
-        when(readingTypeDataSelector.asDataSelector(any(), eq(thesaurus))).thenReturn(dataSelector);
+        when(readingTypeDataSelector.asReadingTypeDataSelector(any(), eq(thesaurus))).thenReturn(dataSelector);
         when(dataSelector.selectData(dataExportOccurrence)).thenReturn(Arrays.<ExportData>asList(newItemData, existItemData).stream());
         when(strategy.adjustedExportPeriod(eq(dataExportOccurrence), any())).thenReturn(exportPeriod);
         when(readingTypeDataSelector.adjustedExportPeriod(eq(dataExportOccurrence), any())).thenReturn(exportPeriod);

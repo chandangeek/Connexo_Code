@@ -56,12 +56,12 @@ public class ConsoleCommands {
     public void createDataExportTask(String name, String dataFormatter, String exportPeriodName, long nextExecution, String scheduleExpression, long groupId, String... readingTypes) {
         threadPrincipalService.set(() -> "console");
         try (TransactionContext context = transactionService.getContext()) {
-            DataExportTaskBuilder.StandardSelectorBuilder builder = dataExportService.newBuilder()
+            DataExportTaskBuilder.ReadingTypeSelectorBuilder builder = dataExportService.newBuilder()
                     .setName(name)
                     .setDataFormatterName(dataFormatter)
                     .setNextExecution(Instant.ofEpochMilli(nextExecution))
                     .setScheduleExpression(parse(scheduleExpression))
-                    .selectingStandard()
+                    .selectingReadingTypes()
                     .fromExportPeriod(relativePeriodByName(exportPeriodName))
                     .fromEndDeviceGroup(endDeviceGroup(groupId));
             Arrays.stream(readingTypes)

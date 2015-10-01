@@ -3,7 +3,6 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportData;
@@ -28,7 +27,7 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 @Component(name = "com.elster.jupiter.export.processor.SingleDeviceDataSelectorFactory",
-        service = DataSelectorFactory.class, property = { DataExportService.DATA_TYPE_PROPERTY + "="+ DataExportService.STANDARD_DATA_TYPE},
+        service = DataSelectorFactory.class, property = { DataExportService.DATA_TYPE_PROPERTY + "="+ DataExportService.STANDARD_READING_DATA_TYPE},
         immediate = true)
 public class SingleDeviceDataSelectorFactory implements DataSelectorFactory {
 

@@ -6,8 +6,10 @@ import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportProperty;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.EmailDestination;
+import com.elster.jupiter.export.EventDataSelector;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.FtpDestination;
@@ -159,14 +161,14 @@ final class ExportTaskImpl implements IExportTask {
         List<DataExportProperty> processorProperties = new ArrayList<DataExportProperty>();
         List<DataExportProperty> selectorProperties = new ArrayList<DataExportProperty>();
         for (DataExportProperty property : properties) {
-            for (PropertySpec processorPropertySpec : propertiesSpecsForProcessor)   {
+            for (PropertySpec processorPropertySpec : propertiesSpecsForProcessor) {
                 if (property.instanceOfSpec(processorPropertySpec)) {
                     processorProperties.add(property);
                 }
             }
         }
         for (DataExportProperty property : properties) {
-            for (PropertySpec selectorPropertySpec : propertiesSpecsForDataSelector)   {
+            for (PropertySpec selectorPropertySpec : propertiesSpecsForDataSelector) {
                 if (property.instanceOfSpec(selectorPropertySpec)) {
                     selectorProperties.add(property);
                 }
@@ -256,12 +258,12 @@ final class ExportTaskImpl implements IExportTask {
 
     @Override
     public List<PropertySpec> getDataSelectorPropertySpecs() {
-        return dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(()->new IllegalArgumentException("No such data selector: " + dataSelector)).getPropertySpecs();
+        return dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(() -> new IllegalArgumentException("No such data selector: " + dataSelector)).getPropertySpecs();
     }
 
     @Override
     public List<PropertySpec> getDataProcessorPropertySpecs() {
-        return dataExportService.getDataFormatterFactory(dataFormatter).orElseThrow(()->new IllegalArgumentException("No such data processor: " + dataFormatter)).getPropertySpecs();
+        return dataExportService.getDataFormatterFactory(dataFormatter).orElseThrow(() -> new IllegalArgumentException("No such data processor: " + dataFormatter)).getPropertySpecs();
     }
 
     @Override
@@ -365,6 +367,12 @@ final class ExportTaskImpl implements IExportTask {
                 .setFirstExecution(nextExecution);
         RecurrentTask task = builder.build();
         recurrentTask.set(task);
+        if (DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR.equals(dataSelector)) {
+            Save.CREATE.validate(dataModel, this, ReadingTypeDataSelector.class);
+        }
+        if (DataExportService.STANDARD_EVENT_DATA_SELECTOR.equals(dataSelector)) {
+            Save.CREATE.validate(dataModel, this, EventDataSelector.class);
+        }
         Save.CREATE.save(dataModel, this);
     }
 
@@ -411,7 +419,16 @@ final class ExportTaskImpl implements IExportTask {
 
     @Override
     public Optional<ReadingTypeDataSelector> getReadingTypeDataSelector() {
-        return readingTypeDataSelector.getOptional().map(ReadingTypeDataSelector.class::cast);
+        return readingTypeDataSelector.getOptional()
+                .map(ReadingTypeDataSelector.class::cast)
+                .filter(selector -> DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR.equals(dataSelector));
+    }
+
+    @Override
+    public Optional<EventDataSelector> getEventDataSelector() {
+        return readingTypeDataSelector.getOptional()
+                .map(EventDataSelector.class::cast)
+                .filter(selector -> DataExportService.STANDARD_EVENT_DATA_SELECTOR.equals(dataSelector));
     }
 
     @Override
@@ -435,7 +452,11 @@ final class ExportTaskImpl implements IExportTask {
     @Override
     public void setReadingTypeDataSelector(ReadingTypeDataSelectorImpl readingTypeDataSelector) {
         this.readingTypeDataSelector.set(readingTypeDataSelector);
+    }
 
+    @Override
+    public void setEventDataSelector(ReadingTypeDataSelectorImpl eventDataSelector) {
+        this.readingTypeDataSelector.set(eventDataSelector);
     }
 
     @Override
