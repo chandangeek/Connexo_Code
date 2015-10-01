@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.deviceattributes.Setup', {
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
         'Mdc.view.setup.device.DeviceAttributesForm',
-        'Mdc.customattributesonvalues.common.view.AttributeSetPropertyForm'
+        'Mdc.customattributesonvalues.common.view.AttributeSetsPlaceholderForm'
     ],
 
 
@@ -52,8 +52,9 @@ Ext.define('Mdc.view.setup.deviceattributes.Setup', {
                 items: [
                     {
                         xtype: 'panel',
-                        ui: 'tile',
+                        ui: 'medium',
                         title: Uni.I18n.translate('general.general', 'MDC', 'General'),
+                        flex: 1,
                         items: [
                             {
                                 xtype: 'deviceAttributesForm',
@@ -64,17 +65,7 @@ Ext.define('Mdc.view.setup.deviceattributes.Setup', {
                         ]
                     },
                     {
-                        xtype: 'container',
-                        items: [
-                            {
-                                xtype: 'custom-attribute-set-property-form',
-                                title: '1'
-                            },
-                            {
-                                xtype: 'custom-attribute-set-property-form',
-                                title: '2'
-                            }
-                        ]
+                        xtype: 'custom-attribute-sets-placeholder-form'
                     }
                 ]
             }

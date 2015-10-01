@@ -95,14 +95,14 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
     },
 
     showDeviceAttributesView: function (mRID) {
-        this.uploadAttributes('deviceAttributesSetup', mRID);
+        this.uploadAttributes('deviceAttributesSetup', mRID, true);
     },
 
     showEditDeviceAttributesView: function (mRID) {
-        this.uploadAttributes('deviceAttributesEdit', mRID);
+        this.uploadAttributes('deviceAttributesEdit', mRID, false);
     },
 
-    uploadAttributes: function (view, mRID) {
+    uploadAttributes: function (view, mRID, showCustomAttributes) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             viewport = Ext.ComponentQuery.query('viewport')[0],
@@ -117,6 +117,11 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
                 widget = Ext.widget(view, {device: device, router: router});
                 me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', widget);
+
+                if (showCustomAttributes) {
+                    widget.down('custom-attribute-sets-placeholder-form').loadRecords([1,2,3])
+                }
+
                 model.load('attributes', {
                     success: function (attributes) {
                         if (view === 'deviceAttributesSetup') {
