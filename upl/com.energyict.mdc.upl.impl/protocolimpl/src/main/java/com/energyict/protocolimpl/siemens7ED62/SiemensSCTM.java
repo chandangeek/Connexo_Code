@@ -330,7 +330,11 @@ public class SiemensSCTM {
             throw new SiemensSCTMException("doSendOut() error "+e.getMessage());
         }
     }
-    
+
+    public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
+        this.halfDuplexController = halfDuplexController;
+    }
+
     private byte[] buildInitFrame() {
         return(calcChecksum(buildHeader((byte)0,(byte)((byte)'?' - 0x30),0)));
     }

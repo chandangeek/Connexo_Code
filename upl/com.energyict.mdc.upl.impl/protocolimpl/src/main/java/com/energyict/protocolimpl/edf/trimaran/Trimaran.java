@@ -147,7 +147,7 @@ public class Trimaran extends AbstractProtocol {
         setTrimeranConnection(new TrimeranConnection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber(),getInfoTypeSecurityLevel(),getInfoTypeHalfDuplex(),getInterKarTimeout(),getAckTimeout(),getCommandTimeout(),getFlushTimeout()));
         return getTrimeranConnection();
     }
-    
+
     public Date getTime() throws IOException {
         Date date = getDataFactory().getMeterStatusTable().getTimestamp();
         return date;
