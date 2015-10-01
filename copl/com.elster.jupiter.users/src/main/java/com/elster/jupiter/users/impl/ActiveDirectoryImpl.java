@@ -45,7 +45,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, getUrl());
         env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
-        env.put(Context.SECURITY_CREDENTIALS, getPassword());
+        env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
 
         List<Group> groupList = new ArrayList<>();
         try {
@@ -201,7 +201,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         NamingEnumeration results = null;
         env.put(Context.PROVIDER_URL, urls.get(0));
         env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
-        env.put(Context.SECURITY_CREDENTIALS, getPassword());
+        env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
         try {
             String userName;
             DirContext ctx = new InitialDirContext(env);
@@ -244,7 +244,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.put(Context.PROVIDER_URL, urls.get(0));
         NamingEnumeration results = null;
         env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
-        env.put(Context.SECURITY_CREDENTIALS, getPassword());
+        env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
         env.put(Context.SECURITY_PROTOCOL, "ssl");
         try {
             String userName;
@@ -294,7 +294,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             tls = (StartTlsResponse) tlsResponse;
             tls.negotiate();
             env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
-            env.put(Context.SECURITY_CREDENTIALS, getPassword());
+            env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
             results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
@@ -340,7 +340,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         NamingEnumeration results = null;
         env.put(Context.PROVIDER_URL, urls.get(0));
         env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
-        env.put(Context.SECURITY_CREDENTIALS, getPassword());
+        env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
         try {
             DirContext ctx = new InitialDirContext(env);
             SearchControls controls = new SearchControls();
@@ -374,7 +374,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.put(Context.PROVIDER_URL, urls.get(0));
         NamingEnumeration results = null;
         env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
-        env.put(Context.SECURITY_CREDENTIALS, getPassword());
+        env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
         env.put(Context.SECURITY_PROTOCOL, "ssl");
         try {
             DirContext ctx = new InitialDirContext(env);
@@ -416,7 +416,7 @@ public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
             tls = (StartTlsResponse) tlsResponse;
             tls.negotiate();
             env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
-            env.put(Context.SECURITY_CREDENTIALS, getPassword());
+            env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
             results = ctx.search(getBaseUser(), "(sAMAccountName=" + user + ")", controls);

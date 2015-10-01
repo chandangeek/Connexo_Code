@@ -131,7 +131,6 @@ public class UserDirectoryIT {
         assertThat(userDirectory.isDefault()).isTrue();
         assertThat(userDirectory.getDomain()).isEqualTo("MyDomain");
         assertThat(((LdapUserDirectory)userDirectory).getDirectoryUser()).isEqualTo("MyUser");
-        assertThat(((LdapUserDirectory)userDirectory).getPassword()).isEqualTo("MyPassword");
         assertThat(((LdapUserDirectory)userDirectory).getUrl()).isEqualTo("MyUrl");
     }
 
@@ -160,7 +159,6 @@ public class UserDirectoryIT {
         assertThat(userDirectory.isDefault()).isTrue();
         assertThat(userDirectory.getDomain()).isEqualTo("MyDomain");
         assertThat(((LdapUserDirectory)userDirectory).getDirectoryUser()).isEqualTo("MyUser");
-        assertThat(((LdapUserDirectory)userDirectory).getPassword()).isEqualTo("MyPassword");
         assertThat(((LdapUserDirectory)userDirectory).getUrl()).isEqualTo("MyUrl");
     }
 

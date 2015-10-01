@@ -110,7 +110,7 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
 
     @Override
     public void setPassword(String password) {
-        this.password = password;
+        this.password = new AESencrpUtil().encrypt(getDomain(), password);
     }
 
     @Override
@@ -131,5 +131,9 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     @Override
     public void setBaseGroup(String baseGroup) {
         this.baseGroup = baseGroup;
+    }
+
+    protected String getPasswordDecrypt(){
+        return new AESencrpUtil().decrypt(getDomain(),getPassword());
     }
 }
