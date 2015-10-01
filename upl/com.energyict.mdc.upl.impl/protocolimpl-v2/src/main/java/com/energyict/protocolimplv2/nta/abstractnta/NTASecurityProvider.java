@@ -84,6 +84,18 @@ public class NTASecurityProvider implements SecurityProvider {
         return this.hlsSecret;
     }
 
+    protected void setEncryptionKey(byte[] encryptionKey) {
+        this.encryptionKey = encryptionKey;
+    }
+
+    protected void setAuthenticationKey(byte[] authenticationKey) {
+        this.authenticationKey = authenticationKey;
+    }
+
+    protected void setHlsSecret(byte[] hlsSecret) {
+        this.hlsSecret = hlsSecret;
+    }
+
     public byte[] getCallingAuthenticationValue() throws UnsupportedException {
         switch (this.authenticationLevel) {
             case 0:
