@@ -47,6 +47,7 @@ Ext.define('Uni.property.form.Property', {
     userHasViewPrivilege: true,
     editButtonTooltip: Uni.I18n.translate('general.edit', 'UNI', 'Edit'),
     removeButtonTooltip: Uni.I18n.translate('general.remove', 'UNI', 'Remove'),
+    blankText: Uni.I18n.translate('general.requiredField', 'UNI', 'This field is required'),
 
     /**
      * Loads record to the form.
@@ -109,7 +110,8 @@ Ext.define('Uni.property.form.Property', {
                     showEditButton: me.isMultiEdit,
                     resetButtonHidden: me.isMultiEdit,
                     editButtonTooltip: me.editButtonTooltip,
-                    removeButtonTooltip: me.removeButtonTooltip
+                    removeButtonTooltip: me.removeButtonTooltip,
+                    blankText: me.blankText
                 }));
                 me.add(field);
                 field.on('checkRestoreAll', function () {

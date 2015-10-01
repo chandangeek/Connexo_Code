@@ -21,6 +21,7 @@ Ext.define('Uni.property.view.property.Date', {
             readOnly: me.isReadOnly,
             inputType: me.inputType,
             allowBlank: me.allowBlank,
+            blankText: me.blankText,
             editable: false,
             listeners: {
                 change: {

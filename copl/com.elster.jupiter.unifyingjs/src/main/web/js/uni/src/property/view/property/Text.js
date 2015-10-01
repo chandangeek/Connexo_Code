@@ -11,7 +11,8 @@ Ext.define('Uni.property.view.property.Text', {
             msgTarget: 'under',
             readOnly: me.isReadOnly,
             allowBlank: me.allowBlank,
-            inputType: me.inputType
+            inputType: me.inputType,
+            blankText: me.blankText
         }
     },
 

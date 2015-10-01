@@ -28,6 +28,7 @@ Ext.define('Uni.property.view.property.DecimalNumber', {
             readOnly: me.isReadOnly,
             inputType: me.inputType,
             allowBlank: me.allowBlank,
+            blankText: me.blankText,
             decimalPrecision: 20
         };
     }
