@@ -33,7 +33,6 @@ public class UserDirectoryInfo {
         baseGroup = ldapUserDirectory.getBaseGroup();
         baseUser = ldapUserDirectory.getBaseUser();
         type = ldapUserDirectory.getType();
-        password = ldapUserDirectory.getPassword();
         directoryUser = ldapUserDirectory.getDirectoryUser();
     }
 
