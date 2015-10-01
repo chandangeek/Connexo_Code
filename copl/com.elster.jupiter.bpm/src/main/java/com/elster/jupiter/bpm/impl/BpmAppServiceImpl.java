@@ -67,7 +67,8 @@ public class BpmAppServiceImpl implements BpmAppService , ApplicationPrivilegesP
                 Privileges.VIEW_BPM,
                 Privileges.DESIGN_BPM,
                 Privileges.VIEW_TASK,
-                Privileges.ADMINISTRATE_TASK
+                Privileges.EXECUTE_TASK,
+                Privileges.ASSIGN_TASK
         );
     }
 
