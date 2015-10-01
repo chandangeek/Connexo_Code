@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
         },
         {
             xtype: 'displayfield',
-            fieldLabel: 'Load profile type',
+            fieldLabel: Uni.I18n.translate('general.loadProfileType', 'MDC', 'Load profile type'),
             name: 'name'
         },
         {
