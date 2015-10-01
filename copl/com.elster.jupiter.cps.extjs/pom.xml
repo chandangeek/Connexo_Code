@@ -54,4 +54,16 @@
             <artifactId>domain.util</artifactId>
         </dependency>
     </dependencies>
+
+
+    <profiles>
+        <profile>
+            <id>sencha-build</id>
+            <properties>
+                <js.dir>js/cps</js.dir>
+                <package.name>com.elster.jupiter.cps.extjs</package.name>
+            </properties>
+        </profile>
+    </profiles>
+
 </project>
