@@ -1,6 +1,6 @@
 package com.elster.jupiter.cbo;
 
-public enum EndDeviceSubDomain {
+public enum EndDeviceSubDomain implements HasNumericCode {
     NA("NA", 0, "Not applicable. Use when a domain is not needed. This should rarely be used"),
     ACCESS("Access", 1, "Related to physical security (ie. accessability) or electronic permission to read/write digital media"),
     ADCONVERTER("ADConverter", 142, "Related to analog-to-digital conversion"),
@@ -191,4 +191,8 @@ public enum EndDeviceSubDomain {
         throw new IllegalEnumValueException(EndDeviceSubDomain.class, value);
     }
 
+    @Override
+    public int getCode() {
+        return value;
+    }
 }

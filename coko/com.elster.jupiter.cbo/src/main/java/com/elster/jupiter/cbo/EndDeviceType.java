@@ -3,7 +3,7 @@ package com.elster.jupiter.cbo;
 /**
  * See CIM Annex E, table E.1
  */
-public enum EndDeviceType {
+public enum EndDeviceType implements HasNumericCode {
     NA("NA", 0, "Not applicable. Use when a device type is not known."),
     COLLECTOR("Collector", 10, "A device that acts as a central point of communication between HES and devices located on premises."),
     COM_DEVICE("ComDevice", 26, "A communication device"),
@@ -65,5 +65,10 @@ public enum EndDeviceType {
             }
         }
         throw new IllegalEnumValueException(EndDeviceType.class, value);
+    }
+
+    @Override
+    public int getCode() {
+        return value;
     }
 }

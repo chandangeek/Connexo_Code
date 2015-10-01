@@ -1,6 +1,6 @@
 package com.elster.jupiter.cbo;
 
-public enum EndDeviceDomain {
+public enum EndDeviceDomain implements HasNumericCode {
     NA("NA", 0, "Not applicable. Use when a domain is not needed. This should rarely be used."),
     BATTERY("Battery", 2, "Any events or controls related to a device battery."),
     BILLING("Billing", 20, "Events or controls related to cost of energy (Including Pricing, Tariff, TOU, etc.)."),
@@ -65,5 +65,8 @@ public enum EndDeviceDomain {
         throw new IllegalEnumValueException(EndDeviceDomain.class, value);
     }
 
-
+    @Override
+    public int getCode() {
+        return value;
+    }
 }

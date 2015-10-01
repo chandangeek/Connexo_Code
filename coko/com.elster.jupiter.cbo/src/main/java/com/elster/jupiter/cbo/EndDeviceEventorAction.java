@@ -1,6 +1,6 @@
 package com.elster.jupiter.cbo;
 
-public enum EndDeviceEventorAction {
+public enum EndDeviceEventorAction implements HasNumericCode {
     NA("NA", 0, "Not applicable. Use when a domain is not needed. This should rarely be used."),
     ABORTED("Aborted", 1, "An event that occurs when some intervention causes the item (identified by the EndDeviceDomain/EndDeviceSubdomain) to stop."),
     ACCESSED("Accessed", 2, "Typically a security event that occurs when physical access or access to data has been obtained (whether permitted or not)."),
@@ -163,5 +163,8 @@ public enum EndDeviceEventorAction {
         throw new IllegalEnumValueException(EndDeviceEventorAction.class, value);
     }
 
-
+    @Override
+    public int getCode() {
+        return value;
+    }
 }
