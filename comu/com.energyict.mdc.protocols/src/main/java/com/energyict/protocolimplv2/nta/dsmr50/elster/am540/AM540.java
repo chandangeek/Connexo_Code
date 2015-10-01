@@ -42,6 +42,7 @@ import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.profiles.AM540LoadPr
 import com.energyict.protocolimplv2.nta.dsmr50.registers.Dsmr50RegisterFactory;
 import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
@@ -66,6 +67,8 @@ public class AM540 extends AbstractDlmsProtocol {
     private long initialFrameCounter = -1;
     private AM540LoadProfileBuilder loadProfileBuilder;
     private Dsmr50LogBookFactory dsmr50LogBookFactory;
+    private Dsmr50RegisterFactory registerFactory;
+    private AM540Cache am540Cache;
 
     @Inject
     public AM540(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, LoadProfileFactory loadProfileFactory, Clock clock) {
@@ -105,21 +108,19 @@ public class AM540 extends AbstractDlmsProtocol {
     }
 
     @Override
-    public DeviceProtocolCache getDeviceCache() {
-        DeviceProtocolCache deviceCache = super.getDeviceCache();
-        if (deviceCache == null || !(deviceCache instanceof AM540Cache)) {
-            deviceCache = new AM540Cache(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
+    public AM540Cache getDeviceCache() {
+        if (this.am540Cache == null) {
+            am540Cache = new AM540Cache(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
         }
-        ((AM540Cache) deviceCache).setFrameCounter(getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
-        return deviceCache;
+        this.am540Cache.setFrameCounter(getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
+        return this.am540Cache;
     }
 
     @Override
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
         if ((deviceProtocolCache != null) && (deviceProtocolCache instanceof AM540Cache)) {
-            AM540Cache am540Cache = (AM540Cache) deviceProtocolCache;
-            super.setDeviceCache(am540Cache);
-            this.initialFrameCounter = (am540Cache).getFrameCounter();
+            am540Cache = (AM540Cache) deviceProtocolCache;
+            this.initialFrameCounter = this.am540Cache.getFrameCounter();
         }
     }
 
@@ -134,20 +135,20 @@ public class AM540 extends AbstractDlmsProtocol {
      */
     protected void checkCacheObjects() {
         boolean readCache = getDlmsSessionProperties().isReadCache();
-        if ((((DLMSCache) getDeviceCache()).getObjectList() == null) || (readCache)) {
+        if ((getDeviceCache().getObjectList() == null) || (readCache)) {
             if (readCache) {
                 getLogger().fine("ForcedToReadCache property is true, reading cache!");
                 readObjectList();
-                ((DLMSCache) getDeviceCache()).saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
+                getDeviceCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
             } else {
                 getLogger().fine("Cache does not exist, using hardcoded copy of object list");
                 UniversalObject[] objectList = new AM540ObjectList().getObjectList();
-                ((DLMSCache) getDeviceCache()).saveObjectList(objectList);
+                getDeviceCache().saveObjectList(objectList);
             }
         } else {
             getLogger().fine("Cache exist, will not be read!");
         }
-        getDlmsSession().getMeterConfig().setInstantiatedObjectList(((DLMSCache) getDeviceCache()).getObjectList());
+        getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDeviceCache().getObjectList());
     }
 
     public DSMR50Properties getDlmsSessionProperties() {
@@ -275,7 +276,9 @@ public class AM540 extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.singletonList(new SerialDeviceProtocolDialect(getPropertySpecService()));
+        return Arrays.asList(
+                new TcpDeviceProtocolDialect(getPropertySpecService()),
+                new SerialDeviceProtocolDialect(getPropertySpecService()));
     }
 
     @Override

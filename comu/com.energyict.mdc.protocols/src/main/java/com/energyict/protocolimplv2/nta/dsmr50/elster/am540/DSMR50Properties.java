@@ -154,6 +154,8 @@ public class DSMR50Properties extends G3Properties {
         propertySpecs.add(pskPropertySPec());
         propertySpecs.add(cumulativeCaptureTimePropertySPec());
         propertySpecs.add(readCachePropertySpec());
+        propertySpecs.add(checkNumberOfBlocksDuringFirmwareResumePropertySpec());
+        propertySpecs.add(useEquipmentIdentifierAsSerialNumberPropertySpec());
         return propertySpecs;
     }
 
@@ -163,5 +165,13 @@ public class DSMR50Properties extends G3Properties {
 
     public boolean useEquipmentIdentifierAsSerialNumber() {
         return getProperties().getTypedProperty(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE);
+    }
+
+    private PropertySpec checkNumberOfBlocksDuringFirmwareResumePropertySpec() {
+        return getPropertySpecService().booleanPropertySpec(CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME, false, DEFAULT_CHECK_NUMBER_OF_BLOCKS_DURING_FIRMWARE_RESUME);
+    }
+
+    private PropertySpec useEquipmentIdentifierAsSerialNumberPropertySpec() {
+        return getPropertySpecService().booleanPropertySpec(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, false, USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE);
     }
 }

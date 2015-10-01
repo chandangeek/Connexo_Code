@@ -4,6 +4,7 @@ import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.xml.DeviceProtocolCacheXmlMarshallAdapter;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 
@@ -12,6 +13,7 @@ import java.io.Serializable;
  * Date: 29.09.15
  * Time: 10:41
  */
+@XmlRootElement
 @XmlJavaTypeAdapter(DeviceProtocolCacheXmlMarshallAdapter.class)
 public class AM540Cache extends DLMSCache implements Serializable {
 
@@ -19,6 +21,10 @@ public class AM540Cache extends DLMSCache implements Serializable {
     UniversalObject[] gatewayObjectList;
     private long frameCounter = 1;
     private boolean connectionToBeaconMirror;
+
+    /*Default constructor for de/marshalling*/
+    public AM540Cache() {
+    }
 
     public AM540Cache(boolean connectionToBeaconMirror) {
         this.connectionToBeaconMirror = connectionToBeaconMirror;

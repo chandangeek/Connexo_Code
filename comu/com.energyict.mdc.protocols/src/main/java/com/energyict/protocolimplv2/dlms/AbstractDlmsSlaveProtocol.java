@@ -207,13 +207,8 @@ public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
     }
 
     @Override
-    public boolean supportsCommunicationFirmwareVersion() {
-        throw new UnsupportedMethodException(this.getClass(), "supportsCommunicationFirmwareVersion");
-    }
-
-    @Override
     public List<PropertySpec> getPropertySpecs() {
-        throw new UnsupportedMethodException(this.getClass(), "getPropertySpecs");
+        return Collections.emptyList();
     }
 
     @Override
@@ -233,16 +228,11 @@ public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getSecurityPropertySpecs() {
-        throw new UnsupportedMethodException(this.getClass(), "getSecurityPropertySpecs");
-    }
-
-    @Override
-    public String getVersion() {
-        throw new UnsupportedMethodException(this.getClass(), "getVersion");
+        return Collections.emptyList();
     }
 
     @Override
     public void copyProperties(TypedProperties properties) {
-        throw new UnsupportedMethodException(this.getClass(), "copyProperties");
+
     }
 }
