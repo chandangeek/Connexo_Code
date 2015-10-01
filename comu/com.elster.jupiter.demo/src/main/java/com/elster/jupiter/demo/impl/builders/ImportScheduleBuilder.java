@@ -106,13 +106,12 @@ public class ImportScheduleBuilder extends com.elster.jupiter.demo.impl.builders
                 .setFailureDirectory(failureDirectory)
                 .setSuccessDirectory(successDirectory)
                 .setProcessingDirectory(inProcessDirectory)
-                         .setPathMatcher(pathMatcher);
+                .setPathMatcher(pathMatcher);
 
         importProperties.keySet().stream().forEach(propname -> builder.addProperty(propname).withValue(importProperties.get(propname)));
 
-        ImportSchedule importSchedule = builder.build();
+        ImportSchedule importSchedule = builder.create();
         importSchedule.setActive(true);
-        importSchedule.save();
         if (postBuilders != null){
             postBuilders.stream().forEach(x -> x.accept(importSchedule));
         }

@@ -27,8 +27,8 @@ import com.elster.jupiter.export.processor.impl.StandardCsvDataFormatterFactory;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fileimport.impl.FileImportServiceImpl;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
@@ -79,8 +79,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-//import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-//import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -116,7 +114,6 @@ import com.energyict.mdc.favorites.impl.FavoritesModule;
 import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.firmware.impl.FirmwareModule;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.impl.FirmwareModule;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.io.impl.SerialIONoModemComponentServiceImpl;
@@ -140,6 +137,7 @@ import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
+import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
@@ -153,69 +151,7 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
-import com.elster.jupiter.appserver.impl.AppServiceModule;
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bpm.impl.BpmModule;
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.elster.jupiter.datavault.impl.DataVaultServiceImpl;
-import com.elster.jupiter.demo.impl.ConsoleUser;
-import com.elster.jupiter.demo.impl.DemoServiceImpl;
-import com.elster.jupiter.demo.impl.UnableToCreate;
-import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
-import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
-import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
-import com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl;
-import com.elster.jupiter.demo.impl.templates.LogBookTypeTpl;
-import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
-import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.estimation.impl.EstimationModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.impl.DataExportServiceImpl;
-import com.elster.jupiter.export.impl.ExportModule;
-import com.elster.jupiter.export.processor.impl.StandardCsvDataFormatterFactory;
-import com.elster.jupiter.fileimport.impl.FileImportModule;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-import com.elster.jupiter.ftpclient.FtpClientService;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.kpi.impl.KpiModule;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.mail.impl.MailModule;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
-import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.orm.impl.OrmServiceImpl;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.time.impl.TimeModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.ValidationModule;
-import com.elster.jupiter.validation.impl.ValidationServiceImpl;
-import com.elster.jupiter.validators.impl.DefaultValidatorFactory;
 import com.energyict.protocolimpl.elster.a3.AlphaA3;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
@@ -245,8 +181,6 @@ import java.time.Instant;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
-
-import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -446,11 +380,12 @@ public class DemoTest {
     @Test
     public void testCreateG3Devices() {
         String MRID_GATEWAY = "123-4567-89";
-        String MRID_SLAVE1 = "E0023000520685414";
-        String MRID_SLAVE2 = "123457S";
+        String MRID_SLAVE1 = "Demo board AS3000";
+        String MRID_SLAVE2 = "Demo board AS220";
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
         demoService.createG3Gateway(MRID_GATEWAY);
-        demoService.createG3SlaveDevice();
+        demoService.createG3SlaveAS3000(MRID_SLAVE1);
+        demoService.createG3SlaveAS220(MRID_SLAVE2);
 
         this.setPrincipal();
         checkCreatedG3Gateway(MRID_GATEWAY);
@@ -476,7 +411,7 @@ public class DemoTest {
         assertThat(gatewayOptional.isPresent()).isTrue();
         Device gateway = gatewayOptional.get();
         DeviceType deviceType = gateway.getDeviceType();
-        assertThat(deviceType.getName()).isEqualTo(DeviceTypeTpl.RTU_Plus_G3.getName());
+        assertThat(deviceType.getName()).isEqualTo(DeviceTypeTpl.RTU_Plus_G3.getLongName());
         assertThat(deviceType.getLoadProfileTypes()).isEmpty();
         assertThat(deviceType.getRegisterTypes()).isEmpty();
         assertThat(deviceType.getLogBookTypes()).isEmpty();
@@ -491,8 +426,8 @@ public class DemoTest {
         assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_GMAC.getValue());
         assertThat(securityPropertySet.getEncryptionDeviceAccessLevel().getId()).isEqualTo(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue());
         assertThat(securityPropertySet.getUserActions()).containsExactly(
-            DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
-            DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
+                DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
+                DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
         assertThat(configuration.getPartialOutboundConnectionTasks()).hasSize(1);
         PartialScheduledConnectionTask connectionTask = configuration.getPartialOutboundConnectionTasks().get(0);
         assertThat(connectionTask.getName()).isEqualTo(CONNECTION_METHOD_NAME);
@@ -535,8 +470,8 @@ public class DemoTest {
     }
 
     private void checkCreatedG3SlaveDevice(String mridDevice) {
-        String SERIAL_NUMBER = "E0023000520685414".equals(mridDevice) ? "05206854" : "35075302";
-        String MAC_ADDRESS = "E0023000520685414".equals(mridDevice) ? "02237EFFFEFD835B" : "02237EFFFEFD82F4";
+        String SERIAL_NUMBER = "Demo board AS3000".equals(mridDevice) ? "05206854" : "35075302";
+        String MAC_ADDRESS = "Demo board AS3000".equals(mridDevice) ? "02237EFFFEFD835B" : "02237EFFFEFD82F4";
         String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
@@ -546,7 +481,7 @@ public class DemoTest {
         assertThat(device.getSerialNumber()).isEqualTo(SERIAL_NUMBER);
 
         DeviceType deviceType = device.getDeviceType();
-        assertThat(deviceType.getName()).isEqualTo(DeviceTypeTpl.AM540.getName());
+        assertThat(deviceType.getName()).isEqualTo("Demo board AS3000".equals(mridDevice) ? DeviceTypeTpl.AS3000.getLongName() : DeviceTypeTpl.AS220.getLongName());
         List<LoadProfileType> loadProfileTypes = deviceType.getLoadProfileTypes();
         assertThat(loadProfileTypes).hasSize(3);
         for (LoadProfileType loadProfileType : loadProfileTypes) {
@@ -598,8 +533,8 @@ public class DemoTest {
         assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel().getId()).isEqualTo(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_MD5.getValue());
         assertThat(securityPropertySet.getEncryptionDeviceAccessLevel().getId()).isEqualTo(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue());
         assertThat(securityPropertySet.getUserActions()).containsExactly(
-            DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
-            DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
+                DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
+                DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
         assertThat(configuration.getPartialOutboundConnectionTasks().isEmpty()).isTrue();
         assertThat(configuration.getComTaskEnablements()).hasSize(4);
         for (ComTaskEnablement enablement : configuration.getComTaskEnablements()) {
@@ -661,14 +596,17 @@ public class DemoTest {
     @Test
     public void testExecuteCreateG3DevicesTwice() {
         String MRID_GATEWAY = "123-4567-89";
-        String MRID_SLAVE1 = "E0023000520685414";
-        String MRID_SLAVE2 = "123457S";
+        String MRID_SLAVE1 = "Demo board AS3000";
+        String MRID_SLAVE2 = "Demo board AS220";
 
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
         demoService.createG3Gateway(MRID_GATEWAY);
-        demoService.createG3SlaveDevice();
+        demoService.createG3SlaveAS3000(MRID_SLAVE1);
+        demoService.createG3SlaveAS220(MRID_SLAVE2);
+
         demoService.createG3Gateway(MRID_GATEWAY);
-        demoService.createG3SlaveDevice(); // Calling the commands 'createG3Gateway' and 'createG3SlaveDevice' twice shouldn't produce errors
+        demoService.createG3SlaveAS3000(MRID_SLAVE1);
+        demoService.createG3SlaveAS220(MRID_SLAVE2);
 
         this.setPrincipal();
         checkCreatedG3Gateway(MRID_GATEWAY);
@@ -696,7 +634,7 @@ public class DemoTest {
 
     @Test
     public void testCreateDefaultLifeCycleCommand(){
-        FiniteStateMachineService finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
+//        FiniteStateMachineService finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
         DeviceConfigurationService deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
         DeviceLifeCycleConfigurationService  deviceLifeCycleConfigurationService = injector.getInstance(DeviceLifeCycleConfigurationService.class);
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
@@ -742,7 +680,7 @@ public class DemoTest {
 
     @Test
     public void testRuleCreation(){
-        IssueDataValidationService issueDataValidationService = injector.getInstance(IssueDataValidationService.class);
+        // IssueDataValidationService issueDataValidationService = injector.getInstance(IssueDataValidationService.class);
 
         IssueService issueService = injector.getInstance(IssueService.class);
         IssueCreationService issueCreationService = issueService.getIssueCreationService();

@@ -3,6 +3,7 @@ package com.elster.jupiter.demo;
 import com.elster.jupiter.demo.impl.DemoServiceImpl;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;

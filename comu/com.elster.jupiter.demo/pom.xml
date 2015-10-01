@@ -7,7 +7,7 @@
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
         <version>1.1.0-SNAPSHOT</version>
-        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
+        <relativePath>../com.energyict.comserver.parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>demo</artifactId>
@@ -113,7 +113,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>validation</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.engine.config</artifactId>
@@ -188,6 +187,10 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
+            <artifactId>mdc.issue.datavalidation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
             <artifactId>mdc.firmware</artifactId>
         </dependency>
         <dependency>
@@ -202,7 +205,14 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.favorites</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fileimport</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fsm</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bootstrap.h2</artifactId>
@@ -257,11 +267,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>bootstrap.h2</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>parties</artifactId>
             <scope>test</scope>
         </dependency>
@@ -282,17 +287,7 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>fsm</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>mail</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>fileimport</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -311,14 +306,19 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.device.data.importers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
         </dependency>
-        <!-- <dependency>
+        <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
             <version>4.0-beta5</version>
-        </dependency> -->
+        </dependency>
     </dependencies>
 
 </project>

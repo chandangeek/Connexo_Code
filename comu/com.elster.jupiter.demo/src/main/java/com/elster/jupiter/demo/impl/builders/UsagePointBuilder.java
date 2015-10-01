@@ -38,9 +38,6 @@ public class UsagePointBuilder extends NamedBuilder<UsagePoint, UsagePointBuilde
 
     @Override
     public UsagePoint create() {
-        UsagePoint usagePoint = meteringService.getServiceCategory(serviceKind).get().newUsagePoint(mRID);
-        usagePoint.setName(getName());
-        usagePoint.save();
-        return usagePoint;
+        return meteringService.getServiceCategory(serviceKind).get().newUsagePoint(mRID).withName(getName()).create();
     }
 }

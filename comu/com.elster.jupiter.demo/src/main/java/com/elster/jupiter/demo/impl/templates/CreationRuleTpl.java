@@ -39,7 +39,6 @@ public enum CreationRuleTpl implements Template<CreationRule, IssueRuleBuilder> 
 
     @Override
     public IssueRuleBuilder get(IssueRuleBuilder builder) {
-
         return builder.withName(this.name).
                 withType(this.type).
                 withReason(this.reason).
