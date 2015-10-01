@@ -74,10 +74,10 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
     protected DataExportTaskBuilder builder = initBuilderStub();
 
     private DataExportTaskBuilder initBuilderStub() {
-        final Object proxyInstance = Proxy.newProxyInstance(DataExportTaskBuilder.class.getClassLoader(), new Class<?>[]{DataExportTaskBuilder.class, DataExportTaskBuilder.PropertyBuilder.class, DataExportTaskBuilder.CustomSelectorBuilder.class, DataExportTaskBuilder.StandardSelectorBuilder.class}, new InvocationHandler() {
+        final Object proxyInstance = Proxy.newProxyInstance(DataExportTaskBuilder.class.getClassLoader(), new Class<?>[]{DataExportTaskBuilder.class, DataExportTaskBuilder.PropertyBuilder.class, DataExportTaskBuilder.CustomSelectorBuilder.class, DataExportTaskBuilder.EventSelectorBuilder.class}, new InvocationHandler() {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                if (hasReturnType(method, asList(DataExportTaskBuilder.class, DataExportTaskBuilder.PropertyBuilder.class, DataExportTaskBuilder.CustomSelectorBuilder.class, DataExportTaskBuilder.StandardSelectorBuilder.class))) {
+                if (hasReturnType(method, asList(DataExportTaskBuilder.class, DataExportTaskBuilder.PropertyBuilder.class, DataExportTaskBuilder.CustomSelectorBuilder.class, DataExportTaskBuilder.EventSelectorBuilder.class))) {
                     return builderGetter.get();
                 }
                 return taskGetter.get();

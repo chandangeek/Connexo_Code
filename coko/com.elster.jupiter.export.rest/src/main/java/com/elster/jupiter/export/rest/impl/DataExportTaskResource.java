@@ -137,6 +137,7 @@ public class DataExportTaskResource {
                         builder.addProperty(spec.getName()).withValue(value);
                     });
         } else {
+            // TODO discern between RT and EventTypes selection
                 if (info.standardDataSelector.exportUpdate && info.standardDataSelector.exportAdjacentData && info.standardDataSelector.updateWindow.id == null) {
                     throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateTimeFrame");
                 }
@@ -147,7 +148,7 @@ public class DataExportTaskResource {
                     throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
                 }
 
-                DataExportTaskBuilder.StandardSelectorBuilder selectorBuilder = builder.selectingStandard()
+                DataExportTaskBuilder.ReadingTypeSelectorBuilder selectorBuilder = builder.selectingReadingTypes()
                     .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
                     .fromUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod))
                     .withUpdateWindow(getRelativePeriod(info.standardDataSelector.updateWindow))
