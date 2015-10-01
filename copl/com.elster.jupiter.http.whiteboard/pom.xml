@@ -5,10 +5,10 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>1.0.5</version>
+        <version>1.0.6-SNAPSHOT</version>
     </parent>
     <artifactId>http.whiteboard</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.http.whiteboard</name>
 
