@@ -66,7 +66,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         emailDestinationInfo.type = DestinationType.EMAIL;
         emailDestinationInfo.fileName = "attachment";
         emailDestinationInfo.fileExtension = "csv";
-        emailDestinationInfo.recipients="user1@elster.com,user2@elster.com";
+        emailDestinationInfo.recipients="user1@elster.com;user2@elster.com";
         emailDestinationInfo.subject="daily report";
         info.destinations.add(emailDestinationInfo);
 
@@ -99,7 +99,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
         verify(exportTask).addFileDestination("", "file", "txt");
-        verify(exportTask).addEmailDestination("user1@elster.com,user2@elster.com", "daily report", "attachment", "csv");
+        verify(exportTask).addEmailDestination("user1@elster.com;user2@elster.com", "daily report", "attachment", "csv");
         verify(exportTask).addFtpDestination("ftpserver", 21, "ftpuser", "ftppassword", "", "ftpfile", "ftptxt");
         verify(exportTask).addFtpsDestination("ftpsserver", 20, "ftpsuser", "ftpspassword", "", "ftpsfile", "ftpstxt");
     }
@@ -158,7 +158,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         emailDestinationInfo.type = DestinationType.EMAIL;
         emailDestinationInfo.fileName = "attachment";
         emailDestinationInfo.fileExtension = "csv";
-        emailDestinationInfo.recipients="user1@elster.com,user2@elster.com";
+        emailDestinationInfo.recipients="user1@elster.com;user2@elster.com";
         emailDestinationInfo.subject="daily report";
         info.destinations.add(emailDestinationInfo);
 
@@ -170,7 +170,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
 
         verify(exportTask).removeDestination(obsolete);
         verify(exportTask, never()).removeDestination(newDestination);
-        verify(toUpdate).setRecipients("user1@elster.com,user2@elster.com");
+        verify(toUpdate).setRecipients("user1@elster.com;user2@elster.com");
         verify(toUpdate).setSubject("daily report");
         verify(toUpdate).setAttachmentName("attachment");
         verify(toUpdate).setAttachmentExtension("csv");
