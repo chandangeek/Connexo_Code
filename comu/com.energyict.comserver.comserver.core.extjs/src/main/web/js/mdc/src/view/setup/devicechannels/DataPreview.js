@@ -217,7 +217,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             if (me.channels) {
                 return value + ' ' + measurementType + ' ' + validationResultText;
             } else {
-                formatValue = Uni.Number.formatNumber(value, -1);
+                formatValue = Uni.Number.formatNumber(value.toString(), -1);
                 return !Ext.isEmpty(formatValue) ? formatValue + ' ' + measurementType + ' ' + validationResultText : '';
             }
         } else {

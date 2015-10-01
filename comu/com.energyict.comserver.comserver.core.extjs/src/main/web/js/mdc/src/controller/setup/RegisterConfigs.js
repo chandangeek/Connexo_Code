@@ -128,7 +128,9 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                 me.getRegisterConfigNumberPanel().show();
             }
             if (Cfg.privileges.Validation.canUpdateDeviceValidation()) {
-                me.getRulesForRegisterConfigPreview().setTitle(registerConfig.get('name') + ' validation rules');
+                me.getRulesForRegisterConfigPreview().setTitle(
+                    Uni.I18n.translate('registerConfigs.validationRulesOfRegisterConfigX', 'MDC', '{0} validation rules', registerConfig.get('name'))
+                );
                 me.getRegisterConfigValidationRulesStore().load();
             } else {
                 me.getRulesForRegisterConfigPreview().setTitle('');
