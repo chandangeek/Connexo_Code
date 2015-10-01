@@ -5,7 +5,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Preview', {
     router: null,
 
     requires: [
-        'Mdc.view.setup.deviceregisterconfiguration.ActionMenu',
         'Uni.form.field.ObisDisplay',
         'Uni.form.field.ReadingTypeDisplay',
         'Mdc.view.setup.deviceregisterconfiguration.ValidationPreview'

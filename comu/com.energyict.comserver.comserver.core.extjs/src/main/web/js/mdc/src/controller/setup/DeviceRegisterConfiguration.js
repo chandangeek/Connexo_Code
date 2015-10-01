@@ -122,7 +122,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         form.loadRecord(formRecord);
     },
 
-    onDeviceRegisterConfigurationGridSelect: function (rowmodel, record, index) {
+    onDeviceRegisterConfigurationGridSelect: function (rowmodel, record) {
         var me = this;
         me.previewRegisterConfiguration(record);
     },
@@ -133,20 +133,18 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             widget = Ext.widget('deviceRegisterConfigurationPreview-' + type, {router: me.getController('Uni.controller.history.Router')}),
             form = widget.down('#deviceRegisterConfigurationPreviewForm'),
             previewContainer = me.getDeviceRegisterConfigurationSetup().down('#previewComponentContainer');
+
         me.registerId = record.get('id');
         me.registerName = record.get('name');
+        Ext.suspendLayouts();
         form.loadRecord(record);
         widget.setTitle(record.get('readingType').fullAliasName);
         previewContainer.removeAll();
         previewContainer.add(widget);
-        if (!record.data.detailedValidationInfo.validationActive) {
-            widget.down('#validateNowRegister').hide();
-            Ext.ComponentQuery.query('#registerActionMenu #validateNowRegister')[0].hide();
-        } else {
-            widget.down('#validateNowRegister').show();
-            Ext.ComponentQuery.query('#registerActionMenu #validateNowRegister')[0].show();
-        }
-        widget.down('#deviceRegisterConfigurationActionMenu').record = record;
+        widget.on('render', function () {
+            widget.down('#deviceRegisterConfigurationActionMenu').record = record;
+        }, me, {single: true});
+        Ext.resumeLayouts(true);
     },
 
     showDeviceRegisterConfigurationDetailsView: function (mRID, registerId, tabController) {
