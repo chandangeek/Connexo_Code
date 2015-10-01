@@ -57,7 +57,7 @@ public class CustomPropertySetResource {
         if (domainExtension != null) {
             customPropertySets = customPropertySetService.findActiveCustomPropertySets()
                     .stream()
-                    .filter(f -> f.getCustomPropertySet().getDomainClass().getName().equals(domainExtension))
+                    .filter(f -> (f.getCustomPropertySet().getDomainClass().getName().equals(domainExtension)))
                     .collect(Collectors.toList());
         } else {
             customPropertySets = customPropertySetService.findActiveCustomPropertySets();
