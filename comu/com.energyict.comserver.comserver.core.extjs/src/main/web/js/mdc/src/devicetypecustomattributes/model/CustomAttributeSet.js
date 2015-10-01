@@ -2,7 +2,7 @@ Ext.define('Mdc.devicetypecustomattributes.model.CustomAttributeSet', {
     extend: 'Ext.data.Model',
 
     requires: [
-        'Mdc.customattributesets.service.LevelMap'
+        'Uni.util.LevelMap'
     ],
 
     fields: [
@@ -16,22 +16,22 @@ Ext.define('Mdc.devicetypecustomattributes.model.CustomAttributeSet', {
             name: 'viewPrivilegesString',
             persist: false,
             mapping: function (data) {
-                return Mdc.customattributesets.service.LevelMap.getPrivilegesString(data.viewPrivileges);
+                return Uni.util.LevelMap.getPrivilegesString(data.viewPrivileges);
             }
         },
         {
             name: 'editPrivilegesString',
             persist: false,
             mapping: function (data) {
-                return Mdc.customattributesets.service.LevelMap.getPrivilegesString(data.editPrivileges);
+                return Uni.util.LevelMap.getPrivilegesString(data.editPrivileges);
             }
         },
         {
             name: 'fullsetinfo',
             persist: false,
             mapping: function (data) {
-                data.viewPrivilegesString = Mdc.customattributesets.service.LevelMap.getPrivilegesString(data.viewPrivileges);
-                data.editPrivilegesString = Mdc.customattributesets.service.LevelMap.getPrivilegesString(data.editPrivileges);
+                data.viewPrivilegesString = Uni.util.LevelMap.getPrivilegesString(data.viewPrivileges);
+                data.editPrivilegesString = Uni.util.LevelMap.getPrivilegesString(data.editPrivileges);
                 return data;
             }
         }
