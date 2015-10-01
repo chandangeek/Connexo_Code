@@ -25,7 +25,8 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
             store: 'Mdc.store.DeviceMessageCategories',
             displayField: 'name',
             valueField: 'id',
-            editable: false
+            editable: false,
+            blankText: Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
         },
         {
             fieldLabel: Uni.I18n.translate('deviceCommand.add.command', 'MDC', 'Command'),
@@ -33,7 +34,8 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
             displayField: 'name',
             valueField: 'id',
             editable: false,
-            queryMode: 'local'
+            queryMode: 'local',
+            blankText: Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
         },
         {
             xtype: 'date-time',

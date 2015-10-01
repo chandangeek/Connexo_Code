@@ -343,8 +343,10 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     addCommand: function (btn) {
         var me = this,
             propertyForm = me.getAddPropertyForm(),
+            addCommandPnl = me.getAddCommandPanel(),
             commandForm = me.getAddCommandForm();
         if (commandForm.isValid() && (propertyForm && propertyForm.isValid())) {
+            addCommandPnl.down('#form-errors').hide();
             propertyForm.updateRecord();
             var record = propertyForm.getRecord(),
                 releaseDate = new Date(commandForm.getValues().releaseDate).getTime(),
@@ -370,6 +372,8 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                     }
                 }
             });
+        } else {
+            addCommandPnl.down('#form-errors').show();
         }
     }
 })
