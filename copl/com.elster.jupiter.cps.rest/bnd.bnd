@@ -2,4 +2,4 @@
 -dsannotations: *
 Include-Resource: README.HTML
 Private-Package: com.elster.jupiter.cps.rest.impl
-Export-Package: com.elster.jupiter.rest
+Export-Package: com.elster.jupiter.cps.rest
