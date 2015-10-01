@@ -25,10 +25,11 @@ Ext.define('Uni.view.breadcrumb.Trail', {
         }
 
         me.removeAll();
+        var isHidden = me.hidden;
         me.addBreadcrumbItem(item);
 
         if (me.rendered) {
-            Ext.resumeLayouts();
+            Ext.resumeLayouts(isHidden !== me.hidden);
         }
     },
 
