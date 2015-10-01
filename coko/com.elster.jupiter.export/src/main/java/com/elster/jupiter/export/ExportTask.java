@@ -14,10 +14,6 @@ import java.util.Optional;
 public interface ExportTask extends HasName, HasAuditInfo {
     long getId();
 
-    void activate(); // resume
-
-    void deactivate(); // suspend
-
     Optional<Instant> getLastRun();
 
     Map<String, Object> getProperties();

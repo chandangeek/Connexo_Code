@@ -99,18 +99,6 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public void activate() {
-        //TODO automatically generated method body, provide implementation.
-
-    }
-
-    @Override
-    public void deactivate() {
-        //TODO automatically generated method body, provide implementation.
-
-    }
-
-    @Override
     public Map<String, Object> getProperties() {
         return properties.stream()
                 .collect(Collectors.toMap(DataExportProperty::getName, DataExportProperty::getValue));
