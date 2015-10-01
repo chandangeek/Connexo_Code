@@ -138,17 +138,17 @@ public class DataExportTaskResource {
                     });
         } else {
             // TODO discern between RT and EventTypes selection
-                if (info.standardDataSelector.exportUpdate && info.standardDataSelector.exportAdjacentData && info.standardDataSelector.updateWindow.id == null) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateTimeFrame");
-                }
-                if (info.standardDataSelector.exportUpdate && info.standardDataSelector.updatePeriod.id == null) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateWindow");
-                }
-                if (info.destinations.isEmpty()) {
-                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
-                }
+            if (info.standardDataSelector.exportUpdate && info.standardDataSelector.exportAdjacentData && info.standardDataSelector.updateWindow.id == null) {
+                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateTimeFrame");
+            }
+            if (info.standardDataSelector.exportUpdate && info.standardDataSelector.updatePeriod.id == null) {
+                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateWindow");
+            }
+            if (info.destinations.isEmpty()) {
+                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
+            }
 
-                DataExportTaskBuilder.ReadingTypeSelectorBuilder selectorBuilder = builder.selectingReadingTypes()
+            DataExportTaskBuilder.ReadingTypeSelectorBuilder selectorBuilder = builder.selectingReadingTypes()
                     .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
                     .fromUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod))
                     .withUpdateWindow(getRelativePeriod(info.standardDataSelector.updateWindow))
@@ -348,7 +348,7 @@ public class DataExportTaskResource {
                     Object value = propertyUtils.findPropertyValue(spec, info.properties);
                     task.setProperty(spec.getName(), value);
                 });
-        if (!info.dataSelector.isDefault) {
+        if (info.dataSelector.selectorType == SelectorType.CUSTOM) {
             List<PropertySpec> propertiesSpecsForDataSelector = dataExportService.getPropertiesSpecsForDataSelector(info.dataSelector.name);
             propertiesSpecsForDataSelector.stream()
                     .forEach(spec -> {
@@ -393,7 +393,7 @@ public class DataExportTaskResource {
     }
 
     private RelativePeriod getRelativePeriod(RelativePeriodInfo relativePeriodInfo) {
-        if ((relativePeriodInfo == null) || (relativePeriodInfo.id == null)){
+        if ((relativePeriodInfo == null) || (relativePeriodInfo.id == null)) {
             return null;
         }
         return timeService.findRelativePeriod(relativePeriodInfo.id).orElse(null);

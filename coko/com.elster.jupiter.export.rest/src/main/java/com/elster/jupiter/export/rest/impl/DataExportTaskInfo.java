@@ -79,12 +79,14 @@ public class DataExportTaskInfo {
 
         String selector = dataExportTask.getDataSelector();
 
+        SelectorType selectorType = SelectorType.forSelector(selector);
+
         dataSelector =
                 new SelectorInfo(
                         selector,
                         thesaurus.getStringBeyondComponent(selector, "Device readings data selector"),
                         propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataSelectorPropertySpecs(), dataExportTask.getProperties()),
-                        selector.equals(DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR));
+                        selectorType);
         Instant nextExecution = dataExportTask.getNextExecution();
         if (nextExecution != null) {
             nextRun = nextExecution.toEpochMilli();

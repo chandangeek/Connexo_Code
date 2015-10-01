@@ -16,8 +16,8 @@ public class SelectorInfos {
     public SelectorInfos() {
     }
 
-    public SelectorInfo add(String name, String displayName, List<PropertyInfo> properties, boolean isDefault) {
-        SelectorInfo result = new SelectorInfo(name, displayName, properties, isDefault);
+    public SelectorInfo add(String name, String displayName, List<PropertyInfo> properties, SelectorType selectorType) {
+        SelectorInfo result = new SelectorInfo(name, displayName, properties, selectorType);
         selectors.add(result);
         total++;
         return result;
