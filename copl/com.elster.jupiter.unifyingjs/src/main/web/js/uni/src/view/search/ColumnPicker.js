@@ -1,5 +1,6 @@
 /**
  * @class Uni.view.search.ColumnPicker
+ * todo: translations
  */
 Ext.define('Uni.view.search.ColumnPicker', {
     extend: 'Ext.button.Button',
@@ -20,59 +21,99 @@ Ext.define('Uni.view.search.ColumnPicker', {
         var me = this;
 
         me.menu = {
+            xtype: 'menu',
             plain: true,
             padding: 0,
-            //overflowY: 'auto',
-            autoScroll: true,
-            maxHeight: 400,
             defaults: {
                 margin: 0
             },
+            floating: true,
+            maxHeight: 400,
+            width: 300,
+            overflowY: 'auto',
+            style: 'background:white; border-radius: 8px 0 8px 8px',
+            bodyStyle: 'background:white',
+            onMouseOver: Ext.emptyFn,
             layout: {
                 type: 'vbox',
-                align: 'stretch'
+                align: 'stretch',
+                overflowHandler: 'None'
             },
-            //items: {
-            //    xtype: 'container',
-            //    maxHeight: 400,
-            //    overflowY: 'auto',
-            //    layout: 'vbox',
-                items: [
-                    {
-                        xtype: 'menu',
-                        itemId: 'columns-selected',
-                        //plain: true,
-                        floating: false,
+            tbar: [{
+                xtype: 'button',
+                text: 'Restore defaults',
+                ui: 'link',
+                handler: function() {
+                    me.setColumns(me.defaultColumns);
+                }
+            }],
+            buttons: [
+                {
+                    text: 'Done',
+                    handler: function() {
+                        me.grid.reconfigure(null, _.pluck(me.menu.down('#columns-selected').items.getRange(), 'column'));
+                    }
+                },
+                {
+                    text: 'Cancel',
+                    ui: 'link',
+                    handler: function() {
+                        me.menu.hide();
+                    }
+                }
+            ],
+            items: [
+                {
+                    xtype: 'checkboxgroup',
+                    padding: 5,
+                    itemId: 'columns-selected',
+                    columns: 1,
+                    vertical: true,
+                    //plain: true,
+                    floating: false,
+                    defaults: {
+                        checkDirty: Ext.emptyFn,
                         listeners: {
-                            click: function(menu, item) {
-                                menu.remove(item);
+                            change: function(item) {
                                 var newItem = me.createMenuItem(item.column);
                                 newItem.checked = false;
+                                Ext.suspendLayouts();
+                                me.menu.down('#columns-selected').remove(item);
                                 me.menu.down('#columns-available').add(newItem);
-                                me.grid.reconfigure(null, _.pluck(menu.items.getRange(), 'column'));
-                            }
-                        }
-                    },
-                    {
-                        xtype: 'menuseparator'
-                    },
-                    {
-                        xtype: 'menu',
-                        itemId: 'columns-available',
-                        //plain: true,
-                        floating: false,
-                        listeners: {
-                            click: function(menu, item) {
-                                menu.remove(item);
-                                var newItem = me.createMenuItem(item.column);
-                                newItem.checked = true;
-                                me.menu.down('#columns-selected').add(newItem);
-                                me.grid.reconfigure(null, _.pluck(me.menu.down('#columns-selected').items.getRange(), 'column'));
+                                Ext.resumeLayouts(true);
+                                return false;
                             }
                         }
                     }
-                ]
-            //}
+
+                },
+                {
+                    xtype: 'menuseparator'
+                },
+                {
+                    xtype: 'checkboxgroup',
+                    padding: 5,
+                    columns: 1,
+                    vertical: true,
+                    itemId: 'columns-available',
+                    //plain: true,
+                    floating: false,
+                    defaults: {
+                        checkDirty: Ext.emptyFn,
+                        listeners: {
+                            change: function(item) {
+                                var newItem = me.createMenuItem(item.column);
+                                newItem.checked = true;
+                                Ext.suspendLayouts();
+                                me.menu.down('#columns-selected').add(newItem);
+                                me.menu.down('#columns-available').remove(item);
+                                Ext.resumeLayouts(true);
+                                return false;
+                            }
+                        }
+                    }
+                }
+            ]
         };
 
         me.callParent(arguments);
@@ -80,10 +121,10 @@ Ext.define('Uni.view.search.ColumnPicker', {
 
     createMenuItem: function (column) {
         return {
-            xtype: 'menucheckitem',
-            text: column.header,
-            value: column.dataIndex,
-            default: column.default,
+            xtype: 'checkbox',
+            boxLabel: column.header,
+            inputValue: column.dataIndex,
+            disabled: column.disabled,
             checked: column.default,
             column: column
         };
@@ -95,6 +136,7 @@ Ext.define('Uni.view.search.ColumnPicker', {
             selected = me.menu.down('#columns-selected')
         ;
 
+        me.defaultColumns = columns;
         Ext.suspendLayouts();
         available.removeAll();
         selected.removeAll();
@@ -102,7 +144,7 @@ Ext.define('Uni.view.search.ColumnPicker', {
         if (columns.length) {
             Ext.each(columns, function (item) {
                 var menuItem = me.createMenuItem(item);
-                menuItem.default ? selected.add(menuItem) : available.add(menuItem);
+                menuItem.checked ? selected.add(menuItem) : available.add(menuItem);
             });
         }
 
