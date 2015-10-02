@@ -1,14 +1,5 @@
 package com.energyict.mdc.device.topology.impl;
 
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.events.TopicHandler;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.pubsub.Subscriber;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -17,7 +8,6 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteUsedDefaultConnectionTaskException;
 import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
@@ -25,6 +15,7 @@ import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.EarliestNextExecutionTimeStampAndPriority;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
@@ -40,12 +31,16 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-import org.assertj.core.api.Condition;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.TopicHandler;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.pubsub.Subscriber;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.VoidTransaction;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -55,6 +50,11 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
+
+import org.assertj.core.api.Condition;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
