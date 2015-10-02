@@ -1,4 +1,5 @@
 -classpath: target/classes
 -dsannotations: *
-Include-Resource: README.HTML
-Private-Package: com.elster.jupiter.cps.rest.extjs
+Private-Package: com.elster.jupiter.cps.extjs
+Export-Package: !com.elster.jupiter.cps.extjs
+-include: -../development.bnd
