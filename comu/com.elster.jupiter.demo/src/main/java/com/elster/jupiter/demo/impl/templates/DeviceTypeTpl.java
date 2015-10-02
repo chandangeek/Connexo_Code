@@ -62,7 +62,7 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
             Collections.singletonList(com.elster.jupiter.demo.impl.templates.LogBookTypeTpl.GENERIC))
     ;
 
-    private String LongName;
+    private String longName;
     private String protocol;
     private int deviceCount;
     private OutboundTCPComPortPoolTpl poolTpl;
@@ -72,7 +72,7 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
     private List<LogBookTypeTpl> logBookTypes;
 
     DeviceTypeTpl(String name, String protocol, int deviceCount, OutboundTCPComPortPoolTpl poolTpl, List<RegisterTypeTpl> registerTypes, List<LoadProfileTypeTpl> loadProfileTypes, List<LogBookTypeTpl> logBookTypes) {
-        this.LongName = name;
+        this.longName = name;
         this.protocol = protocol;
         this.deviceCount = deviceCount;
         this.poolTpl = poolTpl;
@@ -92,7 +92,7 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
 
     @Override
     public DeviceTypeBuilder get(DeviceTypeBuilder builder){
-        return builder.withName(this.LongName).withProtocol(this.protocol)
+        return builder.withName(this.longName).withProtocol(this.protocol)
                 .withRegisterTypes(this.registerTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.toList()))
                 .withLoadProfileTypes(this.loadProfileTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.<LoadProfileType>toList()))
                 .withLogBookTypes(this.logBookTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.<LogBookType>toList()));
@@ -107,12 +107,12 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
     }
 
     public String getLongName() {
-        return LongName;
+        return longName;
     }
 
     public String getProtocol() { return protocol; }
 
     public static DeviceTypeTpl fromName(String name){
-        return Arrays.stream(values()).filter(x -> x.name().equals(name)).findFirst().orElseThrow(() -> new IllegalArgumentException("No template having LongName '" + name + "'"));
+        return Arrays.stream(values()).filter(x -> x.name().equals(name)).findFirst().orElseThrow(() -> new IllegalArgumentException("No template having longName '" + name + "'"));
     }
 }

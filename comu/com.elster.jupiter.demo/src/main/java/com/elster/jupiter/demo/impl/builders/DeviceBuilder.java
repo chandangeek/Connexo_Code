@@ -7,12 +7,11 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class DeviceBuilder implements Builder<Device> {
+public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
     private final DeviceService deviceService;
 
     private String mrid;
@@ -25,12 +24,14 @@ public class DeviceBuilder implements Builder<Device> {
 
     @Inject
     public DeviceBuilder(DeviceService deviceService) {
+        super(DeviceBuilder.class);
         this.deviceService = deviceService;
         this.yearOfCertification = 2013;
     }
 
     public DeviceBuilder withMrid(String mrid){
         this.mrid = mrid;
+        super.withName(mrid);
         return this;
     }
 
@@ -54,14 +55,6 @@ public class DeviceBuilder implements Builder<Device> {
         return this;
     }
 
-    public DeviceBuilder withPostBuilder(Consumer<Device> postBuilder){
-        if (this.postBuilders == null) {
-            this.postBuilders = new ArrayList<>();
-        }
-        this.postBuilders.add(postBuilder);
-        return this;
-    }
-
     @Override
     public Optional<Device> find() {
         return deviceService.findByUniqueMrid(this.mrid);
@@ -70,7 +63,7 @@ public class DeviceBuilder implements Builder<Device> {
     @Override
     public Device create() {
         Log.write(this);
-        Device device = deviceService.newDevice(deviceConfiguration, mrid, mrid);
+        Device device = deviceService.newDevice(deviceConfiguration, getName(), mrid);
         device.setSerialNumber(serialNumber);
         device.setYearOfCertification(this.yearOfCertification);
         if (comSchedules != null) {
@@ -83,11 +76,4 @@ public class DeviceBuilder implements Builder<Device> {
         return device;
     }
 
-    private void applyPostBuilders(Device device){
-        if (postBuilders != null) {
-            for (Consumer<Device> postBuilder : postBuilders) {
-                postBuilder.accept(device);
-            }
-        }
-    }
 }
