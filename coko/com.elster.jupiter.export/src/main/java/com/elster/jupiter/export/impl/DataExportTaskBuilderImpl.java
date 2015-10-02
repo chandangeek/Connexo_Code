@@ -104,7 +104,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         exportTask.setScheduleImmediately(scheduleImmediately);
         switch (defaultSelector) {
             case READINGTYPES: {
-                ReadingTypeDataSelectorImpl readingTypeDataSelector = ReadingTypeDataSelectorImpl.from(dataModel, exportTask, exportPeriod, endDeviceGroup);
+                StandardDataSelectorImpl readingTypeDataSelector = StandardDataSelectorImpl.from(dataModel, exportTask, exportPeriod, endDeviceGroup);
                 readingTypeDataSelector.setUpdatePeriod(updatePeriod);
                 readingTypeDataSelector.setValidatedDataOption(validatedDataOption);
                 readingTypeDataSelector.setExportUpdate(exportUpdate);
@@ -116,7 +116,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
                 break;
             }
             case EVENTTYPES: {
-                ReadingTypeDataSelectorImpl readingTypeDataSelector = ReadingTypeDataSelectorImpl.from(dataModel, exportTask, exportPeriod, endDeviceGroup);
+                StandardDataSelectorImpl readingTypeDataSelector = StandardDataSelectorImpl.from(dataModel, exportTask, exportPeriod, endDeviceGroup);
                 readingTypeDataSelector.setExportContinuousData(exportContinuousData);
                 eventTypeFilters.stream().forEach(readingTypeDataSelector::addEventTypeFilter);
                 exportTask.setReadingTypeDataSelector(readingTypeDataSelector);

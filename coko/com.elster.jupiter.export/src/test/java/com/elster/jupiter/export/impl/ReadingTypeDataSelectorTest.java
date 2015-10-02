@@ -139,7 +139,7 @@ public class ReadingTypeDataSelectorTest {
 
         transactionService = new TransactionVerifier(dataFormatter, newItem, existingItem);
 
-        when(dataModel.getInstance(ReadingTypeDataSelectorImpl.class)).thenAnswer(invocation -> spy(new ReadingTypeDataSelectorImpl(dataModel, transactionService, meteringService, validationService, clock)));
+        when(dataModel.getInstance(StandardDataSelectorImpl.class)).thenAnswer(invocation -> spy(new StandardDataSelectorImpl(dataModel, transactionService, meteringService, validationService, clock)));
         when(dataModel.getInstance(ReadingTypeInDataSelector.class)).thenAnswer(invocation -> spy(new ReadingTypeInDataSelector(meteringService)));
         when(dataModel.getInstance(ReadingTypeDataExportItemImpl.class)).thenAnswer(invocation -> spy(new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel)));
         when(dataModel.getInstance(AsReadingTypeDataSelector.class)).thenAnswer(invocation -> new AsReadingTypeDataSelector(dataModel, transactionService));
@@ -205,7 +205,7 @@ public class ReadingTypeDataSelectorTest {
 
     @Test
     public void testExecuteObsoleteItemIsDeactivated() {
-        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportRelativePeriod, group);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportRelativePeriod, group);
         selector.addReadingType(readingType1);
         selector.setEndDeviceGroup(group);
         existingItem = selector.addExportItem(meter2, readingType1);
@@ -221,7 +221,7 @@ public class ReadingTypeDataSelectorTest {
 
     @Test
     public void testExecuteExistingItemIsUpdated() {
-        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportRelativePeriod, group);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportRelativePeriod, group);
         selector.addReadingType(readingType1);
         selector.setEndDeviceGroup(group);
         existingItem = selector.addExportItem(meter2, readingType1);
@@ -237,7 +237,7 @@ public class ReadingTypeDataSelectorTest {
 
     @Test
     public void testNewItemIsUpdated() {
-        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportRelativePeriod, group);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportRelativePeriod, group);
         selector.addReadingType(readingType1);
         selector.setEndDeviceGroup(group);
         existingItem = selector.addExportItem(meter2, readingType1);

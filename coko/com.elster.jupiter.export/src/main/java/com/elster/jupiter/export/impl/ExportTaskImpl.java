@@ -77,7 +77,7 @@ final class ExportTaskImpl implements IExportTask {
     private Instant modTime;
     private String userName;
     @Valid
-    private Reference<IReadingTypeDataSelector> readingTypeDataSelector = Reference.empty();
+    private Reference<IStandardDataSelector> readingTypeDataSelector = Reference.empty();
     @Valid
     private List<IDataExportDestination> destinations = new ArrayList<>();
 
@@ -187,7 +187,7 @@ final class ExportTaskImpl implements IExportTask {
         }
         properties.clear();
         destinations.clear();
-        readingTypeDataSelector.getOptional().ifPresent(IReadingTypeDataSelector::delete);
+        readingTypeDataSelector.getOptional().ifPresent(IStandardDataSelector::delete);
         dataModel.mapper(DataExportOccurrence.class).remove(getOccurrences());
         dataModel.remove(this);
         if (recurrentTask.isPresent()) {
@@ -438,12 +438,12 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public void setReadingTypeDataSelector(ReadingTypeDataSelectorImpl readingTypeDataSelector) {
+    public void setReadingTypeDataSelector(StandardDataSelectorImpl readingTypeDataSelector) {
         this.readingTypeDataSelector.set(readingTypeDataSelector);
     }
 
     @Override
-    public void setEventDataSelector(ReadingTypeDataSelectorImpl eventDataSelector) {
+    public void setEventDataSelector(StandardDataSelectorImpl eventDataSelector) {
         this.readingTypeDataSelector.set(eventDataSelector);
     }
 

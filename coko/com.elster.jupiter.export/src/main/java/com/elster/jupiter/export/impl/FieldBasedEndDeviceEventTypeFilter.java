@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 
 class FieldBasedEndDeviceEventTypeFilter implements EndDeviceEventTypeFilter, PersistenceAware {
 
-    private Reference<IReadingTypeDataSelector> dataSelector = ValueReference.absent();
+    private Reference<IStandardDataSelector> dataSelector = ValueReference.absent();
     private String code;
 
     private transient EndDeviceType type;
@@ -41,7 +41,7 @@ class FieldBasedEndDeviceEventTypeFilter implements EndDeviceEventTypeFilter, Pe
     FieldBasedEndDeviceEventTypeFilter() {
     }
 
-    FieldBasedEndDeviceEventTypeFilter init(IReadingTypeDataSelector selector, EndDeviceType type, EndDeviceDomain domain, EndDeviceSubDomain subDomain, EndDeviceEventorAction eventOrAction) {
+    FieldBasedEndDeviceEventTypeFilter init(IStandardDataSelector selector, EndDeviceType type, EndDeviceDomain domain, EndDeviceSubDomain subDomain, EndDeviceEventorAction eventOrAction) {
         this.dataSelector.set(selector);
         this.type = type;
         this.domain = domain;
@@ -58,11 +58,11 @@ class FieldBasedEndDeviceEventTypeFilter implements EndDeviceEventTypeFilter, Pe
         return this;
     }
 
-    static FieldBasedEndDeviceEventTypeFilter from(IReadingTypeDataSelector selector, EndDeviceType type, EndDeviceDomain domain, EndDeviceSubDomain subDomain, EndDeviceEventorAction eventOrAction) {
+    static FieldBasedEndDeviceEventTypeFilter from(IStandardDataSelector selector, EndDeviceType type, EndDeviceDomain domain, EndDeviceSubDomain subDomain, EndDeviceEventorAction eventOrAction) {
         return new FieldBasedEndDeviceEventTypeFilter().init(selector, type, domain, subDomain, eventOrAction);
     }
 
-    static FieldBasedEndDeviceEventTypeFilter from(IReadingTypeDataSelector selector, String code) {
+    static FieldBasedEndDeviceEventTypeFilter from(IStandardDataSelector selector, String code) {
         FieldBasedEndDeviceEventTypeFilter filter = new FieldBasedEndDeviceEventTypeFilter();
         filter.code = code;
         filter.dataSelector.set(selector);

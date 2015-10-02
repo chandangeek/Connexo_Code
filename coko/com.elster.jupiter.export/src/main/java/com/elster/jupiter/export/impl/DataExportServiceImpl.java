@@ -440,9 +440,9 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public List<ExportTask> findExportTaskUsing(RelativePeriod relativePeriod) {
-        return dataModel.stream(IReadingTypeDataSelector.class)
+        return dataModel.stream(IStandardDataSelector.class)
                 .filter(EQUAL.compare("exportPeriod", relativePeriod).or(EQUAL.compare("updatePeriod", relativePeriod)))
-                .map(IReadingTypeDataSelector::getExportTask)
+                .map(IStandardDataSelector::getExportTask)
                 .collect(Collectors.toList());
     }
 

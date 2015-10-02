@@ -37,7 +37,7 @@ public class FieldBasedEndDeviceEventTypeFilterTest {
     @Mock
     private DataModel dataModel;
     @Mock
-    private IReadingTypeDataSelector selector;
+    private IStandardDataSelector selector;
 
     private EndDeviceEventType mockType(EndDeviceType endDeviceType, EndDeviceDomain domain, EndDeviceSubDomain subDomain, EndDeviceEventorAction eventOrAction) {
         EndDeviceEventType type = mock(EndDeviceEventType.class);

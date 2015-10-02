@@ -22,7 +22,7 @@ class AsEventDataSelector implements DataSelector {
 
     private final DataExportService dataExportService;
 
-    private ReadingTypeDataSelectorImpl selector;
+    private StandardDataSelectorImpl selector;
     private Logger logger;
 
     @Inject
@@ -30,11 +30,11 @@ class AsEventDataSelector implements DataSelector {
         this.dataExportService = dataExportService;
     }
 
-    static DataSelector from(DataModel dataModel, ReadingTypeDataSelectorImpl readingTypeDataSelector, Logger logger) {
+    static DataSelector from(DataModel dataModel, StandardDataSelectorImpl readingTypeDataSelector, Logger logger) {
         return dataModel.getInstance(AsEventDataSelector.class).init(readingTypeDataSelector, logger);
     }
 
-    private AsEventDataSelector init(ReadingTypeDataSelectorImpl selector, Logger logger) {
+    private AsEventDataSelector init(StandardDataSelectorImpl selector, Logger logger) {
         this.selector = selector;
         this.logger = logger;
         return this;
