@@ -2,15 +2,13 @@ package com.energyict.mdc.engine.impl.core.online;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
-import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.config.InboundComPort;
@@ -24,6 +22,8 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.transaction.TransactionService;
 
 import java.sql.SQLException;

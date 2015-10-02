@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.InboundComPort;
@@ -84,7 +84,7 @@ public class RunningComServerChangesTest {
     @Mock
     private ConnectionTaskService connectionTaskService;
     @Mock
-    private CommunicationTaskService communicationTaskService;
+    private CommunicationTaskReportService communicationTaskReportService;
     @Mock
     private RunningComServerImpl.ServiceProvider serviceProvider;
     @Mock

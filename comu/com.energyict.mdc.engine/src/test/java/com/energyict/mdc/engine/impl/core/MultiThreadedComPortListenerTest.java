@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.FakeTransactionService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundCapableComServer;

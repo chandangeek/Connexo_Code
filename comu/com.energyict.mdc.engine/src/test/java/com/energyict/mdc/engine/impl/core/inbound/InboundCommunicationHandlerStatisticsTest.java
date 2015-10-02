@@ -1,10 +1,9 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
-import com.elster.jupiter.nls.NlsService;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
@@ -29,6 +28,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 
+import com.elster.jupiter.nls.NlsService;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
