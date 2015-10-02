@@ -104,12 +104,6 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     }
 
     @Override
-    public JoinClauseBuilder addDeviceGroup() {
-        this.joins.add(Joins.EndDeviceGroup);
-        return this;
-    }
-
-    @Override
     public JoinClauseBuilder addBatch() {
         this.joins.add(Joins.Batch);
         return this;
@@ -144,13 +138,6 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
             @Override
             public void appendTo(SqlBuilder sqlBuilder) {
                 sqlBuilder.append(" join FSM_STATE fs on eds.STATE = fs.id ");
-            }
-        },
-
-        EndDeviceGroup {
-            @Override
-            public void appendTo(SqlBuilder sqlBuilder) {
-                sqlBuilder.append(" join MTG_ENUM_ED_IN_GROUP edg on edg.ENDDEVICE_ID = ed.id ");
             }
         },
 

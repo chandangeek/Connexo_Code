@@ -16,13 +16,11 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
  */
 public interface JoinClauseBuilder {
 
-    public JoinClauseBuilder addEndDevice();
+    JoinClauseBuilder addEndDevice();
 
-    public JoinClauseBuilder addEndDeviceStatus();
+    JoinClauseBuilder addEndDeviceStatus();
 
-    public JoinClauseBuilder addFiniteState();
-
-    public JoinClauseBuilder addDeviceGroup();
+    JoinClauseBuilder addFiniteState();
 
     public JoinClauseBuilder addBatch();
 

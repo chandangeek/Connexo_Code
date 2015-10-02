@@ -1,22 +1,8 @@
 package com.energyict.mdc.device.data.impl.search;
 
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceFields;
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
@@ -25,10 +11,31 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.streams.Functions;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceFields;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.util.Arrays;
@@ -37,20 +44,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link DeviceSearchDomain} component.
@@ -75,6 +74,10 @@ public class DeviceSearchDomainTest {
     private Thesaurus thesaurus;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    private DeviceService deviceService;
+    @Mock
+    private MeteringGroupsService meteringGroupsService;
 
     private Injector injector;
 
@@ -94,7 +97,7 @@ public class DeviceSearchDomainTest {
         mockMRIDPropertySpec();
         mockSerialNumberPropertySpec();
         mockStateNamePropertySpec();
-
+        mockDeviceGroupPropertySpec();
     }
 
     @Test
@@ -723,12 +726,22 @@ public class DeviceSearchDomainTest {
     }
 
     private void mockStateNamePropertySpec() {
-        PropertySpec serialNumber = mock(PropertySpec.class);
-        when(serialNumber.getName()).thenReturn(DeviceFields.SERIALNUMBER.fieldName());
+        PropertySpec state = mock(PropertySpec.class);
+        when(state.getName()).thenReturn(DeviceFields.SERIALNUMBER.fieldName());
         when(this.propertySpecService.stringPropertySpecWithValues(
                 eq(StateNameSearchableProperty.VIRTUAL_FIELD_NAME),
                 eq(false),
-                Matchers.<String>anyVararg())).thenReturn(serialNumber);
+                Matchers.<String>anyVararg())).thenReturn(state);
+    }
+
+    private void mockDeviceGroupPropertySpec() {
+        PropertySpec deviceGroup = mock(PropertySpec.class);
+        when(deviceGroup.getName()).thenReturn(DeviceFields.DEVICEGROUP.fieldName());
+        when(this.propertySpecService.referencePropertySpec(
+                eq(DeviceGroupSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                eq(FactoryIds.DEVICE_GROUP),
+                anyList())).thenReturn(deviceGroup);
     }
 
     @Test
@@ -827,6 +840,8 @@ public class DeviceSearchDomainTest {
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(com.elster.jupiter.properties.PropertySpecService.class).toInstance(propertySpecService);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
+                bind(DeviceService.class).toInstance(deviceService);
+                bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
             }
         };
     }
