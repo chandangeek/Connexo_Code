@@ -3,6 +3,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.energyict.mdc.dashboard.ComCommandCompletionCodeOverview;
 import com.energyict.mdc.dashboard.ComScheduleBreakdown;
 import com.energyict.mdc.dashboard.ComTaskBreakdown;
+import com.energyict.mdc.dashboard.CommunicationTaskOverview;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.DeviceTypeBreakdown;
 import com.energyict.mdc.dashboard.TaskStatusOverview;
@@ -48,15 +49,15 @@ public class CommunicationOverviewInfoFactory {
     }
 
     public CommunicationOverviewInfo asInfo() {
-        TaskStatusOverview taskStatusOverview = dashboardService.getCommunicationTaskStatusOverview();
+        CommunicationTaskOverview overview = dashboardService.getCommunicationTaskOverview();
+        TaskStatusOverview taskStatusOverview = overview.getStatusOverview();
         SummaryData summaryData = new SummaryData(taskStatusOverview);
-        ComCommandCompletionCodeOverview comSessionSuccessIndicatorOverview = dashboardService.getCommunicationTaskCompletionResultOverview();
-        ComScheduleBreakdown comScheduleBreakdown = dashboardService.getCommunicationTasksComScheduleBreakdown();
-        ComTaskBreakdown comTaskBreakdown = dashboardService.getCommunicationTasksBreakdown();
-        DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getCommunicationTasksDeviceTypeBreakdown();
+        ComCommandCompletionCodeOverview comSessionSuccessIndicatorOverview = overview.getCommunicationTaskCompletionResultOverview();
+        ComScheduleBreakdown comScheduleBreakdown = overview.getComScheduleBreakdown();
+        ComTaskBreakdown comTaskBreakdown = overview.getComTaskBreakdown();
+        DeviceTypeBreakdown deviceTypeBreakdown = overview.getDeviceTypeBreakdown();
 
-        CommunicationOverviewInfo info = getCommunicationOverviewInfo(taskStatusOverview, summaryData, comSessionSuccessIndicatorOverview, comScheduleBreakdown, comTaskBreakdown, deviceTypeBreakdown);
-        return info;
+        return getCommunicationOverviewInfo(taskStatusOverview, summaryData, comSessionSuccessIndicatorOverview, comScheduleBreakdown, comTaskBreakdown, deviceTypeBreakdown);
     }
 
     public CommunicationOverviewInfo asWidgetInfo() {
@@ -106,12 +107,13 @@ public class CommunicationOverviewInfoFactory {
 
 
     public CommunicationOverviewInfo asInfo(EndDeviceGroup queryEndDeviceGroup) {
-        TaskStatusOverview taskStatusOverview = dashboardService.getCommunicationTaskStatusOverview(queryEndDeviceGroup);
+        CommunicationTaskOverview overview = dashboardService.getCommunicationTaskOverview(queryEndDeviceGroup);
+        TaskStatusOverview taskStatusOverview = overview.getStatusOverview();
         SummaryData summaryData = new SummaryData(taskStatusOverview);
-        ComCommandCompletionCodeOverview comSessionSuccessIndicatorOverview = dashboardService.getCommunicationTaskCompletionResultOverview(queryEndDeviceGroup);
-        ComScheduleBreakdown comScheduleBreakdown = dashboardService.getCommunicationTasksComScheduleBreakdown(queryEndDeviceGroup);
-        ComTaskBreakdown comTaskBreakdown = dashboardService.getCommunicationTasksBreakdown(queryEndDeviceGroup);
-        DeviceTypeBreakdown deviceTypeBreakdown = dashboardService.getCommunicationTasksDeviceTypeBreakdown(queryEndDeviceGroup);
+        ComCommandCompletionCodeOverview comSessionSuccessIndicatorOverview = overview.getCommunicationTaskCompletionResultOverview();
+        ComScheduleBreakdown comScheduleBreakdown = overview.getComScheduleBreakdown();
+        ComTaskBreakdown comTaskBreakdown = overview.getComTaskBreakdown();
+        DeviceTypeBreakdown deviceTypeBreakdown = overview.getDeviceTypeBreakdown();
 
         CommunicationOverviewInfo info = getCommunicationOverviewInfo(taskStatusOverview, summaryData, comSessionSuccessIndicatorOverview, comScheduleBreakdown, comTaskBreakdown, deviceTypeBreakdown);
 

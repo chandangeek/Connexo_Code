@@ -34,11 +34,12 @@ import com.energyict.mdc.dashboard.rest.status.impl.SummaryInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.TaskStatusTranslationKeys;
 import com.energyict.mdc.dashboard.rest.status.impl.TranslationKeys;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.FilterFactory;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.favorites.FavoritesService;
@@ -96,6 +97,7 @@ public class DashboardApplication extends Application implements MessageSeedProv
     private volatile Thesaurus thesaurus;
     private volatile ConnectionTaskService connectionTaskService;
     private volatile CommunicationTaskService communicationTaskService;
+    private volatile CommunicationTaskReportService communicationTaskReportService;
     private volatile DeviceService deviceService;
     private volatile DeviceConfigurationService deviceConfigurationService;
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -171,6 +173,11 @@ public class DashboardApplication extends Application implements MessageSeedProv
     @Reference
     public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setCommunicationTaskReportService(CommunicationTaskReportService communicationTaskReportService) {
+        this.communicationTaskReportService = communicationTaskReportService;
     }
 
     @Reference
@@ -295,6 +302,7 @@ public class DashboardApplication extends Application implements MessageSeedProv
             bind(dashboardService).to(DashboardService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(communicationTaskService).to(CommunicationTaskService.class);
+            bind(communicationTaskReportService).to(CommunicationTaskReportService.class);
             bind(connectionTaskService).to(ConnectionTaskService.class);
             bind(deviceService).to(DeviceService.class);
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
