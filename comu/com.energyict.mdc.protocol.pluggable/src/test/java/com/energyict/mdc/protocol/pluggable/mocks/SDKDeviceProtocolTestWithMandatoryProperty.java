@@ -410,8 +410,8 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
         }
 
         @Override
-        public String getTranslationKey() {
-            return "MockedSecuritySupport.authenticationlevel." + getId();
+        public String getTranslation() {
+            return "Mocked Security Support with bogus authentication level " + getId();
         }
 
         @Override
@@ -437,8 +437,8 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
         }
 
         @Override
-        public String getTranslationKey() {
-            return "MockedSecuritySupport.encryptionlevel." + getId();
+        public String getTranslation() {
+            return "Mocked Security Support with bogus encryption level " + getId();
         }
 
         @Override

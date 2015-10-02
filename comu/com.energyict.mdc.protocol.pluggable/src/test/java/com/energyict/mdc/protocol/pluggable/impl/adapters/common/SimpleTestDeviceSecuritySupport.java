@@ -93,8 +93,8 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
         }
 
         @Override
-        public String getTranslationKey() {
-            return "SimpleTestAuthenticationDeviceAccessLevel.translationKey";
+        public String getTranslation() {
+            return "Simple Test Authentication Device Access Level";
         }
 
         @Override
@@ -111,8 +111,8 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
         }
 
         @Override
-        public String getTranslationKey() {
-            return "SimpleTestEncryptionDeviceAccessLevel.translationkey";
+        public String getTranslation() {
+            return "Simple Test Encryption Device Access Level";
         }
 
         @Override
