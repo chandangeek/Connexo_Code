@@ -29,7 +29,7 @@ public enum ComSessionSuccessIndicatorTranslationKeys implements TranslationKey 
 
     @Override
     public String getKey() {
-        return this.successIndicator.name();
+        return ComSession.class.getSimpleName() + "." + this.successIndicator.name();
     }
 
     @Override
