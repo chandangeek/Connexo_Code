@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-@Component(name = "com.elster.jupiter.export.processor.StandardCsvDataProcessorFactory",
+@Component(name = "com.elster.jupiter.export.processor.StandardCsvEventDataFormatterFactory",
         property = {DataExportService.DATA_TYPE_PROPERTY + "=" + DataExportService.STANDARD_READING_DATA_TYPE},
         service = DataFormatterFactory.class, immediate = true)
 public class StandardCsvEventDataFormatterFactory implements DataFormatterFactory {
