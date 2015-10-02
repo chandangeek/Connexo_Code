@@ -1,9 +1,8 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.*;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
@@ -14,21 +13,21 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Exposes the master resource identifier (mRID)
+ * Exposes the service kind enumeration
  * of a {@link com.elster.jupiter.metering.UsagePoint}
  * as a {@link SearchableProperty}.
  *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-06-02 (15:03)
+ * @author Anton Fomchenko
+ * @since 2015-08-12
  */
-public class MasterResourceIdentifierSearchableProperty implements SearchableUsagePointProperty {
+public class ServiceCategorySearchableProperty implements SearchableUsagePointProperty {
 
     private final UsagePointSearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private static final String FIELDNAME = "mRID";
+    private static final String FIELDNAME = "SERVICEKIND";
 
-    public MasterResourceIdentifierSearchableProperty(UsagePointSearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public ServiceCategorySearchableProperty(UsagePointSearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
@@ -52,17 +51,17 @@ public class MasterResourceIdentifierSearchableProperty implements SearchableUsa
 
     @Override
     public Visibility getVisibility() {
-        return Visibility.STICKY;
+        return Visibility.REMOVABLE;
     }
 
     @Override
     public SelectionMode getSelectionMode() {
-        return SelectionMode.SINGLE;
+        return SelectionMode.MULTI;
     }
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.USAGEPOINT_MRID.getDisplayName(this.thesaurus);
+        return PropertyTranslationKeys.USAGEPOINT_SERVICECATEGORY.getDisplayName(this.thesaurus);
     }
 
     @Override
@@ -74,15 +73,16 @@ public class MasterResourceIdentifierSearchableProperty implements SearchableUsa
     }
 
     private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof String;
+        return value instanceof Enum;
     }
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.basicPropertySpec(
-                FIELDNAME,
-                false,
-                new StringFactory());
+        return this.propertySpecService.newPropertySpecBuilder(new EnumFactory(ServiceKind.class))
+                .name(FIELDNAME, FIELDNAME)
+                .addValues(ServiceKind.values())
+                .markExhaustive()
+                .finish();
     }
 
     @Override

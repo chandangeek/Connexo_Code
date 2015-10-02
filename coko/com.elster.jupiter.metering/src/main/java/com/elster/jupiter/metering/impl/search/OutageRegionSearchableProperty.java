@@ -14,21 +14,20 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Exposes the master resource identifier (mRID)
+ * Exposes the outage region
  * of a {@link com.elster.jupiter.metering.UsagePoint}
  * as a {@link SearchableProperty}.
  *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-06-02 (15:03)
+ * @author Anton Fomchenko
+ * @since 2015-08-18
  */
-public class MasterResourceIdentifierSearchableProperty implements SearchableUsagePointProperty {
+public class OutageRegionSearchableProperty implements SearchableUsagePointProperty {
 
     private final UsagePointSearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private static final String FIELDNAME = "mRID";
 
-    public MasterResourceIdentifierSearchableProperty(UsagePointSearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public OutageRegionSearchableProperty(UsagePointSearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
@@ -52,7 +51,7 @@ public class MasterResourceIdentifierSearchableProperty implements SearchableUsa
 
     @Override
     public Visibility getVisibility() {
-        return Visibility.STICKY;
+        return Visibility.REMOVABLE;
     }
 
     @Override
@@ -62,7 +61,7 @@ public class MasterResourceIdentifierSearchableProperty implements SearchableUsa
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.USAGEPOINT_MRID.getDisplayName(this.thesaurus);
+        return PropertyTranslationKeys.USAGEPOINT_OUTAGEREGION.getDisplayName(this.thesaurus);
     }
 
     @Override
@@ -80,7 +79,7 @@ public class MasterResourceIdentifierSearchableProperty implements SearchableUsa
     @Override
     public PropertySpec getSpecification() {
         return this.propertySpecService.basicPropertySpec(
-                FIELDNAME,
+                "outageRegion",
                 false,
                 new StringFactory());
     }

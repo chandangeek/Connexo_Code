@@ -1,34 +1,37 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.EnumFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Where;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Exposes the master resource identifier (mRID)
- * of a {@link com.elster.jupiter.metering.UsagePoint}
+ * Exposes the connectionState
+ * of a {@link com.elster.jupiter.metering.UsagePointDetail}
  * as a {@link SearchableProperty}.
  *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-06-02 (15:03)
+ * @author Anton Fomchenko
+ * @since 2015-08-10
  */
-public class MasterResourceIdentifierSearchableProperty implements SearchableUsagePointProperty {
+public class ConnectionStateSearchableProperty implements SearchableUsagePointProperty {
 
     private final UsagePointSearchDomain domain;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
-    private static final String FIELDNAME = "mRID";
+    private static final String FIELDNAME = "detail.connectionState";
 
-    public MasterResourceIdentifierSearchableProperty(UsagePointSearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public ConnectionStateSearchableProperty(UsagePointSearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.domain = domain;
         this.propertySpecService = propertySpecService;
@@ -52,17 +55,17 @@ public class MasterResourceIdentifierSearchableProperty implements SearchableUsa
 
     @Override
     public Visibility getVisibility() {
-        return Visibility.STICKY;
+        return Visibility.REMOVABLE;
     }
 
     @Override
     public SelectionMode getSelectionMode() {
-        return SelectionMode.SINGLE;
+        return SelectionMode.MULTI;
     }
 
     @Override
     public String getDisplayName() {
-        return PropertyTranslationKeys.USAGEPOINT_MRID.getDisplayName(this.thesaurus);
+        return PropertyTranslationKeys.USAGEPOINT_CONNECTIONSTATE.getDisplayName(this.thesaurus);
     }
 
     @Override
@@ -74,15 +77,18 @@ public class MasterResourceIdentifierSearchableProperty implements SearchableUsa
     }
 
     private boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof String;
+        return value instanceof Enum;
     }
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.basicPropertySpec(
-                FIELDNAME,
-                false,
-                new StringFactory());
+
+        return this.propertySpecService
+                .newPropertySpecBuilder(new EnumFactory(UsagePointConnectedKind.class))
+                .name(FIELDNAME, FIELDNAME)
+                .addValues(UsagePointConnectedKind.values())
+                .markExhaustive()
+                .finish();
     }
 
     @Override
@@ -99,7 +105,7 @@ public class MasterResourceIdentifierSearchableProperty implements SearchableUsa
 
     @Override
     public Condition toCondition(Condition specification) {
-        return specification;
+        return specification.and(Where.where("detail.interval").isEffective(Instant.now()));
     }
 
 }

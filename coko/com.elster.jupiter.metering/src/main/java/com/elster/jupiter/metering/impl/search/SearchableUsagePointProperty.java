@@ -20,6 +20,6 @@ public interface SearchableUsagePointProperty extends SearchableProperty {
      * @param specification The condition specification
      * @return The Condition
      */
-    public Condition toCondition(Condition specification);
+    Condition toCondition(Condition specification);
 
 }

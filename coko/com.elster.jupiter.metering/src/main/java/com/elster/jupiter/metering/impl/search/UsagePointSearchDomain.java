@@ -3,18 +3,17 @@ package com.elster.jupiter.metering.impl.search;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.search.SearchDomain;
-import com.elster.jupiter.search.SearchableProperty;
-import com.elster.jupiter.search.SearchablePropertyCondition;
-import com.elster.jupiter.search.SearchablePropertyConstriction;
+import com.elster.jupiter.search.*;
 import com.elster.jupiter.util.conditions.Condition;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -65,8 +64,12 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     @Override
     public List<SearchableProperty> getProperties() {
-        return Collections.singletonList(
-                new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()));
+        return new ArrayList<>(Arrays.asList(
+                new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new ServiceCategorySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new ConnectionStateSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new OutageRegionSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())
+        ));
     }
 
     @Override
@@ -81,7 +84,8 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     @Override
     public Finder<?> finderFor(List<SearchablePropertyCondition> conditions) {
-        return DefaultFinder.of(UsagePoint.class, this.toCondition(conditions), this.meteringService.getDataModel());
+        return DefaultFinder.of(UsagePoint.class, this.toCondition(conditions), this.meteringService.getDataModel(), UsagePointDetail.class)
+                .defaultSortColumn("mRID");
     }
 
     private Condition toCondition(List<SearchablePropertyCondition> conditions) {

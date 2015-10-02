@@ -1,42 +1,42 @@
 package com.elster.jupiter.metering.impl.search;
 
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.BasicPropertySpec;
+import com.elster.jupiter.properties.EnumFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.impl.PropertySpecBuilderImpl;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
- * Tests the {@link MasterResourceIdentifierSearchableProperty} component
+ * Tests the {@link ConnectionStateSearchableProperty} component
  *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-06-02 (10:40)
+ * @author Anton Fomchenko
+ * @since 09-09-2015
  */
 @RunWith(MockitoJUnitRunner.class)
-public class MasterResourceIdentifierSearchablePropertyTest {
+public class ConnectionStateSearchablePropertyTest {
 
     @Mock
     private UsagePointSearchDomain domain;
@@ -47,13 +47,13 @@ public class MasterResourceIdentifierSearchablePropertyTest {
 
     @Before
     public void initializeMocks() {
-        when(this.propertySpecService.basicPropertySpec(eq("mRID"), eq(false), any(ValueFactory.class)))
-                .thenReturn(new BasicPropertySpec("mRID", "Search by mRID", false, new StringFactory()));
+        when(this.propertySpecService.newPropertySpecBuilder(any(ValueFactory.class)))
+                .thenReturn(PropertySpecBuilderImpl.forClass(new EnumFactory(ServiceKind.class)));
     }
 
     @Test
     public void testGetDomain() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        ConnectionStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchDomain domain = property.getDomain();
@@ -64,7 +64,7 @@ public class MasterResourceIdentifierSearchablePropertyTest {
 
     @Test
     public void testNoGroup() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        ConnectionStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
@@ -74,41 +74,41 @@ public class MasterResourceIdentifierSearchablePropertyTest {
     }
 
     @Test
-    public void testStickyVisibility() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+    public void testRemovableVisibility() {
+        ConnectionStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.Visibility visibility = property.getVisibility();
 
         // Asserts
-        assertThat(visibility).isEqualTo(SearchableProperty.Visibility.STICKY);
+        assertThat(visibility).isEqualTo(SearchableProperty.Visibility.REMOVABLE);
     }
 
     @Test
-    public void testSingleSelection() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+    public void testMultiSelection() {
+        ConnectionStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
 
         // Asserts
-        assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.SINGLE);
+        assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.MULTI);
     }
 
     @Test
     public void testTranslation() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        ConnectionStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_MRID.getKey()), anyString());
+        verify(this.thesaurus).getString(eq(PropertyTranslationKeys.USAGEPOINT_CONNECTIONSTATE.getKey()), anyString());
     }
 
     @Test
     public void specificationIsNotAReference() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        ConnectionStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
@@ -116,23 +116,23 @@ public class MasterResourceIdentifierSearchablePropertyTest {
         // Asserts
         assertThat(specification).isNotNull();
         assertThat(specification.isReference()).isFalse();
-        assertThat(specification.getValueFactory().getValueType()).isEqualTo(String.class);
+        assertThat(specification.getValueFactory().getValueType()).isEqualTo(Enum.class);
     }
 
     @Test
-    public void noPossibleValuesWithoutRefresh() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+    public void hasPossibleValuesWithoutRefresh() {
+        ConnectionStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         PropertySpec specification = property.getSpecification();
 
         // Asserts
-        assertThat(specification.getPossibleValues()).isNull();
+        assertThat(specification.getPossibleValues()).isNotNull();
     }
 
     @Test
     public void noConstraints() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        ConnectionStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         List<SearchableProperty> constraints = property.getConstraints();
@@ -143,19 +143,19 @@ public class MasterResourceIdentifierSearchablePropertyTest {
 
     @Test
     public void refreshWithoutConstrictions() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        ConnectionStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.refreshWithConstrictions(Collections.emptyList());
 
         // Asserts
         PropertySpec specification = property.getSpecification();
-        assertThat(specification.getPossibleValues()).isNull();
+        assertThat(specification.getPossibleValues()).isNotNull();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void refreshWithTooManyConstrictions() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        ConnectionStateSearchableProperty property = this.getTestInstance();
         SearchableProperty searchableProperty = mock(SearchableProperty.class);
         SearchablePropertyConstriction constriction = SearchablePropertyConstriction.noValues(searchableProperty);
 
@@ -167,7 +167,7 @@ public class MasterResourceIdentifierSearchablePropertyTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void displayBigDecimal() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        ConnectionStateSearchableProperty property = this.getTestInstance();
 
         // Business method
         property.toDisplay(BigDecimal.TEN);
@@ -175,20 +175,31 @@ public class MasterResourceIdentifierSearchablePropertyTest {
         // Asserts: see expected exception rule
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void displayString() {
-        MasterResourceIdentifierSearchableProperty property = this.getTestInstance();
+        ConnectionStateSearchableProperty property = this.getTestInstance();
         String valueToDisplay = "displayString";
+
+        // Business method
+        property.toDisplay(valueToDisplay);
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test
+    public void displayEnum() {
+        ConnectionStateSearchableProperty property = this.getTestInstance();
+        UsagePointConnectedKind valueToDisplay = UsagePointConnectedKind.UNKNOWN;
 
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);
 
         // Asserts
-        assertThat(displayValue).isEqualTo(valueToDisplay);
+        assertThat(displayValue).isEqualTo(valueToDisplay.toString());
     }
 
-    private MasterResourceIdentifierSearchableProperty getTestInstance() {
-        return new MasterResourceIdentifierSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
+    private ConnectionStateSearchableProperty getTestInstance() {
+        return new ConnectionStateSearchableProperty(this.domain, this.propertySpecService, this.thesaurus);
     }
 
 }
