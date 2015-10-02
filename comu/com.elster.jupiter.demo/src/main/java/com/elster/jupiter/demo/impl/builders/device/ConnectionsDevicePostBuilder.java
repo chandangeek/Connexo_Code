@@ -1,15 +1,16 @@
 package com.elster.jupiter.demo.impl.builders.device;
 
-import com.elster.jupiter.demo.impl.UnableToCreate;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+
+import com.elster.jupiter.demo.impl.UnableToCreate;
+import com.elster.jupiter.time.TimeDuration;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
