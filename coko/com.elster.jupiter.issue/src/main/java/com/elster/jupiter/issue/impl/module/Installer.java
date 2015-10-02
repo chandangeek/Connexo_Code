@@ -68,7 +68,7 @@ public class Installer {
         taskBuilder.setScheduleExpressionString(ISSUE_OVERDUE_TASK_SCHEDULE);
         taskBuilder.setDestination(destination);
         taskBuilder.setPayLoad("payload");
-        taskBuilder.scheduleImmediately();
+        taskBuilder.scheduleImmediately(true);
         RecurrentTask task = taskBuilder.build();
     }
 
