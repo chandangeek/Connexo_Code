@@ -54,6 +54,7 @@ public class UsagePointInfo {
 	public long createTime;
 	public long modTime;
 	public ServiceLocationInfo serviceLocation;
+    public long openIssues;
 
 	public UsagePointInfo() {
 	}

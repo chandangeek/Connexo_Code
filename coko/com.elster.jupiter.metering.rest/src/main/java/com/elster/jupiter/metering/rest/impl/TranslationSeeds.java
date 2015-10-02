@@ -27,7 +27,8 @@ public enum TranslationSeeds implements TranslationKey {
     READ_CYCLE("readCycle", "Read cycle"),
     READ_ROUTE("readRoute", "Read route"),
     REMARK("serviceDeliveryRemark", "Service remark"),
-    PRIORITY("servicePriority", "Service priority");
+    PRIORITY("servicePriority", "Service priority"),
+    ISSUES("openIssues", "Open Issues");
 
     private final String key;
     private final String defaultFormat;

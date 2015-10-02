@@ -80,34 +80,36 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     @Override
     public List<PropertyDescriptionInfo> modelStructure() {
         List<PropertyDescriptionInfo> infos = new ArrayList<>();
-        infos.add(createDescription("mRID", String.class));
-        infos.add(createDescription("serviceCategory", String.class));
-        infos.add(createDescription("aliasName", String.class));
-        infos.add(createDescription("description", String.class));
-        infos.add(createDescription("name", String.class));
-        infos.add(createDescription("amiBillingReady", String.class));
-        infos.add(createDescription("checkBilling", Boolean.class));
-        infos.add(createDescription("connectionState", String.class));
-        infos.add(createDescription("estimatedLoad", String.class));
-        infos.add(createDescription("grounded", Boolean.class));
-        infos.add(createDescription("isSdp", Boolean.class));
-        infos.add(createDescription("isVirtual", Boolean.class));
-        infos.add(createDescription("minimalUsageExpected", Boolean.class));
-        infos.add(createDescription("nominalServiceVoltage", String.class));
-        infos.add(createDescription("outageRegion", String.class));
-        infos.add(createDescription("phaseCode", String.class));
-        infos.add(createDescription("ratedCurrent", String.class));
-        infos.add(createDescription("ratedPower", String.class));
-        infos.add(createDescription("readCycle", String.class));
-        infos.add(createDescription("readRoute", String.class));
-        infos.add(createDescription("serviceDeliveryRemark", String.class));
-        infos.add(createDescription("servicePriority", String.class));
+        infos.add(createDescription(TranslationSeeds.MRID, String.class));
+        infos.add(createDescription(TranslationSeeds.SERVICE_CATEGORY, String.class));
+        infos.add(createDescription(TranslationSeeds.ALIAS_NAME, String.class));
+        infos.add(createDescription(TranslationSeeds.DESCRIPTION, String.class));
+        infos.add(createDescription(TranslationSeeds.NAME, String.class));
+        infos.add(createDescription(TranslationSeeds.BILLING_READY, String.class));
+        infos.add(createDescription(TranslationSeeds.CHECK_BILLING, Boolean.class));
+        infos.add(createDescription(TranslationSeeds.CONNECTION_STATE, String.class));
+        infos.add(createDescription(TranslationSeeds.ESTIMATED_LOAD, String.class));
+        infos.add(createDescription(TranslationSeeds.GROUNDED, Boolean.class));
+        infos.add(createDescription(TranslationSeeds.DSP, Boolean.class));
+        infos.add(createDescription(TranslationSeeds.VIRTUAL, Boolean.class));
+        infos.add(createDescription(TranslationSeeds.MIN_USAGE_EXPECTED, Boolean.class));
+        infos.add(createDescription(TranslationSeeds.SERVICE_VOLTAGE, String.class));
+        infos.add(createDescription(TranslationSeeds.OUTAGE_REGION, String.class));
+        infos.add(createDescription(TranslationSeeds.PHASE_CODE, String.class));
+        infos.add(createDescription(TranslationSeeds.RATED_CURRENT, String.class));
+        infos.add(createDescription(TranslationSeeds.RATED_POWER, String.class));
+        infos.add(createDescription(TranslationSeeds.READ_CYCLE, String.class));
+        infos.add(createDescription(TranslationSeeds.READ_ROUTE, String.class));
+        infos.add(createDescription(TranslationSeeds.REMARK, String.class));
+        infos.add(createDescription(TranslationSeeds.PRIORITY, String.class));
+        infos.add(createDescription(TranslationSeeds.ISSUES, String.class));
         return infos;
     }
 
-    private PropertyDescriptionInfo createDescription(String propertyName, Class<?> aClass) {
-        return new PropertyDescriptionInfo(propertyName, aClass, thesaurus.getString(propertyName, propertyName));
+    private PropertyDescriptionInfo createDescription(TranslationSeeds propertyName, Class<?> aClass) {
+        return new PropertyDescriptionInfo(propertyName.getKey(), aClass, thesaurus.getString(propertyName.getKey(), propertyName.getDefaultFormat()));
     }
+
 
     @Override
     public Class<UsagePoint> getDomainClass() {
