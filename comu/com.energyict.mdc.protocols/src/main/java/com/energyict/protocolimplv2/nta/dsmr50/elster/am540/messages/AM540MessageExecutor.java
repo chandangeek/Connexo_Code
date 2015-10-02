@@ -72,9 +72,9 @@ public class AM540MessageExecutor extends Dsmr50MessageExecutor {
                 try {
                     boolean messageExecuted = getPLCConfigurationDeviceMessageExecutor().executePendingMessage(pendingMessage, collectedMessage);
                     if (!messageExecuted) { // if it was not a PLC message
-                        if (pendingMessage.getSpecification().equals(DeviceMessageId.CONTACTOR_CLOSE_RELAY)) {
+                        if (pendingMessage.getSpecification().getId().equals(DeviceMessageId.CONTACTOR_CLOSE_RELAY)) {
                             closeRelay(pendingMessage);
-                        } else if (pendingMessage.getSpecification().equals(DeviceMessageId.CONTACTOR_OPEN_RELAY)) {
+                        } else if (pendingMessage.getSpecification().getId().equals(DeviceMessageId.CONTACTOR_OPEN_RELAY)) {
                             openRelay(pendingMessage);
                         } else {
                             collectedMessage = null;

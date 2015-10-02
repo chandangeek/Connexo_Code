@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
@@ -174,6 +175,7 @@ public class AM540 extends AbstractDlmsProtocol {
                 if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
                     throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
                 }
+                checkIfWeCanSolveWithAReleaseAssociation(e);
 
                 exception = e;
             } finally {
@@ -202,6 +204,19 @@ public class AM540 extends AbstractDlmsProtocol {
                     }
                 }
                 getDlmsSession().getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
+            }
+        }
+    }
+
+    private void checkIfWeCanSolveWithAReleaseAssociation(ComServerRuntimeException e) {
+        if (e.getMessage().contains("Application Association Establishment Failed, ACSE_SERVICE_USER, no reason given")) {
+            if (getDlmsSession().getAso() != null) {
+                try {
+                    getDlmsSession().getAso().releaseAssociation();
+                } catch (IOException | DLMSConnectionException e1) {
+                    // just log it
+                    getLogger().fine(e1::getMessage);
+                }
             }
         }
     }

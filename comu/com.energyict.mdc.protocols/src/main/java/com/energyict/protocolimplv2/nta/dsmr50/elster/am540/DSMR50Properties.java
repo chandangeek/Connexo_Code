@@ -95,7 +95,7 @@ public class DSMR50Properties extends G3Properties {
         } else if (useBeaconGatewayDeviceDialect()) {
             return getGatewayLogicalDeviceId(); // Beacon acts as a gateway
         } else {
-            return getNodeAddress();            // Classic G3 gateway
+            return super.getServerUpperMacAddress();
         }
     }
 
@@ -105,21 +105,6 @@ public class DSMR50Properties extends G3Properties {
 
     private int getGatewayLogicalDeviceId() {
         return getProperties().getTypedProperty(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID);
-    }
-
-    public int getNodeAddress() {
-        Object nodeAddressObject = getProperties().getTypedProperty(MeterProtocol.NODEID);
-        if (nodeAddressObject == null) {
-            return DEFAULT_UPPER_SERVER_MAC_ADDRESS.intValue();
-        } else if (nodeAddressObject instanceof BigDecimal) {
-            return ((BigDecimal) nodeAddressObject).intValue();
-        } else {
-            try {
-                return Integer.parseInt((String) nodeAddressObject);
-            } catch (NumberFormatException e) {
-                return DEFAULT_UPPER_SERVER_MAC_ADDRESS.intValue();
-            }
-        }
     }
 
     @Override
