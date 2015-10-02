@@ -13,6 +13,6 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface ComSessionSuccessIndicatorOverview extends DashboardCounters<ComSession.SuccessIndicator> {
 
-    public long getAtLeastOneTaskFailedCount();
+    long getAtLeastOneTaskFailedCount();
 
 }

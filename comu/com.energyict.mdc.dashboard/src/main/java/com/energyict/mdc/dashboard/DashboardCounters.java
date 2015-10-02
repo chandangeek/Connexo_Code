@@ -11,6 +11,6 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface DashboardCounters<T> extends Iterable<Counter<T>>  {
 
-    public long getTotalCount();
+    long getTotalCount();
 
 }

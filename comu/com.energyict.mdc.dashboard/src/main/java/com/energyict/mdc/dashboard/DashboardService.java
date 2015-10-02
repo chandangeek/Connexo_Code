@@ -15,60 +15,64 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 @ProviderType
 public interface DashboardService {
 
-    public TaskStatusOverview getConnectionTaskStatusOverview();
+    TaskStatusOverview getConnectionTaskStatusOverview();
 
-    public TaskStatusOverview getConnectionTaskStatusOverview(EndDeviceGroup deviceGroup);
+    TaskStatusOverview getConnectionTaskStatusOverview(EndDeviceGroup deviceGroup);
 
-    public ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview();
+    ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview();
 
-    public ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview(EndDeviceGroup deviceGroup);
+    ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview(EndDeviceGroup deviceGroup);
 
-    public ComPortPoolBreakdown getComPortPoolBreakdown();
+    ComPortPoolBreakdown getComPortPoolBreakdown();
 
-    public ComPortPoolBreakdown getComPortPoolBreakdown(EndDeviceGroup deviceGroup);
+    ComPortPoolBreakdown getComPortPoolBreakdown(EndDeviceGroup deviceGroup);
 
-    public ConnectionTypeBreakdown getConnectionTypeBreakdown();
+    ConnectionTypeBreakdown getConnectionTypeBreakdown();
 
-    public ConnectionTypeBreakdown getConnectionTypeBreakdown(EndDeviceGroup deviceGroup);
+    ConnectionTypeBreakdown getConnectionTypeBreakdown(EndDeviceGroup deviceGroup);
 
-    public DeviceTypeBreakdown getConnectionTasksDeviceTypeBreakdown();
+    DeviceTypeBreakdown getConnectionTasksDeviceTypeBreakdown();
 
-    public DeviceTypeBreakdown getConnectionTasksDeviceTypeBreakdown(EndDeviceGroup deviceGroup);
+    DeviceTypeBreakdown getConnectionTasksDeviceTypeBreakdown(EndDeviceGroup deviceGroup);
 
-    public ConnectionTypeHeatMap getConnectionTypeHeatMap();
+    ConnectionTypeHeatMap getConnectionTypeHeatMap();
 
-    public ConnectionTypeHeatMap getConnectionTypeHeatMap(EndDeviceGroup EndDeviceGroup);
+    ConnectionTypeHeatMap getConnectionTypeHeatMap(EndDeviceGroup EndDeviceGroup);
 
-    public ConnectionTaskDeviceTypeHeatMap getConnectionsDeviceTypeHeatMap();
+    ConnectionTaskDeviceTypeHeatMap getConnectionsDeviceTypeHeatMap();
 
-    public ConnectionTaskDeviceTypeHeatMap getConnectionsDeviceTypeHeatMap(EndDeviceGroup deviceGroup);
+    ConnectionTaskDeviceTypeHeatMap getConnectionsDeviceTypeHeatMap(EndDeviceGroup deviceGroup);
 
-    public ComPortPoolHeatMap getConnectionsComPortPoolHeatMap();
+    ComPortPoolHeatMap getConnectionsComPortPoolHeatMap();
 
-    public ComPortPoolHeatMap getConnectionsComPortPoolHeatMap(EndDeviceGroup deviceGroup);
+    ComPortPoolHeatMap getConnectionsComPortPoolHeatMap(EndDeviceGroup deviceGroup);
 
-    public TaskStatusOverview getCommunicationTaskStatusOverview();
+    TaskStatusOverview getCommunicationTaskStatusOverview();
 
-    public TaskStatusOverview getCommunicationTaskStatusOverview(EndDeviceGroup deviceGroup);
+    TaskStatusOverview getCommunicationTaskStatusOverview(EndDeviceGroup deviceGroup);
 
-    public DeviceTypeBreakdown getCommunicationTasksDeviceTypeBreakdown();
+    DeviceTypeBreakdown getCommunicationTasksDeviceTypeBreakdown();
 
-    public DeviceTypeBreakdown getCommunicationTasksDeviceTypeBreakdown(EndDeviceGroup deviceGroup);
+    DeviceTypeBreakdown getCommunicationTasksDeviceTypeBreakdown(EndDeviceGroup deviceGroup);
 
-    public ComScheduleBreakdown getCommunicationTasksComScheduleBreakdown();
+    ComScheduleBreakdown getCommunicationTasksComScheduleBreakdown();
 
-    public ComScheduleBreakdown getCommunicationTasksComScheduleBreakdown(EndDeviceGroup deviceGroup);
+    ComScheduleBreakdown getCommunicationTasksComScheduleBreakdown(EndDeviceGroup deviceGroup);
 
-    public ComTaskBreakdown getCommunicationTasksBreakdown();
+    ComTaskBreakdown getCommunicationTasksBreakdown();
 
-    public ComTaskBreakdown getCommunicationTasksBreakdown(EndDeviceGroup deviceGroup);
+    ComTaskBreakdown getCommunicationTasksBreakdown(EndDeviceGroup deviceGroup);
 
-    public ComCommandCompletionCodeOverview getCommunicationTaskCompletionResultOverview();
+    ComCommandCompletionCodeOverview getCommunicationTaskCompletionResultOverview();
 
-    public ComCommandCompletionCodeOverview getCommunicationTaskCompletionResultOverview(EndDeviceGroup deviceGroup);
+    ComCommandCompletionCodeOverview getCommunicationTaskCompletionResultOverview(EndDeviceGroup deviceGroup);
 
-    public CommunicationTaskHeatMap getCommunicationTasksHeatMap();
+    CommunicationTaskHeatMap getCommunicationTasksHeatMap();
 
-    public CommunicationTaskHeatMap getCommunicationTasksHeatMap(EndDeviceGroup deviceGroup);
+    CommunicationTaskHeatMap getCommunicationTasksHeatMap(EndDeviceGroup deviceGroup);
+
+    CommunicationTaskOverview getCommunicationTaskOverview();
+
+    CommunicationTaskOverview getCommunicationTaskOverview(EndDeviceGroup deviceGroup);
 
 }

@@ -26,7 +26,7 @@ public interface TaskStatusBreakdownCounter<T> extends Counter<T> {
      *
      * @return The success count
      */
-    public long getSuccessCount();
+     long getSuccessCount();
 
     /**
      * The number of times the target of this TaskStatusBreakdownCounter
@@ -35,7 +35,7 @@ public interface TaskStatusBreakdownCounter<T> extends Counter<T> {
      * @return The failure count
      * @see {@link TaskStatus#Failed}
      */
-    public long getFailedCount ();
+     long getFailedCount ();
 
     /**
      * The number of times the target of this TaskStatusBreakdownCounter
@@ -44,6 +44,6 @@ public interface TaskStatusBreakdownCounter<T> extends Counter<T> {
      * @return The pending count
      * @see {@link TaskStatus#Pending}
      */
-    public long getPendingCount ();
+     long getPendingCount ();
 
 }

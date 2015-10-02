@@ -11,12 +11,12 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface TaskStatusBreakdownCounters<C> extends Iterable<TaskStatusBreakdownCounter<C>> {
 
-    public long getTotalSuccessCount();
+    long getTotalSuccessCount();
 
-    public long getTotalFailedCount();
+    long getTotalFailedCount();
 
-    public long getTotalPendingCount();
+    long getTotalPendingCount();
 
-    public long getTotalCount();
+    long getTotalCount();
 
 }

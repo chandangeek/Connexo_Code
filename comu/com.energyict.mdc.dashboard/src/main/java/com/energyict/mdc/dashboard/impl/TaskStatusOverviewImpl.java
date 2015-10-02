@@ -1,7 +1,6 @@
 package com.energyict.mdc.dashboard.impl;
 
 import com.energyict.mdc.dashboard.TaskStatusOverview;
-import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 /**
@@ -14,10 +13,6 @@ public class TaskStatusOverviewImpl extends DashboardCountersImpl<TaskStatus> im
 
     public TaskStatusOverviewImpl() {
         super();
-    }
-
-    public TaskStatusOverviewImpl(Counter<TaskStatus>... counters) {
-        super(counters);
     }
 
 }

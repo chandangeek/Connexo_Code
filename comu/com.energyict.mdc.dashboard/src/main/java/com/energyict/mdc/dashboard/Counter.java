@@ -17,13 +17,13 @@ public interface Counter<T> {
      *
      * @return The count
      */
-    public long getCount();
+    long getCount();
 
     /**
      * Returns the target of the counter, i.e. the object whose occurrence was counted.
      *
      * @return The target of the counter
      */
-    public T getCountTarget();
+    T getCountTarget();
 
 }
