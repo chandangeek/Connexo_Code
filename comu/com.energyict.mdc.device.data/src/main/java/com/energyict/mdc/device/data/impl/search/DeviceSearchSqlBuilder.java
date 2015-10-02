@@ -110,6 +110,12 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     }
 
     @Override
+    public JoinClauseBuilder addBatch() {
+        this.joins.add(Joins.Batch);
+        return this;
+    }
+
+    @Override
     public JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass) {
         this.joins.add(new ConnectionTypePropertyJoinType(connectionTypePluggableClass));
         return this;
@@ -145,6 +151,14 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
             @Override
             public void appendTo(SqlBuilder sqlBuilder) {
                 sqlBuilder.append(" join MTG_ENUM_ED_IN_GROUP edg on edg.ENDDEVICE_ID = ed.id ");
+            }
+        },
+
+        Batch {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join DDC_DEVICEINBATCH dib on dib.DEVICEID = dev.id ");
+                sqlBuilder.append(" join DDC_BATCH bch on bch.ID = dib.BATCHID ");
             }
         }
     }
