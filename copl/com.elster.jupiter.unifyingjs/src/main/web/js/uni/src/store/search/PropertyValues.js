@@ -17,12 +17,5 @@ Ext.define('Uni.store.search.PropertyValues', {
             type: 'json',
             root: 'values'
         }
-    },
-
-    sorters: [
-        {
-            property: 'displayValue',
-            direction: 'ASC'
-        }
-    ]
+    }
 });
