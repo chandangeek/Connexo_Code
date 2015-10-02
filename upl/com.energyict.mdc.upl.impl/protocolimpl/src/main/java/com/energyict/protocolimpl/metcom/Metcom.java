@@ -610,6 +610,10 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
     public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
         this.halfDuplexController = halfDuplexController;
         halfDuplexController.setDelay(halfDuplex);
+
+        if (siemensSCTM != null) {
+            siemensSCTM.setHalfDuplexController(halfDuplexController);
+        }
     }
 
     /**

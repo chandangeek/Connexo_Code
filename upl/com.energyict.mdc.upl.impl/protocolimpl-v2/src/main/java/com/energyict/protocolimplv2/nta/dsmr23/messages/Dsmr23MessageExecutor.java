@@ -89,6 +89,12 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     changeEncryptionKey(pendingMessage, 0);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY)) {
                     changeAuthenticationKey(pendingMessage, 2);
+                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY)) {
+                    changeHSLSecretUsingServiceKey(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY)) {
+                    changeAuthenticationKeyUsingServiceKey(pendingMessage, 2);
+                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY)) {
+                    changeEncryptionKeyUsingServiceKey(pendingMessage, 0);
                 } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD)) {
                     changePassword(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM)) {
@@ -142,6 +148,18 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             result.addCollectedMessage(collectedMessage);
         }
         return result;
+    }
+
+    protected void changeEncryptionKeyUsingServiceKey(OfflineDeviceMessage pendingMessage, int type) throws IOException {
+        throw new IOException("Received message to write the encryption key, but Cryptoserver usage is not supported in this protocol");
+    }
+
+    protected void changeAuthenticationKeyUsingServiceKey(OfflineDeviceMessage pendingMessage, int type) throws IOException {
+        throw new IOException("Received message to write the authentication key, but Cryptoserver usage is not supported in this protocol");
+    }
+
+    protected void changeHSLSecretUsingServiceKey(OfflineDeviceMessage pendingMessage) throws IOException {
+        throw new IOException("Received message to write the password, but Cryptoserver usage is not supported in this protocol");
     }
 
     private void changeDefaultResetWindow(OfflineDeviceMessage pendingMessage) throws IOException {

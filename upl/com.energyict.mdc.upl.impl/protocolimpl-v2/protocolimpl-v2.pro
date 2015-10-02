@@ -124,3 +124,17 @@
 }
 
 -keepnames class com.energyict.protocolimplv2.eict.gateway.TransparentGateway
+
+# Used for Crypto server project
+-keepnames class com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23Messaging
+-keep public class com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor {
+   public *;
+   protected *;
+}
+-keepnames class com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor
+-keep public class com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider{
+   public *;
+   protected *;
+}
+-keepnames class com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties
+-keepnames class com.energyict.protocolimplv2.security.SecurityPropertySpecName

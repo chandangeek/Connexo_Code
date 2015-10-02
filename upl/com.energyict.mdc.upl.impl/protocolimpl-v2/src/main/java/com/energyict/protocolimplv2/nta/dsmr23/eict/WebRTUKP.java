@@ -48,20 +48,26 @@ import java.util.List;
  */
 public class WebRTUKP extends AbstractDlmsProtocol {
 
-    private Dsmr23Messaging dsmr23Messaging;
+    protected Dsmr23Messaging dsmr23Messaging;
     private Dsmr23LogBookFactory logBookFactory;
     private LoadProfileBuilder loadProfileBuilder;
     private Dsmr23RegisterFactory registerFactory;
+    protected ComChannel comChannel;
+    protected HHUSignOnV2 hhuSignOn;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
+        this.comChannel = comChannel;
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
 
-        HHUSignOnV2 hhuSignOn = null;
         if (ComChannelType.SerialComChannel.is(comChannel) || ComChannelType.OpticalComChannel.is(comChannel)) {
             hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
         }
+        initDlmsSession();
+    }
+
+    protected void initDlmsSession() {
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, getProperDeviceId()));
     }
 
@@ -135,7 +141,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
         return getDsmr23Messaging().executePendingMessages(pendingMessages);
     }
 
-    private Dsmr23Messaging getDsmr23Messaging() {
+    protected Dsmr23Messaging getDsmr23Messaging() {
         if (dsmr23Messaging == null) {
             dsmr23Messaging = new Dsmr23Messaging(new Dsmr23MessageExecutor(this));
         }
@@ -178,4 +184,5 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     public String getProtocolDescription() {
         return "EnergyICT WebRTU KP DLMS (NTA DSMR2.3) V2";
     }
+
 }

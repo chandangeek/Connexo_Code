@@ -52,11 +52,21 @@ public class DlmsProperties implements DlmsSessionProperties {
      */
     @Override
     public TimeZone getTimeZone() {
-        TimeZoneInUse timeZoneInUse = properties.<TimeZoneInUse>getTypedProperty(TIMEZONE);
-        if (timeZoneInUse == null || timeZoneInUse.getTimeZone() == null) {
+        final Object object = properties.getTypedProperty(TIMEZONE);
+
+        if (object == null) {
             return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
+        } else if (object instanceof TimeZoneInUse) {
+            TimeZoneInUse timeZoneInUse = (TimeZoneInUse) object;
+            if (timeZoneInUse.getTimeZone() == null) {
+                return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
+            } else {
+                return timeZoneInUse.getTimeZone();
+            }
+        } else if (object instanceof TimeZone) {
+            return (TimeZone) object;
         } else {
-            return timeZoneInUse.getTimeZone();
+            return TimeZone.getTimeZone(DEFAULT_TIMEZONE);
         }
     }
 

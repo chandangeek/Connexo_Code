@@ -9,7 +9,9 @@ package com.energyict.protocolimpl.base;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
@@ -17,7 +19,9 @@ import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.logging.Logger;
@@ -147,7 +151,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     int requestHeader; // Request Meter's profile header info (typycal VDEW)
     int scaler; // Scaler to use when retrieving data from the meter
     int forcedDelay; // Delay before data send
-    int halfDuplex; // halfduplex enable/disable & delay in ms. (0=disabled, >0 enabled and delay in ms.) 
+    int halfDuplex; // halfduplex enable/disable & delay in ms. (0=disabled, >0 enabled and delay in ms.)
 
     byte[] dataReadout;
     boolean requestDataReadout;
@@ -157,7 +161,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     private BigDecimal adjustChannelMultiplier;
     private BigDecimal adjustRegisterMultiplier;
 
-    private int dtrBehaviour; // 0=force low, 1 force high, 2 don't force anything 
+    private int dtrBehaviour; // 0=force low, 1 force high, 2 don't force anything
 
     /**
      * Default constructor
@@ -1169,6 +1173,10 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
         this.halfDuplexController = halfDuplexController;
         halfDuplexController.setDelay(halfDuplex);
+
+        if (getProtocolConnection() != null && getProtocolConnection() instanceof HalfDuplexEnabler) {
+            ((HalfDuplexEnabler) getProtocolConnection()).setHalfDuplexController(halfDuplexController);
+        }
     }
 
     /**

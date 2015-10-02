@@ -22,7 +22,6 @@ import com.energyict.protocolimplv2.nta.dsmr23.ComposedMeterInfo;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
-import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import java.io.IOException;
@@ -46,7 +45,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     protected OfflineDevice offlineDevice;
     protected ConfigurationSupport dlmsConfigurationSupport;
     protected DLMSCache dlmsCache;
-    protected DlmsSecuritySupport dlmsSecuritySupport;
+    protected DeviceProtocolSecurityCapabilities  dlmsSecuritySupport;
     private ComposedMeterInfo meterInfo;
     private DlmsSession dlmsSession;
     /**
