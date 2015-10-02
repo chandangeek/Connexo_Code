@@ -105,10 +105,8 @@ public class LoadProfileResource {
                 .collect(Collectors.toList());
 
         loadProfileInfo.validationInfo = validationInfoFactory.createDetailedValidationInfo(isValidationActive(loadProfile), states, lastChecked(loadProfile));
-        if (states.isEmpty()) {
-            loadProfileInfo.validationInfo.dataValidated = loadProfile.getChannels().stream()
-                    .allMatch(c -> c.getDevice().forValidation().allDataValidated(c, clock.instant()));
-        }
+        loadProfileInfo.validationInfo.dataValidated = loadProfile.getChannels().stream()
+                .allMatch(c -> c.getDevice().forValidation().allDataValidated(c, clock.instant()));
     }
 
     private boolean isValidationActive(LoadProfile loadProfile) {
