@@ -53,7 +53,7 @@ public class EventTypes implements CanFindByStringKey<EventTypes.EventType> {
 
         @Override
         public String getName() {
-            return thesaurus.getFormat(event.getTitle()).format();
+            return thesaurus.getString(event.getTitle().getKey(), event.getTitle().getDefaultFormat());
         }
     }
 }
