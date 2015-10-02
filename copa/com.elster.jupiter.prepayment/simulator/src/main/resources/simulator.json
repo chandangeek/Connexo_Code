@@ -9,8 +9,8 @@
     "usagePoints": [
       {
         "consumption": {
-          "min": 1000,
-          "max": 2000
+          "min": 10.1,
+          "max": 10.2
         },
         "mRID": "usp001",
         "device_mRID": "mrid1",
