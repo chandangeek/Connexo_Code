@@ -40,15 +40,14 @@ public interface DeviceAccessLevel {
     public int getId ();
 
     /**
-     * Returns a String that serves as the key in a
-     * translation resource bundle to provide a human
+     * Returns the human
      * readable description or name for this DeviceAccessLevel.
-     * The suggested format for this key is
+     * The internal format for translation key is
      * &lt;fully qualified class name of the device protocol&gt;.accesslevel.&lt;id&gt;
      *
-     * @return The key in the translation resource bundle
+     * @return The translation resource bundle
      */
-    public String getTranslationKey ();
+    public String getTranslation();
 
     /**
      * Gets the List of {@link PropertySpec properties}
