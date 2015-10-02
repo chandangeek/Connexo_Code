@@ -53,7 +53,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class StandardCsvDataFormatter implements ReadingDataFormatter {
+class StandardCsvDataFormatter implements ReadingDataFormatter {
 
     public static final String VALID_STRING = "valid";
     public static final String INVALID_STRING = "suspect";
