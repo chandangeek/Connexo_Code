@@ -61,12 +61,13 @@ class MissingValuesValidator extends AbstractValidator {
         if (start == null) {
             instants = new HashSet<>();
         } else {
-            if (start.isAfter(interval.lowerEndpoint())) {
+            if (!start.isBefore(interval.lowerEndpoint())) {
                 if (start.isAfter(interval.upperEndpoint())) {
                     instants = new HashSet<>();
                 } else {
-                    instants = new HashSet<>(channel.toList(Range.closed(start, interval.upperEndpoint())));
-                    instants.remove(start);
+                    this.instants = channel.toList(Range.closed(start, interval.upperEndpoint())).stream()
+                            .skip(skipFirstInstantIfDeltaChannel(channel, readingType) ? 1 : 0)
+                            .collect(Collectors.toSet());
                 }
             } else {
                 instants = new HashSet<>(channel.toList(interval));
@@ -74,12 +75,15 @@ class MissingValuesValidator extends AbstractValidator {
         }
     }
 
+    private boolean skipFirstInstantIfDeltaChannel(Channel channel, ReadingType readingType) {
+        Optional<? extends ReadingType> bulkQuantityReadingType = channel.getBulkQuantityReadingType();
+        return bulkQuantityReadingType.isPresent() && readingType.isBulkQuantityReadingType(bulkQuantityReadingType.get());
+    }
+
     @Override
     public ValidationResult validate(IntervalReadingRecord intervalReadingRecord) {
         if (intervalReadingRecord.getQuantity(readingType) != null) {
-            if(intervalReadingRecord.getValue() != null) {
-                instants.remove(intervalReadingRecord.getTimeStamp());
-            }
+            instants.remove(intervalReadingRecord.getTimeStamp());
         }
         return ValidationResult.VALID;
     }
