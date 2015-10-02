@@ -6,7 +6,7 @@ import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportTask;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
@@ -121,7 +121,7 @@ public class DataExportServiceImplTest {
     @Mock
     private PropertySpec propertySpec1, propertySpec2, propertySpec3;
     @Mock
-    private ReadingTypeDataSelector readingTypeDataSelector;
+    private StandardDataSelector standardDataSelector;
     @Mock
     private EndDeviceGroup endDeviceGroup;
     @Mock
@@ -136,7 +136,7 @@ public class DataExportServiceImplTest {
     @Before
     public void setUp() throws SQLException {
         when(dataFormatterFactory.getName()).thenReturn(DATA_FORMATTER);
-        when(iExportTask.getReadingTypeDataSelector()).thenReturn(Optional.of(readingTypeDataSelector));
+        when(iExportTask.getReadingTypeDataSelector()).thenReturn(Optional.of(standardDataSelector));
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
         when(dataModel.<ExportTask>mapper(any())).thenReturn(readingTypeDataExportTaskFactory);
@@ -170,7 +170,7 @@ public class DataExportServiceImplTest {
     public void testNewBuilder() {
         ExportTaskImpl readingTypeDataExportTaskImpl = new ExportTaskImpl(dataModel, dataExportService, taskService, thesaurus);
         when(dataModel.getInstance(ExportTaskImpl.class)).thenReturn(readingTypeDataExportTaskImpl);
-        StandardDataSelectorImpl selectorImpl = new StandardDataSelectorImpl(dataModel, transactionService, meteringService, validationService, clock);
+        StandardDataSelectorImpl selectorImpl = new StandardDataSelectorImpl(dataModel, meteringService);
         when(dataModel.getInstance(StandardDataSelectorImpl.class)).thenReturn(selectorImpl);
         DataExportTaskBuilderImpl dataExportTaskBuilder = new DataExportTaskBuilderImpl(dataModel)
                 .setName(NAME)
@@ -193,7 +193,7 @@ public class DataExportServiceImplTest {
         DataExportOccurrenceImpl dataExportOccurrence1 = new DataExportOccurrenceImpl(dataModel, taskService);
         when(dataModel.getInstance(DataExportOccurrenceImpl.class)).thenReturn(dataExportOccurrence1);
         when(taskOccurrence.getTriggerTime()).thenReturn(NOW);
-        when(readingTypeDataSelector.getExportPeriod()).thenReturn(relativePeriod);
+        when(standardDataSelector.getExportPeriod()).thenReturn(relativePeriod);
         when(relativePeriod.getOpenClosedInterval(any())).thenReturn(Range.openClosed(NOW, NOW));
 
         assertThat(dataExportService.createExportOccurrence(taskOccurrence)).isEqualTo(dataExportOccurrence1);

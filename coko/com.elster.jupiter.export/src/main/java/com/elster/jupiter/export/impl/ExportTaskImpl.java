@@ -14,7 +14,7 @@ import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.export.FtpsDestination;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
@@ -172,7 +172,7 @@ final class ExportTaskImpl implements IExportTask {
         } else {
             doUpdate();
         }
-        readingTypeDataSelector.getOptional().ifPresent(ReadingTypeDataSelector::save);
+        readingTypeDataSelector.getOptional().ifPresent(StandardDataSelector::save);
         recurrentTaskDirty = false;
         propertiesDirty = false;
     }
@@ -356,7 +356,7 @@ final class ExportTaskImpl implements IExportTask {
         RecurrentTask task = builder.build();
         recurrentTask.set(task);
         if (DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR.equals(dataSelector)) {
-            Save.CREATE.validate(dataModel, this, ReadingTypeDataSelector.class);
+            Save.CREATE.validate(dataModel, this, StandardDataSelector.class);
         }
         if (DataExportService.STANDARD_EVENT_DATA_SELECTOR.equals(dataSelector)) {
             Save.CREATE.validate(dataModel, this, EventDataSelector.class);
@@ -406,9 +406,9 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public Optional<ReadingTypeDataSelector> getReadingTypeDataSelector() {
+    public Optional<StandardDataSelector> getReadingTypeDataSelector() {
         return readingTypeDataSelector.getOptional()
-                .map(ReadingTypeDataSelector.class::cast)
+                .map(StandardDataSelector.class::cast)
                 .filter(selector -> DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR.equals(dataSelector));
     }
 
@@ -420,7 +420,7 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public Optional<ReadingTypeDataSelector> getReadingTypeDataSelector(Instant at) {
+    public Optional<StandardDataSelector> getReadingTypeDataSelector(Instant at) {
         return getReadingTypeDataSelector().flatMap(selector -> selector.getHistory().getVersionAt(at));
     }
 

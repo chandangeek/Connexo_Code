@@ -4,7 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
@@ -80,7 +80,7 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
     }
 
     @Override
-    public ReadingTypeDataSelector getSelector() {
+    public StandardDataSelector getSelector() {
         return selector.orElseThrow(IllegalStateException::new);
     }
 

@@ -4,6 +4,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -63,13 +64,17 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
 
     @Override
     public List<? extends DataExportOccurrence> find() {
+        return stream().select();
+    }
+
+    @Override
+    public QueryStream<DataExportOccurrence> stream() {
         return dataModel.stream(DataExportOccurrence.class)
                 .join(TaskOccurrence.class)
                 .filter(condition)
                 .sorted(order)
                 .skip(start)
-                .limit(limit)
-                .select();
+                .limit(limit);
     }
 
     // documentation only

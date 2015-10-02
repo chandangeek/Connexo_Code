@@ -3,7 +3,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.ExportTask;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -45,7 +45,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     private boolean exportComplete;
 
     private interface ReadingTypeDefinition {
-        public void addTo(ReadingTypeDataSelector readingTypeDataSelector);
+        public void addTo(StandardDataSelector standardDataSelector);
     }
 
     public class ReadingTypeByMrid implements ReadingTypeDefinition {
@@ -56,7 +56,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         }
 
         @Override
-        public void addTo(ReadingTypeDataSelector dataSelector) {
+        public void addTo(StandardDataSelector dataSelector) {
             dataSelector.addReadingType(mrid);
         }
     }
@@ -70,7 +70,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         }
 
         @Override
-        public void addTo(ReadingTypeDataSelector task) {
+        public void addTo(StandardDataSelector task) {
             task.addReadingType(readingType);
         }
     }

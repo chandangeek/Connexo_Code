@@ -20,7 +20,7 @@ import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.export.FtpsDestination;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
@@ -565,7 +565,7 @@ public class ExportTaskImplIT {
             readingTypeDataExportTask.setScheduleExpression(Never.NEVER);
             readingTypeDataExportTask.setProperty("propy", BigDecimal.valueOf(20000, 2));
             readingTypeDataExportTask.setName("New name!");
-            ReadingTypeDataSelector selector = readingTypeDataExportTask.getReadingTypeDataSelector().get();
+            StandardDataSelector selector = readingTypeDataExportTask.getReadingTypeDataSelector().get();
             selector.setExportPeriod(oneYearBeforeLastYear);
             selector.setUpdatePeriod(null);
             selector.setEndDeviceGroup(anotherEndDeviceGroup);

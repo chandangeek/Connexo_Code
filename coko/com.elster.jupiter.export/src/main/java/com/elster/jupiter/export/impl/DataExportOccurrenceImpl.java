@@ -16,9 +16,10 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
-class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelectorOccurrence {
+final class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelectorOccurrence {
 
     private Reference<TaskOccurrence> taskOccurrence = ValueReference.absent();
     private Reference<IExportTask> readingTask = ValueReference.absent();
@@ -156,5 +157,18 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
         }
         List<TaskOccurrence> occurrences = taskService.getOccurrences(taskOccurrence.get().getRecurrentTask(), Range.closedOpen(since, triggerTime));
         return occurrences.size() + 1;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DataExportOccurrenceImpl)) return false;
+        DataExportOccurrenceImpl that = (DataExportOccurrenceImpl) o;
+        return Objects.equals(taskOccurrence, that.taskOccurrence);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(taskOccurrence);
     }
 }

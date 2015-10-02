@@ -1,15 +1,11 @@
 package com.elster.jupiter.export;
 
+import com.elster.jupiter.orm.QueryStream;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 26/11/2014
- * Time: 12:44
- */
 public interface DataExportOccurrenceFinder {
     DataExportOccurrenceFinder setStart(Integer start);
 
@@ -22,4 +18,6 @@ public interface DataExportOccurrenceFinder {
     DataExportOccurrenceFinder withExportPeriodContaining(Instant timeStamp);
 
     List<? extends DataExportOccurrence> find();
+
+    QueryStream<DataExportOccurrence> stream();
 }

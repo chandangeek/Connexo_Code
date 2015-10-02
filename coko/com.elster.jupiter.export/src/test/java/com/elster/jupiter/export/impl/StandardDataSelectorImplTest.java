@@ -53,7 +53,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ReadingTypeDataSelectorImplTest {
+public class StandardDataSelectorImplTest {
 
     private static final ZonedDateTime UPDATE_START = ZonedDateTime.of(2014, 5, 19, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime START = ZonedDateTime.of(2014, 6, 19, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
@@ -116,14 +116,14 @@ public class ReadingTypeDataSelectorImplTest {
     public void setUp() {
         transactionService = new TransactionVerifier();
 
-        doAnswer(invocation -> new StandardDataSelectorImpl(dataModel, transactionService, meteringService, validationService, clock))
+        doAnswer(invocation -> new StandardDataSelectorImpl(dataModel, meteringService))
                 .when(dataModel).getInstance(StandardDataSelectorImpl.class);
         doAnswer(invocation -> new ReadingTypeInDataSelector(meteringService))
                 .when(dataModel).getInstance(ReadingTypeInDataSelector.class);
         doAnswer(invocation -> new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel))
                 .when(dataModel).getInstance(ReadingTypeDataExportItemImpl.class);
-        doAnswer(invocation -> new AsReadingTypeDataSelector(dataModel, transactionService))
-                .when(dataModel).getInstance(AsReadingTypeDataSelector.class);
+        doAnswer(invocation -> new ReadingTypeDataSelector(dataModel, transactionService))
+                .when(dataModel).getInstance(ReadingTypeDataSelector.class);
         doAnswer(invocation -> new DefaultItemDataSelector(clock, validationService, thesaurus, transactionService))
                 .when(dataModel).getInstance(DefaultItemDataSelector.class);
         doAnswer(invocation -> new FakeRefAny(invocation.getArguments()[0])).when(dataModel).asRefAny(any());

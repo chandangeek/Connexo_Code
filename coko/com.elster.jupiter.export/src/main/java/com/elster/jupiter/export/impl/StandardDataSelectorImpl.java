@@ -8,13 +8,13 @@ import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.EndDeviceEventTypeFilter;
 import com.elster.jupiter.export.EventDataExportStrategy;
-import com.elster.jupiter.export.EventDataSelector;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.nls.Thesaurus;
@@ -25,21 +25,19 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.RelativePeriod;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -48,11 +46,8 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 class StandardDataSelectorImpl implements IStandardDataSelector {
 
-    private final TransactionService transactionService;
     private final MeteringService meteringService;
-    private final ValidationService validationService;
     private final DataModel dataModel;
-    private final Clock clock;
 
     private long id;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
@@ -68,11 +63,11 @@ class StandardDataSelectorImpl implements IStandardDataSelector {
     private boolean exportOnlyIfComplete;
     private ValidatedDataOption validatedDataOption;
     @Valid
-    @Size(min=1, groups = {ReadingTypeDataSelector.class}, message = "{" + MessageSeeds.Keys.MUST_SELECT_AT_LEAST_ONE_READING_TYPE + "}")
+    @Size(min=1, groups = {StandardDataSelector.class}, message = "{" + MessageSeeds.Keys.MUST_SELECT_AT_LEAST_ONE_READING_TYPE + "}")
     private List<ReadingTypeInDataSelector> readingTypes = new ArrayList<>();
     private List<ReadingTypeDataExportItemImpl> exportItems = new ArrayList<>();
     @Valid
-    @Size(min=1, groups = {EventDataSelector.class}, message = "{" + MessageSeeds.Keys.MUST_SELECT_AT_LEAST_ONE_EVENT_TYPE + "}")
+    @Size(min=1, groups = {com.elster.jupiter.export.EventDataSelector.class}, message = "{" + MessageSeeds.Keys.MUST_SELECT_AT_LEAST_ONE_EVENT_TYPE + "}")
     private List<EndDeviceEventTypeFilter> eventTypeFilters = new ArrayList<>();
 
     private long version;
@@ -81,8 +76,8 @@ class StandardDataSelectorImpl implements IStandardDataSelector {
     private String userName;
 
     private enum State {
-        EVENTS(EventDataSelector.class),
-        READINGTYPES(ReadingTypeDataSelector.class);
+        EVENTS(com.elster.jupiter.export.EventDataSelector.class),
+        READINGTYPES(StandardDataSelector.class);
 
         private final Class<?> validationGroup;
 
@@ -96,12 +91,9 @@ class StandardDataSelectorImpl implements IStandardDataSelector {
     }
 
     @Inject
-    StandardDataSelectorImpl(DataModel dataModel, TransactionService transactionService, MeteringService meteringService, ValidationService validationService, Clock clock) {
+    StandardDataSelectorImpl(DataModel dataModel, MeteringService meteringService) {
         this.dataModel = dataModel;
-        this.transactionService = transactionService;
         this.meteringService = meteringService;
-        this.validationService = validationService;
-        this.clock = clock;
     }
 
     public static StandardDataSelectorImpl from(DataModel dataModel, IExportTask exportTask, RelativePeriod exportPeriod, EndDeviceGroup endDeviceGroup) {
@@ -122,12 +114,12 @@ class StandardDataSelectorImpl implements IStandardDataSelector {
 
     @Override
     public DataSelector asReadingTypeDataSelector(Logger logger, Thesaurus thesaurus) {
-        return AsReadingTypeDataSelector.from(dataModel, this, logger);
+        return ReadingTypeDataSelector.from(dataModel, this, logger);
     }
 
     @Override
     public DataSelector asEventDataSelector(Logger logger, Thesaurus thesaurus) {
-        return AsEventDataSelector.from(dataModel, this, logger);
+        return EventSelector.from(dataModel, this, logger);
     }
 
     Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
@@ -173,13 +165,13 @@ class StandardDataSelectorImpl implements IStandardDataSelector {
     }
 
     @Override
-    public History<ReadingTypeDataSelector> getHistory() {
+    public History<StandardDataSelector> getHistory() {
         List<JournalEntry<IStandardDataSelector>> journal = dataModel.mapper(IStandardDataSelector.class).getJournal(getId());
         return new History<>(journal, this);
     }
 
     @Override
-    public History<EventDataSelector> getEventSelectorHistory() {
+    public History<com.elster.jupiter.export.EventDataSelector> getEventSelectorHistory() {
         List<JournalEntry<IStandardDataSelector>> journal = dataModel.mapper(IStandardDataSelector.class).getJournal(getId());
         return new History<>(journal, this);
     }
@@ -359,8 +351,16 @@ class StandardDataSelectorImpl implements IStandardDataSelector {
 
     @Override
     public void removeEventTypeFilter(String code) {
-        //TODO automatically generated method body, provide implementation.
-
+        eventTypeFilters.stream()
+                .filter(endDeviceEventTypeFilter -> endDeviceEventTypeFilter.getCode().equals(code))
+                .findFirst()
+                .ifPresent(eventTypeFilters::remove);
     }
 
+    @Override
+    public Predicate<? super EndDeviceEventRecord> getFilterPredicate() {
+        return eventTypeFilters.stream()
+                .map(EndDeviceEventTypeFilter::asEndDeviceEventPredicate)
+                .reduce(t -> true, Predicate::or);
+    }
 }

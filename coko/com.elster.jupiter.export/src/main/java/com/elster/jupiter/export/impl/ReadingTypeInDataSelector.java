@@ -1,7 +1,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
@@ -51,7 +51,7 @@ class ReadingTypeInDataSelector {
         return readingTypeInDataSelector;
     }
 
-    public ReadingTypeDataSelector getReadingTypeDataSelector() {
+    public StandardDataSelector getReadingTypeDataSelector() {
         return readingTypeDataSelector.get();
     }
 

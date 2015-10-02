@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class AsReadingTypeDataSelector implements DataSelector {
+class ReadingTypeDataSelector implements DataSelector {
     private final DataModel dataModel;
     private final TransactionService transactionService;
 
@@ -26,19 +26,19 @@ class AsReadingTypeDataSelector implements DataSelector {
     private StandardDataSelectorImpl selector;
 
     @Inject
-    AsReadingTypeDataSelector(DataModel dataModel, TransactionService transactionService) {
+    ReadingTypeDataSelector(DataModel dataModel, TransactionService transactionService) {
         this.dataModel = dataModel;
         this.transactionService = transactionService;
     }
 
-    private AsReadingTypeDataSelector init(StandardDataSelectorImpl selector,Logger logger) {
+    private ReadingTypeDataSelector init(StandardDataSelectorImpl selector,Logger logger) {
         this.selector = selector;
         this.logger = logger;
         return this;
     }
 
-    static AsReadingTypeDataSelector from(DataModel dataModel, StandardDataSelectorImpl selector, Logger logger) {
-        return dataModel.getInstance(AsReadingTypeDataSelector.class).init(selector, logger);
+    static ReadingTypeDataSelector from(DataModel dataModel, StandardDataSelectorImpl selector, Logger logger) {
+        return dataModel.getInstance(ReadingTypeDataSelector.class).init(selector, logger);
     }
 
     @Override

@@ -281,7 +281,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
 
     private boolean isExportUpdates(DataExportOccurrence occurrence) {
         return occurrence.getTask().getReadingTypeDataSelector()
-                .map(ReadingTypeDataSelector::getStrategy)
+                .map(StandardDataSelector::getStrategy)
                 .map(DataExportStrategy::isExportUpdate)
                 .orElse(false);
     }
@@ -318,7 +318,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
 
     private Range<Instant> determineBaseUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
         return occurrence.getTask().getReadingTypeDataSelector()
-                .map(ReadingTypeDataSelector::getStrategy)
+                .map(StandardDataSelector::getStrategy)
                 .filter(DataExportStrategy::isExportUpdate)
                 .flatMap(DataExportStrategy::getUpdatePeriod)
                 .map(relativePeriod -> relativePeriod.getOpenClosedInterval(ZonedDateTime.ofInstant(occurrence.getTriggerTime(), item.getReadingContainer().getZoneId())))

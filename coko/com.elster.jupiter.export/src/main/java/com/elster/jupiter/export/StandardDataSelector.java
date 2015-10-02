@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
-public interface ReadingTypeDataSelector extends HasAuditInfo {
+public interface StandardDataSelector extends HasAuditInfo {
 
     long getId();
 
@@ -50,7 +50,7 @@ public interface ReadingTypeDataSelector extends HasAuditInfo {
 
     void save();
 
-    History<ReadingTypeDataSelector> getHistory();
+    History<StandardDataSelector> getHistory();
 
     ExportTask getExportTask();
 }

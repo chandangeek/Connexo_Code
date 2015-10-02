@@ -59,7 +59,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ReadingTypeDataSelectorTest {
+public class StandardDataSelectorTest {
 
     @Rule
     public TestRule timeZone = Using.timeZoneOfMcMurdo();
@@ -139,10 +139,10 @@ public class ReadingTypeDataSelectorTest {
 
         transactionService = new TransactionVerifier(dataFormatter, newItem, existingItem);
 
-        when(dataModel.getInstance(StandardDataSelectorImpl.class)).thenAnswer(invocation -> spy(new StandardDataSelectorImpl(dataModel, transactionService, meteringService, validationService, clock)));
+        when(dataModel.getInstance(StandardDataSelectorImpl.class)).thenAnswer(invocation -> spy(new StandardDataSelectorImpl(dataModel, meteringService)));
         when(dataModel.getInstance(ReadingTypeInDataSelector.class)).thenAnswer(invocation -> spy(new ReadingTypeInDataSelector(meteringService)));
         when(dataModel.getInstance(ReadingTypeDataExportItemImpl.class)).thenAnswer(invocation -> spy(new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel)));
-        when(dataModel.getInstance(AsReadingTypeDataSelector.class)).thenAnswer(invocation -> new AsReadingTypeDataSelector(dataModel, transactionService));
+        when(dataModel.getInstance(ReadingTypeDataSelector.class)).thenAnswer(invocation -> new ReadingTypeDataSelector(dataModel, transactionService));
         when(dataModel.getInstance(DefaultItemDataSelector.class)).thenAnswer(invocation -> new DefaultItemDataSelector(clock, validationService, thesaurus, transactionService));
         when(dataModel.asRefAny(any())).thenAnswer(invocation -> new MyRefAny(invocation.getArguments()[0]));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
