@@ -192,7 +192,7 @@ public class DynamicSearchResource {
     }
 
     private List<Object> getQueryParameterAsObjectList(@BeanParam JsonQueryFilter jsonQueryFilter, SearchableProperty constrainingProperty) {
-        return jsonQueryFilter.getPropertyList(constrainingProperty.getName()).stream().
+        return jsonQueryFilter.getStringList(constrainingProperty.getName()).stream().
                 map(p -> constrainingProperty.getSpecification().getValueFactory().fromStringValue(p)).
                 collect(toList());
     }
