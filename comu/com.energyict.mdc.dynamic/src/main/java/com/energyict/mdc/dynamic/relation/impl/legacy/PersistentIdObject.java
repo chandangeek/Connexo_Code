@@ -9,6 +9,7 @@ import com.energyict.mdc.common.SqlBuilder;
 
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.Checks;
 
@@ -26,6 +27,7 @@ import java.util.Objects;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-12-17 (11:59)
  */
+@LiteralSql
 public abstract class PersistentIdObject implements IdBusinessObject {
 
     private long id;

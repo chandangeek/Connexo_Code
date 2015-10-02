@@ -9,6 +9,7 @@ import com.energyict.mdc.dynamic.relation.exceptions.RelationTypeDDLException;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.util.Checks;
 
 import java.sql.Connection;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+@LiteralSql
 public class RelationTypeDdlGenerator {
 
     private final DataModel dataModel;
