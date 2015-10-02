@@ -2,11 +2,12 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -125,6 +126,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     CommunicationTaskService communicationTaskService;
     @Mock
+    CommunicationTaskReportService communicationTaskReportService;
+    @Mock
     PropertySpecService propertySpecService;
     @Mock
     FavoritesService favoritesService;
@@ -188,6 +191,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setRestQueryService(restQueryService);
         application.setTaskService(taskService);
         application.setCommunicationTaskService(communicationTaskService);
+        application.setCommunicationTaskReportService(communicationTaskReportService);
         application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         application.setFavoritesService(favoritesService);
         application.setDataCollectionKpiService(dataCollectionKpiService);
