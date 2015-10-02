@@ -9,16 +9,21 @@ Ext.define('Bpm.privileges.BpmManagement', {
         'Uni.Auth'
     ],
     singleton: true,
-    view: ['privilege.view.importServices'],
-    admin: ['privilege.administrate.importServices'],
+    all: ['privilege.view.task', 'privilege.assign.task', 'privilege.execute.task'],
+    view: ['privilege.view.task'],
+    assign: ['privilege.assign.task'],
+    execute: ['privilege.execute.task'],
 
     all: function () {
-        return Ext.Array.merge(Bpm.privileges.BpmManagement.view);
+        return Ext.Array.merge(Bpm.privileges.BpmManagement.all);
     },
     canView: function () {
         return Uni.Auth.checkPrivileges(Bpm.privileges.BpmManagement.view);
     },
-    canAdministrate:function(){
-        return Uni.Auth.checkPrivileges(Bpm.privileges.BpmManagement.admin);
+    canAssign: function () {
+        return Uni.Auth.checkPrivileges(Bpm.privileges.BpmManagement.assign);
+    },
+    canExecute: function () {
+        return Uni.Auth.checkPrivileges(Bpm.privileges.BpmManagement.execute);
     }
 });
