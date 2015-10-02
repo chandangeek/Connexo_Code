@@ -4,6 +4,7 @@ import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.NotFoundException;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
@@ -32,6 +33,7 @@ import java.util.logging.Logger;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-01 (08:46)
  */
+@LiteralSql
 public class OrmClientImpl implements OrmClient {
 
     private static final Logger LOGGER = Logger.getLogger(OrmClientImpl.class.getName());
