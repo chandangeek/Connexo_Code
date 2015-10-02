@@ -360,8 +360,8 @@ Ext.define('Fim.controller.ImportServices', {
                             addImportServiceForm.down('grouped-property-form').addEditPage = true;
                             addImportServiceForm.down('grouped-property-form').loadRecord(importServiceRecord);
                         }
-
                         me.getApplication().fireEvent('changecontentevent', addImportServiceView);
+                        addImportServiceForm.doLayout();
 
                     }
                 });
