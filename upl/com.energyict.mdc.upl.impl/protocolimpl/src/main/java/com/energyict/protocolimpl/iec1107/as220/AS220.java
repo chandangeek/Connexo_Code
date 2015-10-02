@@ -115,7 +115,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private AS220ObisCodeMapper aS220ObisCodeMapper = new AS220ObisCodeMapper(this);
 
     private byte[] dataReadout = null;
-    private int[] billingCount;
+    private int billingCount = -1;
     private String firmwareVersion = null;
     private Date meterDate = null;
     private String meterSerial = null;
@@ -823,10 +823,10 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     int getBillingCount() throws IOException {
-        if (this.billingCount == null) {
+        if (this.billingCount == -1) {
 
             if (isDataReadout()) {
-                this.billingCount = new int[]{getDataDumpParser().getBillingCounter()};
+                this.billingCount = getDataDumpParser().getBillingCounter();
             } else {
 
                 String data;
@@ -844,15 +844,19 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 String value = data.substring(start, stop);
 
                 try {
-                    this.billingCount = new int[]{Integer.parseInt(value)};
+                    this.billingCount = Integer.parseInt(value);
                 } catch (NumberFormatException e) {
-                    this.billingCount = new int[]{0};
-                    getLogger().info("Unable to read billingCounter. Defaulting to 0!");
+                    this.billingCount = 0;
+                    getLogger().info(AS220.class.getSimpleName() + " - Unable to read billingCounter. Defaulting to 0!");
                 }
             }
 
+            if (this.billingCount >= 100) {
+                this.billingCount = 0;
+                getLogger().warning(AS220.class.getSimpleName() + " - Encountered invalid billingCounter (" + this.billingCount + "). The billingCounter should be between 0 and 100, defaulting to 0!");
+            }
         }
-        return this.billingCount[0];
+        return this.billingCount;
     }
 
     private String getMeterSerial() throws IOException {
