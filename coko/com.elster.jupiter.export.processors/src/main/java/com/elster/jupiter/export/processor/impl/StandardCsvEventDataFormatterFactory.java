@@ -88,7 +88,7 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
 
     @Override
     public DataFormatter createDataFormatter(Map<String, Object> properties) {
-        return new StandardCsvDataFormatter(properties, thesaurus, validationService, dataExportService, meteringService);
+        return new StandardCsvEventDataFormatter(dataExportService);
     }
 
     @Override

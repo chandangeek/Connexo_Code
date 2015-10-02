@@ -2,7 +2,6 @@ package com.elster.jupiter.export.processor.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.FormattedExportData;
@@ -14,7 +13,6 @@ import com.elster.jupiter.metering.readings.EndDeviceEvent;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.logging.Logger;
@@ -23,7 +21,7 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-class StandardCsvEventDataFormatter implements DataFormatter {
+class StandardCsvEventDataFormatter implements StandardFormatter {
 
     private final DataExportService dataExportService;
     private String separator;
@@ -64,8 +62,8 @@ class StandardCsvEventDataFormatter implements DataFormatter {
 
     private String formatPayload(EndDeviceEvent endDeviceEvent, StructureMarker structureMarker) {
         ZonedDateTime eventTime = ZonedDateTime.ofInstant(endDeviceEvent.getCreatedDateTime(), ZoneId.systemDefault());
-        String formattedTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(eventTime);
-        String eventMrid = endDeviceEvent.getMRID();
+        String formattedTime = DEFAULT_DATE_TIME_FORMAT.format(eventTime);
+        String eventMrid = endDeviceEvent.getEventTypeCode();
         String deviceMrid = structureMarker.getStructurePath().get(0);
         return new StringJoiner(separator, "", "\n")
                 .add(formattedTime)
