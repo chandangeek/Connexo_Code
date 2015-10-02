@@ -87,7 +87,7 @@ public class DataExportTaskResource {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<? extends ExportTask> list = queryTasks(params);
 
-        DataExportTaskInfos infos = new DataExportTaskInfos(params.clipToLimit(list), thesaurus, timeService, propertyUtils);
+        DataExportTaskInfos infos = new DataExportTaskInfos(params.clipToLimit(list), thesaurus, timeService, propertyUtils,false);
         infos.total = params.determineTotal(list.size());
 
         return infos;
@@ -133,7 +133,7 @@ public class DataExportTaskResource {
 
             propertiesSpecsForDataSelector.stream()
                     .forEach(spec -> {
-                        Object value = propertyUtils.findPropertyValue(spec, info.properties);
+                        Object value = propertyUtils.findPropertyValue(spec, info.dataSelector.properties);
                         builder.addProperty(spec.getName()).withValue(value);
                     });
         } else {
@@ -167,7 +167,7 @@ public class DataExportTaskResource {
 
         propertiesSpecsForProcessor.stream()
                 .forEach(spec -> {
-                    Object value = propertyUtils.findPropertyValue(spec, info.properties);
+                    Object value = propertyUtils.findPropertyValue(spec, info.dataProcessor.properties);
                     builder.addProperty(spec.getName()).withValue(value);
                 });
 
@@ -345,14 +345,14 @@ public class DataExportTaskResource {
         List<PropertySpec> propertiesSpecsForDataProcessor = dataExportService.getPropertiesSpecsForFormatter(info.dataProcessor.name);
         propertiesSpecsForDataProcessor.stream()
                 .forEach(spec -> {
-                    Object value = propertyUtils.findPropertyValue(spec, info.properties);
+                    Object value = propertyUtils.findPropertyValue(spec, info.dataProcessor.properties);
                     task.setProperty(spec.getName(), value);
                 });
         if (info.dataSelector.selectorType == SelectorType.CUSTOM) {
             List<PropertySpec> propertiesSpecsForDataSelector = dataExportService.getPropertiesSpecsForDataSelector(info.dataSelector.name);
             propertiesSpecsForDataSelector.stream()
                     .forEach(spec -> {
-                        Object value = propertyUtils.findPropertyValue(spec, info.properties);
+                        Object value = propertyUtils.findPropertyValue(spec, info.dataSelector.properties);
                         task.setProperty(spec.getName(), value);
                     });
         }
