@@ -3,7 +3,6 @@ package com.elster.jupiter.cps.rest.impl;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.Privileges;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.cps.rest.MessageSeeds;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
