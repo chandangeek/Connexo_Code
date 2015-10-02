@@ -89,7 +89,7 @@ Ext.define('Uni.controller.Search', {
 
     defaultColumns: {
         'com.energyict.mdc.device.data.Device': ['id', 'mRID', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName'],
-        'com.elster.jupiter.metering.UsagePoint' : ['mRID', 'serviceCategory', 'name', 'aliasName', 'serviceLocationId', 'createTime']
+        'com.elster.jupiter.metering.UsagePoint' : ['mRID', 'serviceCategory', 'connectionState', 'openIssues']
     },
 
     searchDomain: null,
@@ -472,6 +472,9 @@ Ext.define('Uni.controller.Search', {
                 filters.push(item.getFilter())
             }
         });
+
+        me.getResultsGrid().down('pagingtoolbarbottom').resetPaging();
+        me.getResultsGrid().down('pagingtoolbartop').resetPaging();
 
         searchResults.clearFilter(true);
         searchResults.filter(filters, true);
