@@ -7,7 +7,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -225,7 +225,7 @@ public class DataExportTaskResource {
                     throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
                 }
 
-                ReadingTypeDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
+                StandardDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
                 selector.setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod));
                 selector.setExportUpdate(info.standardDataSelector.exportUpdate);
                 selector.setUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod));
@@ -292,9 +292,9 @@ public class DataExportTaskResource {
                 .orElse(new DataSourceInfos(Collections.emptyList()));
     }
 
-    private DataSourceInfos buildDataSourceInfos(ReadingTypeDataSelector readingTypeDataSelector, @Context UriInfo uriInfo) {
+    private DataSourceInfos buildDataSourceInfos(StandardDataSelector standardDataSelector, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<? extends ReadingTypeDataExportItem> allExportItems = readingTypeDataSelector.getExportItems();
+        List<? extends ReadingTypeDataExportItem> allExportItems = standardDataSelector.getExportItems();
         List<ReadingTypeDataExportItem> activeExportItems = allExportItems.stream()
                 .filter(ReadingTypeDataExportItem::isActive)
                 .filter(item -> item.getLastRun().isPresent())
@@ -331,7 +331,7 @@ public class DataExportTaskResource {
     }
 
     private void updateReadingTypes(DataExportTaskInfo info, ExportTask task) {
-        ReadingTypeDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
+        StandardDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
         selector.getReadingTypes().stream()
                 .filter(t -> info.standardDataSelector.readingTypes.stream().map(r -> r.mRID).noneMatch(m -> t.getMRID().equals(m)))
                 .forEach(selector::removeReadingType);

@@ -9,7 +9,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.ExportTask;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -44,7 +44,7 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
     @Mock
     protected ExportTask exportTask;
     @Mock
-    protected ReadingTypeDataSelector readingTypeDataSelector;
+    protected StandardDataSelector standardDataSelector;
     @Mock
     protected RestQueryService restQueryService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -115,15 +115,15 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
         doReturn(query).when(dataExportService).getReadingTypeDataExportTaskQuery();
         doReturn(restQuery).when(restQueryService).wrap(query);
         doReturn(asList(exportTask)).when(restQuery).select(any(), any());
-        when(exportTask.getReadingTypeDataSelector()).thenReturn(Optional.of(readingTypeDataSelector));
+        when(exportTask.getReadingTypeDataSelector()).thenReturn(Optional.of(standardDataSelector));
         when(exportTask.getDataSelector()).thenReturn("Standard Data Selector");
-        when(readingTypeDataSelector.getEndDeviceGroup()).thenReturn(endDeviceGroup);
-        when(readingTypeDataSelector.getExportPeriod()).thenReturn(exportPeriod);
+        when(standardDataSelector.getEndDeviceGroup()).thenReturn(endDeviceGroup);
+        when(standardDataSelector.getExportPeriod()).thenReturn(exportPeriod);
         when(exportPeriod.getRelativeDateFrom()).thenReturn(new RelativeDate(RelativeField.DAY.minus(1)));
         when(exportPeriod.getRelativeDateTo()).thenReturn(new RelativeDate());
-        when(readingTypeDataSelector.getStrategy()).thenReturn(strategy);
+        when(standardDataSelector.getStrategy()).thenReturn(strategy);
         when(strategy.getUpdateWindow()).thenReturn(Optional.empty());
-        when(readingTypeDataSelector.getStrategy().getUpdatePeriod()).thenReturn(Optional.of(exportPeriod));
+        when(standardDataSelector.getStrategy().getUpdatePeriod()).thenReturn(Optional.of(exportPeriod));
         when(exportTask.getNextExecution()).thenReturn(DataExportTaskResourceTest.NEXT_EXECUTION.toInstant());
         when(meteringGroupsService.findEndDeviceGroup(5)).thenReturn(Optional.of(endDeviceGroup));
         when(exportTask.getScheduleExpression()).thenReturn(Never.NEVER);

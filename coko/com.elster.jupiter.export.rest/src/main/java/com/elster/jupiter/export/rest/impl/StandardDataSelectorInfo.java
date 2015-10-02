@@ -1,7 +1,7 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportStrategy;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
@@ -28,7 +28,7 @@ public class StandardDataSelectorInfo {
     public StandardDataSelectorInfo() {
     }
 
-    public StandardDataSelectorInfo(ReadingTypeDataSelector selector, Thesaurus thesaurus) {
+    public StandardDataSelectorInfo(StandardDataSelector selector, Thesaurus thesaurus) {
         populateFrom(selector, thesaurus);
 
         for (ReadingType readingType : selector.getReadingTypes()) {
@@ -36,7 +36,7 @@ public class StandardDataSelectorInfo {
         }
     }
 
-    void populateFrom(ReadingTypeDataSelector selector, Thesaurus thesaurus) {
+    void populateFrom(StandardDataSelector selector, Thesaurus thesaurus) {
         id = selector.getId();
 
         deviceGroup = new MeterGroupInfo(selector.getEndDeviceGroup());
