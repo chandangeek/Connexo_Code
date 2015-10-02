@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -8,7 +9,9 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.DeviceSecurityProperty;
 import com.energyict.protocolimplv2.security.SecurityRelationTypeName;
+import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -19,12 +22,13 @@ import java.util.List;
  */
 public class SecuritySupport implements DeviceProtocolSecurityCapabilities {
 
-    public final String authenticationTranslationKeyConstant = "GarnetSecuritySupport.authenticationlevel.0";
-    public final String encryptionTranslationKeyConstant = "GarnetSecuritySupport.encryptionlevel.1";
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
-    public SecuritySupport(PropertySpecService propertySpecService) {
+    @Inject
+    public SecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
     protected PropertySpecService getPropertySpecService() {
@@ -104,8 +108,8 @@ public class SecuritySupport implements DeviceProtocolSecurityCapabilities {
         }
 
         @Override
-        public String getTranslationKey() {
-            return encryptionTranslationKeyConstant;
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.GARNET_ENCRYPTION_LEVEL_1).format();
         }
 
         @Override
@@ -128,8 +132,8 @@ public class SecuritySupport implements DeviceProtocolSecurityCapabilities {
         }
 
         @Override
-        public String getTranslationKey() {
-            return authenticationTranslationKeyConstant;
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.GARNET_AUTHENTICATION_LEVEL_0).format();
         }
 
         @Override

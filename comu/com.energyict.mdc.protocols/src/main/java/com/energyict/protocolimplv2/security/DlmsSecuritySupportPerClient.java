@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.EncryptedStringFactory;
@@ -11,6 +12,7 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -29,15 +31,15 @@ import java.util.List;
 public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
-    private static final String authenticationTranslationKeyConstant = "DlmsSecuritySupportPerClient.authenticationlevel.";
-    private static final String encryptionTranslationKeyConstant = "DlmsSecuritySupportPerClient.encryptionlevel.";
 
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public DlmsSecuritySupportPerClient(PropertySpecService propertySpecService) {
+    public DlmsSecuritySupportPerClient(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
     /**
@@ -574,15 +576,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    private abstract class AbstractAuthenticationAccessLevel implements AuthenticationDeviceAccessLevel {
-
-        @Override
-        public String getTranslationKey() {
-            return authenticationTranslationKeyConstant + getId();
-        }
-    }
-
-    private abstract class AbstractNoAuthentication extends AbstractAuthenticationAccessLevel {
+    private abstract class AbstractNoAuthentication implements AuthenticationDeviceAccessLevel {
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
@@ -596,6 +590,11 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public int getId() {
             return AuthenticationAccessLevelIds.PUBLIC_CLIENT_NO_AUTHENTICATION.accessLevel;
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_0).format();
+        }
     }
 
     protected class NoAuthenticationDataCollection extends AbstractNoAuthentication {
@@ -603,6 +602,11 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         @Override
         public int getId() {
             return AuthenticationAccessLevelIds.DATA_CLIENT_NO_AUTHENTICATION.accessLevel;
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_0).format();
         }
     }
 
@@ -612,6 +616,11 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public int getId() {
             return AuthenticationAccessLevelIds.EXT_DATA_CLIENT_NO_AUTHENTICATION.accessLevel;
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_12).format();
+        }
     }
 
     protected class NoAuthenticationManagement extends AbstractNoAuthentication {
@@ -619,6 +628,11 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         @Override
         public int getId() {
             return AuthenticationAccessLevelIds.MANAGEMENT_CLIENT_NO_AUTHENTICATION.accessLevel;
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_18).format();
         }
     }
 
@@ -628,6 +642,11 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public int getId() {
             return AuthenticationAccessLevelIds.FIRMWARE_CLIENT_NO_AUTHENTICATION.accessLevel;
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_24).format();
+        }
     }
 
     protected class NoAuthenticationManufacturer extends AbstractNoAuthentication {
@@ -636,9 +655,13 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public int getId() {
             return AuthenticationAccessLevelIds.MANUFACTURER_CLIENT_NO_AUTHENTICATION.accessLevel;
         }
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_30).format();
+        }
     }
 
-    protected class LowLevelAuthenticationPublic extends AbstractAuthenticationAccessLevel {
+    protected class LowLevelAuthenticationPublic implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -649,9 +672,15 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(getPasswordPublicPropertySpec());
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_1).format();
+        }
+
     }
 
-    protected class LowLevelAuthenticationData extends AbstractAuthenticationAccessLevel {
+    protected class LowLevelAuthenticationData implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -662,9 +691,15 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(getPasswordDataPropertySpec());
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_7).format();
+        }
+
     }
 
-    protected class LowLevelAuthenticationExtendedData extends AbstractAuthenticationAccessLevel {
+    protected class LowLevelAuthenticationExtendedData implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -675,9 +710,15 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(getPasswordExtDataPropertySpec());
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_13).format();
+        }
+
     }
 
-    protected class LowLevelAuthenticationManagement extends AbstractAuthenticationAccessLevel {
+    protected class LowLevelAuthenticationManagement implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -688,9 +729,15 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(getPasswordManagementPropertySpec());
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_19).format();
+        }
+
     }
 
-    protected class LowLevelAuthenticationFirmware extends AbstractAuthenticationAccessLevel {
+    protected class LowLevelAuthenticationFirmware implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -701,9 +748,15 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(getPasswordFirmwarePropertySpec());
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_25).format();
+        }
+
     }
 
-    protected class LowLevelAuthenticationManufacturer extends AbstractAuthenticationAccessLevel {
+    protected class LowLevelAuthenticationManufacturer implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -714,9 +767,14 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(getPasswordManufacturerPropertySpec());
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_31).format();
+        }
     }
 
-    protected class Md5AuthenticationPublic extends AbstractAuthenticationAccessLevel {
+    protected class Md5AuthenticationPublic implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -727,9 +785,14 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(getPasswordPublicPropertySpec());
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_3).format();
+        }
     }
 
-    protected class Md5AuthenticationData extends AbstractAuthenticationAccessLevel {
+    protected class Md5AuthenticationData implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -740,9 +803,14 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(getPasswordDataPropertySpec());
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_9).format();
+        }
     }
 
-    protected class Md5AuthenticationExtendedData extends AbstractAuthenticationAccessLevel {
+    protected class Md5AuthenticationExtendedData implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -753,9 +821,14 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(getPasswordExtDataPropertySpec());
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_15).format();
+        }
     }
 
-    protected class Md5AuthenticationManagement extends AbstractAuthenticationAccessLevel {
+    protected class Md5AuthenticationManagement implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -766,9 +839,14 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(getPasswordManagementPropertySpec());
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_21).format();
+        }
     }
 
-    protected class Md5AuthenticationFirmware extends AbstractAuthenticationAccessLevel {
+    protected class Md5AuthenticationFirmware implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -779,9 +857,14 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(getPasswordFirmwarePropertySpec());
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_27).format();
+        }
     }
 
-    protected class Md5AuthenticationManufacturer extends AbstractAuthenticationAccessLevel {
+    protected class Md5AuthenticationManufacturer implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -792,9 +875,15 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(getPasswordManufacturerPropertySpec());
         }
+
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_33).format();
+        }
     }
 
-    protected class ShaAuthenticationPublic extends AbstractAuthenticationAccessLevel {
+    protected class ShaAuthenticationPublic implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -805,9 +894,14 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(getPasswordPublicPropertySpec());
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_4).format();
+        }
     }
 
-    protected class ShaAuthenticationData extends AbstractAuthenticationAccessLevel {
+    protected class ShaAuthenticationData implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -818,9 +912,14 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(getPasswordDataPropertySpec());
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_10).format();
+        }
     }
 
-    protected class ShaAuthenticationExtendedData extends AbstractAuthenticationAccessLevel {
+    protected class ShaAuthenticationExtendedData implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -831,9 +930,14 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(getPasswordExtDataPropertySpec());
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_16).format();
+        }
     }
 
-    protected class ShaAuthenticationManagement extends AbstractAuthenticationAccessLevel {
+    protected class ShaAuthenticationManagement implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -844,9 +948,14 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(getPasswordManagementPropertySpec());
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_22).format();
+        }
     }
 
-    protected class ShaAuthenticationFirmware extends AbstractAuthenticationAccessLevel {
+    protected class ShaAuthenticationFirmware implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -857,9 +966,14 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(getPasswordFirmwarePropertySpec());
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_28).format();
+        }
     }
 
-    protected class ShaAuthenticationManufacturer extends AbstractAuthenticationAccessLevel {
+    protected class ShaAuthenticationManufacturer implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -870,13 +984,24 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(getPasswordManufacturerPropertySpec());
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_34).format();
+        }
     }
 
-    protected class GmacAuthenticationPublic extends AbstractAuthenticationAccessLevel {
+    protected class GmacAuthenticationPublic implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
             return AuthenticationAccessLevelIds.PUBLIC_CLIENT_GMAC_AUTHENTICATION.accessLevel;
+        }
+
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_5).format();
         }
 
         @Override
@@ -888,11 +1013,16 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class GmacAuthenticationData extends AbstractAuthenticationAccessLevel {
+    protected class GmacAuthenticationData implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
             return AuthenticationAccessLevelIds.DATA_CLIENT_GMAC_AUTHENTICATION.accessLevel;
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_11).format();
         }
 
         @Override
@@ -904,11 +1034,16 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class GmacAuthenticationExtendedData extends AbstractAuthenticationAccessLevel {
+    protected class GmacAuthenticationExtendedData implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
             return AuthenticationAccessLevelIds.EXT_DATA_CLIENT_GMAC_AUTHENTICATION.accessLevel;
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_17).format();
         }
 
         @Override
@@ -920,11 +1055,16 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class GmacAuthenticationManagement extends AbstractAuthenticationAccessLevel {
+    protected class GmacAuthenticationManagement implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
             return AuthenticationAccessLevelIds.MANAGEMENT_CLIENT_GMAC_AUTHENTICATION.accessLevel;
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_23).format();
         }
 
         @Override
@@ -936,11 +1076,16 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class GmacAuthenticationFirmware extends AbstractAuthenticationAccessLevel {
+    protected class GmacAuthenticationFirmware implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
             return AuthenticationAccessLevelIds.FIRMWARE_CLIENT_GMAC_AUTHENTICATION.accessLevel;
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_29).format();
         }
 
         @Override
@@ -952,11 +1097,16 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class GmacAuthenticationManufacturer extends AbstractAuthenticationAccessLevel {
+    protected class GmacAuthenticationManufacturer implements AuthenticationDeviceAccessLevel {
 
         @Override
         public int getId() {
             return AuthenticationAccessLevelIds.MANUFACTURER_CLIENT_GMAC_AUTHENTICATION.accessLevel;
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_35).format();
         }
 
         @Override
@@ -968,15 +1118,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    private abstract class AbstractEncryptionAccessLevel implements EncryptionDeviceAccessLevel {
-
-        @Override
-        public String getTranslationKey() {
-            return encryptionTranslationKeyConstant + getId();
-        }
-    }
-
-    private abstract class NoPropertiesEncryptionAccessLevel extends AbstractEncryptionAccessLevel {
+    private abstract class NoPropertiesEncryptionAccessLevel implements EncryptionDeviceAccessLevel {
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
@@ -990,6 +1132,11 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public int getId() {
             return EncryptionAccessLevelIds.PUBLIC_CLIENT_NO_MESSAGE_ENCRYPTION.getAccessLevel();
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_0).format();
+        }
     }
 
     protected class NoEncryptionData extends NoPropertiesEncryptionAccessLevel {
@@ -997,6 +1144,11 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         @Override
         public int getId() {
             return EncryptionAccessLevelIds.DATA_CLIENT_NO_MESSAGE_ENCRYPTION.getAccessLevel();
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_4).format();
         }
     }
 
@@ -1006,6 +1158,11 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public int getId() {
             return EncryptionAccessLevelIds.EXT_DATA_CLIENT_NO_MESSAGE_ENCRYPTION.getAccessLevel();
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_8).format();
+        }
     }
 
     protected class NoEncryptionManagement extends NoPropertiesEncryptionAccessLevel {
@@ -1013,6 +1170,11 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         @Override
         public int getId() {
             return EncryptionAccessLevelIds.MANAGEMENT_CLIENT_NO_MESSAGE_ENCRYPTION.getAccessLevel();
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_12).format();
         }
     }
 
@@ -1022,6 +1184,11 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public int getId() {
             return EncryptionAccessLevelIds.FIRMWARE_CLIENT_NO_MESSAGE_ENCRYPTION.getAccessLevel();
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_16).format();
+        }
     }
 
     protected class NoEncryptionManufacturer extends NoPropertiesEncryptionAccessLevel {
@@ -1030,9 +1197,14 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public int getId() {
             return EncryptionAccessLevelIds.MANUFACTURER_CLIENT_NO_MESSAGE_ENCRYPTION.getAccessLevel();
         }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_20).format();
+        }
     }
 
-    protected class MessageAuthenticationPublic extends AbstractEncryptionAccessLevel {
+    protected class MessageAuthenticationPublic implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -1040,6 +1212,11 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
 
         @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_2).format();
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(
                     getEncryptionKeyPublicPropertySpec(),
@@ -1048,7 +1225,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class MessageAuthenticationData extends AbstractEncryptionAccessLevel {
+    protected class MessageAuthenticationData implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -1056,6 +1233,11 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
 
         @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_6).format();
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(
                     getEncryptionKeyDataPropertySpec(),
@@ -1064,7 +1246,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class MessageAuthenticationExtendedData extends AbstractEncryptionAccessLevel {
+    protected class MessageAuthenticationExtendedData implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -1072,6 +1254,11 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
 
         @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_10).format();
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(
                     getEncryptionKeyExtDataPropertySpec(),
@@ -1080,7 +1267,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class MessageAuthenticationManagement extends AbstractEncryptionAccessLevel {
+    protected class MessageAuthenticationManagement implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -1088,6 +1275,11 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
 
         @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_14).format();
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(
                     getEncryptionKeyManagementPropertySpec(),
@@ -1096,7 +1288,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class MessageAuthenticationFirmware extends AbstractEncryptionAccessLevel {
+    protected class MessageAuthenticationFirmware implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -1104,6 +1296,11 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
 
         @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_18).format();
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(
                     getEncryptionKeyFirmwarePropertySpec(),
@@ -1112,7 +1309,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class MessageAuthenticationManufacturer extends AbstractEncryptionAccessLevel {
+    protected class MessageAuthenticationManufacturer implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -1120,6 +1317,11 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
 
         @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_22).format();
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(
                     getEncryptionKeyManufacturerPropertySpec(),
@@ -1128,7 +1330,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class MessageEncryptionPublic extends AbstractEncryptionAccessLevel {
+    protected class MessageEncryptionPublic implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
@@ -1136,6 +1338,11 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
 
         @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_1).format();
+        }
+
+        @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.<PropertySpec>asList(
                     getEncryptionKeyPublicPropertySpec(),
@@ -1144,11 +1351,16 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class MessageEncryptionData extends AbstractEncryptionAccessLevel {
+    protected class MessageEncryptionData implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
             return EncryptionAccessLevelIds.DATA_CLIENT_MESSAGE_ENCRYPTION.getAccessLevel();
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_5).format();
         }
 
         @Override
@@ -1160,11 +1372,16 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class MessageEncryptionExtendedData extends AbstractEncryptionAccessLevel {
+    protected class MessageEncryptionExtendedData implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
             return EncryptionAccessLevelIds.EXT_DATA_CLIENT_MESSAGE_ENCRYPTION.getAccessLevel();
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_9).format();
         }
 
         @Override
@@ -1176,11 +1393,16 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class MessageEncryptionManagement extends AbstractEncryptionAccessLevel {
+    protected class MessageEncryptionManagement implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
             return EncryptionAccessLevelIds.MANAGEMENT_CLIENT_MESSAGE_ENCRYPTION.getAccessLevel();
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_13).format();
         }
 
         @Override
@@ -1192,11 +1414,16 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class MessageEncryptionFirmware extends AbstractEncryptionAccessLevel {
+    protected class MessageEncryptionFirmware implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
             return EncryptionAccessLevelIds.FIRMWARE_CLIENT_MESSAGE_ENCRYPTION.getAccessLevel();
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_17).format();
         }
 
         @Override
@@ -1208,11 +1435,16 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class MessageEncryptionManufacturer extends AbstractEncryptionAccessLevel {
+    protected class MessageEncryptionManufacturer implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
             return EncryptionAccessLevelIds.MANUFACTURER_CLIENT_MESSAGE_ENCRYPTION.getAccessLevel();
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_21).format();
         }
 
         @Override
@@ -1224,11 +1456,16 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class MessageEncryptionAndAuthenticationPublic extends AbstractEncryptionAccessLevel {
+    protected class MessageEncryptionAndAuthenticationPublic implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
             return EncryptionAccessLevelIds.PUBLIC_CLIENT_MESSAGE_ENCRYPTION_AUTHENTICATION.getAccessLevel();
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_3).format();
         }
 
         @Override
@@ -1240,11 +1477,16 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class MessageEncryptionAndAuthenticationData extends AbstractEncryptionAccessLevel {
+    protected class MessageEncryptionAndAuthenticationData implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
             return EncryptionAccessLevelIds.DATA_CLIENT_MESSAGE_ENCRYPTION_AUTHENTICATION.getAccessLevel();
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_7).format();
         }
 
         @Override
@@ -1256,11 +1498,16 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class MessageEncryptionAndAuthenticationExtendedData extends AbstractEncryptionAccessLevel {
+    protected class MessageEncryptionAndAuthenticationExtendedData implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
             return EncryptionAccessLevelIds.EXT_DATA_CLIENT_MESSAGE_ENCRYPTION_AUTHENTICATION.getAccessLevel();
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_11).format();
         }
 
         @Override
@@ -1272,11 +1519,16 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class MessageEncryptionAndAuthenticationManagement extends AbstractEncryptionAccessLevel {
+    protected class MessageEncryptionAndAuthenticationManagement implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
             return EncryptionAccessLevelIds.MANAGEMENT_CLIENT_MESSAGE_ENCRYPTION_AUTHENTICATION.getAccessLevel();
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_15).format();
         }
 
         @Override
@@ -1288,11 +1540,16 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class MessageEncryptionAndAuthenticationFirmware extends AbstractEncryptionAccessLevel {
+    protected class MessageEncryptionAndAuthenticationFirmware implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
             return EncryptionAccessLevelIds.FIRMWARE_CLIENT_MESSAGE_ENCRYPTION_AUTHENTICATION.getAccessLevel();
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_19).format();
         }
 
         @Override
@@ -1304,11 +1561,16 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         }
     }
 
-    protected class MessageEncryptionAndAuthenticationManufacturer extends AbstractEncryptionAccessLevel {
+    protected class MessageEncryptionAndAuthenticationManufacturer implements EncryptionDeviceAccessLevel {
 
         @Override
         public int getId() {
             return EncryptionAccessLevelIds.MANUFACTURER_CLIENT_MESSAGE_ENCRYPTION_AUTHENTICATION.getAccessLevel();
+        }
+
+        @Override
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_23).format();
         }
 
         @Override

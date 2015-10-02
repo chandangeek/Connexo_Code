@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.ace4000;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
@@ -46,8 +47,8 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
     //Used by both inbound and outbound protocols
     protected ObjectFactory objectFactory;
 
-    public ACE4000(PropertySpecService propertySpecService, IdentificationService identificationService) {
-        super(propertySpecService);
+    public ACE4000(PropertySpecService propertySpecService, IdentificationService identificationService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
         this.identificationService = identificationService;
     }
 

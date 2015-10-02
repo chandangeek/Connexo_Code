@@ -89,13 +89,15 @@ public class SDKDeviceProtocolTestWithMandatoryProperty extends SDKDeviceProtoco
     private final ProtocolPluggableService protocolPluggableService;
 
     @Inject
-    public SDKDeviceProtocolTestWithMandatoryProperty(PropertySpecService propertySpecService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, ProtocolPluggableService protocolPluggableService) {
-        super(protocolPluggableService, propertySpecService, identificationService, collectedDataFactory);
+    public SDKDeviceProtocolTestWithMandatoryProperty(PropertySpecService propertySpecService, IdentificationService identificationService,
+                                                      CollectedDataFactory collectedDataFactory, ProtocolPluggableService protocolPluggableService,
+                                                      DlmsSecuritySupport dlmsSecuritySupport) {
+        super(protocolPluggableService, propertySpecService, identificationService, collectedDataFactory, dlmsSecuritySupport);
         this.propertySpecService = propertySpecService;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
         this.protocolPluggableService = protocolPluggableService;
-        this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport(propertySpecService);
+        this.deviceProtocolSecurityCapabilities = dlmsSecuritySupport;
     }
 
     @Override

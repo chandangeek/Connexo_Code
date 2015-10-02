@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.elster.jupiter.properties.PropertySpec;
@@ -9,6 +10,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
+import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -26,15 +28,15 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     private static final String DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME = "DataTransportEncryptionKey";
     private static final String DATA_TRANSPORT_AUTHENTICATION_KEY_LEGACY_PROPERTY_NAME = "DataTransportAuthenticationKey";
-    private final String authenticationTranslationKeyConstant = "DlmsSecuritySupport.authenticationlevel.";
-    private final String encryptionTranslationKeyConstant = "DlmsSecuritySupport.encryptionlevel.";
 
-    private PropertySpecService propertySpecService;
+    private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public DlmsSecuritySupport(PropertySpecService propertySpecService) {
+    public DlmsSecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
     /**
@@ -236,8 +238,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         }
 
         @Override
-        public String getTranslationKey() {
-            return encryptionTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORT_ENCRYPTIONLEVEL_0).format();
         }
 
         @Override
@@ -258,8 +260,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         }
 
         @Override
-        public String getTranslationKey() {
-            return encryptionTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORT_ENCRYPTIONLEVEL_1).format();
         }
 
         @Override
@@ -283,8 +285,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         }
 
         @Override
-        public String getTranslationKey() {
-            return encryptionTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORT_ENCRYPTIONLEVEL_2).format();
         }
 
         @Override
@@ -308,8 +310,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         }
 
         @Override
-        public String getTranslationKey() {
-            return encryptionTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORT_ENCRYPTIONLEVEL_3).format();
         }
 
         @Override
@@ -333,8 +335,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         }
 
         @Override
-        public String getTranslationKey() {
-            return authenticationTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORT_AUTHENTICATIONLEVEL_0).format();
         }
 
         @Override
@@ -355,8 +357,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         }
 
         @Override
-        public String getTranslationKey() {
-            return authenticationTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORT_AUTHENTICATIONLEVEL_0).format();
         }
 
         @Override
@@ -382,8 +384,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         }
 
         @Override
-        public String getTranslationKey() {
-            return authenticationTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORT_AUTHENTICATIONLEVEL_2).format();
         }
 
         @Override
@@ -405,8 +407,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         }
 
         @Override
-        public String getTranslationKey() {
-            return authenticationTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORT_AUTHENTICATIONLEVEL_3).format();
         }
 
         @Override
@@ -430,8 +432,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         }
 
         @Override
-        public String getTranslationKey() {
-            return authenticationTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORT_AUTHENTICATIONLEVEL_4).format();
         }
 
         @Override
@@ -456,8 +458,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         }
 
         @Override
-        public String getTranslationKey() {
-            return authenticationTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORT_AUTHENTICATIONLEVEL_5).format();
         }
 
         @Override

@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.security;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.EncryptedStringFactory;
@@ -11,6 +13,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
+import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -24,35 +27,40 @@ import java.util.List;
 public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
-    private final String authenticationTranslationKeyConstant = "Mtu155SecuritySupport.authenticationlevel.";
-    private final String encryptionTranslationKeyConstant = "Mtu155SecuritySupport.encryptionlevel.";
 
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public Mtu155SecuritySupport(PropertySpecService propertySpecService) {
+    public Mtu155SecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
     /**
      * Summarizes the used ID for the Encryption- and AuthenticationLevels.
      */
     protected enum AccessLevelIds {
-        KEYT(0),
-        KEYC(1),
-        KEYF(2);
+        KEYT(0, TranslationKeys.MTU155SECURITYSUPPORT_ENCRYPTIONLEVEL_0),
+        KEYC(1,TranslationKeys.MTU155SECURITYSUPPORT_ENCRYPTIONLEVEL_1),
+        KEYF(2, TranslationKeys.MTU155SECURITYSUPPORT_ENCRYPTIONLEVEL_2);
 
         private final int accessLevel;
+        private final TranslationKey translationKey;
 
-        private AccessLevelIds(int accessLevel) {
+        private AccessLevelIds(int accessLevel, TranslationKey translationKey) {
             this.accessLevel = accessLevel;
+            this.translationKey = translationKey;
         }
 
         protected int getAccessLevel() {
             return this.accessLevel;
         }
 
+        public TranslationKey getTranslationKey() {
+            return translationKey;
+        }
     }
 
     @Override
@@ -214,8 +222,8 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
         }
 
         @Override
-        public String getTranslationKey() {
-            return authenticationTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.NOORPASSWORDSECURITYSUPPORT_AUTHENTICATIONLEVEL_0).format();
         }
 
         @Override
@@ -232,8 +240,8 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
         }
 
         @Override
-        public String getTranslationKey() {
-            return encryptionTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(AccessLevelIds.KEYC.getTranslationKey()).format();
         }
 
         @Override
@@ -250,8 +258,8 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
         }
 
         @Override
-        public String getTranslationKey() {
-            return encryptionTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(AccessLevelIds.KEYT.getTranslationKey()).format();
         }
 
         @Override
@@ -268,8 +276,8 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
         }
 
         @Override
-        public String getTranslationKey() {
-            return encryptionTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(AccessLevelIds.KEYF.getTranslationKey()).format();
         }
 
         @Override

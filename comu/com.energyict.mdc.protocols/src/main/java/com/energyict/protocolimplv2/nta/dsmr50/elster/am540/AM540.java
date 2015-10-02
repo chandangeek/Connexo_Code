@@ -43,6 +43,7 @@ import com.energyict.protocolimplv2.elster.garnet.SerialDeviceProtocolDialect;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540Messaging;
 import com.energyict.protocolimplv2.nta.dsmr50.registers.Dsmr50RegisterFactory;
+import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.g3.common.G3Topology;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
@@ -56,6 +57,7 @@ import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540Cache;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.*;
@@ -75,8 +77,13 @@ public class AM540 extends AbstractDlmsProtocol {
     private AM540Messaging am540Messaging;
 
     @Inject
-    public AM540(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, LoadProfileFactory loadProfileFactory, Clock clock) {
-        super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory);
+    public AM540(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService,
+                 IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService,
+                 IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService,
+                 LoadProfileFactory loadProfileFactory, Clock clock, Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
+        super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService,
+                readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory,
+                dsmrSecuritySupportProvider);
     }
 
     @Override

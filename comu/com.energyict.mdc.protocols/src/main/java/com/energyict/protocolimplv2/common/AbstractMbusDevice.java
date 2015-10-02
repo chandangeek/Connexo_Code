@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.common;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -50,17 +51,15 @@ public abstract class AbstractMbusDevice implements DeviceProtocol {
     private final String serialNumber;
     private final DeviceProtocol meterProtocol;
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
     public abstract DeviceMessageSupport getDeviceMessageSupport();
 
-    protected AbstractMbusDevice(DeviceProtocol meterProtocol, PropertySpecService propertySpecService) {
-        this(meterProtocol, "CurrentlyUnKnown", propertySpecService);
-    }
-
-    protected AbstractMbusDevice(DeviceProtocol meterProtocol, String serialNumber, PropertySpecService propertySpecService) {
+    protected AbstractMbusDevice(DeviceProtocol meterProtocol, String serialNumber, PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.meterProtocol = meterProtocol;
         this.serialNumber = serialNumber;
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -134,7 +133,7 @@ public abstract class AbstractMbusDevice implements DeviceProtocol {
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = new ArrayList<>();
         authenticationAccessLevels.addAll(getMeterProtocol().getAuthenticationAccessLevels());
-        authenticationAccessLevels.add(new InheritedAuthenticationDeviceAccessLevel());
+        authenticationAccessLevels.add(new InheritedAuthenticationDeviceAccessLevel(thesaurus));
         return authenticationAccessLevels;
     }
 
@@ -146,7 +145,7 @@ public abstract class AbstractMbusDevice implements DeviceProtocol {
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         List<EncryptionDeviceAccessLevel> encryptionAccessLevels = new ArrayList<>();
         encryptionAccessLevels.addAll(getMeterProtocol().getEncryptionAccessLevels());
-        encryptionAccessLevels.add(new InheritedEncryptionDeviceAccessLevel());
+        encryptionAccessLevels.add(new InheritedEncryptionDeviceAccessLevel(thesaurus));
         return encryptionAccessLevels;
     }
 

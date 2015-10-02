@@ -48,6 +48,7 @@ import com.energyict.protocols.mdc.protocoltasks.CTRDeviceProtocolDialect;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -103,16 +104,22 @@ public class MTU155 implements DeviceProtocol {
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final TopologyService topologyService;
     private final MeteringService meteringService;
+    private final Provider<Mtu155SecuritySupport> mtu155SecuritySupportProvider;
 
     @Inject
-    public MTU155(CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory, Clock clock, PropertySpecService propertySpecService, SerialComponentService serialComponentService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, TopologyService topologyService, MeteringService meteringService) {
+    public MTU155(CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory, Clock clock,
+                  PropertySpecService propertySpecService, SerialComponentService serialComponentService,
+                  IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService,
+                  TopologyService topologyService, MeteringService meteringService,
+                  Provider<Mtu155SecuritySupport> mtu155SecuritySupportProvider) {
         this.collectedDataFactory = collectedDataFactory;
         this.loadProfileFactory = loadProfileFactory;
         this.clock = clock;
         this.readingTypeUtilService = readingTypeUtilService;
         this.topologyService = topologyService;
         this.meteringService = meteringService;
-        this.securityCapabilities = new Mtu155SecuritySupport(propertySpecService);
+        this.mtu155SecuritySupportProvider = mtu155SecuritySupportProvider;
+        this.securityCapabilities = mtu155SecuritySupportProvider.get();
         this.propertySpecService = propertySpecService;
         this.serialComponentService = serialComponentService;
         this.issueService = issueService;
@@ -428,7 +435,7 @@ public class MTU155 implements DeviceProtocol {
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport(this.propertySpecService);
+        Mtu155SecuritySupport mtu155SecuritySupport = mtu155SecuritySupportProvider.get();
         TypedProperties securityProperties = mtu155SecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);
         if (this.allProperties != null) {
             this.allProperties.setAllProperties(securityProperties); // this will add the dialectProperties to the deviceProperties

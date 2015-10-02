@@ -39,6 +39,7 @@ import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,15 +70,19 @@ public class RtuPlusServer implements DeviceProtocol {
     private final IdentificationService identificationService;
     private final CollectedDataFactory collectedDataFactory;
     private final MeteringService meteringService;
+    private final Provider<DsmrSecuritySupport> dmsrSecuritySupportProvider;
 
     @Inject
-    public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService, IssueService issueService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
+    public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService, IssueService issueService,
+                         IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
+                         MeteringService meteringService, Provider<DsmrSecuritySupport> dmsrSecuritySupportProvider) {
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
         this.issueService = issueService;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
         this.meteringService = meteringService;
+        this.dmsrSecuritySupportProvider = dmsrSecuritySupportProvider;
     }
 
     @Override
@@ -317,7 +322,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     public DsmrSecuritySupport getDlmsSecuritySupport() {
         if (this.dlmsSecuritySupport == null) {
-            this.dlmsSecuritySupport = new DsmrSecuritySupport(this.propertySpecService);
+            this.dlmsSecuritySupport = dmsrSecuritySupportProvider.get();
         }
         return this.dlmsSecuritySupport;
     }

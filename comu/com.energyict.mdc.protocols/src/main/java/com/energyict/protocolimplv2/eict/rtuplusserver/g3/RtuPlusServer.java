@@ -47,6 +47,7 @@ import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionTy
 import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -85,9 +86,12 @@ public class RtuPlusServer implements DeviceProtocol {
     private final CollectedDataFactory collectedDataFactory;
     private final MeteringService meteringService;
     private G3Topology g3Topology;
+    private final Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider;
 
     @Inject
-    public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService, IssueService issueService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
+    public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService, IssueService issueService,
+                         IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
+                         MeteringService meteringService, Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
         super();
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
@@ -95,6 +99,7 @@ public class RtuPlusServer implements DeviceProtocol {
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
         this.meteringService = meteringService;
+        this.dsmrSecuritySupportProvider = dsmrSecuritySupportProvider;
     }
 
     @Override
@@ -297,7 +302,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     private DeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (dlmsSecuritySupport == null) {
-            dlmsSecuritySupport = new DsmrSecuritySupport(this.getPropertySpecService());
+            dlmsSecuritySupport = dsmrSecuritySupportProvider.get();
         }
         return dlmsSecuritySupport;
     }

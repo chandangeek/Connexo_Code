@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.Password;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
@@ -9,6 +10,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
+import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -25,16 +27,16 @@ import java.util.List;
 public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
-    public static final String ENCRYPTION_KEY_PROPERTY_NAME = "WavenisEncryptionKey";
-    private static final String AUTHENTICATION_TRANSLATION_KEY = "WavenisSecuritySupport.authenticationlevel.";
-    private static final String ENCRYPTION_TRANSLATION_KEY = "WavenisSecuritySupport.encryptionlevel.";
+    private static final String ENCRYPTION_KEY_PROPERTY_NAME = "WavenisEncryptionKey";
 
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public WavenisSecuritySupport(PropertySpecService propertySpecService) {
+    public WavenisSecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -138,8 +140,8 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
         }
 
         @Override
-        public String getTranslationKey() {
-            return AUTHENTICATION_TRANSLATION_KEY + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.WAVENISSECURITYSUPPORT_AUTHENTICATIONLEVEL_0).format();
         }
 
         @Override
@@ -161,8 +163,8 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
         }
 
         @Override
-        public String getTranslationKey() {
-            return ENCRYPTION_TRANSLATION_KEY + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.WAVENISSECURITYSUPPORT_ENCRYPTIONLEVEL_0).format();
         }
 
         @Override

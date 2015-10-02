@@ -41,6 +41,7 @@ import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
+import javax.inject.Provider;
 import java.io.IOException;
 import java.time.Clock;
 import java.util.Date;
@@ -85,8 +86,14 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     private final CollectedDataFactory collectedDataFactory;
     private final MeteringService meteringService;
     private final LoadProfileFactory loadProfileFactory;
+    private final Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider;
 
-    protected AbstractDlmsProtocol(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, LoadProfileFactory loadProfileFactory) {
+    protected AbstractDlmsProtocol(Clock clock, PropertySpecService propertySpecService, SocketService socketService,
+                                   SerialComponentService serialComponentService, IssueService issueService,
+                                   TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService,
+                                   IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
+                                   MeteringService meteringService, LoadProfileFactory loadProfileFactory,
+                                   Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
         this.clock = clock;
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
@@ -98,6 +105,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         this.collectedDataFactory = collectedDataFactory;
         this.meteringService = meteringService;
         this.loadProfileFactory = loadProfileFactory;
+        this.dsmrSecuritySupportProvider = dsmrSecuritySupportProvider;
     }
 
     protected MeteringService getMeteringService() {
@@ -178,7 +186,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     private DeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (dlmsSecuritySupport == null) {
-            dlmsSecuritySupport = new DsmrSecuritySupport(this.propertySpecService);
+            dlmsSecuritySupport = dsmrSecuritySupportProvider.get();
         }
         return dlmsSecuritySupport;
     }

@@ -49,20 +49,18 @@ public class EIWeb implements DeviceProtocol {
 
     private final Clock clock;
     private final PropertySpecService propertySpecService;
-    private final IdentificationService identificationService;
     private final CollectedDataFactory collectedDataFactory;
     private SimplePasswordSecuritySupport securitySupport;
     private OfflineDevice offlineDevice;
     private LegacyMessageConverter messageConverter;
 
     @Inject
-    public EIWeb(Clock clock, PropertySpecService propertySpecService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+    public EIWeb(Clock clock, PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, SimplePasswordSecuritySupport simplePasswordSecuritySupport) {
         super();
         this.clock = clock;
         this.propertySpecService = propertySpecService;
-        this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
-        this.securitySupport = new SimplePasswordSecuritySupport(propertySpecService);
+        this.securitySupport = simplePasswordSecuritySupport;
     }
 
     @Override

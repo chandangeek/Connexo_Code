@@ -35,6 +35,7 @@ import com.energyict.protocolimplv2.edp.logbooks.LogbookReader;
 import com.energyict.protocolimplv2.edp.messages.EDPMessageExecutor;
 import com.energyict.protocolimplv2.edp.messages.EDPMessaging;
 import com.energyict.protocolimplv2.edp.registers.RegisterReader;
+import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
@@ -43,6 +44,7 @@ import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSeri
 import com.energyict.protocols.mdc.protocoltasks.EDPSerialDeviceProtocolDialect;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,8 +64,15 @@ public class CX20009 extends AbstractDlmsProtocol {
     private EDPMessaging edpMessaging;
 
     @Inject
-    public CX20009(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory, MeteringService meteringService) {
-        super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory);
+    public CX20009(Clock clock, PropertySpecService propertySpecService, SocketService socketService,
+                   SerialComponentService serialComponentService, IssueService issueService,
+                   TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService,
+                   IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
+                   LoadProfileFactory loadProfileFactory, MeteringService meteringService,
+                   Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
+        super(clock, propertySpecService, socketService, serialComponentService,
+                issueService, topologyService, readingTypeUtilService, identificationService,
+                collectedDataFactory, meteringService, loadProfileFactory, dsmrSecuritySupportProvider);
     }
 
     @Override

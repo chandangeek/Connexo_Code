@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.ace4000;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -37,8 +38,10 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
     private List<CollectedData> collectedDatas;
 
     @Inject
-    public ACE4000Inbound(MdcReadingTypeUtilService readingTypeUtilService, PropertySpecService propertySpecService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
-        super(propertySpecService, identificationService);
+    public ACE4000Inbound(MdcReadingTypeUtilService readingTypeUtilService, PropertySpecService propertySpecService,
+                          IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
+                          MeteringService meteringService, Thesaurus thesaurus) {
+        super(propertySpecService, identificationService, thesaurus);
         this.readingTypeUtilService = readingTypeUtilService;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
