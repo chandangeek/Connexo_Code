@@ -1,33 +1,26 @@
 package com.elster.jupiter.demo.impl;
 
+import com.elster.jupiter.demo.impl.commands.*;
+import com.elster.jupiter.demo.impl.commands.devices.*;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
 import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.demo.impl.commands.CreateA3DeviceCommand;
-import com.elster.jupiter.demo.impl.commands.CreateApplicationServerCommand;
-import com.elster.jupiter.demo.impl.commands.CreateAssignmentRulesCommand;
-import com.elster.jupiter.demo.impl.commands.CreateCollectRemoteDataSetupCommand;
-import com.elster.jupiter.demo.impl.commands.CreateDeliverDataSetupCommand;
-import com.elster.jupiter.demo.impl.commands.CreateDemoDataCommand;
-import com.elster.jupiter.demo.impl.commands.CreateDeviceTypeCommand;
-import com.elster.jupiter.demo.impl.commands.CreateG3GatewayCommand;
-import com.elster.jupiter.demo.impl.commands.CreateG3SlaveCommand;
-import com.elster.jupiter.demo.impl.commands.CreateNtaConfigCommand;
-import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
-import com.elster.jupiter.demo.impl.commands.CreateValidationSetupCommand;
-import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
-import com.elster.jupiter.demo.impl.commands.devices.CreateValidationDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddIntervalChannelReadingsCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddNoneIntervalChannelReadingsCommand;
 import com.elster.jupiter.demo.impl.commands.upload.AddRegisterReadingsCommand;
@@ -57,6 +50,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.security.Principal;
 import java.time.Clock;
 
@@ -77,8 +72,14 @@ import java.time.Clock;
         "osgi.command.function=addIntervalChannelReadings",
         "osgi.command.function=addNoneIntervalChannelReadings",
         "osgi.command.function=addRegisterReadings",
+        "osgi.command.function=createG3DemoBoardDevices",
         "osgi.command.function=createG3Gateway",
-        "osgi.command.function=createG3SlaveDevice"
+        "osgi.command.function=createG3SlaveAS3000",
+        "osgi.command.function=createG3SlaveAS220",
+        "osgi.command.function=createDefaultDeviceLifeCycle",
+        "osgi.command.function=setUpFirmwareManagement",
+        "osgi.command.function=createImporters",
+        "osgi.command.function=createDemoUser"
 }, immediate = true)
 public class DemoServiceImpl {
     private volatile EngineConfigurationService engineConfigurationService;
@@ -102,6 +103,7 @@ public class DemoServiceImpl {
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile KpiService kpiService;
     private volatile IssueDataCollectionService issueDataCollectionService;
+    private volatile IssueDataValidationService issueDataValidationService;
     private volatile DataCollectionKpiService dataCollectionKpiService;
     private volatile AppService appService;
     private volatile MessageService messageService;
@@ -112,6 +114,10 @@ public class DemoServiceImpl {
     private volatile Clock clock;
     private volatile IdsService idsService;
     private volatile FirmwareService firmwareService;
+    private volatile FiniteStateMachineService finiteStateMachineService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile DeviceLifeCycleService deviceLifeCycleService;
+    private volatile FileImportService fileImportService;
 
     private Injector injector;
     private boolean reThrowEx = false;
@@ -140,6 +146,7 @@ public class DemoServiceImpl {
             MeteringGroupsService meteringGroupsService,
             KpiService kpiService,
             IssueDataCollectionService issueDataCollectionService,
+            IssueDataValidationService issueDataValidationService,
             DataCollectionKpiService dataCollectionKpiService,
             AppService appService,
             MessageService messageService,
@@ -149,7 +156,11 @@ public class DemoServiceImpl {
             FavoritesService favoritesService,
             Clock clock,
             IdsService idsService,
-            FirmwareService firmwareService) {
+            FirmwareService firmwareService,
+            FiniteStateMachineService finiteStateMachineService,
+            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+            DeviceLifeCycleService deviceLifeCycleService,
+            FileImportService fileImportService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -170,6 +181,7 @@ public class DemoServiceImpl {
         setMeteringGroupsService(meteringGroupsService);
         setKpiService(kpiService);
         setIssueDataCollectionService(issueDataCollectionService);
+        setIssueDataValidationService(issueDataValidationService);
         setDataCollectionKpiService(dataCollectionKpiService);
         setAppService(appService);
         setMessageService(messageService);
@@ -180,6 +192,10 @@ public class DemoServiceImpl {
         setClock(clock);
         setIdsService(idsService);
         setFirmwareService(firmwareService);
+        setFiniteStateMachineService(finiteStateMachineService);
+        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        setDeviceLifeCycleService(deviceLifeCycleService);
+        setFileImportService(fileImportService);
 
         activate();
         reThrowEx = true;
@@ -211,6 +227,7 @@ public class DemoServiceImpl {
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(KpiService.class).toInstance(kpiService);
                 bind(IssueDataCollectionService.class).toInstance(issueDataCollectionService);
+                bind(IssueDataValidationService.class).toInstance(issueDataValidationService);
                 bind(DataCollectionKpiService.class).toInstance(dataCollectionKpiService);
                 bind(AppService.class).toInstance(appService);
                 bind(MessageService.class).toInstance(messageService);
@@ -221,6 +238,11 @@ public class DemoServiceImpl {
                 bind(Clock.class).toInstance(clock);
                 bind(IdsService.class).toInstance(idsService);
                 bind(FirmwareService.class).toInstance(firmwareService);
+                bind(FiniteStateMachineService.class).toInstance(finiteStateMachineService);
+                bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
+                bind(DeviceLifeCycleService.class).toInstance(deviceLifeCycleService);
+                bind(FileSystem.class).toInstance(FileSystems.getDefault());
+                bind(FileImportService.class).toInstance(fileImportService);
             }
         });
         Builders.initWith(this.injector);
@@ -350,6 +372,12 @@ public class DemoServiceImpl {
 
     @Reference
     @SuppressWarnings("unused")
+    public void setIssueDataValidationService(IssueDataValidationService issueDataValidationService) {
+        this.issueDataValidationService = issueDataValidationService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
     public final void setDataCollectionKpiService(DataCollectionKpiService dataCollectionKpiService) {
         this.dataCollectionKpiService = dataCollectionKpiService;
     }
@@ -402,6 +430,30 @@ public class DemoServiceImpl {
         this.idsService = idsService;
     }
 
+    @Reference
+    @SuppressWarnings("unused")
+    public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
+        this.finiteStateMachineService = finiteStateMachineService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setDeviceLifeCycleService(DeviceLifeCycleService deviceLifeCycleService) {
+        this.deviceLifeCycleService = deviceLifeCycleService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setFileImportService(FileImportService fileImportService) {
+        this.fileImportService = fileImportService;
+    }
+
     private void executeTransaction(Runnable toRunInsideTransaction) {
         setPrincipal();
         try {
@@ -443,6 +495,14 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
+    public void createG3DemoBoardDevices(){
+        executeTransaction(() -> {
+            CreateG3DemoBoardCommand command = injector.getInstance(CreateG3DemoBoardCommand.class);
+            command.run();
+        });
+    }
+
+    @SuppressWarnings("unused")
     public void createG3Gateway(String mrid){
         executeTransaction(() -> {
             CreateG3GatewayCommand command = injector.getInstance(CreateG3GatewayCommand.class);
@@ -454,9 +514,25 @@ public class DemoServiceImpl {
     }
 
     @SuppressWarnings("unused")
-    public void createG3SlaveDevice(){
+    public void createG3SlaveAS3000(String mrid){
         executeTransaction(() -> {
             CreateG3SlaveCommand command = injector.getInstance(CreateG3SlaveCommand.class);
+            command.setConfig("AS3000");
+            if (mrid != null){ //Otherwise default mrId is Used
+                command.setMrId(mrid);
+            }
+            command.run();
+        });
+    }
+
+    @SuppressWarnings("unused")
+    public void createG3SlaveAS220(String mrid){
+        executeTransaction(() -> {
+            CreateG3SlaveCommand command = injector.getInstance(CreateG3SlaveCommand.class);
+            command.setConfig("AS220");
+            if (mrid != null){ //Otherwise default mrId is Used
+                command.setMrId(mrid);
+            }
             command.run();
         });
     }
@@ -513,30 +589,47 @@ public class DemoServiceImpl {
 
     @SuppressWarnings("unused")
     public void createDemoData(){
-        System.err.println("Usage: createDemoData <comServerName> <host> <startDate, e.g. 2015-01-01>");
+        System.err.println("Usage: createDemoData <comServerName> <host> <startDate, e.g. 2015-01-01> [<numberOfDevicesPerType>]");
     }
 
     @SuppressWarnings("unused")
-    public void createDemoData(String comServerName, String host, String startDate){
-        try {
-            executeTransaction(() -> {
-                CreateDemoDataCommand command = injector.getInstance(CreateDemoDataCommand.class);
-                command.setComServerName(comServerName);
-                command.setHost(host);
-                command.setStartDate(startDate);
-                command.run();
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void createDemoData(String comServerName, String host, String startDate ){
+        this.createDemoData(comServerName, host, startDate, null);
+    }
+
+    @SuppressWarnings("unused")
+    public void createDemoData(String comServerName, String host, String startDate, String numberOfDevicesPerType ){
+        executeTransaction(() -> {
+            CreateDemoDataCommand command = injector.getInstance(CreateDemoDataCommand.class);
+            command.setComServerName(comServerName);
+            command.setHost(host);
+            command.setStartDate(startDate);
+            if (numberOfDevicesPerType == null) {
+                command.setDevicesPerType(null);
+            }else{
+                command.setDevicesPerType(Integer.valueOf(numberOfDevicesPerType));
+            }
+            command.run();
+        });
     }
 
     @SuppressWarnings("unused")
     public void createCollectRemoteDataSetup(String comServerName, String host){
+        this.createCollectRemoteDataSetup(comServerName, host, null);
+    }
+
+
+    @SuppressWarnings("unused")
+    public void createCollectRemoteDataSetup(String comServerName, String host, String numberOfDevicesPerType){
         executeTransaction(() -> {
             CreateCollectRemoteDataSetupCommand command = injector.getInstance(CreateCollectRemoteDataSetupCommand.class);
             command.setComServerName(comServerName);
             command.setHost(host);
+            if (numberOfDevicesPerType != null){
+                command.setDevicesPerType(Integer.valueOf(numberOfDevicesPerType));
+            }else{
+                command.setDevicesPerType(null);
+            }
             command.run();
         });
     }
@@ -548,6 +641,7 @@ public class DemoServiceImpl {
             command.run();
         });
     }
+
 
     @SuppressWarnings("unused")
     public void createNtaConfig(){
@@ -599,6 +693,52 @@ public class DemoServiceImpl {
     public void createDeliverDataSetup(){
         executeTransaction(() -> {
             CreateDeliverDataSetupCommand command = injector.getInstance(CreateDeliverDataSetupCommand.class);
+            command.run();
+        });
+    }
+    @SuppressWarnings("unused")
+    public void createDefaultDeviceLifeCycle(){
+        System.err.println("Usage: createDefaultDeviceLifeCycle <startDate, e.g. 2015-01-01>");
+    }
+
+    public void createDefaultDeviceLifeCycle(String lastCheckedDate){
+        executeTransaction(() -> {
+            CreateDefaultDeviceLifeCycleCommand command = injector.getInstance(CreateDefaultDeviceLifeCycleCommand.class);
+            command.setLastCheckedDate(lastCheckedDate);
+            command.run();
+        });
+    }
+    @SuppressWarnings("unused")
+    public void setUpFirmwareManagement(){
+        executeTransaction(() -> {
+            SetupFirmwareManagementCommand command = injector.getInstance(SetupFirmwareManagementCommand.class);
+            command.run();
+        });
+    }
+
+    public void createImporters(){
+        executeTransaction(() -> {
+            CreateImportersCommand command = injector.getInstance(CreateImportersCommand.class);
+            command.run();
+        });
+    }
+    @SuppressWarnings("unused")
+    public void createImporters(String appServerName){
+        executeTransaction(() -> {
+            CreateImportersCommand command = injector.getInstance(CreateImportersCommand.class);
+            command.setAppServerName(appServerName);
+            command.run();
+        });
+    }
+    @SuppressWarnings("unused")
+    public void createDemoUser(){
+        System.err.println("Usage: createDemoUser <user name>");
+    }
+
+    public void createDemoUser(String name){
+        executeTransaction(() -> {
+            CreateDemoUserCommand command= injector.getInstance(CreateDemoUserCommand.class);
+            command.setUserName(name);
             command.run();
         });
     }

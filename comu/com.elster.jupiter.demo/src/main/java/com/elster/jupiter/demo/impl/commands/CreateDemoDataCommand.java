@@ -24,10 +24,14 @@ public class CreateDemoDataCommand {
     private final Provider<CreateDeviceCommand> createDeviceCommandProvider;
     private final Provider<CreateDeliverDataSetupCommand> createDeliverDataSetupCommandProvider;
     private final Provider<ValidateStartDateCommand> validateStartDateCommandProvider;
+    private final Provider<CreateDemoUserCommand> createDemoUserCommandProvider;
+    private final Provider<SetupFirmwareManagementCommand> setupFirmwareManagementCommandProvider;
+    private final Provider<CreateImportersCommand> createImportersCommandProvider;
 
     private String comServerName;
     private String host;
     private String startDate;
+    private Integer devicesPerType = null;
 
     @Inject
     public CreateDemoDataCommand(
@@ -39,7 +43,10 @@ public class CreateDemoDataCommand {
             Provider<CreateValidationSetupCommand> createValidationSetupCommandProvider,
             Provider<CreateDeviceCommand> createDeviceCommandProvider,
             Provider<CreateDeliverDataSetupCommand> createDeliverDataSetupCommandProvider,
-            Provider<ValidateStartDateCommand> validateStartDateCommandProvider) {
+            Provider<ValidateStartDateCommand> validateStartDateCommandProvider,
+            Provider<CreateDemoUserCommand> createDemoUserCommandProvider,
+            Provider<SetupFirmwareManagementCommand> setupFirmwareManagementCommandProvider,
+            Provider<CreateImportersCommand> createImportersCommandProvider) {
         this.createCollectRemoteDataSetupCommandProvider = createCollectRemoteDataSetupCommandProvider;
         this.createUserManagementCommandProvider = createUserManagementCommandProvider;
         this.createApplicationServerCommandProvider = createApplicationServerCommandProvider;
@@ -49,6 +56,9 @@ public class CreateDemoDataCommand {
         this.createDeviceCommandProvider = createDeviceCommandProvider;
         this.createDeliverDataSetupCommandProvider = createDeliverDataSetupCommandProvider;
         this.validateStartDateCommandProvider = validateStartDateCommandProvider;
+        this.createDemoUserCommandProvider = createDemoUserCommandProvider;
+        this.setupFirmwareManagementCommandProvider = setupFirmwareManagementCommandProvider;
+        this.createImportersCommandProvider = createImportersCommandProvider;
     }
 
     public void setComServerName(String comServerName) {
@@ -67,16 +77,24 @@ public class CreateDemoDataCommand {
         }
     }
 
+    public void setDevicesPerType(Integer devicesPerType) {
+        this.devicesPerType = devicesPerType;
+    }
+
     public void run(){
         validateStartDateCommand();
         createUserManagementCommand();
-        createCollectRemoteDataSetupCommand();
-        createValidationSetupCommand();
+        createDemoUserCommand("DemoUser1", "DemoUser2", "DemoUser3", "DemoUser4", "DemoUser5");
         createApplicationServerCommand();
+        createCollectRemoteDataSetupCommand();
+        setupFirmwareManagementCommand();
+        createImportersCommand();
+        createValidationSetupCommand();
         createNtaConfigCommand();
         createMockedDataDeviceCommand();
-        uploadAllData();
         createDeliverDataSetupCommand();
+
+        uploadAllData();
     }
 
     private void validateStartDateCommand(){
@@ -106,10 +124,19 @@ public class CreateDemoDataCommand {
         command.run();
     }
 
+    private void createDemoUserCommand(String... usernames){
+        CreateDemoUserCommand command = this.createDemoUserCommandProvider.get();
+        for (String name: usernames){
+            command.setUserName(name);
+            command.run();
+        }
+    }
+
     private void createCollectRemoteDataSetupCommand(){
         CreateCollectRemoteDataSetupCommand command = this.createCollectRemoteDataSetupCommandProvider.get();
         command.setComServerName(this.comServerName);
         command.setHost(this.host);
+        command.setDevicesPerType(this.devicesPerType);
         command.run();
     }
 
@@ -145,5 +172,16 @@ public class CreateDemoDataCommand {
     private void createDeliverDataSetupCommand(){
         CreateDeliverDataSetupCommand createDeliverDataSetupCommand = this.createDeliverDataSetupCommandProvider.get();
         createDeliverDataSetupCommand.run();
+    }
+
+    private void setupFirmwareManagementCommand(){
+        SetupFirmwareManagementCommand setupFirmwareManagementCommand = this.setupFirmwareManagementCommandProvider.get();
+        setupFirmwareManagementCommand.run();
+    }
+
+    private void createImportersCommand(){
+        CreateImportersCommand importersCommand = this.createImportersCommandProvider.get();
+        importersCommand.setAppServerName(this.comServerName);
+        importersCommand.run();
     }
 }

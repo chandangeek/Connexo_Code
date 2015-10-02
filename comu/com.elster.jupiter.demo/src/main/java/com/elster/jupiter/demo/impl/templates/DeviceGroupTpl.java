@@ -7,16 +7,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * {@link Template} holding a set of predefined attributes for creating {@link EndDeviceGroup}s
+ *
+ * Copyrights EnergyICT
+ * Date: 17/09/2015
+ * Time: 9:56
+ */
 public enum DeviceGroupTpl implements Template<EndDeviceGroup, DeviceGroupBuilder> {
     NORTH_REGION("South region", Arrays.asList(
             DeviceTypeTpl.Elster_AS1440, DeviceTypeTpl.Landis_Gyr_ZMD, DeviceTypeTpl.Actaris_SL7000
     )),
     SOUTH_REGION("North region", Arrays.asList(
-            DeviceTypeTpl.Elster_AS3000, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38
+            DeviceTypeTpl.Elster_A1800, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38
     )),
     ALL_ELECTRICITY_DEVICES("All electricity devices", Arrays.asList(
             DeviceTypeTpl.Elster_AS1440, DeviceTypeTpl.Landis_Gyr_ZMD, DeviceTypeTpl.Actaris_SL7000,
-            DeviceTypeTpl.Elster_AS3000, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38
+            DeviceTypeTpl.Elster_A1800, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38
     )),
     ;
 
@@ -35,7 +42,7 @@ public enum DeviceGroupTpl implements Template<EndDeviceGroup, DeviceGroupBuilde
 
     @Override
     public DeviceGroupBuilder get(DeviceGroupBuilder builder) {
-        return builder.withName(this.name).withDeviceTypes(this.deviceTypes.stream().map(tpl -> tpl.getName()).collect(Collectors.toList()));
+        return builder.withName(this.name).withDeviceTypes(this.deviceTypes.stream().map(DeviceTypeTpl::getLongName).collect(Collectors.toList()));
     }
 
     public String getName() {
