@@ -1,8 +1,8 @@
 package com.elster.jupiter.util;
 
-import java.time.Instant;
-
 import org.junit.Test;
+
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -78,6 +78,26 @@ public class ChecksTest {
     public void testOnlyWhiteSpaceOnAllWhiteSpaceStringIsTrue() {
         String allWhitespaceCharacters = " \t\n\u000B\f\r\u001C\u001D\u001E\u001F";
         assertThat(Checks.is(allWhitespaceCharacters).onlyWhiteSpace()).isTrue();
+    }
+
+    @Test
+    public void testInTriviallyFalse() {
+        assertThat(Checks.is("T").in("A", "B", "C")).isFalse();
+    }
+
+    @Test
+    public void testInFalseWhenEmpty() {
+        assertThat(Checks.is("T").in()).isFalse();
+    }
+
+    @Test
+    public void testInTriviallyTrue() {
+        assertThat(Checks.is("T").in("A", "B", "T", "C")).isTrue();
+    }
+
+    @Test
+    public void testInTrueForNull() {
+        assertThat(Checks.is((Object) null).in("A", null, "T", "C")).isTrue();
     }
 
 }

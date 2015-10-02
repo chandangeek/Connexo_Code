@@ -1,5 +1,7 @@
 package com.elster.jupiter.util;
 
+import java.util.Arrays;
+
 /**
  * Part of fluent API, see Checks.
  */
@@ -25,5 +27,10 @@ public class ObjectChecker<T> {
     @Override
     public boolean equals(Object obj) {
         return super.equals(obj);
+    }
+
+    public boolean in(Object... objects) {
+        return Arrays.stream(objects)
+                .anyMatch(this::equalTo);
     }
 }
