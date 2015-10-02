@@ -209,7 +209,8 @@ public class AM540 extends AbstractDlmsProtocol {
     }
 
     private void checkIfWeCanSolveWithAReleaseAssociation(ComServerRuntimeException e) {
-        if (e.getMessage().contains("Application Association Establishment Failed, ACSE_SERVICE_USER, no reason given")) {
+        if (e.getMessage() != null &&
+                e.getMessage().contains("Application Association Establishment Failed, ACSE_SERVICE_USER, no reason given")) {
             if (getDlmsSession().getAso() != null) {
                 try {
                     getDlmsSession().getAso().releaseAssociation();
