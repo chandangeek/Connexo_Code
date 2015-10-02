@@ -1,5 +1,13 @@
 package com.energyict.mdc.issue.datacollection.impl.event;
 
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
+
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -10,12 +18,6 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -35,6 +37,7 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
     private volatile IssueService issueService;
     private volatile MeteringService meteringService;
     private volatile CommunicationTaskService communicationTaskService;
+    private volatile CommunicationTaskReportService communicationTaskReportService;
     private volatile ConnectionTaskService connectionTaskService;
     private volatile TopologyService topologyService;
     private volatile DeviceService deviceService;
@@ -53,6 +56,7 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
             IssueService issueService,
             MeteringService meteringService,
             CommunicationTaskService communicationTaskService,
+            CommunicationTaskReportService communicationTaskReportService,
             ConnectionTaskService connectionTaskService,
             TopologyService topologyService,
             DeviceService deviceService,
@@ -63,6 +67,7 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
         setIssueService(issueService);
         setMeteringService(meteringService);
         setCommunicationTaskService(communicationTaskService);
+        setCommunicationTaskReportService(communicationTaskReportService);
         setConnectionTaskService(connectionTaskService);
         setTopologyService(topologyService);
         setDeviceService(deviceService);
@@ -80,6 +85,7 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
                 bind(JsonService.class).toInstance(jsonService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
+                bind(CommunicationTaskReportService.class).toInstance(communicationTaskReportService);
                 bind(ConnectionTaskService.class).toInstance(connectionTaskService);
                 bind(TopologyService.class).toInstance(topologyService);
                 bind(DeviceService.class).toInstance(deviceService);
@@ -108,8 +114,13 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
     }
 
     @Reference
-    public final void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public final void setCommunicationTaskReportService(CommunicationTaskReportService communicationTaskReportService) {
+        this.communicationTaskReportService = communicationTaskReportService;
     }
 
     @Reference
