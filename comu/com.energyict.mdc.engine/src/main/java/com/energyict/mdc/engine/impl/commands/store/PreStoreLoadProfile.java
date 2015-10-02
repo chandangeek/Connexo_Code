@@ -57,35 +57,40 @@ public class PreStoreLoadProfile {
      * @param collectedLoadProfile the collected data from a LoadProfile to (pre)Store
      * @return the preStored LoadProfile
      */
-    Optional<Pair<DeviceIdentifier<Device>, LocalLoadProfile>> preStore(CollectedLoadProfile collectedLoadProfile) {
-        Optional<OfflineLoadProfile> offlineLoadProfile = this.comServerDAO.findOfflineLoadProfile(collectedLoadProfile.getLoadProfileIdentifier());
-        if (offlineLoadProfile.isPresent()) {
-            List<IntervalBlock> processedBlocks = new ArrayList<>();
-            Instant lastReading = null;
-            Range<Instant> range = getRangeForNewIntervalStorage(offlineLoadProfile.get());
-            for (Pair<IntervalBlock, ChannelInfo> intervalBlockChannelInfoPair : DualIterable.endWithLongest(MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile), collectedLoadProfile.getChannelInfo())) {
-                IntervalBlock intervalBlock = intervalBlockChannelInfoPair.getFirst();
-                ChannelInfo channelInfo = intervalBlockChannelInfoPair.getLast();
+    PreStoredLoadProfile preStore(CollectedLoadProfile collectedLoadProfile) {
+        PreStoredLoadProfile preStoredLoadProfile = new PreStoredLoadProfile(collectedLoadProfile.getLoadProfileIdentifier().getDeviceIdentifier());
+        if (collectedLoadProfile.getCollectedIntervalData().size() > 0) {
+            Optional<OfflineLoadProfile> optionalLoadProfile = this.comServerDAO.findOfflineLoadProfile(collectedLoadProfile.getLoadProfileIdentifier());
+            optionalLoadProfile.ifPresent(offlineLoadProfile -> {
+                List<IntervalBlock> processedBlocks = new ArrayList<>();
+                Instant lastReading = null;
+                preStoredLoadProfile.setPreStoreResult(PreStoredLoadProfile.PreStoreResult.OK);
+                Range<Instant> range = getRangeForNewIntervalStorage(offlineLoadProfile);
+                for (Pair<IntervalBlock, ChannelInfo> intervalBlockChannelInfoPair : DualIterable.endWithLongest(MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile), collectedLoadProfile.getChannelInfo())) {
+                    IntervalBlock intervalBlock = intervalBlockChannelInfoPair.getFirst();
+                    ChannelInfo channelInfo = intervalBlockChannelInfoPair.getLast();
 
-                Unit configuredUnit = this.mdcReadingTypeUtilService.getMdcUnitFor(channelInfo.getReadingTypeMRID());
-                int scaler = getScaler(channelInfo.getUnit(), configuredUnit);
-                BigDecimal channelOverFlowValue = getChannelOverFlowValue(channelInfo, offlineLoadProfile.get());
-                IntervalBlockImpl processingBlock = IntervalBlockImpl.of(intervalBlock.getReadingTypeCode());
-                for (IntervalReading intervalReading : intervalBlock.getIntervals()) {
-                    if (range.contains(intervalReading.getTimeStamp())) {
-                        IntervalReading scaledIntervalReading = getScaledIntervalReading(scaler, intervalReading);
-                        IntervalReading overflowCheckedReading = getOverflowCheckedReading(channelOverFlowValue, scaledIntervalReading);
-                        processingBlock.addIntervalReading(overflowCheckedReading);
-                        lastReading = updateLastReadingIfLater(lastReading, intervalReading);
+                    Unit configuredUnit = this.mdcReadingTypeUtilService.getMdcUnitFor(channelInfo.getReadingTypeMRID());
+                    int scaler = getScaler(channelInfo.getUnit(), configuredUnit);
+                    BigDecimal channelOverFlowValue = getChannelOverFlowValue(channelInfo, offlineLoadProfile);
+                    IntervalBlockImpl processingBlock = IntervalBlockImpl.of(intervalBlock.getReadingTypeCode());
+                    for (IntervalReading intervalReading : intervalBlock.getIntervals()) {
+                        if (range.contains(intervalReading.getTimeStamp())) {
+                            IntervalReading scaledIntervalReading = getScaledIntervalReading(scaler, intervalReading);
+                            IntervalReading overflowCheckedReading = getOverflowCheckedReading(channelOverFlowValue, scaledIntervalReading);
+                            processingBlock.addIntervalReading(overflowCheckedReading);
+                            lastReading = updateLastReadingIfLater(lastReading, intervalReading);
+                        }
                     }
+                    processedBlocks.add(processingBlock);
                 }
-                processedBlocks.add(processingBlock);
-            }
-            return Optional.of(Pair.of(collectedLoadProfile.getLoadProfileIdentifier().getDeviceIdentifier(), new LocalLoadProfile(processedBlocks, lastReading)));
+                preStoredLoadProfile.setIntervalBlocks(processedBlocks);
+                preStoredLoadProfile.setLastReading(lastReading);
+            });
+        } else {
+            preStoredLoadProfile.setPreStoreResult(PreStoredLoadProfile.PreStoreResult.NO_INTERVALS_COLLECTED);
         }
-        else {
-            return Optional.empty();
-        }
+        return preStoredLoadProfile;
     }
 
     private Range<Instant> getRangeForNewIntervalStorage(OfflineLoadProfile offlineLoadProfile) {
@@ -135,23 +140,53 @@ public class PreStoreLoadProfile {
         return lastReading;
     }
 
-    class LocalLoadProfile {
+    /**
+     * ValueObject representing a LoadProfile which was prepared before storing
+     */
+    static class PreStoredLoadProfile {
 
-        private final List<IntervalBlock> intervalBlocks;
-        private final Instant lastReading;
+        enum PreStoreResult{
+            OK,
+            LOADPROFILE_NOT_FOUND,
+            NO_INTERVALS_COLLECTED
+            ;
+        }
 
-        private LocalLoadProfile(List<IntervalBlock> intervalBlocks, Instant lastReading) {
-            super();
-            this.intervalBlocks = intervalBlocks;
-            this.lastReading = lastReading;
+        private final DeviceIdentifier<Device> deviceIdentifier;
+        private List<IntervalBlock> intervalBlocks;
+        private Instant lastReading;
+        private PreStoreResult preStoreResult = PreStoreResult.LOADPROFILE_NOT_FOUND;
+
+        PreStoredLoadProfile(DeviceIdentifier<Device> deviceIdentifier) {
+            this.deviceIdentifier = deviceIdentifier;
+        }
+
+        public DeviceIdentifier<Device> getDeviceIdentifier() {
+            return deviceIdentifier;
         }
 
         public List<IntervalBlock> getIntervalBlocks() {
             return intervalBlocks;
         }
 
+        public void setIntervalBlocks(List<IntervalBlock> intervalBlocks) {
+            this.intervalBlocks = intervalBlocks;
+        }
+
         public Instant getLastReading() {
             return lastReading;
+        }
+
+        public void setLastReading(Instant lastReading) {
+            this.lastReading = lastReading;
+        }
+
+        public PreStoreResult getPreStoreResult() {
+            return preStoreResult;
+        }
+
+        public void setPreStoreResult(PreStoreResult preStoreResult) {
+            this.preStoreResult = preStoreResult;
         }
     }
 
