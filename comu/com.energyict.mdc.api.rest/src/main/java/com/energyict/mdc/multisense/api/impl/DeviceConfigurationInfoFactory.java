@@ -72,6 +72,20 @@ public class DeviceConfigurationInfoFactory {
                         return linkInfo;
                     }).collect(toList());
         });
+        map.put("securityPropertySets", (deviceConfigurationInfo, deviceConfiguration, uriInfo) -> {
+            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
+                    .path(ConfigurationSecurityPropertySetResource.class)
+                    .path(ConfigurationSecurityPropertySetResource.class, "getSecurityPropertySet")
+                    .resolveTemplate("deviceTypeId", deviceConfiguration.getDeviceType().getId())
+                    .resolveTemplate("deviceConfigId", deviceConfiguration.getId());
+            deviceConfigurationInfo.securityPropertySets =
+                    deviceConfiguration.getSecurityPropertySets().stream().map(sps -> {
+                        LinkInfo linkInfo = new LinkInfo();
+                        linkInfo.id = sps.getId();
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").build(sps.getId());
+                        return linkInfo;
+                    }).collect(toList());
+        });
         return map;
     }
 

@@ -27,7 +27,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-@Path("/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigId}/securitypropertyset")
+@Path("/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigId}/securitypropertysets")
 public class ConfigurationSecurityPropertySetResource {
 
     private final DeviceConfigurationService deviceConfigurationService;

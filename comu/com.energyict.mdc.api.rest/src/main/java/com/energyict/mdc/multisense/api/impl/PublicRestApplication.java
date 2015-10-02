@@ -74,19 +74,22 @@ public class PublicRestApplication extends Application implements TranslationKey
         return ImmutableSet.of(
                 TransactionWrapper.class,
                 ExceptionLogger.class,
-                DeviceResource.class,
-                DeviceConfigurationResource.class,
-                DeviceTypeResource.class,
-                DeviceLifecycleActionResource.class,
-                ConnectionTaskResource.class,
-                ComPortPoolResource.class,
-                PartialConnectionTaskResource.class,
-                ComTaskResource.class,
-                DeviceMessageCategoryResource.class,
-                ProtocolTaskResource.class,
-                DeviceProtocolPluggableClassResource.class,
+
                 AuthenticationDeviceAccessLevelResource.class,
+                ComPortPoolResource.class,
+                ComTaskResource.class,
+                ConfigurationSecurityPropertySetResource.class,
+                ConnectionTaskResource.class,
+                DeviceConfigurationResource.class,
+                DeviceLifecycleActionResource.class,
+                DeviceMessageCategoryResource.class,
+                DeviceProtocolPluggableClassResource.class,
+                DeviceResource.class,
+                DeviceTypeResource.class,
                 EncryptionDeviceAccessLevelResource.class,
+                PartialConnectionTaskResource.class,
+                ProtocolTaskResource.class,
+
                 RestExceptionMapper.class,
                 DeviceLifeCycleActionViolationExceptionMapper.class
         );
@@ -234,6 +237,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(DeviceProtocolPluggableClassInfoFactory.class).to(DeviceProtocolPluggableClassInfoFactory.class).in(Singleton.class);
             bind(AuthenticationDeviceAccessLevelInfoFactory.class).to(AuthenticationDeviceAccessLevelInfoFactory.class).in(Singleton.class);
             bind(EncryptionDeviceAccessLevelInfoFactory.class).to(EncryptionDeviceAccessLevelInfoFactory.class).in(Singleton.class);
+            bind(ConfigurationSecurityPropertySetFactory.class).to(ConfigurationSecurityPropertySetFactory.class).in(Singleton.class);
         }
     }
 
