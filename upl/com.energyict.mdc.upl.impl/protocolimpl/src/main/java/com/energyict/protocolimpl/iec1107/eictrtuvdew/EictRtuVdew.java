@@ -516,11 +516,10 @@ public class EictRtuVdew extends PluggableMeterProtocol implements HHUEnabler, P
     // implement HalfDuplexEnabler
     public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
         this.halfDuplexController = halfDuplexController;
-        halfDuplexController.setDelay(halfDuplex);
-
+        this.halfDuplexController.setDelay(halfDuplex);
 
         if (getFlagIEC1107Connection() != null) {
-            getFlagIEC1107Connection().setHalfDuplexController(halfDuplexController);
+            getFlagIEC1107Connection().setHalfDuplexController(halfDuplex != 0 ? this.halfDuplexController : null);
         }
     }
 } // public class EictRtuVdew implements MeterProtocol {

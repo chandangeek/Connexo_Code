@@ -975,6 +975,10 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             this.halfDuplexController = controller;
         }
         this.halfDuplexController.setDelay(this.halfDuplex);
+
+        if (getFlagIEC1107Connection() != null) {
+            getFlagIEC1107Connection().setHalfDuplexController(this.halfDuplex != 0 ? this.halfDuplexController : null);
+        }
     }
 
     public int getLimitMaxNrOfDays() {

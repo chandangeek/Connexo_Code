@@ -1172,10 +1172,10 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      */
     public void setHalfDuplexController(HalfDuplexController halfDuplexController) {
         this.halfDuplexController = halfDuplexController;
-        halfDuplexController.setDelay(halfDuplex);
+        this.halfDuplexController.setDelay(halfDuplex);
 
         if (getProtocolConnection() != null && getProtocolConnection() instanceof HalfDuplexEnabler) {
-            ((HalfDuplexEnabler) getProtocolConnection()).setHalfDuplexController(halfDuplexController);
+            ((HalfDuplexEnabler) getProtocolConnection()).setHalfDuplexController(halfDuplex != 0 ? this.halfDuplexController : null);
         }
     }
 
