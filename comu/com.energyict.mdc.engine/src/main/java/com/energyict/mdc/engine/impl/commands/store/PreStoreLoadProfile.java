@@ -27,7 +27,7 @@ import java.util.Optional;
 
 /**
  * Performs several actions on the given LoadProfile data which are required before storing.
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 7/30/14
  * Time: 9:34 AM
@@ -47,11 +47,11 @@ public class PreStoreLoadProfile {
     /**
      * Tasks:
      * <ul>
-     *     <li>Filter future dates</li>
-     *     <li>Scale value according to unit</li>
-     *     <li>OverFlow calculation</li>
-     *     <li>Calculate last reading</li>
-     *     <li>Remove the entry which corresponds with the lastReading (because we already have it)</li>
+     * <li>Filter future dates</li>
+     * <li>Scale value according to unit</li>
+     * <li>OverFlow calculation</li>
+     * <li>Calculate last reading</li>
+     * <li>Remove the entry which corresponds with the lastReading (because we already have it)</li>
      * </ul>
      *
      * @param collectedLoadProfile the collected data from a LoadProfile to (pre)Store
@@ -84,7 +84,7 @@ public class PreStoreLoadProfile {
                     }
                     processedBlocks.add(processingBlock);
                 }
-                preStoredLoadProfile.setIntervalBlocks(processedBlocks);
+                checkIfYouHaveAnEmptyChannel(preStoredLoadProfile, processedBlocks);
                 preStoredLoadProfile.setLastReading(lastReading);
             });
         } else {
@@ -93,12 +93,21 @@ public class PreStoreLoadProfile {
         return preStoredLoadProfile;
     }
 
+    private void checkIfYouHaveAnEmptyChannel(PreStoredLoadProfile preStoredLoadProfile, List<IntervalBlock> processedBlocks) {
+        final Optional<IntervalBlock> blockWithNoIntervals = processedBlocks.stream().filter(intervalBlock -> intervalBlock.getIntervals().size() == 0).findAny();
+        if (blockWithNoIntervals.isPresent()) {
+            preStoredLoadProfile.setPreStoreResult(PreStoredLoadProfile.PreStoreResult.NO_INTERVALS_COLLECTED);
+        } else {
+            preStoredLoadProfile.setIntervalBlocks(processedBlocks);
+        }
+    }
+
     private Range<Instant> getRangeForNewIntervalStorage(OfflineLoadProfile offlineLoadProfile) {
         return Range.openClosed(offlineLoadProfile.getLastReading().orElse(Instant.EPOCH), clock.instant());
     }
 
     private IntervalReading getOverflowCheckedReading(BigDecimal channelOverFlowValue, IntervalReading scaledIntervalReading) {
-        if(scaledIntervalReading.getValue().compareTo(channelOverFlowValue) > 0){
+        if (scaledIntervalReading.getValue().compareTo(channelOverFlowValue) > 0) {
             return IntervalReadingImpl.of(scaledIntervalReading.getTimeStamp(), scaledIntervalReading.getValue().subtract(channelOverFlowValue), scaledIntervalReading.getProfileStatus());
         }
         return scaledIntervalReading;
@@ -109,7 +118,7 @@ public class PreStoreLoadProfile {
             /**
              * Check the ObisCode, NOT the ReadingTye
              */
-            if(offlineLoadProfileChannel.getObisCode().equals(channelInfo.getChannelObisCode())){
+            if (offlineLoadProfileChannel.getObisCode().equals(channelInfo.getChannelObisCode())) {
                 return offlineLoadProfileChannel.getOverflow();
             }
         }
@@ -117,7 +126,7 @@ public class PreStoreLoadProfile {
     }
 
     private IntervalReading getScaledIntervalReading(int scaler, IntervalReading intervalReading) {
-        if(scaler == 0){
+        if (scaler == 0) {
             return intervalReading;
         } else {
             BigDecimal scaledValue = intervalReading.getValue().scaleByPowerOfTen(scaler);
@@ -125,8 +134,8 @@ public class PreStoreLoadProfile {
         }
     }
 
-    private int getScaler(Unit fromUnit, Unit toUnit){
-        if(fromUnit.equalBaseUnit(toUnit)){
+    private int getScaler(Unit fromUnit, Unit toUnit) {
+        if (fromUnit.equalBaseUnit(toUnit)) {
             return fromUnit.getScale() - toUnit.getScale();
         } else {
             return 0;
@@ -145,11 +154,10 @@ public class PreStoreLoadProfile {
      */
     static class PreStoredLoadProfile {
 
-        enum PreStoreResult{
+        enum PreStoreResult {
             OK,
             LOADPROFILE_NOT_FOUND,
-            NO_INTERVALS_COLLECTED
-            ;
+            NO_INTERVALS_COLLECTED;
         }
 
         private final DeviceIdentifier<Device> deviceIdentifier;

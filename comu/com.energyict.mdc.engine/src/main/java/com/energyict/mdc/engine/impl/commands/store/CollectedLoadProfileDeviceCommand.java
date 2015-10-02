@@ -12,9 +12,11 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides functionality to store {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} data.
@@ -41,12 +43,14 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
         if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
             updateMeterDataStorer(preStoredLoadProfile.getDeviceIdentifier(), preStoredLoadProfile.getIntervalBlocks(), preStoredLoadProfile.getLastReading());
         } else if(preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.NO_INTERVALS_COLLECTED)){
+            final Optional<OfflineLoadProfile> optionalLoadProfile = comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier());
             this.addIssue(
                     CompletionCode.Ok,
                     this.getIssueService().newWarning(
                             this,
-                            MessageSeeds.NO_LOAD_PROFILE_DATA_COLLECTED.getKey(),
-                            comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier()).map(offlineLoadProfile -> offlineLoadProfile.getObisCode().toString()).orElse("")));
+                            MessageSeeds.NO_NEW_LOAD_PROFILE_DATA_COLLECTED.getKey(),
+                            optionalLoadProfile.get().getObisCode().toString(),
+                            optionalLoadProfile.get().getLastReading().map(instant -> instant).orElse(Instant.EPOCH)));
         }
         else {
             this.addIssue(
