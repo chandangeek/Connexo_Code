@@ -15,6 +15,7 @@ Ext.define('Uni.view.search.Results', {
 
     store: 'Uni.store.search.Results',
     forceFit: true,
+    enableColumnMove: true,
     columns: [],
 
     initComponent: function () {
