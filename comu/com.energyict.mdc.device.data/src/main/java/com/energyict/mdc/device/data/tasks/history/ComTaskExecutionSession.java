@@ -1,13 +1,13 @@
 package com.energyict.mdc.device.data.tasks.history;
 
 import com.energyict.mdc.common.HasId;
-
-import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
+
+import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.domain.util.Finder;
 
 import java.time.Instant;
 import java.util.EnumSet;
@@ -23,38 +23,38 @@ import java.util.Set;
 @ProviderType
 public interface ComTaskExecutionSession extends HasId {
 
-    public enum SuccessIndicator {
+    enum SuccessIndicator {
         Success,
         Failure,
         Interrupted;
 
-        public static Set<SuccessIndicator> unSuccessful(){
+        public static Set<SuccessIndicator> unSuccessful() {
             return EnumSet.of(Failure, Interrupted);
         }
 
     }
 
-    public Device getDevice ();
+    Device getDevice();
 
-    public ComSession getComSession ();
+    ComSession getComSession();
 
-    public ComStatistics getStatistics();
+    ComStatistics getStatistics();
 
-    public ComTaskExecution getComTaskExecution ();
+    ComTaskExecution getComTaskExecution();
 
-    public ComTask getComTask();
+    ComTask getComTask();
 
-    public List<ComTaskExecutionJournalEntry> getComTaskExecutionJournalEntries ();
+    List<ComTaskExecutionJournalEntry> getComTaskExecutionJournalEntries();
 
-    public Finder<ComTaskExecutionJournalEntry> findComTaskExecutionJournalEntries(Set<ComServer.LogLevel> levels);
+    Finder<ComTaskExecutionJournalEntry> findComTaskExecutionJournalEntries(Set<ComServer.LogLevel> levels);
 
-    public Instant getStartDate ();
+    Instant getStartDate();
 
-    public Instant getStopDate ();
+    Instant getStopDate();
 
-    public boolean endsAfter (ComTaskExecutionSession other);
+    boolean endsAfter(ComTaskExecutionSession other);
 
-    public SuccessIndicator getSuccessIndicator ();
+    SuccessIndicator getSuccessIndicator();
 
     /**
      * Returns a {@link ComCommandJournalEntryBuilder} that adds a new
@@ -66,7 +66,7 @@ public interface ComTaskExecutionSession extends HasId {
      * @param commandDescription The ComCommand description
      * @return The ComCommandJournalEntryBuilder
      */
-    public ComCommandJournalEntry createComCommandJournalEntry(Instant timestamp, CompletionCode completionCode, String errorDescription, String commandDescription);
+    ComCommandJournalEntry createComCommandJournalEntry(Instant timestamp, CompletionCode completionCode, String errorDescription, String commandDescription);
 
     /**
      * Returns a {@link ComCommandJournalEntryBuilder} that adds a new
@@ -78,24 +78,24 @@ public interface ComTaskExecutionSession extends HasId {
      * @param errorDescription The error description
      * @return The ComTaskExecutionMessageJournalEntryBuilder
      */
-    public ComTaskExecutionMessageJournalEntry createComTaskExecutionMessageJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, String errorDescription);
+    ComTaskExecutionMessageJournalEntry createComTaskExecutionMessageJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, String errorDescription);
 
     /**
      * Gets the completion code with the highest priority
      * @return the completion code
      */
-    public CompletionCode getHighestPriorityCompletionCode();
+    CompletionCode getHighestPriorityCompletionCode();
 
     /**
      * Gets the error description of the journal entry with the highest priority completion code
      * @return The error description
      */
-    public String getHighestPriorityErrorDescription();
+    String getHighestPriorityErrorDescription();
 
     /**
      * Provides building services for {@link ComTaskExecutionJournalEntry ComTaskExecutionJournalEntries}.
      */
-    public interface ComTaskExecutionJournalEntryBuilder {
+    interface ComTaskExecutionJournalEntryBuilder {
 
         /**
          * Specifies the timestamp of the entry that is under construction.
@@ -103,20 +103,20 @@ public interface ComTaskExecutionSession extends HasId {
          *
          * @param when The entry's timestamp
          */
-        public void timestamp (Instant when);
+        void timestamp(Instant when);
 
-        public void errorDescription (String errorDescription);
+        void errorDescription(String errorDescription);
 
     }
 
     /**
      * Provides building services for {@link ComCommandJournalEntry ComCommandJournalEntries}.
      */
-    public interface ComCommandJournalEntryBuilder extends ComTaskExecutionJournalEntryBuilder {
+    interface ComCommandJournalEntryBuilder extends ComTaskExecutionJournalEntryBuilder {
 
-        public void completionCode (CompletionCode completionCode);
+        void completionCode(CompletionCode completionCode);
 
-        public void comCommandDescription (String comCommandDescription);
+        void comCommandDescription(String comCommandDescription);
 
         /**
          * Completes the building process by adding the {@link ComCommandJournalEntry}
@@ -124,16 +124,16 @@ public interface ComTaskExecutionSession extends HasId {
          *
          * @return The created ComCommandJournalEntry
          */
-        public ComCommandJournalEntry add ();
+        ComCommandJournalEntry add();
 
     }
 
     /**
      * Provides building services for {@link ComTaskExecutionMessageJournalEntry ComTaskExecutionMessageJournalEntries}.
      */
-    public interface ComTaskExecutionMessageJournalEntryBuilder extends ComTaskExecutionJournalEntryBuilder {
+    interface ComTaskExecutionMessageJournalEntryBuilder extends ComTaskExecutionJournalEntryBuilder {
 
-        public void description (String description);
+        void description(String description);
 
         /**
          * Completes the building process by adding the {@link ComTaskExecutionMessageJournalEntry}
@@ -141,7 +141,7 @@ public interface ComTaskExecutionSession extends HasId {
          *
          * @return The created ComCommandJournalEntry
          */
-        public ComTaskExecutionMessageJournalEntry add ();
+        ComTaskExecutionMessageJournalEntry add();
 
     }
 

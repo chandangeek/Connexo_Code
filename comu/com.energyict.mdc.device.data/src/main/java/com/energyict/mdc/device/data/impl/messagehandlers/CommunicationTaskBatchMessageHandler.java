@@ -1,11 +1,13 @@
 package com.energyict.mdc.device.data.impl.messagehandlers;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionQueueMessage;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionQueueMessage;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

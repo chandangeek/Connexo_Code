@@ -1,9 +1,10 @@
 package com.energyict.mdc.device.data.kpi;
 
+import com.energyict.mdc.common.HasId;
+
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.HasId;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -31,7 +32,7 @@ public interface DataCollectionKpi extends HasId {
      *
      * @return A flag that indicates if this DataCollectionKpi calculates the connection setup KPI.
      */
-    public boolean calculatesConnectionSetupKpi();
+    boolean calculatesConnectionSetupKpi();
 
     /**
      * Returns the amount of time between each calculation of the
@@ -39,25 +40,25 @@ public interface DataCollectionKpi extends HasId {
      *
      * @return A flag that indicates if this DataCollectionKpi calculates the connection setup KPI.
      */
-    public Optional<TemporalAmount> connectionSetupKpiCalculationIntervalLength();
+    Optional<TemporalAmount> connectionSetupKpiCalculationIntervalLength();
 
     void updateDisplayRange(TimeDuration displayPeriod);
 
     TimeDuration getDisplayRange();
 
     /**
-     * @return  Returns the static target for the connection kpi, if present.
-     *    Optional will be empty if this Kpi does not support connection Kpis or
-     *    if no entries have been registered for the Kpi so far
+     * @return Returns the static target for the connection kpi, if present.
+     * Optional will be empty if this Kpi does not support connection Kpis or
+     * if no entries have been registered for the Kpi so far
      */
-    public Optional<BigDecimal> getStaticConnectionKpiTarget();
+    Optional<BigDecimal> getStaticConnectionKpiTarget();
 
     /**
-     * @return  Returns the static target for the communication kpi, if present.
-     *    Optional will be empty if this Kpi does not support communication Kpis or
-     *    if no entries have been registered for the Kpi so far
+     * @return Returns the static target for the communication kpi, if present.
+     * Optional will be empty if this Kpi does not support communication Kpis or
+     * if no entries have been registered for the Kpi so far
      */
-    public Optional<BigDecimal> getStaticCommunicationKpiTarget();
+    Optional<BigDecimal> getStaticCommunicationKpiTarget();
 
     /**
      * Gets the available {@link DataCollectionKpiScore}s that relate to
@@ -66,14 +67,14 @@ public interface DataCollectionKpi extends HasId {
      * @param interval The Interval
      * @return The List of DataCollectionKpiScore or an empty List if the connection setup KPI is not calculated
      */
-    public List<DataCollectionKpiScore> getConnectionSetupKpiScores(Range<Instant> interval);
+    List<DataCollectionKpiScore> getConnectionSetupKpiScores(Range<Instant> interval);
 
     /**
      * Tests if this DataCollectionKpi calculates the communication task execution KPI.
      *
      * @return A flag that indicates if this DataCollectionKpi calculates the communication task execution KPI.
      */
-    public boolean calculatesComTaskExecutionKpi();
+    boolean calculatesComTaskExecutionKpi();
 
     /**
      * Returns the amount of time between each calculation of the
@@ -81,7 +82,7 @@ public interface DataCollectionKpi extends HasId {
      *
      * @return A flag that indicates if this DataCollectionKpi calculates the communication task execution KPI.
      */
-    public Optional<TemporalAmount> comTaskExecutionKpiCalculationIntervalLength();
+    Optional<TemporalAmount> comTaskExecutionKpiCalculationIntervalLength();
 
     /**
      * Gets the available {@link DataCollectionKpiScore}s that relate to
@@ -91,7 +92,7 @@ public interface DataCollectionKpi extends HasId {
      * @param interval The Interval
      * @return The List of DataCollectionKpiScore or an empty List if the communication task execution KPI is not calculated
      */
-    public List<DataCollectionKpiScore> getComTaskExecutionKpiScores(Range<Instant> interval);
+    List<DataCollectionKpiScore> getComTaskExecutionKpiScores(Range<Instant> interval);
 
     void setFrequency(TemporalAmount intervalLength);
 
@@ -102,38 +103,39 @@ public interface DataCollectionKpi extends HasId {
      *
      * @return The EndDeviceGroup
      */
-    public EndDeviceGroup getDeviceGroup();
+    EndDeviceGroup getDeviceGroup();
 
-    public void delete();
+    void delete();
 
     /**
-     *
      * @return the most recent Instant either a connection task or communication task KPI was calculated by a recurrent task
      */
-    public Optional<Instant> getLatestCalculation();
+    Optional<Instant> getLatestCalculation();
 
     /**
      * Add a communication task KPI to this data collection KPI with the given frequency and static target
      * The KPI calculation can be stopped by calling dropComTaskExecutionKpiCalculation
+     *
      * @param staticTarget target
      */
-    public void calculateComTaskExecutionKpi(BigDecimal staticTarget);
+    void calculateComTaskExecutionKpi(BigDecimal staticTarget);
 
     /**
      * Stops calculation of the communication KPI / ComTaskExecution KPI
      */
-    public void dropComTaskExecutionKpi();
+    void dropComTaskExecutionKpi();
 
     /**
      * Add a communication task KPI to this data collection KPI with the given frequency and static target
      * The calculation can be stopped by calling dropConnectionKpiCalculation
+     *
      * @param staticTarget target
      */
-    public void calculateConnectionKpi(BigDecimal staticTarget);
+    void calculateConnectionKpi(BigDecimal staticTarget);
 
     /**
      * Stops calculation of the connection KPI
      */
-    public void dropConnectionSetupKpi();
+    void dropConnectionSetupKpi();
 
 }

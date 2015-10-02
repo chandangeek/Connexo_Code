@@ -26,7 +26,7 @@ public interface OutboundConnectionTaskExecutionAspects extends ConnectionTaskEx
      * @return The ComChannel
      * @throws ConnectionException Indicates a failure to connect to the related device
      */
-    public ComChannel connect(ComPort comPort) throws ConnectionException;
+    ComChannel connect(ComPort comPort) throws ConnectionException;
 
     /**
      * Creates a connection with the related device and returns
@@ -44,7 +44,7 @@ public interface OutboundConnectionTaskExecutionAspects extends ConnectionTaskEx
      * @throws IllegalArgumentException Thrown when the list of properties were not original
      *                                  and considered an attempt to override previously configured properties
      */
-    public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException;
+    ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException;
 
     /**
      * Terminates the connection with the device and release resources.<br></br>
@@ -54,6 +54,6 @@ public interface OutboundConnectionTaskExecutionAspects extends ConnectionTaskEx
      * @param comChannel the ComChannel used to communicate
      * @throws ConnectionException Indicates a failure during disconnect
      */
-    public void disconnect(ComChannel comChannel) throws ConnectionException;
+    void disconnect(ComChannel comChannel) throws ConnectionException;
 
 }

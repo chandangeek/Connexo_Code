@@ -5,8 +5,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
@@ -16,6 +14,8 @@ import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.relation.RelationService;
@@ -259,6 +259,7 @@ public class DeviceImplDoSomethingWithEventsTest {
         private RelationService relationService;
         private EngineConfigurationService engineConfigurationService;
         private SchedulingService schedulingService;
+        private com.energyict.mdc.tasks.TaskService mdcTaskService;
         private LicenseService licenseService;
         private IssueService issueService;
 
@@ -331,7 +332,9 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(TaskService.class),
                                 this.issueService,
                                 this.relationService, this.protocolPluggableService, this.engineConfigurationService,
-                                this.deviceConfigurationService, this.meteringService, this.validationService, this.estimationService, this.schedulingService,
+                                this.deviceConfigurationService, this.meteringService,
+                                this.validationService, this.estimationService,
+                                this.schedulingService, this.mdcTaskService,
                                 injector.getInstance(MessageService.class),
                                 injector.getInstance(SecurityPropertyService.class),
                                 injector.getInstance(UserService.class),
@@ -351,6 +354,7 @@ public class DeviceImplDoSomethingWithEventsTest {
             this.protocolPluggableService = mock(ProtocolPluggableService.class);
             this.licenseService = mock(LicenseService.class);
             when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
+            this.mdcTaskService = mock(com.energyict.mdc.tasks.TaskService.class);
         }
 
         public void cleanUpDataBase() throws SQLException {

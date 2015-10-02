@@ -1,19 +1,19 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import java.time.Clock;
-import java.util.List;
-
-import com.elster.jupiter.time.TimeDuration;
-
 import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.device.data.ConnectionTaskFields;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.time.TimeDuration;
+
+import java.time.Clock;
+import java.util.List;
 
 /**
  * Provides an abstract implementation for the {@link OutboundConnectionTask} interface,

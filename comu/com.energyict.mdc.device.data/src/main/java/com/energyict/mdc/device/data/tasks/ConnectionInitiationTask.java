@@ -25,6 +25,6 @@ public interface ConnectionInitiationTask extends OutboundConnectionTask<Partial
      * @param name The property name
      * @return The ConnectionTaskProperty
      */
-    public ConnectionTaskProperty getProperty (String name);
+    ConnectionTaskProperty getProperty(String name);
 
 }

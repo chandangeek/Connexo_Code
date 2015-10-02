@@ -1,12 +1,13 @@
 package com.energyict.mdc.device.data.impl.messagehandlers;
 
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;

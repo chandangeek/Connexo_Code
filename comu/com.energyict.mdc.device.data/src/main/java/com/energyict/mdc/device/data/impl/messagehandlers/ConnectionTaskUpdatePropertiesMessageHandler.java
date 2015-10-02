@@ -1,15 +1,17 @@
 package com.energyict.mdc.device.data.impl.messagehandlers;
 
+import com.energyict.mdc.common.Password;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.UpdateConnectionTaskPropertiesQueueMessage;
+
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.common.Password;
-import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.UpdateConnectionTaskPropertiesQueueMessage;
+
 import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;

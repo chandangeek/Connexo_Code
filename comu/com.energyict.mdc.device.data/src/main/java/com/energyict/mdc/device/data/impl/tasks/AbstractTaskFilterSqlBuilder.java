@@ -1,32 +1,31 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.data.tasks.DeviceStateSqlBuilder;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Provides code reuse opportunities to builds SQL queries that will
@@ -41,7 +40,6 @@ public abstract class AbstractTaskFilterSqlBuilder {
 
     private final Clock clock;
     private ClauseAwareSqlBuilder actualBuilder;
-    private Set<String> restrictedDeviceStates = new HashSet<>(Arrays.asList(DefaultState.IN_STOCK.getKey(), DefaultState.DECOMMISSIONED.getKey()));
 
     public AbstractTaskFilterSqlBuilder(Clock clock) {
         super();
@@ -153,26 +151,20 @@ public abstract class AbstractTaskFilterSqlBuilder {
         }
     }
 
-    protected void appendDeviceInStateSql(String targetTableName, Collection<String> allowedDeviceStates) {
-        boolean excludingSelect = false;
+    protected void appendDeviceInStateSql(String targetTableName, Collection<DefaultState> allowedDeviceStates) {
+        DeviceStateSqlBuilder deviceStateSqlBuilder;
         if (allowedDeviceStates.isEmpty()){
-            allowedDeviceStates = this.restrictedDeviceStates;
-            excludingSelect = true;
+            deviceStateSqlBuilder = DeviceStateSqlBuilder.forDefaultExcludedStates(targetTableName);
         }
-        long currentTime = this.clock.millis();
+        else {
+            EnumSet<DefaultState> states = EnumSet.noneOf(DefaultState.class);
+            states.addAll(allowedDeviceStates);
+            deviceStateSqlBuilder = DeviceStateSqlBuilder.includeStates(targetTableName, states);
+        }
         this.appendWhereOrAnd();
         this.append(" (");
-        this.append(targetTableName);
-        this.append(".device ");
-        this.append(excludingSelect ? "not in" : "in");
-        this.append(" (select ED.amrid");
-        this.append(" from MTR_ENDDEVICESTATUS ES, (select FS.ID from FSM_STATE FS where FS.OBSOLETE_TIMESTAMP IS NULL and ");
-        this.appendInClause("FS.NAME", allowedDeviceStates, stateName -> "'" + stateName + "'");
-        this.append(") FS, MTR_ENDDEVICE ED where ES.STARTTIME <= ");
-        this.append(String.valueOf(currentTime));
-        this.append(" and ES.ENDTIME > ");
-        this.append(String.valueOf(currentTime));
-        this.append(" and ED.ID = ES.ENDDEVICE and ES.STATE = FS.ID)) ");
+        deviceStateSqlBuilder.appendRestrictedStatesCondition(this.actualBuilder.toSqlWhereBuilder(), this.clock);
+        this.append(")");
     }
 
     protected void appendIntervalWhereClause(String tableName, String columnName, Interval interval, IntervalBindStrategy intervalBindStrategy) {

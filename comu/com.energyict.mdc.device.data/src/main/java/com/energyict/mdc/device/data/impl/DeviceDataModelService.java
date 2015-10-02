@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -27,40 +28,42 @@ import java.util.Map;
  */
 public interface DeviceDataModelService {
 
-    public DataModel dataModel();
+    DataModel dataModel();
 
-    public Thesaurus thesaurus();
+    Thesaurus thesaurus();
 
-    public Clock clock();
+    Clock clock();
 
-    public SchedulingService schedulingService();
+    SchedulingService schedulingService();
 
-    public EngineConfigurationService engineConfigurationService();
+    EngineConfigurationService engineConfigurationService();
 
-    public KpiService kpiService();
+    KpiService kpiService();
 
-    public TaskService taskService();
+    TaskService taskService();
 
-    public ProtocolPluggableService protocolPluggableService();
+    ProtocolPluggableService protocolPluggableService();
 
-    public DeviceConfigurationService deviceConfigurationService();
+    DeviceConfigurationService deviceConfigurationService();
 
-    public ServerConnectionTaskService connectionTaskService();
+    ServerConnectionTaskService connectionTaskService();
 
-    public ServerCommunicationTaskService communicationTaskService();
+    ServerCommunicationTaskService communicationTaskService();
 
-    public ServerDeviceService deviceService();
+    CommunicationTaskReportService communicationTaskReportService();
 
-    public DataCollectionKpiService dataCollectionKpiService();
+    ServerDeviceService deviceService();
 
-    public BatchService batchService();
+    DataCollectionKpiService dataCollectionKpiService();
 
-    public void executeUpdate(SqlBuilder sqlBuilder);
+    BatchService batchService();
 
-    public Map<TaskStatus, Long> fetchTaskStatusCounters(PreparedStatementProvider preparedStatementProvider);
+    void executeUpdate(SqlBuilder sqlBuilder);
 
-    public Map<Long, Map<TaskStatus, Long>> fetchTaskStatusBreakdown(PreparedStatementProvider builder);
+    Map<TaskStatus, Long> fetchTaskStatusCounters(PreparedStatementProvider preparedStatementProvider);
 
-    public Map<TaskStatus, Long> addMissingTaskStatusCounters(Map<TaskStatus, Long> counters);
+    Map<Long, Map<TaskStatus, Long>> fetchTaskStatusBreakdown(PreparedStatementProvider builder);
+
+    Map<TaskStatus, Long> addMissingTaskStatusCounters(Map<TaskStatus, Long> counters);
 
 }

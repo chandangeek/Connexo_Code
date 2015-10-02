@@ -2,9 +2,8 @@ package com.energyict.mdc.device.data;
 
 import aQute.bnd.annotation.ProviderType;
 
-import java.util.Optional;
-
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides services that relate to {@link LogBook}s.
@@ -21,7 +20,7 @@ public interface LogBookService {
      * @param id the unique ID of the LogBook
      * @return the requested LogBook or null if none exists with that ID
      */
-    public Optional<LogBook> findById(long id);
+    Optional<LogBook> findById(long id);
 
     /**
      * Finds all the LogBooks for the given Device
@@ -29,6 +28,6 @@ public interface LogBookService {
      * @param device the device
      * @return a list of LogBooks which exist for the given Device
      */
-    public List<LogBook> findLogBooksByDevice(Device device);
+    List<LogBook> findLogBooksByDevice(Device device);
 
 }

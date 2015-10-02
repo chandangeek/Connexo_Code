@@ -15,17 +15,17 @@ public interface DeviceProtocolProperty {
      *
      * @return The name
      */
-    public String getName();
+    String getName();
 
     /**
      * Represents the stringValue of the Property
      *
      * @return the string value of the Property
      */
-    public String getPropertyValue();
+    String getPropertyValue();
 
-    public void setValue(String value);
+    void setValue(String value);
 
-    public void update();
+    void update();
 
 }

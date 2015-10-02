@@ -1,9 +1,10 @@
 package com.energyict.mdc.device.data.tasks;
 
-import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+
+import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.time.TimeDuration;
 
 /**
  * Models a {@link ConnectionTask} that take initative to connect to external devices.
@@ -23,7 +24,7 @@ public interface OutboundConnectionTask<PCTT extends PartialConnectionTask> exte
      *
      * @return the maximum number of consecutive failures this ConnectionTask can have
      */
-    public int getMaxNumberOfTries();
+    int getMaxNumberOfTries();
 
     /**
      * Gets the counter that keeps track of the number of times
@@ -31,7 +32,7 @@ public interface OutboundConnectionTask<PCTT extends PartialConnectionTask> exte
      *
      * @return The current try count
      */
-    public int getCurrentTryCount();
+    int getCurrentTryCount();
 
     /**
      * Gets the counter that keeps track of the number of times
@@ -42,7 +43,7 @@ public interface OutboundConnectionTask<PCTT extends PartialConnectionTask> exte
      *         1 = first retry
      *         ...
      */
-    public int getCurrentRetryCount();
+    int getCurrentRetryCount();
 
     /**
      * Tests if the last execution of this ConnectionTask failed.
@@ -51,13 +52,13 @@ public interface OutboundConnectionTask<PCTT extends PartialConnectionTask> exte
      *
      * @return <code>true</code> iff the last execution of this ComTaskExecution failed.
      */
-    public boolean lastExecutionFailed ();
+    boolean lastExecutionFailed();
 
     /**
      * Defines the delay before rescheduling this ConnectionTask after a fail
      *
      * @return the time to wait before we may retry after a failing sessions
      */
-    public TimeDuration getRescheduleDelay();
+    TimeDuration getRescheduleDelay();
 
 }

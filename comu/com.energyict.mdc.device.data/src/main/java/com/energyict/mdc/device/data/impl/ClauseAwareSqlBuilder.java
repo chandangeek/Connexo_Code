@@ -4,6 +4,7 @@ import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.sql.TupleParser;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -31,6 +32,11 @@ public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
     private ClauseAwareSqlBuilder(SqlBuilder actualBuilder) {
         super();
         this.actualBuilder = actualBuilder;
+    }
+
+    public SqlBuilder toSqlWhereBuilder() {
+        this.where.toWhere();
+        return actualBuilder;
     }
 
     public void unionAll () {
@@ -172,6 +178,10 @@ public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
 
     private class Where {
         private SqlClause state = SqlClause.FROM;
+
+        private void toWhere() {
+            this.state = SqlClause.WHERE;
+        }
 
         private void orAnd(SqlBuilder sqlBuilder) {
             this.state = this.state.appendWhereOrAnd(sqlBuilder);

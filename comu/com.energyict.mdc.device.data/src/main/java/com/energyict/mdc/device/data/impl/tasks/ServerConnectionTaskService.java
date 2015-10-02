@@ -1,14 +1,12 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.ConnectionTaskService;
-import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.engine.config.ComPortPool;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Adds behavior to {@link ConnectionTaskService} that is specific

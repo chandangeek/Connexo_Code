@@ -13,4 +13,5 @@ public interface JournalEntryVisitor {
     void visit(ComCommandJournalEntry entry);
 
     void visit(ComTaskExecutionMessageJournalEntry entry);
+
 }

@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data;
+package com.energyict.mdc.device.data.tasks;
 
 import com.energyict.mdc.common.ImplField;
 

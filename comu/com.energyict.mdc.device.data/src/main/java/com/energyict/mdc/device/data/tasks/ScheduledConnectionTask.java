@@ -39,7 +39,7 @@ import java.util.List;
 @ProviderType
 public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialScheduledConnectionTask> {
 
-    public void setMaxNumberOfTries(int maxNumberOfTries);
+    void setMaxNumberOfTries(int maxNumberOfTries);
 
     /**
      * Gets the time window during which communication with the device
@@ -48,9 +48,9 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      *
      * @return The ComWindow
      */
-    public ComWindow getCommunicationWindow();
+    ComWindow getCommunicationWindow();
 
-    public void setCommunicationWindow(ComWindow comWindow);
+    void setCommunicationWindow(ComWindow comWindow);
 
     /**
      * Gets the {@link ConnectionStrategy} that calculates
@@ -58,9 +58,9 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      *
      * @return The ConnectionStrategy
      */
-    public ConnectionStrategy getConnectionStrategy();
+    ConnectionStrategy getConnectionStrategy();
 
-    public void setConnectionStrategy(ConnectionStrategy connectionStrategy);
+    void setConnectionStrategy(ConnectionStrategy connectionStrategy);
 
     /**
      * Gets the specifications for the calculation of the next
@@ -68,7 +68,7 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      *
      * @return The NextExecutionSpecs
      */
-    public NextExecutionSpecs getNextExecutionSpecs();
+    NextExecutionSpecs getNextExecutionSpecs();
 
     /**
      * Sets the specifications for the calculation of the next
@@ -77,7 +77,7 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      *
      * @param temporalExpression The TemporalExpression
      */
-    public void setNextExecutionSpecsFrom (TemporalExpression temporalExpression);
+    void setNextExecutionSpecsFrom(TemporalExpression temporalExpression);
 
     /**
      * Gets the earliest possible timestamp of
@@ -85,7 +85,7 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      *
      * @return The earliest possible next execution timestamp
      */
-    public Instant getNextExecutionTimestamp();
+    Instant getNextExecutionTimestamp();
 
     /**
      * Gets the earliest possible timestamp of
@@ -94,7 +94,7 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      *
      * @return The earliest possible next execution timestamp
      */
-    public Instant getPlannedNextExecutionTimestamp ();
+    Instant getPlannedNextExecutionTimestamp();
 
     /**
      * Calculates and updates the next execution of this ConnectionTask
@@ -104,7 +104,7 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      *         or <code>null</code> if no recurring properties have been set.
      * @see #getNextExecutionTimestamp()
      */
-    public Instant updateNextExecutionTimestamp();
+    Instant updateNextExecutionTimestamp();
 
     void setDynamicMaxNumberOfTries(int maxNumberOfTries);
 
@@ -114,7 +114,7 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      *
      * @return The timestamp on which this ScheduledConnectionTask is scheduled.
      */
-    public Instant scheduleNow();
+    Instant scheduleNow();
 
     /**
      * Updates the next execution of this ConnectionTask
@@ -126,7 +126,7 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      * @param when The earliest possible Date on which this ConnectionTask should execute
      * @return The actual Date on which this ScheduledConnectionTask is scheduled.
      */
-    public Instant schedule(Instant when);
+    Instant schedule(Instant when);
 
     /**
      * Returns the {@link ConnectionInitiationTask} that will execute first
@@ -134,30 +134,30 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      *
      * @return The ConnectionInitiationTask that will initiate the connection to the device
      */
-    public ConnectionInitiationTask getInitiatorTask();
+    ConnectionInitiationTask getInitiatorTask();
 
-    public void setInitiatorTask(ConnectionInitiationTask initiatorTask);
+    void setInitiatorTask(ConnectionInitiationTask initiatorTask);
 
     /**
      * Returns whether this ConnectionTask is allowed to perform simultaneous connections to the same endPoint
      *
      * @return true if simultaneous connections are allowed, false otherwise
      */
-    public boolean isSimultaneousConnectionsAllowed();
+    boolean isSimultaneousConnectionsAllowed();
 
-    public void setSimultaneousConnectionsAllowed (boolean allowSimultaneousConnections);
+    void setSimultaneousConnectionsAllowed(boolean allowSimultaneousConnections);
 
     /**
      * Gets this ComTaskExecution's status.
      *
      * @return The TaskStatus
      */
-    public TaskStatus getTaskStatus();
+    TaskStatus getTaskStatus();
 
     /**
      * @return a List containing all {@link ComTaskExecution}s that use this ScheduledConnectionTask.
      */
-    public List<ComTaskExecution> getScheduledComTasks();
+    List<ComTaskExecution> getScheduledComTasks();
 
     /**
      * Schedules this ConnectionTask and the related {@link ComTaskExecution}s
@@ -167,6 +167,6 @@ public interface ScheduledConnectionTask extends OutboundConnectionTask<PartialS
      * @return The actual Date on which this OutboundConnectionTask is scheduled.
      * @see #schedule(Instant)
      */
-    public Instant trigger (Instant when);
+    Instant trigger(Instant when);
 
 }

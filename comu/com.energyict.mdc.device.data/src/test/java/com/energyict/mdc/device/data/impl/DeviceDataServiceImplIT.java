@@ -1,11 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-
-import java.util.EnumSet;
-import java.util.Set;
 
 import org.junit.*;
 
@@ -48,7 +43,7 @@ public class DeviceDataServiceImplIT extends PersistenceIntegrationTest {
     @Test
     public void getComTaskLastComSessionHighestPriorityCompletionCodeCountDoesNotProduceSQLExceptions() {
         // Business method
-        inMemoryPersistence.getCommunicationTaskService().getComTaskLastComSessionHighestPriorityCompletionCodeCount();
+        inMemoryPersistence.getCommunicationTaskReportService().getComTaskLastComSessionHighestPriorityCompletionCodeCount();
 
         // Asserts: should not cause any SQLExceptions
     }
@@ -57,7 +52,7 @@ public class DeviceDataServiceImplIT extends PersistenceIntegrationTest {
     @Test
     public void getComTasksDeviceTypeHeatMapDoesNotProduceSQLExceptions() {
         // Business method
-        inMemoryPersistence.getCommunicationTaskService().getComTasksDeviceTypeHeatMap();
+        inMemoryPersistence.getCommunicationTaskReportService().getComTasksDeviceTypeHeatMap();
 
         // Asserts: should not cause any SQLExceptions
     }

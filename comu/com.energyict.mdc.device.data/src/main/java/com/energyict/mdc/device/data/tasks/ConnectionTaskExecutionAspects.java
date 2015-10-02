@@ -4,8 +4,6 @@ import com.energyict.mdc.engine.config.ComServer;
 
 import aQute.bnd.annotation.ProviderType;
 
-import java.sql.SQLException;
-
 /**
  * Todo:
  * Used to add behavior to {@link ConnectionTask} that is private
@@ -29,9 +27,8 @@ public interface ConnectionTaskExecutionAspects {
      * context active, i.e. no attempt will be made to create one.
      *
      * @param comServer The ComServer that is started the execution
-     * @throws SQLException
      */
-    public void executionStarted (ComServer comServer);
+    void executionStarted(ComServer comServer);
 
     /**
      * Notifies this ConnectionTask that the execution has completed without errors.
@@ -39,18 +36,15 @@ public interface ConnectionTaskExecutionAspects {
      * Note that this requires that there is already a transactional
      * context active, i.e. no attempt will be made to create one.
      *
-     * @throws SQLException
      */
-    public void executionCompleted ();
+    void executionCompleted();
 
     /**
      * Notifies this ConnectionTask that the execution has failed.
      * Note that this requires that there is already a transactional
      * context active, i.e. no attempt will be made to create one.
-     *
-     * @throws SQLException
      */
-    public void executionFailed ();
+    void executionFailed();
 
     /**
      * Notifies this OutboundConnectionTask that one of its
@@ -58,7 +52,7 @@ public interface ConnectionTaskExecutionAspects {
      *
      * @param comTask The ScheduledComTask that was rescheduled
      */
-    public void scheduledComTaskRescheduled (ComTaskExecution comTask);
+    void scheduledComTaskRescheduled(ComTaskExecution comTask);
 
     /**
      * Notifies this OutboundConnectionTask that the priority
@@ -66,6 +60,6 @@ public interface ConnectionTaskExecutionAspects {
      *
      * @param comTask The ScheduledComTask whose priority changed
      */
-    public void scheduledComTaskChangedPriority (ComTaskExecution comTask);
+    void scheduledComTaskChangedPriority(ComTaskExecution comTask);
 
 }

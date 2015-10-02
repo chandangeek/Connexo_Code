@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.data;
 
 import com.energyict.mdc.common.HasId;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.time.TimeDuration;
 import com.google.common.collect.Range;
-
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 
 import java.time.Instant;
 import java.util.List;
@@ -62,7 +61,7 @@ public interface LoadProfile extends BaseLoadProfile<Channel>, HasId {
      * @param interval The interval over which data will be returned
      * @return data for all channels of this loadprofile
      */
-    public List<LoadProfileReading> getChannelData(Range<Instant> interval);
+    List<LoadProfileReading> getChannelData(Range<Instant> interval);
 
     /**
      * Gets the {@link com.energyict.mdc.device.config.LoadProfileSpec} which

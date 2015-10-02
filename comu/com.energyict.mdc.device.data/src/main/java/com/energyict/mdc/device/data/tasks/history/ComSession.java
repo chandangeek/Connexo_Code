@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.data.tasks.history;
 
-import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -10,6 +8,9 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
+
+import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.domain.util.Finder;
 import com.google.common.collect.Range;
 
 import java.time.Duration;
@@ -29,12 +30,12 @@ public interface ComSession extends HasId, TaskExecutionSummary {
 
     void save();
 
-    public enum SuccessIndicator {
+    enum SuccessIndicator {
         Success,
         SetupError,
         Broken;
 
-        public static Set<SuccessIndicator> unSuccessful (){
+        public static Set<SuccessIndicator> unSuccessful () {
             return EnumSet.of(SetupError, Broken);
         }
 
@@ -43,15 +44,15 @@ public interface ComSession extends HasId, TaskExecutionSummary {
         }
     }
 
-    public ConnectionTask getConnectionTask ();
+    ConnectionTask getConnectionTask();
 
-    public ComPort getComPort ();
+    ComPort getComPort();
 
-    public ComPortPool getComPortPool ();
+    ComPortPool getComPortPool();
 
-    public ComStatistics getStatistics();
+    ComStatistics getStatistics();
 
-    public List<ComSessionJournalEntry> getJournalEntries ();
+    List<ComSessionJournalEntry> getJournalEntries();
 
     /**
      * Gets the {@link ComSessionJournalEntry ComSessionJournalEntries} of this session
@@ -60,7 +61,7 @@ public interface ComSession extends HasId, TaskExecutionSummary {
      * @param levels The LogLevels of interes
      * @return The filtered List of ComSessionJournalEntry
      */
-    public Finder<ComSessionJournalEntry> getJournalEntries(Set<ComServer.LogLevel> levels);
+    Finder<ComSessionJournalEntry> getJournalEntries(Set<ComServer.LogLevel> levels);
 
     /**
      * Gets the {@link ComTaskExecutionJournalEntry ComTaskExecutionJournalEntries} of
@@ -70,38 +71,38 @@ public interface ComSession extends HasId, TaskExecutionSummary {
      * @param levels The LogLevels of interes
      * @return The filtered List of ComTaskExecutionJournalEntry
      */
-    public Finder<ComTaskExecutionJournalEntry> getCommunicationTaskJournalEntries (Set<ComServer.LogLevel> levels);
+    Finder<ComTaskExecutionJournalEntry> getCommunicationTaskJournalEntries(Set<ComServer.LogLevel> levels);
 
-    public List<CombinedLogEntry> getAllLogs (Set<ComServer.LogLevel> levels, int start, int pageSize);
+    List<CombinedLogEntry> getAllLogs(Set<ComServer.LogLevel> levels, int start, int pageSize);
 
-    public List<ComTaskExecutionSession> getComTaskExecutionSessions ();
+    List<ComTaskExecutionSession> getComTaskExecutionSessions();
 
-    public Instant getStartDate();
+    Instant getStartDate();
 
-    public Instant getStopDate();
+    Instant getStopDate();
 
-    public boolean endsAfter (ComSession other);
+    boolean endsAfter(ComSession other);
 
     /**
      * Gets the total number of milli seconds for which this ComSession was active.
      *
      * @return The total number of milli seconds
      */
-    public Duration getTotalDuration();
+    Duration getTotalDuration();
 
     /**
      * Gets the number of milli seconds take were necessary to setup the connection.
      *
      * @return The number of milli seconds required to setup the connection
      */
-    public Duration getConnectDuration();
+    Duration getConnectDuration();
 
     /**
      * Gets the number of milli seconds that were spent communicating with the device.
      *
      * @return The number of milli seconds that were spent on communication
      */
-    public Duration getTalkDuration();
+    Duration getTalkDuration();
 
     /**
      * Gets the number of milli seconds that were required to
@@ -109,9 +110,9 @@ public interface ComSession extends HasId, TaskExecutionSummary {
      *
      * @return The number of milli seconds required to store the collected device data
      */
-    public Duration getStoreDuration();
+    Duration getStoreDuration();
 
-    public SuccessIndicator getSuccessIndicator ();
+    SuccessIndicator getSuccessIndicator();
 
     /**
      * Gets the {@link TaskExecutionSummary} that provides
@@ -119,7 +120,7 @@ public interface ComSession extends HasId, TaskExecutionSummary {
      *
      * @return The TaskExecutionSummary
      */
-    public TaskExecutionSummary getTaskExecutionSummary ();
+    TaskExecutionSummary getTaskExecutionSummary();
 
     /**
      * Tests if overall, this ComSession was successful or not.
@@ -129,18 +130,18 @@ public interface ComSession extends HasId, TaskExecutionSummary {
      *
      * @return A flag that indicates if this ComSession was successful or not
      */
-    public boolean wasSuccessful ();
+    boolean wasSuccessful();
 
-    public ComTaskExecutionSession createComTaskExecutionSession(ComTaskExecution comTaskExecution, ComTask comTask, Device device, Range<Instant> interval, ComTaskExecutionSession.SuccessIndicator successIndicator);
+    ComTaskExecutionSession createComTaskExecutionSession(ComTaskExecution comTaskExecution, ComTask comTask, Device device, Range<Instant> interval, ComTaskExecutionSession.SuccessIndicator successIndicator);
 
-    public ComSessionJournalEntry createJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message);
+    ComSessionJournalEntry createJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message);
 
-    public ComSessionJournalEntry createJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, Throwable cause);
+    ComSessionJournalEntry createJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String message, Throwable cause);
 
     /**
      * Models the combined view on {@link ComSessionJournalEntry} and {@link ComTaskExecutionJournalEntry}.
      */
-    public interface CombinedLogEntry {
+    interface CombinedLogEntry {
 
         /**
          * Gets the Date on which this {@link ComSessionJournalEntry} or {@link ComTaskExecutionJournalEntry} was created.
@@ -149,7 +150,7 @@ public interface ComSession extends HasId, TaskExecutionSummary {
          * @see ComSessionJournalEntry#getTimestamp()
          * @see ComTaskExecutionJournalEntry#getTimestamp()
          */
-        public Instant getTimestamp ();
+        Instant getTimestamp();
 
         /**
          * Gets the level at which this {@link ComSessionJournalEntry} or {@link ComTaskExecutionMessageJournalEntry} was logged
@@ -159,7 +160,7 @@ public interface ComSession extends HasId, TaskExecutionSummary {
          * @see ComSessionJournalEntry#getLogLevel()
          * @see ComTaskExecutionMessageJournalEntry#getLogLevel()
          */
-        public ComServer.LogLevel getLogLevel();
+        ComServer.LogLevel getLogLevel();
 
         /**
          * Gets the details of this combined log entry, which will map to either
@@ -173,7 +174,7 @@ public interface ComSession extends HasId, TaskExecutionSummary {
          * @see ComTaskExecutionMessageJournalEntry#getMessage()
          * @see ComCommandJournalEntry#getCommandDescription()
          */
-        public String getDetail();
+        String getDetail();
 
         /**
          * Gets the error details of this combined log entry, which will map to either
@@ -187,7 +188,7 @@ public interface ComSession extends HasId, TaskExecutionSummary {
          * @see ComTaskExecutionMessageJournalEntry#getErrorDescription()
          * @see ComCommandJournalEntry#getCompletionCode()
          */
-        public String getErrorDetail();
+        String getErrorDetail();
 
     }
 

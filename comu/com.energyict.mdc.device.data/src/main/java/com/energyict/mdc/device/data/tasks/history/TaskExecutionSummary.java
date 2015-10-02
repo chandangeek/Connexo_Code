@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.tasks.history;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Models an overview of the different {@link com.energyict.mdc.device.data.tasks.ComTaskExecution tasks}
  * that have executed within a {@link ComSession}.
@@ -13,6 +15,7 @@ package com.energyict.mdc.device.data.tasks.history;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-05-30 (08:35)
  */
+@ProviderType
 public interface TaskExecutionSummary {
 
     /**
@@ -21,7 +24,7 @@ public interface TaskExecutionSummary {
      *
      * @return The number of successful tasks
      */
-    public int getNumberOfSuccessFulTasks ();
+    int getNumberOfSuccessFulTasks();
 
     /**
      * Gets the number of {@link com.energyict.mdc.device.data.tasks.ComTaskExecution tasks}
@@ -29,7 +32,7 @@ public interface TaskExecutionSummary {
      *
      * @return The number of failed tasks
      */
-    public int getNumberOfFailedTasks ();
+    int getNumberOfFailedTasks();
 
     /**
      * Gets the number of {@link com.energyict.mdc.device.data.tasks.ComTaskExecution tasks}
@@ -38,6 +41,6 @@ public interface TaskExecutionSummary {
      *
      * @return The number of successful tasks
      */
-    public int getNumberOfPlannedButNotExecutedTasks ();
+    int getNumberOfPlannedButNotExecutedTasks();
 
 }

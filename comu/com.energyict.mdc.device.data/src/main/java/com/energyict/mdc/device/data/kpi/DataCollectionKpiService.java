@@ -24,14 +24,14 @@ import java.util.Optional;
 @ProviderType
 public interface DataCollectionKpiService {
 
-    public DataCollectionKpiBuilder newDataCollectionKpi(EndDeviceGroup group);
+    DataCollectionKpiBuilder newDataCollectionKpi(EndDeviceGroup group);
 
     /**
      * Finds all {@link DataCollectionKpi} that are defined in the system.
      *
      * @return The List of DataCollectionKpi
      */
-    public List<DataCollectionKpi> findAllDataCollectionKpis();
+    List<DataCollectionKpi> findAllDataCollectionKpis();
 
     /**
      * Finds all {@link DataCollectionKpi} that are defined in the system through a Finder
@@ -39,7 +39,7 @@ public interface DataCollectionKpiService {
      *
      * @return Finder for DataCollectionKpi
      */
-    public Finder<DataCollectionKpi> dataCollectionKpiFinder();
+    Finder<DataCollectionKpi> dataCollectionKpiFinder();
 
     /**
      * Finds the {@link DataCollectionKpi} with the specified id.
@@ -47,7 +47,7 @@ public interface DataCollectionKpiService {
      * @param id The unique identifier
      * @return The DataCollectionKpi
      */
-    public Optional<DataCollectionKpi> findDataCollectionKpi(long id);
+    Optional<DataCollectionKpi> findDataCollectionKpi(long id);
 
     /**
      * Finds the {@link DataCollectionKpi} for the specified {@link EndDeviceGroup}.
@@ -55,12 +55,12 @@ public interface DataCollectionKpiService {
      * @param group The QueryEndDeviceGroup
      * @return The DataCollectionKpi
      */
-    public Optional<DataCollectionKpi> findDataCollectionKpi(EndDeviceGroup group);
+    Optional<DataCollectionKpi> findDataCollectionKpi(EndDeviceGroup group);
 
     /**
      * Models behavior to build a new {@link DataCollectionKpi}.
      */
-    public interface DataCollectionKpiBuilder {
+    interface DataCollectionKpiBuilder {
 
         /**
          * The Kpi's calculation frequency. This field is transient, serves mainly as a validation field.
@@ -68,7 +68,7 @@ public interface DataCollectionKpiService {
          * @param temporalAmount The amount of time between each calculation of the communication task execution KPI
          * @return The KpiTargetBuilder
          */
-        public DataCollectionKpiBuilder frequency(TemporalAmount temporalAmount);
+        DataCollectionKpiBuilder frequency(TemporalAmount temporalAmount);
         /**
          * The displayPeriod is the period for which the KPI will be displayed in the UI. So display period will be
          * fixed for the moment.
@@ -76,7 +76,7 @@ public interface DataCollectionKpiService {
          * @param displayPeriod The period to be used for display, that is, the period over which KPI data will be displayed in the graph
          * @return the current builder, augmented with displayPeriod.
          */
-        public DataCollectionKpiBuilder displayPeriod(TimeDuration displayPeriod);
+        DataCollectionKpiBuilder displayPeriod(TimeDuration displayPeriod);
         /**
          * Specifies that the DataCollectionKpi that is under construction
          * will calculate the connection setup KPI and will do that e.g. every day.
@@ -84,7 +84,7 @@ public interface DataCollectionKpiService {
          *
          * @return The KpiTargetBuilder
          */
-        public KpiTargetBuilder calculateConnectionSetupKpi();
+        KpiTargetBuilder calculateConnectionSetupKpi();
 
         /**
          * Specifies that the DataCollectionKpi that is under construction
@@ -92,7 +92,7 @@ public interface DataCollectionKpiService {
          * The returned KpiTargetBuilder allows to define targets.
          *
          */
-        public KpiTargetBuilder calculateComTaskExecutionKpi();
+        KpiTargetBuilder calculateComTaskExecutionKpi();
 
         /**
          * Completes the builder and returns the newly
@@ -101,23 +101,23 @@ public interface DataCollectionKpiService {
          *
          * @return The newly created DataCollectionKpi
          */
-        public DataCollectionKpi save();
+        DataCollectionKpi save();
 
     }
 
-    public interface KpiTargetBuilder {
+    interface KpiTargetBuilder {
 
         /**
          * Uses the specified value as a fixed minimum target value,
          * i.e. actual values are expected to be equal to or higher.
          */
-        public void expectingAsMinimum(BigDecimal target);
+        void expectingAsMinimum(BigDecimal target);
 
         /**
          * Uses the specified value as a fixed maximum target value,
          * i.e. actual values are expected to be equal to or lower.
          */
-        public void expectingAsMaximum(BigDecimal target);
+        void expectingAsMaximum(BigDecimal target);
 
     }
 

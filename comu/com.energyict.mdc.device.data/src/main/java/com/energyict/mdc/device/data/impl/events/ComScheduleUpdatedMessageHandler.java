@@ -1,12 +1,17 @@
 package com.energyict.mdc.device.data.impl.events;
 
+import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.data.impl.UpdateEventType;
+
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.impl.TableSpecs;
-import com.energyict.mdc.device.data.impl.UpdateEventType;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.event.EventConstants;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,9 +19,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.event.EventConstants;
-
+@LiteralSql
 public class ComScheduleUpdatedMessageHandler implements MessageHandler {
 
     private static final Logger LOGGER = Logger.getLogger(ComScheduleUpdatedMessageHandler.class.getName());

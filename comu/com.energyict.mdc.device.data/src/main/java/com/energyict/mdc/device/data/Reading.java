@@ -18,18 +18,18 @@ import java.util.Optional;
 @ProviderType
 public interface Reading {
 
-    public ReadingType getType();
+    ReadingType getType();
 
-    public Instant getTimeStamp();
+    Instant getTimeStamp();
 
-    public Instant getReportedDateTime();
+    Instant getReportedDateTime();
 
-    public BigDecimal getSensorAccuracy();
+    BigDecimal getSensorAccuracy();
 
-    public String getSource();
+    String getSource();
 
-    public ReadingRecord getActualReading();
+    ReadingRecord getActualReading();
 
-    public Optional<DataValidationStatus> getValidationStatus();
+    Optional<DataValidationStatus> getValidationStatus();
 
 }

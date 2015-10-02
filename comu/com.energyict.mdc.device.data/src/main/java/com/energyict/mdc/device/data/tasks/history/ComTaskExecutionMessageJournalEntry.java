@@ -18,6 +18,6 @@ public interface ComTaskExecutionMessageJournalEntry extends ComTaskExecutionJou
      *
      * @return The message
      */
-    public String getMessage ();
+    String getMessage();
 
 }

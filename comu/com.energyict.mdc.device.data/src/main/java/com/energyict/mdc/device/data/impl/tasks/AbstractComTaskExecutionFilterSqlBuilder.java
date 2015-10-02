@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
@@ -30,7 +31,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
     private final Set<ComSchedule> comSchedules;
     private final QueryExecutor<Device> queryExecutor;
     private final List<EndDeviceGroup> deviceGroups;
-    private final Set<String> allowedDeviceStates;
+    private final Set<DefaultState> allowedDeviceStates;
 
     public AbstractComTaskExecutionFilterSqlBuilder(Clock clock, QueryExecutor<Device> queryExecutor) {
         super(clock);
@@ -60,6 +61,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
     protected void appendNonStatusWhereClauses() {
         this.appendDeviceTypeSql();
         this.appendDeviceInStateSql();
+        this.appendDeviceInGroupSql();
         this.appendComTaskSql();
         this.appendComSchedulesSql();
     }

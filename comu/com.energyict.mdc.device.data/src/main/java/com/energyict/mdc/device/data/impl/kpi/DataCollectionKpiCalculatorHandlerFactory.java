@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
@@ -28,19 +28,19 @@ public class DataCollectionKpiCalculatorHandlerFactory implements MessageHandler
     private volatile TaskService taskService;
     private volatile DataCollectionKpiService dataCollectionKpiService;
     private volatile ConnectionTaskService connectionTaskService;
-    private volatile CommunicationTaskService communicationTaskService;
+    private volatile CommunicationTaskReportService communicationTaskReportService;
 
     // For OSGi framework only
     public DataCollectionKpiCalculatorHandlerFactory() {super();}
 
     // For unit testing purposes only
     @Inject
-    public DataCollectionKpiCalculatorHandlerFactory(TaskService taskService, DataCollectionKpiService dataCollectionKpiService, ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService) {
-        super();
+    public DataCollectionKpiCalculatorHandlerFactory(TaskService taskService, DataCollectionKpiService dataCollectionKpiService, ConnectionTaskService connectionTaskService, CommunicationTaskReportService communicationTaskReportService) {
+        this();
         this.setTaskService(taskService);
         this.setDataCollectionKpiService(dataCollectionKpiService);
         this.setConnectionTaskService(connectionTaskService);
-        this.setCommunicationTaskService(communicationTaskService);
+        this.setCommunicationTaskService(communicationTaskReportService);
     }
 
     @Override
@@ -49,7 +49,7 @@ public class DataCollectionKpiCalculatorHandlerFactory implements MessageHandler
                 new DataCollectionKpiCalculatorHandler(
                         this.dataCollectionKpiService,
                         this.connectionTaskService,
-                        this.communicationTaskService));
+                        this.communicationTaskReportService));
     }
 
     @Reference
@@ -68,8 +68,8 @@ public class DataCollectionKpiCalculatorHandlerFactory implements MessageHandler
     }
 
     @Reference
-    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
-        this.communicationTaskService = communicationTaskService;
+    public void setCommunicationTaskService(CommunicationTaskReportService communicationTaskReportService) {
+        this.communicationTaskReportService = communicationTaskReportService;
     }
 
 }

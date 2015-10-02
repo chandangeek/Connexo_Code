@@ -8,7 +8,7 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface ComTaskExecutionBuilder<C extends ComTaskExecution> {
 
-    public ComTaskExecutionBuilder useDefaultConnectionTask(boolean useDefaultConnectionTask);
+    ComTaskExecutionBuilder useDefaultConnectionTask(boolean useDefaultConnectionTask);
 
     /**
      * Explicitly setting a ConnectionTask will result in NOT using the default connectionTask.
@@ -21,17 +21,17 @@ public interface ComTaskExecutionBuilder<C extends ComTaskExecution> {
      * @param connectionTask the ConnectionTask to set
      * @return the current updater
      */
-    public ComTaskExecutionBuilder connectionTask(ConnectionTask<?, ?> connectionTask);
+    ComTaskExecutionBuilder connectionTask(ConnectionTask<?, ?> connectionTask);
 
-    public ComTaskExecutionBuilder priority(int executionPriority);
+    ComTaskExecutionBuilder priority(int executionPriority);
 
-    public ComTaskExecutionBuilder ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
+    ComTaskExecutionBuilder ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
 
     /**
      * Creates the actual ComTaskExecution with the objects set in the builder.
      *
      * @return the newly created ComTaskExecution
      */
-    public C add();
+    C add();
 
 }
