@@ -1,5 +1,8 @@
 package com.elster.jupiter.users.impl;
 
+
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 import java.nio.charset.Charset;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
@@ -7,7 +10,7 @@ import java.util.Arrays;
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 
-import sun.misc.*;
+
 
 public class AESencrpUtil {
 

@@ -110,7 +110,9 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
 
     @Override
     public void setPassword(String password) {
-        this.password = new AESencrpUtil().encrypt(getDomain(), password);
+        if(!"".equals(password)) {
+            this.password = new AESencrpUtil().encrypt(getDomain(), password);
+        }
     }
 
     @Override
