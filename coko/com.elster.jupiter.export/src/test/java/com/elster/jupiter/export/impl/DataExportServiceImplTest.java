@@ -170,8 +170,8 @@ public class DataExportServiceImplTest {
     public void testNewBuilder() {
         ExportTaskImpl readingTypeDataExportTaskImpl = new ExportTaskImpl(dataModel, dataExportService, taskService, thesaurus);
         when(dataModel.getInstance(ExportTaskImpl.class)).thenReturn(readingTypeDataExportTaskImpl);
-        ReadingTypeDataSelectorImpl selectorImpl = new ReadingTypeDataSelectorImpl(dataModel, transactionService, meteringService, validationService, clock);
-        when(dataModel.getInstance(ReadingTypeDataSelectorImpl.class)).thenReturn(selectorImpl);
+        StandardDataSelectorImpl selectorImpl = new StandardDataSelectorImpl(dataModel, transactionService, meteringService, validationService, clock);
+        when(dataModel.getInstance(StandardDataSelectorImpl.class)).thenReturn(selectorImpl);
         DataExportTaskBuilderImpl dataExportTaskBuilder = new DataExportTaskBuilderImpl(dataModel)
                 .setName(NAME)
                 .setDataFormatterName(DATA_FORMATTER)

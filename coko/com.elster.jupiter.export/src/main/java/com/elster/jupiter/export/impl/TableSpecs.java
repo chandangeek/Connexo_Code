@@ -42,10 +42,10 @@ enum TableSpecs {
             table.primaryKey("DES_PK_DATAEXPORTTASK").on(idColumn).add();
         }
     },
-    DES_RTDATASELECTOR(IReadingTypeDataSelector.class) {
+    DES_RTDATASELECTOR(IStandardDataSelector.class) {
         @Override
         void describeTable(Table table) {
-            table.map(ReadingTypeDataSelectorImpl.class);
+            table.map(StandardDataSelectorImpl.class);
             table.setJournalTableName("DES_RTDATASELECTORJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column taskColumn = table.column("EXPORTTASK").number().notNull().add();

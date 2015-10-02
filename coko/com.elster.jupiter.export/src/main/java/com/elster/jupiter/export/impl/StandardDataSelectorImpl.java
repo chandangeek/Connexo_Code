@@ -46,7 +46,7 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
+class StandardDataSelectorImpl implements IStandardDataSelector {
 
     private final TransactionService transactionService;
     private final MeteringService meteringService;
@@ -96,7 +96,7 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     }
 
     @Inject
-    ReadingTypeDataSelectorImpl(DataModel dataModel, TransactionService transactionService, MeteringService meteringService, ValidationService validationService, Clock clock) {
+    StandardDataSelectorImpl(DataModel dataModel, TransactionService transactionService, MeteringService meteringService, ValidationService validationService, Clock clock) {
         this.dataModel = dataModel;
         this.transactionService = transactionService;
         this.meteringService = meteringService;
@@ -104,11 +104,11 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
         this.clock = clock;
     }
 
-    public static ReadingTypeDataSelectorImpl from(DataModel dataModel, IExportTask exportTask, RelativePeriod exportPeriod, EndDeviceGroup endDeviceGroup) {
-        return dataModel.getInstance(ReadingTypeDataSelectorImpl.class).init(exportTask, exportPeriod, endDeviceGroup);
+    public static StandardDataSelectorImpl from(DataModel dataModel, IExportTask exportTask, RelativePeriod exportPeriod, EndDeviceGroup endDeviceGroup) {
+        return dataModel.getInstance(StandardDataSelectorImpl.class).init(exportTask, exportPeriod, endDeviceGroup);
     }
 
-    private ReadingTypeDataSelectorImpl init(IExportTask exportTask, RelativePeriod exportPeriod, EndDeviceGroup endDeviceGroup) {
+    private StandardDataSelectorImpl init(IExportTask exportTask, RelativePeriod exportPeriod, EndDeviceGroup endDeviceGroup) {
         this.exportTask.set(exportTask);
         this.exportPeriod.set(exportPeriod);
         this.endDeviceGroup.set(endDeviceGroup);
@@ -157,7 +157,7 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     public void delete() {
         readingTypes.clear();
         exportItems.clear();
-        dataModel.mapper(IReadingTypeDataSelector.class).remove(this);
+        dataModel.mapper(IStandardDataSelector.class).remove(this);
     }
 
     @Override
@@ -174,13 +174,13 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
 
     @Override
     public History<ReadingTypeDataSelector> getHistory() {
-        List<JournalEntry<IReadingTypeDataSelector>> journal = dataModel.mapper(IReadingTypeDataSelector.class).getJournal(getId());
+        List<JournalEntry<IStandardDataSelector>> journal = dataModel.mapper(IStandardDataSelector.class).getJournal(getId());
         return new History<>(journal, this);
     }
 
     @Override
     public History<EventDataSelector> getEventSelectorHistory() {
-        List<JournalEntry<IReadingTypeDataSelector>> journal = dataModel.mapper(IReadingTypeDataSelector.class).getJournal(getId());
+        List<JournalEntry<IStandardDataSelector>> journal = dataModel.mapper(IStandardDataSelector.class).getJournal(getId());
         return new History<>(journal, this);
     }
 
@@ -306,7 +306,7 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
     @Override
     public void save() {
         if (id == 0) {
-            dataModel.mapper(IReadingTypeDataSelector.class).persist(this);
+            dataModel.mapper(IStandardDataSelector.class).persist(this);
         } else {
             Save.UPDATE.validate(dataModel, this, getState().validationGroup());
             Save.UPDATE.save(dataModel, this);

@@ -6,4 +6,8 @@ public class MeterEventData extends AbstractExportData<MeterReading> {
     public MeterEventData(MeterReading data, StructureMarker structureMarker) {
         super(data, structureMarker);
     }
+
+    public MeterReading getMeterReading() {
+        return getData();
+    }
 }

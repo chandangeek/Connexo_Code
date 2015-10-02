@@ -657,7 +657,7 @@ public class ExportTaskImplIT {
         ExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
             meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test").create();
-            ((IReadingTypeDataSelector) task.getReadingTypeDataSelector().get()).addExportItem(meter, readingType);
+            ((IStandardDataSelector) task.getReadingTypeDataSelector().get()).addExportItem(meter, readingType);
             task.update();
             context.commit();
         }
@@ -682,7 +682,7 @@ public class ExportTaskImplIT {
         ExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
             meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test").create();
-            IReadingTypeDataExportItem item = ((IReadingTypeDataSelector) task.getReadingTypeDataSelector().get()).addExportItem(meter, readingType);
+            IReadingTypeDataExportItem item = ((IStandardDataSelector) task.getReadingTypeDataSelector().get()).addExportItem(meter, readingType);
             item.deactivate();
             item.update();
             context.commit();

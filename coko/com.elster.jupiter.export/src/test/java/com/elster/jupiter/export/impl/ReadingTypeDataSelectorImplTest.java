@@ -116,8 +116,8 @@ public class ReadingTypeDataSelectorImplTest {
     public void setUp() {
         transactionService = new TransactionVerifier();
 
-        doAnswer(invocation -> new ReadingTypeDataSelectorImpl(dataModel, transactionService, meteringService, validationService, clock))
-                .when(dataModel).getInstance(ReadingTypeDataSelectorImpl.class);
+        doAnswer(invocation -> new StandardDataSelectorImpl(dataModel, transactionService, meteringService, validationService, clock))
+                .when(dataModel).getInstance(StandardDataSelectorImpl.class);
         doAnswer(invocation -> new ReadingTypeInDataSelector(meteringService))
                 .when(dataModel).getInstance(ReadingTypeInDataSelector.class);
         doAnswer(invocation -> new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel))
@@ -173,7 +173,7 @@ public class ReadingTypeDataSelectorImplTest {
     @Test
     public void testSelectWithUpdate() {
 
-        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);
@@ -209,7 +209,7 @@ public class ReadingTypeDataSelectorImplTest {
     @Test
     public void testSelectWithUpdateAndWindow() {
 
-        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);
@@ -251,7 +251,7 @@ public class ReadingTypeDataSelectorImplTest {
         when(meter1.toList(eq(readingType), any())).thenReturn(Arrays.asList(END.toInstant()));
         when(meter2.toList(eq(readingType), any())).thenReturn(Arrays.asList(START.toInstant(), END.toInstant()));
 
-        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(false);
         selector.setExportOnlyIfComplete(true);
@@ -273,7 +273,7 @@ public class ReadingTypeDataSelectorImplTest {
         when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
         when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
 
-        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);
@@ -320,7 +320,7 @@ public class ReadingTypeDataSelectorImplTest {
 
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
 
-        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);
@@ -373,7 +373,7 @@ public class ReadingTypeDataSelectorImplTest {
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
         when(validationEvaluator.getLastChecked(meter1, readingType)).thenReturn(Optional.of(END.minusMinutes(5).toInstant()));
 
-        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);
@@ -426,7 +426,7 @@ public class ReadingTypeDataSelectorImplTest {
 
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
 
-        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);

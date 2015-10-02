@@ -141,7 +141,7 @@ public class DataExportTaskExecutorTest {
     @Mock
     private PropertySpec propertySpec;
     @Mock
-    private IReadingTypeDataSelector readingTypeDataSelector;
+    private IStandardDataSelector readingTypeDataSelector;
     @Mock
     private MeteringService meteringService;
     @Mock

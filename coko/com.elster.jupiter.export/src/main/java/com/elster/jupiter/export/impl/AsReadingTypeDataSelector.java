@@ -23,7 +23,7 @@ class AsReadingTypeDataSelector implements DataSelector {
     private final TransactionService transactionService;
 
     private Logger logger;
-    private ReadingTypeDataSelectorImpl selector;
+    private StandardDataSelectorImpl selector;
 
     @Inject
     AsReadingTypeDataSelector(DataModel dataModel, TransactionService transactionService) {
@@ -31,13 +31,13 @@ class AsReadingTypeDataSelector implements DataSelector {
         this.transactionService = transactionService;
     }
 
-    private AsReadingTypeDataSelector init(ReadingTypeDataSelectorImpl selector,Logger logger) {
+    private AsReadingTypeDataSelector init(StandardDataSelectorImpl selector,Logger logger) {
         this.selector = selector;
         this.logger = logger;
         return this;
     }
 
-    static AsReadingTypeDataSelector from(DataModel dataModel, ReadingTypeDataSelectorImpl selector, Logger logger) {
+    static AsReadingTypeDataSelector from(DataModel dataModel, StandardDataSelectorImpl selector, Logger logger) {
         return dataModel.getInstance(AsReadingTypeDataSelector.class).init(selector, logger);
     }
 

@@ -13,7 +13,7 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.logging.Logger;
 
-interface IReadingTypeDataSelector extends ReadingTypeDataSelector, EventDataSelector {
+interface IStandardDataSelector extends ReadingTypeDataSelector, EventDataSelector {
 
     Range<Instant> adjustedExportPeriod(DataExportOccurrence occurrence, ReadingTypeDataExportItem item);
 

@@ -89,7 +89,7 @@ public class SingleDeviceDataSelectorFactory implements DataSelectorFactory {
     }
 
     private NlsKey getNlsKey() {
-        return SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, ReadingTypeDataSelectorImpl.class.getName());
+        return SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, StandardDataSelectorImpl.class.getName());
     }
 
     private static enum DelegatingDataSelector implements DataSelector {

@@ -71,7 +71,7 @@ public class StandardDataSelectorFactory implements DataSelectorFactory {
         @Override
         public Stream<ExportData> selectData(DataExportOccurrence dataExportOccurrence) {
             return dataExportOccurrence.getTask().getReadingTypeDataSelector()
-                    .map(IReadingTypeDataSelector.class::cast)
+                    .map(IStandardDataSelector.class::cast)
                     .map(readingTypeDataSelector -> readingTypeDataSelector.asReadingTypeDataSelector(logger, thesaurus))
                     .orElseThrow(IllegalStateException::new).selectData(dataExportOccurrence);
         }

@@ -303,7 +303,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
 
     private Range<Instant> determineExportInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
         return occurrence.getTask().getReadingTypeDataSelector()
-                .map(IReadingTypeDataSelector.class::cast)
+                .map(IStandardDataSelector.class::cast)
                 .map(selector -> selector.adjustedExportPeriod(occurrence, item))
                 .orElse(Range.all());
     }
