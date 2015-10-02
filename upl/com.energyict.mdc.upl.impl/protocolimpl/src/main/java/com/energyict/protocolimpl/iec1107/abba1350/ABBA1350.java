@@ -115,7 +115,7 @@ public class ABBA1350
     private ABBA1350ObisCodeMapper abba1350ObisCodeMapper = new ABBA1350ObisCodeMapper(this);
 
     private byte[] dataReadout = null;
-    private int[] billingCount;
+    private int billingCount = -1;
     private String firmwareVersion = null;
     private Date meterDate = null;
     private String meterSerial = null;
@@ -801,12 +801,12 @@ public class ABBA1350
     }
 
     int getBillingCount() throws IOException {
-        if (billingCount == null) {
+        if (this.billingCount == -1) {
 
             if (isDataReadout()) {
                 sendDebug("Requesting getBillingCount() dataReadOut: " + getDataReadout().length, 2);
                 DataDumpParser ddp = new DataDumpParser(getDataReadout());
-                billingCount = new int[]{ddp.getBillingCounter()};
+                this.billingCount = ddp.getBillingCounter();
             } else {
 
                 String data;
@@ -821,18 +821,22 @@ public class ABBA1350
 
                 int start = data.indexOf('(') + 1;
                 int stop = data.indexOf(')');
-                String v = data.substring(start, stop);
+                String value = data.substring(start, stop);
 
                 try {
-                    billingCount = new int[]{Integer.parseInt(v)};
+                    this.billingCount = Integer.parseInt(value);
                 } catch (NumberFormatException e) {
-                    billingCount = new int[]{0};
-                    sendDebug("Unable to read billingCounter. Defaulting to 0!");
+                    this.billingCount = 0;
+                    getLogger().info(ABBA1350.class.getSimpleName() + " - Unable to read billingCounter. Defaulting to 0!");
                 }
             }
 
+            if (this.billingCount >= 100) {
+                this.billingCount = 0;
+                getLogger().warning(ABBA1350.class.getSimpleName() + " - Encountered invalid billingCounter (" + this.billingCount + "). The billingCounter should be between 0 and 100, defaulting to 0!");
+            }
         }
-        return billingCount[0];
+        return this.billingCount;
     }
 
     private String getMeterSerial() throws IOException {

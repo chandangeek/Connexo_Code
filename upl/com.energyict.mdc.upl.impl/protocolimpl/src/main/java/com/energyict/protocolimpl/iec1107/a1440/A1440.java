@@ -860,7 +860,6 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 DataDumpParser ddp = new DataDumpParser(getDataReadout());
                 this.billingCount = ddp.getBillingCounter();
             } else {
-
                 String data;
                 try {
                     data = new String(read("0.1.0"));
@@ -879,10 +878,14 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                     this.billingCount = Integer.parseInt(value);
                 } catch (NumberFormatException e) {
                     this.billingCount = 0;
-                    getLogger().info("Unable to read billingCounter. Defaulting to 0!");
+                    getLogger().info(A1440.class.getSimpleName() + " - Unable to read billingCounter. Defaulting to 0!");
                 }
             }
 
+            if (this.billingCount >= 100) {
+                this.billingCount = 0;
+                getLogger().warning(A1440.class.getSimpleName() + " - Encountered invalid billingCounter (" + this.billingCount + "). The billingCounter should be between 0 and 100, defaulting to 0!");
+            }
         }
         return this.billingCount;
     }
