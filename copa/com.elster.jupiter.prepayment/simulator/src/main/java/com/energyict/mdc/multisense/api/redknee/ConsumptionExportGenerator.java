@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.Duration;
@@ -16,8 +18,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
@@ -132,7 +136,7 @@ public class ConsumptionExportGenerator {
                 throw new IllegalStateException("Simulated time has caught up with real time: will not create export file");
             }
             String actualPath = (path == null || path.trim().isEmpty()) ? System.getProperty("java.io.tmpdir") : path;
-            String fileName = actualPath + "/ICE_CIM_profile1_" +
+            String fileName = actualPath + "/Elster_profile1_" +
                     now.format(dateTimeFormatter) + "_" +
                     now.toEpochSecond() + ".dat";
             try (FileWriter writer = new FileWriter(fileName)) {
@@ -147,7 +151,7 @@ public class ConsumptionExportGenerator {
                                             "3.0.0",
                                             now.toEpochSecond(),
                                             now.getOffset(),
-                                            usagePoint.getStatus() == Status.connected ? usagePoint.getConsumption() : 0L)
+                                            usagePoint.getStatus() == Status.connected ? randomize(usagePoint.getConsumption()) : 0.0)
                             ).forEach((str) -> {
                                 try {
                                     logger.trace(now.toString());
@@ -161,6 +165,10 @@ public class ConsumptionExportGenerator {
             } catch (IOException e) {
                 logger.error("Failed to write file " + fileName + ":" + e);
             }
+        }
+
+        private double randomize(MinMax consumption) {
+            return consumption.getMin()+(ThreadLocalRandom.current().nextDouble()*(consumption.getMax()-consumption.getMin()));
         }
 
         ZonedDateTime getNow() {

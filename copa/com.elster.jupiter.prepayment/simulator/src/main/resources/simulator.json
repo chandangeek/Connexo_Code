@@ -1,6 +1,6 @@
 {
   "simulator": {
-    "outputFrequency": 30,
+    "outputFrequency": 15,
     "timeAcceleration": 60,
     "destinationFilePath": "/tmp",
     "connexoUrl": "http://localhost:8085/public/api/rkn/v1.0/usagepoints",
@@ -8,13 +8,19 @@
     "readingType": "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0",
     "usagePoints": [
       {
-        "consumption": 3456.78,
+        "consumption": {
+          "min": 1000,
+          "max": 2000
+        },
         "mRID": "usp001",
         "device_mRID": "mrid1",
         "status": "connected"
       },
       {
-        "consumption": 1400,
+        "consumption": {
+          "min": 12000,
+          "max": 13000
+        },
         "mRID": "up2",
         "device_mRID": "mrid2",
         "status": "disconnected"

@@ -31,8 +31,8 @@ public class ConsumptionExportGeneratorTest {
         int outputFrequency = 60;
         int timeAcceleration = 60;
         String readingType = "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
-
-        UsagePoint usagePoint = new UsagePoint("usp1", "dev1", 111.1, Status.connected);
+        MinMax minMax = new MinMax(100.0, 200.0);
+        UsagePoint usagePoint = new UsagePoint("usp1", "dev1", minMax, Status.connected);
         Configuration configuration = new Configuration(outputFrequency, timeAcceleration, "/tmp", "http://localhost:8085", 8080, Collections.singletonList(usagePoint), readingType);
         ZonedDateTime time = ZonedDateTime.of(2015, 9, 23, 9, 12, 15, 15, ZoneId.systemDefault());
         Clock fixed = Clock.fixed(time.toInstant(), time.getZone());
@@ -58,7 +58,8 @@ public class ConsumptionExportGeneratorTest {
         int timeAcceleration = 60;
         String readingType = "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
 
-        UsagePoint usagePoint = new UsagePoint("usp1", "dev1", 111.1, Status.connected);
+        MinMax minMax = new MinMax(100.0, 200.0);
+        UsagePoint usagePoint = new UsagePoint("usp1", "dev1", minMax, Status.connected);
         Configuration configuration = new Configuration(outputFrequency, timeAcceleration, "/tmp", "http://localhost:8085", 8080, Collections.singletonList(usagePoint), readingType);
         ZonedDateTime time = ZonedDateTime.of(2015, 9, 23, 9, 12, 12, 15, ZoneId.systemDefault());
         Clock fixed = Clock.fixed(time.toInstant(), time.getZone());
