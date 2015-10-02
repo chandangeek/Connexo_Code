@@ -50,22 +50,22 @@ Ext.define('Bpm.controller.Main', {
                     {
                         text: Uni.I18n.translate('general.taksmanagement.tasks', 'BPM', 'Tasks'),
                         itemId: 'tasks',
-                        href: router.getRoute('workspace/taksmanagementtasks').buildUrl()
+                        href: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, {param: 'noFilter'})
                     },
                     {
                         text: Uni.I18n.translate('general.taksmanagement.myopentasks', 'BPM', 'My open tasks'),
                         itemId: 'my-open-tasks',
-                        href: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, {myopentasks: true})
+                        href: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, {param: 'myopentasks'})
                     },
                     {
                         text: Uni.I18n.translate('general.taksmanagement.unassignedtask', 'BPM', 'Unassigned tasks'),
                         itemId: 'unassigned-tasks',
-                        href: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, {unassingn: true})
+                        href: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, {param: 'unassign'})
                     },
                     {
                         text: Uni.I18n.translate('general.taksmanagement.overduetasks', 'BPM', 'Overdue tasks'),
                         itemId: 'overdue-tasks',
-                        href: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, {dueDate: 'OVERDUE'})
+                        href: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, {param: 'dueDate'})
                     }
                 ]
             });

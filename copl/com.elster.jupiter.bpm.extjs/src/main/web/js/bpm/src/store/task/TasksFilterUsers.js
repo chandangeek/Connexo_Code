@@ -4,11 +4,11 @@ Ext.define('Bpm.store.task.TasksFilterUsers', {
 
     proxy: {
         type: 'rest',
-        url: '/api/usr/users',
+        url: '/api/bpm/runtime/assignees?me=false',
         timeout: 240000,
         reader: {
             type: 'json',
-            root: 'users'
+            root: 'data'
         },
         pageParam: false,
         startParam: false,

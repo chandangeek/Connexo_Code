@@ -71,7 +71,7 @@ Ext.define('Bpm.view.task.TaskPreviewForm', {
                             {
                                 xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('bpm.task.dueDate', 'BPM', 'Due date'),
-                                name: 'dueDate',
+                                name: 'dueDateDisplay',
                                 itemId: 'bpm-preview-due-date'
                             },
                             {
@@ -83,7 +83,7 @@ Ext.define('Bpm.view.task.TaskPreviewForm', {
                             {
                                 xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('bpm.task.creationDate', 'BPM', 'Creation date'),
-                                name: 'createdOn',
+                                name: 'createdOnDisplay',
                                 itemId: 'bpm-preview-createdOn'
                             }
                         ]

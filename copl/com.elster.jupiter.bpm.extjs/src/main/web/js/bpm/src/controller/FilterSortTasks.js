@@ -35,10 +35,11 @@ Ext.define('Bpm.controller.FilterSortTasks', {
         var me = this,
             page = me.getPage(),
             sortContainer = page.down('container[name=sortitemspanel]').getContainer(),
+            queryString = Uni.util.QueryString.getQueryStringValues(false),
             store = me.getStore('Bpm.store.task.Tasks');
 
         sortContainer.removeAll();
-        sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
+        sorting = Ext.JSON.decode(queryString.sort);
 
         if (Ext.isArray(sorting)) {
             Ext.Array.each(sorting, function (sortItem) {
@@ -62,30 +63,11 @@ Ext.define('Bpm.controller.FilterSortTasks', {
         }
     },
 
-    setDefaultSort: function () {
-        var me = this,
-            store = me.getStore('Bpm.store.task.Tasks'),
-            sorting = store.getProxy().extraParams['sort'];
-
-        if (sorting === undefined) { // set default filters
-            sorting = [];
-            sorting.push({
-                property: 'dueDate',
-                direction: Uni.component.sort.model.Sort.DESC
-            });
-            sorting.push({
-                property: 'creationDate',
-                direction: Uni.component.sort.model.Sort.DESC
-            });
-            store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
-        }
-    },
-
     chooseSort: function (menu, item) {
         var me = this,
             name = item.name,
-            store = me.getStore('Bpm.store.task.Tasks'),
-            sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
+            queryString = Uni.util.QueryString.getQueryStringValues(false),
+            sorting = Ext.JSON.decode(queryString.sort);
 
         if (Ext.isArray(sorting)) {
             sortingItem = Ext.Array.findBy(sorting, function (item) {
@@ -108,37 +90,40 @@ Ext.define('Bpm.controller.FilterSortTasks', {
                 }
             ];
         }
-        store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
+        queryString.sort = Ext.JSON.encode(sorting);
+        me.applyNewState(queryString);
         me.updateSortingToolbarAndResults();
     },
 
     clearAllSorting: function (btn) {
         var me = this,
-            store = me.getStore('Bpm.store.task.Tasks');
+            queryString = Uni.util.QueryString.getQueryStringValues(false);
 
         sorting = [];
-        store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
+        queryString.sort = Ext.JSON.encode(sorting);
+        me.applyNewState(queryString);
         me.updateSortingToolbarAndResults();
     },
 
     onSortCloseClicked: function (btn) {
         var me = this,
-            store = me.getStore('Bpm.store.task.Tasks'),
-            sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']);
+            queryString = Uni.util.QueryString.getQueryStringValues(false),
+            sorting = Ext.JSON.decode(queryString.sort);
 
         if (Ext.isArray(sorting)) {
             Ext.Array.remove(sorting, Ext.Array.findBy(sorting, function (item) {
                 return item.property === btn.sortType
             }));
         }
-        store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
+        queryString.sort = Ext.JSON.encode(sorting);
+        me.applyNewState(queryString);
         me.updateSortingToolbarAndResults();
     },
 
     switchSortingOrder: function (btn) {
         var me = this,
-            store = me.getStore('Bpm.store.task.Tasks'),
-            sorting = Ext.JSON.decode(store.getProxy().extraParams['sort']),
+            queryString = Uni.util.QueryString.getQueryStringValues(false),
+            sorting = Ext.JSON.decode(queryString.sort),
             sortingItem;
 
         if (Ext.isArray(sorting)) {
@@ -153,7 +138,8 @@ Ext.define('Bpm.controller.FilterSortTasks', {
                 }
             }
         }
-        store.getProxy().setExtraParam('sort', Ext.JSON.encode(sorting));
+        queryString.sort = Ext.JSON.encode(sorting);
+        me.applyNewState(queryString);
         me.updateSortingToolbarAndResults();
     },
 
@@ -167,5 +153,18 @@ Ext.define('Bpm.controller.FilterSortTasks', {
         store.load(function(records, operation, success) {
             gridView.setLoading(false);
         });
+    },
+
+    applyNewState: function (queryString) {
+        var me = this,
+            href = Uni.util.QueryString.buildHrefWithQueryString(queryString, false);
+
+        if (window.location.href !== href) {
+            Uni.util.History.setParsePath(false);
+            Uni.util.History.suspendEventsForNextCall();
+            window.location.href = href;
+            Ext.util.History.currentToken = window.location.hash.substr(1);
+        }
     }
+
 });
