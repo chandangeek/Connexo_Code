@@ -1,12 +1,6 @@
 package com.elster.jupiter.cps.impl;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.CustomPropertySetValues;
-import com.elster.jupiter.cps.HardCodedFieldNames;
-import com.elster.jupiter.cps.PersistenceSupport;
-import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.*;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -20,6 +14,9 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
 import com.google.inject.AbstractModule;
@@ -49,13 +46,14 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-08-10 (13:35)
  */
-@Component(name = "com.elster.jupiter.cps", service = {CustomPropertySetService.class, ServerCustomPropertySetService.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + CustomPropertySetService.COMPONENT_NAME)
-public class CustomPropertySetServiceImpl implements ServerCustomPropertySetService, InstallService, TranslationKeyProvider {
+@Component(name = "com.elster.jupiter.cps", service = {CustomPropertySetService.class, ServerCustomPropertySetService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + CustomPropertySetService.COMPONENT_NAME)
+public class CustomPropertySetServiceImpl implements ServerCustomPropertySetService, InstallService, TranslationKeyProvider, PrivilegesProvider {
 
     private static final Logger LOGGER = Logger.getLogger(CustomPropertySetServiceImpl.class.getName());
 
     private volatile OrmService ormService;
     private volatile DataModel dataModel;
+    private volatile UserService userService;
     private volatile boolean installed = false;
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
@@ -77,11 +75,12 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     // For testing purposes
     @Inject
-    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService) {
+    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, UserService userService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setTransactionService(transactionService);
+        this.setUserService(userService);
         this.activate();
         this.install();
     }
@@ -103,6 +102,20 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         this.dataModel = dataModel;
     }
 
+    @Override
+    public String getModuleName() {
+        return CustomPropertySetService.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+        List<ResourceDefinition> resources = new ArrayList<>();
+        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
+                "customPropertySet.customPropertySets", "customPropertySet.customPropertySets.description",
+                Arrays.asList(Privileges.ADMINISTER_PRIVILEGES, Privileges.VIEW_PRIVILEGES)));
+        return resources;
+    }
+
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(this.getComponentName(), Layer.DOMAIN);
@@ -111,6 +124,11 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     private Module getModule() {
