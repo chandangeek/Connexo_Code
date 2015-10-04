@@ -8,10 +8,7 @@ public enum TranslationKeys implements TranslationKey {
     TIME_MINUTES("TimeMinutes", "%s minutes"),
     TIME_HOUR("TimeHour", "%s hour"),
     TIME_DAY("TimeDay", "%s day"),
-    TIME_MONTH("TimeMonth", "%s month"),
-    DEVICE_TYPE("com.energyict.mdc.device.config.DeviceType", "Device type"),
-    LOADPROFILE_TYPE("com.energyict.mdc.masterdata.LoadProfileType", "Load profile type"),
-    REGISTER_TYPE("com.energyict.mdc.masterdata.MeasurementType", "Register type");
+    TIME_MONTH("TimeMonth", "%s month");
 
     private final String key;
     private final String format;
