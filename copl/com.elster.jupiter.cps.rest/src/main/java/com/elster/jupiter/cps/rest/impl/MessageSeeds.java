@@ -42,5 +42,4 @@ public enum MessageSeeds implements MessageSeed {
     public Level getLevel() {
         return Level.SEVERE;
     }
-
 }
