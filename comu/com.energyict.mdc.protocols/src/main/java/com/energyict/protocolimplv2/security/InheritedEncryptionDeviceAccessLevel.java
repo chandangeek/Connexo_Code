@@ -27,6 +27,7 @@ public class InheritedEncryptionDeviceAccessLevel implements EncryptionDeviceAcc
 
     private final Thesaurus thesaurus;
 
+    @Inject
     public InheritedEncryptionDeviceAccessLevel(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }

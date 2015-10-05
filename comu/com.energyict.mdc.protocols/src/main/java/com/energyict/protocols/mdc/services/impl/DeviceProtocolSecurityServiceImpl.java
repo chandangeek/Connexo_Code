@@ -1,5 +1,8 @@
 package com.energyict.protocols.mdc.services.impl;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
@@ -54,6 +57,7 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
     private volatile CollectedDataFactory collectedDataFactory;
     private volatile CodeFactory codeFactory;
     private volatile UserFileFactory userFileFactory;
+    private volatile Thesaurus thesaurus;
 
     private Injector injector;
 
@@ -62,7 +66,13 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
 
     // For testing purposes
     @Inject
-    public DeviceProtocolSecurityServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock, PropertySpecService propertySpecService, TopologyService topologyService, SocketService socketService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, CodeFactory codeFactory, UserFileFactory userFileFactory, ProtocolPluggableService protocolPluggableService) {
+    public DeviceProtocolSecurityServiceImpl(IssueService issueService, MeteringService meteringService, Clock clock,
+                                             PropertySpecService propertySpecService, TopologyService topologyService,
+                                             SocketService socketService, SerialComponentService serialComponentService,
+                                             MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService,
+                                             CollectedDataFactory collectedDataFactory, CodeFactory codeFactory,
+                                             UserFileFactory userFileFactory, ProtocolPluggableService protocolPluggableService,
+                                             NlsService nlsService) {
         this();
         this.setMeteringService(meteringService);
         this.setIssueService(issueService);
@@ -77,6 +87,7 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
         this.setCodeFactory(codeFactory);
         this.setUserFileFactory(userFileFactory);
         this.setProtocolPluggableService(protocolPluggableService);
+        this.setNlsService(nlsService);
         this.activate();
     }
 
@@ -104,6 +115,7 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
                 bind(UserFileFactory.class).toInstance(userFileFactory);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(DeviceProtocolSecurityService.class).toInstance(DeviceProtocolSecurityServiceImpl.this);
+                bind(Thesaurus.class).toInstance(thesaurus);
             }
         };
     }
@@ -135,6 +147,11 @@ public class DeviceProtocolSecurityServiceImpl implements DeviceProtocolSecurity
     @Reference
     public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(DeviceProtocolServiceImpl.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference

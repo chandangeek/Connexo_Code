@@ -318,4 +318,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
         return null;
     }
 
+    public static void main(String[] args) {
+        System.out.println(LicensedProtocolRule.values().length);
+    }
 }

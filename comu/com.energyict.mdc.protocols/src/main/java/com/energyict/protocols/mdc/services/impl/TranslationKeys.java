@@ -123,13 +123,4 @@ public enum TranslationKeys implements TranslationKey {
         return defaultFormat;
     }
 
-    public static Optional<TranslationKey> getKey(String s) {
-        for (TranslationKeys translationKey : values()) {
-            if (translationKey.getKey().equals(s)) {
-                return Optional.of(translationKey);
-            }
-        }
-        return Optional.empty();
-    }
-
 }
