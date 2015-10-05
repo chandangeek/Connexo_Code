@@ -7,8 +7,8 @@ import java.util.List;
 public class ConfigurationSecurityPropertySetInfo extends LinkInfo {
 
     public String name;
-    public LinkInfo authenticationLevel;
-    public LinkInfo encryptionLevel;
+    public LinkInfo authenticationAccessLevel;
+    public LinkInfo encryptionAccessLevel;
 
     public List<PropertyInfo> properties;
 }

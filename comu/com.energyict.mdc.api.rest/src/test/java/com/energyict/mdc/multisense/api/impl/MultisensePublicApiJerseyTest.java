@@ -414,8 +414,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     AuthenticationDeviceAccessLevel mockAuthenticationAccessLevel(int id) {
         AuthenticationDeviceAccessLevel mock = mock(AuthenticationDeviceAccessLevel.class);
         when(mock.getId()).thenReturn(id);
-        when(mock.getTranslationKey()).thenReturn("aal" + id);
-        when(thesaurus.getStringBeyondComponent("aal" + id, "aal" + id)).thenReturn("Proper name for " + id);
+        when(mock.getTranslation()).thenReturn("Proper name for " + id);
         PropertySpec propertySpec = mockBigDecimalPropertySpec();
         when(mock.getSecurityProperties()).thenReturn(Collections.singletonList(propertySpec));
         return mock;
@@ -424,8 +423,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     EncryptionDeviceAccessLevel mockEncryptionAccessLevel(int id) {
         EncryptionDeviceAccessLevel mock = mock(EncryptionDeviceAccessLevel.class);
         when(mock.getId()).thenReturn(id);
-        when(mock.getTranslationKey()).thenReturn("eal" + id);
-        when(thesaurus.getStringBeyondComponent("eal" + id, "eal" + id)).thenReturn("Proper name for " + id);
+        when(mock.getTranslation()).thenReturn("Proper name for " + id);
         PropertySpec propertySpec = mockBigDecimalPropertySpec();
         when(mock.getSecurityProperties()).thenReturn(Collections.singletonList(propertySpec));
         return mock;

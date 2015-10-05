@@ -3,6 +3,7 @@ package com.energyict.mdc.multisense.api.impl;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
@@ -16,7 +17,7 @@ import java.util.Map;
  */
 public class ConfigurationSecurityPropertySetFactory extends SelectableFieldFactory<ConfigurationSecurityPropertySetInfo, SecurityPropertySet> {
 
-    public ConfigurationSecurityPropertySetInfo asInfo(SecurityPropertySet securityPropertySet, UriInfo uriInfo, Collection<String> fields) {
+    public ConfigurationSecurityPropertySetInfo from(SecurityPropertySet securityPropertySet, UriInfo uriInfo, Collection<String> fields) {
         ConfigurationSecurityPropertySetInfo info = new ConfigurationSecurityPropertySetInfo();
         copySelectedFields(info, securityPropertySet, uriInfo, fields);
         return info;
@@ -27,10 +28,27 @@ public class ConfigurationSecurityPropertySetFactory extends SelectableFieldFact
     protected Map<String, PropertyCopier<ConfigurationSecurityPropertySetInfo, SecurityPropertySet>> buildFieldMap() {
         Map<String, PropertyCopier<ConfigurationSecurityPropertySetInfo, SecurityPropertySet>> map = new HashMap<>();
         map.put("id", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> configurationSecurityPropertySetInfo.id = securityPropertySet.getId());
-//        map.put("authenticationLevel", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> {
-//            configurationSecurityPropertySetInfo.authenticationLevel = securityPropertySet.getAuthenticationDeviceAccessLevel().getTranslation();
-//        });
-//        map.put("encryptionLevel", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> configurationSecurityPropertySetInfo.encryptionLevel = securityPropertySet.getEncryptionDeviceAccessLevel());
+        map.put("authenticationAccessLevel", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> {
+            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
+                    .path(AuthenticationDeviceAccessLevelResource.class)
+                    .path(AuthenticationDeviceAccessLevelResource.class, "getAuthenticationDeviceAccessLevel")
+                    .resolveTemplate("deviceProtocolPluggableClassId", securityPropertySet.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass().getId());
+            LinkInfo linkInfo = new LinkInfo();
+            linkInfo.id = (long)securityPropertySet.getAuthenticationDeviceAccessLevel().getId();
+            linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").build(securityPropertySet.getAuthenticationDeviceAccessLevel().getId());
+            configurationSecurityPropertySetInfo.authenticationAccessLevel = linkInfo;
+        });
+        map.put("encryptionAccessLevel", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> {
+            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
+                    .path(EncryptionDeviceAccessLevelResource.class)
+                    .path(EncryptionDeviceAccessLevelResource.class, "getEncryptionDeviceAccessLevel")
+                    .resolveTemplate("deviceProtocolPluggableClassId", securityPropertySet.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass().getId());
+            LinkInfo linkInfo = new LinkInfo();
+            linkInfo.id = (long)securityPropertySet.getEncryptionDeviceAccessLevel().getId();
+            linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").build(securityPropertySet.getEncryptionDeviceAccessLevel().getId());
+            configurationSecurityPropertySetInfo.encryptionAccessLevel = linkInfo;
+
+        });
         map.put("link", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> {
             UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
                     .path(ConfigurationSecurityPropertySetResource.class)

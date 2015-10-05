@@ -2,8 +2,10 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
+import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.multisense.api.security.Privileges;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -16,7 +18,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -31,11 +32,13 @@ public class AuthenticationDeviceAccessLevelResource {
 
     private final AuthenticationDeviceAccessLevelInfoFactory authenticationDeviceAccessLevelInfoFactory;
     private final ProtocolPluggableService protocolPluggableService;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public AuthenticationDeviceAccessLevelResource(AuthenticationDeviceAccessLevelInfoFactory authenticationDeviceAccessLevelInfoFactory, ProtocolPluggableService protocolPluggableService) {
+    public AuthenticationDeviceAccessLevelResource(AuthenticationDeviceAccessLevelInfoFactory authenticationDeviceAccessLevelInfoFactory, ProtocolPluggableService protocolPluggableService, ExceptionFactory exceptionFactory) {
         this.authenticationDeviceAccessLevelInfoFactory = authenticationDeviceAccessLevelInfoFactory;
         this.protocolPluggableService = protocolPluggableService;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -47,14 +50,14 @@ public class AuthenticationDeviceAccessLevelResource {
             @PathParam("authenticationDeviceAccessLevelId") long authenticationDeviceAccessLevelId,
             @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         DeviceProtocolPluggableClass pluggableClass = protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId)
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_PROTOCOL));
         return pluggableClass.getDeviceProtocol()
                 .getAuthenticationAccessLevels()
                 .stream()
                 .filter(lvl -> lvl.getId() == authenticationDeviceAccessLevelId)
                 .findFirst()
                 .map(lvl -> authenticationDeviceAccessLevelInfoFactory.from(pluggableClass, lvl, uriInfo, fieldSelection.getFields()))
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_AUTH_DEVICE_ACCESS_LEVEL));
     }
 
     @GET
@@ -66,7 +69,7 @@ public class AuthenticationDeviceAccessLevelResource {
             @BeanParam JsonQueryParameters queryParameters,
             @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         DeviceProtocolPluggableClass pluggableClass = protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId)
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_PROTOCOL));
         List<DeviceAccessLevelInfo> infos = ListPager.of(pluggableClass.getDeviceProtocol().getAuthenticationAccessLevels()).from(queryParameters)
                 .stream()
                 .map(lvl -> authenticationDeviceAccessLevelInfoFactory.from(pluggableClass, lvl, uriInfo, fieldSelection.getFields()))

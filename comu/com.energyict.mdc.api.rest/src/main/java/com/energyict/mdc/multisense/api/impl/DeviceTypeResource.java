@@ -1,6 +1,7 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PROPFIND;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
@@ -47,7 +48,7 @@ public class DeviceTypeResource {
     @RolesAllowed({Privileges.PUBLIC_REST_API})
     public DeviceTypeInfo getHypermediaDeviceType(@PathParam("deviceTypeId") long id, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
         return deviceConfigurationService.findDeviceType(id)
-                .map(d -> deviceTypeInfoFactory.asInfo(d, uriInfo, fields.getFields()))
+                .map(d -> deviceTypeInfoFactory.from(d, uriInfo, fields.getFields()))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_TYPE));
     }
 
@@ -55,11 +56,19 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.PUBLIC_REST_API})
     public PagedInfoList<DeviceTypeInfo> getHypermediaDeviceTypes(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
-        List<DeviceTypeInfo> infos = deviceConfigurationService.findAllDeviceTypes().from(queryParameters).stream().map(d -> deviceTypeInfoFactory.asInfo(d, uriInfo, fields.getFields())).collect(toList());
+        List<DeviceTypeInfo> infos = deviceConfigurationService.findAllDeviceTypes().from(queryParameters).stream().map(d -> deviceTypeInfoFactory.from(d, uriInfo, fields.getFields())).collect(toList());
 
         UriBuilder uri = uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class);
         return PagedInfoList.from(infos, queryParameters, uri, uriInfo);
     }
+
+    @PROPFIND
+    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    public List<String> getFields() {
+        return deviceTypeInfoFactory.getAvailableFields().stream().sorted().collect(toList());
+    }
+
 
 }
 

@@ -26,7 +26,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -114,7 +113,8 @@ public class DeviceLifecycleActionResource {
         if (info==null) {
             throw exceptionFactory.newException(MessageSeeds.CONTENT_EXPECTED);
         }
-        device = deviceService.findAndLockDeviceByIdAndVersion(device.getId(), info.deviceVersion).orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
+        device = deviceService.findAndLockDeviceByIdAndVersion(device.getId(), info.deviceVersion)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.CONFLICT_ON_DEVICE));
         ExecutableAction requestedAction = getExecutableActionByIdOrThrowException(actionId, device);
         if (requestedAction.getAction() instanceof AuthorizedTransitionAction){
             requestedAction.execute(info.effectiveTimestamp==null?clock.instant():info.effectiveTimestamp, getExecutableActionPropertiesFromInfo(info, (AuthorizedTransitionAction) requestedAction.getAction()));

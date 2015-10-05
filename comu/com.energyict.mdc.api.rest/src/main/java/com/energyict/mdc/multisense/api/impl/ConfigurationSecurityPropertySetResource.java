@@ -52,7 +52,7 @@ public class ConfigurationSecurityPropertySetResource {
                 ListPager.of(deviceConfiguration.getSecurityPropertySets(), (ss1, ss2) -> ss1.getName().compareToIgnoreCase(ss2.getName()))
                          .from(queryParameters)
                          .stream()
-                         .map(ss -> securityPropertySetInfoFactory.asInfo(ss, uriInfo, fieldSelection.getFields()))
+                         .map(ss -> securityPropertySetInfoFactory.from(ss, uriInfo, fieldSelection.getFields()))
                          .collect(toList());
 
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(ConfigurationSecurityPropertySetResource.class);
@@ -69,7 +69,7 @@ public class ConfigurationSecurityPropertySetResource {
                                                                        @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
         SecurityPropertySet securityPropertySet = findSecurityPropertySetOrThrowException(deviceTypeId, deviceConfigId, securityPropertySetId);
 
-        return securityPropertySetInfoFactory.asInfo(securityPropertySet, uriInfo, fieldSelection.getFields());
+        return securityPropertySetInfoFactory.from(securityPropertySet, uriInfo, fieldSelection.getFields());
     }
 
     private SecurityPropertySet findSecurityPropertySetOrThrowException(long deviceTypeId, long deviceConfigId, long securityPropertySetId) {

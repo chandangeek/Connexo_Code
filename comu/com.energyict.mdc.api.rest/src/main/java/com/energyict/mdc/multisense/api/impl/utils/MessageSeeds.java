@@ -28,7 +28,11 @@ public enum MessageSeeds implements MessageSeed {
     CONTENT_EXPECTED(19, "ContentExpected", "This method expected content, but the body was empty"),
     NO_SUCH_MESSAGE_CATEGORY(20, "NoSuchMessageCategory", "Message category does not exist"),
     NO_SUCH_GATEWAY(21, "NuSuchGateway", "Gateway device does not exist"),
-    NO_SUCH_DEVICE_PROTOCOL(22, "NoSuchDeviceProtocol", "Device protocol does not exist");
+    NO_SUCH_DEVICE_PROTOCOL(22, "NoSuchDeviceProtocol", "Device protocol does not exist"),
+    NO_SUCH_AUTH_DEVICE_ACCESS_LEVEL(23, "NoSuchAuthDevAccessLevel" , "The device protocol does not have an authentication access level with that id"),
+    NO_SUCH_ENC_DEVICE_ACCESS_LEVEL(24, "NoSuchEncDevAccessLevel" , "The device protocol does not have an encryption access level with that id"),
+    CONFLICT_ON_DEVICE(25, "ConflictOnDevice", "The device you attempted to edit was changed by someone els"),
+    NO_SUCH_PROTOCOL_TASK(26, "NoSuchProtocolTask", "Protocol task does not exist");
 
     private final int number;
     private final String key;
