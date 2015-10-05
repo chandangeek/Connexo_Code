@@ -505,6 +505,22 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecEnum {
             propertySpecs.add(propertySpecService.stringPropertySpec(DeviceMessageConstants.toneMaskAttributeName, true, ""));
 
         }
+    },
+    EnableG3PLCInterface(DeviceMessageId.PLC_CONFIGURATION_ENABLE_G3_INTERFACE, "Enable the G3 interface"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.booleanPropertySpec(DeviceMessageConstants.enablePLC, true, false));
+        }
+    },
+    ConfigurePLcG3KeepAlive(DeviceMessageId.PLC_CONFIGURATION_WRITE_G3_KEEP_ALIVE, "Configure the G3 keep alive"){
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
+            super.addPropertySpecs(propertySpecs, propertySpecService);
+            propertySpecs.add(propertySpecService.booleanPropertySpec(DeviceMessageConstants.EnableKeepAlive, true, false));
+            propertySpecs.add(propertySpecService.boundedDecimalPropertySpec(DeviceMessageConstants.keepAliveStartTime, true, BigDecimal.ZERO, BigDecimal.valueOf(0xFFFFl)));
+            propertySpecs.add(propertySpecService.boundedDecimalPropertySpec(DeviceMessageConstants.keepAliveSendPeriod, true, BigDecimal.ONE, BigDecimal.valueOf(0xFFl)));
+        }
     }
 
     ;

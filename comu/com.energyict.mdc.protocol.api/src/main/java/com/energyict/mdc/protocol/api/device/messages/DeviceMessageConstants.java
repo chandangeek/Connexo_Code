@@ -376,6 +376,14 @@ public class DeviceMessageConstants {
     public static final String defaultKeyAttributeName = "MBusSetupDeviceMessage.defaultKey";
     public static final String dib = "MBusSetupDeviceMessage.dib";
     public static final String vib = "MBusSetupDeviceMessage.vib";
+    public static final String dibInstance1 = "MBusSetupDeviceMessage.dibInstance1";
+    public static final String vibInstance1 = "MBusSetupDeviceMessage.vibInstance1";
+    public static final String dibInstance2 = "MBusSetupDeviceMessage.dibInstance2";
+    public static final String vibInstance2 = "MBusSetupDeviceMessage.vibInstance2";
+    public static final String dibInstance3 = "MBusSetupDeviceMessage.dibInstance3";
+    public static final String vibInstance3 = "MBusSetupDeviceMessage.vibInstance3";
+    public static final String dibInstance4 = "MBusSetupDeviceMessage.dibInstance4";
+    public static final String vibInstance4 = "MBusSetupDeviceMessage.vibInstance4";
     public static final String mbusChannel = "MBusSetupDeviceMessage.channel";
 
     public static final String AnalogOutValue = "DeviceActionMessage.AnalogOutValue";
@@ -501,6 +509,8 @@ public class DeviceMessageConstants {
     public static final String SNRQuietTime = "PLCConfigurationDeviceMessage.snrQuietTime";
     public static final String SNRPayload = "PLCConfigurationDeviceMessage.snrPayload";
     public static final String EnableKeepAlive = "PLCConfigurationDeviceMessage.enableKeepAlive";
+    public static final String keepAliveStartTime = "PLCConfigurationDeviceMessage.keepAliveStartTime";
+    public static final String keepAliveSendPeriod = "PLCConfigurationDeviceMessage.keepAliveSendPeriod";
     public static final String KeepAliveScheduleInterval = "PLCConfigurationDeviceMessage.keepAliveScheduleInterval";
     public static final String KeepAliveBucketSize = "PLCConfigurationDeviceMessage.keepAliveBucketSize";
     public static final String minInactiveMeterTime = "PLCConfigurationDeviceMessage.minInactiveMeterTime";
