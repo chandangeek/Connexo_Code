@@ -98,6 +98,8 @@ public class DeviceSearchDomainTest {
         mockSerialNumberPropertySpec();
         mockStateNamePropertySpec();
         mockDeviceGroupPropertySpec();
+        mockYearOfCertificationPropertySpec();
+        mockBatchPropertySpec();
     }
 
     @Test
@@ -134,6 +136,9 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(MasterResourceIdentifierSearchableProperty.class);
         verify(this.dataModel).getInstance(SerialNumberSearchableProperty.class);
         verify(this.dataModel).getInstance(StateNameSearchableProperty.class);
+        verify(this.dataModel).getInstance(DeviceGroupSearchableProperty.class);
+        verify(this.dataModel).getInstance(BatchSearchableProperty.class);
+        verify(this.dataModel).getInstance(YearOfCertificationSearchableProperty.class);
     }
 
     @Test
@@ -742,6 +747,24 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 eq(FactoryIds.DEVICE_GROUP),
                 anyList())).thenReturn(deviceGroup);
+    }
+
+    private void mockYearOfCertificationPropertySpec() {
+        PropertySpec year = mock(PropertySpec.class);
+        when(year.getName()).thenReturn(DeviceFields.SERIALNUMBER.fieldName());
+        when(this.propertySpecService.longPropertySpecWithValues(
+                eq(DeviceFields.CERT_YEAR.fieldName()),
+                eq(false),
+                Matchers.<Long>anyVararg())).thenReturn(year);
+    }
+
+    private void mockBatchPropertySpec() {
+        PropertySpec batch = mock(PropertySpec.class);
+        when(batch.getName()).thenReturn(DeviceFields.BATCH.fieldName());
+        when(this.propertySpecService.basicPropertySpec(
+                eq(DeviceFields.BATCH.fieldName()),
+                eq(false),
+                Matchers.<StringFactory>anyObject())).thenReturn(batch);
     }
 
     @Test

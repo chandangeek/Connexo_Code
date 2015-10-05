@@ -92,6 +92,9 @@ public class BatchSearchableProperty extends AbstractSearchableDeviceProperty {
 
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
+        if (!constrictions.isEmpty()) {
+            throw new IllegalArgumentException("No constraint to refresh");
+        }
     }
 
     @Override

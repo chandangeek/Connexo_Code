@@ -11,7 +11,6 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.device.data.DeviceFields;
-import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -22,17 +21,15 @@ public class YearOfCertificationSearchableProperty extends AbstractSearchableDev
 
     private DeviceSearchDomain domain;
     private final PropertySpecService propertySpecService;
-    private final DeviceService deviceService;
     private final Thesaurus thesaurus;
     private static final int YEARS_IN_LIST_NUMBER = 20;
     private Long[] years = new Long [YEARS_IN_LIST_NUMBER];
 
     @Inject
-    public YearOfCertificationSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus, DeviceService deviceService) {
+    public YearOfCertificationSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
-        this.deviceService = deviceService;
     }
 
     YearOfCertificationSearchableProperty init(DeviceSearchDomain domain) {
