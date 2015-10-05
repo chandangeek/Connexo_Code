@@ -1,6 +1,13 @@
 package com.elster.jupiter.cps.impl;
 
-import com.elster.jupiter.cps.*;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.HardCodedFieldNames;
+import com.elster.jupiter.cps.PersistenceSupport;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.cps.Privileges;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;

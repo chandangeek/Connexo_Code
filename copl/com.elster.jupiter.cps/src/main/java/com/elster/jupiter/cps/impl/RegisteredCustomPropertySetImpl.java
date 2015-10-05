@@ -50,10 +50,10 @@ public class RegisteredCustomPropertySetImpl implements RegisteredCustomProperty
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String logicalId;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "CannotBeNull")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE__NULL+"}")
     private long viewPrivilegesBits;
     private EnumSet<ViewPrivilege> viewPrivileges = EnumSet.noneOf(ViewPrivilege.class);
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "CannotBeNull")
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE__NULL+"}")
     private long editPrivilegesBits;
     private EnumSet<EditPrivilege> editPrivileges = EnumSet.noneOf(EditPrivilege.class);
     private Optional<CustomPropertySet> customPropertySet;
