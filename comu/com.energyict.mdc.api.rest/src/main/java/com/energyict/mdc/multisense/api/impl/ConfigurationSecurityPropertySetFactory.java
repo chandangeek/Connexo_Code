@@ -27,11 +27,10 @@ public class ConfigurationSecurityPropertySetFactory extends SelectableFieldFact
     protected Map<String, PropertyCopier<ConfigurationSecurityPropertySetInfo, SecurityPropertySet>> buildFieldMap() {
         Map<String, PropertyCopier<ConfigurationSecurityPropertySetInfo, SecurityPropertySet>> map = new HashMap<>();
         map.put("id", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> configurationSecurityPropertySetInfo.id = securityPropertySet.getId());
-        map.put("authenticationLevel", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> {
-
-            configurationSecurityPropertySetInfo.authenticationLevel = securityPropertySet.getAuthenticationDeviceAccessLevel()
-        });
-        map.put("encryptionLevel", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> configurationSecurityPropertySetInfo.encryptionLevel = securityPropertySet.getEncryptionDeviceAccessLevel());
+//        map.put("authenticationLevel", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> {
+//            configurationSecurityPropertySetInfo.authenticationLevel = securityPropertySet.getAuthenticationDeviceAccessLevel().getTranslation();
+//        });
+//        map.put("encryptionLevel", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> configurationSecurityPropertySetInfo.encryptionLevel = securityPropertySet.getEncryptionDeviceAccessLevel());
         map.put("link", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> {
             UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
                     .path(ConfigurationSecurityPropertySetResource.class)

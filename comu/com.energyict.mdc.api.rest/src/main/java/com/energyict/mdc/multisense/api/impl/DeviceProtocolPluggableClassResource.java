@@ -2,7 +2,9 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
+import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
+import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.multisense.api.security.Privileges;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -14,7 +16,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -29,11 +30,13 @@ public class DeviceProtocolPluggableClassResource {
 
     private final DeviceProtocolPluggableClassInfoFactory deviceProtocolPluggableClassInfoFactory;
     private final ProtocolPluggableService protocolPluggableService;
+    private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public DeviceProtocolPluggableClassResource(ProtocolPluggableService protocolPluggableService, DeviceProtocolPluggableClassInfoFactory deviceProtocolPluggableClassInfoFactory) {
+    public DeviceProtocolPluggableClassResource(ProtocolPluggableService protocolPluggableService, DeviceProtocolPluggableClassInfoFactory deviceProtocolPluggableClassInfoFactory, ExceptionFactory exceptionFactory) {
         this.protocolPluggableService = protocolPluggableService;
         this.deviceProtocolPluggableClassInfoFactory = deviceProtocolPluggableClassInfoFactory;
+        this.exceptionFactory = exceptionFactory;
     }
 
     @GET
@@ -43,7 +46,7 @@ public class DeviceProtocolPluggableClassResource {
     public DeviceProtocolPluggableClassInfo getDeviceProtocolPluggableClass(@PathParam("deviceProtocolPluggableClassId") long deviceProtocolPluggableClassId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
          return protocolPluggableService.findDeviceProtocolPluggableClass(deviceProtocolPluggableClassId)
                  .map(ct -> deviceProtocolPluggableClassInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
-                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_PROTOCOL));
     }
 
     @GET

@@ -27,7 +27,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_DEVICE(18, "NoSuchDevice", "Device does not exist"),
     CONTENT_EXPECTED(19, "ContentExpected", "This method expected content, but the body was empty"),
     NO_SUCH_MESSAGE_CATEGORY(20, "NoSuchMessageCategory", "Message category does not exist"),
-    NO_SUCH_GATEWAY(21, "NuSuchGateway", "Gateway device does not exist");
+    NO_SUCH_GATEWAY(21, "NuSuchGateway", "Gateway device does not exist"),
+    NO_SUCH_DEVICE_PROTOCOL(22, "NoSuchDeviceProtocol", "Device protocol does not exist");
 
     private final int number;
     private final String key;
