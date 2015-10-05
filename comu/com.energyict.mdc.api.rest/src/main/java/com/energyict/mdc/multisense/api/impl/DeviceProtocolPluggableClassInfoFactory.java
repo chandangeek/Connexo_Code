@@ -46,7 +46,7 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
                     .getDeviceProtocol()
                     .getAuthenticationAccessLevels()
                     .stream()
-                    .sorted((aa1, aa2) -> aa1.getTranslationKey().compareTo(aa2.getTranslationKey()))
+                    .sorted((aa1, aa2) -> aa1.getTranslation().compareTo(aa2.getTranslation()))
                     .map(aal -> {
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = (long)aal.getId();
@@ -67,7 +67,7 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
                     .getDeviceProtocol()
                     .getEncryptionAccessLevels()
                     .stream()
-                    .sorted((aa1, aa2) -> aa1.getTranslationKey().compareTo(aa2.getTranslationKey()))
+                    .sorted((aa1, aa2) -> aa1.getTranslation().compareTo(aa2.getTranslation()))
                     .map(aal -> {
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = (long)aal.getId();
