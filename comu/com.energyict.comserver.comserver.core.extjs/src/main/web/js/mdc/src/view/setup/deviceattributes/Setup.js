@@ -71,6 +71,7 @@ Ext.define('Mdc.view.setup.deviceattributes.Setup', {
                         xtype: 'custom-attribute-sets-placeholder-form',
                         itemId: 'custom-attribute-sets-placeholder-form-id',
                         actionMenuXtype: 'device-attributes-action-menu',
+                        attributeSetType: 'device',
                         router: me.router
                     }
                 ]
