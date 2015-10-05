@@ -64,8 +64,8 @@ public class SecurityPropertySetInfoFactory {
         SecurityPropertySetInfo securityPropertySetInfo = new SecurityPropertySetInfo();
         securityPropertySetInfo.id = securityPropertySet.getId();
         securityPropertySetInfo.name = securityPropertySet.getName();
-        securityPropertySetInfo.authenticationLevel = SecurityLevelInfo.from(securityPropertySet.getAuthenticationDeviceAccessLevel(), thesaurus);
-        securityPropertySetInfo.encryptionLevel = SecurityLevelInfo.from(securityPropertySet.getEncryptionDeviceAccessLevel(), thesaurus);
+        securityPropertySetInfo.authenticationLevel = SecurityLevelInfo.from(securityPropertySet.getAuthenticationDeviceAccessLevel());
+        securityPropertySetInfo.encryptionLevel = SecurityLevelInfo.from(securityPropertySet.getEncryptionDeviceAccessLevel());
 
         securityPropertySetInfo.userHasViewPrivilege = securityPropertySet.currentUserIsAllowedToViewDeviceProperties();
         securityPropertySetInfo.userHasEditPrivilege = securityPropertySet.currentUserIsAllowedToEditDeviceProperties();
