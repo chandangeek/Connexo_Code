@@ -16,6 +16,7 @@ import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessage
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.Arrays;
+import java.util.TimeZone;
 import java.util.function.Consumer;
 
 /**
@@ -51,39 +52,41 @@ public class CreateG3SlaveCommand {
 
     private final static String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
 
-    public enum SlaveDeviceConfiguration{
-        AS3000{
+    public enum SlaveDeviceConfiguration {
+        AS3000 {
             @Override
             MeterConfig getMeterConfig() {
                 return new MeterConfig().setProperty("DeviceTypeName", "Elster AS3000")
-                            .setProperty("MRID", "Demo board AS3000")
-                            .setProperty("propertyID", "E0023000520685414")
-                            .setProperty("serialNumber", "05206854")
-                            .setProperty("MAC_address", "02237EFFFEFD835B")
-                            .setProperty("masterKey", "00112233445566778899AABBCCDDEEFF")
-                            .setProperty("AK", "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF")
-                            .setProperty("EK", "000102030405060708090A0B0C0D0E0F")
-                            .setProperty("PSK", "00112233445566778899AABBCCDDEEFF")
-                            .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
-                            .setProperty("HLSsecretASCII", "1234567890123456")
-                            .setProperty("ClientMacAddress", "1");
+                        .setProperty("MRID", "Demo_board_AS3000")
+                        .setProperty("propertyID", "E0023000520685414")
+                        .setProperty("serialNumber", "E0023000520685414")
+                        .setProperty("MAC_address", "02237EFFFEFD835B")
+                        .setProperty("masterKey", "00112233445566778899AABBCCDDEEFF")
+                        .setProperty("AK", "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF")
+                        .setProperty("EK", "000102030405060708090A0B0C0D0E0F")
+                        .setProperty("PSK", "00112233445566778899AABBCCDDEEFF")
+                        .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
+                        .setProperty("HLSsecretASCII", "1234567890123456")
+                        .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"))
+                        .setProperty("ClientMacAddress", "1");
             }
         },
-        AS220{
+        AS220 {
             @Override
             MeterConfig getMeterConfig() {
                 return new MeterConfig().setProperty("DeviceTypeName", "Elster AS220")
-                            .setProperty("MRID", "Demo board AS220")
-                            .setProperty("propertyID", "123457S")
-                            .setProperty("serialNumber", "35075302")
-                            .setProperty("MAC_address", "02237EFFFEFD82F4")
-                            .setProperty("masterKey", "00112233445566778899AABBCCDDEEFF")
-                            .setProperty("AK", "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF")
-                            .setProperty("EK", "000102030405060708090A0B0C0D0E0F")
-                            .setProperty("PSK", "92DA010836AA91222BCBEA49713DD9C1")
-                            .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
-                            .setProperty("HLSsecretASCII", "1234567890123456")
-                            .setProperty("ClientMacAddress", 1);
+                        .setProperty("MRID", "Demo_board_AS220")
+                        .setProperty("propertyID", "123457S")
+                        .setProperty("serialNumber", "123457S")
+                        .setProperty("MAC_address", "02237EFFFEFD82F4")
+                        .setProperty("masterKey", "00112233445566778899AABBCCDDEEFF")
+                        .setProperty("AK", "D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF")
+                        .setProperty("EK", "000102030405060708090A0B0C0D0E0F")
+                        .setProperty("PSK", "92DA010836AA91222BCBEA49713DD9C1")
+                        .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
+                        .setProperty("HLSsecretASCII", "1234567890123456")
+                        .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"))
+                        .setProperty("ClientMacAddress", 1);
             }
         };
 
@@ -236,6 +239,7 @@ public class CreateG3SlaveCommand {
         @Override
         public void accept(Device device) {
             device.setProtocolProperty("MAC_address", meterConfig.getProperty("MAC_address"));
+            device.setProtocolProperty("TimeZone", meterConfig.getProperty("TimeZone"));
             device.save();
         }
     }
