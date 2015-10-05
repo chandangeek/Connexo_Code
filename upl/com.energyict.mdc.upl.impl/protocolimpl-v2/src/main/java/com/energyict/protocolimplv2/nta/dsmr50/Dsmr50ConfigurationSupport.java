@@ -62,6 +62,7 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
                 this.actualLogicalDeviceIdPropertySpec(),
                 this.serverLowerMacAddressPropertySpec(),
                 this.checkNumberOfBlocksDuringFirmwareResumePropertySpec(),
+                this.lastSeenDatePropertySpec(),
                 this.useEquipmentIdentifierAsSerialNumberPropertySpec()
         );
     }
@@ -72,6 +73,10 @@ public class Dsmr50ConfigurationSupport implements ConfigurationSupport {
 
     private PropertySpec actualLogicalDeviceIdPropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID);
+    }
+
+    private PropertySpec lastSeenDatePropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(G3Properties.PROP_LASTSEENDATE);
     }
 
     private PropertySpec serverLowerMacAddressPropertySpec() {

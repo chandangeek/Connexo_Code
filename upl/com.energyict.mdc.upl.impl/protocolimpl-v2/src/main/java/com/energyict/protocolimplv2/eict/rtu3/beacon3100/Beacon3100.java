@@ -4,6 +4,7 @@ import com.energyict.cbo.ConfigurationSupport;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
@@ -12,6 +13,7 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
@@ -25,6 +27,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -202,38 +205,100 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierById(offlineDevice.getId()));
 
         List<SAPAssignmentItem> sapAssignmentList;      //List that contains the SAP id's and the MAC addresses of all logical devices (= gateway + slaves)
+        final Array nodeList;
         try {
             sapAssignmentList = this.getDlmsSession().getCosemObjectFactory().getSAPAssignment().getSapAssignmentList();
+            nodeList = this.getDlmsSession().getCosemObjectFactory().getG3NetworkManagement().getNodeList();
         } catch (IOException e) {
             throw IOExceptionHandler.handle(e, getDlmsSession());
         }
+        final List<G3Topology.G3Node> g3Nodes = G3Topology.convertNodeList(nodeList, this.getDlmsSession().getTimeZone());
 
         for (SAPAssignmentItem sapAssignmentItem : sapAssignmentList) {
 
             byte[] logicalDeviceNameBytes = sapAssignmentItem.getLogicalDeviceNameBytes();
-
             if (hasLogicalDevicePrefix(logicalDeviceNameBytes, GATEWAY_LOGICAL_DEVICE_PREFIX)) {
                 byte[] logicalNameMacBytes = ProtocolTools.getSubArray(logicalDeviceNameBytes, GATEWAY_LOGICAL_DEVICE_PREFIX.length(), GATEWAY_LOGICAL_DEVICE_PREFIX.length() + MAC_ADDRESS_LENGTH);
                 final String macAddress = ProtocolTools.getHexStringFromBytes(logicalNameMacBytes, "");
-                DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);
-                deviceTopology.addSlaveDevice(slaveDeviceIdentifier);   //Using callHomeId as a general property
-                deviceTopology.addAdditionalCollectedDeviceInfo(
-                        MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
-                                slaveDeviceIdentifier,
-                                AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID,
-                                BigDecimal.valueOf(sapAssignmentItem.getSap())
-                        )
-                );
-                deviceTopology.addAdditionalCollectedDeviceInfo(
-                        MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
-                                slaveDeviceIdentifier,
-                                AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID,
-                                BigDecimal.valueOf(findMatchingMirrorLogicalDevice(macAddress, sapAssignmentList))
-                        )
-                );
+
+                final G3Topology.G3Node g3Node = findG3Node(macAddress, g3Nodes);
+                if (g3Node != null) {
+
+                    long configuredLastSeenDate = getConfiguredLastSeenDate(macAddress);
+
+                    //G3 node that was read out has a newer link to a DC, update allowed.
+                    //Else: this device is no longer considered a slave device of the gateway.
+                    if (hasNewerLastSeenDate(g3Node, configuredLastSeenDate)) {
+                        DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);
+                        deviceTopology.addSlaveDevice(slaveDeviceIdentifier);   //Using callHomeId as a general property
+                        deviceTopology.addAdditionalCollectedDeviceInfo(
+                                MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                                        slaveDeviceIdentifier,
+                                        AS330DConfigurationSupport.GATEWAY_LOGICAL_DEVICE_ID,
+                                        BigDecimal.valueOf(sapAssignmentItem.getSap())
+                                )
+                        );
+                        deviceTopology.addAdditionalCollectedDeviceInfo(
+                                MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                                        slaveDeviceIdentifier,
+                                        AS330DConfigurationSupport.MIRROR_LOGICAL_DEVICE_ID,
+                                        BigDecimal.valueOf(findMatchingMirrorLogicalDevice(macAddress, sapAssignmentList))
+                                )
+                        );
+                        deviceTopology.addAdditionalCollectedDeviceInfo(
+                                MdcManager.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                                        slaveDeviceIdentifier,
+                                        G3Properties.PROP_LASTSEENDATE,
+                                        BigDecimal.valueOf(g3Node.getLastSeenDate().getTime())
+                                )
+                        );
+                    }
+                }
             }
         }
         return deviceTopology;
+    }
+
+    /**
+     * This node is only considered an actual slave device if:
+     * - the configuredLastSeenDate in EIServer is still empty
+     * - the read out last seen date is empty (==> always update EIServer, by design)
+     * - the read out last seen date is the same, or newer, compared to the configuredLastSeenDate in EIServer
+     * <p/>
+     * If true, the gateway link in EIServer will be created and the properties will be set.
+     * If false, the gateway link (if it exists at all) will be removed.
+     */
+    private boolean hasNewerLastSeenDate(G3Topology.G3Node g3Node, long configuredLastSeenDate) {
+        return (configuredLastSeenDate == 0) || (g3Node.getLastSeenDate() == null) || (g3Node.getLastSeenDate().getTime() >= configuredLastSeenDate);
+    }
+
+    /**
+     * Return property "LastSeenDate" on slave device with callHomeId == macAddress
+     * Return 0 if not found.
+     */
+    private long getConfiguredLastSeenDate(String macAddress) {
+        for (OfflineDevice slaveDevice : getOfflineDevice().getAllSlaveDevices()) {
+            String configuredCallHomeId = slaveDevice.getAllProperties().getStringProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME);
+            configuredCallHomeId = configuredCallHomeId == null ? "" : configuredCallHomeId;
+            if (macAddress.equals(configuredCallHomeId)) {
+                return slaveDevice.getAllProperties().getIntegerProperty(G3Properties.PROP_LASTSEENDATE, BigDecimal.ZERO).longValue();
+            }
+        }
+        return 0L;
+    }
+
+    private G3Topology.G3Node findG3Node(final String macAddress, final List<G3Topology.G3Node> g3Nodes) {
+        if (macAddress != null && g3Nodes != null && !g3Nodes.isEmpty()) {
+            for (final G3Topology.G3Node g3Node : g3Nodes) {
+                if (g3Node != null) {
+                    final String nodeMac = ProtocolTools.getHexStringFromBytes(g3Node.getMacAddress(), "");
+                    if (nodeMac.equalsIgnoreCase(macAddress)) {
+                        return g3Node;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private boolean hasLogicalDevicePrefix(byte[] logicalDeviceNameBytes, String expectedPrefix) {

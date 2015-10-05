@@ -51,8 +51,13 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 this.pskPropertySpec(),
                 this.useEquipmentIdentifierAsSerialNumberPropertySpec(),
                 this.aarqTimeoutPropertySpec(),
+                this.lastSeenDatePropertySpec(),
                 this.aarqRetriesPropertySpec()
         );
+    }
+
+    private PropertySpec lastSeenDatePropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(G3Properties.PROP_LASTSEENDATE);
     }
 
     private PropertySpec pskPropertySpec() {
