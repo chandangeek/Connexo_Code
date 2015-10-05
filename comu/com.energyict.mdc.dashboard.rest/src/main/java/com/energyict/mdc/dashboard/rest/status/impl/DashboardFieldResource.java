@@ -90,7 +90,7 @@ public class DashboardFieldResource extends FieldResource {
     }
 
     private List<String> comSessionSuccessIndicatorClientSideValues() {
-        return Stream.of(ComSession.SuccessIndicator.values()).map(Enum::name).collect(Collectors.toList());
+        return Stream.of(ComSessionSuccessIndicatorTranslationKeys.values()).map(ComSessionSuccessIndicatorTranslationKeys::getKey).collect(Collectors.toList());
     }
 
     @GET
