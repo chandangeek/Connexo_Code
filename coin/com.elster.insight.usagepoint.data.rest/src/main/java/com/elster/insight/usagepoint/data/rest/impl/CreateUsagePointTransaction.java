@@ -1,12 +1,5 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
-import java.time.Clock;
-import java.util.Optional;
-
-import javax.inject.Inject;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.GasDetail;
@@ -18,6 +11,12 @@ import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.transaction.Transaction;
+
+import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import java.time.Clock;
+import java.util.Optional;
 
 final class CreateUsagePointTransaction implements Transaction<UsagePoint> {
 
@@ -44,18 +43,17 @@ final class CreateUsagePointTransaction implements Transaction<UsagePoint> {
 
     private UsagePoint doPerform(ServiceCategory serviceCategory) {
 
-        UsagePointBuilder upb = serviceCategory.newUsagePointBuilder();
+        UsagePointBuilder upb = serviceCategory.newUsagePoint(info.mRID);
         UsagePoint usagePoint = upb.withAliasName(info.aliasName)
                 .withDescription(info.description)
                 .withIsSdp(info.isSdp)
                 .withIsVirtual(info.isVirtual)
-                .withMRID(info.mRID)
                 .withName(info.name)
                 .withOutageRegion(info.outageRegion)
                 .withReadCycle(info.readCycle)
                 .withReadRoute(info.readRoute)
                 .withServicePriority(info.servicePriority)
-                .build();
+                .create();
 
         switch (serviceCategory.getKind()) {
             case ELECTRICITY:
