@@ -6,12 +6,14 @@
 
 package com.energyict.dlms;
 
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.SimpleTimeZone;
 import java.util.TimeZone;
 /**
  *
@@ -19,6 +21,8 @@ import java.util.TimeZone;
  */
 public class OctetString implements Serializable {
 	private byte[] array;
+	private static final byte[] NO_DEVIATION = new byte[]{(byte) 0x80, (byte) 0x00};
+	private static final int SECONDS_PER_MINUTE = 60;
 
 	public OctetString(byte[] data) {
 		this.array = data.clone();
@@ -120,4 +124,20 @@ public class OctetString implements Serializable {
 		return calendar.getTime();
 	}
 
+	/**
+	 * Uses the timezone (bytes 9 and 10) that is specified in the AXDR DateTime octetstring
+	 * Or the given TimeZone if the information is unspecified (0x8000) in the timestamp
+	 */
+	public Date toDate(AXDRDateTimeDeviationType deviationType, TimeZone deviceTimeZone) {
+		TimeZone tz;
+		if ((array[9] != NO_DEVIATION[0]) || (array[10] != NO_DEVIATION[1])) {
+			int tOffset = ProtocolUtils.getShort(array, 9);
+			int deviation = tOffset / SECONDS_PER_MINUTE;
+			tz = new SimpleTimeZone(deviationType.getGmtOffset(deviation) * 3600 * 1000, deviationType.getGmtNotation(deviation));
+		} else {
+			tz = deviceTimeZone;
+		}
+
+		return toCalendar(tz).getTime();
+	}
 } // class OctetString

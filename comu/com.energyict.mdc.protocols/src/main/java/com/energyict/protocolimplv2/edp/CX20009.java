@@ -37,7 +37,7 @@ import com.energyict.protocolimplv2.edp.messages.EDPMessaging;
 import com.energyict.protocolimplv2.edp.registers.RegisterReader;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxPlainSerialConnectionType;
 import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSerialConnectionType;
@@ -86,7 +86,7 @@ public class CX20009 extends AbstractDlmsProtocol {
      * Class that holds all DLMS device properties (general, dialect & security related)
      */
     @Override
-    protected EDPProperties getDlmsProperties() {
+    public EDPProperties getDlmsProperties() {
         if (dlmsProperties == null) {
             dlmsProperties = new EDPProperties(getPropertySpecService());
         }

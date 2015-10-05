@@ -91,9 +91,8 @@ public class G3Properties extends DlmsProtocolProperties {
     }
 
     public List<String> getRequiredKeys() {
-        List<String> required = new ArrayList<String>();
 
-        return required;
+        return new ArrayList<>();
     }
 
     @Override
@@ -133,9 +132,8 @@ public class G3Properties extends DlmsProtocolProperties {
         }
 
         final String serial = ProtocolTools.addPaddingAndClip(getSerialNumber(), '0', 12, true);
-        byte[] systemTitle = ProtocolTools.getBytesFromHexString(serial, "");
 
-        return systemTitle;
+        return ProtocolTools.getBytesFromHexString(serial, "");
     }
 
     @Override
@@ -145,6 +143,6 @@ public class G3Properties extends DlmsProtocolProperties {
 
     @Override
     protected boolean validateInvokeId() {
-        return getBooleanProperty(super.VALIDATE_INVOKE_ID, this.DEFAULT_VALIDATE_INVOKE_ID);
+        return getBooleanProperty(VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID);
     }
 }

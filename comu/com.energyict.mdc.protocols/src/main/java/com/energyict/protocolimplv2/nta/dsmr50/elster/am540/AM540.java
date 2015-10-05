@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
@@ -14,20 +15,10 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.io.ComChannelType;
-import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.io.SerialComChannel;
-import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.SocketService;
+import com.energyict.mdc.io.*;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.*;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
@@ -37,6 +28,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
 import com.energyict.protocolimplv2.elster.garnet.SerialDeviceProtocolDialect;
@@ -47,17 +39,21 @@ import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.g3.common.G3Topology;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
-import com.energyict.protocolimplv2.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
-import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.logbooks.Dsmr50LogBookFactory;
+import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540MessageExecutor;
+import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.messages.AM540Messaging;
+import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.profiles.AM540LoadProfileBuilder;
+import com.energyict.protocolimplv2.nta.dsmr50.registers.Dsmr50RegisterFactory;
 import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540Cache;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.*;
@@ -75,6 +71,11 @@ public class AM540 extends AbstractDlmsProtocol {
 
     private G3Topology g3Topology;
     private AM540Messaging am540Messaging;
+    private long initialFrameCounter = -1;
+    private AM540LoadProfileBuilder loadProfileBuilder;
+    private Dsmr50LogBookFactory dsmr50LogBookFactory;
+    private Dsmr50RegisterFactory registerFactory;
+    private AM540Cache am540Cache;
 
     @Inject
     public AM540(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService,
@@ -113,27 +114,32 @@ public class AM540 extends AbstractDlmsProtocol {
     public void logOn() {
         connectWithRetries();
         checkCacheObjects();
+        if (!getOfflineDevice().getAllSlaveDevices().isEmpty()) {
+            getMeterTopology().searchForSlaveDevices();
+        }
     }
 
     @Override
-    public DeviceProtocolCache getDeviceCache() {
-        DeviceProtocolCache deviceCache = super.getDeviceCache();
-        if (deviceCache == null || !(deviceCache instanceof AM540Cache)) {
-            deviceCache = new AM540Cache();
+    public AM540Cache getDeviceCache() {
+        if (this.am540Cache == null) {
+            am540Cache = new AM540Cache(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
         }
-        ((AM540Cache) deviceCache).setFrameCounter(getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
-        setDeviceCache(deviceCache);
-        return deviceCache;
+        this.am540Cache.setFrameCounter(getDlmsSession().getAso().getSecurityContext().getFrameCounter() + 1);     //Save this for the next session
+        return this.am540Cache;
     }
 
     @Override
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
         if ((deviceProtocolCache != null) && (deviceProtocolCache instanceof AM540Cache)) {
-            AM540Cache am540Cache = (AM540Cache) deviceProtocolCache;
-            super.setDeviceCache(am540Cache);
-            long initialFrameCounter = (am540Cache).getFrameCounter();
-            this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter == -1 ? 1 : initialFrameCounter);    //Get this from the last session
+            am540Cache = (AM540Cache) deviceProtocolCache;
+            this.initialFrameCounter = this.am540Cache.getFrameCounter();
         }
+    }
+
+    @Override
+    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        super.setSecurityPropertySet(deviceProtocolSecurityPropertySet);
+        this.getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(initialFrameCounter == -1 ? 1 : initialFrameCounter);    //Set the frameCounter from last session (which has been loaded from cache)
     }
 
     /**
@@ -141,20 +147,20 @@ public class AM540 extends AbstractDlmsProtocol {
      */
     protected void checkCacheObjects() {
         boolean readCache = getDlmsSessionProperties().isReadCache();
-        if ((((DLMSCache) getDeviceCache()).getObjectList() == null) || (readCache)) {
+        if ((getDeviceCache().getObjectList() == null) || (readCache)) {
             if (readCache) {
                 getLogger().fine("ForcedToReadCache property is true, reading cache!");
                 readObjectList();
-                ((DLMSCache) getDeviceCache()).saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
+                getDeviceCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
             } else {
                 getLogger().fine("Cache does not exist, using hardcoded copy of object list");
                 UniversalObject[] objectList = new AM540ObjectList().getObjectList();
-                ((DLMSCache) getDeviceCache()).saveObjectList(objectList);
+                getDeviceCache().saveObjectList(objectList);
             }
         } else {
             getLogger().fine("Cache exist, will not be read!");
         }
-        getDlmsSession().getMeterConfig().setInstantiatedObjectList(((DLMSCache) getDeviceCache()).getObjectList());
+        getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDeviceCache().getObjectList());
     }
 
     public DSMR50Properties getDlmsSessionProperties() {
@@ -180,6 +186,7 @@ public class AM540 extends AbstractDlmsProtocol {
                 if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
                     throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
                 }
+                checkIfWeCanSolveWithAReleaseAssociation(e);
 
                 exception = e;
             } finally {
@@ -212,6 +219,20 @@ public class AM540 extends AbstractDlmsProtocol {
         }
     }
 
+    private void checkIfWeCanSolveWithAReleaseAssociation(ComServerRuntimeException e) {
+        if (e.getMessage() != null &&
+                e.getMessage().contains("Application Association Establishment Failed, ACSE_SERVICE_USER, no reason given")) {
+            if (getDlmsSession().getAso() != null) {
+                try {
+                    getDlmsSession().getAso().releaseAssociation();
+                } catch (IOException | DLMSConnectionException e1) {
+                    // just log it
+                    getLogger().fine(e1::getMessage);
+                }
+            }
+        }
+    }
+
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
         return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER, DeviceProtocolCapabilities.PROTOCOL_SESSION);
@@ -220,7 +241,6 @@ public class AM540 extends AbstractDlmsProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> result = new ArrayList<>();
-        result.add(new OutboundTcpIpConnectionType(getPropertySpecService(), getSocketService()));
         result.add(new SioOpticalConnectionType(getSerialComponentService()));
         result.add(new RxTxOpticalConnectionType(getSerialComponentService()));
         return result;
@@ -243,15 +263,22 @@ public class AM540 extends AbstractDlmsProtocol {
 
     protected LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LGLoadProfileBuilder(this, getIssueService(), getReadingTypeUtilService(), getDlmsProperties().isBulkRequest(), getCollectedDataFactory());
-            ((LGLoadProfileBuilder) loadProfileBuilder).setCumulativeCaptureTimeChannel(getDlmsSessionProperties().isCumulativeCaptureTimeChannel());
+            this.loadProfileBuilder = new AM540LoadProfileBuilder(this, getIssueService(), getReadingTypeUtilService(), getDlmsProperties().isBulkRequest(), getCollectedDataFactory());
+            loadProfileBuilder.setCumulativeCaptureTimeChannel(getDlmsSessionProperties().isCumulativeCaptureTimeChannel());
         }
         return loadProfileBuilder;
     }
 
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBookReaders) {
-        return Collections.emptyList();
+        return getDsmr50LogBookFactory().getLogBookData(logBookReaders);
+    }
+
+    private Dsmr50LogBookFactory getDsmr50LogBookFactory() {
+        if (dsmr50LogBookFactory == null) {
+            dsmr50LogBookFactory = new Dsmr50LogBookFactory(getCollectedDataFactory(), getIssueService(), getMeteringService(), this);
+        }
+        return dsmr50LogBookFactory;
     }
 
     @Override
@@ -276,7 +303,9 @@ public class AM540 extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new SerialDeviceProtocolDialect(getPropertySpecService()), new TcpDeviceProtocolDialect(getPropertySpecService()));
+        return Arrays.asList(
+                new TcpDeviceProtocolDialect(getPropertySpecService()),
+                new SerialDeviceProtocolDialect(getPropertySpecService()));
     }
 
     @Override
@@ -286,7 +315,7 @@ public class AM540 extends AbstractDlmsProtocol {
 
     protected Dsmr50RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new Dsmr50RegisterFactory(this, getIssueService(), getReadingTypeUtilService(), getDlmsProperties().isBulkRequest(), getCollectedDataFactory());
+            this.registerFactory = new Dsmr50RegisterFactory(this, getIssueService(), getReadingTypeUtilService(), getDlmsProperties().isBulkRequest(), getCollectedDataFactory(), getClock());
         }
         return (Dsmr50RegisterFactory) registerFactory;
     }
@@ -296,6 +325,38 @@ public class AM540 extends AbstractDlmsProtocol {
             this.am540Messaging = new AM540Messaging(new AM540MessageExecutor(this, getClock(), getTopologyService(), getIssueService(), getReadingTypeUtilService(), getCollectedDataFactory(), getLoadProfileFactory()), getTopologyService());
         }
         return am540Messaging;
+    }
+
+    /**
+     * Read out the serial number, this can either be of the module (equipment identifier) or of the connected e-meter.
+     * Note that reading out this register from the mirror logical device in the Beacon, the obiscode must always be 0.0.96.1.0.255
+     */
+    @Override
+    public String getSerialNumber() {
+        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect() || !getDlmsSessionProperties().useEquipmentIdentifierAsSerialNumber()) {
+            return getMeterInfo().getSerialNr();
+        } else {
+            return getMeterInfo().getEquipmentIdentifier();
+        }
+    }
+
+    @Override
+    public Date getTime() {
+        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+            return new Date();  //Don't read out the clock of the mirror logical device, it does not know the actual meter time.
+        } else {
+            return super.getTime();
+        }
+    }
+
+    @Override
+    public void setTime(Date timeToSet) {
+        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
+            IOException cause = new IOException("When connected to the mirror logical device, writing of the clock is not allowed.");
+            throw new CommunicationException(MessageSeeds.NOT_ALLOWED_TO_DO_SET_TIME, cause);
+        } else {
+            super.setTime(timeToSet);
+        }
     }
 
     @Override
@@ -319,7 +380,7 @@ public class AM540 extends AbstractDlmsProtocol {
      * Class that holds all DLMS device properties (general, dialect & security related)
      */
     @Override
-    protected DSMR50Properties getDlmsProperties() {
+    public DSMR50Properties getDlmsProperties() {
         if (dlmsProperties == null) {
             dlmsProperties = new DSMR50Properties(getPropertySpecService());
         }

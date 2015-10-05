@@ -28,7 +28,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import javax.inject.Inject;

@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.nta.abstractnta;
+package com.energyict.protocolimplv2.dlms;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
@@ -343,7 +343,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         return meterInfo;
     }
 
-    protected DlmsProperties getDlmsProperties() {
+    public DlmsProperties getDlmsProperties() {
         if (dlmsProperties == null) {
             dlmsProperties = new DlmsProperties(this.propertySpecService);
         }
