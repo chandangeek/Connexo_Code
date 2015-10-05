@@ -5,6 +5,8 @@ import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportTaskBuilder;
+import com.elster.jupiter.export.EndDeviceEventTypeFilter;
+import com.elster.jupiter.export.EventDataSelector;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.StandardDataSelector;
@@ -87,7 +89,7 @@ public class DataExportTaskResource {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<? extends ExportTask> list = queryTasks(params);
 
-        DataExportTaskInfos infos = new DataExportTaskInfos(params.clipToLimit(list), thesaurus, timeService, propertyUtils,false);
+        DataExportTaskInfos infos = new DataExportTaskInfos(params.clipToLimit(list), thesaurus, timeService, propertyUtils, false);
         infos.total = params.determineTotal(list.size());
 
         return infos;
@@ -137,30 +139,41 @@ public class DataExportTaskResource {
                         builder.addProperty(spec.getName()).withValue(value);
                     });
         } else {
-            // TODO discern between RT and EventTypes selection
-            if (info.standardDataSelector.exportUpdate && info.standardDataSelector.exportAdjacentData && info.standardDataSelector.updateWindow.id == null) {
-                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateTimeFrame");
-            }
-            if (info.standardDataSelector.exportUpdate && info.standardDataSelector.updatePeriod.id == null) {
-                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateWindow");
-            }
-            if (info.destinations.isEmpty()) {
-                throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
-            }
+            if (info.dataSelector.selectorType == SelectorType.DEFAULT_READINGS) {
+                if (info.standardDataSelector.exportUpdate && info.standardDataSelector.exportAdjacentData && info.standardDataSelector.updateWindow.id == null) {
+                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateTimeFrame");
+                }
+                if (info.standardDataSelector.exportUpdate && info.standardDataSelector.updatePeriod.id == null) {
+                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "updateWindow");
+                }
+                if (info.destinations.isEmpty()) {
+                    throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
+                }
 
-            DataExportTaskBuilder.ReadingTypeSelectorBuilder selectorBuilder = builder.selectingReadingTypes()
-                    .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
-                    .fromUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod))
-                    .withUpdateWindow(getRelativePeriod(info.standardDataSelector.updateWindow))
-                    .withValidatedDataOption(info.standardDataSelector.validatedDataOption)
-                    .fromEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id))
-                    .continuousData(info.standardDataSelector.exportContinuousData)
-                    .exportComplete(info.standardDataSelector.exportComplete)
-                    .exportUpdate(info.standardDataSelector.exportUpdate);
-            info.standardDataSelector.readingTypes.stream()
-                    .map(r -> r.mRID)
-                    .forEach(selectorBuilder::fromReadingType);
-            selectorBuilder.endSelection();
+                DataExportTaskBuilder.ReadingTypeSelectorBuilder selectorBuilder = builder.selectingReadingTypes()
+                        .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
+                        .fromUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod))
+                        .withUpdateWindow(getRelativePeriod(info.standardDataSelector.updateWindow))
+                        .withValidatedDataOption(info.standardDataSelector.validatedDataOption)
+                        .fromEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id))
+                        .continuousData(info.standardDataSelector.exportContinuousData)
+                        .exportComplete(info.standardDataSelector.exportComplete)
+                        .exportUpdate(info.standardDataSelector.exportUpdate);
+                info.standardDataSelector.readingTypes.stream()
+                        .map(r -> r.mRID)
+                        .forEach(selectorBuilder::fromReadingType);
+                selectorBuilder.endSelection();
+            } else if (info.dataSelector.selectorType == SelectorType.DEFAULT_EVENTS) {
+                DataExportTaskBuilder.EventSelectorBuilder selectorBuilder = builder.selectingEventTypes()
+                        .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
+                        .fromEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id))
+                        .continuousData(info.standardDataSelector.exportContinuousData);
+                info.standardDataSelector.eventTypeCodes.stream()
+                        .map(r -> r.eventFilterCode)
+                        .forEach(selectorBuilder::fromEventType);
+                selectorBuilder.endSelection();
+
+            }
         }
 
         List<PropertySpec> propertiesSpecsForProcessor = dataExportService.getPropertiesSpecsForFormatter(info.dataProcessor.name);
@@ -235,7 +248,11 @@ public class DataExportTaskResource {
                 selector.setValidatedDataOption(info.standardDataSelector.validatedDataOption);
                 selector.setExportContinuousData(info.standardDataSelector.exportContinuousData);
                 selector.save();
-                updateReadingTypes(info, task);
+                if (info.dataSelector.selectorType == SelectorType.DEFAULT_READINGS) {
+                    updateReadingTypes(info, task);
+                } else if (info.dataSelector.selectorType == SelectorType.DEFAULT_EVENTS) {
+                    updateEvents(info, task);
+                }
             }
 
             updateProperties(info, task);
@@ -245,6 +262,24 @@ public class DataExportTaskResource {
             context.commit();
         }
         return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(task, thesaurus, timeService, propertyUtils)).build();
+    }
+
+    private void updateEvents(DataExportTaskInfo info, ExportTask task) {
+        EventDataSelector selector = task.getEventDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
+        selector.getEventTypeFilters().stream()
+                .filter(t -> info.standardDataSelector.eventTypeCodes
+                        .stream()
+                        .map(r -> r.eventFilterCode)
+                        .noneMatch(m -> t.getCode().equals(m)))
+                .map(EndDeviceEventTypeFilter::getCode)
+                .forEach(selector::removeEventTypeFilter);
+        info.standardDataSelector.eventTypeCodes.stream()
+                .map(r -> r.eventFilterCode)
+                .filter(m -> selector.getEventTypeFilters()
+                        .stream()
+                        .map(EndDeviceEventTypeFilter::getCode)
+                        .noneMatch(s -> s.equals(m)))
+                .forEach(selector::addEventTypeFilter);
     }
 
     @GET

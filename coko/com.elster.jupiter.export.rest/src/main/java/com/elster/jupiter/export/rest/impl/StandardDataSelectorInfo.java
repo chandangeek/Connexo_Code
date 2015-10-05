@@ -1,15 +1,17 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportStrategy;
+import com.elster.jupiter.export.EndDeviceEventTypeFilter;
+import com.elster.jupiter.export.EventDataSelector;
 import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.export.ValidatedDataOption;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class StandardDataSelectorInfo {
 
@@ -24,6 +26,7 @@ public class StandardDataSelectorInfo {
     public RelativePeriodInfo updateWindow;
     public ValidatedDataOption validatedDataOption;
     public List<ReadingTypeInfo> readingTypes = new ArrayList<>();
+    public List<EventTypeInfo> eventTypeCodes = new ArrayList<>();
 
     public StandardDataSelectorInfo() {
     }
@@ -31,9 +34,15 @@ public class StandardDataSelectorInfo {
     public StandardDataSelectorInfo(StandardDataSelector selector, Thesaurus thesaurus) {
         populateFrom(selector, thesaurus);
 
-        for (ReadingType readingType : selector.getReadingTypes()) {
-            readingTypes.add(new ReadingTypeInfo(readingType));
-        }
+        readingTypes = selector.getReadingTypes()
+                .stream()
+                .map(ReadingTypeInfo::new)
+                .collect(Collectors.toCollection(ArrayList::new));
+        eventTypeCodes = ((EventDataSelector) selector).getEventTypeFilters()
+                .stream()
+                .map(EndDeviceEventTypeFilter::getCode)
+                .map(EventTypeInfo::of)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     void populateFrom(StandardDataSelector selector, Thesaurus thesaurus) {
