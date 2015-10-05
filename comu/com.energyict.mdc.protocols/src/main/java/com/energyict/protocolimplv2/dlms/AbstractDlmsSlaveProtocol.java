@@ -153,12 +153,12 @@ public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
 
     @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        throw new UnsupportedMethodException(this.getClass(), "addDeviceProtocolDialectProperties");
+        // nothing to do here, move along ...
     }
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        throw new UnsupportedMethodException(this.getClass(), "setSecurityPropertySet");
+        // nothing to do here, move along ...
     }
 
     @Override
@@ -178,7 +178,7 @@ public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
 
     @Override
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        throw new UnsupportedMethodException(this.getClass(), "setDeviceCache");
+        // nothing to do here, move along ...
     }
 
     @Override
@@ -233,6 +233,6 @@ public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
 
     @Override
     public void copyProperties(TypedProperties properties) {
-
+        // nothing to do here, move along ...
     }
 }
