@@ -8,7 +8,7 @@ Ext.define('Dxp.model.DataSelector', {
     fields: [
         'name',
         'displayName',
-        'isDefault',
+        'selectorType',
         'properties'
     ],
 

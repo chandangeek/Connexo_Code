@@ -312,7 +312,66 @@ Ext.define('Dxp.view.tasks.Add', {
                             }
                         ]
                     },
-
+                    {
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('general.eventTypes', 'DES', 'Event types'),
+                        hidden: true,
+                        itemId: 'eventTypesFieldContainer',
+                        required: true,
+                        layout: 'hbox',
+                        msgTarget: 'under',
+                        items: [
+                            {
+                                xtype: 'component',
+                                html: Uni.I18n.translate('dataExport.noEventTypes','DES','No event types have been added'),
+                                itemId: 'noEventTypesLabel',
+                                style: {
+                                    'font': 'italic 13px/17px Lato',
+                                    'color': '#686868',
+                                    'margin-top': '6px',
+                                    'margin-right': '10px'
+                                }
+                            },
+                            {
+                                xtype: 'gridpanel',
+                                itemId: 'eventTypesGridPanel',
+                                store: 'Dxp.store.EventTypesForTask',
+                                hideHeaders: true,
+                                padding: 0,
+                                hidden: true,
+                                columns: [
+                                    {
+                                        //xtype: 'event-type-column',
+                                        dataIndex: 'eventFilterCode',
+                                        flex: 1
+                                    },
+                                    {
+                                        xtype: 'actioncolumn',
+                                        align: 'right',
+                                        //items: [
+                                        //    {
+                                        //        iconCls: 'uni-icon-delete',
+                                        //        //handler: function (grid, rowIndex) {
+                                        //        //    grid.getStore().removeAt(rowIndex);
+                                        //        //    if (grid.getStore().count() === 0) {
+                                        //        //        me.updateReadingTypesGrid();
+                                        //        //    }
+                                        //        //}
+                                        //    }
+                                        //]
+                                    }
+                                ],
+                                width: 800,
+                                height: 220
+                            },
+                            {
+                                xtype: 'button',
+                                itemId: 'addEventTypeButton',
+                                text: Uni.I18n.translate('general.addEventTypes', 'DES', 'Add event types'),
+                                margin: '0 0 0 10'
+                            }
+                        ]
+                    },
                     {
                         xtype: 'fieldcontainer',
                         itemId: 'export-periods-container',
