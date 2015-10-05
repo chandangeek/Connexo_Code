@@ -19,13 +19,13 @@ public class FtpsDestinationImpl extends AbstractFtpDataExportDestination implem
         super(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService);
     }
 
-    static FtpsDestinationImpl from(IExportTask task, DataModel dataModel, String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension) {
-        return dataModel.getInstance(FtpsDestinationImpl.class).init(task, server, port, user, password, fileLocation, fileName, fileExtension);
+    FtpsDestinationImpl initialize(IExportTask task, String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension) {
+        super.doInitialize(task, server, port, user, password, fileLocation, fileName, fileExtension);
+        return this;
     }
 
-    private FtpsDestinationImpl init(IExportTask task, String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension) {
-        fill(task, server, port, user, password, fileLocation, fileName, fileExtension);
-        return this;
+    static FtpsDestinationImpl from(IExportTask task, DataModel dataModel, String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension) {
+        return dataModel.getInstance(FtpsDestinationImpl.class).initialize(task, server, port, user, password, fileLocation, fileName, fileExtension);
     }
 
     @Override
