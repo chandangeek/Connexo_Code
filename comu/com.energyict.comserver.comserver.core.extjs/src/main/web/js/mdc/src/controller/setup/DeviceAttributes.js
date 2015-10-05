@@ -12,7 +12,8 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
     ],
 
     stores: [
-        'Mdc.store.UsagePointsForDeviceAttributes'
+        'Mdc.store.UsagePointsForDeviceAttributes',
+        'Mdc.store.DeviceCustomAttributeSets'
     ],
 
     refs: [
@@ -107,11 +108,12 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
             router = me.getController('Uni.controller.history.Router'),
             viewport = Ext.ComponentQuery.query('viewport')[0],
             model = Ext.ModelManager.getModel('Mdc.model.DeviceAttribute'),
+            customAttributesStore = me.getStore('Mdc.store.DeviceCustomAttributeSets'),
             widget;
 
         viewport.setLoading();
         model.getProxy().setUrl(mRID);
-
+        customAttributesStore.getProxy().setUrl(mRID);
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 widget = Ext.widget(view, {device: device, router: router});
@@ -119,7 +121,9 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
                 me.getApplication().fireEvent('changecontentevent', widget);
 
                 if (showCustomAttributes) {
-                    widget.down('custom-attribute-sets-placeholder-form').loadRecords([1,2,3])
+                    customAttributesStore.load(function() {
+                        widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(this);
+                    });
                 }
 
                 model.load('attributes', {
