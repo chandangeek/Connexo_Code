@@ -161,7 +161,7 @@ public class SecurityPropertySetResource {
         DeviceProtocolPluggableClass protocolPluggableClass = deviceType.getDeviceProtocolPluggableClass();
         DeviceProtocol deviceProtocol = protocolPluggableClass.getDeviceProtocol();
         List<AuthenticationDeviceAccessLevel> authenticationDeviceAccessLevels = deviceProtocol.getAuthenticationAccessLevels();
-        List<SecurityLevelInfo> securityLevelInfos = SecurityLevelInfo.from(authenticationDeviceAccessLevels, thesaurus);
+        List<SecurityLevelInfo> securityLevelInfos = SecurityLevelInfo.from(authenticationDeviceAccessLevels);
 
         return PagedInfoList.fromPagedList("data", securityLevelInfos, queryParameters);
     }
@@ -176,7 +176,7 @@ public class SecurityPropertySetResource {
         DeviceProtocolPluggableClass protocolPluggableClass = deviceType.getDeviceProtocolPluggableClass();
         DeviceProtocol deviceProtocol = protocolPluggableClass.getDeviceProtocol();
         List<EncryptionDeviceAccessLevel> encryptionDeviceAccessLevels = deviceProtocol.getEncryptionAccessLevels();
-        List<SecurityLevelInfo> securityLevelInfos = SecurityLevelInfo.from(encryptionDeviceAccessLevels, thesaurus);
+        List<SecurityLevelInfo> securityLevelInfos = SecurityLevelInfo.from(encryptionDeviceAccessLevels);
 
         return PagedInfoList.fromPagedList("data", securityLevelInfos, queryParameters);
     }
