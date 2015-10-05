@@ -52,7 +52,8 @@ Ext.define('Uni.property.view.property.BaseCombo', {
             forceSelection: me.getProperty().getExhaustive(),
             readOnly: me.isReadOnly,
             editable: !me.getProperty().getExhaustive(),
-            allowBlank: !me.getProperty().data.required
+            allowBlank: !me.getProperty().data.required,
+            blankText: me.blankText
         }
     },
 

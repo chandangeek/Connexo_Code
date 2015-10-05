@@ -15,6 +15,7 @@ Ext.define('Uni.property.view.property.Multiselect', {
                         itemId: me.key + 'multiselect',
                         name: me.getName(),
                         allowBlank: me.allowBlank,
+                        blankText: me.blankText,
                         store: me.getProperty().getPredefinedPropertyValues().possibleValues(),
                         displayField: 'name',
                         valueField: 'id',

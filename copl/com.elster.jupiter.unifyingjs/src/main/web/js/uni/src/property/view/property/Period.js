@@ -15,6 +15,8 @@ Ext.define('Uni.property.view.property.Period', {
                 width: me.width,
                 required: me.required,
                 readOnly: me.isReadOnly,
+                allowBlank: me.allowBlank,
+                blankText: me.blankText,
                 minValue: 1
             },
             {
@@ -31,7 +33,8 @@ Ext.define('Uni.property.view.property.Period', {
                 editable:false,
                 required: me.required,
                 readOnly: me.isReadOnly,
-                allowBlank: me.allowBlank
+                allowBlank: me.allowBlank,
+                blankText: me.blankText
             }
         ];
     },
