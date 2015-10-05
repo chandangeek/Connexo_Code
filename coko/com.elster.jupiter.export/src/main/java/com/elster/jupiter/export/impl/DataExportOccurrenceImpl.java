@@ -54,6 +54,12 @@ final class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSe
                     exportedDataInterval = Interval.of(instantRange);
                     exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
                 });
+        task.getEventDataSelector()
+                .map(selector -> selector.getExportPeriod().getOpenClosedInterval(occurrence.getTriggerTime().atZone(ZoneId.systemDefault())))
+                .ifPresent(instantRange -> {
+                    exportedDataInterval = Interval.of(instantRange);
+                    exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
+                });
         return this;
     }
 
