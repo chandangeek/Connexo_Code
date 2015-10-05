@@ -15,8 +15,12 @@ import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsSlaveProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessaging;
+import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
+import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
+import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.time.Clock;
 
 /**
@@ -34,9 +38,15 @@ public class MBusDevice extends AbstractDlmsSlaveProtocol {
     private final AbstractDlmsProtocol masterProtocol;
 
     @Inject
-    public MBusDevice(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, LoadProfileFactory loadProfileFactory, Clock clock) {
-        super(propertySpecService);
-        masterProtocol = new AM540(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory, clock);
+    public MBusDevice(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService,
+                      IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService,
+                      IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService,
+                      LoadProfileFactory loadProfileFactory, Clock clock, Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider,
+                      Provider<InheritedEncryptionDeviceAccessLevel> inheritedEncryptionDeviceAccessLevelProvider,
+                      Provider<InheritedAuthenticationDeviceAccessLevel> inheritedAuthenticationDeviceAccessLevelProvider) {
+        super(propertySpecService, inheritedAuthenticationDeviceAccessLevelProvider, inheritedEncryptionDeviceAccessLevelProvider);
+        masterProtocol = new AM540(propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService,
+                collectedDataFactory, meteringService, loadProfileFactory, clock, dsmrSecuritySupportProvider);
         idisMBusMessaging = new IDISMBusMessaging(masterProtocol);
     }
 

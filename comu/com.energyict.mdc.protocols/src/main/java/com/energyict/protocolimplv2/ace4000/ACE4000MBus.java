@@ -15,6 +15,7 @@ import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccess
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,15 +30,19 @@ import java.util.List;
  */
 public class ACE4000MBus extends ACE4000Outbound {
 
-    private final Thesaurus thesaurus;
+    private final Provider<InheritedEncryptionDeviceAccessLevel> inheritedEncryptionDeviceAccessLevelProvider;
+    private final Provider<InheritedAuthenticationDeviceAccessLevel> inheritedAuthenticationDeviceAccessLevelProvider;
 
     @Inject
     public ACE4000MBus(Clock clock, PropertySpecService propertySpecService, IssueService issueService,
                        MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService,
-                       CollectedDataFactory collectedDataFactory, MeteringService meteringService, Thesaurus thesaurus) {
+                       CollectedDataFactory collectedDataFactory, MeteringService meteringService, Thesaurus thesaurus,
+                       Provider<InheritedEncryptionDeviceAccessLevel> inheritedEncryptionDeviceAccessLevelProvider,
+                       Provider<InheritedAuthenticationDeviceAccessLevel> inheritedAuthenticationDeviceAccessLevelProvider) {
         super(clock, propertySpecService, issueService, readingTypeUtilService, identificationService,
                 collectedDataFactory, meteringService, thesaurus);
-        this.thesaurus = thesaurus;
+        this.inheritedEncryptionDeviceAccessLevelProvider = inheritedEncryptionDeviceAccessLevelProvider;
+        this.inheritedAuthenticationDeviceAccessLevelProvider = inheritedAuthenticationDeviceAccessLevelProvider;
     }
 
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
@@ -50,7 +55,7 @@ public class ACE4000MBus extends ACE4000Outbound {
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         List<EncryptionDeviceAccessLevel> encryptionAccessLevels = new ArrayList<>();
         encryptionAccessLevels.addAll(super.getEncryptionAccessLevels());
-        encryptionAccessLevels.add(new InheritedEncryptionDeviceAccessLevel(thesaurus));
+        encryptionAccessLevels.add(inheritedEncryptionDeviceAccessLevelProvider.get());
         return encryptionAccessLevels;
     }
 
@@ -58,7 +63,7 @@ public class ACE4000MBus extends ACE4000Outbound {
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = new ArrayList<>();
         authenticationAccessLevels.addAll(super.getAuthenticationAccessLevels());
-        authenticationAccessLevels.add(new InheritedAuthenticationDeviceAccessLevel(thesaurus));
+        authenticationAccessLevels.add(inheritedAuthenticationDeviceAccessLevelProvider.get());
         return authenticationAccessLevels;
     }
 

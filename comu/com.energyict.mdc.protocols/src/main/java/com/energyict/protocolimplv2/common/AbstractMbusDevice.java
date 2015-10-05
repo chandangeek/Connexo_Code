@@ -29,6 +29,7 @@ import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccess
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 import com.energyict.protocols.exception.UnsupportedMethodException;
 
+import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -51,15 +52,19 @@ public abstract class AbstractMbusDevice implements DeviceProtocol {
     private final String serialNumber;
     private final DeviceProtocol meterProtocol;
     private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
+    private final Provider<InheritedAuthenticationDeviceAccessLevel> inheritedAuthenticationDeviceAccessLevelProvider;
+    private final Provider<InheritedEncryptionDeviceAccessLevel> inheritedEncryptionDeviceAccessLevelProvider;
 
     public abstract DeviceMessageSupport getDeviceMessageSupport();
 
-    protected AbstractMbusDevice(DeviceProtocol meterProtocol, String serialNumber, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    protected AbstractMbusDevice(DeviceProtocol meterProtocol, String serialNumber, PropertySpecService propertySpecService,
+                                 Provider<InheritedAuthenticationDeviceAccessLevel> inheritedAuthenticationDeviceAccessLevelProvider,
+                                 Provider<InheritedEncryptionDeviceAccessLevel> inheritedEncryptionDeviceAccessLevelProvider) {
         this.meterProtocol = meterProtocol;
         this.serialNumber = serialNumber;
         this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
+        this.inheritedAuthenticationDeviceAccessLevelProvider = inheritedAuthenticationDeviceAccessLevelProvider;
+        this.inheritedEncryptionDeviceAccessLevelProvider = inheritedEncryptionDeviceAccessLevelProvider;
     }
 
     @Override
@@ -133,7 +138,7 @@ public abstract class AbstractMbusDevice implements DeviceProtocol {
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = new ArrayList<>();
         authenticationAccessLevels.addAll(getMeterProtocol().getAuthenticationAccessLevels());
-        authenticationAccessLevels.add(new InheritedAuthenticationDeviceAccessLevel(thesaurus));
+        authenticationAccessLevels.add(inheritedAuthenticationDeviceAccessLevelProvider.get());
         return authenticationAccessLevels;
     }
 
@@ -145,7 +150,7 @@ public abstract class AbstractMbusDevice implements DeviceProtocol {
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         List<EncryptionDeviceAccessLevel> encryptionAccessLevels = new ArrayList<>();
         encryptionAccessLevels.addAll(getMeterProtocol().getEncryptionAccessLevels());
-        encryptionAccessLevels.add(new InheritedEncryptionDeviceAccessLevel(thesaurus));
+        encryptionAccessLevels.add(inheritedEncryptionDeviceAccessLevelProvider.get());
         return encryptionAccessLevels;
     }
 

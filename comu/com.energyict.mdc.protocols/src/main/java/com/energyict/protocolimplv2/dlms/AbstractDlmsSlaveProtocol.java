@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -20,6 +21,7 @@ import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccess
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 import com.energyict.protocols.exception.UnsupportedMethodException;
 
+import javax.inject.Provider;
 import java.util.*;
 
 /**
@@ -31,9 +33,15 @@ import java.util.*;
 public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
 
     private final PropertySpecService propertySpecService;
+    private final Provider<InheritedAuthenticationDeviceAccessLevel> inheritedAuthenticationDeviceAccessLevelProvider;
+    private final Provider<InheritedEncryptionDeviceAccessLevel> inheritedEncryptionDeviceAccessLevelProvider;
 
-    protected AbstractDlmsSlaveProtocol(PropertySpecService propertySpecService) {
+    protected AbstractDlmsSlaveProtocol(PropertySpecService propertySpecService,
+                                        Provider<InheritedAuthenticationDeviceAccessLevel> inheritedAuthenticationDeviceAccessLevelProvider,
+                                        Provider<InheritedEncryptionDeviceAccessLevel> inheritedEncryptionDeviceAccessLevelProvider) {
         this.propertySpecService = propertySpecService;
+        this.inheritedAuthenticationDeviceAccessLevelProvider = inheritedAuthenticationDeviceAccessLevelProvider;
+        this.inheritedEncryptionDeviceAccessLevelProvider = inheritedEncryptionDeviceAccessLevelProvider;
     }
 
     abstract protected DeviceProtocolSecurityCapabilities getSecurityCapabilities();
@@ -70,7 +78,7 @@ public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = new ArrayList<>();
         authenticationAccessLevels.addAll(getSecurityCapabilities().getAuthenticationAccessLevels());
-        authenticationAccessLevels.add(new InheritedAuthenticationDeviceAccessLevel());
+        authenticationAccessLevels.add(inheritedAuthenticationDeviceAccessLevelProvider.get());
         return authenticationAccessLevels;
     }
 
@@ -82,7 +90,7 @@ public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         List<EncryptionDeviceAccessLevel> encryptionAccessLevels = new ArrayList<>();
         encryptionAccessLevels.addAll(getSecurityCapabilities().getEncryptionAccessLevels());
-        encryptionAccessLevels.add(new InheritedEncryptionDeviceAccessLevel());
+        encryptionAccessLevels.add(inheritedEncryptionDeviceAccessLevelProvider.get());
         return encryptionAccessLevels;
     }
 
@@ -145,7 +153,6 @@ public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
     public void daisyChainedLogOff() {
         throw new UnsupportedMethodException(this.getClass(), "daisyChainedLogOff");
     }
-
     @Override
     public void setTime(Date timeToSet) {
         throw new UnsupportedMethodException(this.getClass(), "setTime");
