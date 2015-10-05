@@ -282,8 +282,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     void connectionKpiBuilder(KpiBuilder builder) {
-        Kpi kpi = builder.build();
-        kpi.save();
+        Kpi kpi = builder.create();
         this.connectionKpi.set(kpi);
     }
 
@@ -326,8 +325,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     void communicationKpiBuilder(KpiBuilder builder) {
-        Kpi kpi = builder.build();
-        kpi.save();
+        Kpi kpi = builder.create();
         this.communicationKpi.set(kpi);
     }
 
@@ -418,9 +416,8 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
                 taskBuilder.setScheduleExpression(this.toScheduleExpression(this.kpi.get()));
                 taskBuilder.setDestination(destination);
                 taskBuilder.setPayLoad(scheduledExcutionPayload());
-                taskBuilder.scheduleImmediately();
+                taskBuilder.scheduleImmediately(true);
                 RecurrentTask recurrentTask = taskBuilder.build();
-                recurrentTask.save();
                 this.setRecurrentTask(recurrentTask);
             }
         }

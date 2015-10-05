@@ -326,18 +326,18 @@ public class ComSessionCrudIT {
             device.save();
             connectionTask.save();
 
-            OnlineComServer onlineComServer = engineConfigurationService.newOnlineComServerInstance();
-            onlineComServer.setName("ComServer");
-            onlineComServer.setStoreTaskQueueSize(1);
-            onlineComServer.setStoreTaskThreadPriority(1);
-            onlineComServer.setChangesInterPollDelay(TimeDuration.minutes(5));
-            onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.DEBUG);
-            onlineComServer.setSchedulingInterPollDelay(TimeDuration.minutes(1));
-            onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
-            onlineComServer.setNumberOfStoreTaskThreads(2);
+            OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = engineConfigurationService.newOnlineComServerBuilder();
+            onlineComServerBuilder.name("ComServer");
+            onlineComServerBuilder.storeTaskQueueSize(1);
+            onlineComServerBuilder.storeTaskThreadPriority(1);
+            onlineComServerBuilder.changesInterPollDelay(TimeDuration.minutes(5));
+            onlineComServerBuilder.communicationLogLevel(ComServer.LogLevel.DEBUG);
+            onlineComServerBuilder.schedulingInterPollDelay(TimeDuration.minutes(1));
+            onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.DEBUG);
+            onlineComServerBuilder.numberOfStoreTaskThreads(2);
+            final OnlineComServer onlineComServer = onlineComServerBuilder.create();
             comport = onlineComServer.newOutboundComPort("comport", 1)
                     .comPortType(ComPortType.TCP).add();
-            onlineComServer.save();
 
             comTask = taskService.newComTask("comtask");
             comTask.setStoreData(true);

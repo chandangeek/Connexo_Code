@@ -1,21 +1,20 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Condition;
-import java.util.Optional;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER;
@@ -58,11 +57,11 @@ public class MdcDeviceGroups {
         if (this.numberOfFieldsAndValuesMatch(fieldsAndValues)) {
             this.setPrincipal();
             Condition condition = this.conditionFromFieldsAndValues(operand, fieldsAndValues);
-            QueryEndDeviceGroup queryEndDeviceGroup = this.meteringGroupsService.createQueryEndDeviceGroup(condition);
-            queryEndDeviceGroup.setMRID(mRID);
-            queryEndDeviceGroup.setName(name);
-            queryEndDeviceGroup.setQueryProviderName(DEVICE_ENDDEVICE_QUERYPROVIDER);
-            queryEndDeviceGroup.save();
+            QueryEndDeviceGroup queryEndDeviceGroup = this.meteringGroupsService.createQueryEndDeviceGroup(condition)
+                    .setMRID(mRID)
+                    .setName(name)
+                    .setQueryProviderName(DEVICE_ENDDEVICE_QUERYPROVIDER)
+                    .create();
             System.out.println("Create group with id: " + queryEndDeviceGroup.getId());
             return queryEndDeviceGroup;
         }
