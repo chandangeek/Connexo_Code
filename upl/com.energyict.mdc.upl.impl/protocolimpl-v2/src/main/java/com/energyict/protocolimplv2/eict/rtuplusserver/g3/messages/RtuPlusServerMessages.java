@@ -614,6 +614,9 @@ public class RtuPlusServerMessages implements DeviceMessageSupport {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.authenticationLevelAttributeName)) {
             return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName)) {
+            final byte[] data = ((UserFile) messageAttribute).loadFileInByteArray();
+            return new Base64EncoderDecoder().encode(data);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.deviceGroupAttributeName)) {
             Group group = (Group) messageAttribute;
             StringBuilder macAddresses = new StringBuilder();
