@@ -9,11 +9,13 @@ Ext.define('Uni.view.search.Results', {
         'Uni.grid.column.Action',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Uni.store.search.Results'
+        'Uni.store.search.Results',
+        'Uni.view.search.ColumnPicker'
     ],
 
     store: 'Uni.store.search.Results',
     forceFit: true,
+    enableColumnMove: true,
     columns: [],
 
     initComponent: function () {
@@ -26,7 +28,12 @@ Ext.define('Uni.view.search.Results', {
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('search.results.paging.displayMsg', 'UNI', '{0} - {1} of {2} search results'),
                 displayMoreMsg: Uni.I18n.translate('search.results.paging.displayMoreMsg', 'UNI', '{0} - {1} of more than {2} search results'),
-                emptyMsg: Uni.I18n.translate('search.results.paging.emptyMsg', 'UNI', 'There are no search results to display')
+                emptyMsg: Uni.I18n.translate('search.results.paging.emptyMsg', 'UNI', 'There are no search results to display'),
+                items: {
+                    xtype: 'uni-search-column-picker',
+                    itemId: 'column-picker',
+                    grid: me
+                }
             },
             {
                 xtype: 'pagingtoolbarbottom',
@@ -38,6 +45,10 @@ Ext.define('Uni.view.search.Results', {
         ];
 
         me.callParent(arguments);
+    },
+
+    setColumns: function(columns) {
+        this.down('uni-search-column-picker').setColumns(columns);
     }
 });
 
