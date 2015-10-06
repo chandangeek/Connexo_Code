@@ -101,16 +101,16 @@ Ext.define('Dxp.controller.Tasks', {
             selector: '#AddReadingTypesToTaskSetup'
         },
         {
-            ref: 'eventTypeInputMethodRadioGroup',
-            selector: '#eventTypeInputMethod'
-        },
-        {
             ref: 'eventTypesGrid',
             selector: '#eventTypesGridPanel'
         },
         {
             ref: 'noEventTypesLabel',
             selector: '#noEventTypesLabel'
+        },
+        {
+            ref: 'eventTypeWindow',
+            selector: '#eventTypeWindow'
         }
     ],
 
@@ -428,25 +428,24 @@ Ext.define('Dxp.controller.Tasks', {
     showAddEventTypePopUp: function() {
         var window;
         window = Ext.create('Dxp.view.tasks.EventTypeWindow', {
-            title: Uni.I18n.translate('general.addEventType', 'MDC', 'Add event type')
+            title: Uni.I18n.translate('general.addEventType', 'DES', 'Add event type')
         });
     },
 
     addEventTypeToTask: function(button){
-        var radioGroup = this.getEventTypeInputMethodRadioGroup(),
-            eventType,
-            eventTypeModel;
-        if(radioGroup.getValue().rb==='0'){
-            eventType = this.getEventTypeInputMethodRadioGroup().down('#specifyEventForm textfield').getValue();
-            eventTypeModel = Ext.create('Dxp.model.EventTypeForAddTaskGrid',
-                {
-                    eventFilterCode: eventType
-                });
-            this.getEventTypesGrid().getStore().add(eventTypeModel);
-
-        } else {
-            //construct event type from parts;
+        if (!this.getEventTypeWindow().isFormValid()) {
+            return;
         }
+
+        var eventType = this.getEventTypeWindow().getEventType(),
+            eventTypeModel;
+
+        eventTypeModel = Ext.create('Dxp.model.EventTypeForAddTaskGrid',
+            {
+                eventFilterCode: eventType
+            });
+        this.getEventTypesGrid().getStore().add(eventTypeModel);
+
         if (this.getEventTypesGrid().getStore().count() > 0) {
             this.getNoEventTypesLabel().hide();
             this.getEventTypesGrid().show();
