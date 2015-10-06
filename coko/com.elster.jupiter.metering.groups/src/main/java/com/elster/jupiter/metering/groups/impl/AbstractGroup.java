@@ -55,7 +55,7 @@ public class AbstractGroup {
         this.aliasName = aliasName;
     }
 
-    final void setType(String type) {
+    public void setType(String type) {
         this.type = type;
     }
 }

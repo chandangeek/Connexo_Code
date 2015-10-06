@@ -27,9 +27,9 @@ public interface MeteringGroupsService {
     
     Optional<UsagePointGroup> findUsagePointGroupByName(String name);
 
-    QueryEndDeviceGroup createQueryEndDeviceGroup(Condition condition);
+    EndDeviceGroupBuilder.QueryEndDeviceGroupBuilder createQueryEndDeviceGroup(Condition condition);
 
-    EnumeratedEndDeviceGroup createEnumeratedEndDeviceGroup(String name);
+    EndDeviceGroupBuilder.EnumeratedEndDeviceGroupBuilder createEnumeratedEndDeviceGroup(EndDevice... endDevices);
 
     Optional<QueryEndDeviceGroup> findQueryEndDeviceGroup(long id);
 

@@ -1,6 +1,9 @@
 package com.elster.jupiter.metering.groups.impl;
 
+
 import static com.elster.jupiter.util.streams.Functions.asStream;
+
+
 
 import java.time.Clock;
 import java.util.ArrayList;
@@ -20,6 +23,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EndDeviceGroupBuilder;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -40,18 +44,18 @@ public class ConsoleCommands {
     private volatile Clock clock;
 
     public void createEnumeratedEndDeviceGroup(String name, long... ids) {
-        final EnumeratedEndDeviceGroup group = meteringGroupsService.createEnumeratedEndDeviceGroup(name);
-        final List<EnumeratedEndDeviceGroup.Entry> entries = new ArrayList<>();
-        for (long id : ids) {
-            Optional<EndDevice> endDevice = meteringService.findEndDevice(id);
-            if (endDevice.isPresent()) {
-                EnumeratedEndDeviceGroup.Entry entry = group.add(endDevice.get(), Range.atLeast(clock.instant()));
-                entries.add(entry);
-            }
-        }
         threadPrincipalService.set(() -> "console");
         try {
-            transactionService.execute(VoidTransaction.of(group::save));
+            transactionService.execute(VoidTransaction.of(() -> {
+                EndDeviceGroupBuilder.EnumeratedEndDeviceGroupBuilder builder = meteringGroupsService.createEnumeratedEndDeviceGroup();
+                builder.setName(name)
+                        .at(clock.instant());
+                Arrays.stream(ids)
+                        .mapToObj(meteringService::findEndDevice)
+                        .flatMap(asStream())
+                        .forEach(builder::containing);
+                builder.create();
+            }));
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

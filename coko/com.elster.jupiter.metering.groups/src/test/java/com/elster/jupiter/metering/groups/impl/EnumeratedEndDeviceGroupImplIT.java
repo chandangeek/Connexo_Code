@@ -27,7 +27,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Subquery;
-import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -115,17 +114,18 @@ public class EnumeratedEndDeviceGroupImplIT {
         EndDevice endDevice = null;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
-            endDevice = meteringService.findAmrSystem(1).get().newMeter("1", ED_MRID);
-            endDevice.save();
+            endDevice = meteringService.findAmrSystem(1).get().newMeter("1").setMRID(ED_MRID).create();
             ctx.commit();
         }
 
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("Mine");
-            enumeratedEndDeviceGroup.setMRID("mine");
-            enumeratedEndDeviceGroup.add(endDevice, Range.atLeast(Instant.EPOCH));
-            enumeratedEndDeviceGroup.save();
+            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(endDevice)
+                    .at(Instant.EPOCH)
+                    .setName("Mine")
+                    .setMRID("mine")
+                    .create();
+
             ctx.commit();
         }
 
@@ -143,8 +143,7 @@ public class EnumeratedEndDeviceGroupImplIT {
         EndDevice endDevice;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
-            endDevice = meteringService.findAmrSystem(1).get().newMeter("1", ED_MRID);
-            endDevice.save();
+            endDevice = meteringService.findAmrSystem(1).get().newMeter("1").setMRID(ED_MRID).create();
             ctx.commit();
         }
 
@@ -163,23 +162,23 @@ public class EnumeratedEndDeviceGroupImplIT {
         EndDevice otherDevice;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
-            endDevice = meteringService.findAmrSystem(1).get().newMeter("1", ED_MRID);
-            endDevice.save();
-            otherDevice = meteringService.findAmrSystem(1).get().newMeter("2", "OTHER");
-            otherDevice.save();
+            endDevice = meteringService.findAmrSystem(1).get().newMeter("1").setMRID(ED_MRID).create();
+            otherDevice = meteringService.findAmrSystem(1).get().newMeter("2").setMRID("OTHER").create();
             ctx.commit();
         }
 
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            EnumeratedEndDeviceGroup group1 = meteringGroupsService.createEnumeratedEndDeviceGroup("First");
-            group1.setMRID("first");
-            group1.add(otherDevice, Range.atLeast(Instant.EPOCH));
-            group1.save();
-            EnumeratedEndDeviceGroup group2 = meteringGroupsService.createEnumeratedEndDeviceGroup("Second");
-            group2.setMRID("second");
-            group2.add(otherDevice, Range.atLeast(Instant.EPOCH));
-            group2.save();
+            EnumeratedEndDeviceGroup group1 = meteringGroupsService.createEnumeratedEndDeviceGroup(otherDevice)
+                    .setName("First")
+                    .at(Instant.EPOCH)
+                    .setMRID("first")
+                    .create();
+            EnumeratedEndDeviceGroup group2 = meteringGroupsService.createEnumeratedEndDeviceGroup(otherDevice)
+                    .setName("Second")
+                    .at(Instant.EPOCH)
+                    .setMRID("second")
+                    .create();
             ctx.commit();
         }
 
@@ -195,16 +194,18 @@ public class EnumeratedEndDeviceGroupImplIT {
         EndDevice endDevice;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
-            endDevice = meteringService.findAmrSystem(1).get().newMeter("1", ED_MRID);
-            endDevice.save();
+            endDevice = meteringService.findAmrSystem(1).get().newMeter("1").setMRID(ED_MRID).create();
             ctx.commit();
         }
 
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("Mine");
-            enumeratedEndDeviceGroup.setMRID("mine");
-            enumeratedEndDeviceGroup.add(endDevice, Range.closedOpen(Instant.EPOCH, Instant.ofEpochMilli(86400L)));
+            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(endDevice)
+                    .setName("Mine")
+                    .setMRID("mine")
+                    .at(Instant.EPOCH)
+                    .create();
+            enumeratedEndDeviceGroup.endMembership(endDevice, Instant.ofEpochMilli(86400L));
             enumeratedEndDeviceGroup.save();
             ctx.commit();
         }
@@ -222,10 +223,8 @@ public class EnumeratedEndDeviceGroupImplIT {
         EndDevice otherDevice;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
-            endDevice = meteringService.findAmrSystem(1).get().newMeter("1", ED_MRID);
-            endDevice.save();
-            otherDevice = meteringService.findAmrSystem(1).get().newMeter("2", "OTHER");
-            otherDevice.save();
+            endDevice = meteringService.findAmrSystem(1).get().newMeter("1").setMRID(ED_MRID).create();
+            otherDevice = meteringService.findAmrSystem(1).get().newMeter("2").setMRID("OTHER").create();
             ctx.commit();
         }
 
@@ -233,14 +232,16 @@ public class EnumeratedEndDeviceGroupImplIT {
         EnumeratedEndDeviceGroup expectedGroup;
         EnumeratedEndDeviceGroup unexpectedGroup;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            expectedGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("First");
-            expectedGroup.setMRID("first");
-            expectedGroup.add(endDevice, Range.atLeast(Instant.EPOCH));
-            expectedGroup.save();
-            unexpectedGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("Second");
-            unexpectedGroup.setMRID("second");
-            unexpectedGroup.add(otherDevice, Range.atLeast(Instant.EPOCH));
-            unexpectedGroup.save();
+            expectedGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(endDevice)
+                    .setName("First")
+                    .setMRID("first")
+                    .at(Instant.EPOCH)
+                    .create();
+            unexpectedGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(otherDevice)
+                    .setName("Second")
+                    .setMRID("second")
+                    .at(Instant.EPOCH)
+                    .create();
             ctx.commit();
         }
 
@@ -261,8 +262,7 @@ public class EnumeratedEndDeviceGroupImplIT {
         AmrSystem EAMS = meteringService.findAmrSystem(KnownAmrSystem.ENERGY_AXIS.getId()).orElseThrow(IllegalStateException::new);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             for (int i = 0; i < 2 * NUMBER_OF_DEVICES_IN_GROUP; i++) {
-                EndDevice endDevice = (i % 2 == 0 ? MDC : EAMS).newMeter("" + i, "MRID" + i);
-                endDevice.save();
+                EndDevice endDevice = (i % 2 == 0 ? MDC : EAMS).newMeter("" + i).setMRID("MRID" + i).create();
                 endDevices.add(endDevice);
             }
             ctx.commit();
@@ -270,16 +270,19 @@ public class EnumeratedEndDeviceGroupImplIT {
 
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("Mine");
-            enumeratedEndDeviceGroup.setMRID("mine");
+            EndDevice[] list = new EndDevice[NUMBER_OF_DEVICES_IN_GROUP];
             for (int i = 0; i < NUMBER_OF_DEVICES_IN_GROUP; i++) {
                 EndDevice endDevice = endDevices.get(i);
-                enumeratedEndDeviceGroup.add(endDevice, Range.atLeast(Instant.EPOCH));
+                list[i] = endDevice;
             }
-            enumeratedEndDeviceGroup.save();
+
+            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(list)
+                    .at(Instant.EPOCH)
+                    .setName("Mine")
+                    .setMRID("mine")
+                    .create();
             ctx.commit();
         }
-
 
         Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup("mine");
         assertThat(found.isPresent()).isTrue();
@@ -305,8 +308,7 @@ public class EnumeratedEndDeviceGroupImplIT {
         AmrSystem MDC = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalStateException::new);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             for (int i = NUMBER_OF_DEVICES_IN_GROUP; i > 0; i--) {
-                EndDevice endDevice = MDC.newMeter("" + i, "MRID" + i);
-                endDevice.save();
+                EndDevice endDevice = MDC.newMeter("" + i).setMRID("MRID" + i).create();
                 endDevices.add(endDevice);
             }
             ctx.commit();
@@ -314,13 +316,17 @@ public class EnumeratedEndDeviceGroupImplIT {
 
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("Mine");
-            enumeratedEndDeviceGroup.setMRID("STATIC DEVICE GROUP");
+            EndDevice[] list = new EndDevice[NUMBER_OF_DEVICES_IN_GROUP];
             for (int i = 0; i < NUMBER_OF_DEVICES_IN_GROUP; i++) {
                 EndDevice endDevice = endDevices.get(i);
-                enumeratedEndDeviceGroup.add(endDevice, Range.atLeast(Instant.EPOCH));
+                list[i] = endDevice;
             }
-            enumeratedEndDeviceGroup.save();
+
+            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(list)
+                    .setName("Mine")
+                    .setMRID("STATIC DEVICE GROUP")
+                    .at(Instant.now())
+                    .create();
             enumeratedEndDeviceGroup.endMembership(endDevices.get(23), Instant.now());
             enumeratedEndDeviceGroup.save();
             ctx.commit();

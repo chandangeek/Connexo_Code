@@ -33,7 +33,7 @@ public enum EventType {
                 .category("Crud")
                 .scope("System")
                 .withProperty("id", ValueType.LONG, "id");
-        addCustomProperties(builder).create().save();
+        addCustomProperties(builder).create();
     }
 
     EventTypeBuilder addCustomProperties(EventTypeBuilder eventTypeBuilder) {

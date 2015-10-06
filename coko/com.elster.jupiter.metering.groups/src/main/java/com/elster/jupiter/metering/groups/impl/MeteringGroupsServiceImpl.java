@@ -26,6 +26,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EndDeviceGroupBuilder;
 import com.elster.jupiter.metering.groups.EndDeviceQueryProvider;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
@@ -165,18 +166,18 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
         return dataModel.mapper(UsagePointGroup.class).select(Operator.EQUALIGNORECASE.compare("name", name)).stream().findFirst();
     }
 
-    @Override
-    public QueryEndDeviceGroup createQueryEndDeviceGroup(Condition condition) {
-        QueryEndDeviceGroupImpl queryUsagePointGroup = new QueryEndDeviceGroupImpl(dataModel, this, eventService);
-        queryUsagePointGroup.setCondition(condition);
-        return queryUsagePointGroup;
+    private EndDeviceGroupBuilderImpl getBuilder() {
+        return dataModel.getInstance(EndDeviceGroupBuilderImpl.class);
     }
 
     @Override
-    public EnumeratedEndDeviceGroup createEnumeratedEndDeviceGroup(String name) {
-        EnumeratedEndDeviceGroup group = new EnumeratedEndDeviceGroupImpl(dataModel, eventService, queryService);
-        group.setName(name);
-        return group;
+    public EndDeviceGroupBuilder.QueryEndDeviceGroupBuilder createQueryEndDeviceGroup(Condition condition) {
+        return getBuilder().withCondition(condition);
+    }
+
+    @Override
+    public EndDeviceGroupBuilder.EnumeratedEndDeviceGroupBuilder createEnumeratedEndDeviceGroup(EndDevice... endDevices) {
+        return getBuilder().containing(endDevices);
     }
 
     @Override
