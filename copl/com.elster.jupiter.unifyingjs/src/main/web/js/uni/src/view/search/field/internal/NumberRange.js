@@ -47,14 +47,14 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
             {
                 xtype: 'uni-search-internal-numberline',
                 itemId: 'from',
-                default: true,
+                isDefault: true,
                 operator: '>',
                 listeners: listeners
             },
             {
                 xtype: 'uni-search-internal-numberline',
                 itemId: 'to',
-                default: true,
+                isDefault: true,
                 operator: '<',
                 listeners: listeners
             }

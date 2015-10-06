@@ -283,7 +283,7 @@ Ext.define('Uni.controller.Search', {
             fieldItems.push(me.createFieldDefinitionFromModel(field));
             var columnItem = me.createColumnDefinitionFromModel(field);
             if (defaultColumns && defaultColumns.indexOf(field.get('propertyName')) >= 0) {
-                columnItem.default = true;
+                columnItem.isDefault = true;
             }
             columnItems.push(columnItem);
         });
