@@ -37,14 +37,14 @@ public class AuthenticationDeviceAccessLevelInfoFactory extends SelectableFieldF
         map.put("id", (deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.id = (long) pair.getLast().getId());
         map.put("name", (deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.name = pair.getLast().getTranslation());
         map.put("properties", (deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(pair.getLast().getSecurityProperties(), TypedProperties.empty()));
-        map.put("link", ((deviceAccessLevelInfo, deviceAccessLevel, uriInfo) ->
-            deviceAccessLevelInfo.link = Link.fromUriBuilder(uriInfo.
-                    getBaseUriBuilder().
-                    path(AuthenticationDeviceAccessLevelResource.class).
-                    path(AuthenticationDeviceAccessLevelResource.class, "getAuthenticationDeviceAccessLevel")).
-                    rel(LinkInfo.REF_SELF).
-                    title("Authentication access level").
-                    build(deviceAccessLevel.getFirst().getId(),deviceAccessLevel.getLast().getId())
+        map.put("link", ((deviceAccessLevelInfo, pair, uriInfo) ->
+                deviceAccessLevelInfo.link = Link.fromUriBuilder(uriInfo.
+                        getBaseUriBuilder().
+                        path(AuthenticationDeviceAccessLevelResource.class).
+                        path(AuthenticationDeviceAccessLevelResource.class, "getAuthenticationDeviceAccessLevel")).
+                        rel(LinkInfo.REF_SELF).
+                        title("Authentication access level").
+                        build(pair.getFirst().getId(), pair.getLast().getId())
         ));
 
         return map;

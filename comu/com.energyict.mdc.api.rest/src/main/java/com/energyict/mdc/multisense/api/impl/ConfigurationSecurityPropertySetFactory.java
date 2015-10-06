@@ -3,7 +3,6 @@ package com.energyict.mdc.multisense.api.impl;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
