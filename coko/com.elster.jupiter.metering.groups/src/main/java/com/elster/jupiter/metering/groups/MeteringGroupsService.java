@@ -23,6 +23,8 @@ public interface MeteringGroupsService {
 
     Optional<UsagePointGroup> findUsagePointGroup(String mRID);
     
+    Optional<UsagePointGroup> findUsagePointGroup(long id);
+    
     Optional<UsagePointGroup> findUsagePointGroupByName(String name);
 
     QueryEndDeviceGroup createQueryEndDeviceGroup(Condition condition);
