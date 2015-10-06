@@ -16,6 +16,7 @@ public enum FactoryIds {
     DEVICE_TYPE(Constants.DEVICE_TYPE_FACTORY_ID),
     DEVICE_CONFIGURATION(Constants.DEVICE_CONFIGURATION_FACTORY_ID),
     FINITE_STATE(Constants.FINITE_STATE_FACTORY_ID),
+    DEVICE_GROUP(Constants.DEVICE_GROUP_FACTORY_ID),
     REGISTER(Constants.REGISTER_FACTORY_ID),
     RELATION_TYPE(Constants.RELATION_TYPE_FACTORY_ID),
     TIMEZONE_IN_USE(Constants.TIMEZONE_IN_USE_FACTORYID),
@@ -64,5 +65,6 @@ public enum FactoryIds {
         public static final int LOGBOOK_FACTORYID = 206;
         public static final int FIRMWARE_FACTORYID = 10000;
         public static final int FINITE_STATE_FACTORY_ID = 10001;
+        public static final int DEVICE_GROUP_FACTORY_ID = 10002;
     }
 }
