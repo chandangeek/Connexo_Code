@@ -2,11 +2,13 @@ package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.LdapUser;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +19,7 @@ public class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
     @Inject
     public InternalDirectoryImpl(DataModel dataModel, UserService userService) {
         super(dataModel, userService);
+        setType(TYPE_IDENTIFIER);
     }
 
     static InternalDirectoryImpl from(DataModel dataModel, String domain) {
@@ -31,6 +34,11 @@ public class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
     @Override
     public List<Group> getGroups(User user) {
         return ((UserImpl) user).doGetGroups();
+    }
+
+    @Override
+    public List<LdapUser> getLdapUsers() {
+        return null;
     }
 
     @Override
@@ -54,6 +62,15 @@ public class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
     @Override
     public boolean isManageGroupsInternal() {
         return true;
+    }
+
+    @Override
+    public void setManageGroupsInternal(boolean manageGroupsInternal){
+    }
+
+    @Override
+    public boolean getLdapUserStatus(String user){
+        return false;
     }
 
 }

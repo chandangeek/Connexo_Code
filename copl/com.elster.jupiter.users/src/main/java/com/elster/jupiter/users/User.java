@@ -2,12 +2,9 @@ package com.elster.jupiter.users;
 
 import java.security.Principal;
 import java.time.Instant;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 import com.elster.jupiter.util.HasName;
-import java.util.Optional;
 
 public interface User extends Principal, HasName {
 
@@ -22,6 +19,8 @@ public interface User extends Principal, HasName {
     String getDescription();
 
     long getVersion();
+
+    long getUserDirectoryId();
 
     void setDescription(String description);
 
@@ -62,9 +61,15 @@ public interface User extends Principal, HasName {
 
     Set<Privilege> getPrivileges();
 
+    Map<String, List<Privilege>> getApplicationPrivileges();
+
     Set<Privilege> getPrivileges(String applicationName);
 
     String getDomain();
+
+    boolean getStatus();
+
+    void setStatus(boolean status);
 
     String getLanguage();
 

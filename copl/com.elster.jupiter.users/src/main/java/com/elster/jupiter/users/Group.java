@@ -1,11 +1,13 @@
 package com.elster.jupiter.users;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.users.impl.ApplicationPrivilege;
 import com.elster.jupiter.util.HasName;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface Group extends HasName {
 
@@ -38,5 +40,17 @@ public interface Group extends HasName {
     String getDescription();
 
     void setDescription(String description);
+
+    /**
+     * @return the group with specified name
+     */
+    Optional<Group> getGroup(String name);
+
+    Query<Group> getGroupsQuery();
+
+    /**
+     * @return group name
+     */
+    String getName();
 
 }
