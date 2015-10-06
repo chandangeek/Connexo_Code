@@ -31,7 +31,8 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         me.menu = {
             plain: true,
             defaults: {
-                xtype: 'menucheckitem'
+                xtype: 'menucheckitem',
+                itemId: 'search-criteria-selector-menu'
             }
         };
 
@@ -42,6 +43,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     createMenuItem: function (criteria) {
         var menuitem = {
             xtype: 'menucheckitem',
+            itemId: 'search-criteria-selector-menu',
             text: criteria.get('displayValue'),
             value: criteria.get('name'),
             criteria: criteria
