@@ -463,9 +463,8 @@ Ext.define('Uni.controller.Search', {
         me.applyFilters();
     },
 
-    applyFilters: function () {
+    getFilters: function() {
         var me = this,
-            searchResults = Ext.getStore('Uni.store.search.Results'),
             filters = [];
 
         me.filters.each(function (item) {
@@ -474,11 +473,18 @@ Ext.define('Uni.controller.Search', {
             }
         });
 
+        return filters;
+    },
+
+    applyFilters: function () {
+        var me = this,
+            searchResults = Ext.getStore('Uni.store.search.Results');
+
         me.getResultsGrid().down('pagingtoolbarbottom').resetPaging();
         me.getResultsGrid().down('pagingtoolbartop').resetPaging();
 
         searchResults.clearFilter(true);
-        searchResults.filter(filters, true);
+        searchResults.filter(me.getFilters(), true);
         searchResults.load();
     },
 
