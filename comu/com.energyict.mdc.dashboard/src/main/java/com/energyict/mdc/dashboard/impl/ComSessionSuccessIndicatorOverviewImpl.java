@@ -1,8 +1,9 @@
 package com.energyict.mdc.dashboard.impl;
 
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
-import com.energyict.mdc.dashboard.Counter;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
+
+import java.util.Map;
 
 /**
  * Provides an implementation for the {@link ComSessionSuccessIndicatorOverview} interface.
@@ -14,13 +15,16 @@ public class ComSessionSuccessIndicatorOverviewImpl extends DashboardCountersImp
 
     private final long atleastOneTaskFailedCount;
 
-    public ComSessionSuccessIndicatorOverviewImpl(long atleastOneTaskFailedCount) {
-        super();
-        this.atleastOneTaskFailedCount = atleastOneTaskFailedCount;
+    public static ComSessionSuccessIndicatorOverviewImpl from(long atleastOneTaskFailedCount, Map<ComSession.SuccessIndicator, Long> successIndicatorCount) {
+        ComSessionSuccessIndicatorOverviewImpl overview = new ComSessionSuccessIndicatorOverviewImpl(atleastOneTaskFailedCount);
+        for (ComSession.SuccessIndicator successIndicator : ComSession.SuccessIndicator.values()) {
+            overview.add(new CounterImpl<>(successIndicator, successIndicatorCount.get(successIndicator)));
+        }
+        return overview;
     }
 
-    public ComSessionSuccessIndicatorOverviewImpl(long atleastOneTaskFailedCount, Counter<ComSession.SuccessIndicator>... counters) {
-        super(counters);
+    public ComSessionSuccessIndicatorOverviewImpl(long atleastOneTaskFailedCount) {
+        super();
         this.atleastOneTaskFailedCount = atleastOneTaskFailedCount;
     }
 

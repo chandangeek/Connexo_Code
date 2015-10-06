@@ -24,12 +24,12 @@ import java.util.Map;
  */
 public class CommunicationTaskOverviewImpl implements CommunicationTaskOverview {
 
-    private TaskStatusOverviewImpl taskStatusOverview = new TaskStatusOverviewImpl();
+    private TaskStatusOverviewImpl taskStatusOverview = TaskStatusOverviewImpl.empty();
     private ComCommandCompletionCodeOverviewImpl completionCodeOverview = new ComCommandCompletionCodeOverviewImpl();
     private CommunicationTaskHeatMapImpl heatMap = new CommunicationTaskHeatMapImpl();
     private ComScheduleBreakdownImpl comScheduleBreakdown = new ComScheduleBreakdownImpl();
     private ComTaskBreakdownImpl comTaskBreakdown = new ComTaskBreakdownImpl();
-    private DeviceTypeBreakdownImpl deviceTypeBreakdown = new DeviceTypeBreakdownImpl();
+    private DeviceTypeBreakdownImpl deviceTypeBreakdown = DeviceTypeBreakdownImpl.empty();
 
     public CommunicationTaskOverviewImpl(CommunicationTaskBreakdowns breakdowns, Map<DeviceType, List<Long>> heatMap) {
         super();

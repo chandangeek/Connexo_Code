@@ -35,6 +35,10 @@ public interface DashboardService {
 
     DeviceTypeBreakdown getConnectionTasksDeviceTypeBreakdown(EndDeviceGroup deviceGroup);
 
+    ConnectionTaskOverview getConnectionTaskOverview();
+
+    ConnectionTaskOverview getConnectionTaskOverview(EndDeviceGroup deviceGroup);
+
     ConnectionTypeHeatMap getConnectionTypeHeatMap();
 
     ConnectionTypeHeatMap getConnectionTypeHeatMap(EndDeviceGroup EndDeviceGroup);

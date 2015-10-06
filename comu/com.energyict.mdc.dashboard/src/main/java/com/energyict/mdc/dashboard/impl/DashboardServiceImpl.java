@@ -9,6 +9,7 @@ import com.energyict.mdc.dashboard.ComTaskBreakdown;
 import com.energyict.mdc.dashboard.CommunicationTaskHeatMap;
 import com.energyict.mdc.dashboard.CommunicationTaskOverview;
 import com.energyict.mdc.dashboard.ConnectionTaskDeviceTypeHeatMap;
+import com.energyict.mdc.dashboard.ConnectionTaskOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
 import com.energyict.mdc.dashboard.ConnectionTypeHeatMap;
 import com.energyict.mdc.dashboard.DashboardService;
@@ -18,7 +19,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskBreakdowns;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
@@ -53,7 +54,7 @@ import java.util.stream.Stream;
 @Component(name = "com.energyict.mdc.dashboard", service = {DashboardService.class}, property = "name=DBS")
 public class DashboardServiceImpl implements DashboardService {
 
-    private volatile ConnectionTaskService connectionTaskService;
+    private volatile ConnectionTaskReportService connectionTaskReportService;
     private volatile CommunicationTaskReportService communicationTaskReportService;
     private volatile TaskService taskService;
 
@@ -64,10 +65,10 @@ public class DashboardServiceImpl implements DashboardService {
 
     // For testing purposes
     @Inject
-    public DashboardServiceImpl(TaskService taskService, ConnectionTaskService connectionTaskService, CommunicationTaskReportService communicationTaskReportService) {
+    public DashboardServiceImpl(TaskService taskService, ConnectionTaskReportService connectionTaskReportService, CommunicationTaskReportService communicationTaskReportService) {
         this();
         this.setTaskService(taskService);
-        this.setConnectionTaskService(connectionTaskService);
+        this.setConnectionTaskReportService(connectionTaskReportService);
         this.setCommunicationTaskReportService(communicationTaskReportService);
     }
 
@@ -77,8 +78,8 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Reference
-    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
-        this.connectionTaskService = connectionTaskService;
+    public void setConnectionTaskReportService(ConnectionTaskReportService connectionTaskReportService) {
+        this.connectionTaskReportService = connectionTaskReportService;
     }
 
     @Reference
@@ -88,115 +89,75 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public TaskStatusOverview getConnectionTaskStatusOverview() {
-        return this.getConnectionTaskStatusOverview(this.connectionTaskService::getConnectionTaskStatusCount);
+        return this.getConnectionTaskStatusOverview(this.connectionTaskReportService::getConnectionTaskStatusCount);
     }
 
     @Override
     public TaskStatusOverview getConnectionTaskStatusOverview(EndDeviceGroup deviceGroup) {
-        return this.getConnectionTaskStatusOverview(() -> this.connectionTaskService.getConnectionTaskStatusCount(deviceGroup));
+        return this.getConnectionTaskStatusOverview(() -> this.connectionTaskReportService.getConnectionTaskStatusCount(deviceGroup));
     }
 
     private TaskStatusOverview getConnectionTaskStatusOverview(Supplier<Map<TaskStatus, Long>> statusCountersSupplier) {
-        TaskStatusOverviewImpl overview = new TaskStatusOverviewImpl();
-        Map<TaskStatus, Long> statusCounters = statusCountersSupplier.get();
-        for (TaskStatus taskStatus : TaskStatus.values()) {
-            overview.add(new CounterImpl<>(taskStatus, statusCounters.get(taskStatus)));
-        }
-        return overview;
+        return TaskStatusOverviewImpl.from(statusCountersSupplier.get());
     }
 
     @Override
     public ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview() {
-        return this.getComSessionSuccessIndicatorOverview(this.connectionTaskService::getConnectionTaskLastComSessionSuccessIndicatorCount);
+        return this.getComSessionSuccessIndicatorOverview(this.connectionTaskReportService::getConnectionTaskLastComSessionSuccessIndicatorCount);
     }
 
     @Override
     public ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview(EndDeviceGroup deviceGroup) {
-        return this.getComSessionSuccessIndicatorOverview(() -> this.connectionTaskService.getConnectionTaskLastComSessionSuccessIndicatorCount(deviceGroup));
+        return this.getComSessionSuccessIndicatorOverview(() -> this.connectionTaskReportService.getConnectionTaskLastComSessionSuccessIndicatorCount(deviceGroup));
     }
 
     private ComSessionSuccessIndicatorOverview getComSessionSuccessIndicatorOverview(Supplier<Map<ComSession.SuccessIndicator, Long>> successIndicatorCountSupplier) {
-        ComSessionSuccessIndicatorOverviewImpl overview = new ComSessionSuccessIndicatorOverviewImpl(this.connectionTaskService.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask());
         Map<ComSession.SuccessIndicator, Long> successIndicatorCount = successIndicatorCountSupplier.get();
-        for (ComSession.SuccessIndicator successIndicator : ComSession.SuccessIndicator.values()) {
-            overview.add(new CounterImpl<>(successIndicator, successIndicatorCount.get(successIndicator)));
-        }
-        return overview;
+        return ComSessionSuccessIndicatorOverviewImpl.from(
+                this.connectionTaskReportService.countConnectionTasksLastComSessionsWithAtLeastOneFailedTask(),
+                successIndicatorCount);
     }
 
     @Override
     public ComPortPoolBreakdown getComPortPoolBreakdown() {
-        return this.getComPortPoolBreakdown(() -> this.connectionTaskService.getComPortPoolBreakdown(this.breakdownStatusses()));
+        return this.getComPortPoolBreakdown(() -> this.connectionTaskReportService.getComPortPoolBreakdown(this.breakdownStatusses()));
     }
 
     @Override
     public ComPortPoolBreakdown getComPortPoolBreakdown(EndDeviceGroup deviceGroup) {
-        return this.getComPortPoolBreakdown(() -> this.connectionTaskService.getComPortPoolBreakdown(this.breakdownStatusses(), deviceGroup));
+        return this.getComPortPoolBreakdown(() -> this.connectionTaskReportService.getComPortPoolBreakdown(this.breakdownStatusses(), deviceGroup));
     }
 
     private ComPortPoolBreakdown getComPortPoolBreakdown(Supplier<Map<ComPortPool, Map<TaskStatus, Long>>> rawDataSupplier) {
-        ComPortPoolBreakdownImpl breakdown = new ComPortPoolBreakdownImpl();
-        Map<ComPortPool, Map<TaskStatus, Long>> rawData = rawDataSupplier.get();
-        for (ComPortPool comPortPool : rawData.keySet()) {
-            Map<TaskStatus, Long> statusCount = rawData.get(comPortPool);
-            breakdown.add(
-                    new TaskStatusBreakdownCounterImpl<>(
-                            comPortPool,
-                            TaskStatusses.SUCCESS.count(statusCount),
-                            TaskStatusses.FAILED.count(statusCount),
-                            TaskStatusses.PENDING.count(statusCount)));
-        }
-        return breakdown;
+        return ComPortPoolBreakdownImpl.from(rawDataSupplier.get());
     }
 
     @Override
     public ConnectionTypeBreakdown getConnectionTypeBreakdown() {
-        return this.getConnectionTypeBreakdown(() -> this.connectionTaskService.getConnectionTypeBreakdown(this.breakdownStatusses()));
+        return this.getConnectionTypeBreakdown(() -> this.connectionTaskReportService.getConnectionTypeBreakdown(this.breakdownStatusses()));
     }
 
     @Override
     public ConnectionTypeBreakdown getConnectionTypeBreakdown(EndDeviceGroup deviceGroup) {
-        return this.getConnectionTypeBreakdown(() -> this.connectionTaskService.getConnectionTypeBreakdown(this.breakdownStatusses(), deviceGroup));
+        return this.getConnectionTypeBreakdown(() -> this.connectionTaskReportService.getConnectionTypeBreakdown(this.breakdownStatusses(), deviceGroup));
     }
 
     private ConnectionTypeBreakdown getConnectionTypeBreakdown(Supplier<Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>>> rawDataSupplier) {
-        ConnectionTypeBreakdownImpl breakdown = new ConnectionTypeBreakdownImpl();
-        Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> rawData = rawDataSupplier.get();
-        for (ConnectionTypePluggableClass connectionTypePluggableClass : rawData.keySet()) {
-            Map<TaskStatus, Long> statusCount = rawData.get(connectionTypePluggableClass);
-            breakdown.add(
-                    new TaskStatusBreakdownCounterImpl<>(
-                            connectionTypePluggableClass,
-                            TaskStatusses.SUCCESS.count(statusCount),
-                            TaskStatusses.FAILED.count(statusCount),
-                            TaskStatusses.PENDING.count(statusCount)));
-        }
-        return breakdown;
+        return ConnectionTypeBreakdownImpl.from(rawDataSupplier.get());
     }
 
     @Override
     public DeviceTypeBreakdown getConnectionTasksDeviceTypeBreakdown() {
-        return this.getConnectionTasksDeviceTypeBreakdown(() -> this.connectionTaskService.getDeviceTypeBreakdown(this.breakdownStatusses()));
+        return this.getConnectionTasksDeviceTypeBreakdown(() -> this.connectionTaskReportService.getDeviceTypeBreakdown(this.breakdownStatusses()));
     }
 
     @Override
     public DeviceTypeBreakdown getConnectionTasksDeviceTypeBreakdown(EndDeviceGroup deviceGroup) {
-        return this.getConnectionTasksDeviceTypeBreakdown(() -> this.connectionTaskService.getDeviceTypeBreakdown(this.breakdownStatusses(), deviceGroup));
+        return this.getConnectionTasksDeviceTypeBreakdown(() -> this.connectionTaskReportService.getDeviceTypeBreakdown(this.breakdownStatusses(), deviceGroup));
     }
 
     private DeviceTypeBreakdown getConnectionTasksDeviceTypeBreakdown(Supplier<Map<DeviceType, Map<TaskStatus, Long>>> rawDataSupplier) {
-        DeviceTypeBreakdownImpl breakdown = new DeviceTypeBreakdownImpl();
-        Map<DeviceType, Map<TaskStatus, Long>> rawData = rawDataSupplier.get();
-        for (DeviceType deviceType : rawData.keySet()) {
-            Map<TaskStatus, Long> statusCount = rawData.get(deviceType);
-            breakdown.add(
-                    new TaskStatusBreakdownCounterImpl<>(
-                            deviceType,
-                            TaskStatusses.SUCCESS.count(statusCount),
-                            TaskStatusses.FAILED.count(statusCount),
-                            TaskStatusses.PENDING.count(statusCount)));
-        }
-        return breakdown;
+        return DeviceTypeBreakdownImpl.from(rawDataSupplier.get());
     }
 
     private Set<TaskStatus> breakdownStatusses() {
@@ -208,13 +169,27 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
+    public ConnectionTaskOverview getConnectionTaskOverview() {
+        return new ConnectionTaskOverviewImpl(
+                this.connectionTaskReportService.getConnectionTaskBreakdowns(),
+                this.getComSessionSuccessIndicatorOverview());
+    }
+
+    @Override
+    public ConnectionTaskOverview getConnectionTaskOverview(EndDeviceGroup deviceGroup) {
+        return new ConnectionTaskOverviewImpl(
+                this.connectionTaskReportService.getConnectionTaskBreakdowns(deviceGroup),
+                this.getComSessionSuccessIndicatorOverview(deviceGroup));
+    }
+
+    @Override
     public ConnectionTypeHeatMap getConnectionTypeHeatMap() {
-        return this.getConnectionTypeHeatMap(this.connectionTaskService::getConnectionTypeHeatMap);
+        return this.getConnectionTypeHeatMap(this.connectionTaskReportService::getConnectionTypeHeatMap);
     }
 
     @Override
     public ConnectionTypeHeatMap getConnectionTypeHeatMap(EndDeviceGroup deviceGroup) {
-        return this.getConnectionTypeHeatMap(() -> this.connectionTaskService.getConnectionTypeHeatMap(deviceGroup));
+        return this.getConnectionTypeHeatMap(() -> this.connectionTaskReportService.getConnectionTypeHeatMap(deviceGroup));
     }
 
     private ConnectionTypeHeatMap getConnectionTypeHeatMap(Supplier<Map<ConnectionTypePluggableClass, List<Long>>> rawDataSupplier) {
@@ -231,12 +206,12 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public ConnectionTaskDeviceTypeHeatMap getConnectionsDeviceTypeHeatMap() {
-        return this.getConnectionsDeviceTypeHeatMap(this.connectionTaskService::getConnectionsDeviceTypeHeatMap);
+        return this.getConnectionsDeviceTypeHeatMap(this.connectionTaskReportService::getConnectionsDeviceTypeHeatMap);
     }
 
     @Override
     public ConnectionTaskDeviceTypeHeatMap getConnectionsDeviceTypeHeatMap(EndDeviceGroup deviceGroup) {
-        return this.getConnectionsDeviceTypeHeatMap(() -> this.connectionTaskService.getConnectionsDeviceTypeHeatMap(deviceGroup));
+        return this.getConnectionsDeviceTypeHeatMap(() -> this.connectionTaskReportService.getConnectionsDeviceTypeHeatMap(deviceGroup));
     }
 
     private ConnectionTaskDeviceTypeHeatMap getConnectionsDeviceTypeHeatMap(Supplier<Map<DeviceType, List<Long>>> rawDataSupplier) {
@@ -252,12 +227,12 @@ public class DashboardServiceImpl implements DashboardService {
     }
     @Override
     public ComPortPoolHeatMap getConnectionsComPortPoolHeatMap() {
-        return this.getConnectionsComPortPoolHeatMap(this.connectionTaskService::getConnectionsComPortPoolHeatMap);
+        return this.getConnectionsComPortPoolHeatMap(this.connectionTaskReportService::getConnectionsComPortPoolHeatMap);
     }
 
     @Override
     public ComPortPoolHeatMap getConnectionsComPortPoolHeatMap(EndDeviceGroup deviceGroup) {
-        return this.getConnectionsComPortPoolHeatMap(() -> this.connectionTaskService.getConnectionsComPortPoolHeatMap(deviceGroup));
+        return this.getConnectionsComPortPoolHeatMap(() -> this.connectionTaskReportService.getConnectionsComPortPoolHeatMap(deviceGroup));
     }
 
     private ComPortPoolHeatMap getConnectionsComPortPoolHeatMap(Supplier<Map<ComPortPool, List<Long>>> rawDataSupplier) {
@@ -291,12 +266,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     private TaskStatusOverview getCommunicationTaskStatusOverview(Supplier<Map<TaskStatus, Long>> statusCountersSupplier) {
-        TaskStatusOverviewImpl overview = new TaskStatusOverviewImpl();
-        Map<TaskStatus, Long> statusCounters = statusCountersSupplier.get();
-        for (TaskStatus taskStatus : TaskStatus.values()) {
-            overview.add(new CounterImpl<>(taskStatus, statusCounters.get(taskStatus)));
-        }
-        return overview;
+        return TaskStatusOverviewImpl.from(statusCountersSupplier.get());
     }
 
     @Override
@@ -310,13 +280,7 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     private DeviceTypeBreakdown getCommunicationTasksDeviceTypeBreakdown(Supplier<Map<DeviceType, Map<TaskStatus, Long>>> breakDownSupplier) {
-        DeviceTypeBreakdownImpl breakdown = new DeviceTypeBreakdownImpl();
-        Map<DeviceType, Map<TaskStatus, Long>> deviceTypeBreakdown = breakDownSupplier.get();
-        for (DeviceType deviceType : deviceTypeBreakdown.keySet()) {
-            Map<TaskStatus, Long> statusCount = deviceTypeBreakdown.get(deviceType);
-            breakdown.add(new TaskStatusBreakdownCounterImpl<>(deviceType, TaskStatusses.SUCCESS.count(statusCount), TaskStatusses.FAILED.count(statusCount), TaskStatusses.PENDING.count(statusCount)));
-        }
-        return breakdown;
+        return DeviceTypeBreakdownImpl.from(breakDownSupplier.get());
     }
 
     @Override
