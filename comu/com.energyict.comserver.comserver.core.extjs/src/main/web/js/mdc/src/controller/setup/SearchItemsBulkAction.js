@@ -216,7 +216,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             request.action = me.operation;
             request.scheduleIds = scheduleIds;
             if (me.allDevices) {
-                request.filter =  me.getDevicesGrid().getStore().filters.getRange();
+                var store = me.getDevicesGrid().getStore();
+                request.filter =  store.getProxy().encodeFilters(store.filters.getRange());
             } else {
                 request.deviceMRIDs = deviceMRID;
             }
