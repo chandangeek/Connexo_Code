@@ -147,7 +147,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 tabController.showTab(1);
                 Ext.resumeLayouts(true);
 
-                widget.setLoading();
+                !isTable && widget.setLoading();
                 dataStore.on('load', function () {
                     if (!widget.isDestroyed) {
                         Ext.suspendLayouts();
