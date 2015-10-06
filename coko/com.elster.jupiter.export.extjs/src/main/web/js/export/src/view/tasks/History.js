@@ -41,6 +41,7 @@ Ext.define('Dxp.view.tasks.History', {
                     xtype: 'preview-container',
                     grid: {
                         xtype: 'dxp-tasks-history-grid',
+                        itemId: 'data-export-history-grid',
                         router: me.router
                     },
                     emptyComponent: {
