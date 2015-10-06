@@ -7,13 +7,13 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.jayway.jsonpath.JsonModel;
-import junit.framework.TestCase;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -54,6 +54,9 @@ public class ConfigurationSecurityPropertySetResourceTest extends MultisensePubl
         assertThat(jsonModel.<String>get("$.authenticationAccessLevel.link.href")).isEqualTo("http://localhost:9998/pluggableclasses/15129/authenticationaccesslevels/1002");
         assertThat(jsonModel.<Integer>get("$.encryptionAccessLevel.id")).isEqualTo(1001);
         assertThat(jsonModel.<String>get("$.encryptionAccessLevel.link.href")).isEqualTo("http://localhost:9998/pluggableclasses/15129/encryptionaccesslevels/1001");
+        assertThat(jsonModel.<List>get("$.properties")).isNotEmpty();
+        assertThat(jsonModel.<String>get("$.properties[0].key")).isEqualTo("string.property");
+        assertThat(jsonModel.<String>get("$.properties[0].propertyTypeInfo.simplePropertyType")).isEqualTo("TEXT");
 
     }
 
@@ -106,6 +109,14 @@ public class ConfigurationSecurityPropertySetResourceTest extends MultisensePubl
         assertThat(jsonModel.<String>get("$.data[1].authenticationAccessLevel.link.href")).isEqualTo("http://localhost:9998/pluggableclasses/15129/authenticationaccesslevels/1002");
         assertThat(jsonModel.<Integer>get("$.data[1].encryptionAccessLevel.id")).isEqualTo(1001);
         assertThat(jsonModel.<String>get("$.data[1].encryptionAccessLevel.link.href")).isEqualTo("http://localhost:9998/pluggableclasses/15129/encryptionaccesslevels/1001");
+    }
+
+    @Test
+    public void testFields() throws Exception {
+        Response response = target("/devicetypes/x/deviceconfigurations/x/securitypropertysets").request("application/json").method("PROPFIND", Response.class);
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(model.<List>get("$")).hasSize(6);
+        assertThat(model.<List<String>>get("$")).containsOnly("id", "name", "link", "authenticationAccessLevel", "encryptionAccessLevel", "properties");
     }
 
 }

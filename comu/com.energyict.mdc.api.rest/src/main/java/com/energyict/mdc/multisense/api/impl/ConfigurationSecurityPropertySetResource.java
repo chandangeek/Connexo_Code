@@ -1,6 +1,7 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PROPFIND;
 import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -70,6 +71,13 @@ public class ConfigurationSecurityPropertySetResource {
         SecurityPropertySet securityPropertySet = findSecurityPropertySetOrThrowException(deviceTypeId, deviceConfigId, securityPropertySetId);
 
         return securityPropertySetInfoFactory.from(securityPropertySet, uriInfo, fieldSelection.getFields());
+    }
+
+    @PROPFIND
+    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    public List<String> getFields() {
+        return securityPropertySetInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
 
     private SecurityPropertySet findSecurityPropertySetOrThrowException(long deviceTypeId, long deviceConfigId, long securityPropertySetId) {

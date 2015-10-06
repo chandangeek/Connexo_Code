@@ -78,6 +78,7 @@ public class PublicRestApplication extends Application implements TranslationKey
                 AuthenticationDeviceAccessLevelResource.class,
                 ComPortPoolResource.class,
                 ComTaskResource.class,
+                ComTaskExecutionResource.class,
                 ConfigurationSecurityPropertySetResource.class,
                 ConnectionTaskResource.class,
                 DeviceConfigurationResource.class,
@@ -238,6 +239,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(AuthenticationDeviceAccessLevelInfoFactory.class).to(AuthenticationDeviceAccessLevelInfoFactory.class).in(Singleton.class);
             bind(EncryptionDeviceAccessLevelInfoFactory.class).to(EncryptionDeviceAccessLevelInfoFactory.class).in(Singleton.class);
             bind(ConfigurationSecurityPropertySetFactory.class).to(ConfigurationSecurityPropertySetFactory.class).in(Singleton.class);
+            bind(ComTaskExecutionInfoFactory.class).to(ComTaskExecutionInfoFactory.class).in(Singleton.class);
         }
     }
 

@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Converts CSV string to list of individual field names
+ * Converts CSV string (as received from client) to list of individual field names
  */
 public class FieldSelection {
     /**

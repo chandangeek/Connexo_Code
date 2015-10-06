@@ -61,7 +61,7 @@ public class DeviceConfigurationInfoFactory extends SelectableFieldFactory<Devic
                     deviceConfiguration.getPartialConnectionTasks().stream().map(pct -> {
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = pct.getId();
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").build(pct.getId());
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(pct.getId());
                         return linkInfo;
                     }).collect(toList());
         });
@@ -75,7 +75,7 @@ public class DeviceConfigurationInfoFactory extends SelectableFieldFactory<Devic
                     deviceConfiguration.getSecurityPropertySets().stream().map(sps -> {
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = sps.getId();
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").build(sps.getId());
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(sps.getId());
                         return linkInfo;
                     }).collect(toList());
         });

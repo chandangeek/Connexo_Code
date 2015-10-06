@@ -86,7 +86,7 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
             UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
                     path(ComPortPoolResource.class).
                     path(ComPortPoolResource.class, "getComPortPool");
-            connectionTaskInfo.comPortPool.link = Link.fromUriBuilder(uriBuilder).rel("related").build(connectionTaskInfo.comPortPool.id);
+            connectionTaskInfo.comPortPool.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(connectionTaskInfo.comPortPool.id);
         });
         map.put("isDefault", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.isDefault = connectionTask.isDefault());
         map.put("properties", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(connectionTask.getConnectionType().getPropertySpecs(), connectionTask.getTypedProperties()));

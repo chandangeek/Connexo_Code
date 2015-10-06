@@ -38,7 +38,7 @@ public class ComTaskInfoFactory extends SelectableFieldFactory<ComTaskInfo, ComT
                     .map(pt->{
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = pt.getId();
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").build(pt.getId());
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(pt.getId());
                         return linkInfo;
                     }).collect(toList());
         } );
@@ -54,7 +54,7 @@ public class ComTaskInfoFactory extends SelectableFieldFactory<ComTaskInfo, ComT
                     .map(mt -> {
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = (long) mt.getId();
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").build(mt.getId());
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(mt.getId());
                         return linkInfo;
                     }).collect(toList());
         });

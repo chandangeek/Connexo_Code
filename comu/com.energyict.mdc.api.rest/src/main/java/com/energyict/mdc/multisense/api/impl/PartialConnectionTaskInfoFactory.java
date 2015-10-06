@@ -55,7 +55,7 @@ public class PartialConnectionTaskInfoFactory extends SelectableFieldFactory<Par
             UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
                     path(ComPortPoolResource.class).
                     path(ComPortPoolResource.class, "getComPortPool");
-            partialConnectionTaskInfo.comPortPool.link = Link.fromUriBuilder(uriBuilder).rel("related").build(partialConnectionTaskInfo.comPortPool.id);
+            partialConnectionTaskInfo.comPortPool.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(partialConnectionTaskInfo.comPortPool.id);
         });
         map.put("isDefault", (partialConnectionTaskInfo, partialConnectionTask, uriInfo)-> partialConnectionTaskInfo.isDefault = partialConnectionTask.isDefault());
         map.put("properties", (partialConnectionTaskInfo, partialConnectionTask, uriInfo)-> partialConnectionTaskInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(partialConnectionTask.getConnectionType().getPropertySpecs(), partialConnectionTask.getTypedProperties()));

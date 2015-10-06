@@ -42,10 +42,3 @@ public enum ConnectionTaskType implements ConnectionTaskCreator, ConnectionTaskU
     }
 }
 
-interface ConnectionTaskCreator {
-    public ConnectionTask<?,?> createTask(ConnectionTaskInfo info, ConnectionTaskInfoFactory factory, Device device, PartialConnectionTask partialConnectionTask);
-}
-
-interface ConnectionTaskUpdater {
-    public ConnectionTask<?,?> updateTask(long connectionTaskId, ConnectionTaskInfo info, ConnectionTaskInfoFactory factory, Device device, ConnectionTask<?, ?> connectionTask);
-}

@@ -28,12 +28,6 @@ public class ConnectionTaskInfo extends LinkInfo {
     public Boolean allowSimultaneousConnections;
     public TimeDurationInfo rescheduleRetryDelay;
     public TemporalExpressionInfo nextExecutionSpecs;
-
-
 }
 
-class ComWindowInfo {
-    public Integer start;
-    public Integer end;
-}
 

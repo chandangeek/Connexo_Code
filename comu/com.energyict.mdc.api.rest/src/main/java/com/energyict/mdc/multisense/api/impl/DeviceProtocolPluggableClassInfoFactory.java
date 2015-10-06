@@ -51,7 +51,7 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = (long)aal.getId();
                         linkInfo.link = Link.fromUriBuilder(uriBuilder).
-                                rel("related").
+                                rel(LinkInfo.REF_RELATION).
                                 title("Authentication access level").
                                 build(aal.getId());
 
@@ -72,7 +72,7 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = (long)aal.getId();
                         linkInfo.link = Link.fromUriBuilder(uriBuilder).
-                                rel("related").
+                                rel(LinkInfo.REF_RELATION).
                                 title("Encryption access level").
                                 build(aal.getId());
 

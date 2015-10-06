@@ -32,7 +32,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_AUTH_DEVICE_ACCESS_LEVEL(23, "NoSuchAuthDevAccessLevel" , "The device protocol does not have an authentication access level with that id"),
     NO_SUCH_ENC_DEVICE_ACCESS_LEVEL(24, "NoSuchEncDevAccessLevel" , "The device protocol does not have an encryption access level with that id"),
     CONFLICT_ON_DEVICE(25, "ConflictOnDevice", "The device you attempted to edit was changed by someone els"),
-    NO_SUCH_PROTOCOL_TASK(26, "NoSuchProtocolTask", "Protocol task does not exist");
+    NO_SUCH_PROTOCOL_TASK(26, "NoSuchProtocolTask", "Protocol task does not exist"),
+    NO_SUCH_COM_TASK_EXECUTION(27, "NoSuchComTaskExecution", "The device has no communication task with that id");
 
     private final int number;
     private final String key;
