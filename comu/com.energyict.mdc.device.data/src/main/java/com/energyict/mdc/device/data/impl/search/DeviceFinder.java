@@ -44,8 +44,8 @@ public class DeviceFinder implements Finder<Device> {
     }
 
     @Override
-    public Finder<Device> paged(int from, int to) {
-        this.pager = new WithPaging(from, to);
+    public Finder<Device> paged(int from, int pageSize) {
+        this.pager = new WithPaging(from, from + pageSize);
         return this;
     }
 
@@ -97,5 +97,4 @@ public class DeviceFinder implements Finder<Device> {
             return sqlBuilder.asPageBuilder(this.from, this.to+1);
         }
     }
-
 }

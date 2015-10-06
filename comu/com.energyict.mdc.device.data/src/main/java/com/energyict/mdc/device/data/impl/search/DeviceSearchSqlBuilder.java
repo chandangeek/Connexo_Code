@@ -63,13 +63,11 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
                                     if (sqlBuilder.getText().isEmpty()) {
                                         if (fragment instanceof SqlBuilder) {
                                             temp = (SqlBuilder) fragment;
-                                        }
-                                        else {
+                                        } else {
                                             temp = new SqlBuilder();
                                             temp.add(fragment);
                                         }
-                                    }
-                                    else {
+                                    } else {
                                         temp = new SqlBuilder();
                                         temp.add(sqlBuilder);
                                         temp.append(" and ");
@@ -106,6 +104,12 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     }
 
     @Override
+    public JoinClauseBuilder addBatch() {
+        this.joins.add(Joins.Batch);
+        return this;
+    }
+
+    @Override
     public JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass) {
         this.joins.add(new ConnectionTypePropertyJoinType(connectionTypePluggableClass));
         return this;
@@ -134,6 +138,14 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
             @Override
             public void appendTo(SqlBuilder sqlBuilder) {
                 sqlBuilder.append(" join FSM_STATE fs on eds.STATE = fs.id ");
+            }
+        },
+
+        Batch {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join DDC_DEVICEINBATCH dib on dib.DEVICEID = dev.id ");
+                sqlBuilder.append(" join DDC_BATCH bch on bch.ID = dib.BATCHID ");
             }
         }
     }
