@@ -11,6 +11,10 @@ import java.util.Set;
 import javax.validation.MessageInterpolator;
 import javax.ws.rs.core.Application;
 
+import com.elster.jupiter.cbo.EndDeviceDomain;
+import com.elster.jupiter.cbo.EndDeviceEventorAction;
+import com.elster.jupiter.cbo.EndDeviceSubDomain;
+import com.elster.jupiter.cbo.EndDeviceType;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -47,7 +51,8 @@ public class MeteringApplication extends Application implements TranslationKeyPr
                 UsagePointResource.class,
                 DeviceResource.class,
                 ReadingTypeResource.class,
-                ReadingTypeFieldResource.class);
+                ReadingTypeFieldResource.class,
+                EndDeviceEventTypeResource.class);
     }
 
     @Reference
@@ -111,6 +116,18 @@ public class MeteringApplication extends Application implements TranslationKeyPr
         for (int i = 1; i < MacroPeriod.values().length; i++) {
             MacroPeriod mp = MacroPeriod.values()[i];
             keys.add(new SimpleTranslationKey(TranslationKeys.Keys.MACRO_PERIOD_KEY_PREFIX + mp.getId(), mp.getDescription()));
+        }
+        for (EndDeviceType type : EndDeviceType.values()) {
+            keys.add(new SimpleTranslationKey(type.name(), type.getMnemonic()));
+        }
+        for (EndDeviceDomain domain : EndDeviceDomain.values()) {
+            keys.add(new SimpleTranslationKey(domain.name(), domain.getMnemonic()));
+        }
+        for (EndDeviceSubDomain subDomain : EndDeviceSubDomain.values()) {
+            keys.add(new SimpleTranslationKey(subDomain.name(), subDomain.getMnemonic()));
+        }
+        for (EndDeviceEventorAction eventOrAction : EndDeviceEventorAction.values()) {
+            keys.add(new SimpleTranslationKey(eventOrAction.name(), eventOrAction.getMnemonic()));
         }
         return keys;
     }
