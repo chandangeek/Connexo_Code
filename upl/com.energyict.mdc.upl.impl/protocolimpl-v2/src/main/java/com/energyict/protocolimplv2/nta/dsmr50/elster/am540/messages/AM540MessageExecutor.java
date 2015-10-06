@@ -61,8 +61,8 @@ public class AM540MessageExecutor extends AbstractMessageExecutor {
                         } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.OPEN_RELAY)) {
                             openRelay(pendingMessage);
                         } else {
-                            collectedMessage = null;
                             dsmr40Messages.add(pendingMessage); // These messages are not specific for AM540, but can be executed by the super (= Dsmr 4.0) messageExecutor
+                            collectedMessage = null;
                         }
                     }
                 } catch (IOException e) {
