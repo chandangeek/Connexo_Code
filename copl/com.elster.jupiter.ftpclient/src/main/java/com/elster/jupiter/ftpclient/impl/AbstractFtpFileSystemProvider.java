@@ -26,8 +26,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 abstract class AbstractFtpFileSystemProvider<T extends AbstractFtpFileSystem> extends FileSystemProvider {
     private final ExecutorService executorService;
@@ -36,7 +38,17 @@ abstract class AbstractFtpFileSystemProvider<T extends AbstractFtpFileSystem> ex
 
     AbstractFtpFileSystemProvider(String scheme) {
         this.scheme = scheme;
-        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(8, 16, 1, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(8, 16, 1, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), new ThreadFactory() {
+
+            private final AtomicInteger counter = new AtomicInteger();
+
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread thread = new Thread(r);
+                thread.setName("Ftp pipe " + counter.incrementAndGet());
+                return thread;
+            }
+        });
         threadPoolExecutor.allowCoreThreadTimeOut(true);
         this.executorService = threadPoolExecutor;
     }
@@ -159,7 +171,9 @@ abstract class AbstractFtpFileSystemProvider<T extends AbstractFtpFileSystem> ex
     @Override
     public void setAttribute(Path path, String attribute, Object value, LinkOption... options) throws IOException {
         throw new UnsupportedOperationException();
-    }ExecutorService getExecutorService() {
+    }
+
+    ExecutorService getExecutorService() {
         return executorService;
     }
 

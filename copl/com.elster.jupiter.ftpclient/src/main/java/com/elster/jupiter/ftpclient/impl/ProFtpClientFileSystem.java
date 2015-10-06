@@ -31,6 +31,8 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,7 +46,7 @@ abstract class ProFtpClientFileSystem<T extends ProFtpClientFileSystem<T>> exten
     private static final int WRITE_BUFFER_SIZE = 64;
     protected final AbstractFtpFileSystemProvider<T> provider;
     private final ProFTPClient ftpClient;
-    private CountingLatch openPipes = new CountingLatch();
+    private Semaphore openPipes = new Semaphore(1, true);
     private boolean open;
 
 
@@ -84,17 +86,25 @@ abstract class ProFtpClientFileSystem<T extends ProFtpClientFileSystem<T>> exten
 
     @Override
     public void close() throws IOException {
+        boolean interrupted = false;
         try {
-            try {
-                openPipes.await();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+            boolean acquired = false;
+            while (!acquired) {
+                try {
+                    openPipes.acquire();
+                    acquired = true;
+                } catch (InterruptedException e) {
+                    interrupted = true;
+                }
             }
             ftpClient.quit();
             provider.closed((T) this);
         } catch (FTPException e) {
             throw new IOException(e);
         } finally {
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
             open = false;
         }
     }
@@ -129,7 +139,7 @@ abstract class ProFtpClientFileSystem<T extends ProFtpClientFileSystem<T>> exten
     void write(FtpPath path, InputStream inputStream) throws IOException {
         try {
             ftpClient.put(inputStream, path.toString(), false);
-        } catch (FTPException e){
+        } catch (FTPException e) {
             throw new IOException(e);
         }
     }
@@ -137,7 +147,7 @@ abstract class ProFtpClientFileSystem<T extends ProFtpClientFileSystem<T>> exten
     private void append(FtpPath path, InputStream inputStream) throws IOException {
         try {
             ftpClient.put(inputStream, path.toString(), true);
-        } catch (FTPException e){
+        } catch (FTPException e) {
             throw new IOException(e);
         }
     }
@@ -246,22 +256,37 @@ abstract class ProFtpClientFileSystem<T extends ProFtpClientFileSystem<T>> exten
         }
         PipedInputStream pipedInputStream = new PipedInputStream(READ_BUFFER_SIZE);
         PipedOutputStream pipedOutputStream = new PipedOutputStream(pipedInputStream);
-        openPipes.acquire();
+        boolean interrupted = false;
+        boolean acquired = false;
+        while (!acquired) {
+            try {
+                openPipes.acquire();
+                acquired = true;
+            } catch (InterruptedException e) {
+                interrupted = true;
+            }
+        }
         provider.getExecutorService().submit(() -> {
             try (OutputStream outputStream = pipedOutputStream) {
                 read(path, pipedOutputStream);
             } catch (IOException e) {
+                e.printStackTrace();
                 try {
                     pipedInputStream.close();
                 } catch (IOException e1) {
                     e.addSuppressed(e1);
                 }
                 throw new IOExceptionWrapper(e);
+            } catch (Exception e) {
+                e.printStackTrace();
             } finally {
                 openPipes.release();
             }
         }, provider.getExecutorService());
 
+        if (interrupted) {
+            Thread.currentThread().interrupt();
+        }
         return pipedInputStream;
     }
 
@@ -271,17 +296,58 @@ abstract class ProFtpClientFileSystem<T extends ProFtpClientFileSystem<T>> exten
             throw new IllegalArgumentException();
         }
         PipedInputStream pipedInputStream = new PipedInputStream(WRITE_BUFFER_SIZE);
-        openPipes.acquire();
+        boolean interrupted = false;
+        boolean acquired = false;
+        while (!acquired) {
+            try {
+                openPipes.acquire();
+                acquired = true;
+            } catch (InterruptedException e) {
+                interrupted = true;
+            }
+        }
+        CountDownLatch waitLatch = new CountDownLatch(1);
         provider.getExecutorService().submit(() -> {
             try {
                 write(path, pipedInputStream);
+            } catch (Exception e) {
+                e.printStackTrace();
             } finally {
                 openPipes.release();
+                waitLatch.countDown();
                 pipedInputStream.close();
             }
             return null;
         });
-        return new PipedOutputStream(pipedInputStream);
+        if (interrupted) {
+            Thread.currentThread().interrupt();
+        }
+        return new OutputStreamDecorator(new PipedOutputStream(pipedInputStream), waitLatch);
+    }
+
+    private class OutputStreamDecorator extends OutputStream {
+        private final OutputStream decorated;
+        private final CountDownLatch waitLatch;
+
+        private OutputStreamDecorator(OutputStream decorated, CountDownLatch waitLatch) {
+            this.decorated = decorated;
+            this.waitLatch = waitLatch;
+        }
+
+        @Override
+        public void write(int b) throws IOException {
+            decorated.write(b);
+        }
+
+        @Override
+        public void close() throws IOException {
+            decorated.close();
+            try {
+                waitLatch.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     @Override
@@ -290,16 +356,30 @@ abstract class ProFtpClientFileSystem<T extends ProFtpClientFileSystem<T>> exten
             throw new IllegalArgumentException();
         }
         PipedInputStream pipedInputStream = new PipedInputStream(WRITE_BUFFER_SIZE);
-        openPipes.acquire();
+        boolean interrupted = false;
+        boolean acquired = false;
+        while (!acquired) {
+            try {
+                openPipes.acquire();
+                acquired = true;
+            } catch (InterruptedException e) {
+                interrupted = true;
+            }
+        }
         provider.getExecutorService().submit(() -> {
             try {
                 append(path, pipedInputStream);
+            } catch (Exception e) {
+                e.printStackTrace();
             } finally {
                 openPipes.release();
                 pipedInputStream.close();
             }
             return null;
         });
+        if (interrupted) {
+            Thread.currentThread().interrupt();
+        }
         return new PipedOutputStream(pipedInputStream);
     }
 
@@ -407,7 +487,7 @@ abstract class ProFtpClientFileSystem<T extends ProFtpClientFileSystem<T>> exten
 
                     @Override
                     public boolean isOther() {
-                        return !isRegularFile() && !isDirectory() && ! isSymbolicLink();
+                        return !isRegularFile() && !isDirectory() && !isSymbolicLink();
                     }
 
                     @Override
