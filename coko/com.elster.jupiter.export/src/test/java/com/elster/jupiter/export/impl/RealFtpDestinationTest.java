@@ -1,12 +1,14 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.ftpclient.impl.FtpClientServiceImpl;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableMap;
 import org.junit.After;
@@ -27,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Clock;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.*;
@@ -58,9 +61,17 @@ public class RealFtpDestinationTest {
     private FtpClientService ftpClientService;
     @Mock
     private IExportTask exportTask;
+    private TransactionService transactionService = new TransactionVerifier();
+    private Logger logger = Logger.getAnonymousLogger();
 
     @Before
     public void setUp() throws IOException {
+
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenAnswer(invocation -> {
+            NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+            when(messageFormat.format(anyVararg())).thenReturn(((MessageSeed) invocation.getArguments()[0]).getDefaultFormat());
+            return messageFormat;
+        });
 
         fileSystem = FileSystems.getDefault();
 
@@ -117,7 +128,7 @@ public class RealFtpDestinationTest {
     @Test
     @Ignore // test to run locally with an actual FTP server and the OS file system
     public void testSendMultipleFilesInAMap() {
-        FtpDestinationImpl ftpDestination = new FtpDestinationImpl(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService);
+        FtpDestinationImpl ftpDestination = new FtpDestinationImpl(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService, transactionService);
         ftpDestination.doInitialize(exportTask, "localhost", 21, "tgr", "tgr", RELATIVE_DIR, "DDD<identifier>", "txt");
 
         ftpDestination.send(
@@ -125,7 +136,7 @@ public class RealFtpDestinationTest {
                         DefaultStructureMarker.createRoot(clock, "root"), file1
                         , DefaultStructureMarker.createRoot(clock, "root1"), file2
                         , DefaultStructureMarker.createRoot(clock, "root2"), file3
-                ), tagReplacerFactory
+                ), tagReplacerFactory, logger, thesaurus
         );
 
         Path file1 = ftpFileSystem.getPath("c:\\Users\\tgr\\work\\ftp\\test", RELATIVE_DIR, "DDDroot.txt");

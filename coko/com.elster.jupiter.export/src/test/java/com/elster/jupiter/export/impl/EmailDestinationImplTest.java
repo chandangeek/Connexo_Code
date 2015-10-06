@@ -129,10 +129,10 @@ public class EmailDestinationImplTest {
 
     @Test
     public void testSendToMultipleAddresses() throws Exception {
-        EmailDestinationImpl emailDestination = new EmailDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, mailService);
+        EmailDestinationImpl emailDestination = new EmailDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, mailService, transactionService);
         emailDestination.init(null, "target1@mailinator.com;target2@mailinator.com", SUBJECT, "file", "txt");
 
-        emailDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory);
+        emailDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory, logger, thesaurus);
 
         verify(mailService).messageBuilder(MailAddressImpl.of("target1@mailinator.com"));
         verify(builder.get()).addRecipient(MailAddressImpl.of("target2@mailinator.com"));
@@ -143,7 +143,7 @@ public class EmailDestinationImplTest {
 
     @Test
     public void testSendMultipleAttachments() throws Exception {
-        EmailDestinationImpl emailDestination = new EmailDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, mailService);
+        EmailDestinationImpl emailDestination = new EmailDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, mailService, transactionService);
         emailDestination.init(null, "target@mailinator.com", SUBJECT, "file<identifier>", "txt");
 
         emailDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1, DefaultStructureMarker.createRoot(clock, "root2"), file2), tagReplacerFactory, logger, thesaurus);

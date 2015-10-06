@@ -108,12 +108,12 @@ public class FtpDestinationImplTest {
 
     @Test
     public void testSendMultipleFiles() {
-        FtpDestinationImpl ftpDestination = new FtpDestinationImpl(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService);
+        FtpDestinationImpl ftpDestination = new FtpDestinationImpl(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService, transactionService);
         ftpDestination.doInitialize(exportTask, "server", 21, "user", "password", RELATIVE_DIR, "DDD<identifier>", "txt");
 
-        ftpDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory);
-        ftpDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root1"), file1), tagReplacerFactory);
-        ftpDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root2"), file1), tagReplacerFactory);
+        ftpDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory, logger, thesaurus);
+        ftpDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root1"), file1), tagReplacerFactory , logger, thesaurus);
+        ftpDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root2"), file1), tagReplacerFactory , logger, thesaurus);
 
         Path file1 = ftpFileSystem.getPath("/", RELATIVE_DIR, "DDDroot.txt");
         assertThat(Files.exists(file1)).isTrue();
@@ -131,7 +131,7 @@ public class FtpDestinationImplTest {
 
     @Test
     public void testSendMultipleFilesInAMap() {
-        FtpDestinationImpl ftpDestination = new FtpDestinationImpl(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService);
+        FtpDestinationImpl ftpDestination = new FtpDestinationImpl(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService, transactionService);
         ftpDestination.doInitialize(exportTask, "server", 21, "user", "password", RELATIVE_DIR, "DDD<identifier>", "txt");
 
         ftpDestination.send(
@@ -139,7 +139,7 @@ public class FtpDestinationImplTest {
                         DefaultStructureMarker.createRoot(clock, "root"), file1,
                         DefaultStructureMarker.createRoot(clock, "root1"), file2,
                         DefaultStructureMarker.createRoot(clock, "root2"), file1
-                ), tagReplacerFactory
+                ), tagReplacerFactory, logger, thesaurus
         );
 
         Path file1 = ftpFileSystem.getPath("/", RELATIVE_DIR, "DDDroot.txt");
@@ -158,7 +158,7 @@ public class FtpDestinationImplTest {
 
     @Test
     public void testSend() {
-        FtpDestinationImpl ftpDestination = new FtpDestinationImpl(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService);
+        FtpDestinationImpl ftpDestination = new FtpDestinationImpl(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService, transactionService);
         ftpDestination.initialize(exportTask, "server", 21, "user", "password", RELATIVE_DIR, "DDD<identifier>", "txt");
 
         ftpDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory, logger, thesaurus);
