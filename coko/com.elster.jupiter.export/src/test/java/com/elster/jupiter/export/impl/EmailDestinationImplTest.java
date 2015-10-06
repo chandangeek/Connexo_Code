@@ -1,15 +1,18 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.mail.MailMessageBuilder;
 import com.elster.jupiter.mail.MailService;
 import com.elster.jupiter.mail.OutboundMailMessage;
 import com.elster.jupiter.mail.impl.MailAddressImpl;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -66,14 +69,19 @@ public class EmailDestinationImplTest {
     private MailService mailService;
     @Mock
     private OutboundMailMessage mailMessage;
-    @Mock
-    Logger logger;
+    private Logger logger = Logger.getAnonymousLogger();
     private AtomicReference<MailMessageBuilder> builder = new AtomicReference<>();
-    @Mock
-    private TransactionService transactionService;
+    private TransactionService transactionService = new TransactionVerifier();
 
     @Before
     public void setUp() throws IOException {
+
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenAnswer(invocation -> {
+            NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+            when(messageFormat.format(anyVararg())).thenReturn(((MessageSeed) invocation.getArguments()[0]).getDefaultFormat());
+            return messageFormat;
+        });
+
         when(dataModel.getInstance(EmailDestinationImpl.class)).thenAnswer(invocation -> new EmailDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, mailService, transactionService));
 
         fileSystem = Jimfs.newFileSystem(Configuration.windows());
