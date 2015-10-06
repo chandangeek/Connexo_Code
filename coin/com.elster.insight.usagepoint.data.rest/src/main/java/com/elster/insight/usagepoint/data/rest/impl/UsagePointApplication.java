@@ -18,6 +18,7 @@ import org.osgi.service.component.annotations.Reference;
 import com.elster.insight.common.rest.ExceptionFactory;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -46,6 +47,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile RestQueryService restQueryService;
     private volatile Clock clock;
     private volatile MessageService messageService;
+    private volatile MeteringGroupsService meteringGroupsService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -53,7 +55,8 @@ public class UsagePointApplication extends Application implements TranslationKey
                         ChannelResource.class,
                         UsagePointResource.class,
                         RegisterResource.class,
-                        DeviceResource.class
+                        DeviceResource.class, 
+                        UsagePointGroupResource.class
         );
     }
 
@@ -105,6 +108,11 @@ public class UsagePointApplication extends Application implements TranslationKey
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
+    
+    @Reference
+    public void setMeteringGroupService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
+    }
 
 
     @Reference
@@ -133,6 +141,7 @@ public class UsagePointApplication extends Application implements TranslationKey
         protected void configure() {
             bind(ChannelResource.class).to(ChannelResource.class);
             bind(RegisterResource.class).to(RegisterResource.class);
+            bind(UsagePointGroupResource.class).to(UsagePointGroupResource.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(transactionService).to(TransactionService.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
@@ -143,9 +152,11 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(meteringService).to(MeteringService.class);
+            bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(clock).to(Clock.class);
             bind(UsagePointDataInfoFactory.class).to(UsagePointDataInfoFactory.class);
+            bind(UsagePointGroupInfoFactory.class).to(UsagePointGroupInfoFactory.class);
             bind(com.elster.jupiter.validation.rest.PropertyUtils.class).to(com.elster.jupiter.validation.rest.PropertyUtils.class);
             bind(messageService).to(MessageService.class);
         }

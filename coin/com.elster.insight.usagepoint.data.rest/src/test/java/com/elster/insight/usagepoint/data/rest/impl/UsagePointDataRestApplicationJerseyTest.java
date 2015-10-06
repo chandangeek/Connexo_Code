@@ -28,6 +28,7 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.json.JsonService;
@@ -50,6 +51,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     PropertySpecService propertySpecService;
     @Mock
     MessageService messageService;
+    @Mock
+    MeteringGroupsService meteringGroupsService;
 
     @Before
     public void setup() {
@@ -71,6 +74,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setRestQueryService(restQueryService);
         application.setMessageService(messageService);
         application.setClockService(clock);
+        application.setMeteringGroupService(meteringGroupsService);
         return application;
     }
 
