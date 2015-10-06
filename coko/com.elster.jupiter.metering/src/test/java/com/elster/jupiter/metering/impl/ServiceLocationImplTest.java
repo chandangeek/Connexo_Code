@@ -6,6 +6,7 @@ import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.cbo.StreetDetail;
 import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.cbo.TownDetail;
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
@@ -21,6 +22,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
@@ -28,11 +30,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ServiceLocationImplTest {
+public class ServiceLocationImplTest extends EqualsContractTest {
 
     private static final long ID = 35L;
+    public static final long INSTANCE_A_ID = 64L;
 
-    private ServiceLocationImpl serviceLocation;
+    private ServiceLocationImpl serviceLocation, instanceA;
 
     @Mock
     private UsagePoint usagePoint1, usagePoint2;
@@ -54,6 +57,39 @@ public class ServiceLocationImplTest {
 
     @After
     public void tearDown() {
+    }
+
+    @Override
+    protected Object getInstanceA() {
+        if (instanceA == null) {
+            instanceA = new ServiceLocationImpl(dataModel, eventService);
+            field("id").ofType(Long.TYPE).in(instanceA).set(INSTANCE_A_ID);
+        }
+        return instanceA;
+    }
+
+    @Override
+    protected Object getInstanceEqualToA() {
+        ServiceLocationImpl other = new ServiceLocationImpl(dataModel, eventService);
+        field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID);
+        return other;
+    }
+
+    @Override
+    protected Iterable<?> getInstancesNotEqualToA() {
+        ServiceLocationImpl other = new ServiceLocationImpl(dataModel, eventService);
+        field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID + 1);
+        return Collections.singletonList(other);
+    }
+
+    @Override
+    protected boolean canBeSubclassed() {
+        return false;
+    }
+
+    @Override
+    protected Object getInstanceOfSubclassEqualToA() {
+        return null;
     }
 
     @Test
@@ -194,7 +230,7 @@ public class ServiceLocationImplTest {
 
     @Test
     public void testSaveNew() {
-        serviceLocation.save();
+        serviceLocation.update();
 
         verify(serviceLocationFactory).persist(serviceLocation);
     }
@@ -202,7 +238,7 @@ public class ServiceLocationImplTest {
     @Test
     public void testSaveUpdate() {
         simulateSavedServiceLocation();
-        serviceLocation.save();
+        serviceLocation.update();
 
         verify(serviceLocationFactory).update(serviceLocation);
     }

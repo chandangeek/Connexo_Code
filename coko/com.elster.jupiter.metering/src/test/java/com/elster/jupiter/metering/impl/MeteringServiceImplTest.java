@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
@@ -57,11 +58,14 @@ public class MeteringServiceImplTest {
     private ServiceCategory serviceCategory;
     @Mock
     private IdsService idsService;
+    @Mock
+    private EventService eventService;
 
     @Before
     public void setUp() {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
+        when(dataModel.getInstance(ServiceLocationImpl.class)).thenReturn(new ServiceLocationImpl(dataModel, eventService));
         when(table.addIntervalColumns(anyString())).thenReturn(Arrays.asList(column1, column2));
         when(dataModel.mapper(ReadingType.class)).thenReturn(readingTypeFactory);
         when(dataModel.mapper(ServiceLocation.class)).thenReturn(serviceLocationFactory);
@@ -86,7 +90,7 @@ public class MeteringServiceImplTest {
 
     @Test
     public void testNewServiceLocation() {
-        ServiceLocation serviceLocation = meteringService.newServiceLocation();
+        ServiceLocation serviceLocation = meteringService.newServiceLocation().create();
 
         assertThat(serviceLocation).isInstanceOf(ServiceLocationImpl.class); // implementation specific, but saves us verifying the contract of the returned instance
     }

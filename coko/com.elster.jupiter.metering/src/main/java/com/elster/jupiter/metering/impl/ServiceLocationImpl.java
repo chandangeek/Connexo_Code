@@ -17,8 +17,9 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
-public class ServiceLocationImpl implements ServiceLocation {
+final class ServiceLocationImpl implements ServiceLocation {
 	private static final String GOOGLE_GEOCODED = "GG";
     private static final int GOOGLE_GEOCODE_FIELD_COUNT = 3;
     // persistent fields
@@ -221,7 +222,11 @@ public class ServiceLocationImpl implements ServiceLocation {
 	}
 
 	@Override
-	public void save() {
+	public void update() {
+		doSave();
+	}
+
+	void doSave() {
 		if (id == 0) {
             dataModel.mapper(ServiceLocation.class).persist(this);
             eventService.postEvent(EventType.SERVICELOCATION_CREATED.topic(), this);
@@ -231,7 +236,7 @@ public class ServiceLocationImpl implements ServiceLocation {
 		}
 	}
 
-    @Override
+	@Override
     public void delete() {
         dataModel.mapper(ServiceLocation.class).remove(this);
         eventService.postEvent(EventType.SERVICELOCATION_DELETED.topic(), this);
@@ -278,5 +283,18 @@ public class ServiceLocationImpl implements ServiceLocation {
 			default:
 				return null;
 		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		ServiceLocationImpl that = (ServiceLocationImpl) o;
+		return Objects.equals(id, that.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
 	}
 }

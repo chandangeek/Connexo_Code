@@ -39,7 +39,7 @@ public interface ServiceLocation extends IdentifiedObject {
 	void setName(String name);
 	void setMRID(String mRID);
 	void setDescription(String description);
-	void save();
+	void update();
     List<UsagePoint> getUsagePoints();
 	Instant getCreateDate();
 	Instant getModificationDate();

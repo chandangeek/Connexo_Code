@@ -1,33 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import javax.inject.Provider;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
@@ -45,7 +17,6 @@ import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.User;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -58,6 +29,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import javax.inject.Provider;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -122,6 +95,7 @@ public class UsagePointImplTest {
     private Thesaurus thesaurus;
     @Mock
     private DataMapper<MeterActivation> meterActivationMapper;
+    @Mock
     private ValidatorFactory validatorFactory;
     @Mock
     private Validator validator;
@@ -257,7 +231,7 @@ public class UsagePointImplTest {
 
     @Test
     public void testSaveNew() {
-        usagePoint.save();
+        usagePoint.doSave();
 
         verify(dataModel).persist(usagePoint);
     }
@@ -265,7 +239,7 @@ public class UsagePointImplTest {
     @Test
     public void testSaveUpdate() {
         simulateSavedUsagePoint();
-        usagePoint.save();
+        usagePoint.update();
 
         verify(dataModel).update(usagePoint);
     }

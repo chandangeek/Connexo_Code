@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.StorerProcess;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.util.Pair;
+import com.google.common.base.Objects;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -108,7 +109,7 @@ class ReadingStorerImpl implements ReadingStorer {
                 });
 
         ProcessStatus processStatus;
-        if (values[0] != null && !storer.doNotUpdateMarker().equals(values[0])) {
+        if (values[0] != null && !Objects.equal(storer.doNotUpdateMarker(), values[0])) {
             processStatus = status.or(new ProcessStatus((Long) values[0]));
         } else {
             processStatus = status;

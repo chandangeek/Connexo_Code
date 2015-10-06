@@ -1,10 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import java.time.Instant;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
@@ -14,6 +9,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import java.time.Instant;
 
 public class ServiceCategoryImpl implements ServiceCategory {
 	//persistent fields
@@ -82,14 +81,10 @@ public class ServiceCategoryImpl implements ServiceCategory {
         dataModel.update(this);
     }
 
-    public UsagePoint newUsagePoint(String mRid) {
-		return usagePointFactory.get().init(mRid,this);
+    public UsagePointBuilder newUsagePoint(String mRid) {
+		return new UsagePointBuilderImpl(dataModel, mRid, this);
 	}
     
-    public UsagePointBuilder newUsagePointBuilder() {
-		return usagePointFactory.get().getNewBuilder(this);
-	}
-
     @Override
     public String getTranslationKey() {
         return ServiceKind.getTranslationKey(this.kind);

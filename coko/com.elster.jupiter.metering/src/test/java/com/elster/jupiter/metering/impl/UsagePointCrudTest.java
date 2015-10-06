@@ -1,27 +1,11 @@
 package com.elster.jupiter.metering.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.security.Principal;
-import java.sql.SQLException;
-
-import com.elster.jupiter.bpm.impl.BpmModule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.log.LogService;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
@@ -42,6 +26,20 @@ import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
+
+import java.security.Principal;
+import java.sql.SQLException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointCrudTest {
@@ -124,11 +122,10 @@ public class UsagePointCrudTest {
     private void doTest(ServerMeteringService meteringService) {
         DataModel dataModel = meteringService.getDataModel();
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID");
-        usagePoint.save();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID").create();
         long id = usagePoint.getId();
         assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
-        usagePoint.save();
+        usagePoint.update();
         assertThat(usagePoint.getVersion()).isEqualTo(2);
         usagePoint.delete();
         assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(0);

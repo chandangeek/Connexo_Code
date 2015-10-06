@@ -129,8 +129,7 @@ public class MeterReadingStorerTest {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            Meter meter = amrSystem.newMeter("myMeter");
-            meter.save();
+            Meter meter = amrSystem.newMeter("myMeter").create();
             meter = amrSystem.lockMeter("myMeter").get();
             ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                     .period(TimeAttribute.MINUTE15)
@@ -194,8 +193,7 @@ public class MeterReadingStorerTest {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            Meter meter = amrSystem.newMeter("myMeter");
-            meter.save();
+            Meter meter = amrSystem.newMeter("myMeter").create();
             String readingTypeCode = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                     .period(TimeAttribute.MINUTE15)
                     .accumulate(Accumulation.DELTADELTA)
@@ -237,8 +235,7 @@ public class MeterReadingStorerTest {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            Meter meter = amrSystem.newMeter("myMeter");
-            meter.save();
+            Meter meter = amrSystem.newMeter("myMeter").create();
             ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                     .period(TimeAttribute.MINUTE15)
                     .accumulate(Accumulation.BULKQUANTITY)
@@ -287,8 +284,7 @@ public class MeterReadingStorerTest {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            Meter meter = amrSystem.newMeter("myMeter");
-            meter.save();
+            Meter meter = amrSystem.newMeter("myMeter").create();
             Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
             String intervalReadingTypeCode = "32.12.2.4.1.9.58.0.0.0.0.0.0.0.0.0.0.0";
             int endDeviceEventLogbookId = 95176;
@@ -357,8 +353,8 @@ public class MeterReadingStorerTest {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            Meter meter = amrSystem.newMeter("myMeter");
-            meter.save();
+            Meter meter = amrSystem.newMeter("myMeter").create();
+            meter.update();
             String readingTypeCode = "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.0.0";
             Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
             Reading reading = ReadingImpl.of(readingTypeCode, "Sample text", instant);
@@ -377,8 +373,8 @@ public class MeterReadingStorerTest {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            Meter meter = amrSystem.newMeter("myMeter");
-            meter.save();
+            Meter meter = amrSystem.newMeter("myMeter").create();
+            meter.update();
             ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                     .period(TimeAttribute.MINUTE15)
                     .accumulate(Accumulation.BULKQUANTITY)

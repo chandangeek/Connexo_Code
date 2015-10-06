@@ -1,10 +1,15 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
+import com.elster.jupiter.orm.DataModel;
 
 public class UsagePointBuilderImpl implements UsagePointBuilder {
+
+    private DataModel dataModel;
+
     private String aliasName;
     private String description;
     private String mRID;
@@ -17,11 +22,12 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     private String servicePriority;
 
     private ServiceCategory serviceCategory;
-    private UsagePointImpl usagePoint;
+    private ServiceLocation serviceLocation;
 
-    public UsagePointBuilderImpl(ServiceCategory sc, UsagePointImpl usagePointImpl) {
-        this.serviceCategory = sc;
-        this.usagePoint = usagePointImpl;
+    public UsagePointBuilderImpl(DataModel dataModel, String mRID, ServiceCategory serviceCategory) {
+        this.serviceCategory = serviceCategory;
+        this.mRID = mRID;
+        this.dataModel = dataModel;
     }
 
     @Override
@@ -85,63 +91,28 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
-    public UsagePoint build() {
-        return usagePoint.init(this);
+    public UsagePointBuilder setServiceLocation(ServiceLocation location) {
+        this.serviceLocation = location;
+        return this;
     }
 
     @Override
-    public String getAliasName() {
-        return aliasName;
+    public UsagePoint create() {
+        UsagePointImpl usagePoint = dataModel.getInstance(UsagePointImpl.class).init(mRID, serviceCategory);
+
+        usagePoint.setAliasName(aliasName);
+        usagePoint.setDescription(description);
+        usagePoint.setName(name);
+        usagePoint.setSdp(isSdp);
+        usagePoint.setVirtual(isVirtual);
+        usagePoint.setOutageRegion(outageRegion);
+        usagePoint.setReadCycle(readCycle);
+        usagePoint.setReadRoute(readRoute);
+        usagePoint.setServicePriority(servicePriority);
+        usagePoint.setServiceLocation(serviceLocation);
+        usagePoint.doSave();
+        return usagePoint;
     }
 
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
-    @Override
-    public String getmRID() {
-        return mRID;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public boolean isSdp() {
-        return isSdp;
-    }
-
-    @Override
-    public boolean isVirtual() {
-        return isVirtual;
-    }
-
-    @Override
-    public String getOutageRegion() {
-        return outageRegion;
-    }
-
-    @Override
-    public String getReadCycle() {
-        return readCycle;
-    }
-
-    @Override
-    public String getReadRoute() {
-        return readRoute;
-    }
-
-    @Override
-    public String getServicePriority() {
-        return servicePriority;
-    }
-
-    @Override
-    public ServiceCategory getServiceCategory() {
-        return serviceCategory;
-    }
 
 }

@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.google.common.collect.ImmutableList;
@@ -64,7 +65,7 @@ public class MeterActivationImplTest extends EqualsContractTest {
     private MeterActivationImpl meterActivation;
 
     @Mock
-    private UsagePointImpl usagePoint, otherUsagePoint;
+    private UsagePoint usagePoint, otherUsagePoint;
     @Mock
     private Meter meter, otherMeter;
     private ChannelImpl channel1, channel2;

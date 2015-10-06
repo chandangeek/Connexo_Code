@@ -22,28 +22,7 @@ public interface UsagePointBuilder {
 
     UsagePointBuilder withServicePriority(String servicePriority);
 
-    UsagePoint build();
+    UsagePointBuilder setServiceLocation(ServiceLocation location);
 
-    String getAliasName();
-
-    String getDescription();
-
-    String getmRID();
-
-    String getName();
-
-    boolean isSdp();
-
-    boolean isVirtual();
-
-    String getOutageRegion();
-
-    String getReadCycle();
-
-    String getReadRoute();
-
-    String getServicePriority();
-
-    ServiceCategory getServiceCategory();
-
+    UsagePoint create();
 }

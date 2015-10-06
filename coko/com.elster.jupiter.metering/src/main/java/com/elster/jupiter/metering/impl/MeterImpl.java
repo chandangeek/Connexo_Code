@@ -38,7 +38,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
+final class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
 
     @SuppressWarnings("unused")
     private Reference<AmrSystem> amrSystem = ValueReference.absent();
