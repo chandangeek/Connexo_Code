@@ -72,6 +72,33 @@ public class RelativeOperatorTest {
         });
     }
 
+    @Test
+    public void testPreviousTuesDayWithMondayAsFirstDayOfWeek() {
+        withLocale(LOCALE_WITH_MONDAY_AS_FIRST_DAY_OF_WEEK, () -> {
+            assertThat(WeekFields.of(Locale.getDefault()).getFirstDayOfWeek()).isEqualTo(DayOfWeek.MONDAY);
+
+            ZonedDateTime thursday = ZonedDateTime.of(2015, 10, 8, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
+            ZonedDateTime result = RelativeOperator.EQUAL.apply(thursday, RelativeField.DAY_OF_WEEK, DayOfWeek.TUESDAY.getValue());
+
+            ZonedDateTime tuesday = thursday.minusDays(2);
+            assertThat(result).isEqualTo(tuesday);
+        });
+    }
+
+    @Test
+    public void testPreviousTuesDayDayOfWeekWithSundayAsFirstDayOfWeek() {
+        withLocale(LOCALE_WITH_SUNDAY_AS_FIRST_DAY_OF_WEEK, () -> {
+            assertThat(WeekFields.of(Locale.getDefault()).getFirstDayOfWeek()).isEqualTo(DayOfWeek.SUNDAY);
+
+            ZonedDateTime thursday = ZonedDateTime.of(2015, 10, 8, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
+            ZonedDateTime result = RelativeOperator.EQUAL.apply(thursday, RelativeField.DAY_OF_WEEK, DayOfWeek.TUESDAY.getValue());
+
+            ZonedDateTime tuesday = thursday.minusDays(2);
+
+            assertThat(result).isEqualTo(tuesday);
+        });
+    }
+
     private static void withLocale(Locale locale, Runnable runnable) {
         Locale toRestore = Locale.getDefault();
         Locale.setDefault(locale);
