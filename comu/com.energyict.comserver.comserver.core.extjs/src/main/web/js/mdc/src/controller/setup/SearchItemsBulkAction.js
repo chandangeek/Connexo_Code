@@ -104,13 +104,13 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 click: this.confirmClick
             },
             'searchitems-wizard #finishButton': {
-                click: this.finishClick
+                click: this.goBack
             },
             'searchitems-wizard #failureFinishButton': {
-                click: this.finishClick
+                click: this.goBack
             },
             'searchitems-wizard #wizardCancelButton': {
-                click: this.cancelClick
+                click: this.goBack
             },
             'searchitems-wizard #createCommunicationSchedule': {
                 click: this.createCommunicationSchedule
@@ -126,26 +126,36 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
     showBulkAction: function () {
         var me = this,
-            devicesStore = this.getStore('Mdc.store.Devices'),
+            searchResults = Ext.getStore('Uni.store.search.Results'),
             widget;
 
-        if (!devicesStore.getCount()) {
-            this.cancelClick();
+        if (!searchResults.getCount()) {
+            this.goBack();
         } else {
-            widget = Ext.widget('searchitems-bulk-browse');
             me.devices = null;
             me.allDevices = false;
             me.schedules = null;
             me.operation = null;
             me.configData = null;
             me.shedulesUnchecked = false;
-            me.getStore('Mdc.store.DevicesBuffered').data.clear();
-            var filter = Ext.Object.fromQueryString(document.location.href.split('?')[1]);
-            me.getStore('Mdc.store.DevicesBuffered').getProxy().extraParams = filter;
-            me.getStore('Mdc.store.DevicesBuffered').load({
+
+            var store = Ext.create('Ext.data.Store', {
+                buffered: true,
+                pageSize: 200,
+                remoteFilter: true,
+                model: searchResults.model,
+                filters: searchResults.filters.getRange(),
+                proxy: searchResults.getProxy()
+            });
+
+            widget = Ext.widget('searchitems-bulk-browse', {
+                deviceStore: store
+            });
+            me.getApplication().fireEvent('changecontentevent', widget);
+            widget.setLoading();
+            store.load({
                 callback: function () {
-                    me.getApplication().fireEvent('changecontentevent', widget);
-                    widget.up().setLoading(false)
+                    widget.setLoading(false);
                 }
             });
             me.getStore('Mdc.store.CommunicationSchedulesWithoutPaging').load();
@@ -251,12 +261,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         me.nextClick();
     },
 
-    finishClick: function () {
-        var router = this.getController('Uni.controller.history.Router');
-        router.getRoute('search').forward();
-    },
-
-    cancelClick: function () {
+    goBack: function () {
+        // todo: restore search state
         var router = this.getController('Uni.controller.history.Router');
         router.getRoute('search').forward();
     },
