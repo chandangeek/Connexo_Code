@@ -67,13 +67,13 @@ Ext.define('Mdc.controller.setup.EstimationDeviceConfigurations', {
 
         pageView.setLoading(true);
         store.getProxy().setUrl(router.arguments);
-        view = Ext.widget('estimation-deviceconfigurations-setup', {
-            router: router
-        });
 
         model.load(ruleSetId, {
             success: function (ruleSetRecord) {
                 me.getApplication().fireEvent('loadEstimationRuleSet', ruleSetRecord);
+                view = Ext.widget('estimation-deviceconfigurations-setup', {
+                    router: router
+                });
                 view.down('#estimation-rule-set-link').setText(ruleSetRecord.get('name'));
                 me.getApplication().fireEvent('changecontentevent', view);
             },
