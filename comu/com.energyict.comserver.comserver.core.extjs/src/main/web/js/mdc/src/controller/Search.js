@@ -47,20 +47,5 @@ Ext.define('Mdc.controller.Search', {
             router = me.getController('Uni.controller.history.Router');
 
         router.getRoute('search/bulkAction').forward();
-
-        //me.getSearchItems().up().setLoading(true);
-        //me.saveState();
-
-        //var searchCriteria = me.getFilters();
-        //var store = me.getStore('Mdc.store.Devices');
-        //Ext.Object.merge(searchCriteria,store.getProxy().extraParams);
-
-        //me.getStore('Mdc.store.DevicesSelectedBulk').setProxy(store.getProxy());
-        //me.getStore('Mdc.store.DevicesSelectedBulk').getProxy().extraParams.limit = 1000;
-        //me.getStore('Mdc.store.DevicesSelectedBulk').load({
-        //    callback: function(){
-
-        //    }
-        //});
     }
 });

@@ -13,11 +13,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         'Uni.view.window.Wizard'
     ],
     stores: [
-        'Mdc.store.Devices',
-        'Mdc.store.DevicesBuffered',
         'Mdc.store.CommunicationSchedulesWithoutPaging',
-        'Mdc.store.DeviceConfigurations',
-        'Mdc.store.DevicesSelectedBulk'
+        'Mdc.store.DeviceConfigurations'
     ],
     refs: [
         {
@@ -213,15 +210,13 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             Ext.each(me.schedules, function (item) {
                 scheduleIds.push(item.getId());
             });
-            me.devices.each(function (item) {
+            Ext.each(me.devices, function (item) {
                 deviceMRID.push(item.get('mRID'));
             });
             request.action = me.operation;
             request.scheduleIds = scheduleIds;
             if (me.allDevices) {
-                var queryParams = Ext.Object.fromQueryString(document.location.href.split('?')[1]);
-                delete queryParams.sort;
-                request.filter = queryParams;
+                request.filter =  me.getDevicesGrid().getStore().filters.getRange();
             } else {
                 request.deviceMRIDs = deviceMRID;
             }
@@ -251,7 +246,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 if (success) {
                     wizard.setLoading(false);
                     statusPage.showChangeDeviceConfigSuccess(Uni.I18n.translate('searchItems.bulk.devicesAddedToQueueTitle', 'MDC', 'This task has been put on the queue successfully'),
-                        Ext.String.format(Uni.I18n.translatePlural('searchItems.bulk.devConfigQueuedTitle', me.devices.getCount(), 'MDC', "The {0} devices are queued to change their configuration", "The {0} device is queued to change its configuration", "The {0} devices are queued to change their configuration"))
+                        Ext.String.format(Uni.I18n.translatePlural('searchItems.bulk.devConfigQueuedTitle', me.devices.length, 'MDC', "The {0} devices are queued to change their configuration", "The {0} device is queued to change its configuration", "The {0} devices are queued to change their configuration"))
                     );
                     finishBtn.enable();
                 }
@@ -381,11 +376,11 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         me.changeContent(nextCmp, currentCmp);
     },
 
-    isDeviceConfigEqual: function (devStore) {
+    isDeviceConfigEqual: function (devices) {
         var devConfigId,
             result = true;
-        devConfigId = devStore.getAt(0).get('deviceConfigurationId');
-        devStore.each(function (device) {
+        devConfigId = devices[0].get('deviceConfigurationId');
+        Ext.each(devices, function (device) {
             if (devConfigId != device.get('deviceConfigurationId')){
                 result = false;
             }
@@ -453,16 +448,13 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
         switch (currentCmp.name) {
             case 'selectDevices':
-                if (me.getDevicesGrid().isAllSelected()) {
-                    me.devices = me.getStore('Mdc.store.DevicesSelectedBulk');
-                } else {
-                    me.devices = Ext.create('Ext.data.Store', {
-                        model: 'Mdc.model.Device',
-                        data: me.getDevicesGrid().getSelectionModel().getSelection()
-                    });
+                me.allDevices = me.getDevicesGrid().isAllSelected();
+
+                if (!me.allDevices) {
+                    me.devices = me.getDevicesGrid().getSelectionModel().getSelection();
                 }
 
-                if (me.isDeviceConfigEqual(me.devices)) {
+                if (!me.allDevices && me.isDeviceConfigEqual(me.devices)) {
                     nextCmp.down('#searchitemschangeconfig').enable();
                 } else {
                     nextCmp.down('#searchitemschangeconfig').disable();
@@ -471,9 +463,8 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     }
                 }
 
-                me.allDevices = me.getDevicesGrid().isAllSelected();
                 errorPanel = currentCmp.down('#step1-errors');
-                me.validation = me.devices.getCount() || me.allDevices;
+                me.validation = me.allDevices || me.devices.length;
                 break;
             case 'selectOperation':
                 me.operation = currentCmp.down('#searchitemsactionselect').getValue().operation;
@@ -484,10 +475,11 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         changeDeviceConfigForm.show();
                         changeDeviceConfigForm.getForm().clearInvalid();
                         var configStore = me.getStore('Mdc.store.DeviceConfigurations'),
-                            device = me.devices.getAt(0),
+                            device = me.devices[0],
                             deviceConfigName = device.get('deviceConfigurationName'),
                             deviceConfigId = device.get('deviceConfigurationId'),
                             currentConfigField = nextCmp.down('#current-device-config-selection');
+
                         me.deviceType = device.get('deviceTypeId');
                         currentConfigField.setValue(deviceConfigName);
                         configStore.getProxy().setUrl({deviceType: me.deviceType});
@@ -551,7 +543,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                             wizard.setLoading(false);
                             if (unsolvedConflicts) {
                                 me.getNavigationMenu().markInvalid();
-                                var title = Uni.I18n.translatePlural('searchItems.bulk.devConfigUnsolvedConflictsTitle', me.devices.getCount(), 'MDC', "Unable to change device configuration of {0} devices", "Unable to change device configuration of {0} device", "Unable to change device configuration of {0} devices"),
+                                var title = Uni.I18n.translatePlural('searchItems.bulk.devConfigUnsolvedConflictsTitle', me.devices.length, 'MDC', "Unable to change device configuration of {0} devices", "Unable to change device configuration of {0} device", "Unable to change device configuration of {0} devices"),
                                     text = Uni.I18n.translate('searchItems.bulk.devConfigUnsolvedConflictsMsg', 'MDC', 'The configuration of devices with current configuration \'{fromconfig}\' cannot be changed to \'{toconfig}\' due to unsolved conflicts.');
                                 text = text.replace('{fromconfig}', me.configNames.fromconfig).replace('{toconfig}', me.configNames.toconfig);
                                 if (Mdc.privileges.DeviceType.canAdministrate()) {
@@ -680,7 +672,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             switch (me.operation) {
                 case 'add':
                     if (me.schedules.length === 1) {
-                        pattern = Uni.I18n.translatePlural('searchItems.bulk.addOneComScheduleToDevices.confirmMsg', me.devices.getCount(), 'MDC',
+                        pattern = Uni.I18n.translatePlural('searchItems.bulk.addOneComScheduleToDevices.confirmMsg', me.devices.length, 'MDC',
                             "Add shared communication schedule '{1}' to {0} devices?",
                             "Add shared communication schedule '{1}' to {0} device?",
                             "Add shared communication schedule '{1}' to {0} devices?"
@@ -690,7 +682,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         Ext.each(me.schedules, function (item, index) {
                             scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
                         });
-                        pattern = Uni.I18n.translatePlural('searchItems.bulk.addComSchedulesToDevices.confirmMsg', me.devices.getCount(), 'MDC',
+                        pattern = Uni.I18n.translatePlural('searchItems.bulk.addComSchedulesToDevices.confirmMsg', me.devices.length, 'MDC',
                             "Add shared communication schedules {1} to {0} devices?",
                             "Add shared communication schedules {1} to {0} device?",
                             "Add shared communication schedules {1} to {0} devices?"
@@ -700,7 +692,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     break;
                 case 'remove':
                     if (me.schedules.length === 1) {
-                        pattern = Uni.I18n.translatePlural('searchItems.bulk.removeOneComScheduleFromDevices.confirmMsg', me.devices.getCount(), 'MDC',
+                        pattern = Uni.I18n.translatePlural('searchItems.bulk.removeOneComScheduleFromDevices.confirmMsg', me.devices.length, 'MDC',
                             "Remove shared communication schedule '{1}' from {0} devices?",
                             "Remove shared communication schedule '{1}' from {0} device?",
                             "Remove shared communication schedule '{1}' from {0} devices?"
@@ -710,7 +702,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         Ext.each(me.schedules, function (item, index) {
                             scheduleList += (index ? ', ' : '') + '\'' + item.get('name') + '\'';
                         });
-                        pattern = Uni.I18n.translatePlural('searchItems.bulk.removeComSchedulesFromDevices.confirmMsg', me.devices.getCount(), 'MDC',
+                        pattern = Uni.I18n.translatePlural('searchItems.bulk.removeComSchedulesFromDevices.confirmMsg', me.devices.length, 'MDC',
                             "Remove shared communication schedules {1} from {0} devices?",
                             "Remove shared communication schedules {1} from {0} device?",
                             "Remove shared communication schedules {1} from {0} devices?"
@@ -719,7 +711,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     }
                     break;
                 case 'changeconfig':
-                    pattern = Uni.I18n.translatePlural('searchItems.bulk.changeDevConfigTitle', me.devices.getCount(), 'MDC',
+                    pattern = Uni.I18n.translatePlural('searchItems.bulk.changeDevConfigTitle', me.devices.length, 'MDC',
                         "Change device configuration of {0} devices?",
                         "Change device configuration of {0} device?",
                         "Change device configuration of {0} devices?"
