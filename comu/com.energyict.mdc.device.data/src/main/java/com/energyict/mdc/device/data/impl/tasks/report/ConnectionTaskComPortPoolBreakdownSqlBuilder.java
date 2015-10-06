@@ -1,5 +1,6 @@
-package com.energyict.mdc.device.data.impl.tasks;
+package com.energyict.mdc.device.data.impl.tasks.report;
 
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
@@ -18,7 +19,7 @@ import java.util.Set;
  */
 class ConnectionTaskComPortPoolBreakdownSqlBuilder extends ConnectionTaskBreakdownSqlBuilder {
 
-    ConnectionTaskComPortPoolBreakdownSqlBuilder(Set<ServerConnectionTaskStatus> taskStatusses, EndDeviceGroup deviceGroup, ConnectionTaskServiceImpl connectionTaskService) {
+    ConnectionTaskComPortPoolBreakdownSqlBuilder(Set<ServerConnectionTaskStatus> taskStatusses, EndDeviceGroup deviceGroup, ConnectionTaskReportServiceImpl connectionTaskService) {
         super(Optional.of("comportpool"), taskStatusses, deviceGroup, connectionTaskService);
     }
 

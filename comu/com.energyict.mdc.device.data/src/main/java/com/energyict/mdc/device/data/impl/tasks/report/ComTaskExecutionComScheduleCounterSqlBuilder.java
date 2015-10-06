@@ -1,12 +1,17 @@
-package com.energyict.mdc.device.data.impl.tasks;
+package com.energyict.mdc.device.data.impl.tasks.report;
 
-import com.elster.jupiter.orm.QueryExecutor;
-import java.time.Clock;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.data.impl.tasks.AbstractComTaskExecutionFilterSqlBuilder;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+
+import com.elster.jupiter.orm.QueryExecutor;
+
+import java.time.Clock;
 
 /**
  * Builds the SQL query thats counts {@link com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution}s
@@ -15,11 +20,11 @@ import com.energyict.mdc.device.data.tasks.TaskStatus;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-03 (13:41)
  */
-public class ComTaskExecutionComScheduleCounterSqlBuilder extends AbstractComTaskExecutionFilterSqlBuilder {
+class ComTaskExecutionComScheduleCounterSqlBuilder extends AbstractComTaskExecutionFilterSqlBuilder {
 
     private ServerComTaskStatus taskStatus;
 
-    public ComTaskExecutionComScheduleCounterSqlBuilder(ServerComTaskStatus taskStatus, Clock clock, ComTaskExecutionFilterSpecification filterSpecification, QueryExecutor<Device> queryExecutor) {
+    ComTaskExecutionComScheduleCounterSqlBuilder(ServerComTaskStatus taskStatus, Clock clock, ComTaskExecutionFilterSpecification filterSpecification, QueryExecutor<Device> queryExecutor) {
         super(clock, filterSpecification, queryExecutor);
         this.taskStatus = taskStatus;
     }

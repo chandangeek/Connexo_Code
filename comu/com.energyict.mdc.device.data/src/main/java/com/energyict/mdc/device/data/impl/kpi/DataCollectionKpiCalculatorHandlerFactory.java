@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.impl.kpi;
 
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
@@ -27,7 +27,7 @@ public class DataCollectionKpiCalculatorHandlerFactory implements MessageHandler
 
     private volatile TaskService taskService;
     private volatile DataCollectionKpiService dataCollectionKpiService;
-    private volatile ConnectionTaskService connectionTaskService;
+    private volatile ConnectionTaskReportService connectionTaskReportService;
     private volatile CommunicationTaskReportService communicationTaskReportService;
 
     // For OSGi framework only
@@ -35,11 +35,11 @@ public class DataCollectionKpiCalculatorHandlerFactory implements MessageHandler
 
     // For unit testing purposes only
     @Inject
-    public DataCollectionKpiCalculatorHandlerFactory(TaskService taskService, DataCollectionKpiService dataCollectionKpiService, ConnectionTaskService connectionTaskService, CommunicationTaskReportService communicationTaskReportService) {
+    public DataCollectionKpiCalculatorHandlerFactory(TaskService taskService, DataCollectionKpiService dataCollectionKpiService, ConnectionTaskReportService connectionTaskReportService, CommunicationTaskReportService communicationTaskReportService) {
         this();
         this.setTaskService(taskService);
         this.setDataCollectionKpiService(dataCollectionKpiService);
-        this.setConnectionTaskService(connectionTaskService);
+        this.setConnectionTaskReportService(connectionTaskReportService);
         this.setCommunicationTaskService(communicationTaskReportService);
     }
 
@@ -48,7 +48,7 @@ public class DataCollectionKpiCalculatorHandlerFactory implements MessageHandler
         return this.taskService.createMessageHandler(
                 new DataCollectionKpiCalculatorHandler(
                         this.dataCollectionKpiService,
-                        this.connectionTaskService,
+                        this.connectionTaskReportService,
                         this.communicationTaskReportService));
     }
 
@@ -63,8 +63,8 @@ public class DataCollectionKpiCalculatorHandlerFactory implements MessageHandler
     }
 
     @Reference
-    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
-        this.connectionTaskService = connectionTaskService;
+    public void setConnectionTaskReportService(ConnectionTaskReportService connectionTaskReportService) {
+        this.connectionTaskReportService = connectionTaskReportService;
     }
 
     @Reference

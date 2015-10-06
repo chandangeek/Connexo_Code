@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.tasks;
+package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
@@ -80,10 +80,33 @@ public class DeviceStateSqlBuilder {
         sqlBuilder.append(" and ED.ID = ES.ENDDEVICE and ES.STATE = FS.ID)");
     }
 
+    public int appendRestrictedStatesCondition(StringBuilder sqlBuilder) {
+        sqlBuilder.append(" and ");
+        sqlBuilder.append(this.alias);
+        sqlBuilder.append(".device in (");
+        sqlBuilder.append("select ED.amrid");
+        sqlBuilder.append("  from MTR_ENDDEVICESTATUS ES,");
+        sqlBuilder.append("       (select FS.ID from FSM_STATE FS where FS.OBSOLETE_TIMESTAMP IS NULL and FS.NAME ");
+        this.setStrategy.append(sqlBuilder, this.states);
+        sqlBuilder.append(") FS, MTR_ENDDEVICE ED");
+        sqlBuilder.append(" where ES.STARTTIME <= ?");
+        sqlBuilder.append("   and ES.ENDTIME > ?");
+        sqlBuilder.append("   and ED.ID = ES.ENDDEVICE");
+        sqlBuilder.append("   and ES.STATE = FS.ID)");
+        return 2;
+    }
+
     private enum SetStrategy {
         INCLUDE_MULTIPLE {
             @Override
             void append(SqlBuilder sqlBuilder, Set<DefaultState> states) {
+                sqlBuilder.append("in (");
+                appendStates(sqlBuilder, states);
+                sqlBuilder.append(")");
+            }
+
+            @Override
+            void append(StringBuilder sqlBuilder, Set<DefaultState> states) {
                 sqlBuilder.append("in (");
                 appendStates(sqlBuilder, states);
                 sqlBuilder.append(")");
@@ -97,11 +120,24 @@ public class DeviceStateSqlBuilder {
                 appendStates(sqlBuilder, states);
                 sqlBuilder.append(")");
             }
+
+            @Override
+            void append(StringBuilder sqlBuilder, Set<DefaultState> states) {
+                sqlBuilder.append("not in (");
+                appendStates(sqlBuilder, states);
+                sqlBuilder.append(")");
+            }
         },
 
         INCLUDE_ONE {
             @Override
             void append(SqlBuilder sqlBuilder, Set<DefaultState> states) {
+                sqlBuilder.append("= ");
+                appendStates(sqlBuilder, states);
+            }
+
+            @Override
+            void append(StringBuilder sqlBuilder, Set<DefaultState> states) {
                 sqlBuilder.append("= ");
                 appendStates(sqlBuilder, states);
             }
@@ -113,22 +149,45 @@ public class DeviceStateSqlBuilder {
                 sqlBuilder.append("<> ");
                 appendStates(sqlBuilder, states);
             }
+
+            @Override
+            void append(StringBuilder sqlBuilder, Set<DefaultState> states) {
+                sqlBuilder.append("<> ");
+                appendStates(sqlBuilder, states);
+            }
         };
 
         abstract void append(SqlBuilder sqlBuilder, Set<DefaultState> states);
 
+        abstract void append(StringBuilder sqlBuilder, Set<DefaultState> states);
+
         protected void appendStates(SqlBuilder sqlBuilder, Set<DefaultState> states) {
             if (states.size() == 1) {
-                sqlBuilder.append("'" + states.iterator().next().getKey() + "'");
+                sqlBuilder.append("'");
+                sqlBuilder.append(states.iterator().next().getKey());
+                sqlBuilder.append("'");
             }
             else {
                 sqlBuilder.append(
                         states
-                                .stream()
-                                .map(state -> "'" + state.getKey() + "'")
+                            .stream()
+                            .map(state -> "'" + state.getKey() + "'")
                             .collect(Collectors.joining(", ")));
             }
         }
 
+        protected void appendStates(StringBuilder sqlBuilder, Set<DefaultState> states) {
+            if (states.size() == 1) {
+                sqlBuilder.append("'").append(states.iterator().next().getKey()).append("'");
+            }
+            else {
+                sqlBuilder.append(
+                        states
+                            .stream()
+                            .map(state -> "'" + state.getKey() + "'")
+                            .collect(Collectors.joining(", ")));
+            }
+        }
     }
+
 }

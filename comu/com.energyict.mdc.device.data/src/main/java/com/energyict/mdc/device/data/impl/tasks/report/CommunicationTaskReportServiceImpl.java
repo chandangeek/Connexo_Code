@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.impl.tasks;
+package com.energyict.mdc.device.data.impl.tasks.report;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -6,10 +6,13 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.data.impl.tasks.DeviceStateSqlBuilder;
+import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
+import com.energyict.mdc.device.data.impl.tasks.WithClauses;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskBreakdowns;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
-import com.energyict.mdc.device.data.tasks.DeviceStateSqlBuilder;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -432,7 +435,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
 
     private CommunicationTaskBreakdowns getCommunicationTaskBreakdowns(Supplier<CommunicationTaskBreakdownSqlExecutor> sqlExecutorSupplier) {
         CommunicationTaskBreakdownsImpl breakdowns = this.deviceDataModelService.dataModel().getInstance(CommunicationTaskBreakdownsImpl.class);
-        sqlExecutorSupplier.get().communicationTaskBreakdowns().forEach(each -> each.addTo(breakdowns));
+        sqlExecutorSupplier.get().breakdowns().forEach(breakdowns::add);
         return breakdowns;
     }
 

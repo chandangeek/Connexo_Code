@@ -63,9 +63,9 @@ import java.util.TimeZone;
 @ConnectionTaskIsRequiredWhenNotUsingDefault(groups = {Save.Create.class, Save.Update.class})
 @ComTasksMustBeEnabledByDeviceConfiguration(groups = {Save.Create.class})
 public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> implements ServerComTaskExecution {
-    protected static final String SHARED_SCHEDULE_COM_TASK_EXECUTION_DISCRIMINATOR = "0";
-    protected static final String MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR = "1";
-    protected static final String FIRMWARE_COM_TASK_EXECUTION_DISCRIMINATOR = "2";
+    public static final String SHARED_SCHEDULE_COM_TASK_EXECUTION_DISCRIMINATOR = "0";
+    public static final String MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR = "1";
+    public static final String FIRMWARE_COM_TASK_EXECUTION_DISCRIMINATOR = "2";
 
     public static final Map<String, Class<? extends ComTaskExecution>> IMPLEMENTERS =
             ImmutableMap.<String, Class<? extends ComTaskExecution>>of(

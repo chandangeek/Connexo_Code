@@ -1,27 +1,17 @@
-package com.energyict.mdc.device.data.impl.tasks;
+package com.energyict.mdc.device.data.impl.tasks.report;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskBreakdowns;
 
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.util.sql.SqlFragment;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Clock;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.Instant;
 import java.util.Optional;
 
 /**
@@ -32,7 +22,7 @@ import java.util.Optional;
  * @since 2015-09-25 (16:40)
  */
 @LiteralSql
-public class CommunicationTaskBreakdownSqlExecutor {
+class CommunicationTaskBreakdownSqlExecutor extends AbstractBreakdownSqlExecutor {
 
     private static final String BASE_SQL =
             "WITH alldata AS (\n" +
@@ -49,9 +39,9 @@ public class CommunicationTaskBreakdownSqlExecutor {
                     "              THEN 0\n" +
                     "              ELSE 1\n" +
                     "         END as thereisabusytask\n" +
-                    "    FROM ddc_comtaskexec cte\n" +
-                    "    JOIN ddc_device dev ON cte.device = dev.id\n" +
-                    "    LEFT OUTER JOIN ddc_connectiontask ct ON cte.connectiontask = ct.id\n" +
+                    "    FROM " + TableSpecs.DDC_COMTASKEXEC.name() + " cte\n" +
+                    "    JOIN " + TableSpecs.DDC_DEVICE.name() + " dev ON cte.device = dev.id\n" +
+                    "    LEFT OUTER JOIN " + TableSpecs.DDC_CONNECTIONTASK.name() + " ct ON cte.connectiontask = ct.id\n" +
                     "                                         AND ct.comserver is not null\n" +
                     "   WHERE cte.obsolete_date is null";
     private static final String SQL_REMAINDER =
@@ -136,16 +126,7 @@ public class CommunicationTaskBreakdownSqlExecutor {
                     " GROUP BY status, devicetype\n" +
                     "ORDER BY 1, 2, 3";
 
-    private static final int TYPE_COLUMN_NUMBER = 1;
-    private static final int STATUS_COLUMN_NUMBER = TYPE_COLUMN_NUMBER + 1;
-    private static final int TARGET_ID_COLUMN_NUMBER = STATUS_COLUMN_NUMBER + 1;
-    private static final int COUNT_COLUMN_NUMBER = TARGET_ID_COLUMN_NUMBER + 1;
-    private static final int NUMBER_OF_UTC_BINDS = 6;
-
-    private final DataModel dataModel;
-    private final Optional<EndDeviceGroup> deviceGroup;
-    private final Optional<AmrSystem> amrSystem;
-    private Optional<SqlFragment> deviceGroupFragment = Optional.empty();
+    private static final int NUMBER_OF_UTC_SECONDS_BINDS = 6;
 
     static CommunicationTaskBreakdownSqlExecutor systemWide(DataModel dataModel) {
         return new CommunicationTaskBreakdownSqlExecutor(dataModel, Optional.<EndDeviceGroup>empty(), Optional.<AmrSystem>empty());
@@ -156,174 +137,36 @@ public class CommunicationTaskBreakdownSqlExecutor {
     }
 
     private CommunicationTaskBreakdownSqlExecutor(DataModel dataModel, Optional<EndDeviceGroup> deviceGroup, Optional<AmrSystem> amrSystem) {
-        super();
-        this.dataModel = dataModel;
-        this.deviceGroup = deviceGroup;
-        this.amrSystem = amrSystem;
+        super(dataModel, deviceGroup, amrSystem);
     }
 
-    enum BreakdownType {
-        None {
-            @Override
-            BreakdownResult parse(ResultSet row) throws SQLException {
-                return BreakdownResult
-                        .noBreakdown(
-                                ServerComTaskStatus.valueOf(row.getString(STATUS_COLUMN_NUMBER)),
-                                row.getLong(COUNT_COLUMN_NUMBER));
-            }
-
-            @Override
-            public void addTo(BreakdownResult row, CommunicationTaskBreakdownsImpl breakdownResult) {
-                breakdownResult.addOverallStatusCount(row);
-            }
-        },
-        ComSchedule {
-            @Override
-            public void addTo(BreakdownResult row, CommunicationTaskBreakdownsImpl breakdownResult) {
-                breakdownResult.addComScheduleStatusCount(row);
-            }
-        },
-
-        ComTask {
-            @Override
-            public void addTo(BreakdownResult row, CommunicationTaskBreakdownsImpl breakdownResult) {
-                breakdownResult.addComTaskStatusCount(row);
-            }
-        },
-
-        DeviceType {
-            @Override
-            public void addTo(BreakdownResult row, CommunicationTaskBreakdownsImpl breakdownResult) {
-                breakdownResult.addDeviceTypeStatusCount(row);
-            }
-        };
-
-        static BreakdownResult resultFor(ResultSet row) throws SQLException {
-            BreakdownType breakdownType = BreakdownType.valueOf(row.getString(TYPE_COLUMN_NUMBER));
-            return breakdownType.parse(row);
-        }
-
-        BreakdownResult parse(ResultSet row) throws SQLException {
-            return BreakdownResult.from(
-                    this,
-                    ServerComTaskStatus.valueOf(row.getString(STATUS_COLUMN_NUMBER)),
-                    row.getLong(TARGET_ID_COLUMN_NUMBER),
-                    row.getLong(COUNT_COLUMN_NUMBER));
-        }
-
-        public abstract void addTo(BreakdownResult row, CommunicationTaskBreakdownsImpl breakdownResult);
-
+    @Override
+    protected String beforeDeviceStateSql() {
+        return BASE_SQL;
     }
 
-    static final class BreakdownResult {
-        BreakdownType type;
-        ServerComTaskStatus status;
-        Optional<Long> breakdownTargetId;
-        long count;
-
-        static BreakdownResult noBreakdown(ServerComTaskStatus status, long count) {
-            BreakdownResult result = new BreakdownResult();
-            result.type = BreakdownType.None;
-            result.status = status;
-            result.breakdownTargetId = Optional.empty();
-            result.count = count;
-            return result;
-        }
-
-        static BreakdownResult from(BreakdownType type, ServerComTaskStatus status, long targetId, long count) {
-            BreakdownResult result = new BreakdownResult();
-            result.type = type;
-            result.status = status;
-            result.breakdownTargetId = Optional.of(targetId);
-            result.count = count;
-            return result;
-        }
-
-        public void addTo(CommunicationTaskBreakdownsImpl breakdownResult) {
-            this.type.addTo(this, breakdownResult);
-        }
+    @Override
+    protected int bindBeforeDeviceStateSql(PreparedStatement statement, Instant now, int startPosition) throws SQLException {
+        return startPosition;
     }
 
-    List<BreakdownResult> communicationTaskBreakdowns() {
-        try (PreparedStatement statement = this.statement()) {
-            return this.fetchcommunicationTaskBreakdowns(statement);
-        }
-        catch (SQLException ex) {
-            throw new UnderlyingSQLFailedException(ex);
-        }
+    @Override
+    protected String taskStatusSql() {
+        return SQL_REMAINDER;
     }
 
-    private List<BreakdownResult> fetchcommunicationTaskBreakdowns(PreparedStatement statement) throws SQLException {
-        List<BreakdownResult> counters = new ArrayList<>();
-        try (ResultSet resultSet = statement.executeQuery()) {
-            while (resultSet.next()) {
-                counters.add(BreakdownType.resultFor(resultSet));
-            }
+    @Override
+    protected int bindTaskStatusSql(PreparedStatement statement, Instant now, int startPosition) throws SQLException {
+        int bindPosition = startPosition;
+        for (int i = 0; i < NUMBER_OF_UTC_SECONDS_BINDS; i++) {
+            statement.setLong(bindPosition++, now.getEpochSecond());
         }
-        return counters;
+        return bindPosition;
     }
 
-    private PreparedStatement statement() throws SQLException {
-        return this.statement(this.dataModel.getConnection(true));
-    }
-
-    private PreparedStatement statement(Connection connection) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(this.sql());
-        boolean failed = true;
-        try {
-            this.bind(statement);
-            failed = false;
-        }
-        finally {
-            if (failed) {
-                statement.close();
-            }
-        }
-        return statement;
-    }
-
-    private String sql() {
-        StringBuilder sqlBuilder = new StringBuilder(BASE_SQL);
-        this.deviceGroup.ifPresent(deviceGroup -> this.appendDeviceGroupSql(deviceGroup, sqlBuilder));
-        sqlBuilder.append(SQL_REMAINDER);
-        return sqlBuilder.toString();
-    }
-
-    private void appendDeviceGroupSql(EndDeviceGroup deviceGroup, StringBuilder sqlBuilder) {
-        SqlFragment fragment;
-        sqlBuilder.append(" and cte.device in (");
-        if (deviceGroup instanceof QueryEndDeviceGroup) {
-            QueryExecutor<Device> queryExecutor = this.deviceFromDeviceGroupQueryExecutor();
-            fragment = queryExecutor.asFragment(((QueryEndDeviceGroup) deviceGroup).getCondition(), "id");
-        }
-        else {
-            fragment = ((EnumeratedEndDeviceGroup) deviceGroup).getAmrIdSubQuery(this.amrSystem.get()).toFragment();
-        }
-        sqlBuilder.append(fragment.getText());
-        sqlBuilder.append(")");
-        this.deviceGroupFragment = Optional.of(fragment);
-    }
-
-    /**
-     * Returns a QueryExecutor that supports building a subquery to match
-     * that the ComTaskExecution's device is in a EndDeviceGroup.
-     *
-     * @return The QueryExecutor
-     */
-    private QueryExecutor<Device> deviceFromDeviceGroupQueryExecutor() {
-        return this.dataModel.query(Device.class, DeviceConfiguration.class, DeviceType.class);
-    }
-
-    private void bind(PreparedStatement statement) throws SQLException {
-        int bindPosition = 1;
-        if (this.deviceGroupFragment.isPresent()) {
-            bindPosition = this.deviceGroupFragment.get().bind(statement, bindPosition);
-        }
-        Clock clock = this.dataModel.getInstance(Clock.class);
-        long now = clock.instant().getEpochSecond();
-        for (int i = 0; i < NUMBER_OF_UTC_BINDS; i++) {
-            statement.setLong(bindPosition++, now);
-        }
+    @Override
+    protected String deviceContainerAliasName() {
+        return "cte";
     }
 
 }

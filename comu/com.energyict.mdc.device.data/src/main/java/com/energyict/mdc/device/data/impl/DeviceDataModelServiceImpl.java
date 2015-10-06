@@ -15,15 +15,17 @@ import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPro
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskReportServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
+import com.energyict.mdc.device.data.impl.tasks.report.CommunicationTaskReportServiceImpl;
+import com.energyict.mdc.device.data.impl.tasks.report.ConnectionTaskReportServiceImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
@@ -122,6 +124,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile MeteringGroupsService meteringGroupsService;
 
     private ServerConnectionTaskService connectionTaskService;
+    private ConnectionTaskReportService connectionTaskReportService;
     private ServerCommunicationTaskService communicationTaskService;
     private CommunicationTaskReportService communicationTaskReportService;
     private ServerDeviceService deviceService;
@@ -343,6 +346,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Override
+    public ConnectionTaskReportService connectionTaskReportService() {
+        return this.connectionTaskReportService;
+    }
+
+    @Override
     public ServerCommunicationTaskService communicationTaskService() {
         return this.communicationTaskService;
     }
@@ -420,6 +428,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(TaskService.class).toInstance(mdcTaskService);
                 bind(ConnectionTaskService.class).toInstance(connectionTaskService);
                 bind(ServerConnectionTaskService.class).toInstance(connectionTaskService);
+                bind(ConnectionTaskReportService.class).toInstance(connectionTaskReportService);
                 bind(CommunicationTaskService.class).toInstance(communicationTaskService);
                 bind(ServerCommunicationTaskService.class).toInstance(communicationTaskService);
                 bind(CommunicationTaskReportService.class).toInstance(communicationTaskReportService);
@@ -443,8 +452,9 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     private void createRealServices() {
-        this.connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, meteringService, protocolPluggableService, clock);
-        this.communicationTaskService = new CommunicationTaskServiceImpl(this, meteringService, clock);
+        this.connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, protocolPluggableService);
+        this.connectionTaskReportService = new ConnectionTaskReportServiceImpl(this, meteringService);
+        this.communicationTaskService = new CommunicationTaskServiceImpl(this, meteringService);
         this.communicationTaskReportService = new CommunicationTaskReportServiceImpl(this, meteringService);
         this.deviceService = new DeviceServiceImpl(this, protocolPluggableService, queryService, thesaurus);
         this.loadProfileService = new LoadProfileServiceImpl(this);
@@ -455,6 +465,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     private void registerRealServices(BundleContext bundleContext) {
         this.registerConnectionTaskService(bundleContext);
+        this.registerConnectionTaskReportService(bundleContext);
         this.registerCommunicationTaskService(bundleContext);
         this.registerCommunicationTaskReportService(bundleContext);
         this.registerDeviceService(bundleContext);
@@ -467,6 +478,10 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private void registerConnectionTaskService(BundleContext bundleContext) {
         this.serviceRegistrations.add(bundleContext.registerService(ConnectionTaskService.class, this.connectionTaskService, null));
         this.serviceRegistrations.add(bundleContext.registerService(ServerConnectionTaskService.class, this.connectionTaskService, null));
+    }
+
+    private void registerConnectionTaskReportService(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(ConnectionTaskReportService.class, this.connectionTaskReportService, null));
     }
 
     private void registerCommunicationTaskService(BundleContext bundleContext) {

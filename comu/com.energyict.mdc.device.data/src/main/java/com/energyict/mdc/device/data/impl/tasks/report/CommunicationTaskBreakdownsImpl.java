@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.impl.tasks;
+package com.energyict.mdc.device.data.impl.tasks.report;
 
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -23,16 +23,16 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-09-28 (08:57)
  */
-public class CommunicationTaskBreakdownsImpl implements CommunicationTaskBreakdowns {
+public class CommunicationTaskBreakdownsImpl implements CommunicationTaskBreakdowns, BreakdownResultProcessor {
 
     private final SchedulingService schedulingService;
     private final TaskService taskService;
     private final DeviceConfigurationService deviceConfigurationService;
 
-    Map<TaskStatus, Long> statusCounters = new HashMap<>();
-    Map<Long, Map<TaskStatus, Long>> comScheduleCounters = new HashMap<>();
-    Map<Long, Map<TaskStatus, Long>> comTaskCounters = new HashMap<>();
-    Map<Long, Map<TaskStatus, Long>> deviceTypeCounters = new HashMap<>();
+    private Map<TaskStatus, Long> statusCounters = new HashMap<>();
+    private Map<Long, Map<TaskStatus, Long>> comScheduleCounters = new HashMap<>();
+    private Map<Long, Map<TaskStatus, Long>> comTaskCounters = new HashMap<>();
+    private Map<Long, Map<TaskStatus, Long>> deviceTypeCounters = new HashMap<>();
 
     @Inject
     public CommunicationTaskBreakdownsImpl(SchedulingService schedulingService, TaskService taskService, DeviceConfigurationService deviceConfigurationService) {
@@ -113,36 +113,46 @@ public class CommunicationTaskBreakdownsImpl implements CommunicationTaskBreakdo
         breakDown.put(deviceType, counters);
     }
 
-    public void addOverallStatusCount(CommunicationTaskBreakdownSqlExecutor.BreakdownResult row) {
-        this.statusCounters.merge(row.status.getPublicStatus(), row.count, this::mergeCounters);
+    public void addOverallStatusCount(BreakdownResult row) {
+        this.statusCounters.merge(row.getStatus(), row.getCount(), this::mergeCounters);
     }
 
-    public void addComScheduleStatusCount(CommunicationTaskBreakdownSqlExecutor.BreakdownResult row) {
-        this.mergeStatusCounter(this.comScheduleCounters, row.breakdownTargetId.get(), row.status, row.count);
+    public void addComScheduleStatusCount(BreakdownResult row) {
+        this.mergeStatusCounter(this.comScheduleCounters, row.getBreakdownTargetId(), row.getStatus(), row.getCount());
     }
 
-    public void addComTaskStatusCount(CommunicationTaskBreakdownSqlExecutor.BreakdownResult row) {
-        this.mergeStatusCounter(this.comTaskCounters, row.breakdownTargetId.get(), row.status, row.count);
+    public void addComTaskStatusCount(BreakdownResult row) {
+        this.mergeStatusCounter(this.comTaskCounters, row.getBreakdownTargetId(), row.getStatus(), row.getCount());
     }
 
-    public void addDeviceTypeStatusCount(CommunicationTaskBreakdownSqlExecutor.BreakdownResult row) {
-        this.mergeStatusCounter(this.deviceTypeCounters, row.breakdownTargetId.get(), row.status, row.count);
+    public void addDeviceTypeStatusCount(BreakdownResult row) {
+        this.mergeStatusCounter(this.deviceTypeCounters, row.getBreakdownTargetId(), row.getStatus(), row.getCount());
     }
 
-    private void mergeStatusCounter(Map<Long, Map<TaskStatus, Long>> counters, Long targetId, ServerComTaskStatus status, long count) {
+    private void mergeStatusCounter(Map<Long, Map<TaskStatus, Long>> counters, Long targetId, TaskStatus status, long count) {
         Map<TaskStatus, Long> availableCounters = counters.get(targetId);
         if (availableCounters == null) {
             Map<TaskStatus, Long> newCounters = this.statusCountMapWithAllZeros();
-            newCounters.put(status.getPublicStatus(), count);
+            newCounters.put(status, count);
             counters.put(targetId, newCounters);
         }
         else {
-            availableCounters.merge(status.getPublicStatus(), count, this::mergeCounters);
+            availableCounters.merge(status, count, this::mergeCounters);
         }
     }
 
     private Long mergeCounters(Long l1, Long l2) {
         return l1 + l2;
+    }
+
+    @Override
+    public void addConnectionTypeStatusCount(BreakdownResult breakdownResult) {
+        throw new UnsupportedOperationException("ConnectionType aspect is not supported for ComTaskExecutions");
+    }
+
+    @Override
+    public void addComPortPoolStatusCount(BreakdownResult breakdownResult) {
+        throw new UnsupportedOperationException("ComPortPool aspect is not supported for ComTaskExecutions");
     }
 
 }

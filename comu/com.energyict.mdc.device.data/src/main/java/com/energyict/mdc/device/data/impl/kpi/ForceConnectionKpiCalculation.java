@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 public class ForceConnectionKpiCalculation {
 
     private volatile TransactionService transactionService;
-    private volatile ConnectionTaskService connectionTaskService;
+    private volatile ConnectionTaskReportService connectionTaskReportService;
     private volatile DataCollectionKpiService dataCollectionKpiService;
     private Logger logger = Logger.getLogger(ForceConnectionKpiCalculation.class.getName());
 
@@ -37,7 +37,7 @@ public class ForceConnectionKpiCalculation {
 
     private void calculateNow(DataCollectionKpiImpl dataCollectionKpi) {
         try (TransactionContext context = this.transactionService.getContext()) {
-            new ConnectionSetupKpiCalculator(dataCollectionKpi, Instant.now(), this.connectionTaskService, this.logger).calculateAndStore();
+            new ConnectionSetupKpiCalculator(dataCollectionKpi, Instant.now(), this.connectionTaskReportService, this.logger).calculateAndStore();
         }
     }
 
@@ -47,8 +47,8 @@ public class ForceConnectionKpiCalculation {
     }
 
     @Reference
-    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
-        this.connectionTaskService = connectionTaskService;
+    public void setConnectionTaskReportService(ConnectionTaskReportService connectionTaskReportService) {
+        this.connectionTaskReportService = connectionTaskReportService;
     }
 
     @Reference

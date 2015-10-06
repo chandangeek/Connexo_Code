@@ -1,8 +1,10 @@
-package com.energyict.mdc.device.data.impl.tasks;
+package com.energyict.mdc.device.data.impl.tasks.report;
 
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.data.impl.tasks.AbstractComTaskExecutionFilterSqlBuilder;
+import com.energyict.mdc.device.data.impl.tasks.ServerComTaskStatus;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
@@ -17,11 +19,11 @@ import java.time.Clock;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-03 (13:41)
  */
-public class ComTaskExecutionDeviceTypeCounterSqlBuilder extends AbstractComTaskExecutionFilterSqlBuilder {
+class ComTaskExecutionDeviceTypeCounterSqlBuilder extends AbstractComTaskExecutionFilterSqlBuilder {
 
     private ServerComTaskStatus taskStatus;
 
-    public ComTaskExecutionDeviceTypeCounterSqlBuilder(ServerComTaskStatus taskStatus, Clock clock, ComTaskExecutionFilterSpecification filterSpecification, QueryExecutor<Device> queryExecutor) {
+    ComTaskExecutionDeviceTypeCounterSqlBuilder(ServerComTaskStatus taskStatus, Clock clock, ComTaskExecutionFilterSpecification filterSpecification, QueryExecutor<Device> queryExecutor) {
         super(clock, filterSpecification, queryExecutor);
         this.taskStatus = taskStatus;
     }

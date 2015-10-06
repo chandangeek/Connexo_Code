@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.impl.kpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 
 import com.elster.jupiter.tasks.TaskOccurrence;
 
@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-10-15 (17:03)
  */
-public enum KpiType {
+enum KpiType {
 
     CONNECTION {
         @Override
@@ -30,7 +30,7 @@ public enum KpiType {
 
         @Override
         protected DataCollectionKpiCalculator newCalculator(DataCollectionKpiImpl dataCollectionKpi, TaskOccurrence taskOccurrence, ServiceProvider serviceProvider) {
-            return new ConnectionSetupKpiCalculator(dataCollectionKpi, taskOccurrence.getTriggerTime(), serviceProvider.connectionTaskService(), LOGGER);
+            return new ConnectionSetupKpiCalculator(dataCollectionKpi, taskOccurrence.getTriggerTime(), serviceProvider.connectionTaskReportService(), LOGGER);
         }
     },
 
@@ -48,7 +48,7 @@ public enum KpiType {
 
     public interface ServiceProvider {
         DataCollectionKpiService dataCollectionKpiService();
-        ConnectionTaskService connectionTaskService();
+        ConnectionTaskReportService connectionTaskReportService();
         CommunicationTaskReportService communicationTaskService();
     }
 

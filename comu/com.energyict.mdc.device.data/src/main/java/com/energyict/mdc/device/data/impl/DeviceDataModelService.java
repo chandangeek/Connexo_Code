@@ -6,6 +6,7 @@ import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -47,6 +48,8 @@ public interface DeviceDataModelService {
     DeviceConfigurationService deviceConfigurationService();
 
     ServerConnectionTaskService connectionTaskService();
+
+    ConnectionTaskReportService connectionTaskReportService();
 
     ServerCommunicationTaskService communicationTaskService();
 

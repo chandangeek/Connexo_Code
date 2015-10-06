@@ -19,7 +19,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
@@ -35,9 +34,6 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.QueryExecutor;
@@ -56,7 +52,6 @@ import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -84,14 +79,12 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     private final DeviceDataModelService deviceDataModelService;
     private final MeteringService meteringService;
-    private final Clock clock;
 
     @Inject
-    public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService, MeteringService meteringService, Clock clock) {
+    public CommunicationTaskServiceImpl(DeviceDataModelService deviceDataModelService, MeteringService meteringService) {
         super();
         this.deviceDataModelService = deviceDataModelService;
         this.meteringService = meteringService;
-        this.clock = clock;
     }
 
     @Override
@@ -672,45 +665,6 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     @Override
     public void executionStartedFor(ComTaskExecution comTaskExecution, ComPort comPort) {
         getServerComTaskExecution(comTaskExecution).executionStarted(comPort);
-    }
-
-    private void appendDeviceGroupConditions(EndDeviceGroup deviceGroup, SqlBuilder sqlBuilder, final String whereOrAnd) {
-        if (deviceGroup != null) {
-            sqlBuilder.append(whereOrAnd);
-            sqlBuilder.append(" cte.device in (");
-            if (deviceGroup instanceof QueryEndDeviceGroup) {
-                QueryExecutor<Device> queryExecutor = this.deviceFromDeviceGroupQueryExecutor();
-                sqlBuilder.add(queryExecutor.asFragment(((QueryEndDeviceGroup)deviceGroup).getCondition(), "id"));
-            } else {
-                sqlBuilder.add(((EnumeratedEndDeviceGroup) deviceGroup).getAmrIdSubQuery(getMdcAmrSystem().get()).toFragment());
-            }
-            sqlBuilder.append(")");
-        }
-    }
-
-    /*
-     select ED.amrid
-       from MTR_ENDDEVICESTATUS ES,
-        (select FS.ID
-          from FSM_STATE FS
-          where FS.OBSOLETE_TIMESTAMP IS NULL and FS.NAME NOT IN ('dlc.default.inStock', 'dlc.default.decommissioned')) FS,
-        MTR_ENDDEVICE ED
-       where ES.STARTTIME <= 1436517667000 and ES.ENDTIME > 1436517667000 and ED.ID = ES.ENDDEVICE and ES.STATE = FS.ID;
-     */
-    private void appendRestrictedStatesCondition(SqlBuilder sqlBuilder) {
-        long currentTime = this.clock.millis();
-        sqlBuilder.append(" and cte.device in (");
-        sqlBuilder.append("select ED.amrid");
-        sqlBuilder.append("  from MTR_ENDDEVICESTATUS ES,");
-        sqlBuilder.append("       (select FS.ID from FSM_STATE FS where FS.OBSOLETE_TIMESTAMP IS NULL and FS.NAME NOT IN (");
-        sqlBuilder.addObject(DefaultState.IN_STOCK.getKey());
-        sqlBuilder.append(", ");
-        sqlBuilder.addObject(DefaultState.DECOMMISSIONED.getKey());
-        sqlBuilder.append(")) FS, MTR_ENDDEVICE ED where ES.STARTTIME <= ");
-        sqlBuilder.addLong(currentTime);
-        sqlBuilder.append(" and ES.ENDTIME > ");
-        sqlBuilder.addLong(currentTime);
-        sqlBuilder.append(" and ED.ID = ES.ENDDEVICE and ES.STATE = FS.ID)");
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.impl.kpi;
 
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
@@ -17,13 +17,13 @@ public class DataCollectionKpiCalculatorHandler implements TaskExecutor {
 
 
     private final DataCollectionKpiService dataCollectionKpiService;
-    private final ConnectionTaskService connectionTaskService;
+    private final ConnectionTaskReportService connectionTaskReportService;
     private final CommunicationTaskReportService communicationTaskReportService;
 
-    public DataCollectionKpiCalculatorHandler(DataCollectionKpiService dataCollectionKpiService, ConnectionTaskService connectionTaskService, CommunicationTaskReportService communicationTaskReportService) {
+    public DataCollectionKpiCalculatorHandler(DataCollectionKpiService dataCollectionKpiService, ConnectionTaskReportService connectionTaskReportService, CommunicationTaskReportService communicationTaskReportService) {
         super();
         this.dataCollectionKpiService = dataCollectionKpiService;
-        this.connectionTaskService = connectionTaskService;
+        this.connectionTaskReportService = connectionTaskReportService;
         this.communicationTaskReportService = communicationTaskReportService;
     }
 
@@ -39,8 +39,8 @@ public class DataCollectionKpiCalculatorHandler implements TaskExecutor {
         }
 
         @Override
-        public ConnectionTaskService connectionTaskService() {
-            return connectionTaskService;
+        public ConnectionTaskReportService connectionTaskReportService() {
+            return connectionTaskReportService;
         }
 
         @Override

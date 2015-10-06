@@ -1,5 +1,6 @@
-package com.energyict.mdc.device.data.impl.tasks;
+package com.energyict.mdc.device.data.impl.tasks.report;
 
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 
@@ -19,7 +20,7 @@ import java.util.Set;
  */
 class ConnectionTaskDeviceTypeBreakdownSqlBuilder extends ConnectionTaskBreakdownSqlBuilder {
 
-    ConnectionTaskDeviceTypeBreakdownSqlBuilder(Set<ServerConnectionTaskStatus> taskStatusses, EndDeviceGroup deviceGroup, ConnectionTaskServiceImpl connectionTaskService) {
+    ConnectionTaskDeviceTypeBreakdownSqlBuilder(Set<ServerConnectionTaskStatus> taskStatusses, EndDeviceGroup deviceGroup, ConnectionTaskReportServiceImpl connectionTaskService) {
         super(Optional.of("devicetype"), taskStatusses, deviceGroup, connectionTaskService);
     }
 

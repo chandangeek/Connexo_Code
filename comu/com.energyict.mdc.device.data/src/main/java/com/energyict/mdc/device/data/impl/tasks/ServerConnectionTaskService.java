@@ -24,7 +24,7 @@ public interface ServerConnectionTaskService extends ConnectionTaskService, Refe
      * @param comPortPool The ComPortPool
      * @return A flag that indicates if the ComPortPool is used or not
      */
-    public boolean hasConnectionTasks(ComPortPool comPortPool);
+    boolean hasConnectionTasks(ComPortPool comPortPool);
 
     /**
      * Tests if the specified {@link PartialConnectionTask} is used
@@ -33,7 +33,7 @@ public interface ServerConnectionTaskService extends ConnectionTaskService, Refe
      * @param partialConnectionTask The PartialConnectionTask
      * @return A flag that indicates if the PartialConnectionTask is used or not
      */
-    public boolean hasConnectionTasks(PartialConnectionTask partialConnectionTask);
+    boolean hasConnectionTasks(PartialConnectionTask partialConnectionTask);
 
     /**
      * Finds and returns the unique identifiers of all{@link ConnectionTask}s
@@ -43,6 +43,6 @@ public interface ServerConnectionTaskService extends ConnectionTaskService, Refe
      * @param partialConnectionTaskId The unique identifier of the PartialConnectionTask
      * @return The List of ConnectionTask
      */
-    public List<Long> findConnectionTasksForPartialId(long partialConnectionTaskId);
+    List<Long> findConnectionTasksForPartialId(long partialConnectionTaskId);
 
 }
