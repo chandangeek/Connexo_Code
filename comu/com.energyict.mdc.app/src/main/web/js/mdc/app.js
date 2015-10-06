@@ -28,8 +28,8 @@ Ext.onReady(function () {
             path: '../../apps/idv/src'
         },
         {
-            name: 'Dvi',
-            path: '../../apps/dvi/src'
+            name: 'Ddv',
+            path: '../../apps/ddv/src'
         },
         {
             name: 'Dsh',
@@ -58,7 +58,11 @@ Ext.onReady(function () {
         {
             name: 'Fim',
             path: '../../apps/fim/src'
-        }
+        },
+        {
+            name: 'Cps',
+            path: '../../apps/cps/src'
+        },
 //        {
 //            name: 'PlaygroundApp',
 //            path: '../../apps/playground/app'

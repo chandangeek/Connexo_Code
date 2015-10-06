@@ -12,13 +12,13 @@ Ext.define('MdcApp.Application', {
         'Mdc.privileges.DeviceCommands',
         'Mdc.privileges.Communication',
         'Mdc.privileges.DeviceConfigurationEstimations',
-        'Dvi.privileges.InventoryManagement',
         'Yfn.privileges.Yellowfin',
         'Isu.privileges.Issue',
         'Dxp.privileges.DataExport',
         'Dlc.privileges.DeviceLifeCycle',
         'Fim.privileges.DataImport',
-        'Fwc.privileges.FirmwareCampaign'
+        'Fwc.privileges.FirmwareCampaign',
+        'Cps.privileges.CustomAttributeSets'
     ],
     controllers: [
         'MdcApp.controller.Main'

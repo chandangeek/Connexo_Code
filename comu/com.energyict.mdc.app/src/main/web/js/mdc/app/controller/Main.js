@@ -14,13 +14,13 @@ Ext.define('MdcApp.controller.Main', {
         'Mdc.privileges.DeviceSecurity',
         'Mdc.privileges.DeviceCommands',
         'Mdc.privileges.Communication',
-        'Dvi.privileges.InventoryManagement',
         'Dxp.privileges.DataExport',
         'Est.privileges.EstimationConfiguration',
         'Dlc.privileges.DeviceLifeCycle',
         'Mdc.privileges.DeviceConfigurationEstimations',
         'Fim.privileges.DataImport',
-        'Fwc.privileges.FirmwareCampaign'
+        'Fwc.privileges.FirmwareCampaign',
+        'Cps.privileges.CustomAttributeSets'
     ],
     applicationTitle: 'Connexo MultiSense',
     applicationKey: 'MDC',
@@ -38,13 +38,13 @@ Ext.define('MdcApp.controller.Main', {
         Mdc.privileges.DeviceSecurity.all(),
         Mdc.privileges.DeviceCommands.all(),
         Mdc.privileges.Device.all(),
-        Dvi.privileges.InventoryManagement.all(),
         Isu.privileges.Issue.all(),
         Dxp.privileges.DataExport.all(),
         Dlc.privileges.DeviceLifeCycle.all(),
         Mdc.privileges.DeviceConfigurationEstimations.all(),
         Fim.privileges.DataImport.all(),
-        Fwc.privileges.FirmwareCampaign.all()
+        Fwc.privileges.FirmwareCampaign.all(),
+        Cps.privileges.CustomAttributeSets.all()
     ),
     controllers: [
         'Cfg.controller.Main',
@@ -52,14 +52,15 @@ Ext.define('MdcApp.controller.Main', {
         'Isu.controller.Main',
         'Idc.controller.Main',
         'Idv.controller.Main',
-        'Dvi.controller.Main',
+        'Ddv.controller.Main',
         'Dsh.controller.Main',
         'Yfn.controller.Main',
         'Dlc.main.controller.Main',
         'Fwc.controller.Main',
         'Dxp.controller.Main',
         'Est.main.controller.Main',
-        'Fim.controller.Main'
+        'Fim.controller.Main',
+        'Cps.main.controller.Main'
     ],
 
     init: function () {
