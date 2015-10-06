@@ -108,9 +108,9 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
     public void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory) {
         try {
             getFtpSessionFactory().runInSession(
-                remoteFileSystem -> {
-                    new AbstractFtpDataExportDestination.Sender(tagReplacerFactory, remoteFileSystem).send(files);
-                }
+                    remoteFileSystem -> {
+                        new AbstractFtpDataExportDestination.Sender(tagReplacerFactory, remoteFileSystem).send(files);
+                    }
             );
         } catch (IOException e) {
             throw new FtpIOException(getThesaurus(), getServer(), getPort(), e);
