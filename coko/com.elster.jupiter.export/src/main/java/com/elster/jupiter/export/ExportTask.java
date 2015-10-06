@@ -11,11 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 8/05/2015
- * Time: 14:53
- */
 public interface ExportTask extends HasName, HasAuditInfo {
     long getId();
 
@@ -33,7 +28,7 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     DataExportOccurrenceFinder getOccurrencesFinder();
 
-    void save();
+    void update();
 
     void delete();
 

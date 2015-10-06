@@ -1,6 +1,5 @@
 package com.elster.jupiter.export;
 
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.HasAuditInfo;
@@ -50,8 +49,6 @@ public interface ReadingTypeDataSelector extends HasAuditInfo {
     void setExportOnlyIfComplete(boolean exportOnlyIfComplete);
 
     void save();
-
-    ReadingTypeDataExportItem addExportItem(Meter meter, ReadingType readingType);
 
     History<ReadingTypeDataSelector> getHistory();
 

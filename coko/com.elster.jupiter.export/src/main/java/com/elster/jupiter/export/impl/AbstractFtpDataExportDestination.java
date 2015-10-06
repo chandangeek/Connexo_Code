@@ -93,7 +93,7 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
 
     abstract FtpSessionFactory getFtpSessionFactory();
 
-    AbstractFtpDataExportDestination init(IExportTask task, String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension) {
+    void doInitialize(IExportTask task, String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension) {
         initTask(task);
         setServer(server);
         setPort(port);
@@ -102,7 +102,6 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
         setFileName(fileName);
         setFileExtension(fileExtension);
         setFileLocation(fileLocation);
-        return this;
     }
 
     @Inject
@@ -120,9 +119,9 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
     public void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory, Logger logger, Thesaurus thesaurus) {
         try {
             getFtpSessionFactory().runInSession(
-                remoteFileSystem -> {
-                    new AbstractFtpDataExportDestination.Sender(tagReplacerFactory, remoteFileSystem, logger, thesaurus).send(files);
-                }
+                    remoteFileSystem -> {
+                        new AbstractFtpDataExportDestination.Sender(tagReplacerFactory, remoteFileSystem, logger, thesaurus).send(files);
+                    }
             );
         } catch (IOException e) {
             throw new FtpIOException(getThesaurus(), getServer(), getPort(), e);

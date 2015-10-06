@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -47,7 +48,7 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_EXPORT_TASK + "}")
-class ExportTaskImpl implements IExportTask {
+final class ExportTaskImpl implements IExportTask {
     private final TaskService taskService;
     private final DataModel dataModel;
     private final IDataExportService dataExportService;
@@ -146,7 +147,11 @@ class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public void save() {
+    public void update() {
+        doSave();
+    }
+
+    void doSave() {
         // TODO  : separate properties per Factory
 
         List<PropertySpec> propertiesSpecsForProcessor = dataExportService.getPropertiesSpecsForFormatter(dataFormatter);
@@ -175,7 +180,7 @@ class ExportTaskImpl implements IExportTask {
         if (id == 0) {
             persist();
         } else {
-            update();
+            doUpdate();
         }
         readingTypeDataSelector.getOptional().ifPresent(ReadingTypeDataSelector::save);
         recurrentTaskDirty = false;
@@ -340,7 +345,7 @@ class ExportTaskImpl implements IExportTask {
                 .collect(Collectors.toMap(DataExportProperty::getName, DataExportProperty::getValue));
     }
 
-    private void update() {
+    private void doUpdate() {
         if (recurrentTaskDirty) {
             recurrentTask.get().save();
         }
@@ -355,15 +360,10 @@ class ExportTaskImpl implements IExportTask {
                 .setName(UUID.randomUUID().toString())
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(dataExportService.getDestination())
-                .setPayLoad(getName());
-        if (scheduleImmediately) {
-            builder.scheduleImmediately();
-        }
+                .setPayLoad(getName())
+                .scheduleImmediately(scheduleImmediately)
+                .setFirstExecution(nextExecution);
         RecurrentTask task = builder.build();
-        if (nextExecution != null) {
-            task.setNextExecution(nextExecution);
-        }
-        task.save();
         recurrentTask.set(task);
         Save.CREATE.save(dataModel, this);
     }
@@ -380,7 +380,7 @@ class ExportTaskImpl implements IExportTask {
     @Override
     public void updateLastRun(Instant triggerTime) {
         lastRun = triggerTime;
-        save();
+        update();
     }
 
     @Override
@@ -442,7 +442,7 @@ class ExportTaskImpl implements IExportTask {
     public FileDestination addFileDestination(String fileLocation, String fileName, String fileExtension) {
         FileDestinationImpl fileDestination = dataModel.getInstance(FileDestinationImpl.class).init(this, fileLocation, fileName, fileExtension);
         destinations.add(fileDestination);
-        save();
+        doSave();
         return fileDestination;
     }
 
@@ -450,7 +450,7 @@ class ExportTaskImpl implements IExportTask {
     public EmailDestination addEmailDestination(String recipients, String subject, String attachmentName, String attachmentExtension) {
         EmailDestinationImpl emailDestination = EmailDestinationImpl.from(this, dataModel, recipients, subject, attachmentName, attachmentExtension);
         destinations.add(emailDestination);
-        save();
+        doSave();
         return emailDestination;
     }
 
@@ -458,7 +458,7 @@ class ExportTaskImpl implements IExportTask {
     public FtpDestination addFtpDestination(String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension) {
         FtpDestinationImpl ftpDestination = FtpDestinationImpl.from(this, dataModel, server, port, user, password, fileLocation, fileName, fileExtension);
         destinations.add(ftpDestination);
-        save();
+        doSave();
         return ftpDestination;
     }
 
@@ -466,14 +466,14 @@ class ExportTaskImpl implements IExportTask {
     public FtpsDestination addFtpsDestination(String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension) {
         FtpsDestinationImpl ftpsDestination = FtpsDestinationImpl.from(this, dataModel, server, port, user, password, fileLocation, fileName, fileExtension);
         destinations.add(ftpsDestination);
-        save();
+        doSave();
         return ftpsDestination;
     }
 
     @Override
     public void removeDestination(DataExportDestination destination) {
         destinations.remove(destination);
-        save();
+        doSave();
     }
 
     @Override
@@ -503,5 +503,18 @@ class ExportTaskImpl implements IExportTask {
         CannotDeleteWhileBusy() {
             super(ExportTaskImpl.this.thesaurus, MessageSeeds.CANNOT_DELETE_WHILE_RUNNING, ExportTaskImpl.this);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ExportTaskImpl that = (ExportTaskImpl) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

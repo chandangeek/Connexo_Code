@@ -232,10 +232,12 @@ public class DataExportServiceImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             lastYear = timeService.createRelativePeriod("last year", startOfLastYear, startOfThisYear, Collections.<RelativePeriodCategory>emptyList());
             oneYearBeforeLastYear = timeService.createRelativePeriod("the year before last year", startOfTheYearBeforeLastYear, startOfLastYear, Collections.emptyList());
-            endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("none");
-            endDeviceGroup.save();
-            anotherEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("also none");
-            anotherEndDeviceGroup.save();
+            endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup()
+                    .setName("none")
+                    .create();
+            anotherEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup()
+                    .setName("also none")
+                    .create();
             context.commit();
         }
     }
@@ -263,9 +265,9 @@ public class DataExportServiceImplIT {
                     .exportUpdate(true)
                     .continuousData(true)
                     .endSelection()
-                    .build();
+                    .create();
 
-            exportTask1.save();
+            exportTask1.update();
             context.commit();
             fail("expected constraint violation");
         } catch (ConstraintViolationException e) {
@@ -322,7 +324,7 @@ public class DataExportServiceImplIT {
                 .exportUpdate(true)
                 .continuousData(true)
                 .endSelection()
-                .build();
+                .create();
     }
 
     private ExportTask createAndSaveTask() {
@@ -334,7 +336,7 @@ public class DataExportServiceImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             exportTask = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, name);
 
-            exportTask.save();
+            exportTask.update();
             context.commit();
         }
         return exportTask;

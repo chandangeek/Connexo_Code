@@ -227,10 +227,12 @@ public class ExportTaskImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             lastYear = timeService.createRelativePeriod("last year", startOfLastYear, startOfThisYear, Collections.<RelativePeriodCategory>emptyList());
             oneYearBeforeLastYear = timeService.createRelativePeriod("the year before last year", startOfTheYearBeforeLastYear, startOfLastYear, Collections.emptyList());
-            endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("none");
-            endDeviceGroup.save();
-            anotherEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("also none");
-            anotherEndDeviceGroup.save();
+            endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup()
+                    .setName("none")
+                    .create();
+            anotherEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup()
+                    .setName("also none")
+                    .create();
             context.commit();
         }
     }
@@ -444,14 +446,14 @@ public class ExportTaskImplIT {
         exportTask.setProperty("propy", value1);
 
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask.save(); // version 4
+            exportTask.update(); // version 4
             context.commit();
         }
 
         BigDecimal value2 = new BigDecimal("102");
         exportTask.setProperty("propy", value2);
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask.save(); // version 5
+            exportTask.update(); // version 5
             context.commit();
         }
         try (TransactionContext context = transactionService.getContext()) {
@@ -497,7 +499,7 @@ public class ExportTaskImplIT {
         ExportTask task = createAndSaveTask("NAME2");
         task.setName(NAME);
         try (TransactionContext context = transactionService.getContext()) {
-            task.save();
+            task.update();
             context.commit();
         } catch (ConstraintViolationException ex) {
             assertThat(ex.getConstraintViolations()).hasSize(1);
@@ -529,7 +531,7 @@ public class ExportTaskImplIT {
             selector.addReadingType(anotherReadingType);
             selector.removeReadingType(readingType);
             selector.save();
-            readingTypeDataExportTask.save();
+            readingTypeDataExportTask.update();
             context.commit();
         }
 
@@ -556,7 +558,6 @@ public class ExportTaskImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             exportTask = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, name);
 
-            exportTask.save();
             context.commit();
         }
         return exportTask;
@@ -583,7 +584,7 @@ public class ExportTaskImplIT {
                 .continuousData(true)
                 .endSelection()
                 .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
-                .build();
+                .create();
     }
 
     @Test
@@ -610,13 +611,13 @@ public class ExportTaskImplIT {
 
     @Test
     public void testReadingTypeDataExportItemPersistence() throws Exception {
-        Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test");
+        Meter meter;
 
         ExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
-            meter.save();
-            task.getReadingTypeDataSelector().get().addExportItem(meter, readingType);
-            task.save();
+            meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test").create();
+            ((IReadingTypeDataSelector) task.getReadingTypeDataSelector().get()).addExportItem(meter, readingType);
+            task.update();
             context.commit();
         }
 
@@ -635,14 +636,14 @@ public class ExportTaskImplIT {
 
     @Test
     public void testReadingTypeDataExportItemInactivePersistence() throws Exception {
-        Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test");
+        Meter meter;
 
         ExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
-            meter.save();
-            IReadingTypeDataExportItem item = (IReadingTypeDataExportItem) task.getReadingTypeDataSelector().get().addExportItem(meter, readingType);
+            meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test").create();
+            IReadingTypeDataExportItem item = ((IReadingTypeDataSelector) task.getReadingTypeDataSelector().get()).addExportItem(meter, readingType);
             item.deactivate();
-            task.save();
+            item.update();
             context.commit();
         }
 

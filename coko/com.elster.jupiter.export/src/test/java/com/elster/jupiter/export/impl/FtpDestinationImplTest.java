@@ -107,9 +107,59 @@ public class FtpDestinationImplTest {
     }
 
     @Test
+    public void testSendMultipleFiles() {
+        FtpDestinationImpl ftpDestination = new FtpDestinationImpl(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService);
+        ftpDestination.doInitialize(exportTask, "server", 21, "user", "password", RELATIVE_DIR, "DDD<identifier>", "txt");
+
+        ftpDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory);
+        ftpDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root1"), file1), tagReplacerFactory);
+        ftpDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root2"), file1), tagReplacerFactory);
+
+        Path file1 = ftpFileSystem.getPath("/", RELATIVE_DIR, "DDDroot.txt");
+        assertThat(Files.exists(file1)).isTrue();
+        assertThat(getContent(file1)).isEqualTo(DATA1 + DATA2);
+
+        Path file2 = ftpFileSystem.getPath("/", RELATIVE_DIR, "DDDroot.txt");
+        assertThat(Files.exists(file2)).isTrue();
+        assertThat(getContent(file2)).isEqualTo(DATA1 + DATA2);
+
+        Path file3 = ftpFileSystem.getPath("/", RELATIVE_DIR, "DDDroot.txt");
+        assertThat(Files.exists(file3)).isTrue();
+        assertThat(getContent(file3)).isEqualTo(DATA1 + DATA2);
+
+    }
+
+    @Test
+    public void testSendMultipleFilesInAMap() {
+        FtpDestinationImpl ftpDestination = new FtpDestinationImpl(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService);
+        ftpDestination.doInitialize(exportTask, "server", 21, "user", "password", RELATIVE_DIR, "DDD<identifier>", "txt");
+
+        ftpDestination.send(
+                ImmutableMap.of(
+                        DefaultStructureMarker.createRoot(clock, "root"), file1,
+                        DefaultStructureMarker.createRoot(clock, "root1"), file2,
+                        DefaultStructureMarker.createRoot(clock, "root2"), file1
+                ), tagReplacerFactory
+        );
+
+        Path file1 = ftpFileSystem.getPath("/", RELATIVE_DIR, "DDDroot.txt");
+        assertThat(Files.exists(file1)).isTrue();
+        assertThat(getContent(file1)).isEqualTo(DATA1 + DATA2);
+
+        Path file2 = ftpFileSystem.getPath("/", RELATIVE_DIR, "DDDroot1.txt");
+        assertThat(Files.exists(file2)).isTrue();
+        assertThat(getContent(file2)).isEqualTo(DATA3 + DATA4);
+
+        Path file3 = ftpFileSystem.getPath("/", RELATIVE_DIR, "DDDroot2.txt");
+        assertThat(Files.exists(file3)).isTrue();
+        assertThat(getContent(file3)).isEqualTo(DATA1 + DATA2);
+
+    }
+
+    @Test
     public void testSend() {
-        FtpDestinationImpl ftpDestination = new FtpDestinationImpl(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService, transactionService);
-        ftpDestination.init(exportTask, "server", 21, "user", "password", RELATIVE_DIR, "DDD<identifier>", "txt");
+        FtpDestinationImpl ftpDestination = new FtpDestinationImpl(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService);
+        ftpDestination.initialize(exportTask, "server", 21, "user", "password", RELATIVE_DIR, "DDD<identifier>", "txt");
 
         ftpDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory, logger, thesaurus);
 
