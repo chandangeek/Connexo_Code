@@ -26,12 +26,7 @@ import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Helper class that groups all logic related to the execution of the (standard) PLC messages. <br/>
@@ -46,7 +41,7 @@ public class PLCConfigurationDeviceMessageExecutor {
     private static final ObisCode PLC_G3_TIMEOUT_OBISCODE = ObisCode.fromString("0.0.94.33.10.255");
     private static final ObisCode PLC_G3_KEEP_ALIVE_OBISCODE = ObisCode.fromString("0.0.94.33.11.255");
 
-    private final DlmsSession session;
+    protected final DlmsSession session;
     private final OfflineDevice offlineDevice;
 
     public PLCConfigurationDeviceMessageExecutor(DlmsSession session, OfflineDevice offlineDevice) {
@@ -54,7 +49,10 @@ public class PLCConfigurationDeviceMessageExecutor {
         this.offlineDevice = offlineDevice;
     }
 
-    public boolean executePendingMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+    /**
+     * Return the (possibly updated) collectedMessage, or null if the message is not supported here
+     */
+    public CollectedMessage executePendingMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName)) {
             setMaxNumberOfHops(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName)) {
@@ -108,10 +106,9 @@ public class PLCConfigurationDeviceMessageExecutor {
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetMinBe)) {
             setMinBe(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.PathRequest)) {
-            PathRequestFeedback pathRequestFeedback = pathRequest(pendingMessage);
-            collectedMessage = createCollectedMessageWithRegisterData(pendingMessage, pathRequestFeedback.getRegisters());
-            collectedMessage.setDeviceProtocolInformation(pathRequestFeedback.getFeedback());
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+            collectedMessage = doPathRequest(pendingMessage, collectedMessage);
+        } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.PathRequestWithTimeout)) {
+            collectedMessage = doPathRequest(pendingMessage, collectedMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.SetAutomaticRouteManagement)) {
             setAutomaticRouteManagement(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.EnableSNR)) {
@@ -143,9 +140,17 @@ public class PLCConfigurationDeviceMessageExecutor {
         } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.ConfigurePLcG3KeepAlive)) {
             configurePlcG3KeepAlive(pendingMessage);
         } else {   //Unsupported message
-            return false;
+            return null;
         }
-        return true;
+        return collectedMessage;
+    }
+
+    protected CollectedMessage doPathRequest(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        PathRequestFeedback pathRequestFeedback = pathRequest(pendingMessage);
+        collectedMessage = createCollectedMessageWithRegisterData(pendingMessage, pathRequestFeedback.getRegisters());
+        collectedMessage.setDeviceProtocolInformation(pathRequestFeedback.getFeedback());
+        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+        return collectedMessage;
     }
 
     private void setMaxNumberOfHops(OfflineDeviceMessage pendingMessage) throws IOException {

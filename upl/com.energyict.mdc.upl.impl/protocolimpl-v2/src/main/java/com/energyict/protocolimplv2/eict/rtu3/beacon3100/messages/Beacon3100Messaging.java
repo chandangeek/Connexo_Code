@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
+import com.energyict.cpo.BusinessObject;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
@@ -11,7 +12,10 @@ import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.ResultType;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.Group;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
@@ -19,12 +23,12 @@ import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.BroadcastUpgrade;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.DeviceInfoSerializer;
-import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
-import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSync;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
@@ -52,6 +56,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
     private static final ObisCode EVENT_NOTIFICATION_OBISCODE = ObisCode.fromString("0.0.128.0.12.255");
+    private static final String SEPARATOR = ";";
 
     static {
         supportedMessages = new ArrayList<>();
@@ -128,6 +133,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         //supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveRetries);
         //supportedMessages.add(PLCConfigurationDeviceMessage.SetKeepAliveTimeout);
         supportedMessages.add(PLCConfigurationDeviceMessage.EnableG3PLCInterface);
+        supportedMessages.add(PLCConfigurationDeviceMessage.KickMeter);
+        supportedMessages.add(PLCConfigurationDeviceMessage.AddMetersToBlackList);
+        supportedMessages.add(PLCConfigurationDeviceMessage.RemoveMetersFromBlackList);
+        supportedMessages.add(PLCConfigurationDeviceMessage.PathRequestWithTimeout);
     }
 
     private MasterDataSync masterDataSync;
@@ -196,6 +205,24 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.authenticationLevelAttributeName)) {
             return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.deviceGroupAttributeName)) {
+            Group group = (Group) messageAttribute;
+            StringBuilder macAddresses = new StringBuilder();
+            for (BusinessObject businessObject : group.getMembers()) {
+                if (businessObject instanceof Device) {
+                    Device device = (Device) businessObject;
+                    String callHomeId = device.getProtocolProperties().<String>getTypedProperty(LegacyProtocolProperties.CALL_HOME_ID_PROPERTY_NAME, "");
+                    if (!callHomeId.isEmpty()) {
+                        if (macAddresses.length() != 0) {
+                            macAddresses.append(SEPARATOR);
+                        }
+                        macAddresses.append(callHomeId);
+                    }
+                } else {
+                    //TODO throw proper exception
+                }
+            }
+            return macAddresses.toString();
         } else {
             return messageAttribute.toString();     //Works for BigDecimal, boolean and (hex)string property specs
         }
@@ -209,8 +236,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
             try {
-                boolean plcMessageExecuted = getPLCConfigurationDeviceMessageExecutor().executePendingMessage(pendingMessage, collectedMessage);
-                if (!plcMessageExecuted) { // if it was not a PLC message
+                final CollectedMessage plcMessageResult = getPLCConfigurationDeviceMessageExecutor().executePendingMessage(pendingMessage, collectedMessage);
+                if (plcMessageResult != null) {
+                    collectedMessage = plcMessageResult;
+                } else { // if it was not a PLC message
                     if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncMasterdataForDC)) {
                         collectedMessage = getMasterDataSync().syncMasterData(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.SyncOneConfigurationForDC)) {
@@ -225,6 +254,12 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         changeGPRSParameters(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.PingMeter)) {
                         collectedMessage = pingMeter(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.KickMeter)) {
+                        collectedMessage = kickMeter(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.AddMetersToBlackList)) {
+                        collectedMessage = addMetersToBlackList(pendingMessage, collectedMessage);
+                    } else if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.RemoveMetersFromBlackList)) {
+                        collectedMessage = removeMetersFromBlackList(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.BroadcastFirmwareUpgrade)) {
                         collectedMessage = new BroadcastUpgrade(this).broadcastFirmware(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER)) {
@@ -305,7 +340,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private PLCConfigurationDeviceMessageExecutor getPLCConfigurationDeviceMessageExecutor() {
         if (plcConfigurationDeviceMessageExecutor == null) {
-            plcConfigurationDeviceMessageExecutor = new PLCConfigurationDeviceMessageExecutor(getProtocol().getDlmsSession(), getProtocol().getOfflineDevice());
+            plcConfigurationDeviceMessageExecutor = new Beacon3100PLCConfigurationDeviceMessageExecutor(getProtocol().getDlmsSession(), getProtocol().getOfflineDevice());
         }
         return plcConfigurationDeviceMessageExecutor;
     }
@@ -380,6 +415,91 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         getProtocol().getDlmsSession().getDLMSConnection().setTimeout(normalTimeout);
 
         collectedMessage.setDeviceProtocolInformation(pingTime + " ms");
+        return collectedMessage;
+    }
+
+    private CollectedMessage kickMeter(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        String macAddress = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
+
+        final boolean result = getCosemObjectFactory().getG3NetworkManagement().detachNode(macAddress);
+
+        if (!result) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            final String errorMsg = "The Beacon was not able to kick the meter from the network.";
+            collectedMessage.setDeviceProtocolInformation(errorMsg);
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, errorMsg));
+        }
+
+        return collectedMessage;
+    }
+
+    private CollectedMessage addMetersToBlackList(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        List<String> macAddresses = new ArrayList<>();
+
+        for (String macAddress : pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue().split(SEPARATOR)) {
+            final String errorMsg = "MAC addresses should be a list of 16 hex characters, separated by a semicolon.";
+            try {
+                final byte[] macAddressBytes = ProtocolTools.getBytesFromHexString(macAddress, "");
+                if (macAddressBytes.length != 8) {
+                    collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                    collectedMessage.setDeviceProtocolInformation(errorMsg);
+                    collectedMessage.setFailureInformation(ResultType.ConfigurationError, createMessageFailedIssue(pendingMessage, errorMsg));
+                    return collectedMessage;
+                }
+            } catch (IndexOutOfBoundsException | NumberFormatException e) {
+                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                collectedMessage.setDeviceProtocolInformation(errorMsg);
+                collectedMessage.setFailureInformation(ResultType.ConfigurationError, createMessageFailedIssue(pendingMessage, errorMsg));
+                return collectedMessage;
+            }
+
+            macAddresses.add(macAddress);
+        }
+
+        final boolean result = getCosemObjectFactory().getG3NetworkManagement().addToBlacklist(macAddresses);
+
+        if (!result) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            final String errorMsg = "The Beacon was not able to add the meter(s) to the blacklist";
+            collectedMessage.setDeviceProtocolInformation(errorMsg);
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, errorMsg));
+        }
+
+        return collectedMessage;
+    }
+
+    private CollectedMessage removeMetersFromBlackList(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        List<String> macAddresses = new ArrayList<>();
+
+        for (String macAddress : pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue().split(SEPARATOR)) {
+            final String errorMsg = "MAC addresses should be a list of 16 hex characters, separated by a semicolon.";
+            try {
+                final byte[] macAddressBytes = ProtocolTools.getBytesFromHexString(macAddress, "");
+                if (macAddressBytes.length != 8) {
+                    collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                    collectedMessage.setDeviceProtocolInformation(errorMsg);
+                    collectedMessage.setFailureInformation(ResultType.ConfigurationError, createMessageFailedIssue(pendingMessage, errorMsg));
+                    return collectedMessage;
+                }
+            } catch (IndexOutOfBoundsException | NumberFormatException e) {
+                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                collectedMessage.setDeviceProtocolInformation(errorMsg);
+                collectedMessage.setFailureInformation(ResultType.ConfigurationError, createMessageFailedIssue(pendingMessage, errorMsg));
+                return collectedMessage;
+            }
+
+            macAddresses.add(macAddress);
+        }
+
+        final boolean result = getCosemObjectFactory().getG3NetworkManagement().removeFromBlacklist(macAddresses);
+
+        if (!result) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            final String errorMsg = "The beacon was not able to add the meter(s) to the blacklist";
+            collectedMessage.setDeviceProtocolInformation(errorMsg);
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, errorMsg));
+        }
+
         return collectedMessage;
     }
 

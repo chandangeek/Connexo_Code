@@ -37,8 +37,10 @@ public class AM540MessageExecutor extends AM130MessageExecutor {
 
     @Override
     protected CollectedMessage executeMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        boolean messageExecuted = getPLCConfigurationDeviceMessageExecutor().executePendingMessage(pendingMessage, collectedMessage);
-        if (!messageExecuted) { // if it was not a PLC message
+        CollectedMessage plcMessageResult = getPLCConfigurationDeviceMessageExecutor().executePendingMessage(pendingMessage, collectedMessage);
+        if (plcMessageResult != null) {
+            collectedMessage = plcMessageResult;
+        } else { // if it was not a PLC message
             if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.VerifyAndActivateFirmware)) {
                 collectedMessage = verifyAndActivateFirmware(pendingMessage, collectedMessage);
             } else {

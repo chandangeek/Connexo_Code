@@ -610,6 +610,7 @@ public class DeviceMessageConstants {
     public static final String delete = "delete";
     public static final String startTime = "startTime";
     public static final String macAddress = "macAddress";
+    public static final String macAddresses = "macAddresses";
     public static final String output = "output";
     public static final String enabled = "enabled";
     public static final String outputId = "OutputConfigurationMessage.outputId";
