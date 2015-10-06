@@ -240,8 +240,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             measurementTypeOrder.push(channel.name);
             seriesObject['yAxis'] = currentLine;
             currentLine += 1;
-            var channelHeader = !Ext.isEmpty(channel.calculatedReadingType) ? channel.calculatedReadingType.measuringPeriod + ' ' + channel.calculatedReadingType.aliasName + ' (' + channel.calculatedReadingType.unit + ')' : channel.readingType.measuringPeriod + ' ' + channel.readingType.aliasName + ' (' + channel.readingType.unit + ')';
-            channels.push({name: channelHeader, unitOfMeasure: channel.unitOfMeasure.unit });
+            var channelHeader = !Ext.isEmpty(channel.calculatedReadingType) ? channel.calculatedReadingType.fullAliasName : channel.readingType.fullAliasName;
+            channels.push({name: channelHeader, unitOfMeasure: channel.unitOfMeasure });
             seriesToYAxisMap[index] = seriesObject['yAxis'];
             series.push(seriesObject);
         });
