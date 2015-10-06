@@ -105,6 +105,7 @@ Ext.define('Mdc.controller.setup.EstimationDeviceConfigurations', {
 
         previewForm.down('#data-sources').add({
             xtype: 'displayfield',
+            htmlEncode: false,
             value: dataSourcesList
         });
         Ext.resumeLayouts(true);
