@@ -9,6 +9,8 @@ import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Pattern;
@@ -19,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.util.Map;
+import java.util.logging.Logger;
 
 @Sandboxed(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PARENT_BREAKING_PATH + "}")
 class FileDestinationImpl extends AbstractDataExportDestination implements FileDestination {
@@ -27,9 +30,13 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
 
     private class Sender {
         private final TagReplacerFactory tagReplacerFactory;
+        private final Logger logger;
+        private final Thesaurus thesaurus;
 
-        private Sender(TagReplacerFactory tagReplacerFactory) {
+        private Sender(TagReplacerFactory tagReplacerFactory, Logger logger, Thesaurus thesaurus) {
             this.tagReplacerFactory = tagReplacerFactory;
+            this.logger = logger;
+            this.thesaurus = thesaurus;
         }
 
         private void send(Map<StructureMarker, Path> files) {
@@ -56,6 +63,10 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
         private void doCopy(Path source, Path target) {
             try {
                 Files.copy(source, target);
+                try (TransactionContext context = getTransactionService().getContext()) {
+                    MessageSeeds.DATA_EXPORTED_TO.log(logger, thesaurus, target.toAbsolutePath().toString());
+                    context.commit();
+                }
             } catch (IOException e) {
                 throw new FileIOException(getThesaurus(), target, e);
             }
@@ -85,8 +96,8 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
     private String fileLocation;
 
     @Inject
-    FileDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem) {
-        super(dataModel, clock, thesaurus, dataExportService, fileSystem);
+    FileDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem, TransactionService transactionService) {
+        super(dataModel, clock, thesaurus, dataExportService, fileSystem, transactionService);
         this.appService = appService;
     }
 
@@ -95,8 +106,8 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
     }
 
     @Override
-    public void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory) {
-        new Sender(tagReplacerFactory).send(files);
+    public void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory, Logger logger, Thesaurus thesaurus) {
+        new Sender(tagReplacerFactory, logger, thesaurus).send(files);
     }
 
     @Override

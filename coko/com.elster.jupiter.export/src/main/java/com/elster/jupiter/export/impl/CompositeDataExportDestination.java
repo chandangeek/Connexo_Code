@@ -1,11 +1,13 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.StructureMarker;
+import com.elster.jupiter.nls.Thesaurus;
 import com.google.common.collect.ImmutableList;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 class CompositeDataExportDestination implements Destination {
 
@@ -16,7 +18,7 @@ class CompositeDataExportDestination implements Destination {
     }
 
     @Override
-    public void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory) {
-        components.forEach(component -> component.send(files, tagReplacerFactory));
+    public void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory, Logger logger, Thesaurus thesaurus) {
+        components.forEach(component -> component.send(files, tagReplacerFactory, logger, thesaurus));
     }
 }

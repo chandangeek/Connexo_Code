@@ -32,7 +32,12 @@ public enum MessageSeeds implements MessageSeed {
     MISSING_WINDOW(1021, "dataexport.item.missingwindow", "The export window starting from {0} till {1} with missing data is not exported for item {2}", Level.INFO),
 
     SUSPECT_INTERVAL(1022, "dataexport.item.suspectinterval", "The interval(s) starting from {0} till {1} with suspect/not validated data are not exported for item {2}", Level.INFO),
-    SUSPECT_WINDOW(1023, "dataexport.item.suspectwindow", "The export window starting from {0} till {1} with suspect/not validated data is not exported for item {2}", Level.INFO);
+    SUSPECT_WINDOW(1023, "dataexport.item.suspectwindow", "The export window starting from {0} till {1} with suspect/not validated data is not exported for item {2}", Level.INFO),
+
+    DATA_EXPORTED_TO(1024, "dataexport.dataexportedto", "Data exported to {0}", Level.INFO),
+    DATA_MAILED_TO(1025, "dataexport.datamailedto", "Data exported to {0} with attachment(s) {1} ", Level.INFO);
+
+
 
 
     private final int number;

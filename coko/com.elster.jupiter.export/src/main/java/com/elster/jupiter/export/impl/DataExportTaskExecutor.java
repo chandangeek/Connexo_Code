@@ -123,7 +123,7 @@ class DataExportTaskExecutor implements TaskExecutor {
                 formattedData = doProcess(dataFormatter, occurrence, data, itemExporter);
             }
             Map<StructureMarker, Path> files = localFileWriter.writeToTempFiles(formattedData.getData());
-            task.getCompositeDestination().send(files, new TagReplacerFactoryForOccurrence(occurrence));
+            task.getCompositeDestination().send(files, new TagReplacerFactoryForOccurrence(occurrence), logger, thesaurus);
         }).run();
 
         itemExporter.done();
