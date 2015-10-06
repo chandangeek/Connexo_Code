@@ -1,6 +1,12 @@
 package com.elster.jupiter.appserver.impl;
 
-import com.elster.jupiter.appserver.*;
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppServerCommand;
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.Command;
+import com.elster.jupiter.appserver.ImportFolderForAppServer;
+import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
+import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
@@ -55,7 +61,11 @@ import java.util.concurrent.CountDownLatch;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AppServiceImplTest {
@@ -298,8 +308,7 @@ public class AppServiceImplTest {
         when(invalidateCacheRequest.getTableName()).thenReturn(TABLE_NAME);
         when(context.getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(APP_SERVER_NAME);
         when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.<AppServer>of(appServer));
-        when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.of(subscriberSpec));
-        doReturn(null).when(subscriberSpec).receive();
+        when(messageService.getDestinationSpec("AllServers")).thenReturn(Optional.of(destination));
         when(jsonService.serialize(any())).thenReturn(SERIALIZED);
 
         appService.activate(context);

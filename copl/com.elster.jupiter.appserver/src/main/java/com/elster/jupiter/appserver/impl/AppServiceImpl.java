@@ -13,6 +13,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
@@ -65,7 +66,7 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class, PrivilegesProvider.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
+@Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class, Subscriber.class, PrivilegesProvider.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
 public class AppServiceImpl implements InstallService, IAppService, Subscriber, PrivilegesProvider {
 
     private static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
@@ -88,7 +89,6 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
 
     private volatile AppServerImpl appServer;
     private volatile List<? extends SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
-    private SubscriberSpec allServerSubscriberSpec;
     private final List<Runnable> deactivateTasks = new ArrayList<>();
     private List<CommandListener> commandListeners = new CopyOnWriteArrayList<>();
     private final ThreadGroup threadGroup;
@@ -189,7 +189,6 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
         launchTaskService();
         listenForMessagesToAppServer();
         listenForMesssagesToAllServers();
-        listenForInvalidateCacheRequests();
     }
 
     private void launchTaskService() {
@@ -229,16 +228,11 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
         return thesaurus;
     }
 
-    private void listenForInvalidateCacheRequests() {
-        context.registerService(Subscriber.class, this, null);
-    }
-
     private void listenForMesssagesToAllServers() {
         Optional<SubscriberSpec> subscriberSpec = messageService.getSubscriberSpec(ALL_SERVERS, messagingName());
         if (subscriberSpec.isPresent()) {
-            allServerSubscriberSpec = subscriberSpec.get();
             final ExecutorService executorService = new CancellableTaskExecutorService(1, new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(thesaurus), this, () -> "All Server messages"));
-            final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(allServerSubscriberSpec, new CommandHandler(), transactionService, thesaurus));
+            final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(subscriberSpec.get(), new CommandHandler(), transactionService, thesaurus));
             deactivateTasks.add(() -> {
                 cancellableTask.cancel(false);
                 executorService.shutdownNow();
@@ -373,7 +367,12 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
             properties.put(TABLE_NAME, invalidateCacheRequest.getTableName());
             AppServerCommand command = new AppServerCommand(Command.INVALIDATE_CACHE, properties);
 
-            allServerSubscriberSpec.getDestination().message(jsonService.serialize(command)).send();
+            Optional<DestinationSpec> allServerDestination = messageService.getDestinationSpec(ALL_SERVERS);
+            if (allServerDestination.isPresent()) {
+                allServerDestination.get().message(jsonService.serialize(command)).send();
+            } else {
+                LOGGER.log(Level.SEVERE, "Could not notify other servers of InvalidateCacheRequest. AllServers queue does not exist!");
+            }
         }
 
     }
