@@ -211,6 +211,8 @@ public class DynamicSearchResource {
             info.id = ((HasId)valueObject).getId();
         } else if (Enum.class.isAssignableFrom(valueObject.getClass())) {
             info.id = ((Enum)valueObject).name();
+        } else if (Long.class.isAssignableFrom(valueObject.getClass())) {
+            info.id = valueObject;
         }
         return info;
     }
