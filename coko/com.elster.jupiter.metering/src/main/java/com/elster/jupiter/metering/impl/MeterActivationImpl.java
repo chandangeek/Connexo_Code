@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterAlreadyLinkedToUsagePoint;
+import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -24,6 +25,7 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -58,6 +60,7 @@ public final class MeterActivationImpl implements MeterActivation {
 	private Reference<UsagePoint> usagePoint = ValueReference.absent();
     private Reference<Meter> meter = ValueReference.absent();
     private List<Channel> channels = new ArrayList<>();
+    private List<MultiplierValue> multipliers = new ArrayList<>();
     
     private final DataModel dataModel;
     private final EventService eventService;
@@ -437,5 +440,43 @@ public final class MeterActivationImpl implements MeterActivation {
     @Override
     public List<MeterActivation> getMeterActivations() {
         return Collections.singletonList(this);
+    }
+
+    @Override
+    public void setMultiplier(MultiplierType type, BigDecimal value) {
+        multipliers.stream()
+                .filter(multiplierValue -> multiplierValue.getType().equals(type))
+                .findFirst()
+                .map(multiplierValue -> {
+                    multiplierValue.setValue(value);
+                    return multiplierValue;
+                })
+                .orElseGet(() -> {
+                    MultiplierValueImpl newMultiplier = MultiplierValueImpl.from(this, type, value);
+                    multipliers.add(newMultiplier);
+                    return newMultiplier;
+                });
+    }
+
+    @Override
+    public Optional<BigDecimal> getMultiplier(MultiplierType type) {
+        return multipliers.stream()
+                .filter(multiplierValue -> multiplierValue.getType().equals(type))
+                .map(MultiplierValue::getValue)
+                .findFirst();
+    }
+
+    @Override
+    public void removeMultiplier(MultiplierType type) {
+        multipliers.stream()
+                .filter(multiplierValue -> multiplierValue.getType().equals(type))
+                .findFirst()
+                .ifPresent(multipliers::remove);
+    }
+
+    @Override
+    public Map<MultiplierType, BigDecimal> getMultipliers() {
+        return multipliers.stream()
+                .collect(Collectors.toMap(MultiplierValue::getType, MultiplierValue::getValue));
     }
 }
