@@ -201,13 +201,6 @@ Ext.define('Mdc.controller.Main', {
                             itemId: 'lnk-load-profile-types',
                             privileges: Mdc.privileges.MasterData.view,
                             route: 'loadprofiletypes'
-                        },
-                        {
-                            text: Uni.I18n.translate('general.customAttributeSets', 'MDC', 'Custom attribute sets'),
-                            href: '#/administration/customattributesets',
-                            itemId: 'lnk-custom-attribute-sets',
-                            privileges: Cps.privileges.CustomAttributeSets.view,
-                            route: 'customattributesets'
                         }
                     ]
                 });
