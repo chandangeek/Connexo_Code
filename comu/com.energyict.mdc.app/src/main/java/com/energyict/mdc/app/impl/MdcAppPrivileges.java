@@ -130,6 +130,6 @@ class MdcAppPrivileges {
 
                 //com.elster.jupiter.time.security
                 com.elster.jupiter.time.security.Privileges.ADMINISTRATE_RELATIVE_PERIOD,
-                com.elster.jupiter.time.security.Privileges.VIEW_RELATIVE_PERIOD
+                com.elster.jupiter.time.security.Privileges.VIEW_RELATIVE_PERIOD);
     }
 }
