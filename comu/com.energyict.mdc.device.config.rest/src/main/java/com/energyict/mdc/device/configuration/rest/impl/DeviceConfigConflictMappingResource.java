@@ -81,9 +81,9 @@ public class DeviceConfigConflictMappingResource {
                         .filter(f -> f.getId() == deviceConfigConnectionMethodSolution.to.id)
                         .findFirst()
                         .orElseThrow(() -> new WebApplicationException("No device configuration conflict solution for destination data source with id " + deviceConfigConnectionMethodSolution.from.id, Response.Status.NOT_FOUND));
-                from.setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.MAP, to);
+                from.markSolutionAsMap(to);
             } else {
-                from.setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE);
+                from.markSolutionAsRemove();
             }
         });
         deviceConfigConflictInfo.securitySetSolutions.forEach(deviceConfigSecuritySetSolution -> {
@@ -98,9 +98,9 @@ public class DeviceConfigConflictMappingResource {
                         .filter(f -> f.getId() == deviceConfigSecuritySetSolution.to.id)
                         .findFirst()
                         .orElseThrow(() -> new WebApplicationException("No device configuration security set solution for destination data source with id " + deviceConfigSecuritySetSolution.from.id, Response.Status.NOT_FOUND));
-                from.setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.MAP, to);
+                from.markSolutionAsMap(to);
             } else {
-                from.setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE);
+                from.markSolutionAsRemove();
             }
         });
         return Response.ok().build();
