@@ -4,7 +4,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     views: [
         'Mdc.view.setup.devicechannels.TabbedDeviceChannelsView',
         'Mdc.view.setup.devicechannels.Overview',
-        'Mdc.view.setup.devicechannels.ReadingEstimationWindow'
+        'Mdc.view.setup.devicechannels.ReadingEstimationWindow',
+        'Mdc.view.setup.devicechannels.EditCustomAttributes'
     ],
 
     models: [
@@ -56,10 +57,19 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         {
             ref: 'readingEstimationWindow',
             selector: 'reading-estimation-window'
+        },
+        {
+            ref: 'editPropertyForm',
+            selector: '#deviceLoadProfileChannelsEditCustomAttributes property-form'
+        },
+        {
+            ref: 'editCustomAttributesPanel',
+            selector: '#deviceLoadProfileChannelsEditCustomAttributes'
         }
     ],
 
     channelModel: null,
+    fromSpecification: false,
 
     init: function () {
         this.control({
@@ -91,6 +101,15 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             },
             'channel-data-bulk-action-menu': {
                 click: this.chooseBulkAction
+            },
+            '#deviceLoadProfileChannelsEditCustomAttributes #channelCustomAttributesSaveBtn': {
+                click: this.saveChannelOfLoadProfileCustomAttributes
+            },
+            '#deviceLoadProfileChannelsEditCustomAttributes #channelCustomAttributesRestoreBtn': {
+                click: this.restoreChannelOfLoadProfileCustomAttributes
+            },
+            '#deviceLoadProfileChannelsEditCustomAttributes #channelCustomAttributesCancelBtn': {
+                click: this.toPreviousPage
             }
         });
     },
@@ -172,7 +191,13 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     setupSpecificationsTab: function (device, channel, widget) {
+        var customAttributesStore = this.getStore('Mdc.store.ChannelCustomAttributeSets');
+        customAttributesStore.getProxy().setUrl(device.get('mRID'), channel.get('id'));
         widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(channel);
+        customAttributesStore.load(function() {
+            widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
+        });
+        this.fromSpecification = true;
         widget.down('#deviceLoadProfileChannelsActionMenu').record = channel;
     },
 
@@ -743,5 +768,90 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         }));
         button.setDisabled(!menu.query('menuitem[hidden=false]').length);
         Ext.resumeLayouts();
+    },
+
+    showEditChannelOfLoadProfileCustomAttributes: function (mRID, channelId, customAttributeSetId) {
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0];
+        viewport.setLoading(true);
+        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+            success: function (device) {
+                var model = Ext.ModelManager.getModel('Mdc.model.ChannelOfLoadProfilesOfDevice');
+                model.getProxy().setUrl({
+                    mRID: mRID
+                });
+                model.load(channelId, {
+                    success: function (channel) {
+
+                        var widget = Ext.widget('deviceLoadProfileChannelsEditCustomAttributes',{device: device});
+                        me.getApplication().fireEvent('loadDevice', device);
+                        me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
+                        me.getApplication().fireEvent('channelOfLoadProfileCustomAttributes', device);
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                        me.loadPropertiesRecord(widget);
+                    },
+                    failure: function () {
+                        viewport.setLoading(false);
+                    }
+                });
+            }
+        });
+
+    },
+
+    loadPropertiesRecord: function(widget) {
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            model = Ext.ModelManager.getModel('Cps.common.valuesobjects.model.AttributeSetOnObject'),
+            form = widget.down('property-form'),
+            router = this.getController('Uni.controller.history.Router'),
+            routeParams = router.arguments,
+            id = routeParams.customAttributeSetId;
+
+        model.load(id, {
+            success: function (record) {
+                widget.down('#channelEditPanel').setTitle(Uni.I18n.translate('devicechannels.EditCustomAttributeSet', 'MDC', "Edit '{0}'",[record.get('name')]));
+                me.getApplication().fireEvent('channelOfLoadProfileCustomAttributes', record);
+                form.loadRecord(record);
+
+            },
+            callback: function () {
+                viewport.setLoading(false);
+            }
+
+        });
+    },
+
+    restoreChannelOfLoadProfileCustomAttributes: function(){
+        this.getEditPropertyForm().restoreAll();
+    },
+
+    toPreviousPage : function() {
+        if(this.fromSpecification == true){
+            this.getController('Uni.controller.history.Router').getRoute('devices/device/channels/channel').forward();
+        } else {
+            this.getController('Uni.controller.history.Router').getRoute('devices/device/channels').forward();
+        }
+
+    },
+
+    saveChannelOfLoadProfileCustomAttributes : function() {
+        var me = this,
+            form = me.getEditPropertyForm(),
+            editView = me.getEditCustomAttributesPanel();
+
+        editView.setLoading();
+
+        form.updateRecord();
+        form.getRecord().save({
+            callback: function (model, operation, success) {
+                editView.setLoading(false);
+                if (success) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicechannels.customAttributeSetSaved', 'MDC', 'Custom attributes saved.'));
+                    me.toPreviousPage();
+                }
+            }
+        });
     }
+
 });

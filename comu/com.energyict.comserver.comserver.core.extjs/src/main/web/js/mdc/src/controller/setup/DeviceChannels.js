@@ -83,6 +83,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                 });
             };
 
+        me.getController('Mdc.controller.setup.DeviceChannelData').fromSpecification = false;
         me.mRID = mRID;
         loadProfilesStore.getProxy().setUrl(mRID);
         channelsOfLoadProfilesOfDeviceStore.getProxy().setUrl(mRID);
@@ -96,8 +97,9 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
     },
 
     showPreview: function (selectionModel, record) {
-        var preview = this.getPreview(),
+        var preview = this.getPreview(), me = this,
             readingType = record.get('readingType');
+        preview.setLoading(true);
 
         preview.setTitle(readingType.aliasName + (!Ext.isEmpty(readingType.names.unitOfMeasure) ? (' (' + readingType.names.unitOfMeasure + ')') : ''));
 
@@ -121,6 +123,17 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             readingTypeLabel.update(Uni.I18n.translate('deviceloadprofiles.channels.readingType', 'MDC', 'Reading type'));
             calculatedReadingType.hide();
         }
+
+        var customAttributesStore = me.getStore('Mdc.store.ChannelCustomAttributeSets');
+        customAttributesStore.getProxy().setUrl(me.mRID, record.get('id'));
+        customAttributesStore.load(function() {
+            preview.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
+            preview.setLoading(false);
+        });
+        var router = me.getController('Uni.controller.history.Router'),
+            routeParams = router.arguments;
+        routeParams.channelId = record.getId();
+
     },
 
     chooseAction: function (menu, item) {

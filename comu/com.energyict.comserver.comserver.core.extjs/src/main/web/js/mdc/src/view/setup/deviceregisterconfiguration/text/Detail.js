@@ -70,6 +70,13 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Detail', {
                                         ]
                                     },
                                     {
+                                        xtype: 'custom-attribute-sets-placeholder-form',
+                                        itemId: 'custom-attribute-sets-placeholder-form-id',
+                                        actionMenuXtype: 'deviceRegisterConfigurationActionMenu',
+                                        attributeSetType: 'register',
+                                        router: me.router
+                                    },
+                                    {
                                         xtype: 'button',
                                         text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                                         iconCls: 'x-uni-action-iconD',

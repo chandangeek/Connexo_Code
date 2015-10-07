@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.devicechannels.Overview', {
                             xtype: 'deviceLoadProfileChannelsPreviewForm',
                             device: me.device,
                             router: me.router,
-                            margin: '0 0 0 100',
+                            margin: '0 0 0 0',
                             itemId: 'deviceLoadProfileChannelsOverviewForm'
                         }
                     },

@@ -103,8 +103,20 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Detail', {
 
                                                     return Uni.I18n.translate('deviceregisterconfiguration.overflow.notspecified', 'MDC', 'Not specified')
                                                 }
+                                            },
+                                            {
+                                                xtype: 'deviceregisterdetailspreview-validation',
+                                                inputLabelWidth: 250,
+                                                router: me.router
                                             }
                                         ]
+                                    },
+                                    {
+                                        xtype: 'custom-attribute-sets-placeholder-form',
+                                        itemId: 'custom-attribute-sets-placeholder-form-id',
+                                        actionMenuXtype: 'deviceRegisterConfigurationActionMenu',
+                                        attributeSetType: 'register',
+                                        router: me.router
                                     },
                                     {
                                         xtype: 'button',
@@ -117,11 +129,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.numerical.Detail', {
                                         }
                                     }
                                 ]
-                            },
-                            {
-                                xtype: 'deviceregisterdetailspreview-validation',
-                                inputLabelWidth: 250,
-                                router: me.router
                             }
                         ]
                     }

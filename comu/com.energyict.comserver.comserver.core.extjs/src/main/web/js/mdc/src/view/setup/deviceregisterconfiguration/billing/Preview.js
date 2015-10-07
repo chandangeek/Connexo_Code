@@ -10,6 +10,11 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
         'Uni.form.field.ReadingTypeDisplay',
         'Mdc.view.setup.deviceregisterconfiguration.ValidationPreview'
     ],
+    layout: 'column',
+    defaults: {
+        //xtype: 'form',
+        columnWidth: 0.5
+    },
 
     initComponent: function () {
         var me = this;
@@ -110,6 +115,13 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
                         router: me.router
                     }
                 ]
+            },
+            {
+                xtype: 'custom-attribute-sets-placeholder-form',
+                itemId: 'custom-attribute-sets-placeholder-form-id',
+                actionMenuXtype: 'deviceRegisterConfigurationActionMenu',
+                attributeSetType: 'register',
+                router: me.router
             }
         ];
 
