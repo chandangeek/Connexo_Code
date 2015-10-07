@@ -28,7 +28,7 @@ public enum EventType {
                 .category("Session")
                 .scope("System")
                 .shouldPublish();
-        builder.create().save();
+        builder.create();
     }
 
 }
