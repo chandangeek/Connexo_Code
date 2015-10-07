@@ -859,7 +859,11 @@ Ext.define('Dxp.controller.Tasks', {
             dataValidation.show();
             missingData.show();
             updatedData.show();
-            updatedValuesData.show();
+            if(record.getData().standardDataSelector.exportUpdate===false){
+                updatedValuesData.hide();
+            } else {
+                updatedValuesData.show();
+            }
         }
 
 
