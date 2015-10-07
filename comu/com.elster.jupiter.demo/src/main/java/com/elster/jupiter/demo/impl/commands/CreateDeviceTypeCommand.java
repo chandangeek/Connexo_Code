@@ -34,7 +34,7 @@ public class CreateDeviceTypeCommand {
     public void run(){
         DeviceType deviceType = Builders.from(DeviceTypeTpl.Elster_AS1440).withName(this.deviceTypeName).get();
         DeviceConfiguration configuration = Builders.from(DeviceConfigurationTpl.DEFAULT).withDeviceType(deviceType)
-                .withPostBuilder(this.connectionMethodsProvider.get().withHost(this.host))
+                .withPostBuilder(this.connectionMethodsProvider.get().withHost(this.host).withDefaultOutboundTcpProperties())
                 .withPostBuilder(new ChannelsOnDevConfPostBuilder())
                 .get();
         configuration.activate();

@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration, DeviceConfigurationBuilder> {
     private DeviceType deviceType;
     private GatewayType gatewayType;
+    private boolean canActAsGateway = false;
     private boolean directlyAddressable = true;
     private List<RegisterType> registerTypes;
     private List<LoadProfileType> loadProfileTypes;
@@ -45,6 +46,10 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         return this;
     }
 
+    public DeviceConfigurationBuilder withCanActAsGateway(boolean canActAsGateway){
+        this.canActAsGateway = canActAsGateway;
+        return this;
+    }
 
     public DeviceConfigurationBuilder withDirectlyAddressable(boolean directlyAddressable){
         this.directlyAddressable = directlyAddressable;
@@ -72,12 +77,12 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
     }
 
     public DeviceConfigurationBuilder withPostBuilder(Consumer<DeviceConfiguration> postBuilder) {
-        if (this.postBuilders == null) {
-            this.postBuilders = new ArrayList<>();
+            if (this.postBuilders == null) {
+                this.postBuilders = new ArrayList<>();
+            }
+            this.postBuilders.add(postBuilder);
+            return this;
         }
-        this.postBuilders.add(postBuilder);
-        return this;
-    }
 
     public DeviceConfigurationBuilder withSecurityPropertySetBuilders(List<SecurityPropertySetBuilder> securityPropertySetBuilders) {
         this.securityPropertySetBuilders = securityPropertySetBuilders;
