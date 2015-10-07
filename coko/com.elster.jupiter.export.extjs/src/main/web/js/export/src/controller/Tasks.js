@@ -27,6 +27,10 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.store.ExportPeriods',
         'Dxp.store.FileFormatters',
         'Dxp.store.ReadingTypes',
+        'Dxp.store.DeviceTypes',
+        'Dxp.store.DeviceDomains',
+        'Dxp.store.DeviceSubDomains',
+        'Dxp.store.DeviceEventOrActions',
         'Dxp.store.DataExportTasks',
         'Dxp.store.DataExportTasksHistory',
         'Dxp.store.ReadingTypesForTask',
@@ -50,6 +54,7 @@ Ext.define('Dxp.controller.Tasks', {
         'Dxp.model.FileFormatter',
         'Dxp.model.SchedulePeriod',
         'Dxp.model.ReadingType',
+        'Dxp.model.EndDeviceEventTypePart',
         'Dxp.model.DataExportTask',
         'Dxp.model.DataExportTaskHistory',
         'Dxp.model.AddDataExportTaskForm',
@@ -118,6 +123,7 @@ Ext.define('Dxp.controller.Tasks', {
     fromEdit: false,
     taskModel: null,
     taskId: null,
+    counter: 0,
 
     readingTypesArray: null,
     eventTypesArray: null,
@@ -176,7 +182,7 @@ Ext.define('Dxp.controller.Tasks', {
                 click: this.showAddReadingGrid
             },
             'data-export-tasks-add #addEventTypeButton': {
-                click: this.showAddEventTypePopUp
+                click: this.populateComboBoxes
             },
             '#AddReadingTypesToTaskSetup button[name=cancel]': {
                 click: this.forwardToPreviousPage
@@ -425,11 +431,56 @@ Ext.define('Dxp.controller.Tasks', {
         router.getRoute(addReadingTypesRoute).forward();
     },
 
-    showAddEventTypePopUp: function() {
-        var window;
-        window = Ext.create('Dxp.view.tasks.EventTypeWindow', {
-            title: Uni.I18n.translate('general.addEventType', 'DES', 'Add event type')
+    populateComboBoxes: function() {
+        var me = this,
+            deviceTypesStore = Ext.getStore('Dxp.store.DeviceTypes'),
+            deviceDomainsStore = Ext.getStore('Dxp.store.DeviceDomains'),
+            deviceSubDomainsStore = Ext.getStore('Dxp.store.DeviceSubDomains'),
+            deviceEventOrActionsStore = Ext.getStore('Dxp.store.DeviceEventOrActions');
+
+        me.counter = 4;
+        deviceTypesStore.load({
+            scope: me,
+            callback: me.showAddEventTypePopUp
         });
+        deviceDomainsStore.load({
+            scope: me,
+            callback: me.showAddEventTypePopUp
+        });
+        deviceSubDomainsStore.load({
+            scope: me,
+            callback: me.showAddEventTypePopUp
+        });
+        deviceEventOrActionsStore.load({
+            scope: me,
+            callback: me.showAddEventTypePopUp
+        });
+    },
+
+    showAddEventTypePopUp: function() {
+        var me = this;
+
+        if (me.counter > 0) {
+            me.counter = me.counter - 1;
+        }
+        if (me.counter === 0) { // all 4 stores are loaded successfully
+            var deviceTypesStore = Ext.getStore('Dxp.store.DeviceTypes'),
+                deviceDomainsStore = Ext.getStore('Dxp.store.DeviceDomains'),
+                deviceSubDomainsStore = Ext.getStore('Dxp.store.DeviceSubDomains'),
+                deviceEventOrActionsStore = Ext.getStore('Dxp.store.DeviceEventOrActions'),
+                modelEntry = Ext.create('Dxp.model.EndDeviceEventTypePart', {
+                    value: -1, // meaning All
+                    displayName: Uni.I18n.translate('general.all', 'DES', 'All')
+                });
+
+            deviceTypesStore.insert(0, modelEntry);
+            deviceDomainsStore.insert(0, modelEntry);
+            deviceSubDomainsStore.insert(0, modelEntry);
+            deviceEventOrActionsStore.insert(0, modelEntry);
+            var window = Ext.create('Dxp.view.tasks.EventTypeWindow', {
+                title: Uni.I18n.translate('general.addEventType', 'DES', 'Add event type')
+            });
+        }
     },
 
     addEventTypeToTask: function(button){

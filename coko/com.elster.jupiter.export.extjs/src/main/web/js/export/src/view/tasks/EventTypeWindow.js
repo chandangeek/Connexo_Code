@@ -9,7 +9,8 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
     layout: 'fit',
     floating: true,
     requires: [
-        'Uni.util.FormErrorMessage'
+        'Uni.util.FormErrorMessage',
+        'Dxp.model.EndDeviceEventTypePart'
     ],
     items: {
         xtype: 'form',
@@ -36,19 +37,36 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
                         layout: 'vbox',
                         items: [
                             {
-                                xtype: 'radio',
-                                itemId: 'des-eventtype-input-radio',
-                                boxLabel: Uni.I18n.translate('export.eventType.specifyEventType', 'DES', 'Specify event type'),
-                                name: 'rb',
-                                inputValue: '0',
-                                margin: '10 0 0 0',
-                                checked: true
+                                xtype: 'fieldcontainer',
+                                layout: 'hbox',
+                                itemId: 'des-eventtype-container',
+                                required: true,
+                                msgTarget: 'under',
+                                items: [
+                                    {
+                                        xtype: 'radio',
+                                        itemId: 'des-eventtype-input-radio',
+                                        boxLabel: Uni.I18n.translate('export.eventType.specifyEventType', 'DES', 'Specify event type'),
+                                        name: 'rb',
+                                        inputValue: '0',
+                                        margin: '10 0 0 0',
+                                        checked: true
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        tooltip: Uni.I18n.translate('export.eventType.tooltip', 'DES', "The wildcard '*' can be used in each part of the event type and will match all possible values."),
+                                        iconCls: 'uni-icon-info-small',
+                                        ui: 'blank',
+                                        shadow: false,
+                                        margin: '15 0 0 10',
+                                        width: 16
+                                    }
+                                ]
                             },
                             {
                                 xtype: 'form',
                                 border: false,
                                 itemId: 'specifyEventForm',
-                                //width: 800,
                                 layout: {
                                     type: 'vbox',
                                     align: 'stretch'
@@ -97,7 +115,8 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
                                         itemId: 'des-eventtype-assembled-field',
                                         disabled: true,
                                         width: 580,
-                                        fieldLabel: Uni.I18n.translate('export.eventType.eventType', 'DES', 'Event type')
+                                        fieldLabel: Uni.I18n.translate('export.eventType.eventType', 'DES', 'Event type'),
+                                        value: '*.*.*.*'
                                     },
                                     {
                                         xtype: 'combobox',
@@ -105,7 +124,12 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
                                         disabled: true,
                                         width: 580,
                                         fieldLabel: Uni.I18n.translate('export.eventType.deviceType', 'DES', 'Device type'),
-                                        required: true
+                                        required: true,
+                                        store: 'Dxp.store.DeviceTypes',
+                                        queryMode: 'local',
+                                        editable: false,
+                                        displayField: 'displayName',
+                                        valueField: 'value'
                                     },
                                     {
                                         xtype: 'combobox',
@@ -113,7 +137,12 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
                                         disabled: true,
                                         width: 580,
                                         fieldLabel: Uni.I18n.translate('export.eventType.deviceDomain', 'DES', 'Device domain'),
-                                        required: true
+                                        required: true,
+                                        store: 'Dxp.store.DeviceDomains',
+                                        queryMode: 'local',
+                                        editable: false,
+                                        displayField: 'displayName',
+                                        valueField: 'value'
                                     },
                                     {
                                         xtype: 'combobox',
@@ -121,7 +150,12 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
                                         width: 580,
                                         disabled: true,
                                         fieldLabel: Uni.I18n.translate('export.eventType.deviceSubDomain', 'DES', 'Device subdomain'),
-                                        required: true
+                                        required: true,
+                                        store: 'Dxp.store.DeviceSubDomains',
+                                        queryMode: 'local',
+                                        editable: false,
+                                        displayField: 'displayName',
+                                        valueField: 'value'
                                     },
                                     {
                                         xtype: 'combobox',
@@ -129,8 +163,13 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
                                         disabled: true,
                                         width: 580,
                                         fieldLabel: Uni.I18n.translate('export.eventType.deviceEventOrAction', 'DES', 'Device event or action'),
-                                        required: true
-                                    },
+                                        required: true,
+                                        store: 'Dxp.store.DeviceEventOrActions',
+                                        queryMode: 'local',
+                                        editable: false,
+                                        displayField: 'displayName',
+                                        valueField: 'value'
+                                    }
                                 ]
                             }
                         ]
@@ -175,25 +214,28 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
                 single: true
             }
         });
-
-        // custom Vtype for vtype:'EndDeviceEventType'
-        Ext.apply(Ext.form.field.VTypes, {
-            EndDeviceEventType:  function(v) {
-                return /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(v);
-            },
-            EndDeviceEventTypeText: Uni.I18n.translate('export.eventType.invalid', 'DES', 'Event type is invalid'),
-            EndDeviceEventTypeMask: /[\d\.]/i
-        });
         me.callParent(arguments);
     },
 
     onAfterRender: function() {
         var me = this,
             radioEventTypeParts = me.down('#des-eventtypeparts-input-radio'),
-            fieldToFocus = me.down('#des-eventtype-input-field');
+            fieldToFocus = me.down('#des-eventtype-input-field'),
+            deviceTypeCombo = me.down('#des-device-type-combo'),
+            deviceDomainCombo = me.down('#des-device-domain-combo'),
+            deviceSubDomainCombo = me.down('#des-device-subdomain-combo'),
+            deviceEventOrActionCombo = me.down('#des-device-eventoraction-combo');
 
         radioEventTypeParts.on("change", me.onChange, me);
-        fieldToFocus.focus(false, 200);
+        deviceTypeCombo.setValue(-1);
+        deviceDomainCombo.setValue(-1);
+        deviceSubDomainCombo.setValue(-1);
+        deviceTypeCombo.on("change", me.updateEventTypeField, me);
+        deviceDomainCombo.on("change", me.updateEventTypeField, me);
+        deviceSubDomainCombo.on("change", me.updateEventTypeField, me);
+        deviceEventOrActionCombo.on("change", me.updateEventTypeField, me);
+        deviceEventOrActionCombo.setValue(-1);
+        fieldToFocus.focus(false, 200); // doesn't seem to work for some reason...
     },
 
     onChange: function(field, newValue, oldValue) {
@@ -209,6 +251,22 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
         me.down('#form-errors').hide();
     },
 
+    updateEventTypeField: function() {
+        var me = this,
+            deviceTypeCombo = me.down('#des-device-type-combo'),
+            deviceDomainCombo = me.down('#des-device-domain-combo'),
+            deviceSubDomainCombo = me.down('#des-device-subdomain-combo'),
+            deviceEventOrActionCombo = me.down('#des-device-eventoraction-combo'),
+            assembledEventTypeField = me.down('#des-eventtype-assembled-field');
+
+        assembledEventTypeField.setValue(
+            (deviceTypeCombo.getValue() === -1 ? '*' : deviceTypeCombo.getValue()) + '.'
+            + (deviceDomainCombo.getValue() === -1 ? '*' : deviceDomainCombo.getValue() ) + '.'
+            + (deviceSubDomainCombo.getValue() === -1 ? '*' : deviceSubDomainCombo.getValue() ) + '.'
+            + (deviceEventOrActionCombo.getValue() === -1 ? '*' : deviceEventOrActionCombo.getValue())
+        );
+    },
+
     isFormValid: function() {
         return this.isEventTypeFieldValid();
     },
@@ -220,8 +278,24 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
 
         return this.isFieldNonEmpty(fieldId) &&
             this.isFieldValid(fieldId,
-                /^\d{1,2}\.\d{1,2}\.\d{1,3}\.\d{1,3}$/.test(field.getValue()),
+                /^(\d{1,2}|\*)\.(\d{1,2}|\*)\.(\d{1,3}|\*)\.(\d{1,3}|\*)$/.test(field.getValue()),
                 Uni.I18n.translate('export.eventType.invalid', 'DES', 'Event type is invalid')
+            ) &&
+            this.isFieldValid(fieldId,
+                this.isPartValueValid(1, field.getValue()),
+                Uni.I18n.translate('export.eventType.invalid.partx', 'DES', 'Event type is invalid (part {0})', 1)
+            ) &&
+            this.isFieldValid(fieldId,
+                this.isPartValueValid(2, field.getValue()),
+                Uni.I18n.translate('export.eventType.invalid.partx', 'DES', 'Event type is invalid (part {0})', 2)
+            ) &&
+            this.isFieldValid(fieldId,
+                this.isPartValueValid(3, field.getValue()),
+                Uni.I18n.translate('export.eventType.invalid.partx', 'DES', 'Event type is invalid (part {0})', 3)
+            ) &&
+            this.isFieldValid(fieldId,
+                this.isPartValueValid(4, field.getValue()),
+                Uni.I18n.translate('export.eventType.invalid.partx', 'DES', 'Event type is invalid (part {0})', 4)
             );
     },
 
@@ -248,6 +322,19 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
         }
         component.doComponentLayout();
         return conditionToBeValid;
+    },
+
+    isPartValueValid: function(partNr, eventTypeAsString) {
+        var fieldId,
+            parts = eventTypeAsString.split('.');
+        switch(partNr) {
+            case 1: fieldId = '#des-device-type-combo'; break;
+            case 2: fieldId = '#des-device-domain-combo'; break;
+            case 3: fieldId = '#des-device-subdomain-combo'; break;
+            case 4: fieldId = '#des-device-eventoraction-combo'; break;
+        }
+        return parts[partNr-1] === '*' ||
+            this.down(fieldId).store.findExact('value', parseInt(parts[partNr-1])) != -1;
     },
 
     getEventType: function() {
