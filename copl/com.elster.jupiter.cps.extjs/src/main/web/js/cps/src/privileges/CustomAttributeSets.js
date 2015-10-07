@@ -16,5 +16,8 @@ Ext.define('Cps.privileges.CustomAttributeSets', {
             Cps.privileges.CustomAttributeSets.view,
             Cps.privileges.CustomAttributeSets.admin
         );
+    },
+    canView: function () {
+        return Uni.Auth.checkPrivileges(Cps.privileges.CustomAttributeSets.view);
     }
 });
