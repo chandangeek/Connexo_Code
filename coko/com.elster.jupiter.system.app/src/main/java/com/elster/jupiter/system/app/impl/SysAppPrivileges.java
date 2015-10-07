@@ -11,6 +11,9 @@ class SysAppPrivileges {
 
     static List<String> getApplicationPrivileges(){
         return Arrays.asList(
+                //appserver
+                com.elster.jupiter.appserver.security.Privileges.ADMINISTRATE_APPSEVER,
+                com.elster.jupiter.appserver.security.Privileges.VIEW_APPSEVER,
                 //license
                 com.elster.jupiter.license.security.Privileges.VIEW_LICENSE,
                 com.elster.jupiter.license.security.Privileges.UPLOAD_LICENSE,

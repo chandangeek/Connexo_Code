@@ -4,6 +4,7 @@ Ext.define('SystemApp.Application', {
         'Usr.privileges.Users',
         'Sam.privileges.DataPurge',
         'Sam.privileges.License',
+        'Apr.privileges.AppServer',
         'Yfn.privileges.Yellowfin',
         'Tme.privileges.Period',
         'Fim.privileges.DataImport'
