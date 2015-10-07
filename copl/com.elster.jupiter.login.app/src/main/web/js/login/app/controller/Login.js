@@ -101,7 +101,8 @@ Ext.define('Login.controller.Login', {
     },
 
     loginOK: function () {
-        var params = Ext.urlDecode(location.search.substring(1)),
+        var me = this,
+            params = Ext.urlDecode(location.search.substring(1)),
             page = params.page,
             token = Ext.History.getToken(),
             referrer = document.referrer;
@@ -112,29 +113,44 @@ Ext.define('Login.controller.Login', {
 
         if (page) {
             window.location.replace(page);
-        } else if (referrer) {
-            location.href = referrer;
+            me.getLoginViewport().destroy();
         } else {
             Uni.store.Apps.load(function (apps) {
                 if (typeof apps !== 'undefined' && apps.length > 0) {
-                    var iterator = 0, internal = undefined, external = undefined;
+                    var iterator = 0, internal = undefined, external = undefined, useReferrer = false;
 
-                    while(internal == undefined && iterator < apps.length){
-                        if(apps[iterator].data.isExternal){
-                            if(external == undefined){
-                                external = apps[iterator];
+                    if (referrer) {
+                        apps.forEach(function (app) {
+                            if (app.data.url && referrer.indexOf(app.data.url.replace('#', ''))!=-1){
+                                location.href = referrer;
+                                useReferrer = true;
+                                me.getLoginViewport().destroy();
+                                return;
                             }
-                        }
-                        else{
-                            internal = apps[iterator];
-                        }
-                        iterator++;
+                        });
                     }
-                    window.location.replace((internal==undefined)?external.data.url:internal.data.url);
+
+                    if (useReferrer == false) {
+                        while (internal == undefined && iterator < apps.length) {
+                            if (apps[iterator].data.isExternal) {
+                                if (external == undefined) {
+                                    external = apps[iterator];
+                                }
+                            }
+                            else {
+                                internal = apps[iterator];
+                            }
+                            iterator++;
+                        }
+                        window.location.replace((internal == undefined) ? external.data.url : internal.data.url);
+                        me.getLoginViewport().destroy();
+                    }
+                }
+                else {
+                    me.loginNOK();
                 }
             });
         }
-        this.getLoginViewport().destroy();
     },
 
     loginNOK: function () {
@@ -144,7 +160,7 @@ Ext.define('Login.controller.Login', {
 
         form.suspendLayouts();
         password.reset();
-        password.focus(false, 200)
+        password.focus(false, 200);
         error.setValue('Login failed. Please contact your administrator.');
         error.show();
         form.resumeLayouts(true);
