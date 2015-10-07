@@ -19,8 +19,7 @@ Ext.define('MdcApp.controller.Main', {
         'Dlc.privileges.DeviceLifeCycle',
         'Mdc.privileges.DeviceConfigurationEstimations',
         'Fim.privileges.DataImport',
-        'Fwc.privileges.FirmwareCampaign',
-        'Cps.privileges.CustomAttributeSets'
+        'Fwc.privileges.FirmwareCampaign'
     ],
     applicationTitle: 'Connexo MultiSense',
     applicationKey: 'MDC',
@@ -43,8 +42,7 @@ Ext.define('MdcApp.controller.Main', {
         Dlc.privileges.DeviceLifeCycle.all(),
         Mdc.privileges.DeviceConfigurationEstimations.all(),
         Fim.privileges.DataImport.all(),
-        Fwc.privileges.FirmwareCampaign.all(),
-        Cps.privileges.CustomAttributeSets.all()
+        Fwc.privileges.FirmwareCampaign.all()
     ),
     controllers: [
         'Cfg.controller.Main',
@@ -59,8 +57,7 @@ Ext.define('MdcApp.controller.Main', {
         'Fwc.controller.Main',
         'Dxp.controller.Main',
         'Est.main.controller.Main',
-        'Fim.controller.Main',
-        'Cps.main.controller.Main'
+        'Fim.controller.Main'
     ],
 
     init: function () {

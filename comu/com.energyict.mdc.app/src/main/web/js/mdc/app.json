@@ -7,7 +7,6 @@
         "com.elster.jupiter.config.extjs",
         "com.elster.jupiter.issue.extjs",
         "com.elster.jupiter.time.extjs",
-        "com.elster.jupiter.cps.extjs",
         "com.energyict.mdc.issue.datacollection.extjs",
         "com.energyict.mdc.issue.datavalidation.extjs",
         "com.energyict.comserver.comserver.core.extjs",
