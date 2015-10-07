@@ -5,7 +5,7 @@ import java.util.List;
 
 class MdcAppPrivileges {
 
-    static List<String> getApplicationPrivileges(){
+    static List<String> getApplicationPrivileges() {
         return Arrays.asList(
 
                 //validation
@@ -128,10 +128,8 @@ class MdcAppPrivileges {
                 com.energyict.mdc.scheduling.security.Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE,
                 com.energyict.mdc.scheduling.security.Privileges.VIEW_SHARED_COMMUNICATION_SCHEDULE,
 
-                //com.elster.
+                //com.elster.jupiter.time.security
                 com.elster.jupiter.time.security.Privileges.ADMINISTRATE_RELATIVE_PERIOD,
                 com.elster.jupiter.time.security.Privileges.VIEW_RELATIVE_PERIOD
-        );
     }
-
 }
