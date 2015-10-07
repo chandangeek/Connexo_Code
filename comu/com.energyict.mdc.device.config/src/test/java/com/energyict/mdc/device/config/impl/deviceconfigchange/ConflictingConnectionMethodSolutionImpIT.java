@@ -36,7 +36,7 @@ public class ConflictingConnectionMethodSolutionImpIT extends AbstractConflictIT
         PartialConnectionTask origin = createOutboundConnectionTask(sourceConfig, "OriginConnectionTask");
         PartialConnectionTask destination = createOutboundConnectionTask(destinationConfig, "DestinationConnectionTask");
         DeviceConfigConflictMapping deviceConfigConflictMapping = deviceType.getDeviceConfigConflictMappings().get(0);
-        deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE);
+        deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).markSolutionAsRemove();
 
         DeviceType reloadedDeviceType = getReloadedDeviceType(deviceType);
 
@@ -64,7 +64,7 @@ public class ConflictingConnectionMethodSolutionImpIT extends AbstractConflictIT
         PartialConnectionTask origin = createOutboundConnectionTask(sourceConfig, "OriginConnectionTask");
         PartialConnectionTask destination = createOutboundConnectionTask(destinationConfig, "DestinationConnectionTask");
         DeviceConfigConflictMapping deviceConfigConflictMapping = deviceType.getDeviceConfigConflictMappings().get(0);
-        deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.MAP, destination);
+        deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).markSolutionAsMap(destination);
 
         DeviceType reloadedDeviceType = getReloadedDeviceType(deviceType);
 
@@ -95,7 +95,7 @@ public class ConflictingConnectionMethodSolutionImpIT extends AbstractConflictIT
         PartialConnectionTask origin = createOutboundConnectionTask(sourceConfig, "OriginConnectionTask");
         PartialConnectionTask destination = createOutboundConnectionTask(destinationConfig, "DestinationConnectionTask");
         DeviceConfigConflictMapping deviceConfigConflictMapping = deviceType.getDeviceConfigConflictMappings().get(0);
-        deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.MAP, null);
+        deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).markSolutionAsMap(null);
     }
 
     private PartialScheduledConnectionTaskImpl createOutboundConnectionTask(DeviceConfiguration sourceConfig, String name) {

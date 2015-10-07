@@ -822,10 +822,10 @@ public class SecurityPropertySetImplCrudIT {
 
         DeviceConfigConflictMapping deviceConfigConflictMapping1 = deviceType.getDeviceConfigConflictMappings().get(0);
         ConflictingSecuritySetSolution conflictingSecuritySetSolution1 = deviceConfigConflictMapping1.getConflictingSecuritySetSolutions().get(0);
-        conflictingSecuritySetSolution1.setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE);
+        conflictingSecuritySetSolution1.markSolutionAsRemove();
         DeviceConfigConflictMapping deviceConfigConflictMapping2 = deviceType.getDeviceConfigConflictMappings().get(1);
         ConflictingSecuritySetSolution conflictingSecuritySetSolution2 = deviceConfigConflictMapping2.getConflictingSecuritySetSolutions().get(0);
-        conflictingSecuritySetSolution2.setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE);
+        conflictingSecuritySetSolution2.markSolutionAsRemove();
 
         DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
         Assertions.assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).hasSize(2);

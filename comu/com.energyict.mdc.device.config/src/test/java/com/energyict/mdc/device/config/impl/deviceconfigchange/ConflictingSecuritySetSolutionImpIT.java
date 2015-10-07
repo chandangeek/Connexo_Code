@@ -35,7 +35,7 @@ public class ConflictingSecuritySetSolutionImpIT extends AbstractConflictIT{
         SecurityPropertySet origin = createSecurityPropertySet(sourceConfig, "OriginSecurityPropSet");
         SecurityPropertySet destination = createSecurityPropertySet(destinationConfig, "DestinationSecurityPropSet");
         DeviceConfigConflictMapping deviceConfigConflictMapping = deviceType.getDeviceConfigConflictMappings().get(0);
-        deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE);
+        deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).markSolutionAsRemove();
 
         DeviceType reloadedDeviceType = getReloadedDeviceType(deviceType);
 
@@ -63,7 +63,7 @@ public class ConflictingSecuritySetSolutionImpIT extends AbstractConflictIT{
         SecurityPropertySet origin = createSecurityPropertySet(sourceConfig, "OriginSecurityPropSet");
         SecurityPropertySet destination = createSecurityPropertySet(destinationConfig, "DestinationSecurityPropSet");
         DeviceConfigConflictMapping deviceConfigConflictMapping = deviceType.getDeviceConfigConflictMappings().get(0);
-        deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.MAP, destination);
+        deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).markSolutionAsMap(destination);
 
         DeviceType reloadedDeviceType = getReloadedDeviceType(deviceType);
 
@@ -94,7 +94,7 @@ public class ConflictingSecuritySetSolutionImpIT extends AbstractConflictIT{
         SecurityPropertySet origin = createSecurityPropertySet(sourceConfig, "OriginSecurityPropSet");
         SecurityPropertySet destination = createSecurityPropertySet(destinationConfig, "DestinationSecurityPropSet");
         DeviceConfigConflictMapping deviceConfigConflictMapping = deviceType.getDeviceConfigConflictMappings().get(0);
-        deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.MAP, null);
+        deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).markSolutionAsMap(null);
     }
 
     private SecurityPropertySet createSecurityPropertySet(DeviceConfiguration sourceConfig, String name) {

@@ -56,24 +56,20 @@ public abstract class AbstractConflictSolution<S extends HasId> implements Confl
     }
 
     @Override
-    public void setSolution(DeviceConfigConflictMapping.ConflictingMappingAction action) {
-        this.action = action;
-        clearCorrespondingDataSource();
-        this.conflictingMapping.get().recalculateSolvedState(this);
+    public void markSolutionAsRemove() {
+        this.getDestinationDataSourceReference().setNull();
+        updateSolution(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE);
     }
 
     @Override
-    public void setSolution(DeviceConfigConflictMapping.ConflictingMappingAction action, S dataSource) {
+    public void markSolutionAsMap(S dataSource) {
         this.getDestinationDataSourceReference().set(dataSource);
-        setSolution(action);
+        updateSolution(DeviceConfigConflictMapping.ConflictingMappingAction.MAP);
     }
 
-    private void clearCorrespondingDataSource() {
-        switch (this.action) {
-            case REMOVE:
-                this.getDestinationDataSourceReference().setNull();
-                break;
-        }
+    private void updateSolution(DeviceConfigConflictMapping.ConflictingMappingAction action) {
+        this.action = action;
+        this.conflictingMapping.get().recalculateSolvedState(this);
     }
 
     protected DeviceConfigConflictMapping getConflictingMapping() {

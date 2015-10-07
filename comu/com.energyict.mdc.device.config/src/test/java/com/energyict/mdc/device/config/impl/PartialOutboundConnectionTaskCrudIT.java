@@ -1040,11 +1040,11 @@ public class PartialOutboundConnectionTaskCrudIT {
         assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2); // what is in here is checked in another test
         DeviceConfigConflictMapping deviceConfigConflictMapping1 = deviceType.getDeviceConfigConflictMappings().get(0);
         ConflictingConnectionMethodSolution conflictingConnectionMethodSolution1 = deviceConfigConflictMapping1.getConflictingConnectionMethodSolutions().get(0);
-        conflictingConnectionMethodSolution1.setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE);
+        conflictingConnectionMethodSolution1.markSolutionAsRemove();
 
         DeviceConfigConflictMapping deviceConfigConflictMapping2 = deviceType.getDeviceConfigConflictMappings().get(1);
         ConflictingConnectionMethodSolution conflictingConnectionMethodSolution3 = deviceConfigConflictMapping2.getConflictingConnectionMethodSolutions().get(0);
-        conflictingConnectionMethodSolution3.setSolution(DeviceConfigConflictMapping.ConflictingMappingAction.REMOVE);
+        conflictingConnectionMethodSolution3.markSolutionAsRemove();
 
         DeviceType reloadedDeviceType = deviceConfigurationService.findDeviceType(deviceType.getId()).get();
         assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).hasSize(2);
