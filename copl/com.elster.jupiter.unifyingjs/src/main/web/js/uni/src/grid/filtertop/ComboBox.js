@@ -98,7 +98,7 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
 
     getParamValue: function () {
         var me = this,
-            value = me.getValue() || undefined;
+            value = me.getValue()!== null?me.getValue():undefined;
 
         if (me.multiSelect && Ext.isDefined(value) && !Ext.isArray(value)) {
             value = [value];

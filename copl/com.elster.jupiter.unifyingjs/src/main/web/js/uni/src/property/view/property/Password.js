@@ -4,6 +4,7 @@ Ext.define('Uni.property.view.property.Password', {
         'Uni.form.field.Password',
         'Uni.form.field.PasswordDisplay'
     ],
+    blankText: Uni.I18n.translate('general.requiredField', 'UNI', 'This field is required'),
 
     getEditCmp: function () {
         var me = this;
@@ -16,7 +17,7 @@ Ext.define('Uni.property.view.property.Password', {
             readOnly: me.isReadOnly,
             fieldLabel: undefined,
             passwordAsTextComponent: me.passwordAsTextComponent,
-            allowBlank: me.allowBlank
+            blankText: me.blankText
         }
     },
 

@@ -12,7 +12,8 @@ Ext.define('Uni.property.view.property.Textarea', {
             msgTarget: 'under',
             readOnly: me.isReadOnly,
             inputType: me.inputType,
-            allowBlank: me.allowBlank
+            allowBlank: me.allowBlank,
+            blankText: me.blankText
         }
     },
 
