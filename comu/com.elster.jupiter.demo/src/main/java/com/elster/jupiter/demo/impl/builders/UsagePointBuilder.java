@@ -1,6 +1,8 @@
 package com.elster.jupiter.demo.impl.builders;
 
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
 
 import java.util.Optional;
 

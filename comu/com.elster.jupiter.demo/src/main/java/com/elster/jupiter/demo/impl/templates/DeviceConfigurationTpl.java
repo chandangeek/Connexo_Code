@@ -1,9 +1,10 @@
 package com.elster.jupiter.demo.impl.templates;
 
-import com.elster.jupiter.demo.impl.Builders;
-import com.elster.jupiter.demo.impl.builders.DeviceConfigurationBuilder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.GatewayType;
+
+import com.elster.jupiter.demo.impl.Builders;
+import com.elster.jupiter.demo.impl.builders.DeviceConfigurationBuilder;
 
 import java.util.Arrays;
 import java.util.Collections;

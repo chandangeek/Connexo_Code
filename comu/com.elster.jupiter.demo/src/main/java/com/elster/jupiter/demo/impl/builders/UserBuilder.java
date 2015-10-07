@@ -7,7 +7,6 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
 import javax.inject.Inject;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;

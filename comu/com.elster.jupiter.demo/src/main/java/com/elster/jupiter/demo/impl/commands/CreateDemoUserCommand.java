@@ -2,11 +2,16 @@ package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.builders.UserBuilder;
 import com.elster.jupiter.demo.impl.templates.DemoUserTpl;
-import com.elster.jupiter.users.*;
-import com.elster.jupiter.util.conditions.*;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Order;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Purpose for this command is to install a User having the 'Read Only' role: only 'view' privileges.

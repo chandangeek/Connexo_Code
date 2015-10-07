@@ -1,7 +1,8 @@
 package com.elster.jupiter.demo.impl.templates;
 
-import com.elster.jupiter.demo.impl.builders.InboundComPortPoolBuilder;
 import com.energyict.mdc.engine.config.InboundComPortPool;
+
+import com.elster.jupiter.demo.impl.builders.InboundComPortPoolBuilder;
 
 public class InboundComPortPoolTpl implements Template<InboundComPortPool, InboundComPortPoolBuilder>{
 

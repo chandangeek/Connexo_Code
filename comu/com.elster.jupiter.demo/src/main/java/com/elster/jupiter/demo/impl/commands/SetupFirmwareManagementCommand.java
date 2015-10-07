@@ -1,14 +1,21 @@
 package com.elster.jupiter.demo.impl.commands;
 
-import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.firmware.*;
+import com.energyict.mdc.firmware.FirmwareManagementOptions;
+import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareStatus;
+import com.energyict.mdc.firmware.FirmwareType;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 
+import com.elster.jupiter.demo.impl.UnableToCreate;
+
 import javax.inject.Inject;
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * Purpose for this command is to install 2 Firmware versions for each device type (Except 'Landis+Gyr ZMD')

@@ -1,5 +1,9 @@
 package com.elster.jupiter.demo.impl.commands;
 
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.engine.config.ComServer;
+
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.UnableToCreate;
@@ -8,7 +12,10 @@ import com.elster.jupiter.demo.impl.builders.FavoriteGroupBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.WebRTUNTASimultationToolPropertyPostBuilder;
-import com.elster.jupiter.demo.impl.builders.device.*;
+import com.elster.jupiter.demo.impl.builders.device.ConnectionsDevicePostBuilder;
+import com.elster.jupiter.demo.impl.builders.device.SecurityPropertiesDevicePostBuilder;
+import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
+import com.elster.jupiter.demo.impl.builders.device.SetUsagePointToDevicePostBuilder;
 import com.elster.jupiter.demo.impl.templates.ComScheduleTpl;
 import com.elster.jupiter.demo.impl.templates.ComServerTpl;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
@@ -27,13 +34,12 @@ import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.engine.config.ComServer;
 
-import java.util.*;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Optional;
 
 public class CreateCollectRemoteDataSetupCommand {
     private final LicenseService licenseService;

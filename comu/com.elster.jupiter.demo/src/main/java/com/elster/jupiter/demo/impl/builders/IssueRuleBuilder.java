@@ -1,5 +1,10 @@
 package com.elster.jupiter.demo.impl.builders;
 
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
+
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
@@ -10,8 +15,6 @@ import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleB
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.ListValue;
-import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -94,7 +97,7 @@ public class IssueRuleBuilder extends com.elster.jupiter.demo.impl.builders.Name
         }
         return reasonRef.get();
     }
-    
+
     private CreationRuleTemplate getCreationRuleTemplate() {
         String templateName = this.ruleTemplate;
         CreationRuleTemplate template = issueCreationService.findCreationRuleTemplate(templateName).orElse(null);

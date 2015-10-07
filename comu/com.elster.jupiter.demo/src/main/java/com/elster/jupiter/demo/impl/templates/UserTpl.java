@@ -3,8 +3,6 @@ package com.elster.jupiter.demo.impl.templates;
 import com.elster.jupiter.demo.impl.builders.UserBuilder;
 import com.elster.jupiter.users.User;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 
 public enum UserTpl implements Template<User, UserBuilder> {

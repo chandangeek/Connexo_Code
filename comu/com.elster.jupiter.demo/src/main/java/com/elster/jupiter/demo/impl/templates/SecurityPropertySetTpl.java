@@ -1,10 +1,11 @@
 package com.elster.jupiter.demo.impl.templates;
 
-import com.elster.jupiter.demo.impl.builders.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
+
+import com.elster.jupiter.demo.impl.builders.SecurityPropertySetBuilder;
 
 import java.util.Arrays;
 import java.util.List;

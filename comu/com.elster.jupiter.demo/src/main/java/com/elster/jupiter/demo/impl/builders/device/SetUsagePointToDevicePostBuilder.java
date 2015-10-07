@@ -1,9 +1,13 @@
 package com.elster.jupiter.demo.impl.builders.device;
 
+import com.energyict.mdc.device.data.Device;
+
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.builders.UsagePointBuilder;
-import com.elster.jupiter.metering.*;
-import com.energyict.mdc.device.data.Device;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
 
 import javax.inject.Inject;
 import java.time.Clock;
