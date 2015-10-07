@@ -605,6 +605,7 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
     }
 
     void appendRestrictedStatesClause(SqlBuilder sqlBuilder, String connectionTaskAliasName) {
+        sqlBuilder.append( " and ");
         DeviceStateSqlBuilder
                 .forDefaultExcludedStates(connectionTaskAliasName)
                 .appendRestrictedStatesCondition(sqlBuilder, this.deviceDataModelService.clock());

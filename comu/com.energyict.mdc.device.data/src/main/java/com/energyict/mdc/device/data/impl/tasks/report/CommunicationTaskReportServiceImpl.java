@@ -380,6 +380,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
     }
 
     private void appendRestrictedStatesCondition(SqlBuilder sqlBuilder) {
+        sqlBuilder.append( " and ");
         DeviceStateSqlBuilder.forDefaultExcludedStates("cte")
                 .appendRestrictedStatesCondition(sqlBuilder, this.deviceDataModelService.clock());
     }

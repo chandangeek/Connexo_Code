@@ -51,7 +51,7 @@ import static org.mockito.Mockito.when;
  * Run these tests manually on a clean schema (see setup method).
  */
 @RunWith(MockitoJUnitRunner.class)
-//@Ignore
+@Ignore
 public class CommunicationTaskReportServiceImplOracleSpecificIT {
 
     private static final String DEVICE_TYPE_NAME = CommunicationTaskReportServiceImplOracleSpecificIT.class.getSimpleName() + "Type";

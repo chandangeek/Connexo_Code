@@ -66,7 +66,6 @@ public class DeviceStateSqlBuilder {
     }
 
     public void appendRestrictedStatesCondition(SqlBuilder sqlBuilder, long timeInMillis) {
-        sqlBuilder.append(" and ");
         sqlBuilder.append(this.alias);
         sqlBuilder.append(".device in (");
         sqlBuilder.append("select ED.amrid");
