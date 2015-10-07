@@ -2,14 +2,10 @@ package com.elster.jupiter.system.app.impl;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
-/**
- * Created by Lucian on 6/29/2015.
- */
 class SysAppPrivileges {
 
-    static List<String> getApplicationPrivileges(){
+    static List<String> getApplicationPrivileges() {
         return Arrays.asList(
                 //appserver
                 com.elster.jupiter.appserver.security.Privileges.ADMINISTRATE_APPSEVER,
@@ -28,7 +24,9 @@ class SysAppPrivileges {
                 com.elster.jupiter.fileimport.security.Privileges.VIEW_IMPORT_SERVICES,
                 //license
                 com.elster.jupiter.data.lifecycle.security.Privileges.VIEW_DATA_PURGE,
-                com.elster.jupiter.data.lifecycle.security.Privileges.ADMINISTRATE_DATA_PURGE);
+                com.elster.jupiter.data.lifecycle.security.Privileges.ADMINISTRATE_DATA_PURGE,
+                //custom property sets
+                com.elster.jupiter.cps.Privileges.ADMINISTER_PRIVILEGES,
+                com.elster.jupiter.cps.Privileges.VIEW_PRIVILEGES);
     }
-
 }
