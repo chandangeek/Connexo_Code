@@ -348,17 +348,17 @@ Ext.define('Dxp.view.tasks.Add', {
                                     {
                                         xtype: 'actioncolumn',
                                         align: 'right',
-                                        //items: [
-                                        //    {
-                                        //        iconCls: 'uni-icon-delete',
-                                        //        //handler: function (grid, rowIndex) {
-                                        //        //    grid.getStore().removeAt(rowIndex);
-                                        //        //    if (grid.getStore().count() === 0) {
-                                        //        //        me.updateReadingTypesGrid();
-                                        //        //    }
-                                        //        //}
-                                        //    }
-                                        //]
+                                        items: [
+                                            {
+                                                iconCls: 'uni-icon-delete',
+                                                handler: function (grid, rowIndex) {
+                                                    grid.getStore().removeAt(rowIndex);
+                                                    if (grid.getStore().count() === 0) {
+                                                        me.updateEventTypesGrid();
+                                                    }
+                                                }
+                                            }
+                                        ]
                                     }
                                 ],
                                 width: 800,
@@ -772,5 +772,19 @@ Ext.define('Dxp.view.tasks.Add', {
             emptyReadingTypesLabel.hide();
             readingTypesGrid.show();
         }
+    },
+
+    updateEventTypesGrid: function() {
+        var me = this,
+            eventTypesGrid = me.down('#eventTypesGridPanel'),
+            emptyEventTypesLabel = me.down('#noEventTypesLabel');
+        if (eventTypesGrid.getStore().count() === 0) {
+            emptyEventTypesLabel.show();
+            eventTypesGrid.hide();
+        } else {
+            emptyEventTypesLabel.hide();
+            eventTypesGrid.show();
+        }
     }
+
 });
