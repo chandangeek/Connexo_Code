@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
@@ -19,6 +20,8 @@ import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
+import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
+import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActionImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -658,6 +661,31 @@ public enum TableSpecs {
             table.foreignKey("DDC_FK_DEVICEINBATCH2DEVICE").references(DDC_DEVICE.name()).onDelete(CASCADE).map(DeviceInBatch.Fields.DEVICE.fieldName()).on(deviceColumn).add();
         }
     },
+
+    DDC_DEVICECONFIGCHANGEINACTION {
+        @Override
+        void addTo(DataModel dataModel) {
+            final Table<DeviceConfigChangeInAction> table = dataModel.addTable(name(), DeviceConfigChangeInAction.class);
+            table.map(DeviceConfigChangeInActionImpl.class);
+            Column device = table.column("DEVICE").number().notNull().add();
+            Column config = table.column("DEVICECONFIG").number().notNull().add();
+            table.addAuditColumns();
+            table.primaryKey("PK_DDC_CONFIGCHANGEINACTIOn").on(device,config).add();
+
+            table.foreignKey("FK_DDC_CONFCHANGACT_DEV").
+                    on(device).
+                    references(DDC_DEVICE.name()).
+                    map(DeviceConfigChangeInActionImpl.Fields.DEVICE_REFERENCE.fieldName()).
+                    onDelete(CASCADE).
+                    add();
+            table.foreignKey("FK_DDC_CONFCHANGACT_CONF").
+                    on(config).
+                    references(DeviceConfiguration.class).
+                    map(DeviceConfigChangeInActionImpl.Fields.DEVICE_CONFIG_REFERENCE.fieldName()).
+                    onDelete(CASCADE).
+                    add();
+        }
+    }
 
     ;
 

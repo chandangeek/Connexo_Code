@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data;
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -113,12 +114,23 @@ public interface DeviceService {
     public Query<Device> deviceQuery();
 
     /**
-     * Change the DeviceConfiguration of the given device to the provided destinationDeviceConfiguration
+     * Change the DeviceConfiguration of the device to the provided destinationDeviceConfiguration.
+     * <b>NOTE:</b> Make sure you don't create your own transaction. This will be performed during the execution
+     * of this method. Multiple transactions are required to perform Business Locks.
      *
-     * @param device                         the device to change it's configuration
      * @param destinationDeviceConfiguration the configuration which should be applied
+     * @param device                         the Device(s) to change their configuration
      * @return the given device with the new configuration applied
      */
-    public Device changeDeviceConfiguration(Device device, DeviceConfiguration destinationDeviceConfiguration);
+    public Device changeDeviceConfigurationForSingleDevice(DeviceConfiguration destinationDeviceConfiguration, Device device);
+
+    /**
+     * Change the DeviceConfiguration for the given set of Devices to the provided destinationDeviceConfiguration.
+     * The action will be queued and the processing is asynchronously.
+     *
+     * @param destinationDeviceConfiguration the configuration which should be applied
+     * @param device                        the Devices to change their configuration
+     */
+    public void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, Device... device);
 
 }

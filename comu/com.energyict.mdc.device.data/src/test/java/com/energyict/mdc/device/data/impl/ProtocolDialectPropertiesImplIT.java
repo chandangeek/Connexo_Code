@@ -61,9 +61,11 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest {
 
-    private static final String REQUIRED_PROPERTY_NAME_D1 = "ThisIsTheRequiredPropertyName";
+    public static final String DIALECT_1_NAME = TestProtocolDialect1.class.getSimpleName();
+    public static final String REQUIRED_PROPERTY_NAME_D1 = "ThisIsTheRequiredPropertyName";
+    public static final String OPTIONAL_PROPERTY_NAME_D1 = "ThisIsTheOptionalPropertyName";
+
     private static final String REQUIRED_PROPERTY_VALUE = "lmskdjfsmldkfjsqlmdkfj";
-    private static final String OPTIONAL_PROPERTY_NAME_D1 = "ThisIsTheOptionalPropertyName";
     private static final String OPTIONAL_PROPERTY_VALUE = "sdlfkjnsqdlmfjsqdfsqdfsqdf";
     private static final String OPTIONAL_PROPERTY_WITH_LONG_NAME_D1 = "OptionalPropertyWithExtremelyLongNameWhichIsGoingToBeConverted";
     private static final String OPTIONAL_PROPERTY_WITH_CONVERTED_NAME = "OptionalPropertyWith1227106396";
@@ -72,18 +74,14 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
     private static final String REQUIRED_PROPERTY_NAME_D2 = "RequiredDialect2";
     private static final String OPTIONAL_PROPERTY_NAME_D2 = "OptionalDialect2";
 
-    private static final String DIALECT_1_NAME = TestProtocolDialect1.class.getSimpleName();
     private static final String DIALECT_2_NAME = TestProtocolDialect2.class.getSimpleName();
 
     private static final String MRID = "mRID";
 
-    private static DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private static DeviceType deviceType;
     private static DeviceConfiguration deviceConfiguration;
     private static ProtocolDialectConfigurationProperties protocolDialect1ConfigurationProperties;
 
-    @Mock
-    private DeviceProtocol deviceProtocol;
     @Mock
     private DeviceProtocolDialect deviceProtocolDialect;
 
@@ -92,9 +90,9 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         inMemoryPersistence.getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                registerDeviceProtocol();
                 deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType(ProtocolDialectPropertiesImplIT.class.getSimpleName(), deviceProtocolPluggableClass);
                 deviceType.setDeviceUsageType(DeviceUsageType.METER);
+                deviceType.save();
                 DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(ProtocolDialectPropertiesImplIT.class.getName());
                 deviceConfiguration = deviceConfigurationBuilder.add();
                 deviceType.save();
@@ -105,17 +103,6 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
         });
     }
 
-    public static void registerDeviceProtocol() {
-        deviceProtocolPluggableClass = registerDeviceProtocol(TestProtocol.class);
-    }
-
-    private static <T extends DeviceProtocol> DeviceProtocolPluggableClass registerDeviceProtocol(Class<T> deviceProtocolClass) {
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass =
-                inMemoryPersistence.getProtocolPluggableService()
-                        .newDeviceProtocolPluggableClass(deviceProtocolClass.getSimpleName(), deviceProtocolClass.getName());
-        deviceProtocolPluggableClass.save();
-        return deviceProtocolPluggableClass;
-    }
 
     @AfterClass
     public static void deleteDeviceProtocol() {

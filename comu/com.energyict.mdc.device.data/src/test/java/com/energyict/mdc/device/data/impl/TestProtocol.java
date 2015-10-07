@@ -25,6 +25,7 @@ import java.util.*;
 public class TestProtocol implements DeviceProtocol {
 
     public static final String SECURITY_PROPERTY_SPEC_PASSWORD = "Password";
+    public static final String MYOPTIONALPROPERTY = "MyOptionalProperty";
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -123,7 +124,7 @@ public class TestProtocol implements DeviceProtocol {
 
     @Override
     public Set<DeviceMessageId> getSupportedMessages() {
-        return EnumSet.noneOf(DeviceMessageId.class);
+        return new HashSet<>(Arrays.asList(DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
     }
 
     @Override
@@ -239,12 +240,11 @@ public class TestProtocol implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Collections.emptyList();
+        return Collections.singletonList(getOptionalPropertySpec());
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        return null;
+    public PropertySpec getOptionalPropertySpec(){
+        return new BasicPropertySpec(MYOPTIONALPROPERTY, false, new StringFactory());
     }
 
     @Override

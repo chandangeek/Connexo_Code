@@ -8,6 +8,7 @@ import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.exceptions.DuplicateNameException;
 import com.energyict.mdc.device.data.exceptions.NestedRelationTransactionException;
 import com.energyict.mdc.device.data.exceptions.RelationIsAlreadyObsoleteException;
+import com.energyict.mdc.device.data.impl.configchange.ServerProtocolDialectForConfigChange;
 import com.energyict.mdc.dynamic.relation.CanLock;
 import com.energyict.mdc.dynamic.relation.DefaultRelationParticipant;
 import com.energyict.mdc.dynamic.relation.Relation;
@@ -60,7 +61,7 @@ public class ProtocolDialectPropertiesImpl
             CanLock,
             DefaultRelationParticipant,
             PropertyFactory<DeviceProtocolDialect, DeviceProtocolDialectProperty>,
-            ProtocolDialectProperties,
+            ServerProtocolDialectForConfigChange,
             PersistenceAware {
 
     private long pluggableClassId;
@@ -566,6 +567,12 @@ public class ProtocolDialectPropertiesImpl
                             dialectProperty.getPluggableClass(),
                             dialectProperty.isInherited()))
                     .collect(Collectors.toList());
+    }
+
+    @Override
+    public void setNewProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties newProtocolDialectConfigurationProperties) {
+        this.configurationProperties.set(newProtocolDialectConfigurationProperties);
+        this.update();
     }
 
     private class AttributeNameMapper {
