@@ -96,7 +96,6 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceAttributes',
         'Mdc.usagepointmanagement.controller.UsagePoint',
         'Mdc.controller.setup.DeviceConflictingMapping',
-        'Mdc.customattributesets.controller.AttributeSets',
         'Mdc.devicetypecustomattributes.controller.AttributeSets',
         'Mdc.controller.Search'
     ],
