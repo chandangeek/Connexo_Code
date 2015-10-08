@@ -106,8 +106,6 @@ public class RegisterResourceTest extends UsagePointDataRestApplicationJerseyTes
                 .queryParam("filter", filter)
                 .request().get(String.class);
 
-        System.out.println(json);
-
         JsonModel jsonModel = JsonModel.create(json);
 
         assertThat(jsonModel.<List<?>> get("$.data")).hasSize(4);

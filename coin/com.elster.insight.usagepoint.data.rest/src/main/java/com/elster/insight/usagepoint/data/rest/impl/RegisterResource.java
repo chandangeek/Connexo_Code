@@ -36,7 +36,7 @@ import com.google.common.collect.Range;
 
 public class RegisterResource {
 
-    private final Provider<RegisterResourceHelper> registerHelper;
+    private final RegisterResourceHelper registerHelper;
     private final MeteringService meteringService;
     private final ResourceHelper resourceHelper;
     private final UsagePointDataInfoFactory usagePointDataInfoFactory;
@@ -44,7 +44,7 @@ public class RegisterResource {
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public RegisterResource(Provider<RegisterResourceHelper> registerHelper, ResourceHelper resourceHelper, MeteringService meteringService, ExceptionFactory exceptionFactory, Clock clock,
+    public RegisterResource(RegisterResourceHelper registerHelper, ResourceHelper resourceHelper, MeteringService meteringService, ExceptionFactory exceptionFactory, Clock clock,
             UsagePointDataInfoFactory usagePointDataInfoFactory) {
         this.registerHelper = registerHelper;
         this.resourceHelper = resourceHelper;
@@ -58,7 +58,7 @@ public class RegisterResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     public Response getRegisters(@PathParam("mrid") String mrid, @BeanParam JsonQueryParameters queryParameters) {
-        return registerHelper.get().getRegisters(mrid, queryParameters);
+        return registerHelper.getRegisters(mrid, queryParameters);
     }
 
     @GET
@@ -66,9 +66,9 @@ public class RegisterResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     public Response getRegister(@PathParam("mrid") String mrid, @PathParam("rt_mrid") String rt_mrid) {
-        Channel channel = registerHelper.get().findRegisterOnUsagePoint(mrid, rt_mrid)
+        Channel channel = registerHelper.findRegisterOnUsagePoint(mrid, rt_mrid)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_REGISTER_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
-        return registerHelper.get().getRegister(() -> channel);
+        return registerHelper.getRegister(() -> channel);
     }
 
     @GET

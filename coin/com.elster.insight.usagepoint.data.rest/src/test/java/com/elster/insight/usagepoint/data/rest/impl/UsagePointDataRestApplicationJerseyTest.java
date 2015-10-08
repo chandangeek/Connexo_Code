@@ -54,19 +54,9 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     MeteringGroupsService meteringGroupsService;
 
-    @Before
-    public void setup() {
-    }
-
     @Override
     protected Application getApplication() {
-        UsagePointApplication application = new UsagePointApplication() {
-            @Override
-            public Set<Class<?>> getClasses() {
-                Set<Class<?>> classes = new HashSet<>(super.getClasses());
-                return classes;
-            }
-        };
+        UsagePointApplication application = new UsagePointApplication();
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setJsonService(jsonService);

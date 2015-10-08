@@ -62,21 +62,11 @@ public class MeterInfo {
         	}
         }
         
-        UsagePoint usagePoint = getUsagePoint(meter);
-        if (usagePoint != null) {
-     		usagePointName = usagePoint.getName();
-     		usagePointMRId = usagePoint.getMRID();
+        Optional<UsagePoint> usagePoint = meter.getCurrentMeterActivation().flatMap(MeterActivation::getUsagePoint);
+        if (usagePoint.isPresent()) {
+     		usagePointName = usagePoint.get().getName();
+     		usagePointMRId = usagePoint.get().getMRID();
         }
     }
     
-    private UsagePoint getUsagePoint(Meter meter) {
-    	 Optional<? extends MeterActivation> activations = meter.getCurrentMeterActivation();
-         if (activations.isPresent()) {
-         	Optional<UsagePoint> ausagePoint = activations.get().getUsagePoint();
-         	if (ausagePoint.isPresent()) {
-         		return ausagePoint.get();
-         	}
-         }
-         return null;
-    }
 }

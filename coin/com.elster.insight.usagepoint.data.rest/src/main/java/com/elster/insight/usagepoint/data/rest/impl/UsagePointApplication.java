@@ -88,14 +88,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     public List<TranslationKey> getKeys() {
         Set<String> uniqueIds = new HashSet<>();
         List<TranslationKey> keys = new ArrayList<>();
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            if (uniqueIds.add(messageSeed.getKey())) {
-                keys.add(messageSeed);
-            }
-        }
-
-        Arrays.stream(DefaultTranslationKey.values())
-                .forEach(keys::add);
+        keys.addAll(Arrays.asList(DefaultTranslationKey.values()));
         return keys;
     }
 
