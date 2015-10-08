@@ -58,7 +58,7 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
             record = grid.getSelectionModel().getLastSelected(),
             url = '/api/dtc/devicetypes/' + logbooksView.deviceTypeId + '/logbooktypes/' + record.data.id;
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: 'The logbook type will no longer be available on this device type.',
+            msg: Uni.I18n.translate('deviceTypeLogbook.deleteConfirmation.msg','MDC', 'The logbook type will no longer be available on this device type.'),
             title: Uni.I18n.translate('deviceTypeLogbook.removeLogbook','MDC',"Remove logbook type '{0}'?", [record.data.name]),
             config: {
             },

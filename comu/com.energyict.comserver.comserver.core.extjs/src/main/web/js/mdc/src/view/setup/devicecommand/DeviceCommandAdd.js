@@ -2,7 +2,9 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandAdd', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.device-command-add',
     requires: [
-        'Mdc.view.setup.devicecommand.widget.CommandForm'
+        'Mdc.view.setup.devicecommand.widget.CommandForm',
+        'Uni.property.form.Property',
+        'Uni.util.FormErrorMessage'
     ],
     device: null,
     initComponent: function () {
@@ -18,6 +20,13 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandAdd', {
                     align: 'stretch'
                 },
                 items: [
+                    {
+                        xtype: 'uni-form-error-message',
+                        name: 'form-errors',
+                        itemId: 'form-errors',
+                        margin: '0 0 10 0',
+                        hidden: true
+                    },
                     {
                         xtype: 'device-command-add-form',
                         margin: '32 0 0 0',

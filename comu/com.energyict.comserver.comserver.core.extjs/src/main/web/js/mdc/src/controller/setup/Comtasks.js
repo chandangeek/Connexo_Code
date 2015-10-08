@@ -645,7 +645,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
 
         if (Ext.isEmpty(category)) {
             categoryContainer.markInvalid(
-                Uni.I18n.translate('general.required.field', 'MDC', 'This is a required field')
+                Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
             );
             couldAdd = false;
         }
@@ -659,7 +659,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
 
             if (Ext.isEmpty(protocol.action)) {
                 actionContainer.markInvalid(
-                    Uni.I18n.translate('general.required.field', 'MDC', 'This is a required field')
+                    Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
                 )
                 couldAdd = false;
             }
@@ -680,7 +680,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                     case 'communication-tasks-logbookscombo':
                         if (parametersContainer.value.length < 1) {
                             parametersContainer.markInvalid(
-                                Uni.I18n.translate('general.required.field', 'MDC', 'This is a required field')
+                                Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
                             );
                             couldAdd = false;
                         }
@@ -689,7 +689,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                     case 'communication-tasks-registerscombo':
                         if (parametersContainer.value.length < 1) {
                             parametersContainer.markInvalid(
-                                Uni.I18n.translate('general.required.field', 'MDC', 'This is a required field')
+                                Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
                             );
                             couldAdd = false;
                         }
@@ -697,7 +697,9 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         break;
                     case 'communication-tasks-profilescombo':
                         if (parametersContainer.down('#checkProfileTypes').value.length < 1) {
-                            parametersContainer.down('#checkProfileTypes').markInvalid('This is a required field');
+                            parametersContainer.down('#checkProfileTypes').markInvalid(
+                                Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
+                            );
                             couldAdd = false;
                         }
                         self.fillProfiles(protocol, parametersContainer);

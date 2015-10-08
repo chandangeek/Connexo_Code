@@ -78,7 +78,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             url = me.router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule').buildUrl({ruleSetId: estimatedRule.ruleSetId, ruleId: estimatedRule.id});
             estimatedRuleName = estimatedRule.deleted ? estimatedRule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') :
                 '<a href="' + url + '">' + estimatedRule.name + '</a>';
-            field.setValue(Uni.I18n.translate('deviceChannelData.estimatedAccordingTo', 'MDC', 'Estimated according to {0}',[estimatedRuleName]));
+            field.setValue(Uni.I18n.translate('deviceChannelData.estimatedAccordingTo', 'MDC', 'Estimated according to {0}',[estimatedRuleName], false));
         } else {
             field.hide();
         }
@@ -217,7 +217,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             if (me.channels) {
                 return value + ' ' + measurementType + ' ' + validationResultText;
             } else {
-                formatValue = Uni.Number.formatNumber(value, -1);
+                formatValue = Uni.Number.formatNumber(value.toString(), -1);
                 return !Ext.isEmpty(formatValue) ? formatValue + ' ' + measurementType + ' ' + validationResultText : '';
             }
         } else {

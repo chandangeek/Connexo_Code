@@ -302,7 +302,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         me.getAddDevicePage().setLoading();
         form.getRecord().save({
             success: function (record) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAdd.added', 'MDC', "Device '{0}' added.", [record.get('mRID')]));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAdd.added', 'MDC', "Device '{0}' added.", record.get('mRID'), false));
                 location.href = "#/devices/" + encodeURIComponent(record.get('mRID'));
             },
             failure: function (record, operation) {

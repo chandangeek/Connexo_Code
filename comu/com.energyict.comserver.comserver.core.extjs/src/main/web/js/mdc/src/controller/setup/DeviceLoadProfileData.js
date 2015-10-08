@@ -147,7 +147,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
                 tabController.showTab(1);
                 Ext.resumeLayouts(true);
 
-                widget.setLoading();
+                !isTable && widget.setLoading();
                 dataStore.on('load', function () {
                     if (!widget.isDestroyed) {
                         Ext.suspendLayouts();
@@ -240,8 +240,8 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             measurementTypeOrder.push(channel.name);
             seriesObject['yAxis'] = currentLine;
             currentLine += 1;
-            var channelHeader = !Ext.isEmpty(channel.calculatedReadingType) ? channel.calculatedReadingType.measuringPeriod + ' ' + channel.calculatedReadingType.aliasName + ' (' + channel.calculatedReadingType.unit + ')' : channel.readingType.measuringPeriod + ' ' + channel.readingType.aliasName + ' (' + channel.readingType.unit + ')';
-            channels.push({name: channelHeader, unitOfMeasure: channel.unitOfMeasure.unit });
+            var channelHeader = !Ext.isEmpty(channel.calculatedReadingType) ? channel.calculatedReadingType.fullAliasName : channel.readingType.fullAliasName;
+            channels.push({name: channelHeader, unitOfMeasure: channel.unitOfMeasure });
             seriesToYAxisMap[index] = seriesObject['yAxis'];
             series.push(seriesObject);
         });
