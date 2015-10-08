@@ -39,6 +39,7 @@ Ext.define('Uni.view.search.Overview', {
                 items: [
                     {
                         xtype: 'panel',
+                        itemId: 'search-main-container',
                         ui: 'filter',
                         layout: {
                             type: 'vbox',
