@@ -78,7 +78,7 @@ Ext.define('Bpm.model.task.Task', {
                     case 'Error':
                     case 'Exited':
                     case 'Obsolete':
-                        return Uni.I18n.translate('bpm.filter.inProgressStatus', 'BPM', 'In progress');
+                        return Uni.I18n.translate('bpm.filter.failedStatus', 'BPM', 'Failed');
                     default:
                         return value;
                 }
