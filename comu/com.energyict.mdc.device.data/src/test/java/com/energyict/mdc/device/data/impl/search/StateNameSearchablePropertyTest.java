@@ -76,7 +76,7 @@ public class StateNameSearchablePropertyTest {
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
 
-    private DeviceTypeSearchableProperty deviceTypeSearchableProperty;
+    private DeviceTypeSearchableProperty deviceTypeSearchableProper,ty;
     private PropertySpecService propertySpecService;
 
     @Before

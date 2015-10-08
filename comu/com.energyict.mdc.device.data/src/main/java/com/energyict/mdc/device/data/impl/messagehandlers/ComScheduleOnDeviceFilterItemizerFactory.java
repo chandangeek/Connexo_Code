@@ -3,17 +3,12 @@ package com.energyict.mdc.device.data.impl.messagehandlers;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -30,12 +25,13 @@ public class ComScheduleOnDeviceFilterItemizerFactory implements MessageHandlerF
     private volatile DataModel dataModel;
     private volatile MessageService messageService;
     private volatile DeviceService deviceService;
+    private volatile SearchService searchService;
 
     @Override
     public MessageHandler newMessageHandler() {
         return dataModel.
                 getInstance(ComScheduleOnDeviceFilterItimizer.class).
-                init(messageService, jsonService, deviceService);
+                init(messageService, jsonService, deviceService, searchService);
     }
 
     @Reference
@@ -58,6 +54,11 @@ public class ComScheduleOnDeviceFilterItemizerFactory implements MessageHandlerF
         this.messageService = messageService;
     }
 
+    @Reference
+    public void setSearchService(SearchService searchService) {
+        this.searchService = searchService;
+    }
+
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
@@ -71,6 +72,7 @@ public class ComScheduleOnDeviceFilterItemizerFactory implements MessageHandlerF
                 bind(JsonService.class).toInstance(jsonService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(SearchService.class).toInstance(searchService);
             }
         };
     }
