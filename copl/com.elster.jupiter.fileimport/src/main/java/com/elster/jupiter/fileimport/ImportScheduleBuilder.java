@@ -1,9 +1,7 @@
 package com.elster.jupiter.fileimport;
 
-import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
-import java.io.File;
 import java.nio.file.Path;
 
 /**
@@ -15,7 +13,7 @@ public interface ImportScheduleBuilder {
      * Builds the ImportSchedule
      * @return
      */
-    ImportSchedule build();
+    ImportSchedule create();
 
     /**
      *

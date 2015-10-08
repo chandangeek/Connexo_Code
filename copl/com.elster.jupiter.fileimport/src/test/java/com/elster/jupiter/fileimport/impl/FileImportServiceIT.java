@@ -1,6 +1,9 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
@@ -37,6 +40,14 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -157,6 +168,9 @@ public class FileImportServiceIT {
     @Mock
     private TimeService timeService;
 
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+
 
     private class MockModule extends AbstractModule {
 
@@ -266,19 +280,18 @@ public class FileImportServiceIT {
         when(fileImporterFactory.getApplicationName()).thenReturn("SYS");
 
 
-        importSchedule = (ImportScheduleImpl)fileImportService.newBuilder()
-                .setName("IMPORT_SCHEDULE1")
-                .setDestination(DESTINATION_NAME)
-                .setPathMatcher("*")
-                .setImportDirectory(sourceDirectory)
-                .setFailureDirectory(failureDirectory)
-                .setSuccessDirectory(successDirectory)
-                .setProcessingDirectory(inProcessDirectory)
-                .setImporterName(IMPORTER_NAME)
-                .setScheduleExpression(scheduleExpression)
-                .build();
         transactionService.execute(() -> {
-                    importSchedule.save();
+            importSchedule = (ImportScheduleImpl)fileImportService.newBuilder()
+                    .setName("IMPORT_SCHEDULE1")
+                    .setDestination(DESTINATION_NAME)
+                    .setPathMatcher("*")
+                    .setImportDirectory(sourceDirectory)
+                    .setFailureDirectory(failureDirectory)
+                    .setSuccessDirectory(successDirectory)
+                    .setProcessingDirectory(inProcessDirectory)
+                    .setImporterName(IMPORTER_NAME)
+                    .setScheduleExpression(scheduleExpression)
+                    .create();
                     return null;
                 });
 
@@ -388,6 +401,60 @@ public class FileImportServiceIT {
         assertThat(Files.exists(fileImportService.getBasePath().resolve(inProcessFilePath))).isFalse();
     }
 
+    @Test
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CAN_NOT_BE_THE_SAME_AS_IMPORT_FOLDER + "}", property = "importDirectory")
+    public void createWithTheSameImportAndProcessFoldersTest() {
+        transactionService.execute(() -> {
+            fileImportService.newBuilder()
+                    .setName("IMPORT_SCHEDULE_1")
+                    .setDestination(DESTINATION_NAME)
+                    .setPathMatcher("*")
+                    .setImportDirectory(testFileSystem.getPath("source"))
+                    .setFailureDirectory(testFileSystem.getPath("failure"))
+                    .setSuccessDirectory(testFileSystem.getPath("success"))
+                    .setProcessingDirectory(testFileSystem.getPath("source"))
+                    .setImporterName(IMPORTER_NAME)
+                    .setScheduleExpression(scheduleExpression)
+                    .create();
+            return null;
+        });
+    }
 
+    @Test
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CAN_NOT_BE_THE_SAME_AS_IMPORT_FOLDER + "}", property = "importDirectory")
+    public void createWithTheSameImportAndSuccessFoldersTest() {
+        transactionService.execute(() -> {
+            fileImportService.newBuilder()
+                    .setName("IMPORT_SCHEDULE_2")
+                    .setDestination(DESTINATION_NAME)
+                    .setPathMatcher("*")
+                    .setImportDirectory(testFileSystem.getPath("source"))
+                    .setFailureDirectory(testFileSystem.getPath("failure"))
+                    .setSuccessDirectory(testFileSystem.getPath("source"))
+                    .setProcessingDirectory(testFileSystem.getPath("process"))
+                    .setImporterName(IMPORTER_NAME)
+                    .setScheduleExpression(scheduleExpression)
+                    .create();
+            return null;
+        });
+    }
 
+    @Test
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CAN_NOT_BE_THE_SAME_AS_IMPORT_FOLDER + "}", property = "importDirectory")
+    public void createWithTheSameImportAndFailureFoldersTest() {
+        transactionService.execute(() -> {
+            fileImportService.newBuilder()
+                    .setName("IMPORT_SCHEDULE_3")
+                    .setDestination(DESTINATION_NAME)
+                    .setPathMatcher("*")
+                    .setImportDirectory(testFileSystem.getPath("source"))
+                    .setFailureDirectory(testFileSystem.getPath("source"))
+                    .setSuccessDirectory(testFileSystem.getPath("success"))
+                    .setProcessingDirectory(testFileSystem.getPath("process"))
+                    .setImporterName(IMPORTER_NAME)
+                    .setScheduleExpression(scheduleExpression)
+                    .create();
+            return null;
+        });
+    }
 }

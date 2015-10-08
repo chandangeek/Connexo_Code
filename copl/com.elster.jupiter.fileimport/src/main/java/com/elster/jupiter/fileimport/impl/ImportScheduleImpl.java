@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -41,8 +42,9 @@ import java.util.stream.Collectors;
  * ImportSchedule implementation.
  */
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_IMPORT_SCHEDULE + "}")
+@NotSamePath(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.CAN_NOT_BE_THE_SAME_AS_IMPORT_FOLDER + "}")
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
-class ImportScheduleImpl implements ImportSchedule {
+final class ImportScheduleImpl implements ImportSchedule {
 
     private final JsonService jsonService;
     private static final Logger LOGGER = Logger.getLogger(ImportScheduleImpl.class.getName());
@@ -260,7 +262,7 @@ class ImportScheduleImpl implements ImportSchedule {
             return;
         }
         setObsoleteTime(Instant.now()); // mark obsolete
-        update();
+        doUpdate();
     }
 
     public Instant getObsoleteTime() {
@@ -376,9 +378,12 @@ class ImportScheduleImpl implements ImportSchedule {
         }
     }
 
-
     @Override
-    public void save() {
+    public void update() {
+        save();
+    }
+
+    void save() {
 
         Optional<FileImporterFactory> optional = fileImportService.getImportFactory(importerName);
         optional.ifPresent(factory -> factory.validateProperties(properties));
@@ -393,17 +398,16 @@ class ImportScheduleImpl implements ImportSchedule {
         if (id == 0) {
             persist();
         } else {
-            update();
+            doUpdate();
         }
         propertiesDirty = false;
     }
 
     private void persist() {
-
         Save.CREATE.save(dataModel, this);
     }
 
-    private void update() {
+    private void doUpdate() {
 
         if (propertiesDirty) {
             properties.forEach(FileImporterProperty::save);
@@ -411,4 +415,16 @@ class ImportScheduleImpl implements ImportSchedule {
         Save.UPDATE.save(dataModel, this);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ImportScheduleImpl that = (ImportScheduleImpl) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

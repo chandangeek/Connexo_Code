@@ -2,12 +2,9 @@ package com.elster.jupiter.fileimport;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.ScheduleExpression;
-import sun.misc.ConditionLock;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
@@ -72,9 +69,9 @@ public interface ImportSchedule {
      */
     ScheduleExpression getScheduleExpression();
     /**
-     * Persists or updates this instance.
+     * Updates this instance.
      */
-    void save();
+    void update();
 
     /**
      * @param file
