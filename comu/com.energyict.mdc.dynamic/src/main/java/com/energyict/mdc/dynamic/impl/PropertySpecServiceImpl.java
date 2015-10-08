@@ -1,14 +1,5 @@
 package com.energyict.mdc.dynamic.impl;
 
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
-import com.energyict.mdc.dynamic.ObisCodeValueFactory;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
-
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -24,6 +15,16 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.HexString;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.HexStringFactory;
+import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
+import com.energyict.mdc.dynamic.ObisCodeValueFactory;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
+import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -272,7 +273,7 @@ public class PropertySpecServiceImpl implements PropertySpecService {
                 .name(name)
                 .description(description)
                 .setDefaultValue(defaultValue);
-        if(required){
+        if (required) {
             propertySpecBuilder.markRequired();
         }
         return propertySpecBuilder.finish();
@@ -287,10 +288,10 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     public PropertySpec booleanPropertySpec(String name, String description, boolean required, Boolean defaultValue) {
         PropertySpecBuilder booleanPropertySpecBuilder =
                 PropertySpecBuilderImpl
-                    .forClass(new BooleanFactory())
-                    .name(name)
-                    .description(description)
-                    .setDefaultValue(defaultValue);
+                        .forClass(new BooleanFactory())
+                        .name(name)
+                        .description(description)
+                        .setDefaultValue(defaultValue);
         if (required) {
             booleanPropertySpecBuilder.markRequired();
         }
@@ -311,12 +312,12 @@ public class PropertySpecServiceImpl implements PropertySpecService {
                 TimeZone.getTimeZone("Europe/Moscow")};
         PropertySpecBuilder timeZonePropertySpecBuilder =
                 PropertySpecBuilderImpl
-                    .forClass(new TimeZoneFactory())
-                    .name(name)
-                    .description(description)
-                    .setDefaultValue(defaultValue)
-                    .markExhaustive()
-                    .addValues(possibleValues);
+                        .forClass(new TimeZoneFactory())
+                        .name(name)
+                        .description(description)
+                        .setDefaultValue(defaultValue)
+                        .markExhaustive()
+                        .addValues(possibleValues);
         if (required) {
             timeZonePropertySpecBuilder.markRequired();
         }
@@ -339,17 +340,17 @@ public class PropertySpecServiceImpl implements PropertySpecService {
 
     @Override
     public PropertySpec longPropertySpecWithValues(String name, boolean required, Long... values) {
-        return basicPropertySpecService.longPropertySpecWithValues(name,required,values);
+        return basicPropertySpecService.longPropertySpecWithValues(name, required, values);
     }
 
     @Override
     public PropertySpec positiveLongPropertySpec(String name, boolean required) {
-        return basicPropertySpecService.positiveLongPropertySpec(name,required);
+        return basicPropertySpecService.positiveLongPropertySpec(name, required);
     }
 
     @Override
     public PropertySpec boundedLongPropertySpec(String name, boolean required, Long lowerLimit, Long upperLimit) {
-        return basicPropertySpecService.boundedLongPropertySpec(name,required,lowerLimit,upperLimit);
+        return basicPropertySpecService.boundedLongPropertySpec(name, required, lowerLimit, upperLimit);
     }
 
     @Override
