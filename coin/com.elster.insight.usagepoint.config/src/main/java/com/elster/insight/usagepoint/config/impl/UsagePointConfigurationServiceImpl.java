@@ -16,6 +16,7 @@ import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
@@ -128,7 +129,12 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Override
-    public Optional<MetrologyConfiguration> findMetrologyConfiguration(String id) {
+    public MetrologyConfiguration newMetrologyConfiguration(String name) {
+        return dataModel.getInstance(MetrologyConfigurationImpl.class).init(name);
+    }
+    
+    @Override
+    public Optional<MetrologyConfiguration> findMetrologyConfiguration(long id) {
         return dataModel.mapper(MetrologyConfiguration.class).getUnique("id", id);
     }
 

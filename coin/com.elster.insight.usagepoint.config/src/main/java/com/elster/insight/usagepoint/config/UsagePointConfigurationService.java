@@ -6,6 +6,7 @@ import com.elster.jupiter.domain.util.Finder;
 
 public interface UsagePointConfigurationService {
     static String COMPONENTNAME = "UPC";
-    Optional<MetrologyConfiguration> findMetrologyConfiguration(String id);
+    MetrologyConfiguration newMetrologyConfiguration(String name);
+    Optional<MetrologyConfiguration> findMetrologyConfiguration(long id);
     Finder<MetrologyConfiguration> findAllMetrologyConfigurations();
 }
