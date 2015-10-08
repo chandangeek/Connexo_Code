@@ -29,6 +29,7 @@ import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.core.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -87,6 +88,8 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         getEventPushNotificationParser().parseInboundFrame();
         collectedLogBook = getEventPushNotificationParser().getCollectedLogBook();
 
+        context.getLogger().fine("Received inbound event notification. Message: '" + getMeterProtocolEvent().getMessage() + "', protocol code: '" + getMeterProtocolEvent().getProtocolCode() + "'");
+
         if (isJoinAttempt() || isSuccessfulJoin() || isMeterLeft()) {
             DeviceProtocol gatewayProtocol = newGatewayProtocol();
             try {
@@ -94,6 +97,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
                 if (isJoinAttempt()) {
                     providePSK(getDlmsSession(gatewayProtocol));
                 } else if (isSuccessfulJoin() || isMeterLeft()) {
+                    context.getLogger().fine("A module has joined/left the network, reading out the new topology");
                     collectedTopology = gatewayProtocol.getDeviceTopology();
                 }
             } finally {
@@ -106,6 +110,10 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         }
 
         return DiscoverResultType.DATA;
+    }
+
+    private MeterProtocolEvent getMeterProtocolEvent() {
+        return collectedLogBook.getCollectedMeterEvents().get(0);
     }
 
     protected EventPushNotificationParser getEventPushNotificationParser() {
@@ -210,6 +218,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
                                 final OctetString wrappedPSKKey = wrap(dlmsSession.getProperties().getProperties(), pskBytes);
                                 Structure macAndKeyPair = createMacAndKeyPair(macAddressOctetString, wrappedPSKKey, slaveDeviceIdentifier);
                                 macKeyPairs.addDataType(macAndKeyPair);
+                                context.getLogger().fine("Providing PSK key for joining module '" + macAddress + "'");
                             } else {
                                 context.getLogger().warning("Device with MAC address " + macAddress + " has an invalid PSK property: '" + psk + "'. Should be 32 hex characters. Skipping.");
                             }
@@ -264,15 +273,15 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     }
 
     protected boolean isMeterLeft() {
-        return collectedLogBook.getCollectedMeterEvents().get(0).getProtocolCode() == METER_HAS_LEFT;
+        return getMeterProtocolEvent().getProtocolCode() == METER_HAS_LEFT;
     }
 
     protected boolean isSuccessfulJoin() {
-        return collectedLogBook.getCollectedMeterEvents().get(0).getProtocolCode() == METER_HAS_JOINED;
+        return getMeterProtocolEvent().getProtocolCode() == METER_HAS_JOINED;
     }
 
     protected boolean isJoinAttempt() {
-        return collectedLogBook.getCollectedMeterEvents().get(0).getProtocolCode() == METER_JOIN_ATTEMPT;
+        return getMeterProtocolEvent().getProtocolCode() == METER_JOIN_ATTEMPT;
     }
 
     @Override
