@@ -5,25 +5,34 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class TaskInfo {
-    public String status;
+    public String id;
+    public String priority;
     public String name;
-    public String createdOn;
+    public String processName = "";
+    public String deploymentId;
+    public String status;
     public String dueDate;
-    public long processInstancesId;
-    public String actualOwner;
+    public String createdOn;
+    public String actualOwner = "";
+    public String processInstancesId;
     public TaskInfo() {
     }
 
     public TaskInfo(JSONObject jsonObject){
         try{
-            this.processInstancesId = jsonObject.getLong("processInstanceId");
+            this.id = jsonObject.getString("id");
+            this.priority = jsonObject.getString("priority");
             this.name = jsonObject.getString("name");
-            this.status = jsonObject.getString("status");
+            this.processName = jsonObject.isNull("processName") ? "" : jsonObject.getString("processName") ;
+            this.deploymentId = jsonObject.isNull("deploymentId") ? "" : jsonObject.getString("deploymentId") ;
+            this.dueDate = jsonObject.getString("dueDate");
             this.createdOn = jsonObject.getString("createdOn");
-            this.dueDate = jsonObject.getString("expirationTime");
-            this.actualOwner = jsonObject.getString("actualOwnerId");
+            this.status = jsonObject.getString("status");
+            this.actualOwner = jsonObject.isNull("actualOwner") ? "" : jsonObject.getString("actualOwner");
+            this.processInstancesId = jsonObject.getString("processInstanceId").equals("-1") ? "" : jsonObject.getString("processInstanceId");
         } catch (JSONException e) {
-        throw new RuntimeException(e);
+//        throw new RuntimeException(e);
     }
     }
+
 }

@@ -14,6 +14,8 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,8 +24,9 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -185,25 +188,54 @@ public class BpmResource {
     @GET
     @Path("/tasks")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public TaskInfos getTask(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter, @Context SecurityContext securityContext) {
+    public TaskInfos getTask(@Context UriInfo uriInfo, @BeanParam JsonQueryFilter filterX) {
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         String jsonContent;
+        int total = -1;
         JSONArray arr = null;
         try{
-            String rest = "/rest/task/query";
-            if(queryParameters.getLimit().isPresent()&queryParameters.getStart().isPresent()) {
-                rest += "?p=" + queryParameters.getStart().get().toString() + "&s=" + queryParameters.getLimit().get().toString();
+            String rest = "/rest/tasks";
+            String req  = getQueryParam(queryParameters);
+            if(!req.equals("")){
+                rest += req;
             }
             jsonContent = bpmService.getBpmServer().doGet(rest);
             if (!"".equals(jsonContent)) {
-                JSONObject jsnobject = new JSONObject(jsonContent);
-                arr = jsnobject.getJSONArray("list");
+                JSONObject obj = new JSONObject(jsonContent);
+                total = Integer.valueOf(obj.get("total").toString());
+                arr = obj.getJSONArray("tasks");
             }
         }catch (JSONException e) {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
         } catch (IOException e) {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
         }
-        return new TaskInfos(arr);
+        TaskInfos infos = new TaskInfos(arr);
+        if(total > 0) {
+            infos.total = total;
+        }
+        return infos;
+    }
+
+    @GET
+    @Path("/tasks/{id}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public TaskInfo getTask(@PathParam("id")long id) {
+        String jsonContent;
+        TaskInfo taskInfo= new TaskInfo();
+        try{
+            String rest = "/rest/tasks/";
+            rest += String.valueOf(id);
+            jsonContent = bpmService.getBpmServer().doGet(rest);
+            if (!"".equals(jsonContent)) {
+                JSONObject obj = new JSONObject(jsonContent);
+                taskInfo = new TaskInfo(obj);
+            }
+
+        }catch (JSONException e) {
+        } catch (IOException e) {
+        }
+        return taskInfo;
     }
 
     @GET
@@ -242,6 +274,22 @@ public class BpmResource {
         return Response.ok(new AssigneeFilterListInfo(list)).build();
     }
 
+    @POST
+    @Path("tasks/{id}/assign")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public Response assignUser(@Context UriInfo uriInfo,@PathParam("id") long id,@Context SecurityContext securityContext){
+        String userName = getQueryValue(uriInfo, "username");
+        String rest = "/rest/tasks/";
+        rest += String.valueOf(id);
+        if(userName != null) {
+            rest += "/assign?username=" + userName;
+            rest += "&currentuser=" + securityContext.getUserPrincipal().getName();
+            bpmService.getBpmServer().doPost(rest);
+            return Response.ok().build();
+        }
+        return Response.ok().build();
+    }
+
     @GET
     @Path("/assignees")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -276,6 +324,27 @@ public class BpmResource {
                 }
             }
         }
+    }
+
+    private String getQueryParam(QueryParameters queryParam){
+        String req = "";
+        int i = 0;
+        Iterator<String> it = queryParam.keySet().iterator();
+        while(it.hasNext()){
+            String theKey = (String)it.next();
+            if(i > 0 ){
+                req += "&";
+            }else{
+                req += "?";
+            }
+            req += theKey+"="+queryParam.getFirst(theKey);
+            i++;
+        }
+        return req;
+    }
+
+    private String getQueryValue(UriInfo uriInfo,String key){
+        return uriInfo.getQueryParameters().getFirst(key);
     }
 
 }

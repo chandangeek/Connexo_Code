@@ -39,4 +39,9 @@ public class TaskInfos {
     public List<TaskInfo> getTasks() {
         return tasks;
     }
+
+    public void removeLast(){
+        tasks.remove(tasks.size() - 1);
+        total++;
+    }
 }

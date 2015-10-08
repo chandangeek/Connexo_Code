@@ -28,7 +28,6 @@ public class BpmApplication extends Application {
 
     private volatile UserService userService;
     private volatile BpmService bpmService;
-    private volatile License license;
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
 
@@ -40,11 +39,6 @@ public class BpmApplication extends Application {
     @Reference
     public void setBpmService(BpmService bpmService) {
         this.bpmService = bpmService;
-    }
-
-    @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
-    public void setLicense(License license) {
-        this.license = license;
     }
 
     @Reference
