@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
@@ -44,6 +45,7 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -371,12 +373,20 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testComSchedulesBulkAddOnDeviceWithFilter() throws Exception {
         BulkRequestInfo request = new BulkRequestInfo();
         request.action = "add";
-        request.filter = ExtjsFilter.filter("mRID", "DAO*");
+        request.filter = "[{'property':'mRID','value':'DAO*'},{'property':'deviceType','value':['1','2','3']}]".replace('\'', '"');
         request.scheduleIds = Arrays.asList(1L);
         Entity<BulkRequestInfo> json = Entity.json(request);
         Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
         when(messageService.getDestinationSpec(SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION)).thenReturn(destinationSpec);
         when(jsonService.serialize(any())).thenAnswer(invocation -> new ObjectMapper().writeValueAsString(invocation.getArguments()[0]));
+        DeviceSearchDomain searchDomain = mock(DeviceSearchDomain.class);
+        when(searchService.findDomain(Device.class.getName())).thenReturn(Optional.of(searchDomain));
+        SearchableProperty mridProperty = mock(SearchableProperty.class);
+        when(mridProperty.getName()).thenReturn("mRID");
+        SearchableProperty deviceTypeProperty = mock(SearchableProperty.class);
+        when(deviceTypeProperty.getName()).thenReturn("deviceType");
+        when(deviceTypeProperty.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
+        when(searchDomain.getProperties()).thenReturn(Arrays.asList(mridProperty, deviceTypeProperty));
         MessageBuilder builder = mock(MessageBuilder.class);
         when(destinationSpec.get().message(anyString())).thenReturn(builder);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
@@ -389,7 +399,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         JsonModel jsonModel = JsonModel.model(stringArgumentCaptor.getValue());
         assertThat(jsonModel.<String>get("$.action")).isEqualTo("Add");
         assertThat(jsonModel.<List>get("$.deviceMRIDs")).isNull();
-        assertThat(jsonModel.<String>get("$.filter.mRID")).isEqualTo("DAO*");
+        assertThat(jsonModel.<String>get("$.filter.singleProperties.mRID")).isEqualTo("DAO*");
+        assertThat(jsonModel.<List<String>>get("$.filter.listProperties.deviceType")).containsExactly("1","2","3");
         assertThat(jsonModel.<List<Integer>>get("$.scheduleIds")).containsOnly(1);
     }
 
@@ -397,12 +408,17 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void testComSchedulesBulkRemoveFromDeviceWithFilter() throws Exception {
         BulkRequestInfo request = new BulkRequestInfo();
         request.action = "remove";
-        request.filter = ExtjsFilter.filter("serialNumber", "*001");
+        request.filter = "[{'property':'serialNumber','value':'*001'}]".replace('\'', '"');
         request.scheduleIds = Arrays.asList(1L);
         Entity<BulkRequestInfo> json = Entity.json(request);
         Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
         when(messageService.getDestinationSpec(SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION)).thenReturn(destinationSpec);
         when(jsonService.serialize(any())).thenAnswer(invocation -> new ObjectMapper().writeValueAsString(invocation.getArguments()[0]));
+        DeviceSearchDomain searchDomain = mock(DeviceSearchDomain.class);
+        when(searchService.findDomain(Device.class.getName())).thenReturn(Optional.of(searchDomain));
+        SearchableProperty serialNumberProperty = mock(SearchableProperty.class);
+        when(serialNumberProperty.getName()).thenReturn("serialNumber");
+        when(searchDomain.getProperties()).thenReturn(Collections.singletonList(serialNumberProperty));
         MessageBuilder builder = mock(MessageBuilder.class);
         when(destinationSpec.get().message(anyString())).thenReturn(builder);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
@@ -416,7 +432,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         System.out.println(stringArgumentCaptor.getValue());
         assertThat(jsonModel.<String>get("$.action")).isEqualTo("Remove");
         assertThat(jsonModel.<List>get("$.deviceMRIDs")).isNull();
-        assertThat(jsonModel.<String>get("$.filter.serialNumber")).isEqualTo("*001");
+        assertThat(jsonModel.<String>get("$.filter.singleProperties.serialNumber")).isEqualTo("*001");
         assertThat(jsonModel.<List<Integer>>get("$.scheduleIds")).containsOnly(1);
     }
 
