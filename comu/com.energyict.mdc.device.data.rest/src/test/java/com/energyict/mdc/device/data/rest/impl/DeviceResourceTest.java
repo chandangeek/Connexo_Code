@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -37,7 +38,6 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.ComScheduleOnDevicesFilterSpecification;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceValidation;
@@ -368,11 +368,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testComSchedulesBulkAddOnDeviceWithFilter() {
+    public void testComSchedulesBulkAddOnDeviceWithFilter() throws Exception {
         BulkRequestInfo request = new BulkRequestInfo();
         request.action = "add";
-        request.filter = new ComScheduleOnDevicesFilterSpecification();
-        request.filter.mRID = "DAO*";
+        request.filter = ExtjsFilter.filter("mRID", "DAO*");
         request.scheduleIds = Arrays.asList(1L);
         Entity<BulkRequestInfo> json = Entity.json(request);
         Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
@@ -395,11 +394,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testComSchedulesBulkRemoveFromDeviceWithFilter() {
+    public void testComSchedulesBulkRemoveFromDeviceWithFilter() throws Exception {
         BulkRequestInfo request = new BulkRequestInfo();
         request.action = "remove";
-        request.filter = new ComScheduleOnDevicesFilterSpecification();
-        request.filter.serialNumber = "*001";
+        request.filter = ExtjsFilter.filter("serialNumber", "*001");
         request.scheduleIds = Arrays.asList(1L);
         Entity<BulkRequestInfo> json = Entity.json(request);
         Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
@@ -423,11 +421,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testComSchedulesBulkWithoutAction() {
+    public void testComSchedulesBulkWithoutAction() throws Exception {
         BulkRequestInfo request = new BulkRequestInfo();
         request.action = null;
-        request.filter = new ComScheduleOnDevicesFilterSpecification();
-        request.filter.serialNumber = "*001";
+        request.filter = ExtjsFilter.filter("serialNumber", "*001");
         request.scheduleIds = Arrays.asList(1L);
         Entity<BulkRequestInfo> json = Entity.json(request);
         Optional<DestinationSpec> destinationSpec = Optional.of(mock(DestinationSpec.class));
