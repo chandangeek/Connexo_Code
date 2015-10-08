@@ -136,8 +136,8 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             mapping: function (data) {
                 if ((data.exportPeriodFrom && data.exportPeriodFrom !== 0) &&
                     (data.exportPeriodTo && data.exportPeriodTo !== 0)) {
-                    return 'From ' + Uni.DateTime.formatDateTimeShort(new Date(data.exportPeriodFrom)) +
-                        ' to ' + Uni.DateTime.formatDateTimeShort(new Date(data.exportPeriodTo));
+                    return 'From ' + Uni.DateTime.formatDateTimeLong(new Date(data.exportPeriodFrom)) +
+                        ' to ' + Uni.DateTime.formatDateTimeLong(new Date(data.exportPeriodTo));
                 }
                 return '-';
             }
