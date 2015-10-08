@@ -117,19 +117,16 @@ public class DynamicSearchResource {
                 filter(p -> jsonQueryFilter.hasProperty(p.getName())).
                 forEach(searchableProperty -> {
                     try {
-                        if (searchableProperty.getSelectionMode().equals(SearchableProperty.SelectionMode.MULTI)) {
+                        if (searchableProperty.getSelectionMode() == SearchableProperty.SelectionMode.MULTI) {
                             searchBuilder.where(searchableProperty).in(getQueryParameterAsObjectList(jsonQueryFilter, searchableProperty));
+                        } else if (searchableProperty.getSpecification().getValueFactory().getValueType().equals(String.class)) {
+                            searchBuilder.where(searchableProperty).likeIgnoreCase((String) getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
                         } else {
-                            if (searchableProperty.getSpecification().getValueFactory().getValueType().equals(String.class)) {
-                                searchBuilder.where(searchableProperty).likeIgnoreCase((String) getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
-                            } else {
-                                searchBuilder.where(searchableProperty).isEqualTo(getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
-                            }
+                            searchBuilder.where(searchableProperty).isEqualTo(getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
                         }
                     } catch (InvalidValueException e) {
                         throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter." + searchableProperty.getName());
                     }
-
                 });
         } else {
             throw new LocalizedFieldValidationException(MessageSeeds.AT_LEAST_ONE_CRITERIA, "filter");
@@ -169,7 +166,7 @@ public class DynamicSearchResource {
         } else {
             nameFilterPredicate = dv-> true;
         }
-        List allJsonValues = possibleValues.stream().map(v->asJsonValueObject(searchableProperty.toDisplay(v),v)).filter(nameFilterPredicate).collect(toList());
+        List allJsonValues = possibleValues.stream().map(v -> asJsonValueObject(searchableProperty.toDisplay(v), v)).filter(nameFilterPredicate).collect(toList());
         return Response.ok().entity(PagedInfoList.fromCompleteList("values", allJsonValues, jsonQueryParameters)).build();
     }
 
@@ -240,5 +237,4 @@ public class DynamicSearchResource {
     class ModelInfo {
         public List model;
     }
-
 }
