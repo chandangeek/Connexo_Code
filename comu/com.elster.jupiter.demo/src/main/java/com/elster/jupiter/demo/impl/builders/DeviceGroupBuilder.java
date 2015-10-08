@@ -15,6 +15,9 @@ import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
+/**
+ * {@link Builder} that creates a {@link EndDeviceGroup} for the given device types
+ */
 public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroupBuilder> {
     private final MeteringGroupsService meteringGroupsService;
     private final DeviceConfigurationService deviceConfigurationService;
@@ -41,11 +44,12 @@ public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroup
     @Override
     public EndDeviceGroup create() {
         Log.write(this);
-        EndDeviceGroup endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(getCondition());
-        endDeviceGroup.setName(getName());
-        // dynamic
-        endDeviceGroup.setQueryProviderName("com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider");
-        endDeviceGroup.save();
+        EndDeviceGroup endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(getCondition())
+                .setName(getName())
+                .setQueryProviderName("com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider")
+                .create();
+        System.out.println("applying postbuilders on endDeviceGroup :" + endDeviceGroup.getName());
+        applyPostBuilders(endDeviceGroup);
         return endDeviceGroup;
     }
 

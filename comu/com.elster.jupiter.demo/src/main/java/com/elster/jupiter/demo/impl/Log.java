@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public final class Log {
     private static final boolean IS_PRODUCTION = false;
@@ -62,8 +63,14 @@ public final class Log {
         if (obj != null){
             String out = obj.toString();
             if (out.contains("@")){ // standard serialization
-                StringBuilder readableOutput = new StringBuilder(obj.getClass().getSimpleName());
+                StringBuilder readableOutput = new StringBuilder();
                 readableOutput.append(" [");
+                if (obj instanceof String[]){
+                    Arrays.stream((String[]) obj).forEach(s -> readableOutput.append(s).append(" ,"));
+                    readableOutput.setLength(readableOutput.length()-2);
+                }else{
+                    readableOutput.append(obj.getClass().getSimpleName());
+                }
                 if (obj instanceof ArrayList){
                     ((ArrayList) obj).stream().forEach(o -> readableOutput.append(objToReadableString(o)).append(" ,"));
                     readableOutput.setLength(readableOutput.length()-2);

@@ -13,39 +13,67 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * {@link Builder} for creating {@link User}
+ * and join it to the groups defined by <Code>roles</Code>
+*/
 public class UserBuilder extends NamedBuilder<User, UserBuilder> {
+
+    public final static String DEMO_ADMIN_PASSWORD = "D3moAdmin";
+    public final static String DEMO_PASSWORD = "D3mo";
 
     private final UserService userService;
 
     private String description;
     private String password;
-    private List<String> roles;
+    private String[] roles;
     private String language;
 
     @Inject
     public UserBuilder(UserService userService) {
         super(UserBuilder.class);
         this.userService = userService;
-        this.password = "D3moAdmin";
+        this.password = DEMO_ADMIN_PASSWORD;
         this.description = "";
         this.language = Locale.ENGLISH.toLanguageTag();
     }
 
+    /**
+     * Sets the user's password
+     * @param password the new password
+     * @return itself (allowing method chaining)
+     */
     public UserBuilder withPassword(String password){
         this.password = password;
         return this;
     }
 
-    public UserBuilder withRoles(List<String> roles){
-        this.roles = roles;
+    /**
+     * The user will belong to the {@link Group} with the given name
+     * @param role of the group(s) to join
+     * @return itself (allowing method chaining)
+     */
+    public UserBuilder withRoles(String... role){
+        this.roles = role;
         return this;
     }
 
+    /**
+     * Sets the user's description
+     * @param description the new value for description
+     * @return itself (allowing method chaining)
+     */
+    @SuppressWarnings("unused")
     public UserBuilder withDescription(String description){
         this.description = description;
         return this;
     }
 
+    /**
+     * Sets the user's language
+     * @param lang the language
+     * @return itself (allowing method chaining)
+     */
     public UserBuilder withLanguage(String lang){
         this.language = lang;
         return this;
@@ -66,7 +94,7 @@ public class UserBuilder extends NamedBuilder<User, UserBuilder> {
         user.setPassword(this.password);
         user.setLocale(Locale.forLanguageTag(language));
         if (roles != null){
-            Map<String, Group> allGroups = userService.getGroups().stream().collect(Collectors.toMap(g -> g.getName(), g -> g));
+            Map<String, Group> allGroups = userService.getGroups().stream().collect(Collectors.toMap(Group::getName, g -> g));
             for (String role : roles) {
                 Group group = allGroups.get(role);
                 if (group == null){

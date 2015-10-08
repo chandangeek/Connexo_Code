@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-//TODO refactor this
+
 public class FavoriteGroupBuilder implements Builder<List<FavoriteDeviceGroup>> {
     private final FavoritesService favoritesService;
     private final UserService userService;
