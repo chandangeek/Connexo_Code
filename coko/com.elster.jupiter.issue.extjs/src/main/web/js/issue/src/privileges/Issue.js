@@ -31,6 +31,10 @@ Ext.define('Isu.privileges.Issue', {
         return Uni.Auth.checkPrivileges(Isu.privileges.Issue.comment );
     },
 
+    canDoAction: function(){
+        return Uni.Auth.checkPrivileges(Isu.privileges.Issue.action );
+    },
+
     canAdminRule: function(){
         return Uni.Auth.checkPrivileges(Isu.privileges.Issue.adminRule);
     },

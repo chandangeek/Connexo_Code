@@ -10,7 +10,6 @@ Ext.define('Isu.view.issues.ActionMenu', {
     border: false,
     shadow: false,
     defaultAlign: 'tr-br?',
-    minHeight: 60,
     router: null,
     mixins: {
         bindable: 'Ext.util.Bindable'
@@ -18,7 +17,7 @@ Ext.define('Isu.view.issues.ActionMenu', {
     predefinedItems: [
         {
             text: Uni.I18n.translate('issues.actionMenu.addComment', 'ISU', 'Add comment'),
-            privilege: Isu.privileges.Issue.comment,
+            privileges: Isu.privileges.Issue.comment,
             action: 'addComment'
         }
     ],
@@ -106,13 +105,14 @@ Ext.define('Isu.view.issues.ActionMenu', {
             var privileges;
             switch (record.get('name')) {
                 case 'Assign issue':
-                    privileges = Isu.privileges.Issue.assign;
+                    privileges = Isu.privileges.Issue.canDoAction() && Isu.privileges.Issue.assign;
+                    debugger;
                     break;
                 case 'Close issue':
-                    privileges = Isu.privileges.Issue.close;
+                    privileges = Isu.privileges.Issue.canDoAction() && Isu.privileges.Issue.close;
                     break;
                 case 'Retry now':
-                    privileges = Isu.privileges.Device.canOperateDeviceCommunication();
+                    privileges = Isu.privileges.Device.canOperateDeviceCommunication() && Isu.privileges.Issue.canDoAction();
                     break;
                 case 'Send someone to inspect':
                     privileges = Isu.privileges.Issue.notify;
