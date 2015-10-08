@@ -83,8 +83,9 @@ public class ConsoleCommands {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(amrSystemId).orElseThrow(() -> new IllegalArgumentException("amr System not found"));
-            Meter meter = amrSystem.newMeter(amrid, mrId);
-            meter.save();
+            amrSystem.newMeter(amrid)
+                    .setMRID(mrId)
+                    .create();
             context.commit();
         } finally {
             threadPrincipalService.clear();
@@ -96,7 +97,7 @@ public class ConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             Meter meter = meteringService.findMeter(mrId).get();
             meter.setName(newName);
-            meter.save();
+            meter.update();
             context.commit();
         } finally {
             threadPrincipalService.clear();
@@ -109,7 +110,7 @@ public class ConsoleCommands {
             Meter meter = meteringService.findMeter(mrId).get();
             Instant activationDate = Instant.ofEpochMilli(epochMilli);
             meter.activate(activationDate);
-            meter.save();
+            meter.update();
             context.commit();
         } finally {
             threadPrincipalService.clear();
@@ -155,8 +156,7 @@ public class ConsoleCommands {
     public void createUsagePoint(String mrId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            UsagePointImpl usagePoint = (UsagePointImpl) meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint(mrId);
-            usagePoint.save();
+            UsagePointImpl usagePoint = (UsagePointImpl) meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint(mrId).create();
             context.commit();
         } finally {
             threadPrincipalService.clear();

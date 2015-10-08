@@ -5,20 +5,20 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterBuilder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
 import java.time.Instant;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
-import javax.inject.Provider;
-import javax.inject.Inject;
-
-import java.util.List;
-
-public class AmrSystemImpl implements AmrSystem {
+final class AmrSystemImpl implements AmrSystem {
 	//persistent fields
 	private int id;
 	private String name;
@@ -65,44 +65,31 @@ public class AmrSystemImpl implements AmrSystem {
 	}
 
 	@Override
-	public Meter newMeter(String amrId) {
-		return newMeter(amrId, null);
+	public MeterBuilder newMeter(String amrId) {
+        return new MeterBuilderImpl(this, meterFactory, amrId);
+	}
+
+    @Override
+	public EndDevice createEndDevice(String amrId) {
+		return createEndDevice(amrId, null);
 	}
 	@Override
-	public Meter newMeter(String amrId, String mRID) {
-		return meterFactory.get().init(this, amrId, mRID);
+	public EndDevice createEndDevice(String amrId, String mRID) {
+        EndDeviceImpl endDevice = endDeviceFactory.get().init(this, amrId, mRID);
+        endDevice.doSave();
+        return endDevice;
 	}
 
     @Override
-    public Meter newMeter(FiniteStateMachine stateMachine, String amrId) {
-        return this.newMeter(stateMachine, amrId, null);
-    }
-
-    @Override
-    public Meter newMeter(FiniteStateMachine stateMachine, String amrId, String mRID) {
-        MeterImpl meter = meterFactory.get().init(this, amrId, mRID);
-        meter.setFiniteStateMachine(stateMachine);
-        return meter;
-    }
-
-    @Override
-	public EndDevice newEndDevice(String amrId) {
-		return newEndDevice(amrId, null);
-	}
-	@Override
-	public EndDevice newEndDevice(String amrId, String mRID) {
-		return endDeviceFactory.get().init(this, amrId, mRID);
-	}
-
-    @Override
-	public EndDevice newEndDevice(FiniteStateMachine stateMachine, String amrId) {
-		return this.newEndDevice(stateMachine, amrId, null);
+	public EndDevice createEndDevice(FiniteStateMachine stateMachine, String amrId) {
+		return this.createEndDevice(stateMachine, amrId, null);
 	}
 
 	@Override
-	public EndDevice newEndDevice(FiniteStateMachine stateMachine, String amrId, String mRID) {
+	public EndDevice createEndDevice(FiniteStateMachine stateMachine, String amrId, String mRID) {
         EndDeviceImpl endDevice = endDeviceFactory.get().init(this, amrId, mRID);
         endDevice.setFiniteStateMachine(stateMachine);
+		endDevice.doSave();
         return endDevice;
 	}
 
@@ -131,4 +118,16 @@ public class AmrSystemImpl implements AmrSystem {
 		return findMeter(amrId).map(meter -> dataModel.mapper(Meter.class).lock(meter.getId()));
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		AmrSystemImpl amrSystem = (AmrSystemImpl) o;
+		return Objects.equals(id, amrSystem.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
 }

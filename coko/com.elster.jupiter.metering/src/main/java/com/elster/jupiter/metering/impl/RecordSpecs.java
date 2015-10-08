@@ -4,6 +4,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.ids.FieldDerivationRule;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.RecordSpecBuilder;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ProcessStatus;
@@ -27,7 +28,7 @@ public enum RecordSpecs {
 	 */
 	SINGLEINTERVAL("Single Interval Data",true) {
 		@Override
-		void addFieldSpecs(RecordSpec recordSpec) {			
+		void addFieldSpecs(RecordSpecBuilder recordSpec) {
 			recordSpec.addFieldSpec("Value", NUMBER);
 		}
 		
@@ -64,7 +65,7 @@ public enum RecordSpecs {
 	 */
 	BULKQUANTITYINTERVAL("Bulk Quantity Interval Data",true) {
 		@Override
-		void addFieldSpecs(RecordSpec recordSpec) {
+		void addFieldSpecs(RecordSpecBuilder recordSpec) {
 			recordSpec.addDerivedFieldSpec("Value", "Bulk", NUMBER, FieldDerivationRule.DELTAFROMPREVIOUS);
 		}
 
@@ -96,7 +97,7 @@ public enum RecordSpecs {
 	 */
 	MULTIINTERVAL("Multi Interval Data",true) {
 		@Override
-		void addFieldSpecs(RecordSpec recordSpec) {
+		void addFieldSpecs(RecordSpecBuilder recordSpec) {
 			recordSpec.addFieldSpec("Value1", NUMBER);
 			recordSpec.addFieldSpec("Value2", NUMBER);
 			recordSpec.addFieldSpec("Value3", NUMBER);
@@ -133,7 +134,7 @@ public enum RecordSpecs {
 	 */
 	BASEREGISTER("Base Register",false) {
 		@Override
-		void addFieldSpecs(RecordSpec recordSpec) {
+		void addFieldSpecs(RecordSpecBuilder recordSpec) {
 			recordSpec.addFieldSpec("Value", NUMBER);
 			recordSpec.addFieldSpec("Text", TEXT);
 		}
@@ -168,7 +169,7 @@ public enum RecordSpecs {
 	 */
 	BILLINGPERIOD("Billing Period Register",false) {
 		@Override
-		void addFieldSpecs(RecordSpec recordSpec) {
+		void addFieldSpecs(RecordSpecBuilder recordSpec) {
 			 recordSpec.addFieldSpec("Value", NUMBER);
 			 recordSpec.addFieldSpec("Text", TEXT);
 			 recordSpec.addFieldSpec("From Time", INSTANT);
@@ -245,14 +246,13 @@ public enum RecordSpecs {
 	}
 
 	private RecordSpec create(IdsService idsService) {
-		RecordSpec recordSpec = idsService.newRecordSpec(MeteringService.COMPONENTNAME, ordinal() + 1 , specName);
-		recordSpec.addFieldSpec("ProcesStatus", LONGINTEGER);
+		RecordSpecBuilder recordSpecBuilder = idsService.createRecordSpec(MeteringService.COMPONENTNAME, ordinal() + 1, specName)
+				.addFieldSpec("ProcesStatus", LONGINTEGER);
 		if (interval) {
-			recordSpec.addFieldSpec("ProfileStatus", LONGINTEGER);
+			recordSpecBuilder.addFieldSpec("ProfileStatus", LONGINTEGER);
 		}
-		addFieldSpecs(recordSpec);
-		recordSpec.persist();
-		return recordSpec;
+		addFieldSpecs(recordSpecBuilder);
+		return recordSpecBuilder.create();
 	}
 
     void validateValues(BaseReading reading, Object[] values) {
@@ -260,7 +260,7 @@ public enum RecordSpecs {
 
 	abstract int slotOffset();
 
-	abstract void addFieldSpecs(RecordSpec recordSpec);
+	abstract void addFieldSpecs(RecordSpecBuilder builder);
 
 	abstract Object[] toArray(BaseReading reading, int slotIndex, ProcessStatus status);
 

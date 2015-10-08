@@ -1,17 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.constraints.NotNull;
-
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -28,11 +16,9 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
-import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.orm.DataModel;
@@ -50,6 +36,8 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.validation.constraints.NotNull;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -103,30 +91,11 @@ public class UsagePointImpl implements UsagePoint {
         this.accountabilityFactory = accountabilityFactory;
     }
 
-    @Deprecated
     UsagePointImpl init(String mRID, ServiceCategory serviceCategory) {
         this.mRID = mRID;
         this.serviceCategory.set(serviceCategory);
         this.isSdp = true;
         return this;
-    }
-
-    public UsagePointBuilder getNewBuilder(ServiceCategory serviceCategory) {
-        return new UsagePointBuilderImpl(serviceCategory, this);
-    }
-
-    public UsagePointDetail newUsagePointDetail(Instant start) {
-        Interval interval = Interval.of(Range.atLeast(start));
-        ServiceKind kind = getServiceCategory().getKind();
-        if (kind.equals(ServiceKind.ELECTRICITY)) {
-            return ElectricityDetailImpl.from(dataModel, this, interval);
-        } else if (kind.equals(ServiceKind.GAS)) {
-            return GasDetailImpl.from(dataModel, this, interval);
-        } else if (kind.equals(ServiceKind.WATER)) {
-            return WaterDetailImpl.from(dataModel, this, interval);
-        } else {
-            return DefaultDetailImpl.from(dataModel, this, interval);
-        }
     }
 
     @Override
@@ -145,22 +114,6 @@ public class UsagePointImpl implements UsagePoint {
     public WaterDetailBuilder newWaterDetailBuilder(Instant start) {
         Interval interval = Interval.of(Range.atLeast(start));
         return new WaterDetailBuilderImpl(dataModel, this, interval);
-    }
-
-    UsagePointImpl init(UsagePointBuilder upb) {
-        this.serviceCategory.set(upb.getServiceCategory());
-        this.aliasName = upb.getAliasName();
-        this.description = upb.getDescription();
-        this.mRID = upb.getmRID();
-        this.name = upb.getName();
-        this.isSdp = upb.isSdp();
-        this.isVirtual = upb.isVirtual();
-        this.outageRegion = upb.getOutageRegion();
-        this.readCycle = upb.getReadCycle();
-        this.readRoute = upb.getReadRoute();
-        this.servicePriority = upb.getServicePriority();
-        save();
-        return this;
     }
 
     @Override
@@ -290,7 +243,11 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public void save() {
+    public void update() {
+        doSave();
+    }
+
+    void doSave() {
         if (id == 0) {
             Save.CREATE.save(dataModel, this);
             eventService.postEvent(EventType.USAGEPOINT_CREATED.topic(), this);

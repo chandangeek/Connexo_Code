@@ -111,8 +111,7 @@ public class CumulativeChannelTest {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
         	AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-        	Meter meter = amrSystem.newMeter("myMeter");
-        	meter.save();
+        	Meter meter = amrSystem.newMeter("myMeter").create();
         	MeterActivation activation = meter.activate(ZonedDateTime.of(2014,1,1,0,0,0,0,ZoneId.systemDefault()).toInstant());
         	String readingTypeCode = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
         			.period(TimeAttribute.MINUTE15)
