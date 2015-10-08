@@ -118,6 +118,7 @@ public class MissingValuesValidatorTest {
     @Test
     public void testValidateNoneMissing() {
     	when(channel.toList(any())).thenReturn(Arrays.asList(startPlus10,startPlus20,startPlus30,startPlus40,startPlus50,end));
+        when(channel.getBulkQuantityReadingType()).thenReturn(Optional.empty());
         MissingValuesValidator validator = new MissingValuesValidator(thesaurus, propertySpecService);
 
         validator.init(channel, readingType, Range.openClosed(start, end));
@@ -133,6 +134,7 @@ public class MissingValuesValidatorTest {
     @Test
     public void testValidateNoneMissingEvenIfFirstReadingEverMissesDelta() {
         when(channel.toList(any())).thenReturn(Arrays.asList(startPlus10,startPlus20,startPlus30,startPlus40,startPlus50,end));
+        when(channel.getBulkQuantityReadingType()).thenReturn(Optional.empty());
         MissingValuesValidator validator = new MissingValuesValidator(thesaurus, propertySpecService);
 
         validator.init(channel, readingType, Range.closed(start, end));
@@ -152,7 +154,8 @@ public class MissingValuesValidatorTest {
 
     @Test
     public void testValidateOneMissingYetThereIsAReadingForOtherReadingTypes() {
-        when(channel.toList(any())).thenReturn(Arrays.asList(startPlus10,startPlus20,startPlus30,startPlus40,startPlus50,end));
+        when(channel.toList(any())).thenReturn(Arrays.asList(startPlus10, startPlus20, startPlus30, startPlus40, startPlus50, end));
+        when(channel.getBulkQuantityReadingType()).thenReturn(Optional.empty());
         MissingValuesValidator validator = new MissingValuesValidator(thesaurus, propertySpecService);
 
         validator.init(channel, readingType, Range.openClosed(start, end));
@@ -173,6 +176,7 @@ public class MissingValuesValidatorTest {
     @Test
     public void testValidateSomeMissing() {
     	when(channel.toList(any())).thenReturn(Arrays.asList(start,startPlus10,startPlus20,startPlus30,startPlus40,startPlus50,end));
+        when(channel.getBulkQuantityReadingType()).thenReturn(Optional.empty());
         MissingValuesValidator validator = new MissingValuesValidator(thesaurus, propertySpecService);
 
         validator.init(channel, readingType, Range.closed(start, end));
@@ -188,6 +192,7 @@ public class MissingValuesValidatorTest {
     @Test
     public void testValidateAllMissing() {
     	when(channel.toList(any())).thenReturn(Arrays.asList(start,startPlus10,startPlus20,startPlus30,startPlus40,startPlus50,end));
+        when(channel.getBulkQuantityReadingType()).thenReturn(Optional.empty());
         MissingValuesValidator validator = new MissingValuesValidator(thesaurus, propertySpecService);
 
         validator.init(channel, readingType, Range.closed(start, end));
@@ -249,6 +254,7 @@ public class MissingValuesValidatorTest {
     public void testNoMissingsReportedOnIrregularChannels() {
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
         when(channel.isRegular()).thenReturn(false);
+        when(channel.getBulkQuantityReadingType()).thenReturn(Optional.empty());
         when(channel.toList(any())).thenReturn(Collections.emptyList());
 
         MissingValuesValidator validator = new MissingValuesValidator(thesaurus, propertySpecService);

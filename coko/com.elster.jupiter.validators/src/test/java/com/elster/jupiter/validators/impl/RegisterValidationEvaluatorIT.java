@@ -72,6 +72,18 @@ import static com.elster.jupiter.validation.ValidationResult.VALID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.validation.ValidationResult.SUSPECT;
+import static com.elster.jupiter.validation.ValidationResult.VALID;
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Tests integration of all internal components involved in validation.
  * Only interfaces of outside the bundle and implementations of Validator (since there are no internal implementations by design) have been mocked.
@@ -142,8 +154,7 @@ public class RegisterValidationEvaluatorIT {
             	.code();
             ReadingType readingType1 = meteringService.getReadingType(readingType).get();
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            meter = amrSystem.newMeter("2331");
-            meter.save();
+            meter = amrSystem.newMeter("2331").create();
             meterActivation = meter.activate(date1);
             ValidationService validationService = injector.getInstance(ValidationService.class);
             validationService.addValidatorFactory(injector.getInstance(DefaultValidatorFactory.class));
