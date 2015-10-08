@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static org.mockito.Mockito.*;
 
@@ -63,6 +64,7 @@ public class PushEventNotificationTest extends TestCase {
         context = mock(InboundDiscoveryContext.class);
         inboundDAO = mock(InboundDAO.class);
         when(context.getInboundDAO()).thenReturn(inboundDAO);
+        when(context.getLogger()).thenReturn(Logger.getAnonymousLogger());
 
         when(collectedDataFactoryProvider.getCollectedDataFactory()).thenReturn(collectedDataFactory);
         CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
