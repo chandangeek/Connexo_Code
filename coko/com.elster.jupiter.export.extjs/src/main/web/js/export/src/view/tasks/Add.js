@@ -9,6 +9,7 @@ Ext.define('Dxp.view.tasks.Add', {
         'Uni.property.form.GroupedPropertyForm',
         'Uni.util.FormErrorMessage',
         'Uni.grid.column.ReadingType',
+        'Uni.grid.column.EventType',
         'Dxp.view.tasks.DestinationsGrid'
     ],
 
@@ -341,7 +342,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 hidden: true,
                                 columns: [
                                     {
-                                        //xtype: 'event-type-column',
+                                        xtype: 'event-type-column',
                                         dataIndex: 'eventFilterCode',
                                         flex: 1
                                     },

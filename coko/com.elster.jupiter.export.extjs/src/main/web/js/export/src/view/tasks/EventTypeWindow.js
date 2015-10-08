@@ -8,6 +8,7 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
     modal: true,
     layout: 'fit',
     floating: true,
+    comboBoxValueForAll: -1,
     requires: [
         'Uni.util.FormErrorMessage',
         'Dxp.model.EndDeviceEventTypePart'
@@ -227,14 +228,14 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
             deviceEventOrActionCombo = me.down('#des-device-eventoraction-combo');
 
         radioEventTypeParts.on("change", me.onChange, me);
-        deviceTypeCombo.setValue(-1);
-        deviceDomainCombo.setValue(-1);
-        deviceSubDomainCombo.setValue(-1);
+        deviceTypeCombo.setValue(me.comboBoxValueForAll);
+        deviceDomainCombo.setValue(me.comboBoxValueForAll);
+        deviceSubDomainCombo.setValue(me.comboBoxValueForAll);
         deviceTypeCombo.on("change", me.updateEventTypeField, me);
         deviceDomainCombo.on("change", me.updateEventTypeField, me);
         deviceSubDomainCombo.on("change", me.updateEventTypeField, me);
         deviceEventOrActionCombo.on("change", me.updateEventTypeField, me);
-        deviceEventOrActionCombo.setValue(-1);
+        deviceEventOrActionCombo.setValue(me.comboBoxValueForAll);
         fieldToFocus.focus(false, 200); // doesn't seem to work for some reason...
     },
 
@@ -260,10 +261,10 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
             assembledEventTypeField = me.down('#des-eventtype-assembled-field');
 
         assembledEventTypeField.setValue(
-            (deviceTypeCombo.getValue() === -1 ? '*' : deviceTypeCombo.getValue()) + '.'
-            + (deviceDomainCombo.getValue() === -1 ? '*' : deviceDomainCombo.getValue() ) + '.'
-            + (deviceSubDomainCombo.getValue() === -1 ? '*' : deviceSubDomainCombo.getValue() ) + '.'
-            + (deviceEventOrActionCombo.getValue() === -1 ? '*' : deviceEventOrActionCombo.getValue())
+            (deviceTypeCombo.getValue() === me.comboBoxValueForAll ? '*' : deviceTypeCombo.getValue()) + '.'
+            + (deviceDomainCombo.getValue() === me.comboBoxValueForAll ? '*' : deviceDomainCombo.getValue() ) + '.'
+            + (deviceSubDomainCombo.getValue() === me.comboBoxValueForAll ? '*' : deviceSubDomainCombo.getValue() ) + '.'
+            + (deviceEventOrActionCombo.getValue() === me.comboBoxValueForAll ? '*' : deviceEventOrActionCombo.getValue())
         );
     },
 
@@ -346,6 +347,59 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
         } else {
             return me.down('#des-eventtype-assembled-field').getValue();
         }
+    },
+
+    getDeviceTypeName: function() {
+        return this.getComboBoxDisplayValue(1);
+    },
+
+    getDeviceDomainName: function() {
+        return this.getComboBoxDisplayValue(2);
+    },
+
+    getDeviceSubDomainName: function() {
+        return this.getComboBoxDisplayValue(3);
+    },
+
+    getDeviceEventOrActionName: function() {
+        return this.getComboBoxDisplayValue(4);
+    },
+
+    getComboBoxDisplayValue: function(partNr) {
+        var me = this,
+            radioGroup = me.down('#eventTypeInputMethod'),
+            fieldId,
+            comboBox,
+            selectedValue;
+
+        switch(partNr) {
+            case 1: fieldId = '#des-device-type-combo'; break;
+            case 2: fieldId = '#des-device-domain-combo'; break;
+            case 3: fieldId = '#des-device-subdomain-combo'; break;
+            case 4: fieldId = '#des-device-eventoraction-combo'; break;
+        }
+        comboBox = me.down(fieldId);
+
+        if (radioGroup.getValue().rb === '0') {
+            var inputField = me.down('#des-eventtype-input-field'),
+                parts = inputField.getValue().split('.');
+            selectedValue = parts[partNr-1] === '*' ? me.comboBoxValueForAll : parseInt(parts[partNr-1]);
+        } else {
+            selectedValue = comboBox.getValue();
+        }
+        if (selectedValue === me.comboBoxValueForAll) {
+            return '*';
+        }
+
+        var index = comboBox.store.findExact('value', selectedValue);
+        if (index === -1) { // shouldn't be the case, though
+            return '?';
+        }
+        var record = comboBox.store.getAt(index);
+        if (!record) { // shouldn't be the case, though
+            return '?';
+        }
+        return record.get('displayName');
     }
 
 });

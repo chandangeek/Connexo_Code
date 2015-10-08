@@ -134,8 +134,17 @@ Ext.define('Dxp.controller.Tasks', {
 
     requiredFieldText: Uni.I18n.translate('dataExport.requiredField','DES','This field is required'),
 
+    deviceTypesStore: null,
+    deviceDomainsStore: null,
+    deviceSubDomainsStore: null,
+    deviceEventOrActionsStore: null,
+    comboBoxValueForAll: -1,
+
     init: function () {
         this.control({
+            'data-export-tasks-add': {
+                render: this.populateStores
+            },
             'data-export-tasks-add #recurrence-trigger': {
                 change: this.onRecurrenceTriggerChange
             },
@@ -182,7 +191,7 @@ Ext.define('Dxp.controller.Tasks', {
                 click: this.showAddReadingGrid
             },
             'data-export-tasks-add #addEventTypeButton': {
-                click: this.populateComboBoxes
+                click: this.showAddEventTypePopUp
             },
             '#AddReadingTypesToTaskSetup button[name=cancel]': {
                 click: this.forwardToPreviousPage
@@ -431,56 +440,37 @@ Ext.define('Dxp.controller.Tasks', {
         router.getRoute(addReadingTypesRoute).forward();
     },
 
-    populateComboBoxes: function() {
-        var me = this,
-            deviceTypesStore = Ext.getStore('Dxp.store.DeviceTypes'),
-            deviceDomainsStore = Ext.getStore('Dxp.store.DeviceDomains'),
-            deviceSubDomainsStore = Ext.getStore('Dxp.store.DeviceSubDomains'),
-            deviceEventOrActionsStore = Ext.getStore('Dxp.store.DeviceEventOrActions');
-
-        me.counter = 4;
-        deviceTypesStore.load({
-            scope: me,
-            callback: me.showAddEventTypePopUp
+    populateStores: function() {
+        var me = this;
+        if (me.deviceTypesStore) { // store(s) was/were already loaded previously
+            return;
+        }
+        var modelEntry = Ext.create('Dxp.model.EndDeviceEventTypePart', {
+            value: me.comboBoxValueForAll,
+            displayName: Uni.I18n.translate('general.all', 'DES', 'All')
         });
-        deviceDomainsStore.load({
-            scope: me,
-            callback: me.showAddEventTypePopUp
+        me.deviceTypesStore = Ext.getStore('Dxp.store.DeviceTypes');
+        me.deviceDomainsStore = Ext.getStore('Dxp.store.DeviceDomains');
+        me.deviceSubDomainsStore = Ext.getStore('Dxp.store.DeviceSubDomains');
+        me.deviceEventOrActionsStore = Ext.getStore('Dxp.store.DeviceEventOrActions');
+        me.deviceTypesStore.load(function() {
+            me.deviceTypesStore.insert(0, modelEntry);
         });
-        deviceSubDomainsStore.load({
-            scope: me,
-            callback: me.showAddEventTypePopUp
+        me.deviceDomainsStore.load(function() {
+            me.deviceDomainsStore.insert(0, modelEntry);
         });
-        deviceEventOrActionsStore.load({
-            scope: me,
-            callback: me.showAddEventTypePopUp
+        me.deviceSubDomainsStore.load(function() {
+            me.deviceSubDomainsStore.insert(0, modelEntry);
+        });
+        me.deviceEventOrActionsStore.load(function() {
+            me.deviceEventOrActionsStore.insert(0, modelEntry);
         });
     },
 
     showAddEventTypePopUp: function() {
-        var me = this;
-
-        if (me.counter > 0) {
-            me.counter = me.counter - 1;
-        }
-        if (me.counter === 0) { // all 4 stores are loaded successfully
-            var deviceTypesStore = Ext.getStore('Dxp.store.DeviceTypes'),
-                deviceDomainsStore = Ext.getStore('Dxp.store.DeviceDomains'),
-                deviceSubDomainsStore = Ext.getStore('Dxp.store.DeviceSubDomains'),
-                deviceEventOrActionsStore = Ext.getStore('Dxp.store.DeviceEventOrActions'),
-                modelEntry = Ext.create('Dxp.model.EndDeviceEventTypePart', {
-                    value: -1, // meaning All
-                    displayName: Uni.I18n.translate('general.all', 'DES', 'All')
-                });
-
-            deviceTypesStore.insert(0, modelEntry);
-            deviceDomainsStore.insert(0, modelEntry);
-            deviceSubDomainsStore.insert(0, modelEntry);
-            deviceEventOrActionsStore.insert(0, modelEntry);
-            var window = Ext.create('Dxp.view.tasks.EventTypeWindow', {
-                title: Uni.I18n.translate('general.addEventType', 'DES', 'Add event type')
-            });
-        }
+        Ext.create('Dxp.view.tasks.EventTypeWindow', {
+            title: Uni.I18n.translate('general.addEventType', 'DES', 'Add event type')
+        });
     },
 
     addEventTypeToTask: function(button){
@@ -493,7 +483,11 @@ Ext.define('Dxp.controller.Tasks', {
 
         eventTypeModel = Ext.create('Dxp.model.EventTypeForAddTaskGrid',
             {
-                eventFilterCode: eventType
+                eventFilterCode: eventType,
+                deviceTypeName: this.getEventTypeWindow().getDeviceTypeName(),
+                deviceDomainName: this.getEventTypeWindow().getDeviceDomainName(),
+                deviceSubDomainName: this.getEventTypeWindow().getDeviceSubDomainName(),
+                deviceEventOrActionName: this.getEventTypeWindow().getDeviceEventOrActionName()
             });
         this.getEventTypesGrid().getStore().add(eventTypeModel);
 
@@ -786,7 +780,6 @@ Ext.define('Dxp.controller.Tasks', {
             callback: function () {
                 taskModel.load(taskId, {
                     success: function (record) {
-
                         var destinations = record.get('destinations');
                         if (record.destinationsStore.count() > 0) {
                             emptyDestinationsLabel.hide();
@@ -878,6 +871,7 @@ Ext.define('Dxp.controller.Tasks', {
 
                                 eventTypesGrid.getStore().removeAll();
                                 Ext.each(eventTypes, function (eventType) {
+                                    me.fillInDisplayNames(eventType);
                                     eventTypesGrid.getStore().add(eventType);
                                 });
                                 view.updateEventTypesGrid();
@@ -2058,5 +2052,41 @@ Ext.define('Dxp.controller.Tasks', {
             grid.getStore().loadData(scheduleRecords, false);
             gridPreview.show();
         }
+    },
+
+    fillInDisplayNames: function(eventType /*type: EventTypeForAddTaskGrid*/ ) {
+        eventType.deviceTypeName = this.getEventTypePartDisplayName(1, eventType.eventFilterCode);
+        eventType.deviceDomainName = this.getEventTypePartDisplayName(2, eventType.eventFilterCode);
+        eventType.deviceSubDomainName = this.getEventTypePartDisplayName(3, eventType.eventFilterCode);
+        eventType.deviceEventOrActionName = this.getEventTypePartDisplayName(4, eventType.eventFilterCode);
+        return eventType;
+    },
+
+    getEventTypePartDisplayName: function(partNr, eventTypeAsString) {
+        var me = this,
+            store,
+            parts = eventTypeAsString.split('.'),
+            selectedValue;
+
+        if (parts[partNr-1] === '*') {
+            return '*';
+        }
+        selectedValue = parseInt(parts[partNr-1]);
+        switch (partNr) {
+            case 1: store = me.deviceTypesStore; break;
+            case 2: store = me.deviceDomainsStore; break;
+            case 3: store = me.deviceSubDomainsStore; break;
+            case 4: store = me.deviceEventOrActionsStore; break;
+        }
+        var index = store.findExact('value', selectedValue);
+        if (index === -1) { // shouldn't be the case, though
+            return '?';
+        }
+        var record = store.getAt(index);
+        if (!record) { // shouldn't be the case, though
+            return '?';
+        }
+        return record.get('displayName');
     }
+
 });
