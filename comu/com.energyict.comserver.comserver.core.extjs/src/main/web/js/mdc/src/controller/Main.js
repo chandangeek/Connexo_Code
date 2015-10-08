@@ -68,7 +68,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.RegisterMappings',
         'Mdc.controller.setup.RegisterTypes',
         'Mdc.controller.setup.RuleDeviceConfigurations',
-        'Mdc.controller.setup.SearchItems',
+        //'Mdc.controller.setup.SearchItems',
         'Mdc.controller.setup.SearchItemsBulkAction',
         'Mdc.controller.setup.SecuritySettings',
         'Mdc.controller.setup.SetupOverview',

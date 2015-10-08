@@ -22,13 +22,18 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Browse', {
         ]
     },
 
-    content: [
-        {
-            xtype: 'searchitems-wizard',
-            itemId: 'searchitemswizard',
-            defaults: {
-                cls: 'content-wrapper'
+    initComponent: function () {
+        this.content = [
+            {
+                xtype: 'searchitems-wizard',
+                itemId: 'searchitemswizard',
+                deviceStore: this.deviceStore,
+                defaults: {
+                    cls: 'content-wrapper'
+                }
             }
-        }
-    ]
+        ];
+
+        this.callParent(arguments);
+    }
 });

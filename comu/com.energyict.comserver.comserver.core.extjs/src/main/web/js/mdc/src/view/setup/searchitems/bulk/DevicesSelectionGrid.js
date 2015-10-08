@@ -1,7 +1,7 @@
 Ext.define('Mdc.view.setup.searchitems.bulk.DevicesSelectionGrid', {
     extend: 'Uni.view.grid.BulkSelection',
     xtype: 'devices-selection-grid',
-    store: 'Mdc.store.DevicesBuffered',
+    store: null,
 
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
@@ -52,6 +52,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.DevicesSelectionGrid', {
 
     initComponent: function () {
         this.callParent(arguments);
+        this.onChangeSelectionGroupType();
         this.getBottomToolbar().setVisible(false);
     }
 });
