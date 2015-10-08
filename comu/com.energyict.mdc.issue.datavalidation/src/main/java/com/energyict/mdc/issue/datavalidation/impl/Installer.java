@@ -54,7 +54,7 @@ public class Installer {
         for (DataValidationEventDescription eventDescription : DataValidationEventDescription.values()) {
             eventService.getEventType(eventDescription.getTopic()).ifPresent(eventType -> {
                 eventType.setPublish(true);
-                eventType.save();
+                eventType.update();
             });
         }
     }
