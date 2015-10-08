@@ -20,7 +20,8 @@ Ext.define('Uni.controller.Search', {
         'Uni.view.search.field.Selection',
         'Uni.view.search.field.Simple',
         'Uni.grid.column.search.DeviceType',
-        'Uni.grid.column.search.DeviceConfiguration'
+        'Uni.grid.column.search.DeviceConfiguration',
+        'Uni.controller.history.Search'
     ],
 
     refs: [
