@@ -263,6 +263,7 @@ Ext.define('Dxp.controller.Tasks', {
                     deviceGroup = detailsForm.down('#data-selector-deviceGroup-preview'),
                     exportPeriod = detailsForm.down('#data-selector-exportPeriod-preview'),
                     readingTypes = detailsForm.down('#data-selector-readingTypes-preview'),
+                    eventTypes = detailsForm.down('#data-selector-eventTypes-preview'),
                     continuousDataPreview = detailsForm.down('#continuousData-preview'),
                     dataValidation = detailsForm.down('#data-selector-validated-data'),
                     missingData = detailsForm.down('#data-selector-export-complete'),
@@ -289,6 +290,7 @@ Ext.define('Dxp.controller.Tasks', {
                     deviceGroup.setVisible(false);
                     exportPeriod.setVisible(false);
                     readingTypes.setVisible(false);
+                    setVisible.setVisible(false);
                     dataValidation.setVisible(false);
                     missingData.setVisible(false);
                     updatedData.setVisible(false);
@@ -296,11 +298,12 @@ Ext.define('Dxp.controller.Tasks', {
                     updatedValuesData.setVisible(false);
                     selectorPropertyForm.loadRecord(record.getDataSelector());
 
-                } else {
+                } else if (record.getDataSelector().get('selectorType')==='DEFAULT_READINGS'){
                     selectorPropertyForm.setVisible(false);
                     deviceGroup.setVisible(true);
                     exportPeriod.setVisible(true);
                     readingTypes.setVisible(true);
+                    eventTypes.setVisible(false);
                     dataValidation.setVisible(true);
                     missingData.setVisible(true);
                     updatedData.setVisible(true);
@@ -310,6 +313,17 @@ Ext.define('Dxp.controller.Tasks', {
                     } else {
                         updatedValuesData.setVisible(true);
                     }
+                }  else if (record.getDataSelector().get('selectorType')==='DEFAULT_EVENTS') {
+                    selectorPropertyForm.setVisible(false);
+                    deviceGroup.setVisible(false);
+                    exportPeriod.setVisible(true);
+                    continuousDataPreview.setVisible(true);
+                    readingTypes.setVisible(false);
+                    eventTypes.setVisible(true);
+                    dataValidation.setVisible(false);
+                    missingData.setVisible(false);
+                    updatedData.setVisible(false);
+                    updatedValuesData.setVisible(false);
                 }
             }
         });
@@ -939,6 +953,7 @@ Ext.define('Dxp.controller.Tasks', {
             exportPeriod = previewForm.down('#data-selector-exportPeriod-preview'),
             continuousData = previewForm.down('#continuousData-preview'),
             readingTypes = previewForm.down('#data-selector-readingTypes-preview'),
+            eventTypes = previewForm.down('#data-selector-eventTypes-preview'),
             propertyForm = previewForm.down('#task-properties-preview'),
             dataValidation = previewForm.down('#data-selector-validated-data'),
             missingData = previewForm.down('#data-selector-export-complete'),
@@ -971,28 +986,40 @@ Ext.define('Dxp.controller.Tasks', {
         if (record.getDataProcessor() && record.getDataProcessor().properties().count()) {
             propertyForm.loadRecord(record.getDataProcessor());
         }
-
         if ((record.getDataSelector()) && (record.getDataSelector().properties()) && (record.getDataSelector().properties().count())) {
             selectorPropertyForm.show();
             deviceGroup.hide();
             exportPeriod.hide();
             continuousData.hide();
             readingTypes.hide();
+            eventTypes.hide();
             dataValidation.hide();
             missingData.hide();
             updatedData.hide();
             updatedValuesData.hide();
             selectorPropertyForm.loadRecord(record.getDataSelector());
-        } else {
+        } else if (record.getDataSelector().get('selectorType')==='DEFAULT_READINGS') {
             selectorPropertyForm.hide();
             deviceGroup.show();
             exportPeriod.show();
             continuousData.show();
             readingTypes.show();
+            eventTypes.hide();
             dataValidation.show();
             missingData.show();
             updatedData.show();
             updatedValuesData.show();
+        } else if (record.getDataSelector().get('selectorType')==='DEFAULT_EVENTS') {
+            selectorPropertyForm.hide();
+            deviceGroup.show();
+            exportPeriod.show();
+            continuousData.show();
+            readingTypes.hide();
+            eventTypes.show();
+            dataValidation.hide();
+            missingData.hide();
+            updatedData.hide();
+            updatedValuesData.hide();
         }
 
 
