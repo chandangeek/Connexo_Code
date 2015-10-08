@@ -155,7 +155,7 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             persist: false,
             convert: function(value,record){
                 if(record.data.task.standardDataSelector){
-                    return record.data.task.standardDataSelector.exportUpdate==='true'?
+                    return record.data.task.standardDataSelector.exportUpdate ?
                         Uni.I18n.translate('general.exportWithinWindowX', 'DES', "Export within the update window '{0}'",[record.data.task.standardDataSelector.updatePeriod?record.data.task.standardDataSelector.updatePeriod.name:Uni.I18n.translate('general.notDefined', 'DES', 'Not defined')]):
                         Uni.I18n.translate('general.noExportForUpdated', 'DES', 'Do not export');
                 } else {
@@ -163,6 +163,8 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
                 }
             }
         },
+
+
         {
             name: 'updatedValuesForPreview',
             persist: false,
