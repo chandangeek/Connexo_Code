@@ -1,0 +1,27 @@
+package com.elster.insight.usagepoint.config.impl;
+
+import java.time.Clock;
+
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
+import com.google.inject.AbstractModule;
+import com.google.inject.Scopes;
+
+public class UsagePointConfigModule extends AbstractModule {
+
+    @Override
+    protected void configure() {
+        requireBinding(Clock.class);
+        requireBinding(OrmService.class);
+        requireBinding(QueryService.class);
+        requireBinding(UserService.class);
+        requireBinding(EventService.class);
+        requireBinding(ThreadPrincipalService.class);
+
+        bind(UsagePointConfigurationService.class).to(UsagePointConfigurationServiceImpl.class).in(Scopes.SINGLETON);
+    }
+}
