@@ -1,14 +1,5 @@
 package com.energyict.mdc.device.data.impl.search;
 
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
-import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
-
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -22,6 +13,20 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationFinder;
+import com.energyict.mdc.device.config.impl.DeviceTypeFinder;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
+import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -29,17 +34,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link DeviceConfigurationSearchableProperty} component.
@@ -67,9 +65,9 @@ public class DeviceConfigurationSearchablePropertyTest {
     @Mock
     private ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
     @Mock
-    private CanFindByLongPrimaryKey<DeviceType> deviceTypeFinder;
+    private DeviceTypeFinder deviceTypeFinder;
     @Mock
-    private CanFindByLongPrimaryKey<DeviceConfiguration> deviceConfigurationFinder;
+    private DeviceConfigurationFinder deviceConfigurationFinder;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
 

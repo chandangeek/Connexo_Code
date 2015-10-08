@@ -15,10 +15,11 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.impl.DeviceTypeFinder;
+import com.energyict.mdc.device.config.impl.FiniteStateFinder;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
@@ -67,9 +68,9 @@ public class StateNameSearchablePropertyTest {
     @Mock
     private ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
     @Mock
-    private CanFindByLongPrimaryKey<State> finiteStateFinder;
+    private FiniteStateFinder finiteStateFinder;
     @Mock
-    private CanFindByLongPrimaryKey<DeviceType> deviceTypeFinder;
+    private DeviceTypeFinder deviceTypeFinder;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
 
