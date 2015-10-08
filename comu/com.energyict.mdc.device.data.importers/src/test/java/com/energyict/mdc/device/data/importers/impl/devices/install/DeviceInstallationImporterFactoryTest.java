@@ -1,5 +1,22 @@
 package com.energyict.mdc.device.data.importers.impl.devices.install;
 
+import com.elster.jupiter.devtools.tests.FakeBuilder;
+import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.fsm.CustomStateTransitionEventType;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointBuilder;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -15,22 +32,12 @@ import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.TopologyService;
-
-import com.elster.jupiter.fileimport.FileImportOccurrence;
-import com.elster.jupiter.fileimport.FileImporter;
-import com.elster.jupiter.fsm.CustomStateTransitionEventType;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.exception.MessageSeed;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.time.Clock;
@@ -43,25 +50,10 @@ import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceInstallationImporterFactoryTest {
@@ -387,7 +379,7 @@ public class DeviceInstallationImporterFactoryTest {
         ServiceCategory serviceCategory = mock(ServiceCategory.class);
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(serviceCategory.newUsagePoint("Usage MRID")).thenReturn(usagePoint);
+        when(serviceCategory.newUsagePoint("Usage MRID")).thenReturn(FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class));
         AmrSystem amrSystem = mock(AmrSystem.class);
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
         Meter meter = mock(Meter.class);
@@ -429,7 +421,7 @@ public class DeviceInstallationImporterFactoryTest {
         ServiceCategory serviceCategory = mock(ServiceCategory.class);
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.empty());
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(serviceCategory.newUsagePoint("Usage MRID")).thenReturn(usagePoint);
+        when(serviceCategory.newUsagePoint("Usage MRID")).thenReturn(FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class));
 
         importer.process(importOccurrence);
 
@@ -468,7 +460,7 @@ public class DeviceInstallationImporterFactoryTest {
         ServiceCategory serviceCategory = mock(ServiceCategory.class);
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.empty());
         UsagePoint usagePoint = mock(UsagePoint.class);
-        when(serviceCategory.newUsagePoint("Usage MRID")).thenReturn(usagePoint);
+        when(serviceCategory.newUsagePoint("Usage MRID")).thenReturn(FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class));
 
         importer.process(importOccurrence);
 
