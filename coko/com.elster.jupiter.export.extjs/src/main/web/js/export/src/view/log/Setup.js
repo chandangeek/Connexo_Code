@@ -40,7 +40,8 @@ Ext.define('Dxp.view.log.Setup', {
                 {
                     xtype: 'preview-container',
                     grid: {
-                        xtype: 'dxp-log-grid'
+                        xtype: 'dxp-log-grid',
+                        itemId: 'data-export-log-grid'
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',

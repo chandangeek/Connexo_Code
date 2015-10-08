@@ -97,18 +97,6 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         msgTarget: 'under'
                     },
                     {
-                        xtype: 'textfield',
-                        name: 'user',
-                        itemId: 'user-field',
-                        width: me.fieldWidth,
-                        required: true,
-                        fieldLabel: Uni.I18n.translate('general.user', 'DES', 'User'),
-                        allowBlank: false,
-                        enforceMaxLength: true,
-                        maxLength: 80,
-                        msgTarget: 'under'
-                    },
-                    {
                         xtype: 'numberfield',
                         name: 'port',
                         itemId: 'dxp-port-field',
@@ -122,6 +110,18 @@ Ext.define('Dxp.view.tasks.AddDestination', {
                         allowExponential: false,
                         allowBlank: false,
                         hideTrigger: true,
+                        msgTarget: 'under'
+                    },
+                    {
+                        xtype: 'textfield',
+                        name: 'user',
+                        itemId: 'user-field',
+                        width: me.fieldWidth,
+                        required: true,
+                        fieldLabel: Uni.I18n.translate('general.user', 'DES', 'User'),
+                        allowBlank: false,
+                        enforceMaxLength: true,
+                        maxLength: 80,
                         msgTarget: 'under'
                     },
                     {

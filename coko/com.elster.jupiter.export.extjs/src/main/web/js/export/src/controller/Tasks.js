@@ -1020,7 +1020,11 @@ Ext.define('Dxp.controller.Tasks', {
             dataValidation.show();
             missingData.show();
             updatedData.show();
-            updatedValuesData.show();
+            if(record.getData().standardDataSelector.exportUpdate===false){
+                updatedValuesData.hide();
+            } else {
+                updatedValuesData.show();
+            }
         } else if (record.getDataSelector().get('selectorType')==='DEFAULT_EVENTS') {
             selectorPropertyForm.hide();
             deviceGroup.show();
