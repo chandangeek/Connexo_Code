@@ -12,11 +12,13 @@ import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.base.Strings;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import java.sql.SQLException;
-
-import org.junit.*;
-import org.junit.rules.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -60,8 +62,7 @@ public class StateTransitionEventTypeIT {
                 .name(name)
                 .scope("TEST")
                 .category("TEST")
-                .create()
-                .save();
+                .create();
     }
 
     @AfterClass

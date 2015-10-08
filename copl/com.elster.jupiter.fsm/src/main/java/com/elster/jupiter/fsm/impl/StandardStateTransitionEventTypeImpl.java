@@ -53,7 +53,7 @@ public class StandardStateTransitionEventTypeImpl extends StateTransitionEventTy
         super.save();
         EventType eventType = this.getEventType();
         eventType.enableForUseInStateMachines();
-        eventType.save();
+        eventType.update();
     }
 
     @Override
@@ -61,7 +61,7 @@ public class StandardStateTransitionEventTypeImpl extends StateTransitionEventTy
         EventType eventType = this.getEventType();
         super.delete();
         eventType.disableForUseInStateMachines();
-        eventType.save();
+        eventType.update();
     }
 
 }
