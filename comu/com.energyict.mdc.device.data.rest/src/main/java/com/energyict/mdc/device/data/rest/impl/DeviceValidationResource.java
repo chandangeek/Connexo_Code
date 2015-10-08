@@ -330,7 +330,7 @@ public class DeviceValidationResource {
             }
         }
         catch (InvalidLastCheckedException e) {
-            throw new LocalizedFieldValidationException(e.getMessageSeed(), "lastChecked", device.forValidation().getLastChecked());
+            throw new LocalizedFieldValidationException(e.getMessageSeed(), "lastChecked", device.getmRID(), e.getOldLastChecked(), e.getNewLastChecked());
         }
         return Response.status(Response.Status.OK).build();
     }

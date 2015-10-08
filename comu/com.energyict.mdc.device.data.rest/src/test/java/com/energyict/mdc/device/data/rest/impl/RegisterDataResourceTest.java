@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
@@ -41,6 +42,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +99,12 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(numericalRegisterSpec.getUnit()).thenReturn(Unit.get("M"));
 
         BillingReading billingReading = mockBillingReading(actualReading1);
-        when(actualReading1.wasAdded()).thenReturn(true);
+        when(actualReading1.edited()).thenReturn(true);
+        ReadingQuality quality = mock(ReadingQuality.class);
+        when(quality.getType()).thenReturn(new ReadingQualityType("3.7.1"));
+        List qualities = new ArrayList<>();
+        qualities.add(quality);
+        when(actualReading1.getReadingQualities()).thenReturn(qualities);
         when(billingReading.getValidationStatus()).thenReturn(Optional.of(dataValidationStatus));
 
         NumericalReading numericalReading = mockNumericalReading(actualReading2);
