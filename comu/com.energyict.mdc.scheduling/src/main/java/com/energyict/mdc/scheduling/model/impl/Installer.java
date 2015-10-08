@@ -56,7 +56,7 @@ public class Installer {
                     .category("Crud")
                     .scope("System");
             eventType.addCustomProperties(eventTypeBuilder);
-            eventTypeBuilder.create().save();
+            eventTypeBuilder.create();
         }
     }
 
