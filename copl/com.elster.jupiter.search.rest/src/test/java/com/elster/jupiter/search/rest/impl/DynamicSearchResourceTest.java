@@ -12,22 +12,21 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.core.Response;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by bvn on 6/1/15.
@@ -182,7 +181,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     @Test
     public void testRestictedDomainProperties() throws Exception {
-        Response response = target("/search/com.devices/searchcriteria").queryParam("filter", ExtjsFilter.filter().property("deviceType", Collections.singletonList(13)).create()).request().accept("application/json").get();
+        Response response = target("/search/com.devices/searchcriteria").queryParam("filter", ExtjsFilter.filter().property("deviceType", Collections.singletonList("13")).create()).request().accept("application/json").get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<List> constrictions = ArgumentCaptor.forClass(List.class);
         verify(devicesDomain).getPropertiesWithConstrictions(constrictions.capture());
@@ -226,7 +225,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     @Test
     public void testGetPreselectedDomainPropertyValuesFilterByConstraint() throws Exception {
-        Response response = target("/search/com.devices/searchcriteria/deviceConfig").queryParam("filter", ExtjsFilter.filter().property("deviceType", Collections.singletonList(13)).create()).request().accept("application/json").get();
+        Response response = target("/search/com.devices/searchcriteria/deviceConfig").queryParam("filter", ExtjsFilter.filter().property("deviceType", Collections.singletonList("13")).create()).request().accept("application/json").get();
 //        JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
         // Expect not to throw exceptions
     }
