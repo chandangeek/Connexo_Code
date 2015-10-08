@@ -54,4 +54,12 @@ public interface RemoteComServer extends ComServer, InboundCapableComServer, Out
     public OnlineComServer getOnlineComServer();
     public void setOnlineComServer(OnlineComServer onlineComServer);
 
+    interface RemoteComServerBuilder<CS extends RemoteComServer> extends ComServerBuilder<CS, RemoteComServerBuilder> {
+        RemoteComServerBuilder onlineComServer(OnlineComServer onlineComServer);
+        RemoteComServerBuilder eventRegistrationUri(String eventRegistrationUri);
+        RemoteComServerBuilder statusUri(String statusUri);
+        RemoteComServerBuilder usesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri);
+        RemoteComServerBuilder usesDefaultStatusUri(boolean usesDefaultStatusUri);
+    }
+
 }

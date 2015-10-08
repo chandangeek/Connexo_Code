@@ -28,15 +28,15 @@ public class ComServerCrudTest extends PersistenceTest {
     @Test
     @Transactional
     public void testCreateLoadOfflineComServer() throws Exception {
-        OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
+        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "Offline";
-        offlineComServer.setName(name);
-        offlineComServer.setServerLogLevel(ComServer.LogLevel.ERROR);
-        offlineComServer.setCommunicationLogLevel(ComServer.LogLevel.DEBUG);
-        offlineComServer.setChangesInterPollDelay(TEN_MINUTES);
-        offlineComServer.setSchedulingInterPollDelay(FIFTEEN_MINUTES);
-        offlineComServer.setActive(false);
-        offlineComServer.save();
+        offlineComServer.name(name);
+        offlineComServer.serverLogLevel(ComServer.LogLevel.ERROR);
+        offlineComServer.communicationLogLevel(ComServer.LogLevel.DEBUG);
+        offlineComServer.changesInterPollDelay(TEN_MINUTES);
+        offlineComServer.schedulingInterPollDelay(FIFTEEN_MINUTES);
+        offlineComServer.active(false);
+        offlineComServer.create();
 
         OfflineComServer foundAfterCreate = (OfflineComServer) getEngineModelService().findComServer(name).get();
         assertThat(foundAfterCreate).isInstanceOf(OfflineComServer.class);
@@ -50,15 +50,15 @@ public class ComServerCrudTest extends PersistenceTest {
     @Test
     @Transactional
     public void testFindOfflineComServerWithCaseInsensitiveName() throws Exception {
-        OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
+        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
         String name = "OFFLINE";
-        offlineComServer.setName(name);
-        offlineComServer.setServerLogLevel(ComServer.LogLevel.ERROR);
-        offlineComServer.setCommunicationLogLevel(ComServer.LogLevel.DEBUG);
-        offlineComServer.setChangesInterPollDelay(TEN_MINUTES);
-        offlineComServer.setSchedulingInterPollDelay(FIFTEEN_MINUTES);
-        offlineComServer.setActive(false);
-        offlineComServer.save();
+        offlineComServer.name(name);
+        offlineComServer.serverLogLevel(ComServer.LogLevel.ERROR);
+        offlineComServer.communicationLogLevel(ComServer.LogLevel.DEBUG);
+        offlineComServer.changesInterPollDelay(TEN_MINUTES);
+        offlineComServer.schedulingInterPollDelay(FIFTEEN_MINUTES);
+        offlineComServer.active(false);
+        offlineComServer.create();
 
         ComServer byLowerCaseName = getEngineModelService().findComServer(name.toLowerCase()).get();
         assertThat(byLowerCaseName).isNotNull();
@@ -68,31 +68,31 @@ public class ComServerCrudTest extends PersistenceTest {
     @Test
     @Transactional
     public void testCreateLoadRemoteComServer() throws Exception {
-        OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = getEngineModelService().newOnlineComServerBuilder();
         String onlineName = "Online4Remote";
-        onlineComServer.setName(onlineName);
-        onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
-        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.INFO);
-        onlineComServer.setChangesInterPollDelay(TWO_MINUTES);
-        onlineComServer.setSchedulingInterPollDelay(FIVE_MINUTES);
-        onlineComServer.setActive(false);
-        onlineComServer.setUsesDefaultQueryAPIPostUri(true);
-        onlineComServer.setStoreTaskQueueSize(10);
-        onlineComServer.setStoreTaskThreadPriority(3);
-        onlineComServer.setNumberOfStoreTaskThreads(6);
-        onlineComServer.setUsesDefaultEventRegistrationUri(true);
-        onlineComServer.save();
+        onlineComServerBuilder.name(onlineName);
+        onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServerBuilder.communicationLogLevel(ComServer.LogLevel.INFO);
+        onlineComServerBuilder.changesInterPollDelay(TWO_MINUTES);
+        onlineComServerBuilder.schedulingInterPollDelay(FIVE_MINUTES);
+        onlineComServerBuilder.active(false);
+        onlineComServerBuilder.usesDefaultQueryApiPostUri(true);
+        onlineComServerBuilder.storeTaskQueueSize(10);
+        onlineComServerBuilder.storeTaskThreadPriority(3);
+        onlineComServerBuilder.numberOfStoreTaskThreads(6);
+        onlineComServerBuilder.usesDefaultEventRegistrationUri(true);
+        final OnlineComServer onlineComserver = onlineComServerBuilder.create();
 
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = "Remote";
-        remoteComServer.setName(name);
-        remoteComServer.setServerLogLevel(ComServer.LogLevel.WARN);
-        remoteComServer.setCommunicationLogLevel(ComServer.LogLevel.TRACE);
-        remoteComServer.setChangesInterPollDelay(ONE_MINUTE);
-        remoteComServer.setSchedulingInterPollDelay(ONE_AND_A_HALF_MINUTE);
-        remoteComServer.setActive(false);
-        remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.save();
+        remoteComServer.name(name);
+        remoteComServer.serverLogLevel(ComServer.LogLevel.WARN);
+        remoteComServer.communicationLogLevel(ComServer.LogLevel.TRACE);
+        remoteComServer.changesInterPollDelay(ONE_MINUTE);
+        remoteComServer.schedulingInterPollDelay(ONE_AND_A_HALF_MINUTE);
+        remoteComServer.active(false);
+        remoteComServer.onlineComServer(onlineComserver);
+        remoteComServer.create();
 
         ComServer reloadedRemoteComServer = getEngineModelService().findComServer(name).get();
         assertThat(reloadedRemoteComServer).isInstanceOf(RemoteComServer.class);
@@ -107,31 +107,31 @@ public class ComServerCrudTest extends PersistenceTest {
     @Test
     @Transactional
     public void testFindRemoteComServerWithCaseInsensitivName() throws Exception {
-        OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = getEngineModelService().newOnlineComServerBuilder();
         String onlineName = "Online4Remote";
-        onlineComServer.setName(onlineName);
-        onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
-        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.INFO);
-        onlineComServer.setChangesInterPollDelay(TWO_MINUTES);
-        onlineComServer.setSchedulingInterPollDelay(FIVE_MINUTES);
-        onlineComServer.setActive(false);
-        onlineComServer.setUsesDefaultQueryAPIPostUri(true);
-        onlineComServer.setStoreTaskQueueSize(10);
-        onlineComServer.setStoreTaskThreadPriority(3);
-        onlineComServer.setNumberOfStoreTaskThreads(6);
-        onlineComServer.setUsesDefaultEventRegistrationUri(true);
-        onlineComServer.save();
+        onlineComServerBuilder.name(onlineName);
+        onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServerBuilder.communicationLogLevel(ComServer.LogLevel.INFO);
+        onlineComServerBuilder.changesInterPollDelay(TWO_MINUTES);
+        onlineComServerBuilder.schedulingInterPollDelay(FIVE_MINUTES);
+        onlineComServerBuilder.active(false);
+        onlineComServerBuilder.usesDefaultQueryApiPostUri(true);
+        onlineComServerBuilder.storeTaskQueueSize(10);
+        onlineComServerBuilder.storeTaskThreadPriority(3);
+        onlineComServerBuilder.numberOfStoreTaskThreads(6);
+        onlineComServerBuilder.usesDefaultEventRegistrationUri(true);
+        final OnlineComServer onlineComServer = onlineComServerBuilder.create();
 
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
         String name = "REMOTE";
-        remoteComServer.setName(name);
-        remoteComServer.setServerLogLevel(ComServer.LogLevel.WARN);
-        remoteComServer.setCommunicationLogLevel(ComServer.LogLevel.TRACE);
-        remoteComServer.setChangesInterPollDelay(ONE_MINUTE);
-        remoteComServer.setSchedulingInterPollDelay(ONE_AND_A_HALF_MINUTE);
-        remoteComServer.setActive(false);
-        remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.save();
+        remoteComServer.name(name);
+        remoteComServer.serverLogLevel(ComServer.LogLevel.WARN);
+        remoteComServer.communicationLogLevel(ComServer.LogLevel.TRACE);
+        remoteComServer.changesInterPollDelay(ONE_MINUTE);
+        remoteComServer.schedulingInterPollDelay(ONE_AND_A_HALF_MINUTE);
+        remoteComServer.active(false);
+        remoteComServer.onlineComServer(onlineComServer);
+        remoteComServer.create();
 
         ComServer reloadedRemoteComServer = getEngineModelService().findComServer(name.toLowerCase()).get();
         assertThat(reloadedRemoteComServer).isInstanceOf(RemoteComServer.class);
@@ -141,20 +141,20 @@ public class ComServerCrudTest extends PersistenceTest {
     @Test
     @Transactional
     public void testCreateLoadOnlineComServerWithDefaultUris() throws Exception {
-        OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
-        onlineComServer.setName("Onliner");
-        onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
-        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.INFO);
-        onlineComServer.setChangesInterPollDelay(TWO_MINUTES);
-        onlineComServer.setSchedulingInterPollDelay(FIVE_MINUTES);
-        onlineComServer.setActive(false);
-        onlineComServer.setUsesDefaultQueryAPIPostUri(true);
-        onlineComServer.setStoreTaskQueueSize(10);
-        onlineComServer.setStoreTaskThreadPriority(3);
-        onlineComServer.setNumberOfStoreTaskThreads(6);
-        onlineComServer.setUsesDefaultEventRegistrationUri(true);
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServer = getEngineModelService().newOnlineComServerBuilder();
+        onlineComServer.name("Onliner");
+        onlineComServer.serverLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.communicationLogLevel(ComServer.LogLevel.INFO);
+        onlineComServer.changesInterPollDelay(TWO_MINUTES);
+        onlineComServer.schedulingInterPollDelay(FIVE_MINUTES);
+        onlineComServer.active(false);
+        onlineComServer.usesDefaultQueryApiPostUri(true);
+        onlineComServer.storeTaskQueueSize(10);
+        onlineComServer.storeTaskThreadPriority(3);
+        onlineComServer.numberOfStoreTaskThreads(6);
+        onlineComServer.usesDefaultEventRegistrationUri(true);
 
-        onlineComServer.save();
+        onlineComServer.create();
 
         ComServer comServer = getEngineModelService().findComServer("Onliner").get();
         assertThat(comServer).isInstanceOf(OnlineComServer.class);
@@ -176,20 +176,20 @@ public class ComServerCrudTest extends PersistenceTest {
     @Test
     @Transactional
     public void testCreateLoadOnlineComServerWithCustomUris() throws Exception {
-        OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
-        onlineComServer.setName("Onliner-2");
-        onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
-        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.INFO);
-        onlineComServer.setChangesInterPollDelay(TWO_MINUTES);
-        onlineComServer.setSchedulingInterPollDelay(FIVE_MINUTES);
-        onlineComServer.setActive(false);
-        onlineComServer.setStoreTaskQueueSize(10);
-        onlineComServer.setStoreTaskThreadPriority(3);
-        onlineComServer.setNumberOfStoreTaskThreads(6);
-        onlineComServer.setEventRegistrationUri(CUSTOM_EVENT_REGISTRATION_URI);
-        onlineComServer.setQueryAPIPostUri(CUSTOM_QUERY_API_URI);
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServer = getEngineModelService().newOnlineComServerBuilder();
+        onlineComServer.name("Onliner-2");
+        onlineComServer.serverLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.communicationLogLevel(ComServer.LogLevel.INFO);
+        onlineComServer.changesInterPollDelay(TWO_MINUTES);
+        onlineComServer.schedulingInterPollDelay(FIVE_MINUTES);
+        onlineComServer.active(false);
+        onlineComServer.storeTaskQueueSize(10);
+        onlineComServer.storeTaskThreadPriority(3);
+        onlineComServer.numberOfStoreTaskThreads(6);
+        onlineComServer.eventRegistrationUri(CUSTOM_EVENT_REGISTRATION_URI);
+        onlineComServer.queryApiPostUri(CUSTOM_QUERY_API_URI);
 
-        onlineComServer.save();
+        onlineComServer.create();
 
         ComServer reloaded = getEngineModelService().findComServer("Onliner-2").get();
         assertThat(reloaded).isInstanceOf(OnlineComServer.class);
@@ -210,19 +210,19 @@ public class ComServerCrudTest extends PersistenceTest {
     @Test
     @Transactional
     public void testCreateLoadOnlineComServerWithComPort() throws Exception {
-        OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
-        onlineComServer.setName("Onliner-3");
-        onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
-        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.INFO);
-        onlineComServer.setChangesInterPollDelay(TWO_MINUTES);
-        onlineComServer.setSchedulingInterPollDelay(FIVE_MINUTES);
-        onlineComServer.setActive(false);
-        onlineComServer.setUsesDefaultQueryAPIPostUri(true);
-        onlineComServer.setStoreTaskQueueSize(10);
-        onlineComServer.setStoreTaskThreadPriority(3);
-        onlineComServer.setNumberOfStoreTaskThreads(6);
-        onlineComServer.setUsesDefaultEventRegistrationUri(true);
-        onlineComServer.save();
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = getEngineModelService().newOnlineComServerBuilder();
+        onlineComServerBuilder.name("Onliner-3");
+        onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServerBuilder.communicationLogLevel(ComServer.LogLevel.INFO);
+        onlineComServerBuilder.changesInterPollDelay(TWO_MINUTES);
+        onlineComServerBuilder.schedulingInterPollDelay(FIVE_MINUTES);
+        onlineComServerBuilder.active(false);
+        onlineComServerBuilder.usesDefaultQueryApiPostUri(true);
+        onlineComServerBuilder.storeTaskQueueSize(10);
+        onlineComServerBuilder.storeTaskThreadPriority(3);
+        onlineComServerBuilder.numberOfStoreTaskThreads(6);
+        onlineComServerBuilder.usesDefaultEventRegistrationUri(true);
+        final OnlineComServer onlineComServer = onlineComServerBuilder.create();
         onlineComServer.newOutboundComPort("some comport", 4).comPortType(ComPortType.TCP).add();
 
         ComServer reloaded = getEngineModelService().findComServer("Onliner-3").get();
@@ -234,37 +234,37 @@ public class ComServerCrudTest extends PersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY + "}", property = "name")
     public void testCreateOnlineComServerWithEmptyName() throws Exception {
-        OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
-        onlineComServer.setName("");
-        onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
-        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.INFO);
-        onlineComServer.setChangesInterPollDelay(TWO_MINUTES);
-        onlineComServer.setSchedulingInterPollDelay(FIVE_MINUTES);
-        onlineComServer.setActive(false);
-        onlineComServer.setUsesDefaultQueryAPIPostUri(true);
-        onlineComServer.setStoreTaskQueueSize(10);
-        onlineComServer.setStoreTaskThreadPriority(3);
-        onlineComServer.setNumberOfStoreTaskThreads(6);
-        onlineComServer.setUsesDefaultEventRegistrationUri(true);
-        onlineComServer.save();
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServer = getEngineModelService().newOnlineComServerBuilder();
+        onlineComServer.name("");
+        onlineComServer.serverLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.communicationLogLevel(ComServer.LogLevel.INFO);
+        onlineComServer.changesInterPollDelay(TWO_MINUTES);
+        onlineComServer.schedulingInterPollDelay(FIVE_MINUTES);
+        onlineComServer.active(false);
+        onlineComServer.usesDefaultQueryApiPostUri(true);
+        onlineComServer.storeTaskQueueSize(10);
+        onlineComServer.storeTaskThreadPriority(3);
+        onlineComServer.numberOfStoreTaskThreads(6);
+        onlineComServer.usesDefaultEventRegistrationUri(true);
+        onlineComServer.create();
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.COMSERVER_NAME_INVALID_CHARS + "}", property = "name")
     public void testCreateOnlineComServerWithWrongName() throws Exception {
-        OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
-        onlineComServer.setName("%^&)(");
-        onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
-        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.INFO);
-        onlineComServer.setChangesInterPollDelay(TWO_MINUTES);
-        onlineComServer.setSchedulingInterPollDelay(FIVE_MINUTES);
-        onlineComServer.setActive(false);
-        onlineComServer.setUsesDefaultQueryAPIPostUri(true);
-        onlineComServer.setStoreTaskQueueSize(10);
-        onlineComServer.setStoreTaskThreadPriority(3);
-        onlineComServer.setNumberOfStoreTaskThreads(6);
-        onlineComServer.setUsesDefaultEventRegistrationUri(true);
-        onlineComServer.save();
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServer = getEngineModelService().newOnlineComServerBuilder();
+        onlineComServer.name("%^&)(");
+        onlineComServer.serverLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.communicationLogLevel(ComServer.LogLevel.INFO);
+        onlineComServer.changesInterPollDelay(TWO_MINUTES);
+        onlineComServer.schedulingInterPollDelay(FIVE_MINUTES);
+        onlineComServer.active(false);
+        onlineComServer.usesDefaultQueryApiPostUri(true);
+        onlineComServer.storeTaskQueueSize(10);
+        onlineComServer.storeTaskThreadPriority(3);
+        onlineComServer.numberOfStoreTaskThreads(6);
+        onlineComServer.usesDefaultEventRegistrationUri(true);
+        onlineComServer.create();
     }
 }

@@ -103,4 +103,16 @@ public interface OnlineComServer extends ComServer, InboundCapableComServer, Out
 
     public void setStoreTaskThreadPriority(int storeTaskThreadPriority);
 
+    interface OnlineComServerBuilder<OCS extends OnlineComServer> extends ComServerBuilder<OCS, OnlineComServerBuilder> {
+        OnlineComServerBuilder numberOfStoreTaskThreads(int numberOfStoreTaskThreads);
+        OnlineComServerBuilder storeTaskQueueSize(int storeTaskQueueSize);
+        OnlineComServerBuilder storeTaskThreadPriority(int storeTaskThreadPriority);
+        OnlineComServerBuilder eventRegistrationUri(String eventRegistrationUri);
+        OnlineComServerBuilder queryApiPostUri(String queryApiPostUri);
+        OnlineComServerBuilder statusUri(String statusUri);
+        OnlineComServerBuilder usesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri);
+        OnlineComServerBuilder usesDefaultQueryApiPostUri(boolean usesDefaultQueryApiPostUri);
+        OnlineComServerBuilder usesDefaultStatusUri(boolean usesDefaultStatusUri);
+    }
+
 }

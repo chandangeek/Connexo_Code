@@ -222,18 +222,18 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
-    public OnlineComServer newOnlineComServerInstance() {
-        return dataModel.getInstance(OnlineComServerImpl.class);
+    public OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> newOnlineComServerBuilder() {
+        return dataModel.getInstance(OnlineComServerImpl.OnlineComServerBuilderImpl.class);
     }
 
     @Override
-    public OfflineComServer newOfflineComServerInstance() {
-        return dataModel.getInstance(OfflineComServerImpl.class);
+    public ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> newOfflineComServerBuilder() {
+        return dataModel.getInstance(OfflineComServerImpl.OfflineComServerBuilderImpl.class);
     }
 
     @Override
-    public RemoteComServer newRemoteComServerInstance() {
-        return dataModel.getInstance(RemoteComServerImpl.class);
+    public RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> newRemoteComServerBuilder() {
+        return dataModel.getInstance(RemoteComServerImpl.RemoteComServerBuilderImpl.class);
     }
 
     /**

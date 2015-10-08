@@ -68,9 +68,9 @@ public interface EngineConfigurationService {
      */
     public List<OfflineComServer> findAllOfflineComServers ();
 
-    public OnlineComServer newOnlineComServerInstance();
-    public OfflineComServer newOfflineComServerInstance();
-    public RemoteComServer newRemoteComServerInstance();
+    public OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> newOnlineComServerBuilder();
+    public ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> newOfflineComServerBuilder();
+    public RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> newRemoteComServerBuilder();
 
     /**
      * Finds the ComPort with the specified unique identifier.

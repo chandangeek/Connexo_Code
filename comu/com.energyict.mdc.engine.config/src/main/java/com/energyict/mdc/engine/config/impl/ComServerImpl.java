@@ -158,6 +158,11 @@ public abstract class ComServerImpl implements ComServer {
         dataModel.remove(this);
     }
 
+    @Override
+    public void update() {
+        save();
+    }
+
     protected void validateDelete() {
 
     }
@@ -479,7 +484,7 @@ public abstract class ComServerImpl implements ComServer {
         throw new BusinessException("ComServerXDoesNotSupportRemoteQueries", "The comserver {0} does not support remote queries", this.getName());
     }
 
-    public final void save() {
+    final void save() {
         Save.action(this.getId()).save(dataModel, this);
     }
 
@@ -492,6 +497,67 @@ public abstract class ComServerImpl implements ComServer {
             return this.getName();
         }
 
+    }
+
+    static abstract class AbstractComServerBuilder<CS extends ComServerImpl, CSB extends ComServerBuilder> implements ComServerBuilder<CS, CSB> {
+
+        final CS comServerInstance;
+        private CSB me;
+
+        protected AbstractComServerBuilder(CS comServerInstance, Class<CSB> clazz) {
+            this.comServerInstance = comServerInstance;
+            this.me = clazz.cast(this); // typesafe cast ...
+        }
+
+        public void me(CSB me) {
+            this.me = me;
+        }
+
+        CS getComServerInstance() {
+            return comServerInstance;
+        }
+
+        @Override
+        public CSB name(String comServerName) {
+            comServerInstance.setName(comServerName);
+            return me;
+        }
+
+        @Override
+        public CSB changesInterPollDelay(TimeDuration changesInterPollDelay) {
+            comServerInstance.setChangesInterPollDelay(changesInterPollDelay);
+            return me;
+        }
+
+        @Override
+        public CSB schedulingInterPollDelay(TimeDuration schedulingInterPollDelay) {
+            comServerInstance.setSchedulingInterPollDelay(schedulingInterPollDelay);
+            return me;
+        }
+
+        @Override
+        public CSB communicationLogLevel(LogLevel logLevel) {
+            comServerInstance.setCommunicationLogLevel(logLevel);
+            return me;
+        }
+
+        @Override
+        public CSB serverLogLevel(LogLevel logLevel) {
+            comServerInstance.setServerLogLevel(logLevel);
+            return me;
+        }
+
+        @Override
+        public CSB active(boolean active) {
+            comServerInstance.setActive(active);
+            return me;
+        }
+
+        @Override
+        public CS create() {
+            comServerInstance.save();
+            return comServerInstance;
+        }
     }
 
 }

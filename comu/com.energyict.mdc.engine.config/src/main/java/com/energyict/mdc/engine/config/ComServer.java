@@ -263,7 +263,8 @@ public interface ComServer extends HasId, HasName {
 
     public void delete();
 
-    public void save();
+    public void update();
+
     /**
      * Gets the URI on which the event registration mechanism runs
      * if that mechanism is supported.
@@ -280,5 +281,15 @@ public interface ComServer extends HasId, HasName {
      * @throws BusinessException Thrown if this ComServer does not support the remote query api
      */
     public String getQueryApiPostUriIfSupported () throws BusinessException;
+
+    interface ComServerBuilder<CS extends ComServer, CSB extends ComServerBuilder> {
+        CSB name(String comServerName);
+        CSB changesInterPollDelay(TimeDuration changesInterPollDelay);
+        CSB schedulingInterPollDelay(TimeDuration schedulingInterPollDelay);
+        CSB communicationLogLevel(LogLevel logLevel);
+        CSB serverLogLevel(LogLevel logLevel);
+        CSB active(boolean active);
+        CS create();
+    }
 
 }

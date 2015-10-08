@@ -6,14 +6,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.RemoteComServer;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
-import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
-import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
+import com.energyict.mdc.engine.config.*;
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
@@ -120,6 +116,44 @@ public class RemoteComServerImpl extends ComServerImpl implements RemoteComServe
     @Override
     public void setUsesDefaultStatusUri(boolean usesDefaultStatusUri) {
         this.usesDefaultStatusUri = usesDefaultStatusUri;
+    }
+
+    static class RemoteComServerBuilderImpl extends AbstractComServerBuilder<RemoteComServerImpl, RemoteComServerBuilder> implements RemoteComServerBuilder<RemoteComServerImpl> {
+
+        @Inject
+        public RemoteComServerBuilderImpl(DataModel dataModel) {
+            super(dataModel.getInstance(RemoteComServerImpl.class), RemoteComServerBuilder.class);
+        }
+
+        @Override
+        public RemoteComServerBuilder onlineComServer(OnlineComServer onlineComServer) {
+            getComServerInstance().setOnlineComServer(onlineComServer);
+            return this;
+        }
+
+        @Override
+        public RemoteComServerBuilder eventRegistrationUri(String eventRegistrationUri) {
+            getComServerInstance().setEventRegistrationUri(eventRegistrationUri);
+            return this;
+        }
+
+        @Override
+        public RemoteComServerBuilder statusUri(String statusUri) {
+            getComServerInstance().setStatusUri(statusUri);
+            return this;
+        }
+
+        @Override
+        public RemoteComServerBuilder usesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri) {
+            getComServerInstance().setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri);
+            return this;
+        }
+
+        @Override
+        public RemoteComServerBuilder usesDefaultStatusUri(boolean usesDefaultStatusUri) {
+            getComServerInstance().setUsesDefaultStatusUri(usesDefaultStatusUri);
+            return this;
+        }
     }
 
 }
