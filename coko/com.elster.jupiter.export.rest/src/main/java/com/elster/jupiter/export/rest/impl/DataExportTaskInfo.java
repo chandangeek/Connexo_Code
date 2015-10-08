@@ -85,11 +85,10 @@ public class DataExportTaskInfo {
         dataProcessor = new ProcessorInfo(dataFormatter, thesaurus.getStringBeyondComponent(dataFormatter, dataFormatter),
                 propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataProcessorPropertySpecs(), dataExportTask.getProperties())) ;
 
-
         dataSelector =
                 new SelectorInfo(
                         selector,
-                        thesaurus.getStringBeyondComponent(selector, "Device readings data selector"),
+                        thesaurus.getStringBeyondComponent(selector, selector),
                         propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataSelectorPropertySpecs(), dataExportTask.getProperties()),
                         selectorType);
         Instant nextExecution = dataExportTask.getNextExecution();
