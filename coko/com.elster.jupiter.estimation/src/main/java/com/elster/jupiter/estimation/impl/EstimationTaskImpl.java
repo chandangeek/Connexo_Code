@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.TaskStatus;
@@ -102,18 +101,13 @@ public class EstimationTaskImpl implements IEstimationTask {
     }
 
     private void persist() {
-        RecurrentTaskBuilder builder = taskService.newBuilder()
+        RecurrentTask task = taskService.newBuilder()
                 .setName(UUID.randomUUID().toString())
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(estimationService.getDestination())
-                .setPayLoad(getName());
-        if (scheduleImmediately) {
-            builder.scheduleImmediately();
-        }
-        RecurrentTask task = builder.build();
-        if (nextExecution != null) {
-            task.setNextExecution(nextExecution);
-        }
+                .setPayLoad(getName())
+                .scheduleImmediately(scheduleImmediately)
+                .setFirstExecution(nextExecution).build();
         task.save();
         recurrentTask.set(task);
         Save.CREATE.save(dataModel, this);

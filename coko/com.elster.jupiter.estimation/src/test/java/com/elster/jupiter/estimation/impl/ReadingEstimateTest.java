@@ -251,8 +251,8 @@ public class ReadingEstimateTest {
         Instant newDate = ZonedDateTime.of(2014, 2, 2, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         try (TransactionContext ctx = transactionService.getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            meter = amrSystem.newMeter("myMeter");
-            meter.save();
+            meter = amrSystem.newMeter("myMeter").create();
+            meter.update();
             ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                     .period(TimeAttribute.MINUTE15)
                     .accumulate(Accumulation.BULKQUANTITY)
