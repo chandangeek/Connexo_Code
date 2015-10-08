@@ -267,6 +267,18 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
+    public PropertySpec hexStringPropertySpec(String name, String description, boolean required, HexString defaultValue) {
+        final PropertySpecBuilder propertySpecBuilder = PropertySpecBuilderImpl.forClass(new HexStringFactory())
+                .name(name)
+                .description(description)
+                .setDefaultValue(defaultValue);
+        if(required){
+            propertySpecBuilder.markRequired();
+        }
+        return propertySpecBuilder.finish();
+    }
+
+    @Override
     public PropertySpec booleanPropertySpec(String name, boolean required, Boolean defaultValue) {
         return this.booleanPropertySpec(name, "", required, defaultValue);
     }

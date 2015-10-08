@@ -1,6 +1,7 @@
 package com.energyict.mdc.dynamic;
 
 import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.ObisCode;
 
 import aQute.bnd.annotation.ProviderType;
@@ -156,4 +157,5 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
 
     ValueFactory getValueFactory(Class<? extends ValueFactory> valueFactoryClassName);
 
+    PropertySpec hexStringPropertySpec(String name, String description, boolean required, HexString defaultValue);
 }
