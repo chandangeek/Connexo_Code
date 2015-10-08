@@ -2,7 +2,6 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.UserService;
 
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
@@ -33,8 +32,8 @@ public class SecurityPropertySetInfoFactory {
         EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = securityPropertySet.getEncryptionDeviceAccessLevel();
         securityPropertySetInfo.authenticationLevelId = authenticationDeviceAccessLevel.getId();
         securityPropertySetInfo.encryptionLevelId = encryptionDeviceAccessLevel.getId();
-        securityPropertySetInfo.authenticationLevel = SecurityLevelInfo.from(authenticationDeviceAccessLevel, thesaurus);
-        securityPropertySetInfo.encryptionLevel = SecurityLevelInfo.from(encryptionDeviceAccessLevel, thesaurus);
+        securityPropertySetInfo.authenticationLevel = SecurityLevelInfo.from(authenticationDeviceAccessLevel);
+        securityPropertySetInfo.encryptionLevel = SecurityLevelInfo.from(encryptionDeviceAccessLevel);
 
         securityPropertySetInfo.executionLevels = executionLevelInfoFactory.from(securityPropertySet.getUserActions(), allGroups);
         return securityPropertySetInfo;
