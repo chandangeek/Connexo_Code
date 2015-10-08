@@ -20,7 +20,8 @@ Ext.define('Uni.controller.Search', {
         'Uni.view.search.field.Selection',
         'Uni.view.search.field.Simple',
         'Uni.grid.column.search.DeviceType',
-        'Uni.grid.column.search.DeviceConfiguration'
+        'Uni.grid.column.search.DeviceConfiguration',
+        'Uni.controller.history.Search'
     ],
 
     refs: [
@@ -283,7 +284,7 @@ Ext.define('Uni.controller.Search', {
             fieldItems.push(me.createFieldDefinitionFromModel(field));
             var columnItem = me.createColumnDefinitionFromModel(field);
             if (defaultColumns && defaultColumns.indexOf(field.get('propertyName')) >= 0) {
-                columnItem.default = true;
+                columnItem.isDefault = true;
             }
             columnItems.push(columnItem);
         });

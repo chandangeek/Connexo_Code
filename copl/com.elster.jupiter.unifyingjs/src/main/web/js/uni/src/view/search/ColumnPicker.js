@@ -125,7 +125,7 @@ Ext.define('Uni.view.search.ColumnPicker', {
             boxLabel: column.header,
             inputValue: column.dataIndex,
             disabled: column.disabled,
-            checked: column.default,
+            checked: column.isDefault,
             column: column
         };
     },
@@ -148,7 +148,7 @@ Ext.define('Uni.view.search.ColumnPicker', {
             });
         }
 
-        me.grid.reconfigure(null, _.filter(columns, function(c){return c.default}));
+        me.grid.reconfigure(null, _.filter(columns, function(c){return c.isDefault}));
         Ext.resumeLayouts(true);
     }
 });

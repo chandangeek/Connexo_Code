@@ -24,7 +24,9 @@ Ext.define('Uni.property.view.property.Reference', {
             valueField: 'key',
             width: me.width,
             forceSelection: me.getProperty().getExhaustive(),
-            readOnly: me.isReadOnly
+            readOnly: me.isReadOnly,
+            allowBlank: me.allowBlank,
+            blankText: me.blankText
         }
     },
 

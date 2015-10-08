@@ -11,6 +11,7 @@ Ext.define('Uni.form.field.Password', {
         align: 'stretch'
     },
     passwordAsTextComponent: false,
+    blankText: Uni.I18n.translate('general.requiredField', 'UNI', 'This field is required'),
 
     handler: function (checkbox, checked) {
         var field = this.down('textfield');
@@ -24,14 +25,15 @@ Ext.define('Uni.form.field.Password', {
             xtype: 'textfield',
             required: true,
             allowBlank: false,
-            inputType: 'password',
-            name: this.name,
-            readOnly: this.readOnly
+            msgTarget: 'under',
+            inputType: 'password'
         }
     ],
 
     initComponent: function() {
         this.items[0].name = this.name;
+        this.items[0].readOnly = this.readOnly;
+        this.items[0].blankText = this.blankText;
         if (!this.passwordAsTextComponent) {
             this.items[1] = (
                 {
@@ -42,7 +44,6 @@ Ext.define('Uni.form.field.Password', {
             this.items[1].handler = this.handler;
             this.items[1].scope = this;
         }
-
 
         this.callParent(arguments);
     },

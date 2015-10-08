@@ -27,6 +27,7 @@ Ext.define('Uni.property.view.property.Number', {
             readOnly: me.isReadOnly,
             inputType: me.inputType,
             allowBlank: me.allowBlank,
+            blankText: me.blankText,
             listeners: {
                 change: {
                     fn: me.checkValidNumber,

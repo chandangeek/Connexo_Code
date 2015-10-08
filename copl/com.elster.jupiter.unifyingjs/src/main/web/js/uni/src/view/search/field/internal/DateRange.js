@@ -37,7 +37,7 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
             {
                 xtype: 'uni-search-internal-dateline',
                 itemId: 'from',
-                default: true,
+                isDefault: true,
                 operator: '>',
                 listeners: {
                     change: function(field) {
@@ -52,7 +52,7 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
             {
                 xtype: 'uni-search-internal-dateline',
                 itemId: 'to',
-                default: true,
+                isDefault: true,
                 operator: '<',
                 listeners: {
                     change: function(field) {

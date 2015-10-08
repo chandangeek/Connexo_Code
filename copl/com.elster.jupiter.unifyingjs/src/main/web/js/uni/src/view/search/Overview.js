@@ -71,6 +71,7 @@ Ext.define('Uni.view.search.Overview', {
                                     '->',
                                     {
                                         disabled: true,
+                                        itemId: 'search-criteria-selector',
                                         xtype: 'search-criteria-selector',
                                         margin: 0
                                     }
@@ -118,12 +119,14 @@ Ext.define('Uni.view.search.Overview', {
                                     '->',
                                     {
                                         xtype: 'button',
+                                        itemId: 'search-button',
                                         ui: 'action',
                                         text: Uni.I18n.translate('general.search', 'UNI', 'Search'),
                                         action: 'search'
                                     },
                                     {
                                         xtype: 'button',
+                                        itemId: 'clear-all-button',
                                         text: Uni.I18n.translate('general.clearFilters', 'UNI', 'Clear all'),
                                         action: 'clearFilters',
                                         margin: '0 0 0 0'
@@ -147,10 +150,12 @@ Ext.define('Uni.view.search.Overview', {
                                         width: 100
                                     },
                                     {
+                                        itemId: 'add-sort-button',
                                         text: Uni.I18n.translate('general.addSort', 'UNI', 'Add sort')
                                     },
                                     '->',
                                     {
+                                        itemId: 'clear-sorting-button',
                                         text: Uni.I18n.translate('general.clearSorting', 'UNI', 'Clear sorting'),
                                         action: 'clearSorting'
                                     }
@@ -160,10 +165,12 @@ Ext.define('Uni.view.search.Overview', {
                     },
                     {
                         xtype: 'preview-container',
+                        itemId: 'search-preview-container',
                         grid: {
                             xtype: 'uni-view-search-results'
                         },
                         emptyComponent: {
+                            itemId: 'search-no-items-found-panel',
                             xtype: 'no-items-found-panel',
                             title: Uni.I18n.translate('search.overview.noItemsFoundPanel.title', 'UNI', 'No search results found'),
                             reasons: [
