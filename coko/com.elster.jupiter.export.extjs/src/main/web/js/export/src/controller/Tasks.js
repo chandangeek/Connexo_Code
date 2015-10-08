@@ -395,10 +395,11 @@ Ext.define('Dxp.controller.Tasks', {
                 //updatedData.hide();
                 //updatedValuesData.hide();
                 previewForm.down('#data-selector-properties-preview').loadRecord(record.getTask().getDataSelector());
-            } else {
+            } else if (record.getTask().getDataSelector().get('selectorType')==='DEFAULT_READINGS') {
                 previewForm.down('#data-selector-properties-preview').hide();
                 previewForm.down('#data-selector-deviceGroup-preview').show();
                 previewForm.down('#data-selector-readingTypes-preview').show();
+                previewForm.down('#data-selector-eventTypes-preview').hide();
                 previewForm.down('#data-selector-exportPeriod-preview').show();
                 previewForm.down('#continuousData-preview').show();
                 previewForm.down('#updated-data').show();
@@ -413,6 +414,17 @@ Ext.define('Dxp.controller.Tasks', {
                 //missingData.show();
                 //updatedData.show();
                 //updatedValuesData.show();
+            } else if (record.getTask().getDataSelector().get('selectorType')==='DEFAULT_EVENTS') {
+                previewForm.down('#data-selector-properties-preview').hide();
+                previewForm.down('#data-selector-deviceGroup-preview').show();
+                previewForm.down('#data-selector-readingTypes-preview').hide();
+                previewForm.down('#data-selector-eventTypes-preview').show();
+                previewForm.down('#data-selector-exportPeriod-preview').show();
+                previewForm.down('#continuousData-preview').show();
+                previewForm.down('#updated-data').hide();
+                previewForm.down('#updated-values').hide();
+                previewForm.down('#data-selector-export-complete').hide();
+                previewForm.down('#data-selector-validated-data').hide();
             }
 
 

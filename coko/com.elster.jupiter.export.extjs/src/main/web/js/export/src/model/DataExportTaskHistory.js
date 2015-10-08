@@ -49,7 +49,17 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
                 }
             }
         },
-
+        {
+            name: 'eventTypes',
+            persist: false,
+            mapping: function (data) {
+                if ((data.task.standardDataSelector) && (data.task.standardDataSelector.eventTypeCodes)) {
+                    return data.task.standardDataSelector.eventTypeCodes;
+                } else {
+                    return null;
+                }
+            }
+        },
         {
             name: 'deviceGroup',
             persist:false,
