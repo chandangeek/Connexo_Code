@@ -72,15 +72,19 @@ public class DataExportTaskInfo {
         name = dataExportTask.getName();
 
         active = dataExportTask.isActive();
-        populateReadingTypeDataExport(dataExportTask, thesaurus);
+        String selector = dataExportTask.getDataSelector();
+        SelectorType selectorType = SelectorType.forSelector(selector);
+        if(selectorType.equals(SelectorType.DEFAULT_READINGS)){
+            populateReadingTypeDataExport(dataExportTask, thesaurus);
+        } else if (selectorType.equals(SelectorType.DEFAULT_EVENTS)){
+            populateEventTypeDataExport(dataExportTask,thesaurus);
+        }
+
 
         String dataFormatter = dataExportTask.getDataFormatter();
         dataProcessor = new ProcessorInfo(dataFormatter, thesaurus.getStringBeyondComponent(dataFormatter, dataFormatter),
                 propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataProcessorPropertySpecs(), dataExportTask.getProperties())) ;
 
-        String selector = dataExportTask.getDataSelector();
-
-        SelectorType selectorType = SelectorType.forSelector(selector);
 
         dataSelector =
                 new SelectorInfo(
@@ -102,6 +106,13 @@ public class DataExportTaskInfo {
         dataExportTask.getReadingTypeDataSelector()
                 .ifPresent(readingTypeDataSelector -> {
                     standardDataSelector = new StandardDataSelectorInfo(readingTypeDataSelector, thesaurus);
+                });
+    }
+
+    private void populateEventTypeDataExport(ExportTask dataExportTask, Thesaurus thesaurus) {
+        dataExportTask.getEventDataSelector()
+                .ifPresent(eventDataSelector -> {
+                    standardDataSelector = new StandardDataSelectorInfo(eventDataSelector, thesaurus);
                 });
     }
 

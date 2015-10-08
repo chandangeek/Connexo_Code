@@ -237,20 +237,25 @@ public class DataExportTaskResource {
                 if (info.destinations.isEmpty()) {
                     throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "destinationsFieldcontainer");
                 }
-
-                StandardDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
-                selector.setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod));
-                selector.setExportUpdate(info.standardDataSelector.exportUpdate);
-                selector.setUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod));
-                selector.setUpdateWindow(getRelativePeriod(info.standardDataSelector.updateWindow));
-                selector.setEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id));
-                selector.setExportOnlyIfComplete(info.standardDataSelector.exportComplete);
-                selector.setValidatedDataOption(info.standardDataSelector.validatedDataOption);
-                selector.setExportContinuousData(info.standardDataSelector.exportContinuousData);
-                selector.save();
-                if (info.dataSelector.selectorType == SelectorType.DEFAULT_READINGS) {
+                String selectorString = task.getDataSelector();
+                SelectorType selectorType = SelectorType.forSelector(selectorString);
+                if(selectorType.equals(SelectorType.DEFAULT_READINGS)){
+                    StandardDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
+                    selector.setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod));
+                    selector.setExportUpdate(info.standardDataSelector.exportUpdate);
+                    selector.setUpdatePeriod(getRelativePeriod(info.standardDataSelector.updatePeriod));
+                    selector.setUpdateWindow(getRelativePeriod(info.standardDataSelector.updateWindow));
+                    selector.setEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id));
+                    selector.setExportOnlyIfComplete(info.standardDataSelector.exportComplete);
+                    selector.setValidatedDataOption(info.standardDataSelector.validatedDataOption);
+                    selector.setExportContinuousData(info.standardDataSelector.exportContinuousData);
+                    selector.save();
                     updateReadingTypes(info, task);
-                } else if (info.dataSelector.selectorType == SelectorType.DEFAULT_EVENTS) {
+                } else if (selectorType.equals(SelectorType.DEFAULT_EVENTS)){
+                    EventDataSelector selector = task.getEventDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
+                    selector.setEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id));
+                    selector.setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod));
+                    selector.setExportContinuousData(info.standardDataSelector.exportContinuousData);
                     updateEvents(info, task);
                 }
             }

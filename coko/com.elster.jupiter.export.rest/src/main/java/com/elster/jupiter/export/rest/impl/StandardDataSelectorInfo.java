@@ -1,10 +1,6 @@
 package com.elster.jupiter.export.rest.impl;
 
-import com.elster.jupiter.export.DataExportStrategy;
-import com.elster.jupiter.export.EndDeviceEventTypeFilter;
-import com.elster.jupiter.export.EventDataSelector;
-import com.elster.jupiter.export.StandardDataSelector;
-import com.elster.jupiter.export.ValidatedDataOption;
+import com.elster.jupiter.export.*;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.rest.RelativePeriodInfo;
@@ -33,16 +29,27 @@ public class StandardDataSelectorInfo {
 
     public StandardDataSelectorInfo(StandardDataSelector selector, Thesaurus thesaurus) {
         populateFrom(selector, thesaurus);
-
         readingTypes = selector.getReadingTypes()
                 .stream()
                 .map(ReadingTypeInfo::new)
                 .collect(Collectors.toCollection(ArrayList::new));
-        eventTypeCodes = ((EventDataSelector) selector).getEventTypeFilters()
+    }
+
+    public StandardDataSelectorInfo(EventDataSelector selector, Thesaurus thesaurus) {
+        populateFrom(selector, thesaurus);
+        eventTypeCodes = selector.getEventTypeFilters()
                 .stream()
                 .map(EndDeviceEventTypeFilter::getCode)
                 .map(EventTypeInfo::of)
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private void populateFrom(EventDataSelector selector, Thesaurus thesaurus) {
+        id = selector.getId();
+        deviceGroup = new MeterGroupInfo(selector.getEndDeviceGroup());
+        exportPeriod = new RelativePeriodInfo(selector.getExportPeriod(), thesaurus);
+        EventDataExportStrategy strategy = selector.getEventStrategy();
+        exportContinuousData = strategy.isExportContinuousData();
     }
 
     void populateFrom(StandardDataSelector selector, Thesaurus thesaurus) {
