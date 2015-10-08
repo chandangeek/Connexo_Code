@@ -95,7 +95,7 @@ public class CreationRuleResource extends BaseResource {
             setBaseFields(rule, builder);
             setActions(rule, builder);
             setTemplate(rule, builder);
-            builder.complete().save();
+            builder.complete();
             context.commit();
         }
         return Response.status(Response.Status.CREATED).build();
@@ -115,7 +115,7 @@ public class CreationRuleResource extends BaseResource {
             updater.removeActions();
             setActions(rule, updater);
             setTemplate(rule, updater);
-            updater.complete().save();
+            updater.complete();
             context.commit();
         }
         return Response.ok().build();

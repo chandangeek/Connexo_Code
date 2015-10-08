@@ -30,7 +30,7 @@ public class AssignIssueTransaction  implements Transaction<ActionInfo> {
             for (Issue issue : issueProvider.apply(response)) {
                 issue.assignTo(request.assignee.type, request.assignee.id);
                 issue.addComment(request.comment, performer);
-                issue.save();
+                issue.update();
                 response.addSuccess(issue.getId());
             }
         } else {
