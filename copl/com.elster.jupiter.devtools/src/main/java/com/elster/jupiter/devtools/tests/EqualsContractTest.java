@@ -41,6 +41,10 @@ public abstract class EqualsContractTest {
         }
     }
 
+    @Test
+    public void testTrivialInequality() {
+        assertThat(a.equals(new Object())).isFalse();
+    }
 
     @Test
     public void testReflexivity() {
