@@ -1,13 +1,13 @@
 package com.energyict.dlms.protocolimplv2.connection;
 
+import com.energyict.mdc.protocol.ComChannel;
+
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -491,9 +491,6 @@ public class TCPIPConnection implements DlmsV2Connection {
     @Override
     public void prepareComChannelForReceiveOfNextPacket() {
         comChannel.startWriting();
-        if (comChannel instanceof ServerComChannel) {
-            ((ServerComChannel) comChannel).sessionCountersStartWriting();
-        }
     }
 
     private enum State {

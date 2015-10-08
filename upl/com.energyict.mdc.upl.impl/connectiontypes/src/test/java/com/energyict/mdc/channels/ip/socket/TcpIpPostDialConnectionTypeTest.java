@@ -1,16 +1,17 @@
 package com.energyict.mdc.channels.ip.socket;
 
+import com.energyict.mdc.protocol.ComChannel;
 
 import com.energyict.cbo.InvalidValueException;
 import com.energyict.cbo.TimeConstants;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.protocol.ServerLoggableComChannel;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -29,7 +30,7 @@ public class TcpIpPostDialConnectionTypeTest {
     private final BigDecimal POST_DIAL_DELAY = new BigDecimal(500);
 
     @Mock
-    private ServerLoggableComChannel comChannel;
+    private ComChannel comChannel;
 
     @Test (expected = InvalidValueException.class)
     public void invalidPostDialTriesTest() throws Exception {
@@ -42,7 +43,7 @@ public class TcpIpPostDialConnectionTypeTest {
 
         // Business method
         try {
-        connectionType.sendPostDialCommand(comChannel);
+            connectionType.sendPostDialCommand(comChannel);
         } catch (InvalidValueException e) {
             assertEquals("XcannotBeEqualOrLessThanZero", e.getMessageId());
             throw e;

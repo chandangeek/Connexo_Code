@@ -1,5 +1,7 @@
 package com.energyict.dlms.protocolimplv2.connection;
 
+import com.energyict.mdc.protocol.ComChannel;
+
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.HDLC2Connection;
@@ -8,8 +10,6 @@ import com.energyict.dlms.ReceiveBuffer;
 import com.energyict.dlms.aso.AssociationControlServiceElement;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimplv2.MdcManager;
 
@@ -190,8 +190,6 @@ public class HDLCConnection extends HDLC2Connection implements DlmsV2Connection 
     @Override
     public void prepareComChannelForReceiveOfNextPacket() {
         comChannel.startWriting();
-        if (comChannel instanceof ServerComChannel) {
-            ((ServerComChannel) comChannel).sessionCountersStartWriting();
-        }
     }
+
 }

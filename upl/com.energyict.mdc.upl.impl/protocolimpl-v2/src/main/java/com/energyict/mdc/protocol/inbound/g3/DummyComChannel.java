@@ -1,47 +1,21 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
+import com.energyict.mdc.protocol.ComChannel;
+
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.protocol.ServerComChannel;
-import com.energyict.mdc.tasks.ConnectionTask;
 
 import java.io.IOException;
 
 /**
- * Provides an implementation of a {@link ServerComChannel} that basically does nothing.
+ * Provides an implementation for the {@link ComChannel} interface that basically does nothing.
  * <p/>
  * Copyrights EnergyICT
  * Date: 18/10/12
  * Time: 14:06
  */
-public class DummyComChannel implements ServerComChannel {
+public class DummyComChannel implements ComChannel {
 
     private TypedProperties typedProperties = TypedProperties.empty();
-
-    @Override
-    public ComPort getComPort() {
-        return null;
-    }
-
-    @Override
-    public void setComPort(ComPort comPort) {
-
-    }
-
-    @Override
-    public ConnectionTask getConnectionTask() {
-        return null;
-    }
-
-    @Override
-    public void setConnectionTask(ConnectionTask connectionTask) {
-
-    }
-
-    @Override
-    public void sessionCountersStartWriting() {
-
-    }
 
     @Override
     public boolean startReading() {

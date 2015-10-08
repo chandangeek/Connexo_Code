@@ -1,20 +1,23 @@
 package com.energyict.mdc.channels.ip.socket;
 
-import com.energyict.cbo.TimeConstants;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
-import org.junit.Test;
+
+import com.energyict.cbo.TimeConstants;
+import com.energyict.cbo.TimeDuration;
+import com.energyict.cpo.TypedProperties;
 
 import java.math.BigDecimal;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -34,7 +37,7 @@ public class OutboundTcpIpConnectionTypeTest {
         OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType();
         ComPort comPort = getMockedComPort();
 
-        ArrayList<ConnectionTaskProperty> properties = getConnectionProperties("www.ditiszekereendomeinnaamdienietbestaat.zelfsdeextentiebestaatniet", DEFAULT_HTTP_PORT, 1);
+        List<ConnectionTaskProperty> properties = getConnectionProperties("www.ditiszekereendomeinnaamdienietbestaat.zelfsdeextentiebestaatniet", DEFAULT_HTTP_PORT, 1);
 
         try {
             // Business method
@@ -54,7 +57,7 @@ public class OutboundTcpIpConnectionTypeTest {
         ComPort comPort = getMockedComPort();
 
         int timeOut = 3;    // seconds
-        ArrayList<ConnectionTaskProperty> properties = getConnectionProperties("10.0.13.13", DEFAULT_HTTP_PORT, timeOut);
+        List<ConnectionTaskProperty> properties = getConnectionProperties("10.0.13.13", DEFAULT_HTTP_PORT, timeOut);
         long timeBeforeConnect = System.currentTimeMillis();
 
         try {

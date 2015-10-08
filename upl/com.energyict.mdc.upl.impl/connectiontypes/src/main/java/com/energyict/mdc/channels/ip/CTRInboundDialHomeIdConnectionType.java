@@ -1,7 +1,5 @@
 package com.energyict.mdc.channels.ip;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.protocol.ComChannel;
@@ -10,6 +8,9 @@ import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.VoidComChannel;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
+
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;

@@ -1,7 +1,5 @@
 package com.energyict.mdc.channels.sms;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
@@ -10,6 +8,9 @@ import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
+
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -98,7 +99,6 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
         }
         ProximusSmsComChannel smsComChannel = new ProximusSmsComChannel(this.phoneNumberPropertyValue(),
                 this.connectionURLPropertyValue(), this.sourcePropertyValue(), this.authenticationPropertyValue(), this.serviceCodePropertyValue());
-        smsComChannel.setComPort(comPort);
         smsComChannel.addProperties(createTypeProperty(ComChannelType.ProximusSmsComChannel));
         return smsComChannel;
     }

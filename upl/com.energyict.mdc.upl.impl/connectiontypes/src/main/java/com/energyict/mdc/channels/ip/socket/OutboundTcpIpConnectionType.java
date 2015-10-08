@@ -4,11 +4,14 @@ import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
-import com.energyict.mdc.protocol.*;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.tasks.ConnectionType} interface for TCP/IP.
@@ -50,8 +53,7 @@ public class OutboundTcpIpConnectionType extends OutboundIpConnectionType {
                 this.setProperty(property.getName(), property.getValue());
             }
         }
-        ServerLoggableComChannel comChannel = this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
-        comChannel.setComPort(comPort);
+        ComChannel comChannel = this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
         comChannel.addProperties(createTypeProperty(ComChannelType.SocketComChannel));
         return comChannel;
     }

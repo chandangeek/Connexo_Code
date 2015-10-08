@@ -1,6 +1,5 @@
 package com.energyict.mdc.tasks;
 
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.SerialComponentFactory;
 import com.energyict.mdc.channels.ComChannelType;
@@ -13,7 +12,8 @@ import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.exceptions.SerialPortException;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
-import com.energyict.mdc.protocol.ServerLoggableComChannel;
+
+import com.energyict.cpo.TypedProperties;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.io.IOException;
@@ -84,7 +84,7 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
      * @return The ComChannel
      * @throws ConnectionException Indicates a failure in the actual connection mechanism
      */
-    protected ServerLoggableComChannel newTcpIpConnection(String host, int port, int timeOut) throws ConnectionException {
+    protected ComChannel newTcpIpConnection(String host, int port, int timeOut) throws ConnectionException {
         try {
             Socket socket = new Socket();
             socket.connect(new InetSocketAddress(host, port), timeOut);
@@ -102,7 +102,7 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
      * @return the ComChannel
      * @throws ConnectionException if an exception occurred during the creation or initialization of the ComPort
      */
-    protected ServerLoggableComChannel newRxTxSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
+    protected ComChannel newRxTxSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
         try {
             SerialComponentFactory serialComponentFactory = ManagerFactory.getCurrent().getSerialComponentFactory();
             RxTxSerialPort serialPort = serialComponentFactory.newRxTxSerialPort(serialPortConfiguration);
@@ -121,7 +121,7 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
      * @return the ComChannel
      * @throws ConnectionException if an exception occurred during the creation or initialization of the ComPort
      */
-    protected ServerLoggableComChannel newSioSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
+    protected ComChannel newSioSerialConnection(final SerialPortConfiguration serialPortConfiguration) throws ConnectionException {
         try {
             SerialComponentFactory serialComponentFactory = ManagerFactory.getCurrent().getSerialComponentFactory();
             SioSerialPort serialPort = serialComponentFactory.newSioSerialPort(serialPortConfiguration);
@@ -142,7 +142,7 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
      * @return the newly created DatagramComChannel
      * @throws ConnectionException if the connection setup did not work
      */
-    protected ServerLoggableComChannel newUDPConnection(int bufferSize, String host, int port) throws ConnectionException {
+    protected ComChannel newUDPConnection(int bufferSize, String host, int port) throws ConnectionException {
         try {
             OutboundUdpSession udpSession = new OutboundUdpSession(bufferSize, host, port);
             return new DatagramComChannel(udpSession);
@@ -170,4 +170,5 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
     public void injectConnectionTaskId(int connectionTaskId) {
         // Not interested in this kind of info, sub-classes who need this can override
     }
+
 }

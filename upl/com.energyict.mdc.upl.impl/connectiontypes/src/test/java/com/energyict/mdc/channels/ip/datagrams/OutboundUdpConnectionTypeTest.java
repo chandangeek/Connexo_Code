@@ -1,19 +1,25 @@
 package com.energyict.mdc.channels.ip.datagrams;
 
-import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
-import org.junit.Test;
+
+import com.energyict.cpo.TypedProperties;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.*;
-import java.util.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
+
+import org.junit.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -28,7 +34,6 @@ import static org.mockito.Mockito.mock;
 public class OutboundUdpConnectionTypeTest {
 
     public static final int PORT_NUMBER = 8080;
-    public static final int NUMBER_OF_SIMULTANEOUS_CONNECTIONS = 2;
     public static final int BUFFER_SIZE = 1024;
 
 
@@ -38,7 +43,7 @@ public class OutboundUdpConnectionTypeTest {
         ComPort comPort = getMockedComPort();
 
 
-        ArrayList<ConnectionTaskProperty> properties = new ArrayList<ConnectionTaskProperty>(0);
+        List<ConnectionTaskProperty> properties = new ArrayList<>(0);
         ConnectionTaskPropertyImpl hostProperty = new ConnectionTaskPropertyImpl(OutboundUdpConnectionType.HOST_PROPERTY_NAME);
         hostProperty.setValue("www.ditiszekereendomeinnaamdienietbestaat.zelfsdeextentiebestaatniet");
         properties.add(hostProperty);
@@ -93,7 +98,7 @@ public class OutboundUdpConnectionTypeTest {
         CountDownLatch finishLatch = new CountDownLatch(1);
         final String firstRequest = "Hello Server, how are you doing?";
         final String secondRequest = "Bye!";
-        List<String> receivedResponses = new ArrayList<String>();   // received from the client
+        List<String> receivedResponses = new ArrayList<>();   // received from the client
 
         OutboundUdpConnectionType connectionType = this.newUDPConnectionType();
 
@@ -198,7 +203,7 @@ public class OutboundUdpConnectionTypeTest {
         private CountDownLatch startLatch;
 
         public UdpServer(CountDownLatch socketCloseLatch, CountDownLatch finishLatch, CountDownLatch startLatch) {
-            this.sendAnswers = new ArrayList<String>();
+            this.sendAnswers = new ArrayList<>();
             this.socketCloseLatch = socketCloseLatch;
             this.finishLatch = finishLatch;
             this.startLatch = startLatch;

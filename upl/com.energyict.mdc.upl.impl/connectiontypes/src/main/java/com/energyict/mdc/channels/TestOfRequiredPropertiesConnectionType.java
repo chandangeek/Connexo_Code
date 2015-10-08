@@ -1,5 +1,13 @@
 package com.energyict.mdc.channels;
 
+import com.energyict.mdc.ports.ComPort;
+import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.mdc.protocol.VoidComChannel;
+import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.tasks.ConnectionTypeImpl;
+
 import com.energyict.cbo.HexString;
 import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
@@ -9,13 +17,6 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.ean.Ean13;
 import com.energyict.ean.Ean18;
-import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.ports.ComPortType;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ConnectionException;
-import com.energyict.mdc.protocol.VoidComChannel;
-import com.energyict.mdc.tasks.ConnectionTaskProperty;
-import com.energyict.mdc.tasks.ConnectionTypeImpl;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.LoadProfile;
 import com.energyict.mdw.core.LoadProfileType;
