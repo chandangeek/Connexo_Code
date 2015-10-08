@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-final class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelectorOccurrence {
+class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelectorOccurrence {
 
     private Reference<TaskOccurrence> taskOccurrence = ValueReference.absent();
     private Reference<IExportTask> readingTask = ValueReference.absent();
@@ -43,7 +43,7 @@ final class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSe
         return model.getInstance(DataExportOccurrenceImpl.class).init(occurrence, task);
     }
 
-    private DataExportOccurrenceImpl init(TaskOccurrence occurrence, IExportTask task) {
+    DataExportOccurrenceImpl init(TaskOccurrence occurrence, IExportTask task) {
         taskOccurrence.set(occurrence);
         readingTask.set(task);
         //TODO ZoneId !!

@@ -1,12 +1,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataExportTaskBuilder;
-import com.elster.jupiter.export.DataFormatterFactory;
-import com.elster.jupiter.export.DataSelectorFactory;
-import com.elster.jupiter.export.ExportTask;
-import com.elster.jupiter.export.StandardDataSelector;
+import com.elster.jupiter.export.*;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
@@ -137,10 +132,13 @@ public class DataExportServiceImplTest {
     public void setUp() throws SQLException {
         when(dataFormatterFactory.getName()).thenReturn(DATA_FORMATTER);
         when(iExportTask.getReadingTypeDataSelector()).thenReturn(Optional.of(standardDataSelector));
+        when(iExportTask.getEventDataSelector()).thenReturn(Optional.<EventDataSelector>empty());
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
         when(dataModel.<ExportTask>mapper(any())).thenReturn(readingTypeDataExportTaskFactory);
         when(dataModel.<IExportTask>mapper(any())).thenReturn(iReadingTypeDataExportTaskFactory);
+        when(dataModel.getInstance(DataExportOccurrenceImpl.class)).thenReturn(dataExportOccurrence);
+        when(dataExportOccurrence.init(any(), any())).thenReturn(dataExportOccurrence);
         when(transactionService.execute(any())).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {

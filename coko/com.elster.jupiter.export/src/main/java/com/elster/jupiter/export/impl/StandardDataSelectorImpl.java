@@ -149,6 +149,7 @@ class StandardDataSelectorImpl implements IStandardDataSelector {
     public void delete() {
         readingTypes.clear();
         exportItems.clear();
+        eventTypeFilters.clear();
         dataModel.mapper(IStandardDataSelector.class).remove(this);
     }
 
