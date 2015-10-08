@@ -14,9 +14,16 @@ Ext.define('Mdc.controller.Search', {
             var cid = _.pluck(columns, 'dataIndex').indexOf('mRID');
             var column = columns[cid];
             if (column) {
-                column.renderer = function (value) {
-                    var url = router.getRoute('devices/device').buildUrl({mRID: value});
-                    return '<a href="{0}">{1}</a>'.replace('{0}', url).replace('{1}', Ext.String.htmlEncode(value));
+                if (me.searchDomain.get('id') == 'com.energyict.mdc.device.data.Device') {
+                    column.renderer = function (value) {
+                        var url = router.getRoute('devices/device').buildUrl({mRID: value});
+                        return '<a href="{0}">{1}</a>'.replace('{0}', url).replace('{1}', Ext.String.htmlEncode(value));
+                    }
+                } else if (me.searchDomain.get('id') == 'com.elster.jupiter.metering.UsagePoint') {
+                    column.renderer = function (value) {
+                        var url = router.getRoute('usagepoints/usagepoint').buildUrl({usagePointMRID: value});
+                        return '<a href="{0}">{1}</a>'.replace('{0}', url).replace('{1}', Ext.String.htmlEncode(value));
+                    }
                 }
             }
         });
