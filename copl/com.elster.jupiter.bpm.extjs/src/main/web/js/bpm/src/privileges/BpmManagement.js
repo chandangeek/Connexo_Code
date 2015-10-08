@@ -13,6 +13,8 @@ Ext.define('Bpm.privileges.BpmManagement', {
     view: ['privilege.view.task'],
     assign: ['privilege.assign.task'],
     execute: ['privilege.execute.task'],
+    assignAndExecute: ['privilege.assign.task', 'privilege.execute.task'],
+
 
     all: function () {
         return Ext.Array.merge(Bpm.privileges.BpmManagement.all);

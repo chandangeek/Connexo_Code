@@ -85,6 +85,8 @@ Ext.define('Bpm.controller.Task', {
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
         }
         else {
+            var store = Ext.getStore('Bpm.store.task.Tasks');
+            store.loadData([], false);
             view = Ext.widget('bpm-tasks', {
                 router: router
             });
@@ -103,7 +105,7 @@ Ext.define('Bpm.controller.Task', {
         Ext.suspendLayouts();
         preview.setTitle(record.get('name'));
         previewForm.loadRecord(record);
-        preview.down('bpm-task-action-menu').record = record;
+        preview.down('bpm-task-action-menu') && (preview.down('bpm-task-action-menu').record = record);
         Ext.resumeLayouts();
     },
 

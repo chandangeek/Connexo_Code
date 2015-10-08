@@ -64,7 +64,7 @@ Ext.define('Bpm.model.task.Task', {
             name: 'statusDisplay',
             type: 'string',
             convert: function (value, record) {
-                switch (value){
+                switch (record.get('status')){
                     case 'Created':
                     case 'Ready':
                     case 'Reserved':

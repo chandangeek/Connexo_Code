@@ -11,6 +11,7 @@ Ext.define('Bpm.view.task.TaskPreview', {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'BPM', 'Actions'),
             iconCls: 'x-uni-action-iconD',
+            privileges: Bpm.privileges.BpmManagement.assignAndExecute,
             menu: {
                 xtype: 'bpm-task-action-menu'
             }
