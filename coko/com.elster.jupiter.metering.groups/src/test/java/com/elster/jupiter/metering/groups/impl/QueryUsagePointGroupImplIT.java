@@ -116,8 +116,7 @@ public class QueryUsagePointGroupImplIT {
         UsagePoint usagePoint = null;
         try(TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
-            usagePoint = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint(UP_MRID);
-            usagePoint.save();
+            usagePoint = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint(UP_MRID).create();
             ctx.commit();
         }
 
