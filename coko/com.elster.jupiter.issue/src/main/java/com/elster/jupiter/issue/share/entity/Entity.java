@@ -1,8 +1,8 @@
 package com.elster.jupiter.issue.share.entity;
 
-import java.time.Instant;
-
 import aQute.bnd.annotation.ProviderType;
+
+import java.time.Instant;
 
 @ProviderType
 public interface Entity {
@@ -18,7 +18,7 @@ public interface Entity {
     String getUserName();
 
     // Operational methods
-    void save();
+    void update();
 
     void delete();
 }

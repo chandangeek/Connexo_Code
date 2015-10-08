@@ -1,12 +1,12 @@
 package com.elster.jupiter.issue.share;
 
-import java.util.Optional;
-
 import aQute.bnd.annotation.ConsumerType;
-
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.properties.HasDynamicProperties;
+
+import java.util.Optional;
 
 @ConsumerType
 public interface CreationRuleTemplate extends HasDynamicProperties {
@@ -21,7 +21,12 @@ public interface CreationRuleTemplate extends HasDynamicProperties {
 
     IssueType getIssueType();
 
-    Optional<? extends Issue> createIssue(Issue baseIssue, IssueEvent event);
+    OpenIssue createIssue(OpenIssue baseIssue, IssueEvent event);
+
+    default void updateIssue(OpenIssue openIssue, IssueEvent event) {
+        event.apply(openIssue);
+        openIssue.update();
+    }
 
     Optional<? extends Issue> resolveIssue(IssueEvent event);
 

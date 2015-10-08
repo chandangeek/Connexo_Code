@@ -25,10 +25,11 @@ public class IssueCommentImpl extends EntityImpl implements IssueComment{
         super(dataModel);
     }
 
-    public void init(long issueId, String comment, User author){
+    public IssueCommentImpl init(long issueId, String comment, User author){
         setIssueId(issueId);
         setComment(comment);
         setUser(author);
+        return this;
     }
 
     @Override

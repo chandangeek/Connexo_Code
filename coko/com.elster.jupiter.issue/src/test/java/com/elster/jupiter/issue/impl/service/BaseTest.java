@@ -57,6 +57,11 @@ import com.elster.jupiter.util.conditions.Order;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.io.KieResources;
 import org.kie.internal.KnowledgeBase;
@@ -65,6 +70,7 @@ import org.kie.internal.builder.KnowledgeBuilder;
 import org.kie.internal.builder.KnowledgeBuilderConfiguration;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.kie.internal.runtime.StatefulKnowledgeSession;
+import org.mockito.Matchers;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -74,16 +80,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.mockito.Matchers;
-
 import static com.elster.jupiter.util.conditions.Where.where;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SuppressWarnings("deprecation")
 public abstract class BaseTest {
@@ -219,7 +217,7 @@ public abstract class BaseTest {
     }
 
     protected OpenIssue createIssueMinInfo() {
-        OpenIssue issue = getDataModel().getInstance(OpenIssueImpl.class);
+        OpenIssueImpl issue = getDataModel().getInstance(OpenIssueImpl.class);
         issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
         issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orElse(null));
         CreationRule rule = createCreationRule("creation rule" + Instant.now());
@@ -234,9 +232,7 @@ public abstract class BaseTest {
         builder.setTemplate(mockCreationRuleTemplate().getName());
         builder.setIssueType(getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID).orElse(null));
         builder.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
-        CreationRule creationRule = builder.complete();
-        creationRule.save();
-        return creationRule;
+        return builder.complete();
     }
 
     private CreationRuleTemplate mockCreationRuleTemplate() {
@@ -310,9 +306,9 @@ public abstract class BaseTest {
 
         @Override
         public Optional<? extends OpenIssue> getOpenIssue(OpenIssue issue) {
-            OpenIssue spyOpenIssue = spy(issue);
+            OpenIssue spyOpenIssue = mock(OpenIssue.class);
             doAnswer(invocationOnMock -> {
-                IssueStatus status = (IssueStatus)invocationOnMock.getArguments()[0];
+                IssueStatus status = (IssueStatus) invocationOnMock.getArguments()[0];
                 return issue.closeInternal(status);
             }).when(spyOpenIssue).close(any());
             return Optional.of(spyOpenIssue);

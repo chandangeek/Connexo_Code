@@ -1,13 +1,5 @@
 package com.elster.jupiter.issue.impl.actions;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
@@ -15,7 +7,15 @@ import com.elster.jupiter.issue.impl.service.BaseTest;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.User;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CommentIssueActionTest extends BaseTest {
 
@@ -32,8 +32,14 @@ public class CommentIssueActionTest extends BaseTest {
         Map<String, Object> properties = new HashMap<>();
         properties.put(CommentIssueAction.ISSUE_COMMENT, "Comment");
         Issue issue = createIssueMinInfo();
-        
-        User user = getUserService().findOrCreateUser("user", "local", "directoryType");
+
+        LdapUserDirectory local = getUserService().createApacheDirectory("local");
+        local.setSecurity("0");
+        local.setUrl("url");
+        local.setDirectoryUser("directoryUser");
+        local.setPassword("password");
+        local.save();
+        User user = getUserService().findOrCreateUser("user", "local", "APD");
         getThreadPrincipalService().set(user);
         
         IssueActionResult actionResult = action.initAndValidate(properties).execute(issue);

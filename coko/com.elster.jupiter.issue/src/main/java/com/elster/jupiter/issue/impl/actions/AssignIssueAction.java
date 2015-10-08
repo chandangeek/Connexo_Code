@@ -53,7 +53,7 @@ public class AssignIssueAction extends AbstractIssueAction {
         DefaultActionResult result = new DefaultActionResult();
         IssueAssignee assignee = getAssigneeFromParameters(properties).get();
         issue.assignTo(assignee);
-        issue.save();
+        issue.update();
         getCommentFromParameters(properties).ifPresent(comment -> {
             issue.addComment(comment, (User)threadPrincipalService.getPrincipal());
         });

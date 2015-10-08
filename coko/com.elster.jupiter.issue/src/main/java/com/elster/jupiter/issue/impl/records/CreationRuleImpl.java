@@ -235,12 +235,15 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
         persistentActions.clear();
         actions.clear();
     }
-    
+
     @Override
     public void save() {
-        if (this.getCreateTime() == null) {
-            Save.CREATE.save(getDataModel(), this);
-        }
+        Save.CREATE.save(getDataModel(), this);
+        update();
+    }
+
+    @Override
+    public void update() {
         updateIssueType();
         updateContent();
         Save.UPDATE.save(getDataModel(), this);
@@ -256,7 +259,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
             super.delete(); // delete from table
         } else {
             this.setObsoleteTime(Instant.now()); // mark obsolete
-            this.save();
+            this.update();
         }
         issueService.getIssueCreationService().reReadRules();
     }

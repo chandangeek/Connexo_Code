@@ -89,7 +89,7 @@ public class IssueStatusTest extends BaseTest{
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     public void checkKeyValidation(){
-        getDataModel().getInstance(IssueStatusImpl.class).init(null, false, TranslationKeys.ISSUE_STATUS_OPEN).save();
+        getDataModel().getInstance(IssueStatusImpl.class).init(null, false, TranslationKeys.ISSUE_STATUS_OPEN).update();
     }
 
     @Test
@@ -100,13 +100,13 @@ public class IssueStatusTest extends BaseTest{
         for (int i=0; i < 90; i++){
             key.append("q");
         }
-        getDataModel().getInstance(IssueStatusImpl.class).init(key.toString(), false, TranslationKeys.ISSUE_STATUS_OPEN).save();
+        getDataModel().getInstance(IssueStatusImpl.class).init(key.toString(), false, TranslationKeys.ISSUE_STATUS_OPEN).update();
     }
 
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "translationKey", strict = false)
     public void checkTranslationValidation(){
-        getDataModel().getInstance(IssueStatusImpl.class).init("status.validation", false, null).save();
+        getDataModel().getInstance(IssueStatusImpl.class).init("status.validation", false, null).update();
     }
 }

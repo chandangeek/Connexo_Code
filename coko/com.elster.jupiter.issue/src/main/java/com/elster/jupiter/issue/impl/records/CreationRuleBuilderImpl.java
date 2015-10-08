@@ -67,6 +67,7 @@ public class CreationRuleBuilderImpl implements CreationRuleBuilder {
 
     @Override
     public CreationRule complete() {
+        this.underConstruction.save();
         return this.underConstruction;
     }
     

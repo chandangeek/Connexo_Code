@@ -1,31 +1,5 @@
 package com.elster.jupiter.issue.impl.service;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.Principal;
-import java.util.List;
-import java.util.Optional;
-import java.util.logging.Logger;
-
-import javax.inject.Inject;
-
-import org.drools.core.common.ProjectClassLoader;
-import org.kie.api.KieBaseConfiguration;
-import org.kie.api.io.KieResources;
-import org.kie.api.io.ResourceType;
-import org.kie.internal.KnowledgeBase;
-import org.kie.internal.KnowledgeBaseFactoryService;
-import org.kie.internal.builder.KnowledgeBuilder;
-import org.kie.internal.builder.KnowledgeBuilderConfiguration;
-import org.kie.internal.builder.KnowledgeBuilderFactoryService;
-import org.kie.internal.runtime.StatefulKnowledgeSession;
-import org.kie.internal.utils.CompositeClassLoader;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.issue.impl.module.DroolsValidationException;
@@ -39,6 +13,30 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import org.drools.core.common.ProjectClassLoader;
+import org.kie.api.KieBaseConfiguration;
+import org.kie.api.io.KieResources;
+import org.kie.api.io.ResourceType;
+import org.kie.internal.KnowledgeBase;
+import org.kie.internal.KnowledgeBaseFactoryService;
+import org.kie.internal.builder.KnowledgeBuilder;
+import org.kie.internal.builder.KnowledgeBuilderConfiguration;
+import org.kie.internal.builder.KnowledgeBuilderFactoryService;
+import org.kie.internal.runtime.StatefulKnowledgeSession;
+import org.kie.internal.utils.CompositeClassLoader;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.Principal;
+import java.util.List;
+import java.util.Optional;
+import java.util.logging.Logger;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @SuppressWarnings("deprecation")
 public class IssueAssignmentServiceImpl implements IssueAssignmentService {
@@ -139,8 +137,12 @@ public class IssueAssignmentServiceImpl implements IssueAssignmentService {
     }
     
     @Override
-    public AssignmentRule createAssignmentRule() {
-        return dataModel.getInstance(AssignmentRuleImpl.class);
+    public AssignmentRule createAssignmentRule(String title, String ruleData) {
+        AssignmentRuleImpl assignmentRule = dataModel.getInstance(AssignmentRuleImpl.class);
+        assignmentRule.setTitle(title);
+        assignmentRule.setRuleData(ruleData);
+        assignmentRule.save();
+        return assignmentRule;
     }
 
     private void processRules(List<IssueForAssign> issueList) {
@@ -190,7 +192,7 @@ public class IssueAssignmentServiceImpl implements IssueAssignmentService {
                     }
                 });
                 try (TransactionContext context = transactionService.getContext()){
-                    rule.save();
+                    rule.update();
                     if (!createKnowledgeBase()) {
                         rule.delete();
                     }
