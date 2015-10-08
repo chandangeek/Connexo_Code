@@ -554,7 +554,7 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public void setZone(ZoneId zone) {
-        if (zoneId != null) {
+        if (zone != null) {
             this.timeZoneId = zone.getId();
         } else {
             this.timeZoneId = "";
@@ -907,10 +907,13 @@ public class DeviceImpl implements Device, CanLock {
 
     Meter createKoreMeter(AmrSystem amrSystem) {
         FiniteStateMachine stateMachine = this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine();
-        Meter meter = amrSystem.newMeter(stateMachine, String.valueOf(getId()), getmRID());
-        meter.setSerialNumber(getSerialNumber());
+        Meter meter = amrSystem.newMeter(String.valueOf(getId()))
+                .setMRID(getmRID())
+                .setStateMachine(stateMachine)
+                .setSerialNumber(getSerialNumber())
+                .create();
         meter.getLifecycleDates().setReceivedDate(this.clock.instant());
-        meter.save();
+        meter.update();
         return meter;
     }
 
@@ -2264,7 +2267,7 @@ public class DeviceImpl implements Device, CanLock {
 
         @Override
         public void save() {
-            this.koreDevice.save();
+            this.koreDevice.update();
         }
     }
     private class NoCimLifecycleDates implements CIMLifecycleDates {
