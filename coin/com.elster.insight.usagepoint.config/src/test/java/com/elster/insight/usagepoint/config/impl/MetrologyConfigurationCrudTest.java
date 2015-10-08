@@ -94,24 +94,36 @@ public class MetrologyConfigurationCrudTest {
     public void testCrud()  {
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            MetrologyConfiguration mc1 = upcService.newMetrologyConfiguration("Residential");
-            System.out.println(mc1);
-            assertThat(mc1.getName()).isEqualTo("Residential");
+            MetrologyConfiguration mc1 = upcService.newMetrologyConfiguration("Residenshull");
+            assertThat(mc1.getName()).isEqualTo("Residenshull");
             MetrologyConfiguration mc2 = upcService.newMetrologyConfiguration("Commercial 1");
             assertThat(mc2.getName()).isEqualTo("Commercial 1");
         	context.commit();
         }
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-        	Optional<MetrologyConfiguration> mc1 = getUsagePointConfigurationService().findMetrologyConfiguration(1);
-        	assertThat(mc1.isPresent()).isTrue();
-        	assertThat(mc1.get().getName()).isEqualTo("Residential");
+        	Optional<MetrologyConfiguration> mc1 = upcService.findMetrologyConfiguration(1);
+        	assertThat(mc1).isPresent();
+        	assertThat(mc1.get().getName()).isEqualTo("Residenshull");
             Optional<MetrologyConfiguration> mc2 = getUsagePointConfigurationService().findMetrologyConfiguration(2);
             assertThat(mc2.isPresent());
             assertThat(mc2.get().getName()).isEqualTo("Commercial 1");    
             Finder<MetrologyConfiguration> allFinder = upcService.findAllMetrologyConfigurations();
             List<MetrologyConfiguration> all = allFinder.find();
             assertThat(all.size()).isEqualTo(2);
+            context.commit();
+        }
+        try (TransactionContext context = getTransactionService().getContext()) {
+            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
+            Optional<MetrologyConfiguration> mc1 = upcService.findMetrologyConfiguration(1);
+            assertThat(mc1).isPresent();
+            assertThat(mc1.get().getName()).isEqualTo("Residenshull");
+            mc1.get().setName("Residential");
+            mc1.get().save();
+            mc1 = upcService.findMetrologyConfiguration(1);
+            Optional<MetrologyConfiguration> mc2 = getUsagePointConfigurationService().findMetrologyConfiguration(2);
+            assertThat(mc1).isPresent();
+            assertThat(mc1.get().getName()).isEqualTo("Residential");
             context.commit();
         }
         try (TransactionContext context = getTransactionService().getContext()) {
