@@ -235,8 +235,8 @@ public class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public Device changeDeviceConfigurationForSingleDevice(DeviceConfiguration destinationDeviceConfiguration, Device device) {
-        return DeviceConfigChangeExecutor.getInstance().execute((DeviceImpl) device, destinationDeviceConfiguration);
+    public Device changeDeviceConfigurationForSingleDevice(Device device, long destinationDeviceConfigId, long destinationDeviceConfigVersion) {
+        return DeviceConfigChangeExecutor.getInstance().execute((DeviceImpl) device, deviceDataModelService.deviceConfigurationService().findDeviceConfiguration(destinationDeviceConfigId).get());
     }
 
     @Override

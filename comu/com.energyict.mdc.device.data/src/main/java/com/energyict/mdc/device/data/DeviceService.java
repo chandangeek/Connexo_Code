@@ -118,18 +118,19 @@ public interface DeviceService {
      * <b>NOTE:</b> Make sure you don't create your own transaction. This will be performed during the execution
      * of this method. Multiple transactions are required to perform Business Locks.
      *
-     * @param destinationDeviceConfiguration the configuration which should be applied
      * @param device                         the Device(s) to change their configuration
+     * @param destinationDeviceConfigId      the ID fo the DestinationDeviceConfig
+     * @param destinationDeviceConfigVersion the version to check
      * @return the given device with the new configuration applied
      */
-    public Device changeDeviceConfigurationForSingleDevice(DeviceConfiguration destinationDeviceConfiguration, Device device);
+    public Device changeDeviceConfigurationForSingleDevice(Device device, long destinationDeviceConfigId, long destinationDeviceConfigVersion);
 
     /**
      * Change the DeviceConfiguration for the given set of Devices to the provided destinationDeviceConfiguration.
      * The action will be queued and the processing is asynchronously.
      *
      * @param destinationDeviceConfiguration the configuration which should be applied
-     * @param device                        the Devices to change their configuration
+     * @param device                         the Devices to change their configuration
      */
     public void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, Device... device);
 
