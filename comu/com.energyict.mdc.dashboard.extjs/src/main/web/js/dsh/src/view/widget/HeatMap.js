@@ -173,7 +173,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
                         chartHeight = 80 + store.count() * 50
                         cmp.setHeight(chartHeight);
                         me.renderChart(cmp.getEl().down('.x-panel-body').dom, me.findBorders(store), chartHeight);
-                        me.loadChart(store, me.getCombo() ? me.getCombo().getDisplayValue() : 'Device type');
+                        me.loadChart(store, me.getCombo() ? me.getCombo().getDisplayValue() : Uni.I18n.translate('general.deviceType', 'DSH', 'Device type'));
                         me.show();
                         me.doLayout();
                     } else {
