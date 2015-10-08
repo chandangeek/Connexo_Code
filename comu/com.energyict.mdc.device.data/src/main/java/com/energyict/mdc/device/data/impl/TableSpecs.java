@@ -22,6 +22,8 @@ import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInActionImpl;
+import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
+import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -662,15 +664,35 @@ public enum TableSpecs {
         }
     },
 
+    DDC_CONFIGCHANGEREQUEST {
+        @Override
+        void addTo(DataModel dataModel) {
+            final Table<DeviceConfigChangeRequest> table = dataModel.addTable(name(), DeviceConfigChangeRequest.class);
+            table.map(DeviceConfigChangeRequestImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            Column config = table.column("DEVICECONFIG").number().notNull().add();
+            table.addAuditColumns();
+
+            table.primaryKey("PK_DDC_DCCREQUEST").on(idColumn).add();
+            table.foreignKey("FK_DDC_DCCREQUEST_CONF").
+                    on(config).
+                    references(DeviceConfiguration.class).
+                    map(DeviceConfigChangeRequestImpl.Fields.DEVICE_CONFIG_REFERENCE.fieldName()).
+                    onDelete(CASCADE).
+                    add();
+        }
+    },
+
     DDC_DEVICECONFIGCHANGEINACTION {
         @Override
         void addTo(DataModel dataModel) {
             final Table<DeviceConfigChangeInAction> table = dataModel.addTable(name(), DeviceConfigChangeInAction.class);
             table.map(DeviceConfigChangeInActionImpl.class);
             Column device = table.column("DEVICE").number().notNull().add();
-            Column config = table.column("DEVICECONFIG").number().notNull().add();
+            Column configRequest = table.column("DEVICECONFIGREQUEST").number().notNull().add();
             table.addAuditColumns();
-            table.primaryKey("PK_DDC_CONFIGCHANGEINACTIOn").on(device,config).add();
+
+            table.primaryKey("PK_DDC_CONFIGCHANGEINACTION").on(device,configRequest).add();
 
             table.foreignKey("FK_DDC_CONFCHANGACT_DEV").
                     on(device).
@@ -678,15 +700,16 @@ public enum TableSpecs {
                     map(DeviceConfigChangeInActionImpl.Fields.DEVICE_REFERENCE.fieldName()).
                     onDelete(CASCADE).
                     add();
-            table.foreignKey("FK_DDC_CONFCHANGACT_CONF").
-                    on(config).
-                    references(DeviceConfiguration.class).
-                    map(DeviceConfigChangeInActionImpl.Fields.DEVICE_CONFIG_REFERENCE.fieldName()).
+            table.foreignKey("FK_DDC_CONFCHANGREQ_CONF").
+                    on(configRequest).
+                    references(DDC_CONFIGCHANGEREQUEST.name()).
+                    map(DeviceConfigChangeInActionImpl.Fields.DEVICE_CONFIG_REQUEST_REFERENCE.fieldName()).
+                    reverseMap(DeviceConfigChangeRequestImpl.Fields.DEVICE_CONFIG_CHANGE_IN_ACTION.fieldName()).
+                    composition().
                     onDelete(CASCADE).
                     add();
         }
-    }
-
+    },
     ;
 
     abstract void addTo(DataModel component);

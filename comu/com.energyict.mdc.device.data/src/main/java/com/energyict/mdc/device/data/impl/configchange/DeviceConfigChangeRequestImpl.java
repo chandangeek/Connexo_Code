@@ -4,21 +4,23 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
- * Date: 06.10.15
- * Time: 16:18
+ * Date: 08.10.15
+ * Time: 11:43
  */
-public class DeviceConfigChangeInActionImpl implements DeviceConfigChangeInAction {
+public class DeviceConfigChangeRequestImpl implements DeviceConfigChangeRequest {
 
     public enum Fields {
-        DEVICE_REFERENCE("device"),
-        DEVICE_CONFIG_REQUEST_REFERENCE("deviceConfigChangeRequest");
+        DEVICE_CONFIG_REFERENCE("destinationDeviceConfiguration"),
+        DEVICE_CONFIG_CHANGE_IN_ACTION("deviceConfigChangeInActions")
+        ;
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -31,9 +33,10 @@ public class DeviceConfigChangeInActionImpl implements DeviceConfigChangeInActio
     }
 
     private final DataModel dataModel;
+    private Reference<DeviceConfiguration> destinationDeviceConfiguration = ValueReference.absent();
+    private List<DeviceConfigChangeInAction> deviceConfigChangeInActions = new ArrayList<>();
 
-    private Reference<Device> device = ValueReference.absent();
-    private Reference<DeviceConfigChangeRequest> deviceConfigChangeRequest = ValueReference.absent();
+    private long id;
 
     @SuppressWarnings("unused")
     private String userName;
@@ -45,15 +48,15 @@ public class DeviceConfigChangeInActionImpl implements DeviceConfigChangeInActio
     private Instant modTime;
 
     @Inject
-    public DeviceConfigChangeInActionImpl(DataModel dataModel){
+    public DeviceConfigChangeRequestImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
-    public DeviceConfigChangeInActionImpl init(Device device, DeviceConfigChangeRequest deviceConfigChangeRequest){
-        this.device.set(device);
-        this.deviceConfigChangeRequest.set(deviceConfigChangeRequest);
+    public DeviceConfigChangeRequestImpl init(DeviceConfiguration destinationDeviceConfiguration) {
+        this.destinationDeviceConfiguration.set(destinationDeviceConfiguration);
         return this;
     }
+
 
     @Override
     public void remove() {

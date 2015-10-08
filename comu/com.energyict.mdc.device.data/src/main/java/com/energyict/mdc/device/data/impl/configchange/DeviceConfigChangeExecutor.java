@@ -52,7 +52,6 @@ public final class DeviceConfigChangeExecutor {
      * @param destinationDeviceConfiguration the configuration to change to
      */
     private void prepareForChangeDeviceConfig(ServerDeviceForConfigChange device, DeviceConfiguration destinationDeviceConfiguration) {
-        //TODO check to lock here or somewhere else
         device.lock();
         device.validateDeviceCanChangeConfig(destinationDeviceConfiguration);
         device.createNewMeterActivation();
