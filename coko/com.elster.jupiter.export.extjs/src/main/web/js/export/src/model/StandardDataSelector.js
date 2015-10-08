@@ -12,6 +12,7 @@ Ext.define('Dxp.model.StandardDataSelector', {
         'exportWindow',
         'validatedDataOption',
         'readingTypes',
+        'eventTypeCodes',
         'exportContinuousData'
     ],
 

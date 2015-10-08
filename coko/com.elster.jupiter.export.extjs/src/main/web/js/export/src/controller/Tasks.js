@@ -873,7 +873,34 @@ Ext.define('Dxp.controller.Tasks', {
 
                             }
                             else if (record.getDataSelector().get('selectorType')==='DEFAULT_EVENTS'){
-                                //todo: implement event specific view
+                                var eventTypes = record.getStandardDataSelector().get('eventTypeCodes'),
+                                    eventTypesGrid = view.down('#eventTypesGridPanel');
+
+                                eventTypesGrid.getStore().removeAll();
+                                Ext.each(eventTypes, function (eventType) {
+                                    eventTypesGrid.getStore().add(eventType);
+                                });
+                                view.updateEventTypesGrid();
+
+                                exportPeriodCombo.store.load({
+                                    params: {
+                                        category: 'relativeperiod.category.dataExport'
+                                    },
+                                    callback: function () {
+                                        exportPeriodCombo.setValue(exportPeriodCombo.store.getById(record.getStandardDataSelector().data.exportPeriod.id));
+                                    }
+                                });
+                                deviceGroupCombo.store.load({
+                                    callback: function () {
+                                        if (this.getCount() === 0) {
+                                            deviceGroupCombo.allowBlank = true;
+                                            deviceGroupCombo.hide();
+                                            view.down('#no-device').show();
+                                        }
+                                        deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.getStandardDataSelector().data.deviceGroup.id));
+                                    }
+                                });
+                                continuousDataRadioGroup.setValue({exportContinuousData: record.getStandardDataSelector().get('exportContinuousData')});
                             }
                             fileFormatterCombo.setValue(fileFormatterCombo.store.getById(record.data.dataProcessor.name));
                             if (record.data.nextRun && (record.data.nextRun !== 0)) {
