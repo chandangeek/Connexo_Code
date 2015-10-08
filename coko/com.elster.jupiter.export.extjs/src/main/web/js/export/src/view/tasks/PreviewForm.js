@@ -130,6 +130,22 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                         }
                     },
                     {
+                        fieldLabel: Uni.I18n.translate('general.eventTypes', 'DES', 'Event types'),
+                        name: 'eventTypes',
+                        hidden: true,
+                        itemId: 'data-selector-eventTypes-preview',
+                        renderer: function (value) {
+                            if (value) {
+                                var tooltipText = '';
+                                Ext.Array.each(value, function (item) {
+                                    tooltipText += item.eventFilterCode + '<br>';
+                                });
+                                return Uni.I18n.translatePlural('general.nrOfEventTypes', value.length, 'DES', 'No event types', '1 event type', '{0} event types')
+                                    + '<span class="uni-icon-info-small" style="display: inline-block; width: 16px; height: 16px; margin: 0 0 0 10px" data-qtip="' + tooltipText + '"></span>';
+                            }
+                        }
+                    },
+                    {
                         fieldLabel: Uni.I18n.translate('general.exportWindow', 'DES', 'Export window'),
                         name: 'exportPeriod',
                         hidden: true,

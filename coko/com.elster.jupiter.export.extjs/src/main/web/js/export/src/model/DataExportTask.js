@@ -107,6 +107,17 @@ Ext.define('Dxp.model.DataExportTask', {
             }
         },
         {
+            name: 'eventTypes',
+            persist: false,
+            mapping: function (data) {
+                if ((data.standardDataSelector) && (data.standardDataSelector.eventTypeCodes)) {
+                    return data.standardDataSelector.eventTypeCodes;
+                } else {
+                    return null;
+                }
+            }
+        },
+        {
             name: 'lastRun_formatted',
             persist: false,
             mapping: function (data) {

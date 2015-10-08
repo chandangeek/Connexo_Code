@@ -49,7 +49,17 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
                 }
             }
         },
-
+        {
+            name: 'eventTypes',
+            persist: false,
+            mapping: function (data) {
+                if ((data.task.standardDataSelector) && (data.task.standardDataSelector.eventTypeCodes)) {
+                    return data.task.standardDataSelector.eventTypeCodes;
+                } else {
+                    return null;
+                }
+            }
+        },
         {
             name: 'deviceGroup',
             persist:false,
@@ -126,8 +136,8 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             mapping: function (data) {
                 if ((data.exportPeriodFrom && data.exportPeriodFrom !== 0) &&
                     (data.exportPeriodTo && data.exportPeriodTo !== 0)) {
-                    return 'From ' + Uni.DateTime.formatDateTimeShort(new Date(data.exportPeriodFrom)) +
-                        ' to ' + Uni.DateTime.formatDateTimeShort(new Date(data.exportPeriodTo));
+                    return 'From ' + Uni.DateTime.formatDateTimeLong(new Date(data.exportPeriodFrom)) +
+                        ' to ' + Uni.DateTime.formatDateTimeLong(new Date(data.exportPeriodTo));
                 }
                 return '-';
             }
@@ -155,7 +165,7 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             persist: false,
             convert: function(value,record){
                 if(record.data.task.standardDataSelector){
-                    return record.data.task.standardDataSelector.exportUpdate==='true'?
+                    return record.data.task.standardDataSelector.exportUpdate ?
                         Uni.I18n.translate('general.exportWithinWindowX', 'DES', "Export within the update window '{0}'",[record.data.task.standardDataSelector.updatePeriod?record.data.task.standardDataSelector.updatePeriod.name:Uni.I18n.translate('general.notDefined', 'DES', 'Not defined')]):
                         Uni.I18n.translate('general.noExportForUpdated', 'DES', 'Do not export');
                 } else {
@@ -163,6 +173,8 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
                 }
             }
         },
+
+
         {
             name: 'updatedValuesForPreview',
             persist: false,
