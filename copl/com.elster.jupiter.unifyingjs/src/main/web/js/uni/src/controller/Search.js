@@ -20,7 +20,8 @@ Ext.define('Uni.controller.Search', {
         'Uni.view.search.field.Selection',
         'Uni.view.search.field.Simple',
         'Uni.grid.column.search.DeviceType',
-        'Uni.grid.column.search.DeviceConfiguration'
+        'Uni.grid.column.search.DeviceConfiguration',
+        'Uni.controller.history.Search'
     ],
 
     refs: [
@@ -463,9 +464,8 @@ Ext.define('Uni.controller.Search', {
         me.applyFilters();
     },
 
-    applyFilters: function () {
+    getFilters: function() {
         var me = this,
-            searchResults = Ext.getStore('Uni.store.search.Results'),
             filters = [];
 
         me.filters.each(function (item) {
@@ -474,11 +474,18 @@ Ext.define('Uni.controller.Search', {
             }
         });
 
+        return filters;
+    },
+
+    applyFilters: function () {
+        var me = this,
+            searchResults = Ext.getStore('Uni.store.search.Results');
+
         me.getResultsGrid().down('pagingtoolbarbottom').resetPaging();
         me.getResultsGrid().down('pagingtoolbartop').resetPaging();
 
         searchResults.clearFilter(true);
-        searchResults.filter(filters, true);
+        searchResults.filter(me.getFilters(), true);
         searchResults.load();
     },
 
