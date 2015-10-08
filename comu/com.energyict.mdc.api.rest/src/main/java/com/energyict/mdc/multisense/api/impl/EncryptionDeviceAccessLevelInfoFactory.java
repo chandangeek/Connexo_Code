@@ -18,12 +18,10 @@ import javax.ws.rs.core.UriInfo;
 public class EncryptionDeviceAccessLevelInfoFactory extends SelectableFieldFactory<DeviceAccessLevelInfo, Pair<DeviceProtocolPluggableClass, DeviceAccessLevel>> {
 
     private final MdcPropertyUtils mdcPropertyUtils;
-    private final Thesaurus thesaurus;
 
     @Inject
-    public EncryptionDeviceAccessLevelInfoFactory(MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
+    public EncryptionDeviceAccessLevelInfoFactory(MdcPropertyUtils mdcPropertyUtils) {
         this.mdcPropertyUtils = mdcPropertyUtils;
-        this.thesaurus = thesaurus;
     }
 
     public DeviceAccessLevelInfo from(DeviceProtocolPluggableClass pluggableClass, DeviceAccessLevel authenticationDeviceAccessLevel, UriInfo uriInfo, Collection<String> fields) {
@@ -36,7 +34,7 @@ public class EncryptionDeviceAccessLevelInfoFactory extends SelectableFieldFacto
     protected Map<String, PropertyCopier<DeviceAccessLevelInfo, Pair<DeviceProtocolPluggableClass, DeviceAccessLevel>>> buildFieldMap() {
         Map<String, PropertyCopier<DeviceAccessLevelInfo, Pair<DeviceProtocolPluggableClass, DeviceAccessLevel>>> map = new HashMap<>();
         map.put("id", (deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.id = (long) pair.getLast().getId());
-        map.put("name", (deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.name = thesaurus.getStringBeyondComponent(pair.getLast().getTranslationKey(), pair.getLast().getTranslationKey()));
+        map.put("name", (deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.name = pair.getLast().getTranslation());
         map.put("properties", (deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(pair.getLast().getSecurityProperties(), TypedProperties.empty()));
         map.put("link", ((deviceAccessLevelInfo, deviceAccessLevel, uriInfo) ->
             deviceAccessLevelInfo.link = Link.fromUriBuilder(uriInfo.
