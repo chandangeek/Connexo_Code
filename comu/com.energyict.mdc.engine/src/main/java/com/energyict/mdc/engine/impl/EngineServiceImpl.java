@@ -177,7 +177,9 @@ public class EngineServiceImpl implements EngineService, InstallService, Transla
 
     @Override
     public DeviceCache newDeviceCache(Device device, DeviceProtocolCache deviceProtocolCache) {
-        return dataModel.getInstance(DeviceCacheImpl.class).initialize(device, deviceProtocolCache);
+        final DeviceCacheImpl deviceCache = dataModel.getInstance(DeviceCacheImpl.class).initialize(device, deviceProtocolCache);
+        deviceCache.save();
+        return deviceCache;
     }
 
     @Reference

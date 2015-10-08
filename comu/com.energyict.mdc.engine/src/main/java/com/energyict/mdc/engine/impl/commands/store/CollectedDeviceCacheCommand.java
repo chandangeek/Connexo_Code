@@ -45,8 +45,7 @@ public class CollectedDeviceCacheCommand extends DeviceCommandImpl {
                     actualDeviceCache.update();
                 }
                 else {
-                    DeviceCache actualDeviceCache = this.getEngineService().newDeviceCache(device, collectedDeviceCache);
-                    actualDeviceCache.save();
+                    this.getEngineService().newDeviceCache(device, collectedDeviceCache);
                 }
             }
             else {

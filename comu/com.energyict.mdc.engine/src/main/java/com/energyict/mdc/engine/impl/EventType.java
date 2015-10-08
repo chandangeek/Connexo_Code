@@ -90,7 +90,7 @@ public enum EventType {
                 .component(MasterDataService.COMPONENTNAME)
                 .category("Crud")
                 .scope("System");
-        this.addCustomProperties(builder).create().save();
+        this.addCustomProperties(builder).create();
     }
 
     @TransactionRequired

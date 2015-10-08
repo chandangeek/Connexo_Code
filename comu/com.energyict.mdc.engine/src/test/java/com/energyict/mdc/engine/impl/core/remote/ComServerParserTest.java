@@ -154,34 +154,32 @@ public class ComServerParserTest {
     }
 
     private OnlineComServer createTestOnlineComServer(EngineConfigurationService engineConfigurationService) {
-        OnlineComServer onlineComServer = engineConfigurationService.newOnlineComServerInstance();
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServer = engineConfigurationService.newOnlineComServerBuilder();
         String name = "online.comserver.energyict.com";
-        onlineComServer.setName(name);
-        onlineComServer.setActive(true);
-        onlineComServer.setServerLogLevel(ComServer.LogLevel.ERROR);
-        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.DEBUG);
-        onlineComServer.setChangesInterPollDelay(TimeDuration.seconds(18000));
-        onlineComServer.setSchedulingInterPollDelay(TimeDuration.seconds(60));
-        onlineComServer.setStoreTaskQueueSize(50);
-        onlineComServer.setStoreTaskThreadPriority(Thread.NORM_PRIORITY);
-        onlineComServer.setNumberOfStoreTaskThreads(1);
-        onlineComServer.save();
-        return onlineComServer;
+        onlineComServer.name(name);
+        onlineComServer.active(true);
+        onlineComServer.serverLogLevel(ComServer.LogLevel.ERROR);
+        onlineComServer.communicationLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.changesInterPollDelay(TimeDuration.seconds(18000));
+        onlineComServer.schedulingInterPollDelay(TimeDuration.seconds(60));
+        onlineComServer.storeTaskQueueSize(50);
+        onlineComServer.storeTaskThreadPriority(Thread.NORM_PRIORITY);
+        onlineComServer.numberOfStoreTaskThreads(1);
+        return onlineComServer.create();
     }
 
     private RemoteComServer createTestRemoteComServer (EngineConfigurationService engineConfigurationService) {
         OnlineComServer onlineComServer = this.createTestOnlineComServer(engineConfigurationService);
-        RemoteComServer remoteComServer = engineConfigurationService.newRemoteComServerInstance();
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = engineConfigurationService.newRemoteComServerBuilder();
         String name = "remote.comserver.energyict.com";
-        remoteComServer.setName(name);
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
-        remoteComServer.setCommunicationLogLevel(ComServer.LogLevel.ERROR);
-        remoteComServer.setChangesInterPollDelay(TimeDuration.seconds(1800));
-        remoteComServer.setSchedulingInterPollDelay(TimeDuration.seconds(600));
-        remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.save();
-        return remoteComServer;
+        remoteComServer.name(name);
+        remoteComServer.active(true);
+        remoteComServer.serverLogLevel(ComServer.LogLevel.DEBUG);
+        remoteComServer.communicationLogLevel(ComServer.LogLevel.ERROR);
+        remoteComServer.changesInterPollDelay(TimeDuration.seconds(1800));
+        remoteComServer.schedulingInterPollDelay(TimeDuration.seconds(600));
+        remoteComServer.onlineComServer(onlineComServer);
+        return remoteComServer.create();
     }
 
     private static class MockModule extends AbstractModule {

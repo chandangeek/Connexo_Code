@@ -123,18 +123,18 @@ public class ComPortParserTest {
     }
 
     private OutboundComPort createTestOnlineComServer(EngineConfigurationService engineConfigurationService) {
-        OnlineComServer onlineComServer = engineConfigurationService.newOnlineComServerInstance();
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = engineConfigurationService.newOnlineComServerBuilder();
         String name = "online.comserver.energyict.com";
-        onlineComServer.setName(name);
-        onlineComServer.setActive(true);
-        onlineComServer.setServerLogLevel(ComServer.LogLevel.ERROR);
-        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.DEBUG);
-        onlineComServer.setChangesInterPollDelay(TimeDuration.seconds(18000));
-        onlineComServer.setSchedulingInterPollDelay(TimeDuration.seconds(60));
-        onlineComServer.setStoreTaskQueueSize(50);
-        onlineComServer.setStoreTaskThreadPriority(Thread.NORM_PRIORITY);
-        onlineComServer.setNumberOfStoreTaskThreads(1);
-        onlineComServer.save();
+        onlineComServerBuilder.name(name);
+        onlineComServerBuilder.active(true);
+        onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.ERROR);
+        onlineComServerBuilder.communicationLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServerBuilder.changesInterPollDelay(TimeDuration.seconds(18000));
+        onlineComServerBuilder.schedulingInterPollDelay(TimeDuration.seconds(60));
+        onlineComServerBuilder.storeTaskQueueSize(50);
+        onlineComServerBuilder.storeTaskThreadPriority(Thread.NORM_PRIORITY);
+        onlineComServerBuilder.numberOfStoreTaskThreads(1);
+        final OnlineComServer onlineComServer = onlineComServerBuilder.create();
         return onlineComServer.newOutboundComPort("TCP", 5).active(true).comPortType(ComPortType.TCP).add();
     }
 

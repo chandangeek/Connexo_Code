@@ -257,18 +257,17 @@ public class WebSocketQueryApiServiceTest {
 
     private OnlineComServer createOnlineComServer(String hostName) {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            OnlineComServer onlineComServer = engineConfigurationService.newOnlineComServerInstance();
-            onlineComServer.setName(hostName);
-            onlineComServer.setActive(true);
-            onlineComServer.setActive(true);
-            onlineComServer.setServerLogLevel(ComServer.LogLevel.ERROR);
-            onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.ERROR);
-            onlineComServer.setChangesInterPollDelay(new TimeDuration(5, TimeDuration.TimeUnit.HOURS));
-            onlineComServer.setSchedulingInterPollDelay(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
-            onlineComServer.setStoreTaskQueueSize(ComServer.MINIMUM_STORE_TASK_QUEUE_SIZE);
-            onlineComServer.setNumberOfStoreTaskThreads(ComServer.MINIMUM_NUMBER_OF_STORE_TASK_THREADS);
-            onlineComServer.setStoreTaskThreadPriority(ComServer.MINIMUM_STORE_TASK_THREAD_PRIORITY);
-            onlineComServer.save();
+            OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = engineConfigurationService.newOnlineComServerBuilder();
+            onlineComServerBuilder.name(hostName);
+            onlineComServerBuilder.active(true);
+            onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.ERROR);
+            onlineComServerBuilder.communicationLogLevel(ComServer.LogLevel.ERROR);
+            onlineComServerBuilder.changesInterPollDelay(new TimeDuration(5, TimeDuration.TimeUnit.HOURS));
+            onlineComServerBuilder.schedulingInterPollDelay(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
+            onlineComServerBuilder.storeTaskQueueSize(ComServer.MINIMUM_STORE_TASK_QUEUE_SIZE);
+            onlineComServerBuilder.numberOfStoreTaskThreads(ComServer.MINIMUM_NUMBER_OF_STORE_TASK_THREADS);
+            onlineComServerBuilder.storeTaskThreadPriority(ComServer.MINIMUM_STORE_TASK_THREAD_PRIORITY);
+            final OnlineComServer onlineComServer = onlineComServerBuilder.create();
             ctx.commit();
             return onlineComServer;
         }
@@ -283,16 +282,15 @@ public class WebSocketQueryApiServiceTest {
     }
 
     private RemoteComServer doCreateRemoteComServer(String hostName, OnlineComServer onlineComServer) {
-        RemoteComServer remoteComServer = engineConfigurationService.newRemoteComServerInstance();
-        remoteComServer.setName(hostName);
-        remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.setActive(true);
-        remoteComServer.setServerLogLevel(ComServer.LogLevel.ERROR);
-        remoteComServer.setCommunicationLogLevel(ComServer.LogLevel.ERROR);
-        remoteComServer.setChangesInterPollDelay(new TimeDuration(5, TimeDuration.TimeUnit.HOURS));
-        remoteComServer.setSchedulingInterPollDelay(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
-        remoteComServer.save();
-        return remoteComServer;
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = engineConfigurationService.newRemoteComServerBuilder();
+        remoteComServer.name(hostName);
+        remoteComServer.onlineComServer(onlineComServer);
+        remoteComServer.active(true);
+        remoteComServer.serverLogLevel(ComServer.LogLevel.ERROR);
+        remoteComServer.communicationLogLevel(ComServer.LogLevel.ERROR);
+        remoteComServer.changesInterPollDelay(new TimeDuration(5, TimeDuration.TimeUnit.HOURS));
+        remoteComServer.schedulingInterPollDelay(new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
+        return remoteComServer.create();
     }
 
     private RemoteComServer createRemoteComServerWithOneOutboundComPort(String hostName, OnlineComServer onlineComServer) {
