@@ -44,18 +44,17 @@ final class CreateUsagePointTransaction implements Transaction<UsagePoint> {
 
     private UsagePoint doPerform(ServiceCategory serviceCategory) {
 
-        UsagePointBuilder upb = serviceCategory.newUsagePointBuilder();
+        UsagePointBuilder upb = serviceCategory.newUsagePoint(info.mRID);
         UsagePoint usagePoint = upb.withAliasName(info.aliasName)
                 .withDescription(info.description)
                 .withIsSdp(info.isSdp)
                 .withIsVirtual(info.isVirtual)
-                .withMRID(info.mRID)
                 .withName(info.name)
                 .withOutageRegion(info.outageRegion)
                 .withReadCycle(info.readCycle)
                 .withReadRoute(info.readRoute)
                 .withServicePriority(info.servicePriority)
-                .build();
+                .create();
 
         switch (serviceCategory.getKind()) {
             case ELECTRICITY:
