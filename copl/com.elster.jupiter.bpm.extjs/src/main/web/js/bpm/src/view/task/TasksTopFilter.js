@@ -38,12 +38,11 @@ Ext.define('Bpm.view.task.TasksTopFilter', {
                 dataIndex: 'process',
                 emptyText: Uni.I18n.translate('bpm.filter.process', 'BPM', 'Process'),
                 multiSelect: true,
-                displayField: 'name',
-                valueField: 'name',
+                displayField: 'id',
+                valueField: 'id',
+                width: 240,
                 store: 'Bpm.store.task.TasksFilterProcesses'
             }
-
-
         ]
         me.callParent(arguments);
     }

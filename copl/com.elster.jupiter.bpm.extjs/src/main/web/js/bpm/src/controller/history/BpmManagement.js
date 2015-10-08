@@ -18,7 +18,31 @@ Ext.define('Bpm.controller.history.BpmManagement', {
                     route: 'taksmanagementtasks',
                     controller: 'Bpm.controller.Task',
                     action: 'showTasks',
-                    privileges: Bpm.privileges.BpmManagement.view
+                    privileges: Bpm.privileges.BpmManagement.view,
+                    items: {
+                        openTask: {
+                            title: Uni.I18n.translate('bpm.task.openTask', 'BPM', 'Open task'),
+                            route: '{taskId}/openTask',
+                            controller: 'Bpm.controller.OpenTask',
+                            privileges: Bpm.privileges.BpmManagement.execute,
+                            action: 'showOpenTask',
+                            params: {
+                                sort: '',
+                                user: '',
+                                dueDate:'',
+                                status:'',
+                                process: ''
+                            },
+                            callback: function (route) {
+                                this.getApplication().on('openTask', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
+                        }
+                    }
                 }
             }
         }

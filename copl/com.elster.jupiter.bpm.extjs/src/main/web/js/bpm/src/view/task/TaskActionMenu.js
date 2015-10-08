@@ -6,9 +6,9 @@ Ext.define('Bpm.view.task.TaskActionMenu', {
     shadow: false,
     items: [
         {
-            itemId: 'menu-view-log',
-            text: Uni.I18n.translate('bpm.menu.TBD', 'BPM', 'TBD'),
-            action: 'viewLog'
+            itemId: 'menu-open-task',
+            text: Uni.I18n.translate('bpm.menu.openTask', 'BPM', 'Open task'),
+            action: 'openTask'
         }
     ]
 });

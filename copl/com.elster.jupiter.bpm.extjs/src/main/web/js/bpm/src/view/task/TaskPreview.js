@@ -6,7 +6,7 @@ Ext.define('Bpm.view.task.TaskPreview', {
         'Bpm.view.task.TaskPreviewForm',
         'Bpm.view.task.TaskActionMenu'
     ],
-    /*tools: [
+    tools: [
         {
             xtype: 'button',
             text: Uni.I18n.translate('general.actions', 'BPM', 'Actions'),
@@ -15,7 +15,7 @@ Ext.define('Bpm.view.task.TaskPreview', {
                 xtype: 'bpm-task-action-menu'
             }
         }
-    ],*/
+    ],
 
     items: {
         itemId: 'frm-preview-task',

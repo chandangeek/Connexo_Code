@@ -65,7 +65,7 @@ Ext.define('Bpm.view.task.TaskPreviewForm', {
                             {
                                 xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('bpm.task.status', 'BPM', 'Status'),
-                                name: 'status',
+                                name: 'statusDisplay',
                                 itemId: 'bpm-preview-status'
                             },
                             {

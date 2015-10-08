@@ -58,9 +58,12 @@ Ext.define('Bpm.model.task.Task', {
         },
         {
             name: 'status',
+            type: 'string'
+        },
+        {
+            name: 'statusDisplay',
             type: 'string',
             convert: function (value, record) {
-
                 switch (value){
                     case 'Created':
                     case 'Ready':
@@ -90,5 +93,12 @@ Ext.define('Bpm.model.task.Task', {
             name: 'processInstancesId',
             type: 'string'
         }
-    ]
+    ],
+    proxy: {
+        type: 'rest',
+        url: '/api/bpm/runtime/tasks',
+        reader: {
+            type: 'json'
+        }
+    }
 });

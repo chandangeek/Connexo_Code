@@ -14,7 +14,7 @@ Ext.define('Bpm.view.task.TasksGrid', {
         var me = this;
         me.columns = [
             {
-                header: Uni.I18n.translate('bpm.task.name', 'BPM', 'Name'),
+                header: Uni.I18n.translate('bpm.task.name', 'BPM', 'Task'),
                 dataIndex: 'name',
                 flex: 2
             },
@@ -44,7 +44,7 @@ Ext.define('Bpm.view.task.TasksGrid', {
             },
             {
                 header: Uni.I18n.translate('bpm.task.status', 'BPM', 'Status'),
-                dataIndex: 'status',
+                dataIndex: 'statusDisplay',
                 flex: 1
             },
             {
@@ -59,15 +59,14 @@ Ext.define('Bpm.view.task.TasksGrid', {
                     }
                     return result;
                 }
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                width: 100,
+                menu: {
+                    xtype: 'bpm-task-action-menu'
+                }
             }
-            /*,
-             {
-             xtype: 'uni-actioncolumn',
-             width: 100,
-             menu: {
-             xtype: 'bpm-task-action-menu'
-             }
-             }*/
         ];
 
         me.dockedItems = [
@@ -75,14 +74,14 @@ Ext.define('Bpm.view.task.TasksGrid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('bpm.task.pagingtoolbartop.displayMsg', 'BPM', '{0} - {1} of {2} task'),
-                displayMoreMsg: Uni.I18n.translate('bpm.task.pagingtoolbartop.displayMoreMsg', 'BPM', '{0} - {1} of more than {2} task'),
+                displayMsg: Uni.I18n.translate('bpm.task.pagingtoolbartop.displayMsg', 'BPM', '{0} - {1} of {2} tasks'),
+                displayMoreMsg: Uni.I18n.translate('bpm.task.pagingtoolbartop.displayMoreMsg', 'BPM', '{0} - {1} of more than {2} tasks'),
                 emptyMsg: Uni.I18n.translate('bpm.task.pagingtoolbartop.emptyMsg', 'BPM', 'There are no task to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
-                itemsPerPageMsg: Uni.I18n.translate('bpm.task.pagingtoolbarbottom.itemsPerPage', 'BPM', 'Task per page'),
+                itemsPerPageMsg: Uni.I18n.translate('bpm.task.pagingtoolbarbottom.itemsPerPage', 'BPM', 'Tasks per page'),
                 dock: 'bottom'
             }
         ];

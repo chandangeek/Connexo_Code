@@ -2,7 +2,8 @@ Ext.define('Bpm.controller.Task', {
     extend: 'Ext.app.Controller',
     requires: [
         'Bpm.privileges.BpmManagement',
-        'Bpm.controller.FilterSortTasks'
+        'Bpm.controller.FilterSortTasks',
+        'Bpm.controller.OpenTask'
     ],
     views: [
         'Bpm.view.task.Tasks'
@@ -29,10 +30,10 @@ Ext.define('Bpm.controller.Task', {
         this.control({
             'bpm-tasks bpm-tasks-grid': {
                 select: this.showPreview
-            }/*,
-             'bpm-task-action-menu': {
-             click: this.chooseAction
-             }*/
+            },
+            'bpm-task-action-menu': {
+                click: this.chooseAction
+            }
         });
         this.application.getController('Bpm.controller.FilterSortTasks');
     },
@@ -41,7 +42,7 @@ Ext.define('Bpm.controller.Task', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             queryString = Uni.util.QueryString.getQueryStringValues(false),
-            filterSortContoller = this.application.getController('Bpm.controller.FilterSortTasks'),
+            filterSortController = this.application.getController('Bpm.controller.FilterSortTasks'),
             view, sort = [];
 
         sort = [{property: 'dueDate', direction: Uni.component.sort.model.Sort.DESC},
@@ -89,8 +90,7 @@ Ext.define('Bpm.controller.Task', {
             });
 
             me.getApplication().fireEvent('changecontentevent', view);
-            filterSortContoller.updateSortingToolbar();
-            //filterSortContoller.setDefaultSort();
+            filterSortController.updateSortingToolbar();
         }
     },
 
@@ -103,23 +103,34 @@ Ext.define('Bpm.controller.Task', {
         Ext.suspendLayouts();
         preview.setTitle(record.get('name'));
         previewForm.loadRecord(record);
-        //   preview.down('bpm-task-action-menu').record = record;
+        preview.down('bpm-task-action-menu').record = record;
         Ext.resumeLayouts();
+    },
+
+    chooseAction: function (menu, item) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            queryString = Uni.util.QueryString.getQueryStringValues(false),
+            route,
+            record;
+
+        record = menu.record || me.getMainGrid().getSelectionModel().getLastSelected();
+        router.arguments.taskId = record.get('id');
+
+        switch (item.action) {
+            case 'openTask':
+                route = 'workspace/taksmanagementtasks/openTask';
+                break;
+        }
+
+        route && (route = router.getRoute(route));
+        route.params.sort = queryString.sort;
+        route.params.user = queryString.user;
+        route.params.dueDate = queryString.dueDate;
+        route.params.status = queryString.status;
+        route.params.process = queryString.process;
+
+        route && route.forward(router.arguments);
     }
-    /*,
 
-     chooseAction: function (menu, item) {
-     var me = this,
-     router = me.getController('Uni.controller.history.Router'),
-     route;
-
-     router.arguments.importServiceId = menu.record.get('importServiceId');
-     router.arguments.occurrenceId = menu.record.get('occurrenceId');
-     if (item.action === 'viewLog') {
-     route = 'administration/importservices/importservice/history/occurrence';
-     }
-
-     route && (route = router.getRoute(route));
-     route && route.forward(router.arguments);
-     }*/
 });
