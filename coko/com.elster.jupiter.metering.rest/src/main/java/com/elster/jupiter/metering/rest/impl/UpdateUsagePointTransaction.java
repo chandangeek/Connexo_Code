@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.rest.UsagePointInfo;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.users.User;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
