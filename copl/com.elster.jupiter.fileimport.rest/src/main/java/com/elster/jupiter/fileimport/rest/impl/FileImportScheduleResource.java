@@ -128,10 +128,9 @@ public class FileImportScheduleResource {
                     Object value = propertyUtils.findPropertyValue(spec, info.properties);
                     builder.addProperty(spec.getName()).withValue(value);
                 });
-
-        ImportSchedule importSchedule = builder.build();
+        ImportSchedule importSchedule = null;
         try (TransactionContext context = transactionService.getContext()) {
-            importSchedule.save();
+            importSchedule = builder.create();
             context.commit();
         }
         return Response.status(Response.Status.CREATED).entity(fileImportScheduleInfoFactory.asInfo(importSchedule)).build();
@@ -177,7 +176,7 @@ public class FileImportScheduleResource {
             importSchedule.setScheduleExpression(ScanFrequency.toScheduleExpression(info.scanFrequency, cronExpressionParser));
             updateProperties(info, importSchedule);
 
-            importSchedule.save();
+            importSchedule.update();
             context.commit();
         }
         return Response.status(Response.Status.OK).entity(fileImportScheduleInfoFactory.asInfo(importSchedule)).build();

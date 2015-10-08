@@ -100,7 +100,7 @@ public class FileImportScheduleResourceTest extends FileImportApplicationTest {
         when(importerFactory.getDestinationName()).thenReturn("Test destination");
 
         ImportSchedule importSchedule = mockImportSchedule(12L);
-        when(builder.build()).thenReturn(importSchedule);
+        when(builder.create()).thenReturn(importSchedule);
 
         Response response = target("/importservices").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
